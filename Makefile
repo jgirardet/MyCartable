@@ -31,7 +31,7 @@ pdb:
 
 
 run:
-	poetry run python main.py
+	poetry run fbs run
 
 isort:
 	poetry run isort main.py

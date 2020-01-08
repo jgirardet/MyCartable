@@ -1,19 +1,37 @@
 .PHONY: build
 
-MODULE:=mydevoirs
+ifndef VIRTUAL_ENV
+export VIRTUAL_ENV=.venv
+endif
+
+BIN=$(VIRTUAL_ENV)/bin
+SITE_PACKAGE = $VIRTUAL_ENV)/lib/python3.7/site-packages
+export PATH := $(BIN):$(PATH)
 
 all: dev test
-
 install:
 	python3.7 -m venv .venv
-	.venv/bin/pip install -U pip
-	.venv/bin/pip install -r requirements/base.txt
+	pip install -U pip
+	pip install -r requirements/base.txt
+
+qrc:
+	pyside2-rcc src/main/resources/qml.qrc -o src/main/python/qrc.py
+
+run: qrc
+	fbs run
 
 devtools:
-	.venv/bin/pip install -U ipython pdbpp autoflake toml markdown
+	pip install -U ipython # pdbpp autoflake toml markdown
 
 dev:  install devtools
 
+
+freeze:
+	fbs clean
+	fbs freeze
+
+run_binary: build
+	target/MyCartable/MyCartable
 test:
 	poetry run pytest
 
@@ -29,9 +47,6 @@ cov_html: cov
 pdb:
 	poetry run pytest --pdb
 
-
-run:
-	poetry run fbs run
 
 isort:
 	poetry run isort main.py
@@ -50,16 +65,11 @@ remove_unused_imports: isort
 
 clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
 
-clean-full: clean clean-venv
 
 clean-build: ## remove build artifacts
-	rm -fr build/
-	rm -fr dist/
-	rm -fr .eggs/
+	rm -fr target/
 	find . -name '*.egg-info' -exec rm -fr {} +
 	find . -name '*.egg' -exec rm -f {} +
-	find . -name 'requirements*' -exec rm -f {} +
-	rm -rf docs/_build/
 
 
 
@@ -75,17 +85,7 @@ clean-test: ## remove test and coverage artifacts
 	rm -fr htmlcov/
 	rm -rf .pytest_cache/
 
-clean-venv:
-	rm -rf .venv/
 
-ipython:
-	.venv/bin/ipython
-
-build:
-	poetry run python scripted/build_executable.py
-
-run_binary: build
-	./dist/MyDevoirs
 
 
 version_patch:

@@ -7,6 +7,9 @@ from PySide2.QtCore import (
 from PySide2.QtCore import QObject,  Slot
 import qrc
 
+from package.database import init_database
+
+
 class MatiereModel(QObject):
 
     @Slot(result=str)
@@ -16,6 +19,9 @@ class MatiereModel(QObject):
 
 
 if __name__ == "__main__":
+
+    db = init_database()
+
     appctxt = ApplicationContext()
     engine = QQmlApplicationEngine()
     qmlRegisterType(MatiereModel, "MatiereModel", 1, 0, "MatiereModel")

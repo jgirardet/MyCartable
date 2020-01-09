@@ -6,24 +6,20 @@ import QtQuick.Controls.Material 2.12
 import MatiereModel 1.0
 
 ApplicationWindow {
-    id: page
+    id: root
     width: 800
-    height: 400
+    height: 600
     visible: true
 
-    MatiereModel {id: matiereModel}
-     Label {
-    id: tex
-    text: "Coucouaaaggg"
+
+
+    header : MainMenuBar {
+            id: mainMenuBar
+
     }
 
-    Button {
-    y: 50
-    id: but
-    height: 50
-    text: "Bye"//matiereModel.hello()
-    onClicked: tex.text = matiereModel.hello()
-    }
+
+
 
 
  }

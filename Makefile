@@ -21,7 +21,7 @@ run: qrc
 	fbs run
 
 devtools:
-	pip install -U ipython # pdbpp autoflake toml markdown
+	pip install -U ipython qmlview # pdbpp autoflake toml markdown
 
 dev:  install devtools
 
@@ -68,6 +68,7 @@ clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and 
 
 clean-build: ## remove build artifacts
 	rm -fr target/
+	rm src/target/main/python/qrc.py
 	find . -name '*.egg-info' -exec rm -fr {} +
 	find . -name '*.egg' -exec rm -f {} +
 

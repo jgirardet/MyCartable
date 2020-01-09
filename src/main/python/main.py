@@ -13,12 +13,17 @@ class MatiereModel(QObject):
     def hello(self):
         return "Hello"
 
+
+
+
+
 if __name__ == "__main__":
     appctxt = ApplicationContext()
     engine = QQmlApplicationEngine()
     qmlRegisterType(MatiereModel, "MatiereModel", 1, 0, "MatiereModel")
 
     engine.load(QUrl("qrc:///qml/main.qml"))
+    engine.addImportPath("qrc:/qml/")
 
     if not engine.rootObjects():
         sys.exit(-1)

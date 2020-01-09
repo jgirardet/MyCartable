@@ -1,5 +1,7 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource prefix="/qml">
     <file alias="main.qml">../resources/base/qml/main.qml</file>
+    <file alias="MainMenuBar.qml">../resources/base/qml/MainMenuBar.qml</file>
+
 </qresource>
 </RCC>

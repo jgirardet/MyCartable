@@ -15,8 +15,6 @@ class MatiereModel(QObject):
 
 
 
-
-
 if __name__ == "__main__":
     appctxt = ApplicationContext()
     engine = QQmlApplicationEngine()

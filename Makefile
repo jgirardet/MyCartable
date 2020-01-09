@@ -32,8 +32,9 @@ freeze:
 
 run_binary: build
 	target/MyCartable/MyCartable
+
 test:
-	poetry run pytest
+	pytest -s
 
 cov:
 	rm -rf .pytest_cache

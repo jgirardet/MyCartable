@@ -2,6 +2,7 @@
 <qresource prefix="/qml">
     <file alias="main.qml">../resources/base/qml/main.qml</file>
     <file alias="MainMenuBar.qml">../resources/base/qml/MainMenuBar.qml</file>
+    <file alias="MatiereBar.qml">../resources/base/qml/MatiereBar.qml</file>
 
 </qresource>
 </RCC>

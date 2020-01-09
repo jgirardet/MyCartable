@@ -3,29 +3,50 @@ import sys
 from PySide2.QtQml import QQmlApplicationEngine, qmlRegisterType
 from PySide2.QtCore import (
     QUrl,
-)
-from PySide2.QtCore import QObject,  Slot
+    Property, QObject, Slot,
+    Signal)
+
 import qrc
 
-from package.database import init_database
+import package.database
+from pony.orm import db_session
 
 
-class MatiereModel(QObject):
+class DatabaseObject(QObject):
+    fakenotify = Signal()
 
+    def __init__(self):
+        super().__init__()
+        self.db = package.database.db
+
+
+    @Property('QVariantList', notify=fakenotify)
+    def matiereNoms(self):
+        with db_session:
+            return self.db.Matiere.noms()
+
+
+    @db_session
     @Slot(result=str)
-    def hello(self):
-        return "Hello"
+    def matiereTest(self):
+        return self.db.Matiere.noms()[0]
+
+
+
 
 
 
 if __name__ == "__main__":
 
-    db = init_database()
+    package.database.db = package.database.init_database()
+    from package.database.factory import populate_database
+    populate_database()
 
     appctxt = ApplicationContext()
     engine = QQmlApplicationEngine()
-    qmlRegisterType(MatiereModel, "MatiereModel", 1, 0, "MatiereModel")
-
+    # qmlRegisterType(MatiereModel, "MatiereModel", 1, 0, "MatiereModel")
+    ddb = DatabaseObject()
+    engine.rootContext().setContextProperty("ddb", ddb)
     engine.load(QUrl("qrc:///qml/main.qml"))
     engine.addImportPath("qrc:/qml/")
 

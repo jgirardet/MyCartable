@@ -3,6 +3,8 @@
     <file alias="main.qml">../resources/base/qml/main.qml</file>
     <file alias="MainMenuBar.qml">../resources/base/qml/MainMenuBar.qml</file>
     <file alias="MatiereBar.qml">../resources/base/qml/MatiereBar.qml</file>
+    <file alias="ActiviteListView.qml">../resources/base/qml/ActiviteListView.qml</file>
+    <file alias="RecentsListView.qml">../resources/base/qml/RecentsListView.qml</file>
 
 </qresource>
 </RCC>

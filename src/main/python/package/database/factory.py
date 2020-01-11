@@ -25,11 +25,12 @@ def f_activite(famille=None, matiere=None):
         return db.Activite(nom=nom, famille=famille, matiere=matiere)
 
 
-def f_page(created=None, activite=None):
+def f_page(created=None, activite=None, titre=None):
     created = created or gen.datetime.datetime(start=2019, end=2020)
     activite = activite or f_activite()
+    titre = titre or " ".join(gen.text.words(5))
     with db_session:
-        return db.Page(created=created, activite=activite)
+        return db.Page(created=created, activite=activite, titre=titre)
 
 def f_section(created=None, page=None, content=None, content_type=None):
     created = created or gen.datetime.datetime(start=2019, end=2020)

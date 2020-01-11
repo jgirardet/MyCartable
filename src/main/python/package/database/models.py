@@ -1,7 +1,6 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
-from pony.orm import select, Database, PrimaryKey, Optional, Required, Set
-
+from pony.orm import select, Database, PrimaryKey, Optional, Required, Set, desc
 
 
 def init_models(db: Database):
@@ -34,10 +33,23 @@ def init_models(db: Database):
     class Page(db.Entity):
         id = PrimaryKey(int, auto=True)
         created = Required(datetime, default = datetime.now)
+        modified = Optional(datetime)
+        titre = Required(str)
         activite = Required('Activite')
         sections = Set("Section")
 
+        @classmethod
+        def recents(cls):
+            query = select(p for p in cls if p.modified < datetime.now() - timedelta(days=30)).order_by(desc(Page.modified))
+            res = []
+            for p in query:
+                a = p.to_dict()
+                a['matiere'] = p.activite.matiere.nom
+                res.append(a)
+            return res
 
+        def before_insert(self):
+            self.modified = self.created
 
     class Section(db.Entity):
         id = PrimaryKey(int, auto=True)
@@ -50,8 +62,10 @@ def init_models(db: Database):
 
         def before_insert(self):
             self.modified = self.created
+            self.page.modified = self.modified
 
         def before_update(self):
             self.modified = datetime.now()
+            self.page.modified = self.modified
 
 

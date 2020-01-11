@@ -1,3 +1,8 @@
 # Bug:
     - la requete matiere_noms dans prendre en compte l'annee
     - definir comment gerer l'annee en global
+
+
+# QML:
+    Non Urgent :
+        listview overlap le bas dans recents

@@ -14,6 +14,7 @@ from pony.orm import db_session
 
 class DatabaseObject(QObject):
     fakenotify = Signal()
+    fakenotify2 = Signal()
 
     def __init__(self):
         super().__init__()
@@ -25,11 +26,19 @@ class DatabaseObject(QObject):
         with db_session:
             return self.db.Matiere.noms()
 
+    @Property('QVariantList', notify=fakenotify2)
+    def recents(self):
+        with db_session:
+            return self.db.Page.recents()
 
-    @db_session
-    @Slot(result=str)
-    def matiereTest(self):
-        return self.db.Matiere.noms()[0]
+
+
+    @Slot(result=list)
+    def withslot(self):
+        with db_session:
+            return self.db.Page.recents()
+
+
 
 
 

@@ -2,7 +2,7 @@ import QtQuick 2.12
 import QtQuick.Controls 2.12
 
 ListView {
-    id: rencentsListView
+    signal itemClicked(int id)
     headerPositioning: ListView.OverlayHeader
     spacing: 5
     height: parent.height
@@ -11,9 +11,10 @@ ListView {
     delegate: RoundButton {
                 height: 40
         radius: 10
-        text: modelData['matiere']  + ": " + modelData["titre"]
-        width: rencentsListView.width
-    }
+        text: model.display['matiere']+model.display['matiereNom']  + ": " + model.display["titre"] + "[" + model.display['activite']
+        width: ListView.view.width
+        onClicked: ListView.view.itemClicked(model.display.id)
+        }
 //    delegate: Rectangle {
 //        width: rencentsListView.width
 //        height: 40

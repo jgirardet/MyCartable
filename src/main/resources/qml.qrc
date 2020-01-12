@@ -5,6 +5,11 @@
     <file alias="MatiereBar.qml">../resources/base/qml/MatiereBar.qml</file>
     <file alias="ActiviteListView.qml">../resources/base/qml/ActiviteListView.qml</file>
     <file alias="RecentsListView.qml">../resources/base/qml/RecentsListView.qml</file>
-
+    <file alias="PageToolBar.qml">../resources/base/qml/PageToolBar.qml</file>
+    <file alias="PageListView.qml">../resources/base/qml/PageListView.qml</file>
+    <file alias="MatiereComboBox.qml">../resources/base/qml/MatiereComboBox.qml</file>
+</qresource>
+<qresource prefix="/icons">
+    <file alias="hdd.png">../icons/base/hdd.png</file>
 </qresource>
 </RCC>

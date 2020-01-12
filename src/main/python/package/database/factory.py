@@ -1,15 +1,31 @@
+from datetime import datetime, timedelta
+
 import mimesis
 import random
 from pony.orm import db_session
+
 gen = mimesis.Generic("fr")
 
 from package.database import db
 
-def f_annee():
-        with db_session:
-            return db.Annee(niveau="cm1")
 
-def f_matiere(nom = None, annee=None):
+def f_datetime(start=None, end=None):
+    end = end or datetime.now()
+    start = start or end - timedelta(days=400)
+    now = datetime.now()
+
+    while True:
+        res = gen.datetime.datetime(start=start.year, end=now.year + 1)
+        if start < res <= end:
+            return res
+
+
+def f_annee():
+    with db_session:
+        return db.Annee(niveau="cm1")
+
+
+def f_matiere(nom=None, annee=None):
     nom = nom or random.choice(["Français", "Math", "Anglais", "Histoire"])
     annee = annee or f_annee()
     with db_session:
@@ -18,7 +34,7 @@ def f_matiere(nom = None, annee=None):
 
 def f_activite(famille=None, matiere=None):
     activites = ((0, "Exercice"), (1, "Leçon"), (2, "Divers"))
-    famille = famille or random.choice(activites)[0]
+    famille = famille if famille is not None  else random.choice(activites)[0]
     nom = activites[famille][1]
     matiere = matiere or f_matiere()
     with db_session:
@@ -26,17 +42,18 @@ def f_activite(famille=None, matiere=None):
 
 
 def f_page(created=None, activite=None, titre=None):
-    created = created or gen.datetime.datetime(start=2019, end=2020)
+    created = created or f_datetime()
     activite = activite or f_activite()
     titre = titre or " ".join(gen.text.words(5))
     with db_session:
         return db.Page(created=created, activite=activite, titre=titre)
 
+
 def f_section(created=None, page=None, content=None, content_type=None):
-    created = created or gen.datetime.datetime(start=2019, end=2020)
+    created = created or f_datetime()
     page = page or f_page()
     content = content or gen.text.sentence()
-    content_type= content_type or "str"
+    content_type = content_type or "str"
     with db_session:
         return db.Section(created=created, page=page)
 
@@ -44,7 +61,12 @@ def f_section(created=None, page=None, content=None, content_type=None):
 @db_session
 def populate_database():
     annee = f_annee()
-    matieres = [f_matiere("Math", annee),f_matiere("Français", annee),f_matiere("Histoire", annee),f_matiere("Anglais", annee),]
+    matieres = [
+        f_matiere("Math", annee),
+        f_matiere("Français", annee),
+        f_matiere("Histoire", annee),
+        f_matiere("Anglais", annee),
+    ]
     activites = []
     for m in matieres:
         for i in range(3):

@@ -1,6 +1,10 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Window 2.12
+import RecentsModel 1.0
+
+
+
 
 ApplicationWindow {
     id: root
@@ -12,8 +16,47 @@ ApplicationWindow {
     property real lateralsColumnWidth: width * (1 - pageColumnWidthRatio) / 2
     property real pageColumnWidth: width * pageColumnWidthRatio
 
+    // Global models
+    RecentsModel{id: recentsModel}
+
     header: MainMenuBar {
         id: mainMenuBar
+    }
+
+    Item {
+        id: _itemDispatcher
+
+        signal newPage(int activite)
+        signal changePage(int id)
+        signal changeMatiere(string matiereNom)
+
+         onNewPage: {
+            var np = ddb.newPage(0)
+            // Todo set PageListView
+            recentsModel.modelReset()
+            // Todo set partie matiere de droite
+         }
+
+         onChangePage: {
+            var page = ddb.getPageById(id)
+            print(page.id, page.titre, page.matiere)
+            changeMatiere(page.matiereNom)
+            _comboBoxSelectMatiere.currentIndex = _comboBoxSelectMatiere.find(page.matiereNom)
+            print(page.activite)
+         }
+
+         onChangeMatiere: {
+            print(matiereNom)
+         }
+//         Connections {
+//            target: ddb
+//            onSNewPage: {
+//            print(lid['az'])
+//            print(ddb.withslot())
+//            }
+//         }
+
+
     }
 
     Item {
@@ -36,23 +79,21 @@ ApplicationWindow {
                 width: parent.width
                 spacing: 5
 
-                Rectangle {
+                RoundButton {
                     id: recentsHeader
                     height: root.headersHeight
                     width: root.lateralsColumnWidth
-                    RoundButton {
-                        text: "Récents"
-                        anchors.fill: parent
-                        radius: 10
-                        onClicked: console.log(root.height, baseItem.height, recentsRectangle.height, recentsColumn.height, recentsListView.height)
-                    }
+                    text: "Récents"
+                    radius: 10
                  }
 
                 RecentsListView {
                     id: recentsListView
-//                    model: ddb.recents
-                    model: ddb.withslot()
+                    model: recentsModel
+                    onItemClicked: _itemDispatcher.changePage(id)
+
                 }
+
             }
         }
 
@@ -69,18 +110,20 @@ ApplicationWindow {
             Column {
                 anchors.fill: parent
                 spacing: 5
-                ToolBar {
+
+                PageToolBar {
                     id: pageToolBar
                     width: pageColumn.width
                     height: root.headersHeight
-                }
+                    onNouveau: _itemDispatcher.newPage(2)
+                   }
                 Rectangle {
                     width: parent.width
                     height: parent.height -pageToolBar.height -parent.spacing
                     color: "green"
+                    PageListView{model:[1,2,3,4,5,]}
                 }
             }
-        }
 
         Rectangle {
             id: matiereRectangle
@@ -102,23 +145,23 @@ ApplicationWindow {
                     id: matiereSelect
                     height: root.headersHeight
                     width: root.lateralsColumnWidth
-                    Button {
-                        text: "Français"
-                        anchors.fill: parent
-                        onClicked: console.log(matiereRectangle.height, activitesColumn.height, matiereSelect.height,lessonsListView.height)
-                         }
+                    MatiereComboBox {
+                        id: _comboBoxSelectMatiere
+                        model: ddb.matiereNoms()
+                        onCurrentTextChanged: _itemDispatcher.changeMatiere(currentText)
                     }
+                }
 
                 ActiviteListView {
-                    id: lessonsListView
-                    model: ['omkmokom', 'omkmokoem', 'omkmoekom', 'omkmokozm', 'omkzmokom', 'omkmoekom', 'omkmoekom', 'omkmozkom', 'omkmokzom', 'omkmokzom', 'omkzmokom', 'omkmoekom', 'omkmoekom', 'omkmozkom', 'omkmokzom', 'omkmokzom']
+                    id: _listViewLessons
+                    model: ddb.getPagesByMatiereAndActivite(_comboBoxSelectMatiere.currentText, 0)
                     commonHeight: 30
                     headerText: "Leçons"
                     headerColor: "pink"
                     height: activitesColumn.activiteListViewsHeight
                 }
                 ActiviteListView {
-                    model: ['omkmokom', 'omkmokoem', 'omkmoekom', 'omkmokozm', 'omkzmokom', 'omkmoekom', 'omkmoekom', 'omkmozkom', 'omkmokzom', 'omkmokzom', 'omkzmokom', 'omkmoekom', 'omkmoekom', 'omkmozkom', 'omkmokzom', 'omkmokzom']
+                    model: ddb.getPagesByMatiereAndActivite(_comboBoxSelectMatiere.currentText, 1)
                     commonHeight: 30
                     headerText: "Exercices"
                     headerColor: "orange"
@@ -127,4 +170,7 @@ ApplicationWindow {
              }
         }
     }
+
+
+}
 }

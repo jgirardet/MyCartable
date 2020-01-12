@@ -1,7 +1,8 @@
 import PySide2
-from PySide2.QtCore import QAbstractListModel, Qt
+from PySide2.QtCore import QAbstractListModel, Qt, Slot
 from mimesis import typing
 from pony.orm import db_session
+from package.database import db
 
 
 class BaseDatabaseModel(QAbstractListModel):
@@ -39,7 +40,30 @@ class BaseDatabaseModel(QAbstractListModel):
 
 class PageModel(BaseDatabaseModel):
 
-    db = BaseDatabaseModel
+    db = db.Page
 
     def populate(self):
         pass
+
+
+class RecentsModel(BaseDatabaseModel):
+
+    db = db.Page
+
+    def populate(self):
+        self._datas = self.db.recents()
+
+    @Slot()
+    def modelReset(self):
+        self.beginResetModel()
+        self._datas = None
+        self.endResetModel()
+        print("force reload")
+
+
+class ActiviteModel(BaseDatabaseModel):
+
+    db = db.Activite
+
+    def populate(self):
+        self._datas = [p.to_dict() for p in self.db.select()]

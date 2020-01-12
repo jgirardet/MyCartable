@@ -22,7 +22,7 @@ ListView {
     height: parent.height / 2
     clip: true
     delegate: Button {
-        text: modelData
+        text: modelData.titre
         width: ListView.view.width
         height: commonHeight
     }

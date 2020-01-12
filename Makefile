@@ -36,6 +36,11 @@ run_binary: build
 test:
 	pytest -s
 
+black:
+	black src/ tests/
+
+
+
 cov:
 	rm -rf .pytest_cache
 	poetry run coverage run -m pytest
@@ -54,8 +59,7 @@ isort:
 	poetry run isort -rc mydevoirs
 	poetry run isort -rc tests
 
-black:
-	poetry run black mydevoirs tests main.py
+
 
 style: isort black
 

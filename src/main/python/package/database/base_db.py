@@ -5,7 +5,6 @@ from pony.orm import Database, db_session
 from .models import init_models
 
 
-
 def ensure_database_directory(loc):
     loc = Path(loc)
     if not loc.parent.exists():

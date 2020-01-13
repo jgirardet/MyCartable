@@ -27,34 +27,13 @@ ApplicationWindow {
         id: _itemDispatcher
 
         signal newPage(int activite)
-        signal changePage(int id)
-        signal changeMatiere(string matiereNom)
 
          onNewPage: {
             var np = ddb.newPage(1)
-            ddb.currentMatiere = 3
             // Todo set PageListView
             recentsModel.modelReset()
             // Todo set partie matiere de droite
          }
-
-         onChangePage: {
-            var page = ddb.getPageById(id)
-            print(page.id, page.titre, page.matiere)
-            changeMatiere(page.matiereNom)
-            _comboBoxSelectMatiere.currentIndex = _comboBoxSelectMatiere.find(page.matiereNom)
-            print(page.activite)
-         }
-
-
-//         Connections {
-//            target: ddb
-//            onSNewPage: {
-//            print(lid['az'])
-//            print(ddb.withslot())
-//            }
-//         }
-
 
     }
 
@@ -91,7 +70,8 @@ ApplicationWindow {
                     model: recentsModel
                     onItemClicked: {
                         ddb.currentMatiere = matiere;
-                        itemDispatcher.changePage(id)
+                        print(matiere)
+                        ddb.currentPage = {"page_id": id}
                         }
 
                 }
@@ -150,9 +130,10 @@ ApplicationWindow {
                     MatiereComboBox {
                         id: _comboBoxSelectMatiere
                         model: ddb.matieresList
-                        onCurrentTextChanged:ddb.currentMatiere=currentText
-                        //onCurrentTextChanged: _itemDispatcher.changeMatiere(currentText)
+                        currentIndex: ddb.getMatiereIndexFromId(ddb.currentMatiere)
+                        onActivated:ddb.setCurrentMatiereFromString(currentText)
                     }
+
                 }
 
                 ActiviteListView {

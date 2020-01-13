@@ -2,22 +2,34 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ff0032c6-46c7-4a00-84bd-8b85886e4610" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/python/package/utils.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/python/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/python/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/python/package/database/factory.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/python/package/database/factory.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/python/package/database/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/python/package/database/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/base/qml/MatiereComboBox.qml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/base/qml/MatiereComboBox.qml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/base/qml/RecentsListView.qml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/base/qml/RecentsListView.qml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/base/qml/main.qml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/base/qml/main.qml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_models.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_models.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="UPDATE_TYPE" value="MERGE" />
   </component>
   <component name="ProjectId" id="1W81IMeZ0MLdniNiPJZFL2GrQzt" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showExcludedFiles" value="true" />
@@ -28,49 +40,39 @@
     <property name="NewWatcherDialog.advanced.open" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/main/resources/base/qml" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/Makefile" />
     <property name="restartRequiresConfirmation" value="false" />
     <property name="run.code.analysis.last.selected.profile" value="aDefault" />
     <property name="settings.editor.selected.configurable" value="watcher.settings" />
   </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/main/icons/base" />
+      <recent name="$PROJECT_DIR$/src/main" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src/main/resources" />
       <recent name="$PROJECT_DIR$/src/main/resources/base/qml" />
       <recent name="$PROJECT_DIR$/src/main/python/qml" />
     </key>
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/src/main/resources/base/qml" />
-      <recent name="$PROJECT_DIR$/src/main/icons/base" />
-      <recent name="$PROJECT_DIR$/src/main" />
-    </key>
   </component>
   <component name="RunManager" selected="Makefile.run">
     <configuration name="black" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
-      <makefile filename="black" target="" workingDirectory="$PROJECT_DIR$" arguments="">
+      <makefile filename="$PROJECT_DIR$/Makefile" target="black" workingDirectory="$PROJECT_DIR$" arguments="">
         <envs />
       </makefile>
       <method v="2" />
     </configuration>
-    <configuration name="devtools" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile" temporary="true">
-      <makefile filename="$PROJECT_DIR$/Makefile" target="devtools" workingDirectory="" arguments="">
-        <envs />
-      </makefile>
-      <method v="2" />
-    </configuration>
-    <configuration name="conftest" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="__init__" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="MyCartable" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/main/python/package/database" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tests/conftest.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/main/python/package/database/__init__.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="true" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -142,6 +144,24 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="utils" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="MyCartable" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/main/python/package" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/main/python/package/utils.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="qmlview" type="QML_SCENE_RUN_CONFIGURATION" factoryName="Qml Scene" qmlscene=".venv/bin/qmlview" filename="" size="None" rendering="Default" scaling="Default" slowAnimations="false">
       <method v="2" />
     </configuration>
@@ -164,21 +184,21 @@
       <item itemvalue="Makefile.black" />
       <item itemvalue="Makefile.run" />
       <item itemvalue="Makefile.pytest -s" />
-      <item itemvalue="Makefile.devtools" />
-      <item itemvalue="Python.conftest" />
       <item itemvalue="Python.factory" />
       <item itemvalue="Python.qrc" />
       <item itemvalue="Python.test_models" />
       <item itemvalue="Python tests.pytest  -s" />
       <item itemvalue="Qml Scene.qmlview" />
+      <item itemvalue="Python.utils" />
+      <item itemvalue="Python.__init__" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.factory" />
-        <item itemvalue="Python.factory" />
-        <item itemvalue="Python.factory" />
-        <item itemvalue="Python.factory" />
-        <item itemvalue="Python.conftest" />
+        <item itemvalue="Python.utils" />
+        <item itemvalue="Python.utils" />
+        <item itemvalue="Python.utils" />
+        <item itemvalue="Python.__init__" />
+        <item itemvalue="Python.utils" />
       </list>
     </recent_temporary>
   </component>
@@ -254,12 +274,12 @@
       <option name="project" value="LOCAL" />
       <updated>1578702123728</updated>
     </task>
-    <task id="LOCAL-00008" summary="start recents">
-      <created>1578912517241</created>
+    <task id="LOCAL-00008" summary="go on">
+      <created>1578869686733</created>
       <option name="number" value="00008" />
       <option name="presentableId" value="LOCAL-00008" />
       <option name="project" value="LOCAL" />
-      <updated>1578912517241</updated>
+      <updated>1578869686733</updated>
     </task>
     <option name="localTasksCounter" value="9" />
     <servers />
@@ -272,17 +292,18 @@
     <MESSAGE value="test factory&#10;start tabmatiere" />
     <MESSAGE value="global layout" />
     <MESSAGE value="start recents" />
-    <option name="LAST_COMMIT_MESSAGE" value="start recents" />
+    <MESSAGE value="go on" />
+    <option name="LAST_COMMIT_MESSAGE" value="go on" />
   </component>
   <component name="WindowStateProjectService">
     <state x="657" y="243" key="#Unnamed" timestamp="1578518829082">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="657" y="243" key="#Unnamed/0.0.1920.1040@0.0.1920.1040" timestamp="1578518829082" />
-    <state x="331" y="171" width="1081" height="745" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1578766300541">
+    <state x="331" y="171" width="1081" height="745" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1578948515207">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="331" y="171" width="1081" height="745" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1578766300541" />
+    <state x="331" y="171" width="1081" height="745" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1578948515207" />
     <state x="655" y="310" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1578786002403">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
@@ -299,11 +320,10 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="701" y="354" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.0.1920.1040@0.0.1920.1040" timestamp="1578749967226" />
-    <state x="594" y="27" width="697" height="801" key="CommitChangelistDialog2" timestamp="1578912516979">
-      <screen x="0" y="0" width="1920" height="1053" />
+    <state x="594" y="27" key="CommitChangelistDialog2" timestamp="1578869686604">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="594" y="27" key="CommitChangelistDialog2/0.0.1920.1040@0.0.1920.1040" timestamp="1578869661070" />
-    <state x="594" y="27" width="697" height="801" key="CommitChangelistDialog2/0.0.1920.1053@0.0.1920.1053" timestamp="1578912516979" />
+    <state x="594" y="27" key="CommitChangelistDialog2/0.0.1920.1040@0.0.1920.1040" timestamp="1578869686604" />
     <state x="580" y="288" width="758" height="714" key="EditFileWatcherDialog" timestamp="1578766341234">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
@@ -312,30 +332,26 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="698" y="293" key="EnvironmentVariablesDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1578522541513" />
-    <state x="743" y="261" key="FileChooserDialogImpl" timestamp="1578766296382">
+    <state x="743" y="261" key="FileChooserDialogImpl" timestamp="1578948441023">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="743" y="261" key="FileChooserDialogImpl/0.0.1920.1040@0.0.1920.1040" timestamp="1578766296382" />
-    <state width="1874" height="280" key="GridCell.Tab.0.bottom" timestamp="1578937738763">
-      <screen x="0" y="0" width="1920" height="1053" />
+    <state x="743" y="261" key="FileChooserDialogImpl/0.0.1920.1040@0.0.1920.1040" timestamp="1578948441023" />
+    <state width="1874" height="207" key="GridCell.Tab.0.bottom" timestamp="1578951309808">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1874" height="247" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1578869661098" />
-    <state width="1874" height="280" key="GridCell.Tab.0.bottom/0.0.1920.1053@0.0.1920.1053" timestamp="1578937738763" />
-    <state width="1874" height="280" key="GridCell.Tab.0.center" timestamp="1578937738761">
-      <screen x="0" y="0" width="1920" height="1053" />
+    <state width="1874" height="207" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1578951309808" />
+    <state width="1874" height="207" key="GridCell.Tab.0.center" timestamp="1578951309808">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1874" height="247" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1578869661098" />
-    <state width="1874" height="280" key="GridCell.Tab.0.center/0.0.1920.1053@0.0.1920.1053" timestamp="1578937738761" />
-    <state width="1874" height="280" key="GridCell.Tab.0.left" timestamp="1578937738760">
-      <screen x="0" y="0" width="1920" height="1053" />
+    <state width="1874" height="207" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1578951309808" />
+    <state width="1874" height="207" key="GridCell.Tab.0.left" timestamp="1578951309807">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1874" height="247" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1578869661098" />
-    <state width="1874" height="280" key="GridCell.Tab.0.left/0.0.1920.1053@0.0.1920.1053" timestamp="1578937738760" />
-    <state width="1874" height="280" key="GridCell.Tab.0.right" timestamp="1578937738762">
-      <screen x="0" y="0" width="1920" height="1053" />
+    <state width="1874" height="207" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1578951309807" />
+    <state width="1874" height="207" key="GridCell.Tab.0.right" timestamp="1578951309808">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1874" height="247" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1578869661098" />
-    <state width="1874" height="280" key="GridCell.Tab.0.right/0.0.1920.1053@0.0.1920.1053" timestamp="1578937738762" />
+    <state width="1874" height="207" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1578951309808" />
     <state width="1874" height="312" key="GridCell.Tab.1.bottom" timestamp="1578612949532">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
@@ -352,6 +368,14 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state width="1874" height="312" key="GridCell.Tab.1.right/0.0.1920.1040@0.0.1920.1040" timestamp="1578612949532" />
+    <state x="188" y="87" key="MergeDialog" timestamp="1578939329082">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="188" y="87" key="MergeDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1578939329082" />
+    <state x="666" y="226" key="MultipleFileMergeDialog" timestamp="1578939329101">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="666" y="226" key="MultipleFileMergeDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1578939329101" />
     <state x="743" y="146" key="RollbackChangesDialog" timestamp="1578591427434">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
@@ -360,22 +384,21 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="154" y="153" width="1308" height="733" key="SettingsEditor/0.0.1920.1040@0.0.1920.1040" timestamp="1578766346103" />
-    <state x="556" y="253" width="802" height="524" key="Vcs.Push.Dialog.v2" timestamp="1578912519291">
-      <screen x="0" y="0" width="1920" height="1053" />
-    </state>
-    <state x="556" y="250" key="Vcs.Push.Dialog.v2/0.0.1920.1040@0.0.1920.1040" timestamp="1578702124856" />
-    <state x="556" y="253" width="802" height="524" key="Vcs.Push.Dialog.v2/0.0.1920.1053@0.0.1920.1053" timestamp="1578912519291" />
-    <state x="622" y="347" key="com.intellij.ide.util.TipDialog" timestamp="1578828702370">
+    <state x="556" y="250" key="Vcs.Push.Dialog.v2" timestamp="1578869688594">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="622" y="347" key="com.intellij.ide.util.TipDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1578828702370" />
-    <state x="751" y="433" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1578656755763">
+    <state x="556" y="250" key="Vcs.Push.Dialog.v2/0.0.1920.1040@0.0.1920.1040" timestamp="1578869688594" />
+    <state x="622" y="347" key="com.intellij.ide.util.TipDialog" timestamp="1578939298150">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="751" y="433" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.0.1920.1040@0.0.1920.1040" timestamp="1578656755763" />
-    <state x="623" y="229" width="672" height="678" key="search.everywhere.popup" timestamp="1578867219535">
+    <state x="622" y="347" key="com.intellij.ide.util.TipDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1578939298150" />
+    <state x="751" y="433" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1578939310654">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="623" y="229" width="672" height="678" key="search.everywhere.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1578867219535" />
+    <state x="751" y="433" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.0.1920.1040@0.0.1920.1040" timestamp="1578939310654" />
+    <state x="623" y="229" width="672" height="678" key="search.everywhere.popup" timestamp="1578947399393">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="623" y="229" width="672" height="678" key="search.everywhere.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1578947399393" />
   </component>
 </project>

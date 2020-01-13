@@ -3,7 +3,6 @@ from datetime import datetime, timedelta
 from pony.orm import select, Database, PrimaryKey, Optional, Required, Set, desc, flush
 
 
-
 def init_models(db: Database):
     class Annee(db.Entity):
         id = PrimaryKey(int, auto=True)
@@ -31,15 +30,14 @@ def init_models(db: Database):
         def pages_by_matiere_and_famille(cls, matiere_id, famille):
             matiere = db.Matiere.get(id=matiere_id)
             if matiere:
-                activite = db.Activite.get(lambda p: p.matiere.id==matiere_id and p.famille==famille)
+                activite = db.Activite.get(
+                    lambda p: p.matiere.id == matiere_id and p.famille == famille
+                )
             else:
                 return []
             if activite:
                 return [p.to_dict() for p in activite.pages.order_by(Page.created)]
             return []
-
-
-
 
     class Page(db.Entity):
         id = PrimaryKey(int, auto=True)

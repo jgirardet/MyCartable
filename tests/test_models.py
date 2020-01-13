@@ -80,7 +80,7 @@ class TestPage:
             "titre": "bl",
             "activite": 1,
             "matiere": a.matiere.id,
-            "matiereNom": a.matiere.nom
+            "matiereNom": a.matiere.nom,
         }
 
     def test_nouvelle_page(self, ddb):
@@ -121,7 +121,6 @@ class TestActivite:
         # different matiere
         f_page()
 
-
         pages = ddb.Activite.pages_by_matiere_and_famille(m.id, 0)
         for d in pages:
             assert d in controle
@@ -130,7 +129,6 @@ class TestActivite:
         # f = f_activite(matiere=m, famille=0)
         # print(m, f)
         # f.to_dict()
-
 
         # pages = ddb.Activite.pages_by_matiere_and_famille(m.id, 0)
         # assert len(pages)==5

@@ -39,8 +39,6 @@ test:
 black:
 	black src/ tests/
 
-
-
 cov:
 	rm -rf .pytest_cache
 	poetry run coverage run -m pytest

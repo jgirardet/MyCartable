@@ -11,9 +11,9 @@ ListView {
     delegate: RoundButton {
                 height: 40
         radius: 10
-        text: model.display['matiere']+model.display['matiereNom']  + ": " + model.display["titre"] + "[" + model.display['activite']
+        text: "mat id  : " + model.display['matiere']+ "//" +model.display['matiereNom']  + ": " + model.display["titre"] + "[" + model.display['activite']
         width: ListView.view.width
-        onClicked: ListView.view.itemClicked(model.display.id, model.display.id)
+        onClicked: ListView.view.itemClicked(model.display.id, model.display.matiere)
         }
 //    delegate: Rectangle {
 //        width: rencentsListView.width

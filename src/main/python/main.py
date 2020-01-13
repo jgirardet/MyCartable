@@ -14,10 +14,26 @@ from pony.orm import db_session
 class DatabaseObject(QObject):
     fakenotify = Signal()
     recentsChanged = Signal()
+    matiereChanged = Signal()
+
 
     def __init__(self):
         super().__init__()
         self.db = package.database.db
+
+    @Property(int)
+    def currentMatiere(self, notify=matiereChanged):
+        if not hasattr(self, "matiere_en_cours"):
+            self._currentMatiere = 1
+        return self._currentMatiere
+
+    @currentMatiere.setter
+    def current_matiere_set(self, value):
+        if isinstance(value, str):
+            pass
+        elif isinstance(value, int)
+            self._currentMatiere = value
+
 
     # @Property("QVariantList", notify=fakenotify)
     # def matiereNoms(self):

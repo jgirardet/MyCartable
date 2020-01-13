@@ -31,7 +31,8 @@ ApplicationWindow {
         signal changeMatiere(string matiereNom)
 
          onNewPage: {
-            var np = ddb.newPage(0)
+            var np = ddb.newPage(1)
+            ddb.currentMatiere = 3
             // Todo set PageListView
             recentsModel.modelReset()
             // Todo set partie matiere de droite
@@ -83,7 +84,7 @@ ApplicationWindow {
                     id: recentsHeader
                     height: root.headersHeight
                     width: root.lateralsColumnWidth
-                    text: "Récents"
+                    text: "Récents" + ddb.currentMatiere
                     radius: 10
                  }
 

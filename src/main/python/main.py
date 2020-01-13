@@ -8,44 +8,54 @@ from PySide2.QtCore import QUrl, Property, QObject, Slot, Signal
 import qrc
 
 import package.database
-from pony.orm import db_session
+from pony.orm import db_session, select
 
 
 class DatabaseObject(QObject):
     fakenotify = Signal()
-    recentsChanged = Signal()
-    matiereChanged = Signal()
+    matiereListChanged = Signal()
 
 
     def __init__(self):
         super().__init__()
         self.db = package.database.db
+        self.matieres_dict =self.build_matiere_dict()
+        print(self.matieres_dict)
+
+
+    currentMatiereChanged = Signal()
 
     @Property(int)
-    def currentMatiere(self, notify=matiereChanged):
-        if not hasattr(self, "matiere_en_cours"):
+    def currentMatiere(self, notify=currentMatiereChanged):
+        if not hasattr(self, "_currentMatiere"):
             self._currentMatiere = 1
         return self._currentMatiere
 
     @currentMatiere.setter
-    def current_matiere_set(self, value):
+    def currentMatiere_set(self, value):
         if isinstance(value, str):
-            pass
-        elif isinstance(value, int)
+            self._currentMatiere = self.matieres_dict[value]
+        elif isinstance(value, int):
             self._currentMatiere = value
 
 
-    # @Property("QVariantList", notify=fakenotify)
-    # def matiereNoms(self):
-    #     with db_session:
-    #         return self.db.Matiere.noms()
+    @Property("QVariantList", notify=matiereListChanged)
+    def matieresList(self):
+        return list(self.matieres_dict.keys())
 
-    @Property("QVariantList", notify=recentsChanged)
-    def recents(self):
-        return [1, 2, 3, 4, 5, 6, 7, 8]
+    @Slot()
+    def matieresListUpdate(self):
+        from package.database.factory import f_matiere
+        f_matiere(annee=1, nom="fzefzef").to_dict()
+
+        self.matieres_dict = self.build_matiere_dict()
+        self.matiereListChanged.emit()
+
+    def build_matiere_dict(self):
         with db_session:
-            return self.db.Page.recents()
-
+            return {
+                p.nom: p.id for p in self.db.Matiere.select()
+            }
 
     sNewPage  = Signal('QVariantMap', arguments=['lid'])
     #

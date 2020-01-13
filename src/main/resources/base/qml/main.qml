@@ -46,9 +46,7 @@ ApplicationWindow {
             print(page.activite)
          }
 
-         onChangeMatiere: {
-            print(matiereNom)
-         }
+
 //         Connections {
 //            target: ddb
 //            onSNewPage: {
@@ -84,14 +82,17 @@ ApplicationWindow {
                     id: recentsHeader
                     height: root.headersHeight
                     width: root.lateralsColumnWidth
-                    text: "Récents" + ddb.currentMatiere
+                    text: ddb.currentMatiere //"Récents"
                     radius: 10
                  }
 
                 RecentsListView {
                     id: recentsListView
                     model: recentsModel
-                    onItemClicked: _itemDispatcher.changePage(id)
+                    onItemClicked: {
+                        ddb.currentMatiere = matiere;
+                        itemDispatcher.changePage(id)
+                        }
 
                 }
 
@@ -148,8 +149,9 @@ ApplicationWindow {
                     width: root.lateralsColumnWidth
                     MatiereComboBox {
                         id: _comboBoxSelectMatiere
-                        model: ddb.matiereNoms()
-                        onCurrentTextChanged: _itemDispatcher.changeMatiere(currentText)
+                        model: ddb.matieresList
+                        onCurrentTextChanged:ddb.currentMatiere=currentText
+                        //onCurrentTextChanged: _itemDispatcher.changeMatiere(currentText)
                     }
                 }
 

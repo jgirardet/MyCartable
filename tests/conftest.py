@@ -2,6 +2,9 @@ import pytest
 import sys
 from pathlib import Path
 
+from PySide2.QtCore import QObject
+from PySide2.QtQml import QQmlProperty
+from fbs_runtime.application_context.PySide2 import ApplicationContext
 from pony.orm import db_session, delete, commit
 
 
@@ -12,7 +15,7 @@ def pytest_sessionstart():
     sys.path.append(str(parent / "src" / "main" / "python"))
     sys.path.append(str(Path(__file__).parent))
     import package.database
-
+    print(sys.path)
     package.database.db = package.database.init_database()
 
 
@@ -44,3 +47,43 @@ def reset_db(database_no_reset):
             database_no_reset.execute(
                 f"UPDATE SQLITE_SEQUENCE  SET  SEQ = 0 WHERE NAME = '{entity._table_}';"
             )
+
+class QRootWrapper:
+    def __init__(self, root):
+        self.root =root
+
+    def  __getattr__(self, item):
+        if item != "root":
+            obj = self.root.findChild(QObject, item)
+            return QObjectWrapper(item)
+        else:
+            return super().__getattr__(item)
+class QObjectWrapper:
+    def __init__(self, obj):
+        self.obj = obj
+
+    def __getattr__(self, item):
+        return QQmlProperty.read(self.obj, item)
+
+    def __setattr__(self, key, value):
+        if key != "obj":
+            QObject.setProperty(self.obj, key, value)
+        else:
+            super().__setattr__(key, value)
+
+
+@pytest.fixture()
+def engine(database):
+    def setup():
+        from main import main_setup
+        from package.database_object import DatabaseObject
+
+        appctxt = ApplicationContext()
+        ddb = DatabaseObject(database)
+        engine = main_setup(ddb)
+        root = engine.rootObjects()[0]
+        assert root
+        root.W = QObjectWrapper(root)
+        root.ddb = ddb
+        return root
+    return setup

@@ -61,6 +61,7 @@ ApplicationWindow {
 
                 RoundButton {
                     id: recentsHeader
+                    objectName: "recentsHeader"
                     height: root.headersHeight
                     width: root.lateralsColumnWidth
                     text: ddb.currentMatiere //"Récents"
@@ -126,10 +127,12 @@ ApplicationWindow {
 
                 Rectangle {
                     id: matiereSelect
+                    objectName : "matiereSelect"
                     height: root.headersHeight
                     width: root.lateralsColumnWidth
                     MatiereComboBox {
                         id: _comboBoxSelectMatiere
+                        objectName: "_comboBoxSelectMatiere"
                         model: ddb.matieresListNom
                         currentIndex: ddb.getMatiereIndexFromId(ddb.currentMatiere)
                         onActivated:ddb.setCurrentMatiereFromString(currentText)

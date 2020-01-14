@@ -8,6 +8,7 @@ LOG = logging.getLogger(__name__)
 
 
 class DatabaseObject(QObject):
+    objectName="ddb"
     fakenotify = Signal()
     matiereListChanged = Signal()
 

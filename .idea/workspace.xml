@@ -2,16 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ff0032c6-46c7-4a00-84bd-8b85886e4610" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/python/package/utils.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/python/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/python/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/python/package/database/factory.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/python/package/database/factory.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/python/package/database/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/python/package/database/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/base/qml/MatiereComboBox.qml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/base/qml/MatiereComboBox.qml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/base/qml/RecentsListView.qml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/base/qml/RecentsListView.qml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/python/package/database_object.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/python/package/database_object.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/base/qml/main.qml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/base/qml/main.qml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_models.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/conftest.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/conftest.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/fixtures.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/fixtures.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/qml/test_RecentsListView.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/qml/test_RecentsListView.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,6 +36,7 @@
     <property name="NewWatcherDialog.advanced.open" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="com.intellij.ide.scratch.LRUPopupBuilder$1/New Scratch File" value="TEXT" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/Makefile" />
     <property name="restartRequiresConfirmation" value="false" />
     <property name="run.code.analysis.last.selected.profile" value="aDefault" />
@@ -56,7 +53,7 @@
       <recent name="$PROJECT_DIR$/src/main/python/qml" />
     </key>
   </component>
-  <component name="RunManager" selected="Makefile.run">
+  <component name="RunManager" selected="Makefile.pytest -s">
     <configuration name="black" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
       <makefile filename="$PROJECT_DIR$/Makefile" target="black" workingDirectory="$PROJECT_DIR$" arguments="">
         <envs />
@@ -67,6 +64,9 @@
       <module name="MyCartable" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/main/python/package/database" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -148,6 +148,9 @@
       <module name="MyCartable" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/main/python/package" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -187,10 +190,10 @@
       <item itemvalue="Python.factory" />
       <item itemvalue="Python.qrc" />
       <item itemvalue="Python.test_models" />
-      <item itemvalue="Python tests.pytest  -s" />
-      <item itemvalue="Qml Scene.qmlview" />
       <item itemvalue="Python.utils" />
       <item itemvalue="Python.__init__" />
+      <item itemvalue="Python tests.pytest  -s" />
+      <item itemvalue="Qml Scene.qmlview" />
     </list>
     <recent_temporary>
       <list>
@@ -281,7 +284,21 @@
       <option name="project" value="LOCAL" />
       <updated>1578869686733</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="add property">
+      <created>1578951376116</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1578951376116</updated>
+    </task>
+    <task id="LOCAL-00010" summary="add property">
+      <created>1578951395486</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1578951395486</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -293,7 +310,8 @@
     <MESSAGE value="global layout" />
     <MESSAGE value="start recents" />
     <MESSAGE value="go on" />
-    <option name="LAST_COMMIT_MESSAGE" value="go on" />
+    <MESSAGE value="add property" />
+    <option name="LAST_COMMIT_MESSAGE" value="add property" />
   </component>
   <component name="WindowStateProjectService">
     <state x="657" y="243" key="#Unnamed" timestamp="1578518829082">
@@ -320,10 +338,10 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="701" y="354" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.0.1920.1040@0.0.1920.1040" timestamp="1578749967226" />
-    <state x="594" y="27" key="CommitChangelistDialog2" timestamp="1578951376045">
+    <state x="594" y="27" key="CommitChangelistDialog2" timestamp="1578951395433">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="594" y="27" key="CommitChangelistDialog2/0.0.1920.1040@0.0.1920.1040" timestamp="1578951376045" />
+    <state x="594" y="27" key="CommitChangelistDialog2/0.0.1920.1040@0.0.1920.1040" timestamp="1578951395433" />
     <state x="580" y="288" width="758" height="714" key="EditFileWatcherDialog" timestamp="1578766341234">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
@@ -336,22 +354,22 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="743" y="261" key="FileChooserDialogImpl/0.0.1920.1040@0.0.1920.1040" timestamp="1578948441023" />
-    <state width="1874" height="207" key="GridCell.Tab.0.bottom" timestamp="1578951309808">
+    <state width="1874" height="207" key="GridCell.Tab.0.bottom" timestamp="1579045087774">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1874" height="207" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1578951309808" />
-    <state width="1874" height="207" key="GridCell.Tab.0.center" timestamp="1578951309808">
+    <state width="1874" height="207" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1579045087774" />
+    <state width="1874" height="207" key="GridCell.Tab.0.center" timestamp="1579045087773">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1874" height="207" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1578951309808" />
-    <state width="1874" height="207" key="GridCell.Tab.0.left" timestamp="1578951309807">
+    <state width="1874" height="207" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1579045087773" />
+    <state width="1874" height="207" key="GridCell.Tab.0.left" timestamp="1579045087772">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1874" height="207" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1578951309807" />
-    <state width="1874" height="207" key="GridCell.Tab.0.right" timestamp="1578951309808">
+    <state width="1874" height="207" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1579045087772" />
+    <state width="1874" height="207" key="GridCell.Tab.0.right" timestamp="1579045087774">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1874" height="207" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1578951309808" />
+    <state width="1874" height="207" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1579045087774" />
     <state width="1874" height="312" key="GridCell.Tab.1.bottom" timestamp="1578612949532">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
@@ -384,21 +402,25 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="154" y="153" width="1308" height="733" key="SettingsEditor/0.0.1920.1040@0.0.1920.1040" timestamp="1578766346103" />
-    <state x="556" y="250" key="Vcs.Push.Dialog.v2" timestamp="1578869688594">
+    <state x="556" y="250" key="Vcs.Push.Dialog.v2" timestamp="1578951399673">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="556" y="250" key="Vcs.Push.Dialog.v2/0.0.1920.1040@0.0.1920.1040" timestamp="1578869688594" />
-    <state x="622" y="347" key="com.intellij.ide.util.TipDialog" timestamp="1578939298150">
+    <state x="556" y="250" key="Vcs.Push.Dialog.v2/0.0.1920.1040@0.0.1920.1040" timestamp="1578951399673" />
+    <state x="622" y="347" key="com.intellij.ide.util.TipDialog" timestamp="1579029187948">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="622" y="347" key="com.intellij.ide.util.TipDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1578939298150" />
-    <state x="751" y="433" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1578951384395">
+    <state x="622" y="347" key="com.intellij.ide.util.TipDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1579029187948" />
+    <state x="751" y="433" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1579029192134">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="751" y="433" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.0.1920.1040@0.0.1920.1040" timestamp="1578951384395" />
-    <state x="623" y="229" width="672" height="678" key="search.everywhere.popup" timestamp="1578947399393">
+    <state x="751" y="433" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.0.1920.1040@0.0.1920.1040" timestamp="1579029192134" />
+    <state x="627" y="235" width="1005" height="713" key="find.popup" timestamp="1579042805527">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="623" y="229" width="672" height="678" key="search.everywhere.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1578947399393" />
+    <state x="627" y="235" width="1005" height="713" key="find.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1579042805527" />
+    <state x="623" y="229" width="672" height="678" key="search.everywhere.popup" timestamp="1579044880796">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="623" y="229" width="672" height="678" key="search.everywhere.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1579044880796" />
   </component>
 </project>

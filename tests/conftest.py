@@ -17,25 +17,30 @@ def pytest_sessionstart():
 
 
 @pytest.fixture()
-def database():
+def database_no_reset():
     from package.database import db
+    return db
 
+@pytest.fixture()
+def database(reset_db):
+    from package.database import db
     return db
 
 
 @pytest.fixture()
-def ddb(database):
+def ddb(database, reset_db):
     db_session.__enter__()
     yield database
     db_session.__exit__()
-    reset_db(database)
+    # reset_db(database)
 
 
-# @pytest.fixture(scope="function")
-def reset_db(ddb):
+@pytest.fixture(scope="function")
+def reset_db(database_no_reset):
+    yield
     with db_session:
-        for entity in ddb.entities.values():
+        for entity in database_no_reset.entities.values():
             delete(e for e in entity)
-            ddb.execute(
+            database_no_reset.execute(
                 f"UPDATE SQLITE_SEQUENCE  SET  SEQ = 0 WHERE NAME = '{entity._table_}';"
             )

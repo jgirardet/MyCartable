@@ -3,7 +3,8 @@ from PySide2.QtCore import QAbstractListModel, Qt, Slot
 from mimesis import typing
 from pony.orm import db_session
 from package.database import db
-
+import logging
+LOG = logging.getLogger("__name__")
 
 class BaseDatabaseModel(QAbstractListModel):
     db = None
@@ -58,7 +59,7 @@ class RecentsModel(BaseDatabaseModel):
         self.beginResetModel()
         self._datas = None
         self.endResetModel()
-        print("force reload")
+        LOG.info("recents model reloading")
 
 
 class ActiviteModel(BaseDatabaseModel):

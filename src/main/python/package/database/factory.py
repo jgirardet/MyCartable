@@ -8,8 +8,6 @@ gen = mimesis.Generic("fr")
 
 from package.database import db
 
-print(db)
-
 
 def f_datetime(start=None, end=None):
     end = end or datetime.now()
@@ -38,16 +36,16 @@ def f_activite(famille=None, matiere=None):
     activites = ((0, "Exercice"), (1, "Leçon"), (2, "Divers"))
     famille = famille if famille is not None else random.choice(activites)[0]
     nom = activites[famille][1]
-    matiere = matiere or f_matiere()
     with db_session:
+        matiere = matiere or f_matiere()
         return db.Activite(nom=nom, famille=famille, matiere=matiere)
 
 
 def f_page(created=None, activite=None, titre=None):
-    created = created or f_datetime()
-    activite = activite or f_activite()
-    titre = titre or " ".join(gen.text.words(5))
     with db_session:
+        created = created or f_datetime()
+        activite = activite or f_activite()
+        titre = titre or " ".join(gen.text.words(5))
         return db.Page(created=created, activite=activite, titre=titre)
 
 

@@ -25,6 +25,7 @@ ApplicationWindow {
 
     Item {
         id: _itemDispatcher
+        objectName: "_itemDispatcher"
 
         signal newPage(int activite)
 
@@ -39,6 +40,7 @@ ApplicationWindow {
 
     Item {
         id: baseItem
+        objectName: "baseItem"
         height: root.height - mainMenuBar.height
         width: root.width
         Rectangle {
@@ -70,8 +72,7 @@ ApplicationWindow {
                     model: recentsModel
                     onItemClicked: {
                         ddb.currentMatiere = matiere;
-                        print(matiere)
-                        ddb.currentPage = {"page_id": id}
+                        ddb.setCurrentPage(id)
                         }
 
                 }
@@ -109,7 +110,7 @@ ApplicationWindow {
 
         Rectangle {
             id: matiereRectangle
-            anchors.top: baseItem.top
+            anchors.top: parent.top
             anchors.margins: 5
             color: "yellow"
             anchors.left: pageColumn.right
@@ -129,7 +130,7 @@ ApplicationWindow {
                     width: root.lateralsColumnWidth
                     MatiereComboBox {
                         id: _comboBoxSelectMatiere
-                        model: ddb.matieresList
+                        model: ddb.matieresListNom
                         currentIndex: ddb.getMatiereIndexFromId(ddb.currentMatiere)
                         onActivated:ddb.setCurrentMatiereFromString(currentText)
                     }

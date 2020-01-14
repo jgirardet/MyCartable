@@ -106,7 +106,6 @@ class TestActivite:
         m = f_matiere("bla")
         m.to_dict()
         ac = f_activite(0, m)
-        print(ac.to_dict())
         flush()
 
         pages = ddb.Activite.pages_by_matiere_and_famille(m.id, 0)
@@ -125,11 +124,4 @@ class TestActivite:
         for d in pages:
             assert d in controle
         assert len(pages) == len(controle)
-        # m.to_dict()
-        # f = f_activite(matiere=m, famille=0)
-        # print(m, f)
-        # f.to_dict()
 
-        # pages = ddb.Activite.pages_by_matiere_and_famille(m.id, 0)
-        # assert len(pages)==5
-        # assert(all(p['activite'] == f.id for p in pages))

@@ -13,9 +13,9 @@ def test_init(ddb):
     assert a._currentPage == {}
     assert a._currentMatiere == -1
 
-def test_currentMatiere(database):
+def test_currentMatiere(ddbr):
     create_matiere()
-    a = DatabaseObject(database)
+    a = DatabaseObject(ddbr)
     assert a.currentMatiere == -1
 
     #from string
@@ -33,11 +33,11 @@ def test_currentMatiere(database):
     #get index from id
     assert a.getMatiereIndexFromId(3) == 2
 
-def test_matiereList(database):
+def test_matiereList(ddbr):
     create_matiere()
 
     # listnom
-    a = DatabaseObject(database)
+    a = DatabaseObject(ddbr)
     assert a.matieresListNom == ("un", "deux", "trois", "quatre")
 
     #refresh
@@ -45,16 +45,16 @@ def test_matiereList(database):
     a.matieresListRefresh()
     assert a.matieresListNom == ("un", "deux", "trois", "quatre", "cinq")
 
-def test_newPage(database):
-    a = DatabaseObject(database)
+def test_newPage(ddbr):
+    a = DatabaseObject(ddbr)
     ac = f_activite()
     b = a.newPage(ac.id)
     assert b["activite"] == ac.id
 
-def test_currentPage(database):
+def test_currentPage(ddbr):
     a = f_page().to_dict()
     b = f_page().to_dict()
-    c = DatabaseObject(database)
+    c = DatabaseObject(ddbr)
     assert c.currentPage == {}
 
     #setCurrentPage
@@ -64,7 +64,7 @@ def test_currentPage(database):
     assert c.currentPage == b
 
     #
-def test_getPagesByMatiereAndActivite(database):
+def test_getPagesByMatiereAndActivite(ddbr):
     """à tester vi gui"""
     pass
 

@@ -9,7 +9,9 @@ ListView {
     width: parent.width
     clip: true
     delegate: RoundButton {
-                height: 40
+        id: _buttonDelegateRecents
+        objectName: "_buttonDelegateRecents"
+        height: 40
         radius: 10
         text: "mat id  : " + model.display['matiere']+ "//" +model.display['matiereNom']  + ": " + model.display["titre"] + "[" + model.display['activite']
         width: ListView.view.width

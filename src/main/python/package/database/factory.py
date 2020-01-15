@@ -50,27 +50,33 @@ def f_page(created=None, activite=None, titre=None):
 
 
 def f_section(created=None, page=None, content=None, content_type=None):
-    created = created or f_datetime()
-    page = page or f_page()
-    content = content or gen.text.sentence()
-    content_type = content_type or "str"
     with db_session:
+
+        created = created or f_datetime()
+        page = page or f_page()
+        content = content or gen.text.sentence()
+        content_type = content_type or "str"
         return db.Section(created=created, page=page)
 
 
+
+
 @db_session
-def populate_database():
+def populate_database(matieres_list = None, nb_activite=3, nb_page=100):
     annee = f_annee()
-    matieres = [
-        f_matiere("Math", annee),
-        f_matiere("Français", annee),
-        f_matiere("Histoire", annee),
-        f_matiere("Anglais", annee),
-    ]
+    if matieres_list is not None:
+        matieres = [f_matiere(x, annee) for x in matieres_list]
+    else:
+        matieres =  [
+            f_matiere("Math", annee),
+            f_matiere("Français", annee),
+            f_matiere("Histoire", annee),
+            f_matiere("Anglais", annee),
+        ]
     activites = []
     for m in matieres:
-        for i in range(3):
+        for i in range(nb_activite):
             activites.append(f_activite(famille=i, matiere=m))
 
-    for i in range(100):
+    for i in range(nb_page):
         f_page(activite=random.choice(activites))

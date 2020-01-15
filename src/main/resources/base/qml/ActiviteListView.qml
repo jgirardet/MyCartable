@@ -3,6 +3,7 @@ import QtQuick.Controls 2.12
 
 ListView {
     id: exercicesListView
+    objectName: "exercicesListView"
     property int commonHeight: 30
     property string headerText: "header"
     property string headerColor: "blue"
@@ -22,6 +23,7 @@ ListView {
     height: parent.height / 2
     clip: true
     delegate: Button {
+        objectName: "delegateExo"
         text: modelData.titre
         width: ListView.view.width
         height: commonHeight

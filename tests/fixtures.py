@@ -1,11 +1,21 @@
-from PySide2.QtCore import QObject
-from PySide2.QtQml import QQmlProperty
+from itertools import zip_longest
+from operator import itemgetter
+
+from pony.orm import db_session
 
 
-def r(object, property):
-    """read a qml property"""
-    return QQmlProperty.read(object, property)
+def compare(first, two, key='id'):
+    getter = itemgetter(key)
+    a = sorted(first, key=getter)
+    b = sorted(two, key=getter)
+    msg = "\n"
+    for x,y in zip_longest(a,b):
+        msg = msg+f"{x}\n{y}\n\n"
+    assert a ==b, msg
+    return True
 
-def s(object, property, value):
-    """set a qml property"""
-    QObject.setProperty(object, property, value)
+
+def ss(fn, *args, **kwargs):
+    """run inline dbsession"""
+    with db_session:
+        return fn(*args, **kwargs)

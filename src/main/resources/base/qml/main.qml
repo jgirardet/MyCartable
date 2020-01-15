@@ -59,6 +59,7 @@ ApplicationWindow {
                 width: parent.width
                 spacing: 5
 
+
                 RoundButton {
                     id: recentsHeader
                     objectName: "recentsHeader"
@@ -67,13 +68,28 @@ ApplicationWindow {
                     text: ddb.currentMatiere //"Récents"
                     radius: 10
                  }
+                ListView {
+                    width: parent.width
+                    model: [1,2,3,4,5]
+                    delegate:
+                        Button {
+                            objectName: "bla"
+                            height: 100
+                            width: parent.width
+                            text:"mokok" + modelData
+                            onClicked: ddb.child(baseItem)
+                        }
+
+                }
 
                 RecentsListView {
                     id: recentsListView
+                    objectName: "recentsListView"
                     model: recentsModel
                     onItemClicked: {
                         ddb.currentMatiere = matiere;
-                        ddb.setCurrentPage(id)
+                        ddb.setCurrentPage(id);
+                        ddb.child(baseItem)
                         }
 
                 }
@@ -135,13 +151,14 @@ ApplicationWindow {
                         objectName: "_comboBoxSelectMatiere"
                         model: ddb.matieresListNom
                         currentIndex: ddb.getMatiereIndexFromId(ddb.currentMatiere)
-                        onActivated:ddb.setCurrentMatiereFromString(currentText)
+                        onActivated:ddb.setCurrentMatiereFromIndex(index)
                     }
 
                 }
 
                 ActiviteListView {
                     id: _listViewLessons
+                    objectName: "_listViewLessons"
                     model: ddb.getPagesByMatiereAndActivite(_comboBoxSelectMatiere.currentText, 0)
                     commonHeight: 30
                     headerText: "Leçons"

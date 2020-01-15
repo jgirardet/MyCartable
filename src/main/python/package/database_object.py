@@ -1,4 +1,5 @@
 from PySide2.QtCore import QObject, Signal, Property, Slot
+from PySide2.QtQml import QQmlProperty
 from package.utils import MatieresDispatcher
 import logging
 
@@ -39,8 +40,16 @@ class DatabaseObject(QObject):
 
     @Slot(str)
     def setCurrentMatiereFromString(self, value):
+        print("set current; ", value)
         self._currentMatiere = self.m_d.nom_id[value]
         LOG.info(f"current matiere set with {value } to: {self._currentMatiere}")
+
+        self.currentMatiereChanged.emit()
+
+    @Slot(int)
+    def setCurrentMatiereFromIndex(self, value):
+        self._currentMatiere = self.m_d.matieres_list_id[value]
+        LOG.info(f"current matiere set with index  {value } to: {self._currentMatiere}")
 
         self.currentMatiereChanged.emit()
 
@@ -96,3 +105,13 @@ class DatabaseObject(QObject):
                     matiere.id, activite_index
                 )
             return []
+
+
+    @Slot(QObject)
+    def child(self, un):
+        a = un.findChildren(QObject, "bla")
+        print(a)
+        for i in a:
+            print(QQmlProperty.read(i, "objectName"))
+            print(QQmlProperty.read(i, "id"))
+            print(i.objectName())

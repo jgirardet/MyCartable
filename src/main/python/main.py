@@ -3,11 +3,10 @@ import os
 from fbs_runtime.application_context.PySide2 import ApplicationContext
 import sys
 from PySide2.QtQml import QQmlApplicationEngine, qmlRegisterType
-from PySide2.QtCore import QUrl
+from PySide2.QtCore import QUrl, QObject, QRegExp
 
 import package.database
 from package.database_object import DatabaseObject
-
 import logging
 
 logging.basicConfig(level=logging.DEBUG)
@@ -47,5 +46,6 @@ if __name__ == "__main__":
 
     if not engine.rootObjects():
         sys.exit(-1)
+
 
     sys.exit(appctxt.app.exec_())

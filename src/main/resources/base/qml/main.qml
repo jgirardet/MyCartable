@@ -70,14 +70,17 @@ ApplicationWindow {
                  }
                 ListView {
                     width: parent.width
+                    height: parent.height
                     model: [1,2,3,4,5]
+                    objectName: "blob"
                     delegate:
                         Button {
                             objectName: "bla"
                             height: 100
                             width: parent.width
                             text:"mokok" + modelData
-                            onClicked: ddb.child(baseItem)
+                            onClicked: ddb.child(root)
+//                            onClicked: ddb.child(recentsListView)
                         }
 
                 }

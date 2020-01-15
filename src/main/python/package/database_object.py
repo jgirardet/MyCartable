@@ -1,4 +1,5 @@
-from PySide2.QtCore import QObject, Signal, Property, Slot
+from PySide2 import QtGui
+from PySide2.QtCore import QObject, Signal, Property, Slot, QRegExp
 from PySide2.QtQml import QQmlProperty
 from package.utils import MatieresDispatcher
 import logging
@@ -109,9 +110,7 @@ class DatabaseObject(QObject):
 
     @Slot(QObject)
     def child(self, un):
-        a = un.findChildren(QObject, "bla")
-        print(a)
-        for i in a:
-            print(QQmlProperty.read(i, "objectName"))
-            print(QQmlProperty.read(i, "id"))
-            print(i.objectName())
+        print(un.findChildren(QObject, QRegExp('bla')))
+        # print(a)
+        # for i in a:
+        #     print(QQmlProperty.read(i, "objectName"))

@@ -1,0 +1,15 @@
+[run]
+  branch = True
+source =
+	package
+omit =
+  */__init__.py,
+
+[report]
+ignore_errors = True
+exclude_lines =
+    pragma: no cover_all
+    pragma: no cover_linux
+    def __repr__
+    if __name__ == "__main__"
+

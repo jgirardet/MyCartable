@@ -2,8 +2,8 @@ import pytest
 import sys
 from pathlib import Path
 
-from PySide2.QtCore import QObject, QThread
-from PySide2.QtQml import QQmlProperty
+from PySide2.QtCore import QObject, QThread, QUrl
+from PySide2.QtQml import QQmlProperty, QQmlApplicationEngine, qmlRegisterType
 from PySide2.QtWidgets import QApplication
 from fbs_runtime.application_context.PySide2 import ApplicationContext
 from pony.orm import db_session, delete, commit
@@ -51,10 +51,13 @@ def ddb(ddbr, reset_db):
 @pytest.fixture(scope="function")
 def reset_db(ddbn):
     yield
+    fn_reset_db(ddbn)
+
+def fn_reset_db(db):
     with db_session:
-        for entity in ddbn.entities.values():
+        for entity in db.entities.values():
             delete(e for e in entity)
-            ddbn.execute(
+            db.execute(
                 f"UPDATE SQLITE_SEQUENCE  SET  SEQ = 0 WHERE NAME = '{entity._table_}';"
             )
 
@@ -91,44 +94,95 @@ class QObjectWrapper:
         # else:
         #     super().__setattr__(key, value)
 
-@pytest.fixture(scope="session")
-def app():
-    app = QApplication.instance() or QApplication([])
-    import threading
-    t = threading.Thread(target=app.exec_)
-    t.start()
-    yield
-    import time
-    print("before join")
-    time.sleep(2)
-    t.join(5)
-    print("joined")
-    time.sleep(2)
 
 @pytest.fixture(scope="session")
-def root(app):
-    from package.database import db as root_db
-    from main import main_setup
+def matieres_list():
+    return ["Math", "Français", "Histoire", "Anglais"]
+
+
+
+@pytest.fixture(scope="function")
+def qApp():
+    qapp = QApplication.instance() or QApplication([])
+    yield qapp
+    del qapp
+
+@pytest.fixture(scope="session", autouse=True)
+def register_type():
+    from package.qml_models import RecentsModel
+    qmlRegisterType(RecentsModel, "" "RecentsModel", 1, 0, "RecentsModel")
+
+@pytest.fixture(scope="function")
+def qmlEngine(qApp, register_type):
+    engine = QQmlApplicationEngine()
+
+    # Import stuff
+    import qrc
+
     from package.database_object import DatabaseObject
+    from package.database import db as database_root
+
+    # Add type and property
+    ddb=DatabaseObject(database_root)
+
+    engine.rootContext().setContextProperty("ddb", ddb)
+
+
+    engine.load(QUrl("qrc:///qml/main.qml"))
+    yield engine
+    del engine
+#
+# @pytest.fixture(scope="function")
+# def rootObject(qmlEngine, matieres_list):
+#
+#     root = qmlEngine.rootObjects()[0]
+#
+#     #imports
+#     from package.database.factory import populate_database
+#
+#     # set context and utils
+#     populate_database(matieres_list=matieres_list, nb_activite=3, nb_page=100)
+#
+#     root.W =  QRootWrapper(root)
+#     root.ddb = qmlEngine.rootContext().contextProperty("ddb")
+#
+#     yield root
+#
+#     del root
+#     # qmlEngine.clearComponentCache()
+
+
+
+@pytest.fixture(scope="function")
+def rootObject(matieres_list, ddbr):
+    import time
+    t = time.time()
+    qapp = QApplication.instance() or QApplication([])
+    engine = QQmlApplicationEngine()
+
+    # Import stuff
+    from package.database_object import DatabaseObject
+    import qrc
     from package.database.factory import populate_database
 
-    populate_database(matieres_list=["Math", "Français", "Histoire", "Anglais"], nb_activite=3, nb_page=100)
-    # app = QApplication.instance() or QApplication([])
-    # import threading
-    # t = threading.Thread(target=app.exec_)
-    #t.start()
-    #appctxt = ApplicationContext()
-    ddb = DatabaseObject(root_db)
-    engine = main_setup(ddb)
-    root_ = engine.rootObjects()[0]
-    root_.W = QRootWrapper(root_)
-    root_.ddb = ddb
-    # a = QThread()
-    # app.exec_()
-    import time
-    import time
-    #time.sleep(1)
-    #yield root_
-    yield root_
-    #t.join(timeout=5)
+    # Add type and property
+    ddb=DatabaseObject(ddbr)
+    engine.rootContext().setContextProperty("ddb", ddb)
+    engine.load(QUrl("qrc:///qml/main.qml"))
+    root = engine.rootObjects()[0]
 
+    # set context and utils
+    populate_database(matieres_list=matieres_list, nb_activite=3, nb_page=100)
+    root.W =  QRootWrapper(root)
+    root.ddb = engine.rootContext().contextProperty("ddb")
+
+    # adapation_ok_en_vrai_mais_pas_en_test
+    root.ddb.matieresListRefresh()
+
+    dt = time.time()-t
+    yield root
+    t= time.time()
+    del root
+    del engine
+    del qapp
+    # print(((time.time()-t)+dt))

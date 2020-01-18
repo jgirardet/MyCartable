@@ -41,7 +41,6 @@ class DatabaseObject(QObject):
 
     @Slot(str)
     def setCurrentMatiereFromString(self, value):
-        print("set current; ", value)
         self._currentMatiere = self.m_d.nom_id[value]
         LOG.info(f"current matiere set with {value } to: {self._currentMatiere}")
 
@@ -108,9 +107,9 @@ class DatabaseObject(QObject):
             return []
 
 
-    @Slot(QObject)
-    def child(self, un):
-        print(un.findChildren(QObject, QRegExp('bla')))
+    # @Slot(QObject)
+    # def child(self, un):
+    #     print(un.findChildren(QObject, QRegExp('bla')))
         # print(a)
         # for i in a:
         #     print(QQmlProperty.read(i, "objectName"))

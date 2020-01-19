@@ -4,6 +4,7 @@ source =
 	package
 omit =
   */__init__.py,
+  */factory.py
 
 [report]
 ignore_errors = True

@@ -6,8 +6,15 @@ from PySide2.QtCore import QObject, QThread, QUrl
 from PySide2.QtQml import QQmlProperty, QQmlApplicationEngine, qmlRegisterType
 from PySide2.QtWidgets import QApplication
 from fbs_runtime.application_context.PySide2 import ApplicationContext
+from mimesis import Generic
 from pony.orm import db_session, delete, commit
 import subprocess
+
+generic_mimesis = Generic("fr")
+
+@pytest.fixture(scope="function")
+def gen(request):
+    return generic_mimesis
 
 def pytest_sessionstart():
 
@@ -109,7 +116,7 @@ def qApp():
 
 @pytest.fixture(scope="session", autouse=True)
 def register_type():
-    from package.qml_models import RecentsModel
+    from package.list_models import RecentsModel
     qmlRegisterType(RecentsModel, "" "RecentsModel", 1, 0, "RecentsModel")
 
 @pytest.fixture(scope="function")
@@ -131,26 +138,21 @@ def qmlEngine(qApp, register_type):
     engine.load(QUrl("qrc:///qml/main.qml"))
     yield engine
     del engine
-#
-# @pytest.fixture(scope="function")
-# def rootObject(qmlEngine, matieres_list):
-#
-#     root = qmlEngine.rootObjects()[0]
-#
-#     #imports
-#     from package.database.factory import populate_database
-#
-#     # set context and utils
-#     populate_database(matieres_list=matieres_list, nb_activite=3, nb_page=100)
-#
-#     root.W =  QRootWrapper(root)
-#     root.ddb = qmlEngine.rootContext().contextProperty("ddb")
-#
-#     yield root
-#
-#     del root
-#     # qmlEngine.clearComponentCache()
 
+
+
+@pytest.fixture(scope="function")
+def tmpfile(request, tmp_path, gen):
+    """tempfile which exists"""
+    file = tmp_path / gen.file.file_name()
+    file.touch()
+    return file
+
+
+@pytest.fixture(scope="function")
+def tmpfilename(request, tmp_path, gen):
+    """tempfile which does not exists"""
+    return tmp_path / gen.file.file_name()
 
 
 @pytest.fixture(scope="function")

@@ -25,7 +25,7 @@ def main_setup(ddb):
 
     import qrc
     # import all database related stuf after
-    from package.qml_models import RecentsModel
+    from package.list_models import RecentsModel
     qmlRegisterType(RecentsModel, "" "RecentsModel", 1, 0, "RecentsModel")
     engine = QQmlApplicationEngine()
     engine.rootContext().setContextProperty("ddb", ddb)

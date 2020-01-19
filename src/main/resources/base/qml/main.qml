@@ -70,13 +70,14 @@ ApplicationWindow {
                  }
 
                 RecentsListView {
-                    id: recentsListView
-                    objectName: "recentsListView"
+                    id: _recentsListView
+                    objectName: "_recentsListView"
                     model: recentsModel
                     onItemClicked: {
                         ddb.currentMatiere = matiere;
                         ddb.setCurrentPage(id);
                         }
+                    onCurrentIndexChanged: print("curren")
 
                 }
 
@@ -147,12 +148,15 @@ ApplicationWindow {
                     id: _listViewLessons
                     objectName: "_listViewLessons"
                     model: ddb.getPagesByMatiereAndActivite(_comboBoxSelectMatiere.currentText, 0)
+//                    model: ddb.getPagesByMatiereAndActivite(_comboBoxSelectMatiere.currentText, 0)
                     commonHeight: 30
                     headerText: "Leçons"
                     headerColor: "pink"
                     height: activitesColumn.activiteListViewsHeight
                 }
                 ActiviteListView {
+                    id: _listViewExercices
+                    objectName: "_listViewExercices"
                     model: ddb.getPagesByMatiereAndActivite(_comboBoxSelectMatiere.currentText, 1)
                     commonHeight: 30
                     headerText: "Exercices"

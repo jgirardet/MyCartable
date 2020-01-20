@@ -8,6 +8,9 @@
     <file alias="PageToolBar.qml">../resources/base/qml/PageToolBar.qml</file>
     <file alias="PageListView.qml">../resources/base/qml/PageListView.qml</file>
     <file alias="MatiereComboBox.qml">../resources/base/qml/MatiereComboBox.qml</file>
+    <file alias="RecentsRectangle.qml">../resources/base/qml/RecentsRectangle.qml</file>
+    <file alias="PageRectangle.qml">../resources/base/qml/PageRectangle.qml</file>
+    <file alias="MatiereRectangle.qml">../resources/base/qml/MatiereRectangle.qml</file>
 </qresource>
 <qresource prefix="/icons">
     <file alias="hdd.png">../icons/base/hdd.png</file>

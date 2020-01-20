@@ -91,6 +91,14 @@ class DatabaseObject(QObject):
             return self.db.Activite.pages_by_matiere_and_famille(
                     matiere_nom , activite_index)
 
+    @Slot(int)
+    def recentsItemClicked(self, id: int):
+        with db_session:
+            item = self.db.Page.get(id = id)
+            if item:
+                self.setCurrentPage(item.id)
+                self.currentMatiere = item.activite.matiere.id
+
 
     # @Slot(QObject)
     # def child(self, un):

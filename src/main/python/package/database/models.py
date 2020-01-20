@@ -40,7 +40,8 @@ def init_models(db: Database):
                 matiere = db.Matiere.get(id=matiere_id)
                 if not matiere:
                     return []
-            activite = Activite.get(matiere=matiere.id, famille=famille) # pragma: no cover_all
+            # activite = Activite.get(matiere=matiere.id, famille=famille) # pragma: no cover_all
+            activite = Activite.get(lambda p: p.matiere.id == matiere.id and p.famille == famille)
             if activite:
                 return [p.to_dict() for p in activite.pages.order_by(Page.created)]
             return []

@@ -19,7 +19,7 @@ def main_init_database():
     populate_database()
     return package.database.db
 
-def main_setup(ddb):
+def main_setup(database):
     # set env
     os.environ["QT_STYLE_OVERRIDE"] = ""
 
@@ -28,7 +28,7 @@ def main_setup(ddb):
     from package.list_models import RecentsModel
     qmlRegisterType(RecentsModel, "" "RecentsModel", 1, 0, "RecentsModel")
     engine = QQmlApplicationEngine()
-    engine.rootContext().setContextProperty("ddb", ddb)
+    engine.rootContext().setContextProperty("database", database)
     engine.load(QUrl("qrc:///qml/main.qml"))
 
     return engine
@@ -38,8 +38,8 @@ if __name__ == "__main__":
 
     main_init_database()
     appctxt = ApplicationContext()
-    ddb = DatabaseObject(package.database.db)
-    engine = main_setup(ddb)
+    database = DatabaseObject(package.database.db)
+    engine = main_setup(database)
 
     if not engine.rootObjects():
         sys.exit(-1)

@@ -30,22 +30,17 @@ class DatabaseObject(QObject):
 
     @currentMatiere.setter
     def current_matiere_set(self, value):
-        if self._currentMatiere == value:
-            return
-        elif isinstance(value, int):
+        if self._currentMatiere != value and isinstance(value, int):
             self._currentMatiere = value
-        else:
-            return
-        LOG.info(f"current matiere set to: {self._currentMatiere}")
-        self.currentMatiereChanged.emit()
+            LOG.info(f"current matiere set to: {self._currentMatiere}")
+            self.currentMatiereChanged.emit()
 
-    @Slot(str)
-    def setCurrentMatiereFromString(self, value):
-        print("set current; ", value)
-        self._currentMatiere = self.m_d.nom_id[value]
-        LOG.info(f"current matiere set with {value } to: {self._currentMatiere}")
-
-        self.currentMatiereChanged.emit()
+    # @Slot(str)
+    # def setCurrentMatiereFromString(self, value):
+    #     self._currentMatiere = self.m_d.nom_id[value]
+    #     LOG.info(f"current matiere set with {value } to: {self._currentMatiere}")
+    #
+    #     self.currentMatiereChanged.emit()
 
     @Slot(int)
     def setCurrentMatiereFromIndex(self, value):
@@ -84,11 +79,6 @@ class DatabaseObject(QObject):
     def currentPage(self):
         return self._currentPage
 
-    # @currentPage.setter
-    # def currentPage_set(self, value):
-    #     "fake function needed for read/Write. property need dict to be set"
-    #     pass
-
     @Slot(int)
     def setCurrentPage(self, value):
         with db_session:
@@ -98,19 +88,13 @@ class DatabaseObject(QObject):
     @Slot(str, int, result="QVariantList")
     def getPagesByMatiereAndActivite(self, matiere_nom, activite_index):
         with db_session:
-            if not matiere_nom:
-                return []
-            matiere = self.db.Matiere.get(id=self.m_d.nom_id[matiere_nom])
-            if matiere:
-                return self.db.Activite.pages_by_matiere_and_famille(
-                    matiere.id, activite_index
-                )
-            return []
+            return self.db.Activite.pages_by_matiere_and_famille(
+                    matiere_nom , activite_index)
 
 
-    @Slot(QObject)
-    def child(self, un):
-        print(un.findChildren(QObject, QRegExp('bla')))
+    # @Slot(QObject)
+    # def child(self, un):
+    #     print(un.findChildren(QObject, QRegExp('bla')))
         # print(a)
         # for i in a:
         #     print(QQmlProperty.read(i, "objectName"))

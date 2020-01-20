@@ -24,15 +24,12 @@ def main_setup(ddb):
     os.environ["QT_STYLE_OVERRIDE"] = ""
 
     import qrc
-
     # import all database related stuf after
-    from package.qml_models import RecentsModel
-    #ddb = DatabaseObject(package.database.db)
+    from package.list_models import RecentsModel
     qmlRegisterType(RecentsModel, "" "RecentsModel", 1, 0, "RecentsModel")
     engine = QQmlApplicationEngine()
     engine.rootContext().setContextProperty("ddb", ddb)
     engine.load(QUrl("qrc:///qml/main.qml"))
-    engine.addImportPath("qrc:/qml/")
 
     return engine
 
@@ -46,6 +43,5 @@ if __name__ == "__main__":
 
     if not engine.rootObjects():
         sys.exit(-1)
-
 
     sys.exit(appctxt.app.exec_())

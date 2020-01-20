@@ -6,7 +6,7 @@ from package.database import db
 import logging
 LOG = logging.getLogger("__name__")
 
-class BaseDatabaseModel(QAbstractListModel):
+class BaseListModel(QAbstractListModel):
     db = None
     DeleteRole = Qt.UserRole + 1
     AddRole = Qt.UserRole + 2
@@ -16,7 +16,7 @@ class BaseDatabaseModel(QAbstractListModel):
         super().__init__(parent=parent)
 
     def populate(self):
-        pass
+        raise NotImplementedError() # pragma: no cover_all
 
     @db_session
     def update_datas(self):
@@ -39,15 +39,15 @@ class BaseDatabaseModel(QAbstractListModel):
             return None
 
 
-class PageModel(BaseDatabaseModel):
+# class PageModel(BaseListModel):
+#
+#     db = db.Page
+#
+#     def populate(self):
+#         pass
 
-    db = db.Page
 
-    def populate(self):
-        pass
-
-
-class RecentsModel(BaseDatabaseModel):
+class RecentsModel(BaseListModel):
 
     db = db.Page
 
@@ -61,10 +61,3 @@ class RecentsModel(BaseDatabaseModel):
         self.endResetModel()
         LOG.info("recents model reloading")
 
-
-class ActiviteModel(BaseDatabaseModel):
-
-    db = db.Activite
-
-    def populate(self):
-        self._datas = [p.to_dict() for p in self.db.select()]

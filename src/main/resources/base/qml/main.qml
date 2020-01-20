@@ -69,16 +69,15 @@ ApplicationWindow {
                     radius: 10
                  }
 
-
                 RecentsListView {
-                    id: recentsListView
-                    objectName: "recentsListView"
+                    id: _recentsListView
+                    objectName: "_recentsListView"
                     model: recentsModel
                     onItemClicked: {
                         ddb.currentMatiere = matiere;
                         ddb.setCurrentPage(id);
-                        ddb.child(baseItem)
                         }
+                    onCurrentIndexChanged: print("curren")
 
                 }
 
@@ -142,18 +141,22 @@ ApplicationWindow {
                         onActivated:ddb.setCurrentMatiereFromIndex(index)
                     }
 
+
                 }
 
                 ActiviteListView {
                     id: _listViewLessons
                     objectName: "_listViewLessons"
                     model: ddb.getPagesByMatiereAndActivite(_comboBoxSelectMatiere.currentText, 0)
+//                    model: ddb.getPagesByMatiereAndActivite(_comboBoxSelectMatiere.currentText, 0)
                     commonHeight: 30
                     headerText: "Leçons"
                     headerColor: "pink"
                     height: activitesColumn.activiteListViewsHeight
                 }
                 ActiviteListView {
+                    id: _listViewExercices
+                    objectName: "_listViewExercices"
                     model: ddb.getPagesByMatiereAndActivite(_comboBoxSelectMatiere.currentText, 1)
                     commonHeight: 30
                     headerText: "Exercices"
@@ -163,7 +166,6 @@ ApplicationWindow {
              }
         }
     }
-
 
 }
 }

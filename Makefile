@@ -41,11 +41,11 @@ black:
 
 cov:
 	rm -rf .pytest_cache
-	poetry run coverage run -m pytest
-	poetry run coverage report
+	coverage run -m pytest
+	coverage report
 
 cov_html: cov
-	poetry run coverage html
+	coverage html
 	firefox htmlcov/index.html &
 
 pdb:

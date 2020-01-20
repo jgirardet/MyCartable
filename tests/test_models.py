@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+from fixtures import compare
 from package.database.factory import *
 import pytest
 from pony.orm import flush, exists, commit
@@ -106,13 +107,29 @@ class TestActivite:
         m = f_matiere("bla")
         m.to_dict()
         ac = f_activite(0, m)
-        flush()
 
+
+        # matiere param is 0
+        assert ddb.Activite.pages_by_matiere_and_famille(0, 0) == []
+
+        #No matiere exist:
+
+        pages = ddb.Activite.pages_by_matiere_and_famille(99, 0)
+        assert pages == []
+
+        # matiere exist but no activite
+        flush()
+        pages = ddb.Activite.pages_by_matiere_and_famille(m.id, 99)
+        assert pages == []
+
+        #MAtiere existe resuslt empty
         pages = ddb.Activite.pages_by_matiere_and_famille(m.id, 0)
         assert pages == []
+
+
+        #setup
         controle = []
-        for i in range(5):
-            controle.append(f_page(activite=ac).to_dict())
+        controle = [f_page(activite=ac).to_dict() for i in range(5)]
 
         # sema matiere different section
         g = f_activite(1, m)
@@ -120,8 +137,13 @@ class TestActivite:
         # different matiere
         f_page()
 
+        # with numerique id
         pages = ddb.Activite.pages_by_matiere_and_famille(m.id, 0)
-        for d in pages:
-            assert d in controle
-        assert len(pages) == len(controle)
+        assert compare(pages, controle)
 
+        #with str id
+        pages = ddb.Activite.pages_by_matiere_and_famille("bla", 0)
+        assert compare(pages, controle)
+        #with str id matiere unknown
+        pages = ddb.Activite.pages_by_matiere_and_famille("ble", 0)
+        assert compare(pages, [])

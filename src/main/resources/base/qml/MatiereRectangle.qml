@@ -1,53 +1,58 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
+import QtQuick.Layouts 1.12
+
+Rectangle {
+    id: base
+    color: "yellow"
+    property QtObject ddb
+
+    ColumnLayout {
+        id : activitesColumn
+        anchors.fill: parent
+        spacing: 5
 
         Rectangle {
-            id: matiereRectangle
-            color: "yellow"
-            height: baseItem.height
-            width: root.lateralsColumnWidth
+            id: matiereSelect
+            objectName : "matiereSelect"
+            Layout.preferredHeight: ddb.getLayoutSizes("preferredHeaderHeight")
+            Layout.minimumHeight: Layout.preferredHeight
+            Layout.maximumHeight: Layout.preferredHeight
+            Layout.fillWidth: true
 
-            Column {
-                id : activitesColumn
-                height: matiereRectangle.height
-                width: matiereRectangle.width
-                spacing: 5
-                property real activiteListViewsHeight: (matiereRectangle.height-matiereSelect.height-spacing*2)/2
-
-                Rectangle {
-                    id: matiereSelect
-                    objectName : "matiereSelect"
-                    height: root.headersHeight
-                    width: root.lateralsColumnWidth
-                    MatiereComboBox {
-                        id: _comboBoxSelectMatiere
-                        objectName: "_comboBoxSelectMatiere"
-                        model: database.matieresListNom
-                        currentIndex: database.getMatiereIndexFromId(database.currentMatiere)
-                        onActivated:database.setCurrentMatiereFromIndex(index)
-                    }
+            MatiereComboBox {
+                id: _comboBoxSelectMatiere
+                objectName: "_comboBoxSelectMatiere"
+                model: ddb.matieresListNom
+                currentIndex: database.getMatiereIndexFromId(database.currentMatiere)
+                onActivated:database.setCurrentMatiereFromIndex(index)
+            }
 
 
-                }
-
-                ActiviteListView {
-                    id: _listViewLessons
-                    objectName: "_listViewLessons"
-                    model: database.getPagesByMatiereAndActivite(_comboBoxSelectMatiere.currentText, 0)
-//                    model: database.getPagesByMatiereAndActivite(_comboBoxSelectMatiere.currentText, 0)
-                    commonHeight: 30
-                    headerText: "Leçons"
-                    headerColor: "pink"
-                    height: activitesColumn.activiteListViewsHeight
-                }
-                ActiviteListView {
-                    id: _listViewExercices
-                    objectName: "_listViewExercices"
-                    model: database.getPagesByMatiereAndActivite(_comboBoxSelectMatiere.currentText, 1)
-                    commonHeight: 30
-                    headerText: "Exercices"
-                    headerColor: "orange"
-                    height: activitesColumn.activiteListViewsHeight
-                }
-             }
         }
+
+        ActiviteRectangle {
+            headerText: "Leçons"
+            headerColor: "orange"
+            ddb: base.ddb
+            activiteIndex: 0
+            model: base.ddb.lessonsList
+        }
+        ActiviteRectangle {
+            headerText: "Exercices"
+            headerColor: "orange"
+            ddb: base.ddb
+            activiteIndex: 1
+            model: base.ddb.exercicesList
+        }
+
+        ActiviteRectangle {
+            headerText: "Evaluations"
+            headerColor: "orange"
+            ddb: base.ddb
+            activiteIndex: 2
+            model: base.ddb.evaluationsList
+        }
+
+     }
+}

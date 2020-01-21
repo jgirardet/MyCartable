@@ -4,7 +4,9 @@ from mimesis import typing
 from pony.orm import db_session
 from package.database import db
 import logging
+
 LOG = logging.getLogger("__name__")
+
 
 class BaseListModel(QAbstractListModel):
     db = None
@@ -16,7 +18,7 @@ class BaseListModel(QAbstractListModel):
         super().__init__(parent=parent)
 
     def populate(self):
-        raise NotImplementedError() # pragma: no cover_all
+        raise NotImplementedError()  # pragma: no cover_all
 
     @db_session
     def update_datas(self):
@@ -60,4 +62,3 @@ class RecentsModel(BaseListModel):
         self._datas = None
         self.endResetModel()
         LOG.info("recents model reloading")
-

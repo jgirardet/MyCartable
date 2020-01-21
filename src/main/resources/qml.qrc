@@ -11,6 +11,7 @@
     <file alias="RecentsRectangle.qml">../resources/base/qml/RecentsRectangle.qml</file>
     <file alias="PageRectangle.qml">../resources/base/qml/PageRectangle.qml</file>
     <file alias="MatiereRectangle.qml">../resources/base/qml/MatiereRectangle.qml</file>
+    <file alias="ActiviteRectangle.qml">../resources/base/qml/ActiviteRectangle.qml</file>
 </qresource>
 <qresource prefix="/icons">
     <file alias="hdd.png">../icons/base/hdd.png</file>

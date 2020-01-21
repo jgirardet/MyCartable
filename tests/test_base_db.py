@@ -17,6 +17,7 @@ def test_init_bind_file_exists_with_string(tmpfile):
     ddb = Database()
     init_bind(ddb, filename=str(tmpfile))
 
+
 def test_init_bind_file_no_exists_no_createdb(tmpfilename):
     ddb = Database()
     with pytest.raises(OSError):

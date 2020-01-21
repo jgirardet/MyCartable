@@ -108,11 +108,10 @@ class TestActivite:
         m.to_dict()
         ac = f_activite(0, m)
 
-
         # matiere param is 0
         assert ddb.Activite.pages_by_matiere_and_famille(0, 0) == []
 
-        #No matiere exist:
+        # No matiere exist:
 
         pages = ddb.Activite.pages_by_matiere_and_famille(99, 0)
         assert pages == []
@@ -122,12 +121,11 @@ class TestActivite:
         pages = ddb.Activite.pages_by_matiere_and_famille(m.id, 99)
         assert pages == []
 
-        #MAtiere existe resuslt empty
+        # MAtiere existe resuslt empty
         pages = ddb.Activite.pages_by_matiere_and_famille(m.id, 0)
         assert pages == []
 
-
-        #setup
+        # setup
         controle = []
         controle = [f_page(activite=ac).to_dict() for i in range(5)]
 
@@ -141,9 +139,9 @@ class TestActivite:
         pages = ddb.Activite.pages_by_matiere_and_famille(m.id, 0)
         assert compare(pages, controle)
 
-        #with str id
+        # with str id
         pages = ddb.Activite.pages_by_matiere_and_famille("bla", 0)
         assert compare(pages, controle)
-        #with str id matiere unknown
+        # with str id matiere unknown
         pages = ddb.Activite.pages_by_matiere_and_famille("ble", 0)
         assert compare(pages, [])

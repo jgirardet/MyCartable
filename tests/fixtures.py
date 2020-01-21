@@ -5,14 +5,15 @@ from unittest.mock import patch, MagicMock
 from pony.orm import db_session
 from contextlib import contextmanager
 
-def compare(first, two, key='id'):
+
+def compare(first, two, key="id"):
     getter = itemgetter(key)
     a = sorted(first, key=getter)
     b = sorted(two, key=getter)
     msg = "\n"
-    for x,y in zip_longest(a,b):
-        msg = msg+f"{x}\n{y}\n\n"
-    assert a ==b, msg
+    for x, y in zip_longest(a, b):
+        msg = msg + f"{x}\n{y}\n\n"
+    assert a == b, msg
     return True
 
 
@@ -33,14 +34,15 @@ def check_super_init(parent, enfant, *args, fn="__init__", **kwargs):
         del enfant
         return True
 
+
 @contextmanager
 def check_begin_end(obj, name):
     lot = ["begin", "end"]
     for x in lot:
-        setattr(obj, x+name, MagicMock())
+        setattr(obj, x + name, MagicMock())
     yield
     for x in lot:
         try:
-            assert getattr(obj, "begin"+name).called
+            assert getattr(obj, "begin" + name).called
         except AssertionError:
             print(x)

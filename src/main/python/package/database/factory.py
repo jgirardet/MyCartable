@@ -49,8 +49,8 @@ def f_page(created=None, activite=None, titre=None):
         return db.Page(created=created, activite=activite, titre=titre)
 
 
-def b_page(n,td=False, created=None, activite=None, titre=None):
-    res =  [f_page(created, activite, titre) for p in range(n)]
+def b_page(n, td=False, created=None, activite=None, titre=None):
+    res = [f_page(created, activite, titre) for p in range(n)]
     if td:
         with db_session:
             return [p.to_dict() for p in res]
@@ -68,15 +68,13 @@ def f_section(created=None, page=None, content=None, content_type=None):
         return db.Section(created=created, page=page)
 
 
-
-
 @db_session
-def populate_database(matieres_list = None, nb_activite=3, nb_page=100):
+def populate_database(matieres_list=None, nb_activite=3, nb_page=100):
     annee = f_annee()
     if matieres_list is not None:
         matieres = [f_matiere(x, annee) for x in matieres_list]
     else:
-        matieres =  [
+        matieres = [
             f_matiere("Math", annee),
             f_matiere("Français", annee),
             f_matiere("Histoire", annee),

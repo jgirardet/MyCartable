@@ -2,7 +2,7 @@ import QtQuick 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Window 2.12
 import QtQuick.Layouts 1.12
-import RecentsModel 1.0
+//import RecentsModel 1.0
 
 
 
@@ -11,32 +11,15 @@ ApplicationWindow {
     width: 800
     height: 600
     visible: true
-    property int headersHeight: 50
-    property real pageColumnWidthRatio: 2 / 3
-    property real lateralsColumnWidth: width * (1 - pageColumnWidthRatio) / 2
-    property real pageColumnWidth: width * pageColumnWidthRatio
+
 
     // Global models
-    RecentsModel{id: recentsModel}
+//    RecentsModel{id: recentsModel}
 
     header: MainMenuBar {
         id: mainMenuBar
     }
 
-    Item {
-        id: _itemDispatcher
-        objectName: "_itemDispatcher"
-
-        signal newPage(int activite)
-
-         onNewPage: {
-            var np = database.newPage(1)
-            // Todo set PageListView
-            recentsModel.modelReset()
-            // Todo set partie matiere de droite
-         }
-
-    }
 
     Item {
         id: baseItem
@@ -44,27 +27,39 @@ ApplicationWindow {
         height: root.height - mainMenuBar.height
         width: root.width
 
-        GridLayout {
-        columns: 5
+        RowLayout {
+        anchors.fill:parent
         RecentsRectangle {
-            id: recentsRectangle
+            id: _recentsRectangle
             ddb: database
-            Layout.rowSpan: 1
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            Layout.preferredWidth: database.getLayoutSizes("preferredSideWidth")
+            Layout.maximumWidth: database.getLayoutSizes("maximumSideWidth")
+            Layout.minimumWidth: database.getLayoutSizes("minimumSideWidth")
+
 
         }
-
         PageRectangle {
             id: _pageRectangle
             ddb: database
-            Layout.rowSpan: 3
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            Layout.preferredWidth: database.getLayoutSizes("preferredCentralWidth")
+            Layout.minimumWidth: database.getLayoutSizes("minimumCentralWidth")
+
 
         }
-
         MatiereRectangle {
-            Layout.rowSpan: 1
+            id: _matiereRectangle
+            ddb: database
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            Layout.preferredWidth: database.getLayoutSizes("preferredSideWidth")
+            Layout.maximumWidth: database.getLayoutSizes("maximumSideWidth")
+            Layout.minimumWidth: database.getLayoutSizes("minimumSideWidth")
 
-        }
         }
     }
-
+    }
 }

@@ -31,7 +31,9 @@ def init_models(db: Database):
             if not matiere_id:
                 return []
             elif isinstance(matiere_id, str):
-                matiere = select(p for p in Matiere if p.nom==matiere_id) # pragma: no cover_all
+                matiere = select(
+                    p for p in Matiere if p.nom == matiere_id
+                )  # pragma: no cover_all
                 if matiere:
                     matiere = matiere.first()
                 else:
@@ -41,7 +43,9 @@ def init_models(db: Database):
                 if not matiere:
                     return []
             # activite = Activite.get(matiere=matiere.id, famille=famille) # pragma: no cover_all
-            activite = Activite.get(lambda p: p.matiere.id == matiere.id and p.famille == famille)
+            activite = Activite.get(
+                lambda p: p.matiere.id == matiere.id and p.famille == famille
+            )
             if activite:
                 return [p.to_dict() for p in activite.pages.order_by(Page.created)]
             return []
@@ -55,9 +59,11 @@ def init_models(db: Database):
         sections = Set("Section")
 
         def _query_recents(self):
-            query =  select(
+            query = select(
                 p for p in Page if p.modified > datetime.now() - timedelta(days=30)
-            ).order_by(desc(Page.modified)) # pragma: no cover_all
+            ).order_by(
+                desc(Page.modified)
+            )  # pragma: no cover_all
             return query
 
         def to_dict(self, *args, **kwargs):

@@ -4,6 +4,7 @@ from pony.orm import db_session, flush, select
 from fixtures import compare, ss
 from package.database import db
 
+
 class TestComboSelector:
     def test_matiere_list_nom(self, rootObject, matieres_list, ddbn):
         """also test databaseobject.matierelitnom"""
@@ -17,7 +18,10 @@ class TestComboSelector:
         # test ddb setcurrentmatierefromfindex
         select_cb.obj.activated.emit(1)
         assert select_cb.currentText == matieres_list[1]
-        assert rootObject.ddb.currentMatiere == matieres_list.index(select_cb.currentText)+1
+        assert (
+            rootObject.ddb.currentMatiere
+            == matieres_list.index(select_cb.currentText) + 1
+        )
 
         # test select reac to currentMatiere
         rootObject.ddb.currentMatiere = 3
@@ -29,8 +33,6 @@ class TestComboSelector:
         with db_session:
             pages = ddbn.Activite.pages_by_matiere_and_famille(mat_id, 0)
             assert compare(lvlessons.model, pages)
-
-
 
         # test changement dans lessons
         rootObject.ddb.currentMatiere = mat_id

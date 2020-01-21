@@ -1,6 +1,11 @@
 from PySide2 import QtGui
 from PySide2.QtCore import QObject, Signal, Property, Slot, QRegExp
 from PySide2.QtQml import QQmlProperty
+from package.constantes import LAYOUT_SIZES
+from package.database_mixins.activite_mixin import ActiviteMixin
+from package.database_mixins.matiere_mixin import MatiereMixin
+from package.database_mixins.page_mixin import PageMixin
+from package.database_mixins.recents_mixin import RecentsMixin
 from package.utils import MatieresDispatcher
 import logging
 
@@ -9,10 +14,8 @@ from pony.orm import db_session
 LOG = logging.getLogger(__name__)
 
 
-class DatabaseObject(QObject):
-    objectName="ddb"
-    fakenotify = Signal()
-    matiereListChanged = Signal()
+class DatabaseObject(QObject, PageMixin, MatiereMixin, ActiviteMixin, RecentsMixin):
+    objectName = "ddb"
 
     def __init__(self, db):
         super().__init__()
@@ -20,89 +23,26 @@ class DatabaseObject(QObject):
         self.m_d = MatieresDispatcher(self.db)
         self._currentPage = {}
         self._currentMatiere = -1
+        self.models = {}
+        self.setup_connections()
 
-    # currentMatiere
-    currentMatiereChanged = Signal()
+    def setup_connections(self):
 
-    @Property(int, notify=currentMatiereChanged)
-    def currentMatiere(self, notify=currentMatiereChanged):
-        return self._currentMatiere
+        self.currentMatiereChanged.connect(self.lessonsListChanged)
+        self.currentMatiereChanged.connect(self.exercicesListChanged)
+        self.currentMatiereChanged.connect(self.evaluationsListChanged)
 
-    @currentMatiere.setter
-    def current_matiere_set(self, value):
-        if self._currentMatiere != value and isinstance(value, int):
-            self._currentMatiere = value
-            LOG.info(f"current matiere set to: {self._currentMatiere}")
-            self.currentMatiereChanged.emit()
+        # self.currentPageChanged.conect(self.)
 
-    # @Slot(str)
-    # def setCurrentMatiereFromString(self, value):
-    #     self._currentMatiere = self.m_d.nom_id[value]
-    #     LOG.info(f"current matiere set with {value } to: {self._currentMatiere}")
-    #
-    #     self.currentMatiereChanged.emit()
-
-    @Slot(int)
-    def setCurrentMatiereFromIndex(self, value):
-        self._currentMatiere = self.m_d.matieres_list_id[value]
-        LOG.info(f"current matiere set with index  {value } to: {self._currentMatiere}")
-
-        self.currentMatiereChanged.emit()
-
-    @Slot(int, result=int)
-    def getMatiereIndexFromId(self, matiere_id):
-        try:
-            return self.m_d.id_index[matiere_id]
-        except KeyError:
-            LOG.info("matiere index non trouvé ou currentMatiere non settée")
-
-    # matieresList
-    @Property("QVariantList", notify=matiereListChanged)
-    def matieresListNom(self):
-        return self.m_d.matieres_list_nom
-
-    @Slot()
-    def matieresListRefresh(self):
-        self.m_d = MatieresDispatcher(self.db)
-        self.matiereListChanged.emit()
-
-    # newPage
-    @Slot(int, result="QVariantMap")
-    def newPage(self, activite):
-        with db_session:
-            return self.db.Page.new_page(activite=activite)
-
-    # currentPage
-    currentPageChanged = Signal()
-
-    @Property("QVariantMap", notify=currentPageChanged)
-    def currentPage(self):
-        return self._currentPage
-
-    @Slot(int)
-    def setCurrentPage(self, value):
-        with db_session:
-            self._currentPage = self.db.Page.get(id=value).to_dict()
-        self.currentPageChanged.emit()
-
-    @Slot(str, int, result="QVariantList")
-    def getPagesByMatiereAndActivite(self, matiere_nom, activite_index):
-        with db_session:
-            return self.db.Activite.pages_by_matiere_and_famille(
-                    matiere_nom , activite_index)
+    # init sizes
+    @Slot(str, result=float)
+    def getLayoutSizes(self, nom):
+        return LAYOUT_SIZES[nom]
 
     @Slot(int)
     def recentsItemClicked(self, id: int):
         with db_session:
-            item = self.db.Page.get(id = id)
+            item = self.db.Page.get(id=id)
             if item:
-                self.setCurrentPage(item.id)
+                self.currentPage = item.id
                 self.currentMatiere = item.activite.matiere.id
-
-
-    # @Slot(QObject)
-    # def child(self, un):
-    #     print(un.findChildren(QObject, QRegExp('bla')))
-        # print(a)
-        # for i in a:
-        #     print(QQmlProperty.read(i, "objectName"))

@@ -11,12 +11,11 @@ import QtQuick.Controls 2.12
             Column {
                 anchors.fill: parent
                 spacing: 5
-
                 PageToolBar {
                     id: pageToolBar
-                    width: base.width
-                    height: root.headersHeight
-                    onNouveau: _itemDispatcher.newPage(2)
+                    width: parent.width
+                    height: ddb.getLayoutSizes("preferredHeaderHeight")
+                    onNouveau: ddb.newPage(2)
                    }
                 Rectangle {
                     width: parent.width

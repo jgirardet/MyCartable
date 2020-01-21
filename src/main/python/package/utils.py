@@ -26,4 +26,3 @@ class MatieresDispatcher:
 
     def _build_matieres_list_id(self):
         return tuple(self.nom_id.values())
-

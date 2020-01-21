@@ -11,22 +11,19 @@ class BaseTest(BaseListModel):
     def populate(self):
         self._datas = [1, 2, 3, 4]
 
+
 class TestBaseBaseListModel:
-
-
-
     def test_init(self):
         assert check_super_init("package.list_models.QAbstractListModel", BaseListModel)
         b = BaseListModel()
         assert b._datas is None
-
 
     def test_update_datas(self, ddbr):
         a = BaseTest()
         a._datas = ["Rien", "de", "bon"]
         a.update_datas()
         # update automagicaly called
-        assert a._datas == [1,2,3,4]
+        assert a._datas == [1, 2, 3, 4]
 
         # no populate go to the main model
         pages = [f_page().to_dict() for p in range(3)]
@@ -41,19 +38,17 @@ class TestBaseBaseListModel:
         # datas should be populate if not in rowcount
         assert a.rowCount("parent") == 4
 
-        #called when data not none
+        # called when data not none
         assert a.rowCount("parent") == 4
-
 
     def test_data(self):
         a = BaseTest()
-        #valid index
-        assert a.data(a.index(1,0), Qt.DisplayRole) == 2
-        #invalid index
-        assert a.data(a.index(99,99), Qt.DisplayRole) is None
+        # valid index
+        assert a.data(a.index(1, 0), Qt.DisplayRole) == 2
+        # invalid index
+        assert a.data(a.index(99, 99), Qt.DisplayRole) is None
         # no good role
-        assert a.data(a.index(1,0), 99999) is None
-
+        assert a.data(a.index(1, 0), 99999) is None
 
 
 class TestRecentsModel:
@@ -65,9 +60,8 @@ class TestRecentsModel:
         assert compare(b._datas, a)
 
     def test_modelreset(self):
-        a= RecentsModel()
-        a._datas =[1,2,3]
+        a = RecentsModel()
+        a._datas = [1, 2, 3]
         with check_begin_end(a, "RestModel"):
             a.modelReset()
             assert a._datas is None
-

@@ -7,7 +7,13 @@ class ActiviteMixin:
     lessonsListChanged = Signal()
     exercicesListChanged = Signal()
     evaluationsListChanged = Signal()
+    ACTIVITE_LIST = [lessonsListChanged, exercicesListChanged, evaluationsListChanged]
 
+    @Slot()
+    def update_activite(self):
+        self.lessonsListChanged.emit()
+        self.exercicesListChanged.emit()
+        self.evaluationsListChanged.emit()
 
     @Property("QVariantList", notify=lessonsListChanged)
     def lessonsList(self):

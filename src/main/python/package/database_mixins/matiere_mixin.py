@@ -24,10 +24,11 @@ class MatiereMixin:
 
     @Slot(int)
     def setCurrentMatiereFromIndex(self, value):
-        self._currentMatiere = self.m_d.matieres_list_id[value]
+        print(self.m_d.matieres_list_id[value])
+        self.currentMatiere = self.m_d.matieres_list_id[value]
+        self.currentPage = 0
         LOG.info(f"current matiere set with index  {value } to: {self._currentMatiere}")
 
-        self.currentMatiereChanged.emit()
 
     @Slot(int, result=int)
     def getMatiereIndexFromId(self, matiere_id):

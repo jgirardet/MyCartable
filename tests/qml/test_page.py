@@ -22,31 +22,4 @@ class TestObjectDatabase:
         print(a)
         # print(rlv.obj.contentItem.data)#(item['id'], item['matiere'])
 
-    def test_lv(self, ddbr, matieres_list):
-        qapp = QApplication.instance() or QApplication([])
-        engine = QQmlApplicationEngine()
 
-        # Import stuff
-        from package.database_object import DatabaseObject
-        import qrc
-        from package.database.factory import populate_database
-
-        # Add type and property
-        ddb = DatabaseObject(ddbr)
-        engine.rootContext().setContextProperty("ddb", ddb)
-        engine.load(QUrl("qrc:///qml/RecentsListView.qml"))
-        root = engine.rootObjects()[0]
-
-        # set context and utils
-        populate_database(matieres_list=matieres_list, nb_activite=3, nb_page=100)
-        # root.W = QRootWrapper(root)
-        # root.ddb = engine.rootContext().contextProperty("ddb")
-
-        print(QQmlProperty.read(root, "spacing"))
-        print(dir(root))
-        d = QQmlProperty.read(root, "delegate")
-        print(QQmlProperty.read(d, "contentItem"))
-
-        del root
-        del engine
-        del qapp

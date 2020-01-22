@@ -21,8 +21,8 @@ class DatabaseObject(QObject, PageMixin, MatiereMixin, ActiviteMixin, RecentsMix
         super().__init__()
         self.db = db
         self.m_d = MatieresDispatcher(self.db)
-        self._currentPage = {}
-        self._currentMatiere = -1
+        self._currentPage = 0
+        self._currentMatiere = 0
         self.models = {}
         self.setup_connections()
 
@@ -31,8 +31,6 @@ class DatabaseObject(QObject, PageMixin, MatiereMixin, ActiviteMixin, RecentsMix
         self.currentMatiereChanged.connect(self.lessonsListChanged)
         self.currentMatiereChanged.connect(self.exercicesListChanged)
         self.currentMatiereChanged.connect(self.evaluationsListChanged)
-
-        # self.currentPageChanged.conect(self.)
 
     # init sizes
     @Slot(str, result=float)

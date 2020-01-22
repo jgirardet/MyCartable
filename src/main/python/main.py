@@ -53,6 +53,8 @@ if __name__ == "__main__":
 
     engine = main_setup(database)
 
+
+
     if not engine.rootObjects():
         sys.exit(-1)
 

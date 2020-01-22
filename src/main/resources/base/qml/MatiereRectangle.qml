@@ -23,9 +23,9 @@ Rectangle {
             MatiereComboBox {
                 id: _comboBoxSelectMatiere
                 objectName: "_comboBoxSelectMatiere"
-                model: ddb.matieresListNom
-                currentIndex: database.getMatiereIndexFromId(database.currentMatiere)
-                onActivated:database.setCurrentMatiereFromIndex(index)
+                model: base.ddb.matieresListNom
+                currentIndex: base.ddb.getMatiereIndexFromId(database.currentMatiere)
+                onActivated: base.ddb.setCurrentMatiereFromIndex(index)
             }
 
 

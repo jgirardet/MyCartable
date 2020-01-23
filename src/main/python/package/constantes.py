@@ -1,3 +1,15 @@
+from collections import namedtuple
+
+
+FamilleActivite = namedtuple("FamilleActivite", "index nom")
+
+ACTIVITES= [
+    FamilleActivite(0, "Lessons"),
+    FamilleActivite(1, "Exercices"),
+    FamilleActivite(2, "Evaluations"),
+]
+
+
 pageColumnWidthRatio = 2 / 3
 
 preferredCentralWidth = 750
@@ -22,3 +34,5 @@ LAYOUT_SIZES = {
     "minimumActiviteHeight": minimumActiviteHeight,
     "maximumSideWidth": maximumSideWidth,
 }
+
+

@@ -1,0 +1,3 @@
+{
+    "files": ["src/main/resources/base/qml/*.qml"]
+}

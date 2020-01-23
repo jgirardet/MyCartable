@@ -2,7 +2,7 @@
 import logging
 
 from PySide2.QtCore import Signal, Property, Slot
-from package.utils import MatieresDispatcher
+from pony.orm import db_session
 
 LOG = logging.getLogger(__name__)
 
@@ -10,6 +10,11 @@ LOG = logging.getLogger(__name__)
 class MatiereMixin:
     currentMatiereChanged = Signal()
     matiereListNomChanged = Signal()
+
+    def __init__(self):
+        self._currentMatiere = 0
+        self.m_d = MatieresDispatcher(self.db)
+
 
     @Property(int, notify=currentMatiereChanged)
     def currentMatiere(self, notify=currentMatiereChanged):
@@ -24,9 +29,7 @@ class MatiereMixin:
 
     @Slot(int)
     def setCurrentMatiereFromIndex(self, value):
-        print(self.m_d.matieres_list_id[value])
         self.currentMatiere = self.m_d.matieres_list_id[value]
-        self.currentPage = 0
         LOG.info(f"current matiere set with index  {value } to: {self._currentMatiere}")
 
 
@@ -46,3 +49,32 @@ class MatiereMixin:
     def matieresListRefresh(self):
         self.m_d = MatieresDispatcher(self.db)
         self.matiereListNomChanged.emit()
+
+
+
+
+class MatieresDispatcher:
+    def __init__(self, db):
+        self.db = db
+        with db_session:
+            self.query = self.db.Matiere.select().order_by(self.db.Matiere.id)
+            self.nom_id = self._build_nom_id()
+            self.id_nom = self._build_id_nom()
+            self.id_index = self._build_id_index()
+        self.matieres_list_nom = self._build_matieres_list_nom()
+        self.matieres_list_id = self._build_matieres_list_id()
+
+    def _build_nom_id(self):
+        return {p.nom: p.id for p in self.query}
+
+    def _build_id_nom(self):
+        return {p.id: p.nom for p in self.query}
+
+    def _build_id_index(self):
+        return {p.id: index for index, p in enumerate(self.query)}
+
+    def _build_matieres_list_nom(self):
+        return tuple(self.nom_id.keys())
+
+    def _build_matieres_list_id(self):
+        return tuple(self.nom_id.values())

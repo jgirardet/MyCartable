@@ -49,7 +49,6 @@ if __name__ == "__main__":
 
     # models
     database = DatabaseObject(package.database.db)
-    database.models["recentsModel"] = RecentsModel()
 
     engine = main_setup(database)
 

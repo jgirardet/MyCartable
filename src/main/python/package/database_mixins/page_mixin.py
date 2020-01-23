@@ -4,27 +4,20 @@ from pony.orm import db_session
 
 class PageMixin:
     currentPageChanged = Signal()
-    newPageCreated = Signal()
+    newPageCreated = Signal(dict)
 
-    # def setup_connections(self):
-    #     self.newPageCreated.connect(self.currentPageChanged)
+
+    def __init__(self):
+        self._currentPage = 0
 
     # newPage
-    @Slot(int)
+    @Slot(int, result="QVariantMap")
     def newPage(self, activite):
         with db_session:
             new_item = self.db.Page.new_page(activite=activite, titre="nouveau")
-
-        self.recentsModel.modelReset()
-        self.currentPage = new_item["id"]
-        self.currentMatiere = new_item["matiere"]
-        print(activite%3)
-        self.update_activite()
-
+        self.newPageCreated.emit(new_item)
 
     # currentPage
-
-
     @Property(int, notify=currentPageChanged)
     def currentPage(self):
         return self._currentPage
@@ -33,7 +26,6 @@ class PageMixin:
     def currentPageSet(self, new_id):
         self._currentPage = new_id
         self.currentPageChanged.emit()
-        print("emited")
 
 
     # #@Property("QVariantMap")

@@ -2,6 +2,7 @@
   branch = True
 source =
 	package
+	main.py
 omit =
   */__init__.py,
   */factory.py

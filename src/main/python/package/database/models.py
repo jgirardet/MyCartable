@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 from pony.orm import select, Database, PrimaryKey, Optional, Required, Set, desc, flush
-
+from package.constantes import ACTIVITES
 
 def init_models(db: Database):
     class Annee(db.Entity):
@@ -19,7 +19,21 @@ def init_models(db: Database):
         def noms(self):
             return [p.nom for p in Matiere.select()]
 
+        @property
+        def activites_list(self):
+            return self.to_dict()['activites']
+
+        def after_insert(self):
+            for ac in ACTIVITES:
+                Activite(nom=ac.nom, famille=ac.index, matiere=self)
+
+        def to_dict(self, *args, **kwargs):
+            return super().to_dict(*args, with_collections=True, **kwargs)
+
     class Activite(db.Entity):
+
+        ACTIVITES = ACTIVITES
+
         id = PrimaryKey(int, auto=True)
         nom = Required(str)
         famille = Required(int)
@@ -48,6 +62,7 @@ def init_models(db: Database):
                 return [p.to_dict() for p in activite.pages.order_by(desc(Page.created))]
             return []
 
+
     class Page(db.Entity):
         id = PrimaryKey(int, auto=True)
         created = Required(datetime, default=datetime.now)
@@ -68,6 +83,7 @@ def init_models(db: Database):
             dico = super().to_dict(*args, **kwargs)
             dico["matiere"] = self.activite.matiere.id
             dico["matiereNom"] = self.activite.matiere.nom
+            dico["activiteIndex"] = self.activite.famille
             return dico
 
         @classmethod

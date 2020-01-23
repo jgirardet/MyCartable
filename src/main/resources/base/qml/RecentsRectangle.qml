@@ -26,8 +26,7 @@ Rectangle {
             id: _recentsListView
             objectName: "_recentsListView"
             model: ddb.recentsModel
-            onItemClicked: ddb.recentsItemClicked(id)
-
+            onItemClicked: base.ddb.recentsItemClicked(id, matiere)
         }
 
     }

@@ -7,10 +7,10 @@ class ActiviteMixin:
     lessonsListChanged = Signal()
     exercicesListChanged = Signal()
     evaluationsListChanged = Signal()
-    ACTIVITE_LIST = [lessonsListChanged, exercicesListChanged, evaluationsListChanged]
+
 
     @Slot()
-    def update_activite(self):
+    def update_activites(self):
         self.lessonsListChanged.emit()
         self.exercicesListChanged.emit()
         self.evaluationsListChanged.emit()
@@ -31,3 +31,11 @@ class ActiviteMixin:
         with db_session:
             return self.db.Activite.pages_by_matiere_and_famille(self.currentMatiere, 2)
 
+
+    @property
+    def activites_all(self):
+        return [self.lessonsList, self.exercicesList, self.evaluationsList]
+
+    @property
+    def activites_signal_all(self):
+        return [self.lessonsListChanged, self.exercicesListChanged, self.evaluationsListChanged]

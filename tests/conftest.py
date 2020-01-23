@@ -200,3 +200,10 @@ def rootObject(matieres_list, ddbr):
     del engine
     del qapp
     # print(((time.time()-t)+dt))
+
+
+
+@pytest.fixture()
+def dao(ddbr):
+    from package.database_object import DatabaseObject
+    return DatabaseObject(ddbr)

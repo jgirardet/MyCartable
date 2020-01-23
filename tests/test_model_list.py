@@ -1,3 +1,4 @@
+from package.list_models import BaseListModel
 from datetime import datetime
 from unittest.mock import MagicMock
 
@@ -11,12 +12,16 @@ class BaseTest(BaseListModel):
     def populate(self):
         self._datas = [1, 2, 3, 4]
 
-
-class TestBaseBaseListModel:
-    def test_init(self):
+class TestBaseModel:
+    def test_base_init(self, qtbot , qtmodeltester):
         assert check_super_init("package.list_models.QAbstractListModel", BaseListModel)
         b = BaseListModel()
         assert b._datas is None
+
+        a = BaseListModel()
+        a._datas = [1,2,4]
+        qtmodeltester.check(a)
+
 
     def test_update_datas(self, ddbr):
         a = BaseTest()
@@ -44,24 +49,31 @@ class TestBaseBaseListModel:
     def test_data(self):
         a = BaseTest()
         # valid index
-        assert a.data(a.index(1, 0), Qt.DisplayRole) == 2
+        assert a.data(a.index(1, 0), a.PageRole) == 2
         # invalid index
-        assert a.data(a.index(99, 99), Qt.DisplayRole) is None
+        assert a.data(a.index(99, 99), a.PageRole) is None
         # no good role
         assert a.data(a.index(1, 0), 99999) is None
 
 
 class TestRecentsModel:
+
+    def test_checker(self, qtmodeltester):
+        a = RecentsModel()
+        a.update_datas()
+        qtmodeltester.check(a)
+
     def test_populate(self, ddbr):
         a = b_page(5, True, created=datetime.now())
         b = RecentsModel()
         b.db = ddbr.Page
         b.update_datas()
+
         assert compare(b._datas, a)
 
     def test_modelreset(self):
         a = RecentsModel()
         a._datas = [1, 2, 3]
         with check_begin_end(a, "RestModel"):
-            a.modelReset()
+            a.slotResetModel()
             assert a._datas is None

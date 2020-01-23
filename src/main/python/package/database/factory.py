@@ -2,6 +2,8 @@ from datetime import datetime, timedelta
 
 import mimesis
 import random
+
+from package.constantes import ACTIVITES
 from pony.orm import db_session
 
 gen = mimesis.Generic("fr")
@@ -31,31 +33,39 @@ def f_matiere(nom=None, annee=None):
         annee = annee or f_annee()
         return db.Matiere(annee=annee, nom=nom)
 
+#
+# def f_activite(famille=None, matiere=None):
+#     activites = ((0, "Exercice"), (1, "Leçon"), (2, "Divers"))
+#     famille = famille if famille is not None else random.choice(activites)[0]
+#     nom = activites[famille][1]
+#     with db_session:
+#         matiere = matiere or f_matiere()
+#         return db.Activite(nom=nom, famille=famille, matiere=matiere)
 
-def f_activite(famille=None, matiere=None):
-    activites = ((0, "Exercice"), (1, "Leçon"), (2, "Divers"))
-    famille = famille if famille is not None else random.choice(activites)[0]
-    nom = activites[famille][1]
-    with db_session:
-        matiere = matiere or f_matiere()
-        return db.Activite(nom=nom, famille=famille, matiere=matiere)
 
-
-def f_page(created=None, activite=None, titre=None):
+def f_page(created=None, activite=None, titre=None, td=False):
+    """actvite int = id mais str = index"""
     with db_session:
         created = created or f_datetime()
-        activite = activite or f_activite()
+        if activite:
+            if isinstance(activite, int):
+                activite = activite
+            elif isinstance(activite, str):
+                m=f_matiere()
+                m.flush()
+                activite = m.activites_list[int(activite)]
+        else:
+            m=f_matiere()
+            m.flush()
+            activite = random.choice(m.activites.select()[:])
         titre = titre or " ".join(gen.text.words(5))
-        return db.Page(created=created, activite=activite, titre=titre)
+        item = db.Page(created=created, activite=activite, titre=titre)
+        return item.to_dict() if td else item
 
 
 def b_page(n, td=False, created=None, activite=None, titre=None):
-    res = [f_page(created, activite, titre) for p in range(n)]
-    if td:
-        with db_session:
-            return [p.to_dict() for p in res]
-    else:
-        return res
+    res = [f_page(created, activite, titre, td) for p in range(n)]
+    return res
 
 
 def f_section(created=None, page=None, content=None, content_type=None):
@@ -69,7 +79,7 @@ def f_section(created=None, page=None, content=None, content_type=None):
 
 
 @db_session
-def populate_database(matieres_list=None, nb_activite=3, nb_page=100):
+def populate_database(matieres_list=None,  nb_page=100):
     annee = f_annee()
     if matieres_list is not None:
         matieres = [f_matiere(x, annee) for x in matieres_list]
@@ -80,10 +90,7 @@ def populate_database(matieres_list=None, nb_activite=3, nb_page=100):
             f_matiere("Histoire", annee),
             f_matiere("Anglais", annee),
         ]
-    activites = []
-    for m in matieres:
-        for i in range(nb_activite):
-            activites.append(f_activite(famille=i, matiere=m))
 
+    activites = db.Activite.select()[:]
     for i in range(nb_page):
         f_page(activite=random.choice(activites))

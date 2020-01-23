@@ -62,33 +62,32 @@ class TestPage:
             old = i
 
         # formatted result
-        m = f_matiere()
-        ac = f_activite(matiere=m)
-        a = f_page(created=datetime.now(), activite=ac)
+        # m = f_matiere()
+        # ac = f_activite(matiere=m)
+        a = f_page(created=datetime.now())
         res = a.to_dict()
-        res["matiere"] = m.id
+        res["matiere"] = a.activite.matiere.id
         first_dict = db.Page.recents()[0]
         assert first_dict == res
 
     def test_to_dict(self):
         d = datetime.now()
-        a = f_activite()
-        p = f_page(created=d, titre="bl", activite=a)
+        p = f_page(created=d, titre="bl")
         assert p.to_dict() == {
             "id": 1,
             "created": d,
             "modified": d,
             "titre": "bl",
-            "activite": 1,
-            "matiere": a.matiere.id,
-            "matiereNom": a.matiere.nom,
+            "activite": p.activite.id,
+            "matiere": p.activite.matiere.id,
+            "matiereNom": p.activite.matiere.nom,
+            "activiteIndex": p.activite.famille
         }
 
     def test_nouvelle_page(self, ddb):
-        a = f_activite()
-        a.to_dict()
-        b = ddb.Page.new_page(activite=a, titre="bla")
-        assert ddb.Page.get(id=b["id"], titre="bla", activite=a)
+        a = f_matiere().to_dict()
+        b = ddb.Page.new_page(activite=1, titre="bla")
+        assert ddb.Page.get(id=b["id"], titre="bla", activite=1)
 
 
 class TestMatiere:
@@ -101,12 +100,16 @@ class TestMatiere:
         f_matiere(nom="e")
         assert ddb.Matiere.noms() == ["a", "b", "c", "d", "e"]
 
+    def test_to_dict(self, ddb):
+        f_matiere().to_dict()
+        a = f_matiere(nom="Géo")
+        assert a.to_dict() == {'id': 2, 'nom': 'Géo', 'annee': 2, 'activites': [4, 5, 6]}
+
 
 class TestActivite:
     def test_pages_by_matiere_and_famille(self, ddb):
         m = f_matiere("bla")
         m.to_dict()
-        ac = f_activite(0, m)
 
         # matiere param is 0
         assert ddb.Activite.pages_by_matiere_and_famille(0, 0) == []
@@ -127,11 +130,10 @@ class TestActivite:
 
         # setup
         controle = []
-        controle = [f_page(activite=ac).to_dict() for i in range(5)]
+        controle = [f_page(activite=m.activites.select()[:][0]).to_dict() for i in range(5)]
 
         # sema matiere different section
-        g = f_activite(1, m)
-        f_page(activite=g).to_dict()
+        f_page(activite=m.activites.select()[:][1]).to_dict()
         # different matiere
         f_page()
 

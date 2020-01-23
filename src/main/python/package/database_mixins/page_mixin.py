@@ -6,7 +6,6 @@ class PageMixin:
     currentPageChanged = Signal()
     newPageCreated = Signal(dict)
 
-
     def __init__(self):
         self._currentPage = 0
 
@@ -26,7 +25,6 @@ class PageMixin:
     def currentPageSet(self, new_id):
         self._currentPage = new_id
         self.currentPageChanged.emit()
-
 
     # #@Property("QVariantMap")
     # def currentEntry(self):

@@ -15,7 +15,6 @@ class MatiereMixin:
         self._currentMatiere = 0
         self.m_d = MatieresDispatcher(self.db)
 
-
     @Property(int, notify=currentMatiereChanged)
     def currentMatiere(self, notify=currentMatiereChanged):
         return self._currentMatiere
@@ -31,7 +30,6 @@ class MatiereMixin:
     def setCurrentMatiereFromIndex(self, value):
         self.currentMatiere = self.m_d.matieres_list_id[value]
         LOG.info(f"current matiere set with index  {value } to: {self._currentMatiere}")
-
 
     @Slot(int, result=int)
     def getMatiereIndexFromId(self, matiere_id):
@@ -49,8 +47,6 @@ class MatiereMixin:
     def matieresListRefresh(self):
         self.m_d = MatieresDispatcher(self.db)
         self.matiereListNomChanged.emit()
-
-
 
 
 class MatieresDispatcher:

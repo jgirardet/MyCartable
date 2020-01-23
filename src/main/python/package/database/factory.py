@@ -33,6 +33,7 @@ def f_matiere(nom=None, annee=None):
         annee = annee or f_annee()
         return db.Matiere(annee=annee, nom=nom)
 
+
 #
 # def f_activite(famille=None, matiere=None):
 #     activites = ((0, "Exercice"), (1, "Leçon"), (2, "Divers"))
@@ -51,11 +52,11 @@ def f_page(created=None, activite=None, titre=None, td=False):
             if isinstance(activite, int):
                 activite = activite
             elif isinstance(activite, str):
-                m=f_matiere()
+                m = f_matiere()
                 m.flush()
                 activite = m.activites_list[int(activite)]
         else:
-            m=f_matiere()
+            m = f_matiere()
             m.flush()
             activite = random.choice(m.activites.select()[:])
         titre = titre or " ".join(gen.text.words(5))
@@ -68,18 +69,23 @@ def b_page(n, td=False, created=None, activite=None, titre=None):
     return res
 
 
-def f_section(created=None, page=None, content=None, content_type=None):
+def f_section(created=None, page=None, content=None, content_type=None, previous=None):
     with db_session:
-
         created = created or f_datetime()
         page = page or f_page()
         content = content or gen.text.sentence()
         content_type = content_type or "str"
-        return db.Section(created=created, page=page)
+        return db.Section(
+            created=created,
+            page=page,
+            content=content,
+            content_type=content_type,
+            previous=previous,
+        )
 
 
 @db_session
-def populate_database(matieres_list=None,  nb_page=100):
+def populate_database(matieres_list=None, nb_page=100):
     annee = f_annee()
     if matieres_list is not None:
         matieres = [f_matiere(x, annee) for x in matieres_list]

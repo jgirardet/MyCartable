@@ -20,7 +20,7 @@ class BaseListModel(QAbstractListModel):
 
     def roleNames(self) -> typing.Dict:
         default = super().roleNames()
-        default[self.PageRole] = QByteArray(b'page')
+        default[self.PageRole] = QByteArray(b"page")
         # default[self.AddRole] = QByteArray(b'add')
         return default
 
@@ -34,12 +34,12 @@ class BaseListModel(QAbstractListModel):
         if self._datas is None:
             self._datas = [d.to_dict() for d in self.db.select()]
 
-    def rowCount(self,  parent=QModelIndex()) -> int:
+    def rowCount(self, parent=QModelIndex()) -> int:
         if self._datas is None:
             self.update_datas()
         return len(self._datas)
 
-    def data(self, index , role: int) -> typing.Any:
+    def data(self, index, role: int) -> typing.Any:
         if not index.isValid():
             return None
         elif role == self.PageRole:
@@ -60,7 +60,6 @@ class RecentsModel(BaseListModel):
 
     db = db.Page
     #
-
 
     def populate(self):
         self._datas = self.db.recents()

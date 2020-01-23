@@ -3,7 +3,7 @@ from collections import namedtuple
 
 FamilleActivite = namedtuple("FamilleActivite", "index nom")
 
-ACTIVITES= [
+ACTIVITES = [
     FamilleActivite(0, "Lessons"),
     FamilleActivite(1, "Exercices"),
     FamilleActivite(2, "Evaluations"),
@@ -34,5 +34,3 @@ LAYOUT_SIZES = {
     "minimumActiviteHeight": minimumActiviteHeight,
     "maximumSideWidth": maximumSideWidth,
 }
-
-

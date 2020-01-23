@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from pony.orm import select, Database, PrimaryKey, Optional, Required, Set, desc, flush
 from package.constantes import ACTIVITES
 
+
 def init_models(db: Database):
     class Annee(db.Entity):
         id = PrimaryKey(int, auto=True)
@@ -21,7 +22,7 @@ def init_models(db: Database):
 
         @property
         def activites_list(self):
-            return self.to_dict()['activites']
+            return self.to_dict()["activites"]
 
         def after_insert(self):
             for ac in ACTIVITES:
@@ -59,9 +60,10 @@ def init_models(db: Database):
             activite = Activite.get(matiere=matiere.id, famille=famille)
 
             if activite:
-                return [p.to_dict() for p in activite.pages.order_by(desc(Page.created))]
+                return [
+                    p.to_dict() for p in activite.pages.order_by(desc(Page.created))
+                ]
             return []
-
 
     class Page(db.Entity):
         id = PrimaryKey(int, auto=True)
@@ -86,6 +88,9 @@ def init_models(db: Database):
             dico["activiteIndex"] = self.activite.famille
             return dico
 
+        def content(self):
+            pass
+
         @classmethod
         def recents(cls):
             return [p.to_dict() for p in cls._query_recents(cls)]
@@ -104,6 +109,7 @@ def init_models(db: Database):
         page = Required(Page)
         content = Optional(str)
         content_type = Optional(str)
+        previous = Optional("Section", reverse="previous")
 
         def before_insert(self):
             self.modified = self.created
@@ -112,3 +118,6 @@ def init_models(db: Database):
         def before_update(self):
             self.modified = datetime.now()
             self.page.modified = self.modified
+
+        def set_previous(self):
+            pass

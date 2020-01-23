@@ -15,6 +15,7 @@ LOG = logging.getLogger(__name__)
 
 MIXINS = [PageMixin, MatiereMixin, ActiviteMixin, RecentsMixin, LayoutMixin]
 
+
 class DatabaseObject(QObject, *MIXINS):
     def __init__(self, db):
         super().__init__()
@@ -26,15 +27,12 @@ class DatabaseObject(QObject, *MIXINS):
 
         self.setup_connections()
 
-
     def setup_connections(self):
 
         self.currentMatiereChanged.connect(self.onCurrentMatiereChanged)
         self.newPageCreated.connect(self.onNewPageCreated)
         self.currentPageChanged.connect(self.currentMatiereChanged)
         self.recentsItemClicked.connect(self.onRecentsItemClicked)
-
-
 
     def onCurrentMatiereChanged(self):
         self.currentMatiereChanged.connect(self.update_activites)
@@ -44,11 +42,9 @@ class DatabaseObject(QObject, *MIXINS):
         self.currentMatiere = matiere
 
     def onNewPageCreated(self, item: dict):
-        self.recentsModel.slotResetModel
+        self.recentsModel.slotResetModel()
         self.currentPage = item["id"]
         self.currentMatiere = item["matiere"]
-        self.activites_signal_all[item["activiteIndex"]].emit() #force when currentmatiere doesnt change
-
-
-
-
+        self.activites_signal_all[
+            item["activiteIndex"]
+        ].emit()  # force when currentmatiere doesnt change

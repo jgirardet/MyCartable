@@ -12,16 +12,16 @@ class BaseTest(BaseListModel):
     def populate(self):
         self._datas = [1, 2, 3, 4]
 
+
 class TestBaseModel:
-    def test_base_init(self, qtbot , qtmodeltester):
+    def test_base_init(self, qtbot, qtmodeltester):
         assert check_super_init("package.list_models.QAbstractListModel", BaseListModel)
         b = BaseListModel()
         assert b._datas is None
 
         a = BaseListModel()
-        a._datas = [1,2,4]
+        a._datas = [1, 2, 4]
         qtmodeltester.check(a)
-
 
     def test_update_datas(self, ddbr):
         a = BaseTest()
@@ -57,7 +57,6 @@ class TestBaseModel:
 
 
 class TestRecentsModel:
-
     def test_checker(self, qtmodeltester):
         a = RecentsModel()
         a.update_datas()

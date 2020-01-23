@@ -81,7 +81,7 @@ class TestPage:
             "activite": p.activite.id,
             "matiere": p.activite.matiere.id,
             "matiereNom": p.activite.matiere.nom,
-            "activiteIndex": p.activite.famille
+            "activiteIndex": p.activite.famille,
         }
 
     def test_nouvelle_page(self, ddb):
@@ -103,7 +103,12 @@ class TestMatiere:
     def test_to_dict(self, ddb):
         f_matiere().to_dict()
         a = f_matiere(nom="Géo")
-        assert a.to_dict() == {'id': 2, 'nom': 'Géo', 'annee': 2, 'activites': [4, 5, 6]}
+        assert a.to_dict() == {
+            "id": 2,
+            "nom": "Géo",
+            "annee": 2,
+            "activites": [4, 5, 6],
+        }
 
 
 class TestActivite:
@@ -130,7 +135,9 @@ class TestActivite:
 
         # setup
         controle = []
-        controle = [f_page(activite=m.activites.select()[:][0]).to_dict() for i in range(5)]
+        controle = [
+            f_page(activite=m.activites.select()[:][0]).to_dict() for i in range(5)
+        ]
 
         # sema matiere different section
         f_page(activite=m.activites.select()[:][1]).to_dict()
@@ -147,3 +154,11 @@ class TestActivite:
         # with str id matiere unknown
         pages = ddb.Activite.pages_by_matiere_and_famille("ble", 0)
         assert compare(pages, [])
+
+
+class TestSection:
+    def test_modified(self, ddb):
+        """tested in page"""
+
+    def test_set_previous(self, ddbr):
+        pass

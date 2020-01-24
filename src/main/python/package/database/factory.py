@@ -61,6 +61,7 @@ def f_page(created=None, activite=None, titre=None, td=False):
             activite = random.choice(m.activites.select()[:])
         titre = titre or " ".join(gen.text.words(5))
         item = db.Page(created=created, activite=activite, titre=titre)
+        item.flush()
         return item.to_dict() if td else item
 
 
@@ -69,19 +70,26 @@ def b_page(n, td=False, created=None, activite=None, titre=None):
     return res
 
 
-def f_section(created=None, page=None, content=None, content_type=None, previous=None):
+def f_section(created=None, page=None, content=None, content_type=None, position=0, td=False):
     with db_session:
         created = created or f_datetime()
-        page = page or f_page()
+        page = page or f_page(td=True)['id']
         content = content or gen.text.sentence()
         content_type = content_type or "str"
-        return db.Section(
+
+        item = db.Section(
             created=created,
             page=page,
             content=content,
             content_type=content_type,
-            previous=previous,
+            position=position,
         )
+        item.flush()
+        # print(item.page.content(), "dans fac")
+        return item.to_dict() if td else item
+
+def b_section(n, *args, **kwargs ):
+    return [f_section(*args, **kwargs) for p in range(n)]
 
 
 @db_session

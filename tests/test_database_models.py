@@ -5,10 +5,9 @@ from package.database.factory import *
 import pytest
 from pony.orm import flush, exists, commit
 
-pytestmark = pytest.mark.usefixtures(*["ddb"])
 
 
-def test_creation_all():
+def test_creation_all(ddb):
     an = f_annee()
     a = f_matiere(annee=an)
     f_section()
@@ -38,7 +37,7 @@ class TestSection:
 
 
 class TestPage:
-    def test_modified(self):
+    def test_modified(self, ddb):
         avant = datetime.now()
         s = f_page(created=datetime.now())
         s.to_dict()  # flush
@@ -46,11 +45,11 @@ class TestPage:
         assert s.created == s.modified
         assert avant < s.created < apres
 
-    def test_recents(self):
+    def test_recents(self, ddb):
 
         for i in range(100):
             f_page()
-        flush()
+        # flush()
 
         # test query
         assert db.Page.select().count() == 100
@@ -70,7 +69,7 @@ class TestPage:
         first_dict = db.Page.recents()[0]
         assert first_dict == res
 
-    def test_to_dict(self):
+    def test_to_dict(self, ddb):
         d = datetime.now()
         p = f_page(created=d, titre="bl")
         assert p.to_dict() == {
@@ -88,6 +87,21 @@ class TestPage:
         a = f_matiere().to_dict()
         b = ddb.Page.new_page(activite=1, titre="bla")
         assert ddb.Page.get(id=b["id"], titre="bla", activite=1)
+
+
+    def test_content(selfself, ddbr):
+        a = f_page()
+        sections = b_section(10, page=a.id)
+        others = b_section(10)
+        with db_session:
+            assert a.content == sections
+        prev = None
+        with db_session:
+            for i in a.content:
+                if prev:
+                    print(i.position)
+                    assert i.position >= prev.position
+                prev = i
 
 
 class TestMatiere:

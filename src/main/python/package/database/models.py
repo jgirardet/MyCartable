@@ -88,8 +88,6 @@ def init_models(db: Database):
             dico["activiteIndex"] = self.activite.famille
             return dico
 
-        def content(self):
-            pass
 
         @classmethod
         def recents(cls):
@@ -98,6 +96,11 @@ def init_models(db: Database):
         @staticmethod
         def new_page(activite, titre=""):
             return Page(titre=titre, activite=activite).to_dict()
+
+        @property
+        def content(self):
+            query = select(p for p in self.sections).order_by(Section.position)
+            return query[:]
 
         def before_insert(self):
             self.modified = self.created
@@ -109,11 +112,14 @@ def init_models(db: Database):
         page = Required(Page)
         content = Optional(str)
         content_type = Optional(str)
-        previous = Optional("Section", reverse="previous")
+        position = Optional(int, default=0)
 
         def before_insert(self):
             self.modified = self.created
             self.page.modified = self.modified
+
+            if not self.position:
+                self.position = len(self.page.content) + 1
 
         def before_update(self):
             self.modified = datetime.now()

@@ -99,8 +99,7 @@ def init_models(db: Database):
 
         @property
         def content(self):
-            query = select(p for p in self.sections).order_by(Section.position)
-            return query[:]
+            return self.sections.order_by(Section.position)[:]
 
         def before_insert(self):
             self.modified = self.created
@@ -114,16 +113,34 @@ def init_models(db: Database):
         content_type = Optional(str)
         position = Optional(int, default=0)
 
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.updating_position = False
+
         def before_insert(self):
             self.modified = self.created
             self.page.modified = self.modified
 
-            if not self.position:
-                self.position = len(self.page.content) + 1
+            count = self.page.sections.count()
+            if not self.position or count < self.position:
+                # it seems that
+                self.position = self.page.sections.count()
+            else:
+                self._update_position()
 
         def before_update(self):
-            self.modified = datetime.now()
-            self.page.modified = self.modified
+            if self.updating_position:
+                self.updating_position = False
+            else:
+                self.modified = datetime.now()
+                self.page.modified = self.modified
 
-        def set_previous(self):
-            pass
+
+        def _update_position(self):
+            n=1
+            for x in self.page.content:
+                if n == self.position:
+                    n+=1
+                x.updating_position = True # do not update modified on position
+                x.position = n
+                n+=1

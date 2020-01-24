@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from fixtures import compare
+from fixtures import compare, compare_items
 from package.database.factory import *
 import pytest
 from pony.orm import flush, exists, commit
@@ -94,13 +94,12 @@ class TestPage:
         sections = b_section(10, page=a.id)
         others = b_section(10)
         with db_session:
-            assert a.content == sections
+            compare_items(a.content, sections)
         prev = None
         with db_session:
             for i in a.content:
                 if prev:
-                    print(i.position)
-                    assert i.position >= prev.position
+                    assert i.position > prev.position
                 prev = i
 
 
@@ -174,5 +173,41 @@ class TestSection:
     def test_modified(self, ddb):
         """tested in page"""
 
-    def test_set_previous(self, ddbr):
-        pass
+    def test_before_insert_no_position(self, ddb):
+        """"remember factory are flushed"""
+        a = f_page()
+        b = f_section(page=a.id)
+        assert b.position==1
+        c = f_section(page=a.id)
+        assert b.position==1
+        assert c.position==2
+
+    def test_before_insert_position_to_high(self, ddbr):
+        a = f_page()
+        b = f_section(page=a.id)
+        assert b.position == 1
+        c = f_section(page=a.id, position=3)
+        assert b.position == 1
+        assert c.position == 2
+
+    def test_update_position(self, ddb):
+        a = f_page()
+        b = b_section(5, page=a.id)
+        modified_item = b[0].modified
+        c = f_section(page=a.id, position=3)
+
+        # test new item
+        assert c.position==3
+
+        # test item existant
+        n = 1
+        for x in a.content:
+            assert x.position == n
+            n+=1
+        # position n'influence pas la date de modif de section
+        assert a.content[0].modified == modified_item
+
+        # inflence l date de modif de page
+        page_modified = a.modified
+        f_section(page=a.id)
+        assert page_modified < a.modified

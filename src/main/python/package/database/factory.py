@@ -85,11 +85,10 @@ def f_section(created=None, page=None, content=None, content_type=None, position
             position=position,
         )
         item.flush()
-        # print(item.page.content(), "dans fac")
         return item.to_dict() if td else item
 
 def b_section(n, *args, **kwargs ):
-    return [f_section(*args, **kwargs) for p in range(n)]
+    return [f_section(*args, **kwargs) for x in range(n)]
 
 
 @db_session

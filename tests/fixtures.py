@@ -1,10 +1,14 @@
 from itertools import zip_longest
-from operator import itemgetter
+from operator import itemgetter, attrgetter
 from unittest.mock import patch, MagicMock
 
 from pony.orm import db_session
 from contextlib import contextmanager
 
+
+def compare_items(first, two, key="id"):
+    for x, y in zip(first, two):
+        assert getattr(x, key) == getattr(y,key)
 
 def compare(first, two, key="id"):
     getter = itemgetter(key)

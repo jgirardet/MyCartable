@@ -48,13 +48,6 @@ class BaseListModel(QAbstractListModel):
             return None
 
 
-# class PageModel(BaseListModel):
-#
-#     db = db.Page
-#
-#     def populate(self):
-#         pass
-
 
 class RecentsModel(BaseListModel):
 
@@ -70,3 +63,12 @@ class RecentsModel(BaseListModel):
         self._datas = None
         self.endResetModel()
         LOG.info("recents model reloading")
+
+
+
+class PageModel(BaseListModel):
+
+    db = db.Page
+
+    def populate(self):
+        pass

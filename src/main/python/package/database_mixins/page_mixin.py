@@ -8,6 +8,8 @@ class PageMixin:
 
     def __init__(self):
         self._currentPage = 0
+        from package.list_models import PageModel
+        self.models.update({"pageModel": PageModel()})
 
     # newPage
     @Slot(int, result="QVariantMap")

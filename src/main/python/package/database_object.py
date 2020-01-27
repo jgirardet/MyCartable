@@ -35,20 +35,23 @@ class DatabaseObject(QObject, *MIXINS):
 
         self.recentsItemClicked.connect(self.onRecentsItemClicked)
 
-        self.currentPageChanged.connect(self.currentMatiereChanged)
-        self.currentPageChanged.connect(self.models['pageModel'].slotReset)
+        self.currentTitreChanged.connect(self.onCurrentTitreChanged)
 
     def onCurrentMatiereChanged(self):
-        self.currentMatiereChanged.connect(self.update_activites)
+        self.update_activites()
 
     def onRecentsItemClicked(self, id, matiere):
         self.currentPage = id
         self.currentMatiere = matiere
 
     def onNewPageCreated(self, item: dict):
-        self.recentsModel.slotResetModel()
+        self.recentsModelChanged.emit()
         self.currentPage = item["id"]
         self.currentMatiere = item["matiere"]
         self.activites_signal_all[
             item["activiteIndex"]
         ].emit()  # force when currentmatiere doesnt change
+
+    def onCurrentTitreChanged(self):
+        self.update_activites()
+        self.recentsModelChanged.emit()

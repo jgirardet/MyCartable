@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import mimesis
 import random
 
-from package.constantes import ACTIVITES
+from package.constantes import ACTIVITES, FILES
 from pony.orm import db_session
 
 gen = mimesis.Generic("fr")
@@ -44,11 +44,17 @@ def f_matiere(nom=None, annee=None):
 #         return db.Activite(nom=nom, famille=famille, matiere=matiere)
 
 
-def f_page(created=None, activite=None, titre=None, td=False):
+def f_page(created=None, activite=None, titre=None, td=False, matiere=None):
     """actvite int = id mais str = index"""
     with db_session:
         created = created or f_datetime()
-        if activite:
+
+        if matiere:
+            if activite is None:
+                activite = random.choice(db.Matiere[matiere].activites.select()[:])
+            else:
+                activite = db.Activite.get(matiere=matiere, famille=int(activite))
+        elif activite:
             if isinstance(activite, int):
                 activite = activite
             elif isinstance(activite, str):
@@ -65,17 +71,24 @@ def f_page(created=None, activite=None, titre=None, td=False):
         return item.to_dict() if td else item
 
 
-def b_page(n, td=False, created=None, activite=None, titre=None):
-    res = [f_page(created, activite, titre, td) for p in range(n)]
+def b_page(n, *args, **kwargs):
+    res = [f_page(*args, **kwargs) for p in range(n)]
     return res
 
 
-def f_section(created=None, page=None, content=None, content_type=None, position=0, td=False):
+def f_section(
+    created=None, page=None, content=None, content_type=None, position=0, td=False, img=False
+):
     with db_session:
         created = created or f_datetime()
-        page = page or f_page(td=True)['id']
-        content = content or gen.text.sentence()
-        content_type = content_type or "str"
+        page = page or f_page(td=True)["id"]
+
+        if img:
+            content = "essai.jpg"
+            content_type = 'img'
+        else:
+            content = content or gen.text.sentence()
+            content_type = content_type or "str"
 
         item = db.Section(
             created=created,
@@ -87,7 +100,8 @@ def f_section(created=None, page=None, content=None, content_type=None, position
         item.flush()
         return item.to_dict() if td else item
 
-def b_section(n, *args, **kwargs ):
+
+def b_section(n, *args, **kwargs):
     return [f_section(*args, **kwargs) for x in range(n)]
 
 
@@ -108,4 +122,5 @@ def populate_database(matieres_list=None, nb_page=100):
     for i in range(nb_page):
         a = f_page(activite=random.choice(activites))
         for x in range(random.randint(0, 14)):
-            f_section(page=a.id)
+            random.choice([f_section(page=a.id),f_section(page=a.id, img=True)])
+

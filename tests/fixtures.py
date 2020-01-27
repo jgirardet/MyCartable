@@ -8,7 +8,8 @@ from contextlib import contextmanager
 
 def compare_items(first, two, key="id"):
     for x, y in zip(first, two):
-        assert getattr(x, key) == getattr(y,key)
+        assert getattr(x, key) == getattr(y, key)
+
 
 def compare(first, two, key="id"):
     getter = itemgetter(key)

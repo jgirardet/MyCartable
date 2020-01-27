@@ -125,11 +125,11 @@ def qApp():
     del qapp
 
 
-@pytest.fixture(scope="session", autouse=True)
-def register_type():
-    from package.list_models import RecentsModel
-
-    qmlRegisterType(RecentsModel, "" "RecentsModel", 1, 0, "RecentsModel")
+# @pytest.fixture(scope="session", autouse=True)
+# def register_type():
+#     from package.list_models import RecentsModel
+#
+#     qmlRegisterType(RecentsModel, "" "RecentsModel", 1, 0, "RecentsModel")
 
 
 @pytest.fixture(scope="function")
@@ -207,3 +207,13 @@ def dao(ddbr):
     from package.database_object import DatabaseObject
 
     return DatabaseObject(ddbr)
+
+
+import time
+
+
+@pytest.fixture(autouse=False)
+def duree_test():
+    debut = time.time()
+    yield
+    print(f"d={int((time.time()-debut)*1000)} ms")

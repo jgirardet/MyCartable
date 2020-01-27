@@ -4,15 +4,16 @@ from package.database_mixins.matiere_mixin import MatieresDispatcher
 from package.database_mixins.page_mixin import PageMixin
 from package.database_object import DatabaseObject
 from package.database.factory import *
-from unittest.mock import patch
-
-from package.list_models import RecentsModel
+from unittest.mock import patch, call
 
 
 class TestPageMixin:
     def test_init(self, ddbr):
         a = DatabaseObject(ddbr)
         assert a._currentPage == 0
+        assert a._currentTitre == ""
+        assert a._currentEntry == None
+        assert a.titreTimer.isSingleShot()
 
     def test_newPage(self, ddbr, qtbot):
         a = DatabaseObject(ddbr)
@@ -34,7 +35,46 @@ class TestPageMixin:
         assert c.currentPage == a.id
         with qtbot.wait_signal(c.currentPageChanged, timeout=100):
             c.currentPage = 2
+        assert c.currentPage == c.currentPage
+
+        # set currentpage do nothing if same id
+        with qtbot.assertNotEmitted(c.currentPageChanged):
+            c.currentPage = 2
         assert c.currentPage == b.id
+
+    def test_current_entry(self, ddbr):
+        a = f_page()
+        d = DatabaseObject(ddbr)
+        d.currentPage = 1
+        with db_session:
+            assert d._currentEntry.titre == a.titre == d._currentTitre == d.currentTitre
+
+    def test_CurrentTitreSet(self, ddbr):
+        b_page(2)
+        d = DatabaseObject(ddbr)
+
+        # case no current page
+        d.currentTitre = "omk"
+        assert d._currentTitre == ""
+        d.currentPage = 1
+        with patch.object(d.titreTimer, "start") as m:
+            d.currentTitre = "mokmk"
+            assert d.currentTitre == "mokmk"
+            assert m.call_args_list == [call(500)]
+
+            # do not call storage if same value
+            d.currentTitre = "mokmk"
+            assert m.call_args_list == [call(500)]
+
+    def test_UnderscoreCurrentTitreSet(self, ddbr, qtbot):
+        f_page()
+        d = DatabaseObject(ddbr)
+        d.currentPage = 1
+        d.TITRE_TIMER_DELAY = 0
+        with qtbot.wait_signal(d.currentTitreChanged):
+            d.currentTitre = "aaa"
+        with db_session:
+            assert ddbr.Page[1].titre == "aaa"
 
 
 class TestMatiereMixin:
@@ -85,7 +125,10 @@ class TestMatiereMixin:
 
 class TestActiviteMixin:
     def test_lists(self, ddbr):
-        populate_database()
+        un = f_matiere()
+        deux = f_matiere()
+        b_page(10, matiere=un.id)
+        b_page(10, matiere=deux.id)
         a = DatabaseObject(ddbr)
         a.currentMatiere = 2
         for ac, lalist in zip(ACTIVITES, a.activites_all):
@@ -101,8 +144,6 @@ class TestActiviteMixin:
 class TestRecentsMixin:
     def test_init(self, ddbr):
         d = DatabaseObject(ddbr)
-        assert isinstance(d.models["recentsModel"], RecentsModel)
-        assert d.recentsModel == d.models["recentsModel"]
 
 
 #
@@ -117,18 +158,20 @@ class TestLayoutMixin:
 
 
 class TestDatabaseObject:
-    def test_onOnCurrentMAtiereChanged(self, ddbr):
-        populate_database()
-        a = DatabaseObject(ddbr)
-        a.currentMatiere = 2
-        for ac, lalist in zip(ACTIVITES, a.activites_all):
-            assert all(i["activiteIndex"] == ac.index for i in lalist)
-            assert all(i["matiere"] == 2 for i in lalist)
+    def test_currentMatiereChanged_all_activite_signals_emited(self, ddbr, qtbot):
+        f_matiere()
+        d = DatabaseObject(ddbr)
+        with qtbot.wait_signals(
+            [
+                (d.lessonsListChanged, "lessonslistchanged"),
+                (d.exercicesListChanged, "exercicelistchanged"),
+                (d.evaluationsListChanged, "evaluationslistchanged"),
+            ],
+        ):
+            d.currentMatiere = 1
 
-    def test_RecentsItem_Clicked(self, ddbr):
-        populate_database()
-        rec = ss(ddbr.Page.recents)
-        rec1 = rec[1]
+    def test_RecentsItem_Clicked(self, ddbr, qtbot):
+        rec1 = f_page(created=datetime.now(), td=True)
         d = DatabaseObject(ddbr)
         d.recentsItemClicked.emit(rec1["id"], rec1["matiere"])
         assert d.currentMatiere == rec1["matiere"]
@@ -138,11 +181,25 @@ class TestDatabaseObject:
         a = f_page(td=True, activite="1")
         d = DatabaseObject(ddbr)
         with qtbot.wait_signals(
-            [(d.exercicesListChanged, "listchanged"), (d.recentsModel.modelReset, "modelreset")]
+            [
+                (d.exercicesListChanged, "listchanged"),
+                (d.recentsModelChanged, "modelreset"),
+            ]
         ):
             d.onNewPageCreated(a)
         assert d.currentPage == a["id"]
         assert d.currentMatiere == a["matiere"]
+
+    def test_onCurrentTitreChanged(self, ddbr, qtbot):
+        a = f_page(td=True, activite="1")
+        d = DatabaseObject(ddbr)
+        with qtbot.wait_signals(
+            [
+                (d.exercicesListChanged, "listchanged"),
+                (d.recentsModelChanged, "modelreset"),
+            ]
+        ):
+            d.currentTitreChanged.emit()
 
 
 # def test_connections(ddbr):

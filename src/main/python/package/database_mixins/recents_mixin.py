@@ -6,11 +6,7 @@ class RecentsMixin:
     recentsModelChanged = Signal()
     recentsItemClicked = Signal(int, int)
 
-    def __init__(self):
-        from package.list_models import RecentsModel
-
-        self.models.update({"recentsModel": RecentsModel()})
-
-    @Property(QObject, notify=recentsModelChanged)
+    @Property("QVariantList", notify=recentsModelChanged)
     def recentsModel(self):
-        return self.models["recentsModel"]
+        with db_session:
+            return self.db.Page.recents()

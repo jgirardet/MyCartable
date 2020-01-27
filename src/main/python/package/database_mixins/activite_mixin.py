@@ -8,7 +8,7 @@ class ActiviteMixin:
     exercicesListChanged = Signal()
     evaluationsListChanged = Signal()
 
-    @Slot()
+    # @Slot()
     def update_activites(self):
         self.lessonsListChanged.emit()
         self.exercicesListChanged.emit()

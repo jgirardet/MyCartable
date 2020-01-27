@@ -16,27 +16,29 @@ class MatiereMixin:
         self.m_d = MatieresDispatcher(self.db)
 
     @Property(int, notify=currentMatiereChanged)
-    def currentMatiere(self, notify=currentMatiereChanged):
+    def currentMatiere(self):
         return self._currentMatiere
 
     @currentMatiere.setter
     def current_matiere_set(self, value):
         if self._currentMatiere != value and isinstance(value, int):
             self._currentMatiere = value
-            LOG.info(f"current matiere set to: {self._currentMatiere}")
+            LOG.debug(f"current matiere set to: {self._currentMatiere}")
             self.currentMatiereChanged.emit()
 
     @Slot(int)
     def setCurrentMatiereFromIndex(self, value):
         self.currentMatiere = self.m_d.matieres_list_id[value]
-        LOG.info(f"current matiere set with index  {value } to: {self._currentMatiere}")
+        LOG.debug(
+            f"current matiere set with index  {value } to: {self._currentMatiere}"
+        )
 
     @Slot(int, result=int)
     def getMatiereIndexFromId(self, matiere_id):
         try:
             return self.m_d.id_index[matiere_id]
         except KeyError:
-            LOG.info("matiere index non trouvé ou currentMatiere non settée")
+            LOG.debug("matiere index non trouvé ou currentMatiere non settée")
 
     # matieresList
     @Property("QVariantList", notify=matiereListNomChanged)

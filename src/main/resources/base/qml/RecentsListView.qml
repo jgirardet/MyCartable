@@ -14,9 +14,9 @@ ListView {
         objectName: "_buttonDelegateRecents"
         height: 40
         radius: 10
-        text: "mat id  : " + model.page['matiere']+ "//" +model.page['matiereNom']  + ": " + model.page["titre"] + "[" + model.page['activite']
+        text: "|id=" + modelData.id + "/" + modelData.activiteIndex + " mat=" + modelData.matiere + " " +modelData.titre
         width: ListView.view.width
-        onClicked: ListView.view.itemClicked(model.page.id, model.page.matiere)
+        onClicked: ListView.view.itemClicked(modelData.id, modelData.matiere)
         }
 }
 

@@ -1,5 +1,6 @@
 from collections import namedtuple
-
+from PySide2.QtCore import QStandardPaths
+from pathlib import Path
 
 FamilleActivite = namedtuple("FamilleActivite", "index nom")
 
@@ -34,3 +35,18 @@ LAYOUT_SIZES = {
     "minimumActiviteHeight": minimumActiviteHeight,
     "maximumSideWidth": maximumSideWidth,
 }
+
+
+TITRE_TIMER_DELAY = 500
+
+APPNAME = "MyCartable"
+
+ROOT_DATA = (
+    Path(QStandardPaths.writableLocation(QStandardPaths.AppDataLocation)) / APPNAME
+)
+if not ROOT_DATA.is_dir():
+    ROOT_DATA.mkdir(parents=True)
+
+FILES = ROOT_DATA  / "files"
+if not FILES.is_dir():
+    FILES.mkdir(parents=True)

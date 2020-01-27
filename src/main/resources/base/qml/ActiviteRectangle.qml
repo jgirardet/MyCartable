@@ -4,6 +4,7 @@ import QtQuick.Layouts 1.12
 
 
 Rectangle {
+        id: base
         property QtObject ddb
         property alias headerText: _listView.headerText
         property alias headerColor: _listView.headerColor
@@ -18,6 +19,8 @@ Rectangle {
             id: _listView
             objectName: "_listView"
             anchors.fill: parent
+            onItemClicked: base.ddb.currentPage = idPage
+
 
         }
 

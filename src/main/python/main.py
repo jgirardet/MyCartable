@@ -6,6 +6,7 @@ from PySide2.QtQml import QQmlApplicationEngine, qmlRegisterType
 from PySide2.QtCore import QUrl, QObject, QRegExp
 
 import package.database
+from package.constantes import APPNAME
 from package.database_object import DatabaseObject
 import logging
 
@@ -30,9 +31,7 @@ def main_setup(database):
     import qrc
 
     # import all database related stuf after
-    from package.list_models import RecentsModel
 
-    # qmlRegisterType(RecentsModel, "" "RecentsModel", 1, 0, "RecentsModel")
     engine = QQmlApplicationEngine()
     engine.rootContext().setContextProperty("database", database)
     engine.load(QUrl("qrc:///qml/main.qml"))
@@ -43,9 +42,9 @@ def main_setup(database):
 if __name__ == "__main__":
 
     main_init_database()
-    from package.list_models import RecentsModel
 
     appctxt = ApplicationContext()
+    appctxt.app.setApplicationName(APPNAME)
 
     # models
     database = DatabaseObject(package.database.db)

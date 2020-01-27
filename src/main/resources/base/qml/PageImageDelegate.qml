@@ -2,12 +2,15 @@ import QtQuick 2.12
 import QtQuick.Controls 2.12
 
 Rectangle {
-        height: 50
-        width: 200
+        property var section
+        height: 600
+        width: 600
         color: "blue"
-        property alias text:editable.text
-        Label {
-        id: editable
+        Image {
+        id: image
+        source: "file://"+section.content
+        asynchronous: true
+
         anchors.fill : parent
         }
     }

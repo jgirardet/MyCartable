@@ -7,6 +7,7 @@ ListView {
     id: lv
 
     spacing : 10
+    clip: true
 
 //    DelegateChooser {
 //        id: chooser
@@ -23,7 +24,7 @@ ListView {
     }
     Component {
         id: imageDelegate
-        PageImageDelegate { text: datas.content }
+        PageImageDelegate { section: datas}
     }
     delegate: Component {
         Loader {

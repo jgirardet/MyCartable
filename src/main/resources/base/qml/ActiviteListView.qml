@@ -3,6 +3,8 @@ import QtQuick.Controls 2.12
 
 ListView {
     id: exercicesListView
+    signal itemClicked(int idPage)
+
     objectName: "exercicesListView"
     property int commonHeight: 30
     property string headerText: "header"
@@ -27,5 +29,6 @@ ListView {
         text: modelData.titre
         width: ListView.view.width
         height: commonHeight
+        onClicked: ListView.view.itemClicked(modelData.id)
     }
 }

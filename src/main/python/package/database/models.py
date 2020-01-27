@@ -88,7 +88,6 @@ def init_models(db: Database):
             dico["activiteIndex"] = self.activite.famille
             return dico
 
-
         @classmethod
         def recents(cls):
             return [p.to_dict() for p in cls._query_recents(cls)]
@@ -99,10 +98,18 @@ def init_models(db: Database):
 
         @property
         def content(self):
-            return [p.to_dict() for p in self.sections.order_by(Section.position)]
+            return [p for p in self.sections.order_by(Section.position)]
+
+        @property
+        def content_dict(self):
+            return [p.to_dict() for p in self.content]
 
         def before_insert(self):
             self.modified = self.created
+
+        #
+        def before_update(self):
+            self.modified = datetime.now()
 
     class Section(db.Entity):
         id = PrimaryKey(int, auto=True)
@@ -135,12 +142,11 @@ def init_models(db: Database):
                 self.modified = datetime.now()
                 self.page.modified = self.modified
 
-
         def _update_position(self):
-            n=1
+            n = 1
             for x in self.page.content:
                 if n == self.position:
-                    n+=1
-                x.updating_position = True # do not update modified on position
+                    n += 1
+                x.updating_position = True  # do not update modified on position
                 x.position = n
-                n+=1
+                n += 1

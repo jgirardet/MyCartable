@@ -6,7 +6,6 @@ import pytest
 from pony.orm import flush, exists, commit
 
 
-
 def test_creation_all(ddb):
     an = f_annee()
     a = f_matiere(annee=an)
@@ -44,6 +43,13 @@ class TestPage:
         apres = datetime.now()
         assert s.created == s.modified
         assert avant < s.created < apres
+
+    def test_update_modified_when_updated(self, ddb):
+        a = f_page()
+        avant = a.modified
+        a.titre = "omkmo"
+        flush()
+        assert a.modified != avant
 
     def test_recents(self, ddb):
 
@@ -87,7 +93,6 @@ class TestPage:
         a = f_matiere().to_dict()
         b = ddb.Page.new_page(activite=1, titre="bla")
         assert ddb.Page.get(id=b["id"], titre="bla", activite=1)
-
 
     def test_content(selfself, ddbr):
         a = f_page()
@@ -177,10 +182,10 @@ class TestSection:
         """"remember factory are flushed"""
         a = f_page()
         b = f_section(page=a.id)
-        assert b.position==1
+        assert b.position == 1
         c = f_section(page=a.id)
-        assert b.position==1
-        assert c.position==2
+        assert b.position == 1
+        assert c.position == 2
 
     def test_before_insert_position_to_high(self, ddbr):
         a = f_page()
@@ -197,13 +202,13 @@ class TestSection:
         c = f_section(page=a.id, position=3)
 
         # test new item
-        assert c.position==3
+        assert c.position == 3
 
         # test item existant
         n = 1
         for x in a.content:
             assert x.position == n
-            n+=1
+            n += 1
         # position n'influence pas la date de modif de section
         assert a.content[0].modified == modified_item
 
@@ -211,3 +216,11 @@ class TestSection:
         page_modified = a.modified
         f_section(page=a.id, created=datetime.now())
         assert page_modified < a.modified
+
+    def test_before_update(self, ddb):
+        a = f_section()
+        b = a.modified
+        a.content = "ùpl"
+        flush()
+        assert a.modified > b
+        assert a.page.modified == a.modified

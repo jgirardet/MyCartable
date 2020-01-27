@@ -5,7 +5,7 @@ from unittest.mock import MagicMock
 from PySide2.QtCore import Qt, QModelIndex
 from fixtures import check_super_init, compare, check_begin_end
 from package.database.factory import f_page, b_page
-from package.list_models import BaseListModel, RecentsModel
+from package.list_models import BaseListModel
 
 
 class BaseTest(BaseListModel):
@@ -54,25 +54,3 @@ class TestBaseModel:
         assert a.data(a.index(99, 99), a.PageRole) is None
         # no good role
         assert a.data(a.index(1, 0), 99999) is None
-
-
-class TestRecentsModel:
-    def test_checker(self, qtmodeltester):
-        a = RecentsModel()
-        a.update_datas()
-        qtmodeltester.check(a)
-
-    def test_populate(self, ddbr):
-        a = b_page(5, True, created=datetime.now())
-        b = RecentsModel()
-        b.db = ddbr.Page
-        b.update_datas()
-
-        assert compare(b._datas, a)
-
-    def test_modelreset(self):
-        a = RecentsModel()
-        a._datas = [1, 2, 3]
-        with check_begin_end(a, "RestModel"):
-            a.slotResetModel()
-            assert a._datas is None

@@ -1,6 +1,7 @@
 import PySide2
-from PySide2.QtCore import QAbstractListModel, Qt, Slot, QModelIndex, QByteArray
+from PySide2.QtCore import QAbstractListModel, Qt, Slot, QModelIndex, QByteArray, QUrl
 from mimesis import typing
+from package.constantes import FILES
 from pony.orm import db_session
 from package.database import db
 import logging
@@ -48,24 +49,6 @@ class BaseListModel(QAbstractListModel):
             return None
 
 
-
-class RecentsModel(BaseListModel):
-
-    db = db.Page
-    #
-
-    def populate(self):
-        self._datas = self.db.recents()
-
-    @Slot()
-    def slotResetModel(self):
-        self.beginResetModel()
-        self._datas = None
-        self.endResetModel()
-        LOG.info("recents model reloading")
-
-
-
 class PageModel(QAbstractListModel):
 
     db = db
@@ -75,7 +58,6 @@ class PageModel(QAbstractListModel):
     def __init__(self, parent=None):
         self._datas = []
         super().__init__(parent=parent)
-
 
     def roleNames(self) -> typing.Dict:
         default = super().roleNames()
@@ -87,16 +69,18 @@ class PageModel(QAbstractListModel):
     def rowCount(self, parent=QModelIndex()) -> int:
         return len(self._datas)
 
-    def data(self, index , role:int) -> typing.Any:
+    def data(self, index, role: int) -> typing.Any:
         if not index.isValid():
             return None
         #
         elif role == Qt.DisplayRole:
-            a =  self._datas[index.row()]
-            if a['id'] % 2:
-                a['type']="texte"
+            a = self._datas[index.row()]
+            if a["content_type"] == "str":
+                a["type"] = "texte"
             else:
-                a['type']="image"
+                a["type"] = "image"
+                path = str(FILES / a['content'])
+                a['content'] = str(path)
             return a
 
     def slotReset(self, value):
@@ -106,7 +90,5 @@ class PageModel(QAbstractListModel):
             if not page:
                 return
 
-            self._datas = page.content
-            print("datas", self._datas)
+            self._datas = page.content_dict
         self.endResetModel()
-[]

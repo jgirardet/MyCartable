@@ -99,7 +99,7 @@ def init_models(db: Database):
 
         @property
         def content(self):
-            return self.sections.order_by(Section.position)[:]
+            return [p.to_dict() for p in self.sections.order_by(Section.position)]
 
         def before_insert(self):
             self.modified = self.created

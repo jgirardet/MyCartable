@@ -30,9 +30,13 @@ class DatabaseObject(QObject, *MIXINS):
     def setup_connections(self):
 
         self.currentMatiereChanged.connect(self.onCurrentMatiereChanged)
+
         self.newPageCreated.connect(self.onNewPageCreated)
-        self.currentPageChanged.connect(self.currentMatiereChanged)
+
         self.recentsItemClicked.connect(self.onRecentsItemClicked)
+
+        self.currentPageChanged.connect(self.currentMatiereChanged)
+        self.currentPageChanged.connect(self.models['pageModel'].slotReset)
 
     def onCurrentMatiereChanged(self):
         self.currentMatiereChanged.connect(self.update_activites)

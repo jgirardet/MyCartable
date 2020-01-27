@@ -21,7 +21,16 @@ import QtQuick.Controls 2.12
                     width: parent.width
                     height: parent.height -pageToolBar.height -parent.spacing
                     color: "green"
-                    PageListView{model:[1,2,3,4,5,]}
+                    PageListView {
+                      height: parent.height
+                      width: parent.width
+//                        model:
+//                            [
+//                                {type:"texte", content: "omkmok"}
+//                            ]
+                        model:base.ddb.pageModel
+//                        model:base.ddb.fakeModel()
+                        }
                 }
             }
 }

@@ -106,4 +106,6 @@ def populate_database(matieres_list=None, nb_page=100):
 
     activites = db.Activite.select()[:]
     for i in range(nb_page):
-        f_page(activite=random.choice(activites))
+        a = f_page(activite=random.choice(activites))
+        for x in range(random.randint(0, 14)):
+            f_section(page=a.id)

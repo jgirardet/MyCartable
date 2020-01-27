@@ -1,15 +1,37 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
+import Qt.labs.qmlmodels 1.0
 
 
 ListView {
-    height: parent.height
-    width: parent.width
+    id: lv
+
     spacing : 10
-    delegate: Rectangle {
-        height: 50
-        width: ListView.view.width
-        color: "blue"
-        Label {text: modelData}
+
+//    DelegateChooser {
+//        id: chooser
+//        role: "type"
+////        DelegateChoice { delegate: Rectangle {color: "blue"; height: 30; width: 200 }}
+//        DelegateChoice { roleValue: "texte"; delegate: PageTexteDelegate { text:texte.content } }
+////        DelegateChoice { roleValue: "switch"; SwitchDelegate { ... } }
+////        DelegateChoice { roleValue: "swipe"; SwipeDelegate { ... } }
+//    }
+//    delegate: chooser
+    Component {
+        id: texteDelegate
+        PageTexteDelegate  { text: datas.content ; width: lv.width}
+    }
+    Component {
+        id: imageDelegate
+        PageImageDelegate { text: datas.content }
+    }
+    delegate: Component {
+        Loader {
+            property var datas: display
+            sourceComponent: switch(display.type) {
+                case "texte": return texteDelegate
+                case "image": return imageDelegate
+            }
+        }
     }
 }

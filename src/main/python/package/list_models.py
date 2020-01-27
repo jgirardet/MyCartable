@@ -66,9 +66,47 @@ class RecentsModel(BaseListModel):
 
 
 
-class PageModel(BaseListModel):
+class PageModel(QAbstractListModel):
 
-    db = db.Page
+    db = db
+    TexteRole = Qt.UserRole + 1
+    TypeRole = Qt.UserRole + 2
 
-    def populate(self):
-        pass
+    def __init__(self, parent=None):
+        self._datas = []
+        super().__init__(parent=parent)
+
+
+    def roleNames(self) -> typing.Dict:
+        default = super().roleNames()
+        default[self.TexteRole] = QByteArray(b"texte")
+        default[self.TypeRole] = QByteArray(b"type")
+        # default[self.AddRole] = QByteArray(b'add')
+        return default
+
+    def rowCount(self, parent=QModelIndex()) -> int:
+        return len(self._datas)
+
+    def data(self, index , role:int) -> typing.Any:
+        if not index.isValid():
+            return None
+        #
+        elif role == Qt.DisplayRole:
+            a =  self._datas[index.row()]
+            if a['id'] % 2:
+                a['type']="texte"
+            else:
+                a['type']="image"
+            return a
+
+    def slotReset(self, value):
+        self.beginResetModel()
+        with db_session:
+            page = self.db.Page.get(id=value)
+            if not page:
+                return
+
+            self._datas = page.content
+            print("datas", self._datas)
+        self.endResetModel()
+[]

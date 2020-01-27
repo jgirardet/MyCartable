@@ -209,5 +209,5 @@ class TestSection:
 
         # inflence l date de modif de page
         page_modified = a.modified
-        f_section(page=a.id)
+        f_section(page=a.id, created=datetime.now())
         assert page_modified < a.modified

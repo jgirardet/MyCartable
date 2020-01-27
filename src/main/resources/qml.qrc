@@ -12,6 +12,8 @@
     <file alias="PageRectangle.qml">../resources/base/qml/PageRectangle.qml</file>
     <file alias="MatiereRectangle.qml">../resources/base/qml/MatiereRectangle.qml</file>
     <file alias="ActiviteRectangle.qml">../resources/base/qml/ActiviteRectangle.qml</file>
+    <file alias="PageTexteDelegate.qml">../resources/base/qml/PageTexteDelegate.qml</file>
+    <file alias="PageImageDelegate.qml">../resources/base/qml/PageImageDelegate.qml</file>
 </qresource>
 <qresource prefix="/icons">
     <file alias="hdd.png">../icons/base/hdd.png</file>

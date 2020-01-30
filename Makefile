@@ -36,6 +36,16 @@ run_binary: build
 test:
 	pytest -s
 
+clean_qml_tests:
+	make -C targets/qml_tests clean
+
+setup_qml_tests:
+	/home/jimmy/Qt/5.14.0/gcc_64/bin/qmake -o targets/qml_tests/Makefile tests/qml_tests/qml_tests.pro -spec linux-g++ CONFIG+=debug CONFIG+=qml_debug
+	make -C targets/qml_tests
+
+qml_tests:
+	./target/qml_tests/qml_tests
+
 black:
 	black src/ tests/
 

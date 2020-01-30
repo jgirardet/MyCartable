@@ -81,6 +81,7 @@ class PageModel(QAbstractListModel):
                 a["type"] = "image"
                 path = str(FILES / a['content'])
                 a['content'] = str(path)
+                print(a['content'])
             return a
 
     def slotReset(self, value):

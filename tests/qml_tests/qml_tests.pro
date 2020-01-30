@@ -7,3 +7,7 @@ SOURCES += \
 
 RESOURCES += \
     ../../src/main/resources/qml.qrc
+
+DISTFILES += \
+    DdbMock.qml \
+    tst_ActiviteListView.qml

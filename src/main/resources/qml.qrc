@@ -1,24 +1,23 @@
-<!DOCTYPE RCC><RCC version="1.0">
-<qresource prefix="/qml">
-    <file alias="main.qml">../resources/base/qml/main.qml</file>
-    <file alias="MainMenuBar.qml">../resources/base/qml/MainMenuBar.qml</file>
-    <file alias="MatiereBar.qml">../resources/base/qml/MatiereBar.qml</file>
-    <file alias="ActiviteListView.qml">../resources/base/qml/ActiviteListView.qml</file>
-    <file alias="RecentsListView.qml">../resources/base/qml/RecentsListView.qml</file>
-    <file alias="PageToolBar.qml">../resources/base/qml/PageToolBar.qml</file>
-    <file alias="PageListView.qml">../resources/base/qml/PageListView.qml</file>
-    <file alias="MatiereComboBox.qml">../resources/base/qml/MatiereComboBox.qml</file>
-    <file alias="RecentsRectangle.qml">../resources/base/qml/RecentsRectangle.qml</file>
-    <file alias="PageRectangle.qml">../resources/base/qml/PageRectangle.qml</file>
-    <file alias="MatiereRectangle.qml">../resources/base/qml/MatiereRectangle.qml</file>
-    <file alias="ActiviteRectangle.qml">../resources/base/qml/ActiviteRectangle.qml</file>
-    <file alias="PageTexteDelegate.qml">../resources/base/qml/PageTexteDelegate.qml</file>
-    <file alias="PageImageDelegate.qml">../resources/base/qml/PageImageDelegate.qml</file>
-    <file alias="AnnotableImage.qml">../resources/base/qml/AnnotableImage.qml</file>
-    <file alias="AnnotationInput.qml">../resources/base/qml/AnnotationInput.qml</file>
-    <file alias="StabyloRectangle.qml">../resources/base/qml/StabyloRectangle.qml</file>
-</qresource>
-<qresource prefix="/icons">
-    <file alias="hdd.png">../icons/base/hdd.png</file>
-</qresource>
+<RCC>
+    <qresource prefix="/qml">
+        <file alias="main.qml">base/qml/main.qml</file>
+        <file alias="MainMenuBar.qml">base/qml/MainMenuBar.qml</file>
+        <file alias="MatiereBar.qml">base/qml/MatiereBar.qml</file>
+        <file alias="RecentsListView.qml">base/qml/RecentsListView.qml</file>
+        <file alias="MatiereComboBox.qml">base/qml/MatiereComboBox.qml</file>
+        <file alias="RecentsRectangle.qml">base/qml/RecentsRectangle.qml</file>
+        <file alias="MatiereRectangle.qml">base/qml/MatiereRectangle.qml</file>
+        <file alias="ActiviteRectangle.qml">base/qml/ActiviteRectangle.qml</file>
+        <file alias="PageToolBar.qml">base/qml/page/PageToolBar.qml</file>
+        <file alias="PageListView.qml">base/qml/page/PageListView.qml</file>
+        <file alias="PageTexteDelegate.qml">base/qml/page/PageTexteDelegate.qml</file>
+        <file alias="PageRectangle.qml">base/qml/page/PageRectangle.qml</file>
+        <file alias="PageImageDelegate.qml">base/qml/page/PageImageDelegate.qml</file>
+        <file alias="AnnotableImage.qml">base/qml/page/AnnotableImage.qml</file>
+        <file alias="AnnotationInput.qml">base/qml/page/AnnotationInput.qml</file>
+        <file alias="StabyloRectangle.qml">base/qml/page/StabyloRectangle.qml</file>
+    </qresource>
+    <qresource prefix="/icons">
+        <file alias="hdd.png">../icons/base/hdd.png</file>
+    </qresource>
 </RCC>

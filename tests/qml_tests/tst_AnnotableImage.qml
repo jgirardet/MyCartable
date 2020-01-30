@@ -2,7 +2,7 @@ import QtQuick 2.12
 import QtQuick.Layouts 1.12
 import QtQuick.Controls 2.12
 import QtTest 1.12
-import "../../src/main/resources/base/qml/"
+import "../../src/main/resources/base/qml/page"
 
 Item {
     id: item
@@ -66,10 +66,9 @@ Item {
        function test_store_zone() {
            mousePress(anot, 50, 50)
            mouseMove(anot, 100, 170)
-           var rec = anot.mouseArea.temp_rec
+
            mouseRelease(anot, 100, 170)
            var rec = anot.mouseArea.temp_rec
-//           var rec = anot.mouseArea.temp_rec
            compare(rec, null)
            compare(anot.annotations[0].relativeWidth, 0.25)
            compare(anot.annotations[0].relativeHeight,120/174) //cf plus heut

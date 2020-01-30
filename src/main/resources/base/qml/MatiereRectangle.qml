@@ -35,14 +35,12 @@ Rectangle {
             headerText: "Leçons"
             headerColor: "orange"
             ddb: base.ddb
-            activiteIndex: 0
             model: base.ddb.lessonsList
         }
         ActiviteRectangle {
             headerText: "Exercices"
             headerColor: "orange"
             ddb: base.ddb
-            activiteIndex: 1
             model: base.ddb.exercicesList
         }
 
@@ -50,7 +48,6 @@ Rectangle {
             headerText: "Evaluations"
             headerColor: "orange"
             ddb: base.ddb
-            activiteIndex: 2
             model: base.ddb.evaluationsList
         }
 

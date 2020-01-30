@@ -48,6 +48,7 @@ Image {
         if (rec.relativeWidth > 0 && rec.relativeHeight > 0) {
             annotations.push(rec)
         }
+        print(rec.width)
         print(annotations)
     }
 

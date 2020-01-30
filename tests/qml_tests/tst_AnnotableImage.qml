@@ -14,7 +14,7 @@ Item {
             id: anotimg
             AnnotableImage {
                 sourceSize.width: parent.width
-                source: 'aaa.png'}
+                source: 'aaa.png'} // 767 x 669
         }
 
     TestCase {
@@ -48,10 +48,33 @@ Item {
        }
 
        function test_update_zone() {
-           mouseDrag(anot, 50, 50,50, 100)
+           mousePress(anot, 50, 50)
+           mouseMove(anot, 100, 170)
            var rec = anot.mouseArea.temp_rec
-           console.log(rec, "re")
-           compare(rec.relativeWidth, 50/item.width)
+           compare(rec.relativeWidth, 0.25)
+           compare(rec.relativeHeight, 120/174) //174 et le ratio de la hauteur avec preservefit
+
        }
+       function test_update_zone_negative_size() {
+           mousePress(anot, 100, 100)
+           mouseMove(anot, 50, 50)
+           var rec = anot.mouseArea.temp_rec
+           compare(rec.relativeWidth, 0)
+           compare(rec.relativeHeight, 0)
+       }
+
+       function test_store_zone() {
+           mousePress(anot, 50, 50)
+           mouseMove(anot, 100, 170)
+           var rec = anot.mouseArea.temp_rec
+           mouseRelease(anot, 100, 170)
+           var rec = anot.mouseArea.temp_rec
+//           var rec = anot.mouseArea.temp_rec
+           compare(rec, null)
+           compare(anot.annotations[0].relativeWidth, 0.25)
+           compare(anot.annotations[0].relativeHeight,120/174) //cf plus heut
+
+       }
+
     }
    }

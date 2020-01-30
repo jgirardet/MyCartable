@@ -4,11 +4,16 @@ ifndef VIRTUAL_ENV
 export VIRTUAL_ENV=.venv
 endif
 
-BIN=$(VIRTUAL_ENV)/bin
-SITE_PACKAGE = $VIRTUAL_ENV)/lib/python3.7/site-packages
-export PATH := $(BIN):$(PATH)
+PYTHON_BIN=$(VIRTUAL_ENV)/bin
+SITE_PACKAGE = $(VIRTUAL_ENV)/lib/python3.7/site-packages
+export PATH := $(PYTHON_BIN):$(PATH)
+
+QT_VERSION=5.14.1
+QT_BIN = $(VIRTUAL_ENV)/$(QT_VERSION)/gcc_64/bin
+export PATH := $(QT_BIN):$(PATH)
 
 all: dev test
+
 install:
 	python3.7 -m venv .venv
 	pip install -U pip
@@ -21,9 +26,13 @@ run: qrc
 	fbs run
 
 devtools:
-	pip install -U ipython qmlview # pdbpp autoflake toml markdown
+	pip install -U ipython # pdbpp autoflake toml markdown
 
-dev:  install devtools
+install_qt:
+	aqt install $(QT_VERSION) linux desktop --outputdir $(VIRTUAL_ENV)
+
+
+dev: install install_qt devtools
 
 
 freeze:
@@ -37,11 +46,11 @@ test:
 	pytest -s
 
 clean_qml_tests:
-	make -C targets/qml_tests clean
+	make -C target/qml_tests clean
 
 setup_qml_tests:
-	/home/jimmy/Qt/5.14.0/gcc_64/bin/qmake -o targets/qml_tests/Makefile tests/qml_tests/qml_tests.pro -spec linux-g++ CONFIG+=debug CONFIG+=qml_debug
-	make -C targets/qml_tests
+	qmake -o targets/qml_tests/Makefile tests/qml_tests/qml_tests.pro -spec linux-g++ CONFIG+=debug CONFIG+=qml_debug
+	make -C target/qml_tests
 
 qml_tests:
 	./target/qml_tests/qml_tests

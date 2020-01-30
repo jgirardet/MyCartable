@@ -129,7 +129,7 @@ def qApp():
 # def register_type():
 #     from package.list_models import RecentsModel
 #
-#     qmlRegisterType(RecentsModel, "" "RecentsModel", 1, 0, "RecentsModel")
+#     qmlRegisterType(RecentsModel, "RecentsModel", 1, 0, "RecentsModel")
 
 
 @pytest.fixture(scope="function")

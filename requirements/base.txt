@@ -9,3 +9,4 @@ mimesis==3.3.0
 black
 coverage
 pytest-qt
+aqtinstall

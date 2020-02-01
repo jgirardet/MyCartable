@@ -77,7 +77,13 @@ def b_page(n, *args, **kwargs):
 
 
 def f_section(
-    created=None, page=None, content=None, content_type=None, position=0, td=False, img=False
+    created=None,
+    page=None,
+    content=None,
+    content_type=None,
+    position=0,
+    td=False,
+    img=False,
 ):
     with db_session:
         created = created or f_datetime()
@@ -85,7 +91,7 @@ def f_section(
 
         if img:
             content = "essai.jpg"
-            content_type = 'img'
+            content_type = "img"
         else:
             content = content or gen.text.sentence()
             content_type = content_type or "str"
@@ -122,5 +128,4 @@ def populate_database(matieres_list=None, nb_page=100):
     for i in range(nb_page):
         a = f_page(activite=random.choice(activites))
         for x in range(random.randint(0, 14)):
-            random.choice([f_section(page=a.id),f_section(page=a.id, img=True)])
-
+            random.choice([f_section(page=a.id), f_section(page=a.id, img=True)])

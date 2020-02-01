@@ -24,16 +24,16 @@ def main_init_database():
     return package.database.db
 
 
-def main_setup(database):
+def main_setup(ddb):
     # set env
     os.environ["QT_STYLE_OVERRIDE"] = ""
 
     import qrc
 
-    # import all database related stuf after
+    # import all ddb related stuf after
 
     engine = QQmlApplicationEngine()
-    engine.rootContext().setContextProperty("database", database)
+    engine.rootContext().setContextProperty("ddb", ddb)
     engine.load(QUrl("qrc:///qml/main.qml"))
 
     return engine

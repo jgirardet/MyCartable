@@ -1,4 +1,4 @@
-CONFIG += warn_on qmltestcase
+CONFIG += warn_on qml_debug  qmltestcase
 
 TEMPLATE = app
 
@@ -7,7 +7,3 @@ SOURCES += \
 
 RESOURCES += \
     ../../src/main/resources/qml.qrc
-
-DISTFILES += \
-    DdbMock.qml \
-    tst_ActiviteListView.qml

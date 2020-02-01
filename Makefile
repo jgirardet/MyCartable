@@ -48,12 +48,15 @@ test:
 clean_qml_tests:
 	make -C target/qml_tests clean
 
-setup_qml_tests:
-	qmake -o targets/qml_tests/Makefile tests/qml_tests/qml_tests.pro -spec linux-g++ CONFIG+=debug CONFIG+=qml_debug
-	make -C target/qml_tests
-
 qml_tests:
 	./target/qml_tests/qml_tests
+
+setup_qml_tests:
+	rm -rf target/qml_tests
+	qmake -o target/qml_tests/Makefile tests/qml_tests/qml_tests.pro -spec linux-g++ CONFIG+=debug CONFIG+=qml_debug
+	make -C target/qml_tests
+
+reset_qml_tests: setup_qml_tests qml_tests
 
 black:
 	black src/ tests/
@@ -75,6 +78,11 @@ isort:
 	poetry run isort main.py
 	poetry run isort -rc mydevoirs
 	poetry run isort -rc tests
+
+
+js_style:
+	find src -name '*.qml' | xargs js-beautify --indent-size 2 -m 2
+	find tests -name '*.qml' | xargs js-beautify --indent-size 2 -m 2
 
 
 

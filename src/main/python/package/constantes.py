@@ -47,6 +47,6 @@ ROOT_DATA = (
 if not ROOT_DATA.is_dir():
     ROOT_DATA.mkdir(parents=True)
 
-FILES = ROOT_DATA  / "files"
+FILES = ROOT_DATA / "files"
 if not FILES.is_dir():
     FILES.mkdir(parents=True)

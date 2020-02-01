@@ -5,9 +5,4 @@ from package.constantes import ROOT_DATA
 
 
 def test_path_names():
-    assert (
-        ROOT_DATA
-        == Path(Qs.writableLocation(Qs.AppDataLocation))
-        / "MyCartable"
-    )
-
+    assert ROOT_DATA == Path(Qs.writableLocation(Qs.AppDataLocation)) / "MyCartable"

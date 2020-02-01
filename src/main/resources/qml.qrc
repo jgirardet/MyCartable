@@ -1,21 +1,27 @@
 <RCC>
+
     <qresource prefix="/qml">
         <file alias="main.qml">base/qml/main.qml</file>
-        <file alias="MainMenuBar.qml">base/qml/MainMenuBar.qml</file>
-        <file alias="MatiereBar.qml">base/qml/MatiereBar.qml</file>
-        <file alias="RecentsListView.qml">base/qml/RecentsListView.qml</file>
-        <file alias="MatiereComboBox.qml">base/qml/MatiereComboBox.qml</file>
-        <file alias="RecentsRectangle.qml">base/qml/RecentsRectangle.qml</file>
-        <file alias="MatiereRectangle.qml">base/qml/MatiereRectangle.qml</file>
-        <file alias="ActiviteRectangle.qml">base/qml/ActiviteRectangle.qml</file>
+    </qresource>
+    <qresource prefix="/qml/matiere">
+        <file alias="MatiereComboBox.qml">base/qml/matiere/MatiereComboBox.qml</file>
+        <file alias="MatiereRectangle.qml">base/qml/matiere/MatiereRectangle.qml</file>
+        <file alias="ActiviteRectangle.qml">base/qml/matiere/ActiviteRectangle.qml</file>
+    </qresource>
+
+    <qresource prefix="/qml/page">
         <file alias="PageToolBar.qml">base/qml/page/PageToolBar.qml</file>
         <file alias="PageListView.qml">base/qml/page/PageListView.qml</file>
         <file alias="PageTexteDelegate.qml">base/qml/page/PageTexteDelegate.qml</file>
         <file alias="PageRectangle.qml">base/qml/page/PageRectangle.qml</file>
-        <file alias="PageImageDelegate.qml">base/qml/page/PageImageDelegate.qml</file>
         <file alias="AnnotableImage.qml">base/qml/page/AnnotableImage.qml</file>
         <file alias="AnnotationInput.qml">base/qml/page/AnnotationInput.qml</file>
         <file alias="StabyloRectangle.qml">base/qml/page/StabyloRectangle.qml</file>
+    </qresource>
+    <qresource prefix="/qml/recents">
+        <file alias="main.qml">base/qml/main.qml</file>
+        <file alias="RecentsListView.qml">base/qml/recents/RecentsListView.qml</file>
+        <file alias="RecentsRectangle.qml">base/qml/recents/RecentsRectangle.qml</file>
     </qresource>
     <qresource prefix="/icons">
         <file alias="hdd.png">../icons/base/hdd.png</file>

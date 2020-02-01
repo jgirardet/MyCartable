@@ -10,10 +10,12 @@ LOG = logging.getLogger(__name__)
 class MatiereMixin:
     currentMatiereChanged = Signal()
     matiereListNomChanged = Signal()
+    setCurrentMatiereFromIndexSignal = Signal(int)
 
     def __init__(self):
         self._currentMatiere = 0
         self.m_d = MatieresDispatcher(self.db)
+        self.setCurrentMatiereFromIndexSignal.connect(self.setCurrentMatiereFromIndex)
 
     @Property(int, notify=currentMatiereChanged)
     def currentMatiere(self):

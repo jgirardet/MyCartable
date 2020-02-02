@@ -78,9 +78,10 @@ class PageModel(QAbstractListModel):
             if a["content_type"] == "str":
                 a["type"] = "texte"
             else:
-                a["type"] = "image"
+                a["type"] = "img"
                 path = str(FILES / a["content"])
                 a["content"] = str(path)
+                print(a["annotations"])
             return a
 
     def slotReset(self, value):

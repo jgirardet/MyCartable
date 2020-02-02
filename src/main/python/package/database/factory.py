@@ -136,6 +136,10 @@ def f_stabylo(
         return item.to_dict() if td else item
 
 
+def b_stabylo(n, *args, **kwargs):
+    return [f_stabylo(*args, **kwargs) for x in range(n)]
+
+
 def f_annotation(relativeX=None, relativeY=None, text=None, td=False, section=None):
     relativeX = relativeX or random.randint(0, 100) / 100
     relativeY = relativeY or random.randint(0, 100) / 100
@@ -147,6 +151,10 @@ def f_annotation(relativeX=None, relativeY=None, text=None, td=False, section=No
             relativeX=relativeX, relativeY=relativeY, text=text, section=section
         )
         return item.to_dict() if td else item
+
+
+def b_annotation(n, *args, **kwargs):
+    return [f_annotation(*args, **kwargs) for x in range(n)]
 
 
 @db_session

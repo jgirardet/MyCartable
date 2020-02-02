@@ -12,37 +12,9 @@ FocusScope {
   height: img.height
   width: img.width
 
-  function initZones() {
-    for (var z of content.annotations) {
-      let newObject
-      switch (z.classtype) {
-        case "Stabylo": {
-          newObject = img.stabyloRectangle.createObject(root, {
-            "relativeX": z.x,
-            "relativeY": z.y,
-            "relativeWidth": z.width,
-            "relativeHeight": z.height,
-            "referent": img
-          })
-          break;
-        }
-        case "Annotation": {
-          newObject = img.annotationInput.createObject(root, {
-            "relativeX": z.x,
-            "relativeY": z.y,
-            "text": z.text,
-            "referent": img
-          })
-          break;
-        }
-      }
-      if (newObject != undefined) {
-        root.annotations.push(newObject)
-      }
-    }
-  }
 
-  Component.onCompleted: initZones()
+
+  Component.onCompleted: img.initZones()
 
   Image {
     id: img
@@ -71,7 +43,39 @@ FocusScope {
       return newObject
     }
 
-    function initZone(mouseEvent) {
+    function initZones() {
+    var zones = ddb.loadAnnotations(content.section)
+    console.log(zones, "zones")
+    for (var z of zones) {
+      let newObject
+      switch (z.classtype) {
+        case "Stabylo": {
+          newObject = img.stabyloRectangle.createObject(root, {
+            "relativeX": z.x,
+            "relativeY": z.y,
+            "relativeWidth": z.width,
+            "relativeHeight": z.height,
+            "referent": img
+          })
+          break;
+        }
+        case "Annotation": {
+          newObject = img.annotationInput.createObject(root, {
+            "relativeX": z.x,
+            "relativeY": z.y,
+            "text": z.text,
+            "referent": img
+          })
+          break;
+        }
+      }
+      if (newObject != undefined) {
+        root.annotations.push(newObject)
+      }
+    }
+  }
+
+    function createZone(mouseEvent) {
       var new_rec = stabyloRectangle.createObject(img, {
         "relativeX": mouseEvent.x / img.implicitWidth,
         "relativeY": mouseEvent.y / img.implicitHeight,
@@ -116,7 +120,7 @@ FocusScope {
     acceptedButtons: Qt.LeftButton | Qt.RightButton
     onPressed: {
       if (pressedButtons === Qt.LeftButton) {
-        temp_rec = img.initZone(mouse)
+        temp_rec = img.createZone(mouse)
       } else if (pressedButtons === Qt.RightButton) {
         base.focus = true
         img.addAnnotation(mouse, mouseArea)

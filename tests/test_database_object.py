@@ -177,6 +177,11 @@ class TestAnnotationMixin:
             assert item.pop("section") == s.id
             assert item == content
 
+    def test_loadAnnotations(self, dao):
+        s = f_section()
+        b_stabylo(5, section=s.id)
+        assert len(dao.loadAnnotations(s.id)) == 5
+
 
 class TestDatabaseObject:
     def test_currentMatiereChanged_all_activite_signals_emited(self, ddbr, qtbot):

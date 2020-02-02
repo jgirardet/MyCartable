@@ -28,14 +28,23 @@ Item {
     return _getLayoutSizes
   }
 
+
   function getMatiereIndexFromId(id) {
     return _getMatiereIndexFromId
   }
+
+  function loadAnnotations(sec) {
+    return _loadAnnotations
+  }
+
   // Sous cette ligne, uniquement du non existent dans le vrai ddb
   // fake value des fonction
   property int _addAnnotation: 0
   property int _getLayoutSizes: 100
   property int _getMatiereIndexFromId: 1
+  /* beautify preserve:start */
+  property var _loadAnnotations: []
+  /* beautify preserve:end */
   Component {
     id: compspyc
     SignalSpy {

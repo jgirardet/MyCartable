@@ -29,7 +29,7 @@ ListView {
       sourceComponent: switch (display.type) {
         case "texte":
           return texteDelegate
-        case "image":
+        case "img":
           return imageDelegate
       }
     }

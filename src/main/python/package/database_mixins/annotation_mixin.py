@@ -18,3 +18,8 @@ class AnnotationMixin:
             item_id = item.id
 
         return item_id
+
+    @Slot(int, result="QVariantList")
+    def loadAnnotations(self, section):
+        with db_session:
+            return [p.to_dict() for p in self.db.Section[section].annotations]

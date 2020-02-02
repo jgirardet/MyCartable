@@ -20,6 +20,10 @@ Item {
   var setCurrentMatiereFromIndex
   signal setCurrentMatiereFromIndexSignal(int index)
 
+  function addAnnotation(content) {
+    return _addAnnotation
+  }
+
   function getLayoutSizes(quoi) {
     return _getLayoutSizes
   }
@@ -29,10 +33,9 @@ Item {
   }
   // Sous cette ligne, uniquement du non existent dans le vrai ddb
   // fake value des fonction
-  property
-  var _getLayoutSizes: 100
-  property
-  var _getMatiereIndexFromId: 1
+  property int _addAnnotation: 0
+  property int _getLayoutSizes: 100
+  property int _getMatiereIndexFromId: 1
   Component {
     id: compspyc
     SignalSpy {

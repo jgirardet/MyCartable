@@ -159,13 +159,13 @@ def init_models(db: Database):
 
     class AnnotationBase(db.Entity):
         id = PrimaryKey(int, auto=True)
-        x = Required(float)
-        y = Required(float)
+        relativeX = Required(float)
+        relativeY = Required(float)
         section = Required(Section)
 
     class Stabylo(AnnotationBase):
-        width = Required(float)
-        height = Required(float)
+        relativeWidth = Required(float)
+        relativeHeight = Required(float)
 
     class Annotation(AnnotationBase):
         text = Optional(str)

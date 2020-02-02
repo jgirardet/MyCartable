@@ -9,6 +9,10 @@ Item {
   width: 200
   height: 300
   Component {
+    id: ddbcomp
+    DdbMock {}
+  }
+  Component {
     id: anotimg
     AnnotableImage {
       content: {
@@ -17,6 +21,9 @@ Item {
       }
       //                source: '../resources/tst_AnnotableImage.png' // 767 x 669
       base: item
+      /* beautify preserve:start */
+      property var ddb //need to inject ddb
+      /* beautify preserve:end */
     }
   }
   //
@@ -24,9 +31,15 @@ Item {
     id: testcase
     name: "AnnotableImage";when: windowShown
     property AnnotableImage anot: null
+    property DdbMock ddb: null
     //
     function init() {
-      anot = createTemporaryObject(anotimg, item)
+      ddb = createTemporaryObject(ddbcomp, item)
+      verify(ddb)
+      //      anot = createTemporaryObject(anotimg, item)
+      anot = createTemporaryObject(anotimg, item, {
+        'ddb': ddb
+      })
       tryCompare(anot.image, "progress", 1.0) // permet le temps de chargement async de l'image
     }
 
@@ -80,6 +93,7 @@ Item {
     }
     //
     function test_store_zone() {
+      ddb._addAnnotation = 1
       mousePress(anot, 50, 50)
       mouseMove(anot, 100, 170)
       mouseRelease(anot, 100, 170)
@@ -87,6 +101,7 @@ Item {
       compare(rec, null)
       compare(anot.annotations[0].relativeWidth, 0.25)
       compare(anot.annotations[0].relativeHeight, 120 / 174) //cf plus heut
+      compare(anot.annotations[0].ddbId, 1)
     }
     //
     function test_some_property() {

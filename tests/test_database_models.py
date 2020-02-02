@@ -241,12 +241,12 @@ class TestSection:
             "annotations": [
                 {
                     "classtype": "Stabylo",
-                    "height": 0.6,
+                    "relativeHeight": 0.6,
                     "id": 1,
                     "section": 1,
-                    "width": 0.5,
-                    "x": 0.3,
-                    "y": 0.4,
+                    "relativeWidth": 0.5,
+                    "relativeX": 0.3,
+                    "relativeY": 0.4,
                 }
             ],
         }

@@ -7,6 +7,7 @@ Rectangle {
   property real relativeY
   property real relativeWidth: 0
   property real relativeHeight: 0
+  property int ddbId: 0
 
   height: relativeHeight * referent.height
   width: relativeWidth * referent.width

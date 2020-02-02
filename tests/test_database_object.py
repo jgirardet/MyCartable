@@ -157,6 +157,27 @@ class TestLayoutMixin:
         )
 
 
+class TestAnnotationMixin:
+    def test_addAnnotation(self, ddbr):
+        d = DatabaseObject(ddbr)
+        s = f_section()
+        content = {
+            "classtype": "Stabylo",
+            "section": 1.0,
+            "relativeX": 0.3,
+            "relativeY": 0.4,
+            "relativeWidth": 0.5,
+            "relativeHeight": 0.6,
+        }
+        res = d.addAnnotation(content)
+
+        with db_session:
+            item = s.annotations.select()[:][0].to_dict()
+            assert item.pop("id") == res
+            assert item.pop("section") == s.id
+            assert item == content
+
+
 class TestDatabaseObject:
     def test_currentMatiereChanged_all_activite_signals_emited(self, ddbr, qtbot):
         f_matiere()
@@ -200,17 +221,3 @@ class TestDatabaseObject:
             ]
         ):
             d.currentTitreChanged.emit()
-
-
-# def test_connections(ddbr):
-#     m = f_matiere()
-#     m2 = f_matiere()
-#     a = b_page(10, td=True, activite=m.activites[0])
-#     b = b_page(10, td=True, activite=ac2.id)
-#     c = b_page(10, td=True, activite=ac3.id)
-#     d = DatabaseObject(ddbr)
-#     # with patch.object(d, "lessonsListChanged") as s:
-#     d.currentMatiere = m.id
-#     for j in d.ACTIVITE_LIST:
-#         for i in  getattr(d, j):
-#             i['matiere'] = m.id

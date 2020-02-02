@@ -111,26 +111,41 @@ def b_section(n, *args, **kwargs):
     return [f_section(*args, **kwargs) for x in range(n)]
 
 
-def f_stabylo(x=None, y=None, width=None, height=None, td=False, section=None):
-    x = x or random.randint(0, 100) / 100
-    y = y or random.randint(0, 100) / 100
-    width = width or random.randint(0, 100) / 100
-    height = height or random.randint(0, 100) / 100
+def f_stabylo(
+    relativeX=None,
+    relativeY=None,
+    relativeWidth=None,
+    relativeHeight=None,
+    td=False,
+    section=None,
+):
+    relativeX = relativeX or random.randint(0, 100) / 100
+    relativeY = relativeY or random.randint(0, 100) / 100
+    relativeWidth = relativeWidth or random.randint(0, 100) / 100
+    relativeHeight = relativeHeight or random.randint(0, 100) / 100
     section = section or f_section().id
 
     with db_session:
-        item = db.Stabylo(x=x, y=y, width=width, height=height, section=section)
+        item = db.Stabylo(
+            relativeX=relativeX,
+            relativeY=relativeY,
+            relativeWidth=relativeWidth,
+            relativeHeight=relativeHeight,
+            section=section,
+        )
         return item.to_dict() if td else item
 
 
-def f_annotation(x=None, y=None, text=None, td=False, section=None):
-    x = x or random.randint(0, 100) / 100
-    y = y or random.randint(0, 100) / 100
+def f_annotation(relativeX=None, relativeY=None, text=None, td=False, section=None):
+    relativeX = relativeX or random.randint(0, 100) / 100
+    relativeY = relativeY or random.randint(0, 100) / 100
     text = text or " ".join(gen.text.words(2))
     section = section or f_section().id
 
     with db_session:
-        item = db.Annotation(x=x, y=y, text=text, section=section)
+        item = db.Annotation(
+            relativeX=relativeX, relativeY=relativeY, text=text, section=section
+        )
         return item.to_dict() if td else item
 
 

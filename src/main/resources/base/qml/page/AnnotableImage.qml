@@ -43,23 +43,18 @@ FocusScope {
   }
 
   Component.onCompleted: initZones()
-  onAnnotationsChanged: {
-    print(value)
-  }
 
   Image {
     id: img
     /* beautify preserve:start */
-        property var content
-
-
-        // propiete a ne pas oublier à la declaration
-        property QtObject mouseArea: mouseArea
-        readonly property var annotationInput: Qt.createComponent(
-            "qrc:/qml/page/AnnotationInput.qml")
-        readonly property var stabyloRectangle: Qt.createComponent(
-            "qrc:/qml/page/StabyloRectangle.qml")
-       /* beautify preserve:end */
+    property var content
+    // propiete a ne pas oublier à la declaration
+    readonly property var annotationInput: Qt.createComponent(
+        "qrc:/qml/page/AnnotationInput.qml")
+    readonly property var stabyloRectangle: Qt.createComponent(
+        "qrc:/qml/page/StabyloRectangle.qml")
+    /* beautify preserve:end */
+    property QtObject mouseArea: mouseArea
     asynchronous: true
     fillMode: Image.PreserveAspectFit
     source: 'file://' + content.content
@@ -95,7 +90,19 @@ FocusScope {
 
     function storeZone(rec) {
       if (rec.relativeWidth > 0 && rec.relativeHeight > 0) {
-        annotations.push(rec)
+        var newId = ddb.addAnnotation({
+          "relativeX": rec.relativeX,
+          "relativeY": rec.relativeY,
+          "relativeWidth": rec.relativeWidth,
+          "relativeHeight": rec.relativeHeight,
+          "section": parseInt(content.id),
+          "classtype": "Stabylo"
+        })
+
+        if (newId) {
+          rec.ddbId = newId
+          annotations.push(rec)
+        }
       }
     }
 
@@ -117,6 +124,11 @@ FocusScope {
       }
     }
 
+    onPositionChanged: {
+      if (containsMouse) {
+        temp_rec = img.updateZone(mouse, temp_rec)
+      }
+    }
     onReleased: {
       img.storeZone(temp_rec)
       temp_rec = null

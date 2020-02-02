@@ -51,6 +51,11 @@ Item {
       ref.destroy
     }
 
+    function test_id() {
+      compare(stab.relativeX, 0.48)
+      compare(stab.ddbId, 0)
+    }
+
     function test_AnotXY() {
       compare(stab.x, 96)
       compare(stab.y, 20)

@@ -1,4 +1,4 @@
-from fixtures import compare, ss
+from fixtures import compare, ss, check_args
 from package import constantes
 from package.database_mixins.matiere_mixin import MatieresDispatcher
 from package.database_mixins.page_mixin import PageMixin
@@ -157,7 +157,7 @@ class TestLayoutMixin:
         )
 
 
-class TestAnnotationMixin:
+class TestSectionMixin:
     def test_addAnnotation(self, ddbr):
         d = DatabaseObject(ddbr)
         s = f_section()
@@ -178,9 +178,25 @@ class TestAnnotationMixin:
             assert item == content
 
     def test_loadAnnotations(self, dao):
-        s = f_section()
+        s = f_section(img=True)
         b_stabylo(5, section=s.id)
-        assert len(dao.loadAnnotations(s.id)) == 5
+        res = dao.loadAnnotations(s.id)
+        assert len(res) == 5
+
+    def test_loadsection(self, dao):
+        s = f_section(img=True)
+        b_stabylo(5, section=s.id)
+        res = dao.loadSection(s.id)
+        assert res["id"] == 1
+        assert res["content"] == str(FILES / s.content)
+        assert len(res["annotations"]) == 5
+
+    def test_updateTextAnnotation(self, dao: DatabaseObject, ddbn):
+        check_args(dao.updateAnnotationText, (int, str))
+        a = f_annotationText()
+        dao.updateAnnotationText(a.id, "bla")
+        with db_session:
+            assert ddbn.AnnotationText[a.id].text == "bla"
 
 
 class TestDatabaseObject:

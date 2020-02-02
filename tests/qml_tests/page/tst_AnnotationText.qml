@@ -8,6 +8,12 @@ Item {
   width: 200
   height: 200
   id: item
+
+  Component {
+    id: ddbcomp
+    DdbMock {}
+  }
+
   Component {
     id: refcomp
     Item {
@@ -19,33 +25,32 @@ Item {
   }
   Component {
     id: anotinp
-    AnnotationInput {
+    AnnotationText {
       relativeX: 0.48
       relativeY: 0.10
-      //referent: ref
+      /* beautify preserve:start */
+      property var ddb //need to inject ddb
+      /* beautify preserve:end */
     }
   }
   TestCase {
     //
-    name: "AnnotationInput";when: windowShown
-    property AnnotationInput anot
+    name: "AnnotationText";when: windowShown
+    property AnnotationText anot
     property Item ref
+    property DdbMock ddb: null
 
     function init() {
-      //          ref = createTemporaryObject(refcomp, item)// sinon Warn
+      ddb = createTemporaryObject(ddbcomp, item)
+      //      et pas   ref = createTemporaryObject(refcomp, item)// sinon Warn
       ref = refcomp.createObject(item)
       anot = anotinp.createObject(ref, {
+        'ddb': ddb,
         "referent": ref
       })
       verify(anot)
       verify(ref)
       ref.annotations.push(anot)
-    }
-
-    function cleanup() {
-      //            if (anot) {
-      //                anot.destroy()
-      //            }
     }
 
     function test_AnotXY() {
@@ -78,16 +83,27 @@ Item {
       compare(anot2.focus, true)
     }
 
+    function test_hover_cursor_at_end() {
+      anot.text = "12345678"
+      mouseMove(anot, 1, 1)
+      mouseClick(anot)
+      compare(anot.cursorPosition, 4)
+      mouseMove(anot, anot.width + 10, anot.height + 10)
+      anot.focus = false
+      mouseMove(anot, 1, 1)
+      compare(anot.cursorPosition, 8)
+    }
+
     function test_anot_destroy() {
       mouseClick(anot, 1, 1, Qt.MiddleButton)
       waitForRendering(ref)
       compare(ref.annotations, [])
     }
-    //        function test_anot_destroy_ref_already_destroyed() {
-    //            ref.destroy()
-    //            mouseClick(anot, 1, 1, Qt.MiddleButton)
-    //            waitForRendering(ref)
-    //            compare(ref.annotations, [])
-    //        }
+
+    function test_update_text() {
+      anot.ddbId = 3
+      anot.text = "bla"
+      compare(ddb._updateAnnotationText, [3, "bla"])
+    }
   }
 }

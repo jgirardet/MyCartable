@@ -15,12 +15,9 @@ Item {
   Component {
     id: anotimg
     AnnotableImage {
-      content: {
-        'content': '/home/jimmy/dev/cacahuete/MyCartable/tests/qml_tests/resources/tst_AnnotableImage.png',
-        'annotations': []
-      }
-      //                source: '../resources/tst_AnnotableImage.png' // 767 x 669
+      sectionId: 1
       base: item
+      //                source: '../resources/tst_AnnotableImage.png' // 767 x 669
       /* beautify preserve:start */
       property var ddb //need to inject ddb
       /* beautify preserve:end */
@@ -35,8 +32,11 @@ Item {
     //
     function init() {
       ddb = createTemporaryObject(ddbcomp, item)
+      ddb._loadSection = {
+        'content': '/home/jimmy/dev/cacahuete/MyCartable/tests/qml_tests/resources/tst_AnnotableImage.png',
+        'annotations': []
+      }
       verify(ddb)
-      //      anot = createTemporaryObject(anotimg, item)
       anot = createTemporaryObject(anotimg, item, {
         'ddb': ddb
       })
@@ -51,21 +51,24 @@ Item {
     }
 
     function test_init() {
-      compare(anot.image.annotationInput.url, "qrc:/qml/page/AnnotationInput.qml")
       compare(anot.image.sourceSize.width, item.width)
     }
 
-    function test_addannotation() {
+    function test_addannotationText() {
+      ddb._addAnnotation = 5
       mouseClick(anot, 50, 30, Qt.RightButton)
       var inp = anot.annotations[0]
       compare(inp.focus, true)
-      keyPress(Qt.Key_A)
+      keyPress(Qt.Key_A) //press touche pour vérifier active focus immédiat
       keyPress(Qt.Key_B)
-      compare(inp.text, "ab")
+      //test type via duck typing
       compare(inp.relativeX, 0.25)
       compare(inp.relativeY, 30 / anot.image.implicitHeight)
+      compare(inp.text, "ab")
+      //test ddbIdSet
+      compare(inp.ddbId, 5)
     }
-    // r
+
     function test_detroy_annotations_before_destroy() {
       mouseClick(anot, 50, 30, Qt.RightButton)
       var inp = anot.annotations[0]
@@ -74,6 +77,7 @@ Item {
     function test_init_zone() {
       mousePress(anot)
       compare(findChild(anot, "mouseArea").temp_rec.relativeWidth, 0)
+      compare(findChild(anot, "mouseArea").preventStealing, true)
     }
 
     function test_update_zone() {
@@ -91,7 +95,7 @@ Item {
       compare(rec.relativeWidth, 0)
       compare(rec.relativeHeight, 0)
     }
-    //
+
     function test_store_zone() {
       ddb._addAnnotation = 1
       mousePress(anot, 50, 50)
@@ -103,23 +107,22 @@ Item {
       compare(anot.annotations[0].relativeHeight, 120 / 174) //cf plus heut
       compare(anot.annotations[0].ddbId, 1)
     }
-    //
-    function test_some_property() {
-      // empeche le scroll quand onPositionChanged
-      compare(findChild(anot, "mouseArea").preventStealing, true)
-    }
 
     function test_load_stabylo_on_completed() {
-      ddb._loadAnnotations = [{
-            "classtype": "Stabylo",
-            "id": 1,
-            "section": 1,
-            "x": 0.3,
-            "y": 0.4,
-            "width": 0.5,
-            "height": 0.6,
-          }]
-       var ano = createTemporaryObject(anotimg, item, {
+      anot.destroy()
+      ddb._loadSection = {
+        'content': '/home/jimmy/dev/cacahuete/MyCartable/tests/qml_tests/resources/tst_AnnotableImage.png',
+        'annotations': [{
+          "classtype": "Stabylo",
+          "id": 1,
+          "section": 1,
+          "relativeX": 0.3,
+          "relativeY": 0.4,
+          "relativeWidth": 0.5,
+          "relativeHeight": 0.6,
+        }]
+      }
+      var ano = createTemporaryObject(anotimg, item, {
         'ddb': ddb
       })
 
@@ -129,30 +132,35 @@ Item {
       compare(item.relativeY, 0.4)
       compare(item.relativeWidth, 0.5)
       compare(item.relativeHeight, 0.6)
+      compare(item.ddbId, 1)
 
     }
 
-//    function test_load_annotation_on_completed() {
-//      var ano = createTemporaryObject(anotimg, item, {
-//        "content": {
-//          'content': '/home/jimmy/dev/cacahuete/MyCartable/tests/qml_tests/resources/tst_AnnotableImage.png',
-//          'annotations': [{
-//            "classtype": "Annotation",
-//            "id": 1,
-//            "section": 1,
-//            "x": 0.3,
-//            "y": 0.4,
-//            "text": "blabla"
-//          }]
-//
-//        }
-//      })
-//
-//      compare(ano.annotations.length, 1)
-//      var item = ano.annotations[0]
-//      compare(item.relativeX, 0.3)
-//      compare(item.relativeY, 0.4)
-//      compare(item.text, "blabla")
-//    }
+    function test_load_annotationText_on_completed() {
+      anot.destroy()
+      ddb._loadSection = {
+        'content': '/home/jimmy/dev/cacahuete/MyCartable/tests/qml_tests/resources/tst_AnnotableImage.png',
+        'annotations': [{
+          "classtype": "AnnotationText",
+          "id": 1,
+          "section": 1,
+          "relativeX": 0.3,
+          "relativeY": 0.4,
+          "text": "blabla"
+        }]
+      }
+      var ano = createTemporaryObject(anotimg, item, {
+        'ddb': ddb
+      })
+
+      compare(ano.annotations.length, 1)
+      var item = ano.annotations[0]
+      compare(item.relativeX, 0.3)
+      compare(item.relativeY, 0.4)
+      compare(item.text, "blabla")
+      compare(item.ddbId, 1)
+
+    }
+
   }
 }

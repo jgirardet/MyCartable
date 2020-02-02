@@ -117,7 +117,7 @@ def init_models(db: Database):
         modified = Optional(datetime)
         page = Required(Page)
         content = Optional(str)
-        content_type = Optional(str)
+        contentType = Optional(str)
         position = Optional(int, default=0)
         annotations = Set("AnnotationBase")
 
@@ -167,5 +167,5 @@ def init_models(db: Database):
         relativeWidth = Required(float)
         relativeHeight = Required(float)
 
-    class Annotation(AnnotationBase):
+    class AnnotationText(AnnotationBase):
         text = Optional(str)

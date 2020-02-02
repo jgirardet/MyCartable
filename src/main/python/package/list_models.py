@@ -74,15 +74,7 @@ class PageModel(QAbstractListModel):
             return None
         #
         elif role == Qt.DisplayRole:
-            a = self._datas[index.row()]
-            if a["content_type"] == "str":
-                a["type"] = "texte"
-            else:
-                a["type"] = "img"
-                path = str(FILES / a["content"])
-                a["content"] = str(path)
-                print(a["annotations"])
-            return a
+            return self._datas[index.row()]
 
     def slotReset(self, value):
         self.beginResetModel()

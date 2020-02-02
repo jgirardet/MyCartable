@@ -28,13 +28,20 @@ Item {
     return _getLayoutSizes
   }
 
-
   function getMatiereIndexFromId(id) {
     return _getMatiereIndexFromId
   }
 
+  function loadSection(sec) {
+    return _loadSection
+  }
+
   function loadAnnotations(sec) {
     return _loadAnnotations
+  }
+
+  function updateAnnotationText(itemId, text) {
+    _updateAnnotationText = [itemId, text]
   }
 
   // Sous cette ligne, uniquement du non existent dans le vrai ddb
@@ -43,7 +50,9 @@ Item {
   property int _getLayoutSizes: 100
   property int _getMatiereIndexFromId: 1
   /* beautify preserve:start */
+  property var _loadSection: {}
   property var _loadAnnotations: []
+  property var _updateAnnotationText: null
   /* beautify preserve:end */
   Component {
     id: compspyc

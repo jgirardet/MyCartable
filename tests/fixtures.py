@@ -51,3 +51,28 @@ def check_begin_end(obj, name):
             assert getattr(obj, "begin" + name).called
         except AssertionError:
             print(x)
+
+
+EQUIVALENTS = {
+    str: "QString",
+    int: "int",
+    dict: "QVariantMap",
+    list: "QvariantList",
+    None: "void",
+}
+
+
+def check_args(fn, exp_args=[], exp_return_type=None, slot_order=0):
+
+    name = fn.__name__
+    return_type, reste = fn._slots[slot_order].split()
+    reste = reste.replace(name, "").replace("(", "").replace(")", "")
+    args = reste.split(",")
+
+    converted_args = [EQUIVALENTS[x] for x in exp_args]
+    converted_return_type = EQUIVALENTS[exp_return_type]
+
+    assert (
+        return_type == converted_return_type
+    ), f"{return_type} différent de {converted_return_type}"
+    assert args == converted_args, f"{args} différent de {converted_args}"

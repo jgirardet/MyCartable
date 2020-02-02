@@ -16,7 +16,7 @@ ListView {
   Component {
     id: imageDelegate
     AnnotableImage {
-      content: datas
+      sectionId: datas.id
       base: lv
     }
   }
@@ -26,10 +26,10 @@ ListView {
       /* beautify preserve:start */
     property var datas: display
     /* beautify preserve:end */
-      sourceComponent: switch (display.type) {
+      sourceComponent: switch (display.contentType) {
         case "texte":
           return texteDelegate
-        case "img":
+        case "image":
           return imageDelegate
       }
     }

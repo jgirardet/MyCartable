@@ -232,7 +232,7 @@ class TestSection:
         s = f_stabylo(0.30, 0.40, 0.50, 0.60, section=sec.id)
         assert sec.to_dict() == {
             "content": "essai.jpg",
-            "content_type": "img",
+            "contentType": "image",
             "created": d,
             "id": 1,
             "modified": d,
@@ -260,14 +260,14 @@ class TestAnnotationsAndStabylos:
         assert list(a.values()) == [2, 0.3, 0.4, 2, "Stabylo", 0.5, 0.6]
 
     def test_factory_annotation(self, ddbr):
-        a = f_annotation()
-        isinstance(a, db.Annotation)
-        a = f_annotation(0.30, 0.40, "coucou", td=True)
+        a = f_annotationText()
+        isinstance(a, db.AnnotationText)
+        a = f_annotationText(0.30, 0.40, "coucou", td=True)
         assert list(a.values()) == [
             2,
             0.3,
             0.4,
             2,
-            "Annotation",
+            "AnnotationText",
             "coucou",
         ]

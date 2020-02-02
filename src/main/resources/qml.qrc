@@ -15,7 +15,7 @@
         <file alias="PageTexteDelegate.qml">base/qml/page/PageTexteDelegate.qml</file>
         <file alias="PageRectangle.qml">base/qml/page/PageRectangle.qml</file>
         <file alias="AnnotableImage.qml">base/qml/page/AnnotableImage.qml</file>
-        <file alias="AnnotationInput.qml">base/qml/page/AnnotationInput.qml</file>
+        <file alias="AnnotationText.qml">base/qml/page/AnnotationText.qml</file>
         <file alias="StabyloRectangle.qml">base/qml/page/StabyloRectangle.qml</file>
     </qresource>
     <qresource prefix="/qml/recents">

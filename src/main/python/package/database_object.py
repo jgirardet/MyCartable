@@ -3,13 +3,13 @@ from PySide2.QtCore import QObject, Signal, Property, Slot, QRegExp
 from PySide2.QtQml import QQmlProperty
 from package.constantes import LAYOUT_SIZES
 from package.database_mixins.activite_mixin import ActiviteMixin
-from package.database_mixins.annotation_mixin import AnnotationMixin
 from package.database_mixins.layout_mixin import LayoutMixin
 from package.database_mixins.matiere_mixin import MatiereMixin
 from package.database_mixins.page_mixin import PageMixin
 from package.database_mixins.recents_mixin import RecentsMixin
 import logging
 
+from package.database_mixins.section_mixin import SectionMixin
 from pony.orm import db_session
 
 LOG = logging.getLogger(__name__)
@@ -18,9 +18,9 @@ MIXINS = [
     PageMixin,
     MatiereMixin,
     ActiviteMixin,
-    RecentsMixin,
-    AnnotationMixin,
     LayoutMixin,
+    RecentsMixin,
+    SectionMixin,
 ]
 
 

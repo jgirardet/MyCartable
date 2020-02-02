@@ -6,6 +6,7 @@ TextField {
   property QtObject referent
   property real relativeX
   property real relativeY
+  property int ddbId
 
   //size and pos
   height: contentHeight
@@ -25,8 +26,10 @@ TextField {
   hoverEnabled: true
 
   // slots
+  onFocusChanged: focus ? cursorPosition = text.length : null
   onHoveredChanged: hovered ? focus = true : null
   onPressed: event.buttons === Qt.MiddleButton ? control.destroy() : null
+  onTextChanged: ddb.updateAnnotationText(ddbId, text)
   Component.onDestruction: {
     if (referent.annotations) {
       let obj = referent.annotations.indexOf(control)

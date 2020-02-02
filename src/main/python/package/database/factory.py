@@ -80,7 +80,7 @@ def f_section(
     created=None,
     page=None,
     content=None,
-    content_type=None,
+    contentType=None,
     position=0,
     td=False,
     img=False,
@@ -91,16 +91,16 @@ def f_section(
 
         if img:
             content = "essai.jpg"
-            content_type = "img"
+            contentType = "image"
         else:
             content = content or gen.text.sentence()
-            content_type = content_type or "str"
+            contentType = contentType or "texte"
 
         item = db.Section(
             created=created,
             page=page,
             content=content,
-            content_type=content_type,
+            contentType=contentType,
             position=position,
         )
         item.flush()
@@ -140,21 +140,21 @@ def b_stabylo(n, *args, **kwargs):
     return [f_stabylo(*args, **kwargs) for x in range(n)]
 
 
-def f_annotation(relativeX=None, relativeY=None, text=None, td=False, section=None):
+def f_annotationText(relativeX=None, relativeY=None, text=None, td=False, section=None):
     relativeX = relativeX or random.randint(0, 100) / 100
     relativeY = relativeY or random.randint(0, 100) / 100
     text = text or " ".join(gen.text.words(2))
     section = section or f_section().id
 
     with db_session:
-        item = db.Annotation(
+        item = db.AnnotationText(
             relativeX=relativeX, relativeY=relativeY, text=text, section=section
         )
         return item.to_dict() if td else item
 
 
 def b_annotation(n, *args, **kwargs):
-    return [f_annotation(*args, **kwargs) for x in range(n)]
+    return [f_annotationText(*args, **kwargs) for x in range(n)]
 
 
 @db_session

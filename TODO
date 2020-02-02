@@ -5,4 +5,8 @@
 
 # QML:
     Non Urgent :
-        listview overlap le bas dans recents
+
+
+à faire bientôt:
+  - update modified de page et section quand annotation
+  - refactore les annoations dans QML

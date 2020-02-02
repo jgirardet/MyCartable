@@ -23,7 +23,7 @@ ListView {
 
   delegate: Component {
     Loader {
-    /* beautify preserve:start */
+      /* beautify preserve:start */
     property var datas: display
     /* beautify preserve:end */
       sourceComponent: switch (display.type) {

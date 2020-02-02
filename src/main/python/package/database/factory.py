@@ -111,6 +111,29 @@ def b_section(n, *args, **kwargs):
     return [f_section(*args, **kwargs) for x in range(n)]
 
 
+def f_stabylo(x=None, y=None, width=None, height=None, td=False, section=None):
+    x = x or random.randint(0, 100) / 100
+    y = y or random.randint(0, 100) / 100
+    width = width or random.randint(0, 100) / 100
+    height = height or random.randint(0, 100) / 100
+    section = section or f_section().id
+
+    with db_session:
+        item = db.Stabylo(x=x, y=y, width=width, height=height, section=section)
+        return item.to_dict() if td else item
+
+
+def f_annotation(x=None, y=None, text=None, td=False, section=None):
+    x = x or random.randint(0, 100) / 100
+    y = y or random.randint(0, 100) / 100
+    text = text or " ".join(gen.text.words(2))
+    section = section or f_section().id
+
+    with db_session:
+        item = db.Annotation(x=x, y=y, text=text, section=section)
+        return item.to_dict() if td else item
+
+
 @db_session
 def populate_database(matieres_list=None, nb_page=100):
     annee = f_annee()

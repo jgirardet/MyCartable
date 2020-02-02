@@ -119,10 +119,16 @@ def init_models(db: Database):
         content = Optional(str)
         content_type = Optional(str)
         position = Optional(int, default=0)
+        annotations = Set("AnnotationBase")
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             self.updating_position = False
+
+        def to_dict(self, *args, **kwargs):
+            dico = super().to_dict(*args, **kwargs)
+            dico["annotations"] = [p.to_dict() for p in self.annotations]
+            return dico
 
         def before_insert(self):
             self.modified = self.created
@@ -150,3 +156,16 @@ def init_models(db: Database):
                 x.updating_position = True  # do not update modified on position
                 x.position = n
                 n += 1
+
+    class AnnotationBase(db.Entity):
+        id = PrimaryKey(int, auto=True)
+        x = Required(float)
+        y = Required(float)
+        section = Required(Section)
+
+    class Stabylo(AnnotationBase):
+        width = Required(float)
+        height = Required(float)
+
+    class Annotation(AnnotationBase):
+        text = Optional(str)

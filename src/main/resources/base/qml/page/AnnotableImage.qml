@@ -11,6 +11,42 @@ FocusScope {
    /* beautify preserve:end */
   height: img.height
   width: img.width
+
+  function initZones() {
+    for (var z of content.annotations) {
+      let newObject
+      switch (z.classtype) {
+        case "Stabylo": {
+          newObject = img.stabyloRectangle.createObject(root, {
+            "relativeX": z.x,
+            "relativeY": z.y,
+            "relativeWidth": z.width,
+            "relativeHeight": z.height,
+            "referent": img
+          })
+          break;
+        }
+        case "Annotation": {
+          newObject = img.annotationInput.createObject(root, {
+            "relativeX": z.x,
+            "relativeY": z.y,
+            "text": z.text,
+            "referent": img
+          })
+          break;
+        }
+      }
+      if (newObject != undefined) {
+        root.annotations.push(newObject)
+      }
+    }
+  }
+
+  Component.onCompleted: initZones()
+  onAnnotationsChanged: {
+    print(value)
+  }
+
   Image {
     id: img
     /* beautify preserve:start */
@@ -62,6 +98,7 @@ FocusScope {
         annotations.push(rec)
       }
     }
+
   }
   MouseArea {
     id: mouseArea
@@ -79,11 +116,7 @@ FocusScope {
         mouse.accepted = false
       }
     }
-    onPositionChanged: {
-      if (containsMouse) {
-        temp_rec = img.updateZone(mouse, temp_rec)
-      }
-    }
+
     onReleased: {
       img.storeZone(temp_rec)
       temp_rec = null

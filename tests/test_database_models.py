@@ -224,3 +224,50 @@ class TestSection:
         flush()
         assert a.modified > b
         assert a.page.modified == a.modified
+
+    def test_to_dict(self, ddb):
+        p = f_page()
+        d = f_datetime()
+        sec = f_section(created=d, page=p.id, img=True)
+        s = f_stabylo(0.30, 0.40, 0.50, 0.60, section=sec.id)
+        assert sec.to_dict() == {
+            "content": "essai.jpg",
+            "content_type": "img",
+            "created": d,
+            "id": 1,
+            "modified": d,
+            "page": 1,
+            "position": 1,
+            "annotations": [
+                {
+                    "classtype": "Stabylo",
+                    "height": 0.6,
+                    "id": 1,
+                    "section": 1,
+                    "width": 0.5,
+                    "x": 0.3,
+                    "y": 0.4,
+                }
+            ],
+        }
+
+
+class TestAnnotationsAndStabylos:
+    def test_factory_stabylo(self, ddbr):
+        a = f_stabylo()
+        isinstance(a, db.Stabylo)
+        a = f_stabylo(0.30, 0.40, 0.50, 0.60, td=True)
+        assert list(a.values()) == [2, 0.3, 0.4, 2, "Stabylo", 0.5, 0.6]
+
+    def test_factory_annotation(self, ddbr):
+        a = f_annotation()
+        isinstance(a, db.Annotation)
+        a = f_annotation(0.30, 0.40, "coucou", td=True)
+        assert list(a.values()) == [
+            2,
+            0.3,
+            0.4,
+            2,
+            "Annotation",
+            "coucou",
+        ]

@@ -9,7 +9,7 @@
     <option name="ADD_CONTENT_ROOTS" value="false" />
     <option name="ADD_SOURCE_ROOTS" value="false" />
     <option name="_new_keywords" value="&quot;&quot;" />
-    <option name="_new_additionalArguments" value="&quot;-s&quot;" />
+    <option name="_new_additionalArguments" value="&quot;--lf --lfnf\u003dall -s&quot;" />
     <option name="_new_target" value="&quot;&quot;" />
     <option name="_new_targetType" value="&quot;CUSTOM&quot;" />
     <method v="2" />

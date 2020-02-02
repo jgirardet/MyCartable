@@ -12,7 +12,8 @@ Item {
     id: anotimg
     AnnotableImage {
       content: {
-        'content': '/home/jimmy/dev/cacahuete/MyCartable/tests/qml_tests/resources/tst_AnnotableImage.png'
+        'content': '/home/jimmy/dev/cacahuete/MyCartable/tests/qml_tests/resources/tst_AnnotableImage.png',
+        'annotations': []
       }
       //                source: '../resources/tst_AnnotableImage.png' // 767 x 669
       base: item
@@ -93,6 +94,53 @@ Item {
       compare(findChild(anot, "mouseArea").preventStealing, true)
     }
 
-    function test
+    function test_load_stabylo_on_completed() {
+      var ano = createTemporaryObject(anotimg, item, {
+        "content": {
+          'content': '/home/jimmy/dev/cacahuete/MyCartable/tests/qml_tests/resources/tst_AnnotableImage.png',
+          'annotations': [{
+            "classtype": "Stabylo",
+            "id": 1,
+            "section": 1,
+            "x": 0.3,
+            "y": 0.4,
+            "width": 0.5,
+            "height": 0.6,
+          }]
+
+        }
+      })
+
+      compare(ano.annotations.length, 1)
+      var item = ano.annotations[0]
+      compare(item.relativeX, 0.3)
+      compare(item.relativeY, 0.4)
+      compare(item.relativeWidth, 0.5)
+      compare(item.relativeHeight, 0.6)
+
+    }
+
+    function test_load_annotation_on_completed() {
+      var ano = createTemporaryObject(anotimg, item, {
+        "content": {
+          'content': '/home/jimmy/dev/cacahuete/MyCartable/tests/qml_tests/resources/tst_AnnotableImage.png',
+          'annotations': [{
+            "classtype": "Annotation",
+            "id": 1,
+            "section": 1,
+            "x": 0.3,
+            "y": 0.4,
+            "text": "blabla"
+          }]
+
+        }
+      })
+
+      compare(ano.annotations.length, 1)
+      var item = ano.annotations[0]
+      compare(item.relativeX, 0.3)
+      compare(item.relativeY, 0.4)
+      compare(item.text, "blabla")
+    }
   }
 }

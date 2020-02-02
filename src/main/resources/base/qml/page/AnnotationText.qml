@@ -8,6 +8,7 @@ TextField {
   property real relativeY
   property int ddbId
 
+  signal deleteRequested(QtObject anotObj)
   //size and pos
   height: contentHeight
   padding: 0
@@ -28,12 +29,9 @@ TextField {
   // slots
   onFocusChanged: focus ? cursorPosition = text.length : null
   onHoveredChanged: hovered ? focus = true : null
-  onPressed: event.buttons === Qt.MiddleButton ? control.destroy() : null
+  onPressed: event.buttons === Qt.MiddleButton ? deleteRequested(control) : null
   onTextChanged: ddb.updateAnnotationText(ddbId, text)
-  Component.onDestruction: {
-    if (referent.annotations) {
-      let obj = referent.annotations.indexOf(control)
-      referent.annotations.splice(obj, 1)
-    }
-  }
+
+  Component.onCompleted: deleteRequested.connect(referent.deleteAnnotation)
+
 }

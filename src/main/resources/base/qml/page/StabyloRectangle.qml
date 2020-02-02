@@ -9,6 +9,8 @@ Rectangle {
   property real relativeHeight: 0
   property int ddbId: 0
 
+  signal deleteRequested(QtObject anotObj)
+
   height: relativeHeight * referent.height
   width: relativeWidth * referent.width
   x: relativeX * referent.width
@@ -16,12 +18,7 @@ Rectangle {
 
   color: Qt.rgba(0.5, 0.4, 0.2, 0.4)
 
-  Component.onDestruction: {
-    if (referent.annotations) {
-      let obj = referent.annotations.indexOf(control)
-      referent.annotations.splice(obj, 1)
-    }
-  }
+  Component.onCompleted: deleteRequested.connect(referent.deleteAnnotation)
 
   MouseArea {
     objectName: "mouseArea"
@@ -29,7 +26,7 @@ Rectangle {
     acceptedButtons: Qt.LeftButton | Qt.MiddleButton
     onPressed: {
       if (mouse.buttons === Qt.MiddleButton) {
-        control.destroy()
+        deleteRequested(control)
       }
     }
   }

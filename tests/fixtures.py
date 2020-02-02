@@ -59,10 +59,14 @@ EQUIVALENTS = {
     dict: "QVariantMap",
     list: "QvariantList",
     None: "void",
+    bool: "Boolean",
 }
 
 
 def check_args(fn, exp_args=[], exp_return_type=None, slot_order=0):
+
+    if not isinstance(exp_args, (tuple, list)):
+        exp_args = [exp_args]
 
     name = fn.__name__
     return_type, reste = fn._slots[slot_order].split()

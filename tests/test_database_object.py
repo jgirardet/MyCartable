@@ -6,6 +6,8 @@ from package.database_object import DatabaseObject
 from package.database.factory import *
 from unittest.mock import patch, call
 
+from pony.orm import exists
+
 
 class TestPageMixin:
     def test_init(self, ddbr):
@@ -197,6 +199,19 @@ class TestSectionMixin:
         dao.updateAnnotationText(a.id, "bla")
         with db_session:
             assert ddbn.AnnotationText[a.id].text == "bla"
+
+    def test_deleteAnnotation(self, dao, ddbn):
+        check_args(dao.deleteAnnotation, int)
+
+        a = f_annotationText()
+        b = f_stabylo()
+
+        c = dao.deleteAnnotation(a.id)
+        d = dao.deleteAnnotation(b.id)
+
+        with db_session:
+            assert not ddbn.AnnotationBase.exists(id=a.id)
+            assert not ddbn.AnnotationBase.exists(id=b.id)
 
 
 class TestDatabaseObject:

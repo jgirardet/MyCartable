@@ -8,10 +8,32 @@ Item {
   id: item
   width: 200
   height: 300
+
   Component {
     id: ddbcomp
     DdbMock {}
   }
+
+  Component {
+    id: anottext
+    AnnotationText {
+      relativeX: 0.48
+      relativeY: 0.10
+      /* beautify preserve:start */
+      property var ddb //need to inject ddb
+      /* beautify preserve:end */
+    }
+  }
+
+  Component {
+    id: stabcomp
+    StabyloRectangle {
+      relativeX: 0.48
+      relativeY: 0.10
+      //referent: ref
+    }
+  }
+
   Component {
     id: anotimg
     AnnotableImage {
@@ -159,6 +181,41 @@ Item {
       compare(item.relativeY, 0.4)
       compare(item.text, "blabla")
       compare(item.ddbId, 1)
+
+    }
+
+    function test_delete_annotationText() {
+      var anotText = anottext.createObject(anot, {
+        'ddb': ddb,
+        "ddbId": 5,
+        "referent": anot,
+        "text": "blabla"
+      })
+      anot.annotations.push(anotText)
+
+      mouseClick(anotText, 1, 1, Qt.MiddleButton)
+      compare(ddb._deleteAnnotation, 5)
+      compare(anot.annotations, [])
+      waitForRendering(anot)
+      compare(anot.ddbId, undefined)
+
+    }
+
+    function test_delete_stabylo() {
+      var stab = stabcomp.createObject(anot, {
+        'ddb': ddb,
+        "ddbId": 6,
+        "referent": anot,
+        "relativeWidth": 0.5,
+        "relativeHeight": 0.3
+      })
+      anot.annotations.push(stab)
+
+      mouseClick(stab, 1, 1, Qt.MiddleButton)
+      compare(ddb._deleteAnnotation, 6)
+      compare(anot.annotations, [])
+      waitForRendering(anot)
+      compare(stab.ddbId, undefined)
 
     }
 

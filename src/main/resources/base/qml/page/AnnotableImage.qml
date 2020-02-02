@@ -11,6 +11,8 @@ FocusScope {
     readonly property var annotationText: Qt.createComponent("qrc:/qml/page/AnnotationText.qml")
     readonly property var stabyloRectangle: Qt.createComponent("qrc:/qml/page/StabyloRectangle.qml")
    /* beautify preserve:end */
+
+  //doit rester comme ça pour les annotations +++
   height: img.height
   width: img.width
 
@@ -25,7 +27,7 @@ FocusScope {
     let newObject = annotationText.createObject(root, {
       "relativeX": mouseEvent.x / img.implicitWidth,
       "relativeY": mouseEvent.y / img.implicitHeight,
-      "referent": img
+      "referent": root
     })
     var newId = ddb.addAnnotation({
       "relativeX": newObject.relativeX,
@@ -47,9 +49,16 @@ FocusScope {
     var new_rec = stabyloRectangle.createObject(root, {
       "relativeX": mouseEvent.x / img.implicitWidth,
       "relativeY": mouseEvent.y / img.implicitHeight,
-      "referent": img
+      "referent": root
     })
     return new_rec
+  }
+
+  function deleteAnnotation(anotObj) {
+    ddb.deleteAnnotation(anotObj.ddbId)
+    let objIndex = annotations.indexOf(anotObj)
+    annotations.splice(objIndex, 1)
+    anotObj.destroy()
   }
 
   function initZones(annots) {
@@ -58,7 +67,7 @@ FocusScope {
       var initDict = {
         "relativeX": z.relativeX,
         "relativeY": z.relativeY,
-        "referent": img,
+        "referent": root,
         "ddbId": z.id,
       }
       let newObject

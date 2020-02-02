@@ -18,6 +18,11 @@ class SectionMixin:
 
         return item_id
 
+    @Slot(int)
+    def deleteAnnotation(self, annotation_id):
+        with db_session:
+            self.db.AnnotationBase[annotation_id].delete()
+
     @Slot(int, result="QVariantList")
     def loadAnnotations(self, section):
         with db_session:

@@ -17,6 +17,7 @@ Item {
       height: item.height
       /* beautify preserve:start */
       property var annotations: []
+      function deleteAnnotation(obj)  {}
       /* beautify preserve:end */
     }
   }
@@ -61,13 +62,5 @@ Item {
       compare(stab.y, 20)
     }
 
-    function test_mousearea() {
-
-      //right click destry
-      mouseClick(stab, undefined, undefined, Qt.MiddleButton)
-      waitForRendering(item)
-      compare(ref.annotations, [])
-      compare(stab, null)
-    }
   }
 }

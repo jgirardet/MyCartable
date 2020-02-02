@@ -24,6 +24,10 @@ Item {
     return _addAnnotation
   }
 
+  function deleteAnnotation(id) {
+    _deleteAnnotation = id
+  }
+
   function getLayoutSizes(quoi) {
     return _getLayoutSizes
   }
@@ -46,12 +50,14 @@ Item {
 
   // Sous cette ligne, uniquement du non existent dans le vrai ddb
   // fake value des fonction
+
+  /* beautify preserve:start */
   property int _addAnnotation: 0
+  property var _deleteAnnotation
   property int _getLayoutSizes: 100
   property int _getMatiereIndexFromId: 1
-  /* beautify preserve:start */
-  property var _loadSection: {}
   property var _loadAnnotations: []
+  property var _loadSection: {}
   property var _updateAnnotationText: null
   /* beautify preserve:end */
   Component {

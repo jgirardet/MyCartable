@@ -4,20 +4,16 @@ import QtQuick.Layouts 1.12
 import QtTest 1.12
 Item {
   id: item
-  property
-  var currentMatiere: 3
-  property
-  var currentPage: 0
-  property
-  var evaluationsList: ["eval1", "eval2", "eval3"]
-  property
-  var exercicesList: ["exo1", "exo2", "exo3"]
-  property
-  var lessonsList: ["leçon1", "leçon2", "leçon3"]
-  property
-  var matieresListNom: ["Français", "Histoire", "Géo"]
-  property
-  var setCurrentMatiereFromIndex
+  /* beautify preserve:start */
+  property var currentMatiere: 3
+  property var currentPage: 0
+  property var evaluationsList: ["eval1", "eval2", "eval3"]
+  property var exercicesList: ["exo1", "exo2", "exo3"]
+  property var lessonsList: ["leçon1", "leçon2", "leçon3"]
+  property var matieresListNom: ["Français", "Histoire", "Géo"]
+  property var pageModel: []
+  property var setCurrentMatiereFromIndex
+  /* beautify preserve:end */
   signal setCurrentMatiereFromIndexSignal(int index)
 
   function addAnnotation(content) {

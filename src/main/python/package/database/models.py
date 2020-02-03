@@ -116,19 +116,11 @@ def init_models(db: Database):
         created = Required(datetime, default=datetime.now)
         modified = Optional(datetime)
         page = Required(Page)
-        content = Optional(str)
-        contentType = Optional(str)
         position = Optional(int, default=0)
-        annotations = Set("AnnotationBase")
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             self.updating_position = False
-
-        def to_dict(self, *args, **kwargs):
-            dico = super().to_dict(*args, **kwargs)
-            dico["annotations"] = [p.to_dict() for p in self.annotations]
-            return dico
 
         def before_insert(self):
             self.modified = self.created
@@ -142,7 +134,7 @@ def init_models(db: Database):
                 self._update_position()
 
         def before_update(self):
-            if self.updating_position:
+            if getattr(self, "updating_position", None):
                 self.updating_position = False
             else:
                 self.modified = datetime.now()
@@ -157,15 +149,29 @@ def init_models(db: Database):
                 x.position = n
                 n += 1
 
-    class AnnotationBase(db.Entity):
+    class ImageSection(Section):
+        path = Optional(str)
+        annotations = Set("Annotation")
+
+    class TextSection(Section):
+        text = Optional(str)
+
+    class Annotation(db.Entity):
         id = PrimaryKey(int, auto=True)
         relativeX = Required(float)
         relativeY = Required(float)
-        section = Required(Section)
+        section = Required(ImageSection)
 
-    class Stabylo(AnnotationBase):
+        def before_insert(self):
+            self.section.before_update()
+
+        def before_delete(self):
+            if Section.exists(id=self.section.id):
+                self.section.before_update()
+
+    class Stabylo(Annotation):
         relativeWidth = Required(float)
         relativeHeight = Required(float)
 
-    class AnnotationText(AnnotationBase):
+    class AnnotationText(Annotation):
         text = Optional(str)

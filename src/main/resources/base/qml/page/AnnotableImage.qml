@@ -1,6 +1,6 @@
 import QtQuick 2.12
-import QtQuick.Window 2.12
 import QtQuick.Controls 2.12
+
 FocusScope {
   id: root
   /* beautify preserve:start */
@@ -18,7 +18,7 @@ FocusScope {
 
   Component.onCompleted: {
     var content = ddb.loadSection(sectionId)
-    img.source = 'file://' + content.content
+    img.source = 'file://' + content.path
     initZones(content.annotations)
   }
 

@@ -7,7 +7,7 @@ from PySide2.QtQml import QQmlProperty, QQmlApplicationEngine, qmlRegisterType
 from PySide2.QtWidgets import QApplication
 from fbs_runtime.application_context.PySide2 import ApplicationContext
 from mimesis import Generic
-from pony.orm import db_session, delete, commit
+from pony.orm import db_session, delete, commit, flush
 import subprocess
 
 generic_mimesis = Generic("fr")
@@ -64,92 +64,19 @@ def ddb(ddbr, reset_db):
 
 @pytest.fixture(scope="function")
 def reset_db(ddbn):
-    yield
     fn_reset_db(ddbn)
+    yield
 
 
 def fn_reset_db(db):
     with db_session:
+        # for a in db.Annee.select():
+        #     a.delete()
         for entity in db.entities.values():
             delete(e for e in entity)
             db.execute(
                 f"UPDATE SQLITE_SEQUENCE  SET  SEQ = 0 WHERE NAME = '{entity._table_}';"
             )
-
-
-class QRootWrapper:
-    def __init__(self, root):
-        # super().__setattr__(self, "root",root)
-        self.root = root
-
-    def __getattr__(self, item):
-        if item != "root":
-            obj = self.root.findChild(QObject, item)
-            return QObjectWrapper(obj)
-        else:
-            return super().__getattr__(item)
-
-
-class QObjectWrapper:
-    def __init__(self, obj):
-        self.obj = obj
-
-    def __getattr__(self, item):
-        if item == "obj":
-            return super().__getattr__(self, item)
-        else:
-            v = QQmlProperty.read(self.obj, item)
-            if isinstance(v, str):
-                try:
-                    return int(v)
-                except ValueError:
-                    pass
-            return v
-
-    # def __setattr__(self, key, value):
-    # if key != "obj":
-    #     QObject.setProperty(self.obj, key, value)
-    # else:
-    #     super().__setattr__(key, value)
-
-
-@pytest.fixture(scope="session")
-def matieres_list():
-    return ["Math", "Français", "Histoire", "Anglais"]
-
-
-@pytest.fixture(scope="function")
-def qApp():
-    qapp = QApplication.instance() or QApplication([])
-    yield qapp
-    del qapp
-
-
-# @pytest.fixture(scope="session", autouse=True)
-# def register_type():
-#     from package.list_models import RecentsModel
-#
-#     qmlRegisterType(RecentsModel, "RecentsModel", 1, 0, "RecentsModel")
-
-
-@pytest.fixture(scope="function")
-def qmlEngine(qApp, register_type):
-    engine = QQmlApplicationEngine()
-
-    # Import stuff
-    import qrc
-
-    from package.database_object import DatabaseObject
-    from package.database import db as database_root
-
-    # Add type and property
-    ddb = DatabaseObject(database_root)
-
-    engine.rootContext().setContextProperty("ddb", ddb)
-
-    engine.load(QUrl("qrc:///qml/main.qml"))
-    yield engine
-    del engine
 
 
 @pytest.fixture(scope="function")
@@ -164,42 +91,6 @@ def tmpfile(request, tmp_path, gen):
 def tmpfilename(request, tmp_path, gen):
     """tempfile which does not exists"""
     return tmp_path / gen.file.file_name()
-
-
-@pytest.fixture(scope="function")
-def rootObject(matieres_list, ddbr):
-    import time
-
-    t = time.time()
-    qapp = QApplication.instance() or QApplication([])
-    engine = QQmlApplicationEngine()
-
-    # Import stuff
-    from package.database_object import DatabaseObject
-    import qrc
-    from package.database.factory import populate_database
-
-    # Add type and property
-    ddb = DatabaseObject(ddbr)
-    engine.rootContext().setContextProperty("ddb", ddb)
-    engine.load(QUrl("qrc:///qml/main.qml"))
-    root = engine.rootObjects()[0]
-
-    # set context and utils
-    populate_database(matieres_list=matieres_list, nb_activite=3, nb_page=100)
-    root.W = QRootWrapper(root)
-    root.ddb = engine.rootContext().contextProperty("ddb")
-
-    # adapation_ok_en_vrai_mais_pas_en_test
-    root.ddb.matieresListRefresh()
-
-    dt = time.time() - t
-    yield root
-    t = time.time()
-    del root
-    del engine
-    del qapp
-    # print(((time.time()-t)+dt))
 
 
 @pytest.fixture()

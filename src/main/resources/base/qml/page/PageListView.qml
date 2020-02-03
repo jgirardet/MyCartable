@@ -8,15 +8,15 @@ ListView {
 
   Component {
     id: texteDelegate
-    PageTexteDelegate {
-      text: datas.content;width: lv.width
+    TextSection {
+//      text: datas.content;width: lv.width
     }
   }
 
   Component {
     id: imageDelegate
     AnnotableImage {
-      sectionId: datas.id
+      sectionId: curSectionId
       base: lv
     }
   }
@@ -24,14 +24,14 @@ ListView {
   delegate: Component {
     Loader {
       /* beautify preserve:start */
-    property var datas: display
+    property int curSectionId: display.id
     /* beautify preserve:end */
-      sourceComponent: switch (display.contentType) {
-        case "texte":
-          return texteDelegate
-        case "image":
+      sourceComponent: switch (display.classtype) {
+        case "ImageSection": {
           return imageDelegate
+        }
       }
     }
+
   }
 }

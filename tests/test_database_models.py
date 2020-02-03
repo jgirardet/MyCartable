@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from fixtures import compare, compare_items
+from fixtures import compare, compare_items, ss
 from package.database.factory import *
 import pytest
 from pony.orm import flush, exists, commit
@@ -220,49 +220,40 @@ class TestSection:
     def test_before_update(self, ddb):
         a = f_section()
         b = a.modified
-        a.content = "ùpl"
+        a.created = datetime.now()
         flush()
         assert a.modified > b
         assert a.page.modified == a.modified
 
-    def test_to_dict(self, ddb):
-        p = f_page()
-        d = f_datetime()
-        sec = f_section(created=d, page=p.id, img=True)
-        s = f_stabylo(0.30, 0.40, 0.50, 0.60, section=sec.id)
-        assert sec.to_dict() == {
-            "content": "essai.jpg",
-            "contentType": "image",
-            "created": d,
-            "id": 1,
-            "modified": d,
-            "page": 1,
-            "position": 1,
-            "annotations": [
-                {
-                    "classtype": "Stabylo",
-                    "relativeHeight": 0.6,
-                    "id": 1,
-                    "section": 1,
-                    "relativeWidth": 0.5,
-                    "relativeX": 0.3,
-                    "relativeY": 0.4,
-                }
-            ],
-        }
+
+class TestImageSection:
+    def test_factory(self):
+        a = f_imageSection(path="/mon/path")
+        assert a.path == "/mon/path"
+
+    def test_to_dict(self):
+        a = f_imageSection(path="/mon/path", td=True)
+        assert a["path"] == str(FILES / "/mon/path")
 
 
-class TestAnnotationsAndStabylos:
+class TestTextSection:
+    def test_factory(self):
+        assert f_textSection(text="bla").text == "bla"
+
+
+class TestAnnotations:
     def test_factory_stabylo(self, ddbr):
         a = f_stabylo()
         isinstance(a, db.Stabylo)
         a = f_stabylo(0.30, 0.40, 0.50, 0.60, td=True)
+        print(a)
         assert list(a.values()) == [2, 0.3, 0.4, 2, "Stabylo", 0.5, 0.6]
 
     def test_factory_annotation(self, ddbr):
         a = f_annotationText()
         isinstance(a, db.AnnotationText)
         a = f_annotationText(0.30, 0.40, "coucou", td=True)
+        print(a)
         assert list(a.values()) == [
             2,
             0.3,
@@ -271,3 +262,48 @@ class TestAnnotationsAndStabylos:
             "AnnotationText",
             "coucou",
         ]
+
+    def test_add_modify_section_and_page_modified_attribute(self, ddbr):
+        p = f_page()
+        before_p = p.modified
+        s = f_section(page=p.id, created=datetime.now())
+        before = s.modified
+
+        a = f_annotationText(section=s.id)
+
+        with db_session:
+            n = ddbr.Section[s.id]
+            after = n.modified
+            after_p = n.page.modified
+
+        assert before < after
+        assert before_p < after_p
+
+    def test_delete_modify_section_and_page_modified_attribute(self, ddbr):
+        p = f_page()
+        s = f_section(page=p.id, created=datetime.now())
+        a = f_annotationText(section=s.id)
+
+        with db_session:
+            n = ddbr.Section[s.id]
+            before = n.modified
+            before_p = n.page.modified
+
+        with db_session:
+            ddbr.Annotation[a.id].delete()
+
+        with db_session:
+            n = ddbr.Section[s.id]
+            after = n.modified
+            after_p = n.page.modified
+
+        assert before < after
+        assert before_p < after_p
+
+    def test_delete_not_fail_if_section_deleted(self, ddbr):
+        a = f_annotationText()
+        with db_session:
+            s = ddbr.Section[1]
+            a = ddbr.Annotation[1]
+            s.delete()
+            a.delete()

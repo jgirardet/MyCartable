@@ -12,11 +12,11 @@
     <qresource prefix="/qml/page">
         <file alias="PageToolBar.qml">base/qml/page/PageToolBar.qml</file>
         <file alias="PageListView.qml">base/qml/page/PageListView.qml</file>
-        <file alias="PageTexteDelegate.qml">base/qml/page/PageTexteDelegate.qml</file>
         <file alias="PageRectangle.qml">base/qml/page/PageRectangle.qml</file>
         <file alias="AnnotableImage.qml">base/qml/page/AnnotableImage.qml</file>
         <file alias="AnnotationText.qml">base/qml/page/AnnotationText.qml</file>
         <file alias="StabyloRectangle.qml">base/qml/page/StabyloRectangle.qml</file>
+        <file alias="TextSection.qml">base/qml/page/TextSection.qml</file>
     </qresource>
     <qresource prefix="/qml/recents">
         <file alias="main.qml">base/qml/main.qml</file>

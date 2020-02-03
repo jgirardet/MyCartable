@@ -55,7 +55,7 @@ Item {
     function init() {
       ddb = createTemporaryObject(ddbcomp, item)
       ddb._loadSection = {
-        'content': '/home/jimmy/dev/cacahuete/MyCartable/tests/qml_tests/resources/tst_AnnotableImage.png',
+        'path': '/home/jimmy/dev/cacahuete/MyCartable/tests/qml_tests/resources/tst_AnnotableImage.png',
         'annotations': []
       }
       verify(ddb)
@@ -130,10 +130,14 @@ Item {
       compare(anot.annotations[0].ddbId, 1)
     }
 
+    function test_img_load_init() {
+      compare(anot.image.source, Qt.resolvedUrl('/home/jimmy/dev/cacahuete/MyCartable/tests/qml_tests/resources/tst_AnnotableImage.png'))
+    }
+
     function test_load_stabylo_on_completed() {
       anot.destroy()
       ddb._loadSection = {
-        'content': '/home/jimmy/dev/cacahuete/MyCartable/tests/qml_tests/resources/tst_AnnotableImage.png',
+        'path': '/home/jimmy/dev/cacahuete/MyCartable/tests/qml_tests/resources/tst_AnnotableImage.png',
         'annotations': [{
           "classtype": "Stabylo",
           "id": 1,
@@ -161,7 +165,7 @@ Item {
     function test_load_annotationText_on_completed() {
       anot.destroy()
       ddb._loadSection = {
-        'content': '/home/jimmy/dev/cacahuete/MyCartable/tests/qml_tests/resources/tst_AnnotableImage.png',
+        'path': '/home/jimmy/dev/cacahuete/MyCartable/tests/qml_tests/resources/tst_AnnotableImage.png',
         'annotations': [{
           "classtype": "AnnotationText",
           "id": 1,

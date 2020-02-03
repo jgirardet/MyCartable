@@ -77,38 +77,47 @@ def b_page(n, *args, **kwargs):
 
 
 def f_section(
-    created=None,
-    page=None,
-    content=None,
-    contentType=None,
-    position=0,
-    td=False,
-    img=False,
+    created=None, page=None, position=0, td=False,
 ):
     with db_session:
         created = created or f_datetime()
         page = page or f_page(td=True)["id"]
 
-        if img:
-            content = "essai.jpg"
-            contentType = "image"
-        else:
-            content = content or gen.text.sentence()
-            contentType = contentType or "texte"
-
-        item = db.Section(
-            created=created,
-            page=page,
-            content=content,
-            contentType=contentType,
-            position=position,
-        )
+        item = db.Section(created=created, page=page, position=position,)
         item.flush()
         return item.to_dict() if td else item
 
 
 def b_section(n, *args, **kwargs):
     return [f_section(*args, **kwargs) for x in range(n)]
+
+
+def f_imageSection(
+    created=None, page=None, path=None, position=0, td=False,
+):
+    with db_session:
+        created = created or f_datetime()
+        page = page or f_page(td=True)["id"]
+
+        path = path or "essai.jpg"
+
+        item = db.ImageSection(
+            created=created, page=page, path=path, position=position,
+        )
+        item.flush()
+        return item.to_dict() if td else item
+
+
+def f_textSection(created=None, page=None, position=0, td=False, text=None):
+    with db_session:
+        created = created or f_datetime()
+        page = page or f_page(td=True)["id"]
+
+        text = text or gen.text.text(random.randint(0, 10))
+
+        item = db.TextSection(created=created, page=page, text=text, position=position,)
+        item.flush()
+        return item.to_dict() if td else item
 
 
 def f_stabylo(
@@ -174,4 +183,4 @@ def populate_database(matieres_list=None, nb_page=100):
     for i in range(nb_page):
         a = f_page(activite=random.choice(activites))
         for x in range(random.randint(0, 14)):
-            random.choice([f_section(page=a.id), f_section(page=a.id, img=True)])
+            random.choice([f_imageSection(page=a.id)])

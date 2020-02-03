@@ -160,9 +160,19 @@ class TestLayoutMixin:
 
 
 class TestSectionMixin:
+    def test_loadsection(self, dao):
+        s = f_imageSection()
+        b_stabylo(5, section=s.id)
+        res = dao.loadSection(s.id)
+        assert res["id"] == 1
+        assert res["path"] == str(FILES / s.path)
+        assert len(res["annotations"]) == 5
+
+
+class TestImageSectionMixin:
     def test_addAnnotation(self, ddbr):
         d = DatabaseObject(ddbr)
-        s = f_section()
+        s = f_imageSection()
         content = {
             "classtype": "Stabylo",
             "section": 1.0,
@@ -180,18 +190,10 @@ class TestSectionMixin:
             assert item == content
 
     def test_loadAnnotations(self, dao):
-        s = f_section(img=True)
+        s = f_imageSection()
         b_stabylo(5, section=s.id)
         res = dao.loadAnnotations(s.id)
         assert len(res) == 5
-
-    def test_loadsection(self, dao):
-        s = f_section(img=True)
-        b_stabylo(5, section=s.id)
-        res = dao.loadSection(s.id)
-        assert res["id"] == 1
-        assert res["content"] == str(FILES / s.content)
-        assert len(res["annotations"]) == 5
 
     def test_updateTextAnnotation(self, dao: DatabaseObject, ddbn):
         check_args(dao.updateAnnotationText, (int, str))
@@ -210,8 +212,8 @@ class TestSectionMixin:
         d = dao.deleteAnnotation(b.id)
 
         with db_session:
-            assert not ddbn.AnnotationBase.exists(id=a.id)
-            assert not ddbn.AnnotationBase.exists(id=b.id)
+            assert not ddbn.Annotation.exists(id=a.id)
+            assert not ddbn.Annotation.exists(id=b.id)
 
 
 class TestDatabaseObject:

@@ -22,9 +22,10 @@ def f_datetime(start=None, end=None):
             return res
 
 
-def f_annee():
+def f_annee(niveau=None):
+    niveau = niveau or "cm1"
     with db_session:
-        return db.Annee(niveau="cm1")
+        return db.Annee(niveau=niveau)
 
 
 def f_matiere(nom=None, annee=None):

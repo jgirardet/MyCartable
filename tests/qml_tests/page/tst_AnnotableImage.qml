@@ -72,6 +72,11 @@ Item {
       anot.destroy()
     }
 
+    function test_saple()
+      {
+        print(ddb.sample())
+      }
+
     function test_init() {
       compare(anot.image.sourceSize.width, item.width)
     }

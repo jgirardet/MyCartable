@@ -2,6 +2,8 @@ import QtQuick 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.12
 import QtTest 1.12
+import "echantillon.js" as Sample
+
 Item {
   id: item
   /* beautify preserve:start */
@@ -15,6 +17,8 @@ Item {
   property var setCurrentMatiereFromIndex
   /* beautify preserve:end */
   signal setCurrentMatiereFromIndexSignal(int index)
+
+  property var sp: Sample.samples
 
   function addAnnotation(content) {
     return _addAnnotation

@@ -122,6 +122,12 @@ def init_models(db: Database):
             super().__init__(*args, **kwargs)
             self.updating_position = False
 
+        def to_dict(self, *args, **kwargs):
+            dico = super().to_dict(*args, **kwargs)
+            dico['created'] = self.created.isoformat()
+            dico['modified'] = self.modified.isoformat()
+            return dico
+
         def before_insert(self):
             self.modified = self.created
             self.page.modified = self.modified

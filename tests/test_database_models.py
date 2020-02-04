@@ -12,27 +12,7 @@ def test_creation_all(ddb):
     f_section()
 
 
-class TestSection:
-    def test_modified(self, ddb):
-        # insert
-        avant = datetime.now()
-        s = f_section(created=datetime.now())
-        s.to_dict()  # flush
-        apres = datetime.now()
-        assert avant < s.created < apres
 
-        # page mis à jours
-        assert s.page.modified == s.modified
-
-        # update
-        avant = datetime.now()
-        s.content = "mkplkù lù pl"
-        mod = s.to_dict()["modified"]
-        apres = datetime.now()
-        assert s.created < avant < mod < apres
-
-        # page mis a jour en même temps  item
-        assert s.modified == s.page.modified
 
 
 class TestPage:
@@ -175,8 +155,32 @@ class TestActivite:
 
 
 class TestSection:
-    def test_modified(self, ddb):
-        """tested in page"""
+
+    def test_to_dict(self, ddbr):
+        a =datetime.now()
+        x =  f_section(created=a, td=True)
+        assert x['created'] == a.isoformat()
+        assert x['modified'] == a.isoformat()
+
+    def test_modified(self, ddbr):
+        # insert
+        avant = datetime.now()
+        s = f_section(created=datetime.now())
+        apres = datetime.now()
+        assert avant < s.created < apres
+
+        # page mis à jours
+        assert s.page.modified == s.modified
+
+        # update
+        avant = datetime.now()
+        s.content = "mkplkù lù pl"
+        mod = s.to_dict()["modified"]
+        apres = datetime.now()
+        assert s.created < avant < mod < apres
+
+        # page mis a jour en même temps  item
+        assert s.modified == s.page.modified
 
     def test_before_insert_no_position(self, ddb):
         """"remember factory are flushed"""

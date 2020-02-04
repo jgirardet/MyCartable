@@ -67,7 +67,7 @@ def init_models(db: Database):
 
     class Page(db.Entity):
         id = PrimaryKey(int, auto=True)
-        created = Required(datetime, default=datetime.now)
+        created = Required(datetime, default=datetime.utcnow)
         modified = Optional(datetime)
         titre = Optional(str)
         activite = Required("Activite")
@@ -75,7 +75,7 @@ def init_models(db: Database):
 
         def _query_recents(self):
             query = select(
-                p for p in Page if p.modified > datetime.now() - timedelta(days=30)
+                p for p in Page if p.modified > datetime.utcnow() - timedelta(days=30)
             ).order_by(
                 desc(Page.modified)
             )  # pragma: no cover_all
@@ -109,11 +109,11 @@ def init_models(db: Database):
 
         #
         def before_update(self):
-            self.modified = datetime.now()
+            self.modified = datetime.utcnow()
 
     class Section(db.Entity):
         id = PrimaryKey(int, auto=True)
-        created = Required(datetime, default=datetime.now)
+        created = Required(datetime, default=datetime.utcnow)
         modified = Optional(datetime)
         page = Required(Page)
         position = Optional(int, default=0)
@@ -143,7 +143,7 @@ def init_models(db: Database):
             if getattr(self, "updating_position", None):
                 self.updating_position = False
             else:
-                self.modified = datetime.now()
+                self.modified = datetime.utcnow()
                 self.page.modified = self.modified
 
         def _update_position(self):

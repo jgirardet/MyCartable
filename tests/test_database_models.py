@@ -17,10 +17,10 @@ def test_creation_all(ddb):
 
 class TestPage:
     def test_modified(self, ddb):
-        avant = datetime.now()
-        s = f_page(created=datetime.now())
+        avant = datetime.utcnow()
+        s = f_page(created=datetime.utcnow())
         s.to_dict()  # flush
-        apres = datetime.now()
+        apres = datetime.utcnow()
         assert s.created == s.modified
         assert avant < s.created < apres
 
@@ -40,7 +40,7 @@ class TestPage:
         # test query
         assert db.Page.select().count() == 100
         recents = db.Page._query_recents(db.Page)[:]
-        assert all(x.modified > datetime.now() - timedelta(days=30) for x in recents)
+        assert all(x.modified > datetime.utcnow() - timedelta(days=30) for x in recents)
         old = recents[0]
         for i in recents[1:]:
             assert old.modified > i.modified
@@ -49,14 +49,14 @@ class TestPage:
         # formatted result
         # m = f_matiere()
         # ac = f_activite(matiere=m)
-        a = f_page(created=datetime.now())
+        a = f_page(created=datetime.utcnow())
         res = a.to_dict()
         res["matiere"] = a.activite.matiere.id
         first_dict = db.Page.recents()[0]
         assert first_dict == res
 
     def test_to_dict(self, ddb):
-        d = datetime.now()
+        d = datetime.utcnow()
         p = f_page(created=d, titre="bl")
         assert p.to_dict() == {
             "id": 1,
@@ -157,30 +157,12 @@ class TestActivite:
 class TestSection:
 
     def test_to_dict(self, ddbr):
-        a =datetime.now()
+        a =datetime.utcnow()
         x =  f_section(created=a, td=True)
         assert x['created'] == a.isoformat()
         assert x['modified'] == a.isoformat()
 
-    def test_modified(self, ddbr):
-        # insert
-        avant = datetime.now()
-        s = f_section(created=datetime.now())
-        apres = datetime.now()
-        assert avant < s.created < apres
 
-        # page mis à jours
-        assert s.page.modified == s.modified
-
-        # update
-        avant = datetime.now()
-        s.content = "mkplkù lù pl"
-        mod = s.to_dict()["modified"]
-        apres = datetime.now()
-        assert s.created < avant < mod < apres
-
-        # page mis a jour en même temps  item
-        assert s.modified == s.page.modified
 
     def test_before_insert_no_position(self, ddb):
         """"remember factory are flushed"""
@@ -218,16 +200,27 @@ class TestSection:
 
         # inflence l date de modif de page
         page_modified = a.modified
-        f_section(page=a.id, created=datetime.now())
+        f_section(page=a.id, created=datetime.utcnow())
         assert page_modified < a.modified
 
     def test_before_update(self, ddb):
         a = f_section()
         b = a.modified
-        a.created = datetime.now()
+        a.created = datetime.utcnow()
         flush()
         assert a.modified > b
         assert a.page.modified == a.modified
+
+    def test_before_insert(self, ddbr):
+        avant = datetime.utcnow()
+        s = f_section(created=datetime.utcnow())
+        apres = datetime.utcnow()
+        assert avant < s.created < apres
+        assert s.created == s.modified
+        with db_session:
+            assert ddbr.Page[s.page.id].modified >= s.modified
+
+
 
 
 class TestImageSection:
@@ -270,7 +263,7 @@ class TestAnnotations:
     def test_add_modify_section_and_page_modified_attribute(self, ddbr):
         p = f_page()
         before_p = p.modified
-        s = f_section(page=p.id, created=datetime.now())
+        s = f_section(page=p.id, created=datetime.utcnow())
         before = s.modified
 
         a = f_annotationText(section=s.id)
@@ -285,7 +278,7 @@ class TestAnnotations:
 
     def test_delete_modify_section_and_page_modified_attribute(self, ddbr):
         p = f_page()
-        s = f_section(page=p.id, created=datetime.now())
+        s = f_section(page=p.id, created=datetime.utcnow())
         a = f_annotationText(section=s.id)
 
         with db_session:

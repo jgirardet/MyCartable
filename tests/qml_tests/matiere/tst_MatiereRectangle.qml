@@ -48,10 +48,10 @@ Item {
     }
 
     function test_matiere_combox() {
-      ddb._getMatiereIndexFromId = 2
+      ddb._getMatiereIndexFromId = ddb.sp.getMatiereIndexFromId.id3
       var cb = findChild(rec, "_comboBoxSelectMatiere")
       compare(cb.currentIndex, 2)
-      compare(cb.currentText, "Géo")
+      compare(cb.currentText, "Histoire")
     }
 
     function test_matiere_combo_click() {

@@ -17,8 +17,8 @@ Rectangle {
       radius: 10
     }
     RecentsListView {
-      id: _recentsListView
-      objectName: "_recentsListView"
+      id: recentsListView
+      objectName: "recentsListView"
       model: ddb.recentsModel
       onItemClicked: ddb.recentsItemClicked(id, matiere)
     }

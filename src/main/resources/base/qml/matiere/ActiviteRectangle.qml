@@ -37,7 +37,6 @@ Rectangle {
       width: ListView.view.width
       height: _listView.commonHeight
       onClicked: {
-//        print(Object.keys(_listView.model[0].created))
         ddb.currentPage = modelData.id
 
       }

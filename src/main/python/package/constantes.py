@@ -10,6 +10,7 @@ ACTIVITES = [
     FamilleActivite(2, "Evaluations"),
 ]
 
+MATIERES = ["Math", "Français", "Histoire", "Anglais"]
 
 pageColumnWidthRatio = 2 / 3
 
@@ -41,6 +42,8 @@ TITRE_TIMER_DELAY = 500
 
 APPNAME = "MyCartable"
 
+QStandardPaths.setTestModeEnabled(True)
+
 ROOT_DATA = (
     Path(QStandardPaths.writableLocation(QStandardPaths.AppDataLocation)) / APPNAME
 )
@@ -48,5 +51,6 @@ if not ROOT_DATA.is_dir():
     ROOT_DATA.mkdir(parents=True)
 
 FILES = ROOT_DATA / "files"
+
 if not FILES.is_dir():
     FILES.mkdir(parents=True)

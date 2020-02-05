@@ -134,7 +134,7 @@ class TestActiviteMixin:
         a = DatabaseObject(ddbr)
         a.currentMatiere = 2
         for ac, lalist in zip(ACTIVITES, a.activites_all):
-            assert all(i["activiteIndex"] == ac.index for i in lalist)
+            assert all(i["famille"] == ac.index for i in lalist)
             assert all(i["matiere"] == 2 for i in lalist)
 
     def testupdate(self, ddbr, qtbot):

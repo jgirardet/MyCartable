@@ -13,7 +13,7 @@ ListView {
     objectName: "_buttonDelegateRecents"
     height: 40
     radius: 10
-    text: "|id=" + modelData.id + "/" + modelData.activiteIndex + " mat=" + modelData.matiere + " " + modelData.titre
+    text: "|id=" + modelData.id + "/" + modelData.famille + " mat=" + modelData.matiere + " " + modelData.titre
     width: ListView.view.width
     onClicked: ListView.view.itemClicked(modelData.id, modelData.matiere)
   }

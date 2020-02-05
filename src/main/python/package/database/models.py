@@ -85,7 +85,7 @@ def init_models(db: Database):
             dico = super().to_dict(*args, **kwargs)
             dico["matiere"] = self.activite.matiere.id
             dico["matiereNom"] = self.activite.matiere.nom
-            dico["activiteIndex"] = self.activite.famille
+            dico["famille"] = self.activite.famille
             dico["created"] = self.created.isoformat()
             dico["modified"] = self.created.isoformat()
             return dico

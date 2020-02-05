@@ -63,7 +63,7 @@ class TestPage:
             "activite": p.activite.id,
             "matiere": p.activite.matiere.id,
             "matiereNom": p.activite.matiere.nom,
-            "activiteIndex": p.activite.famille,
+            "famille": p.activite.famille,
         }
 
     def test_nouvelle_page(self, ddb):

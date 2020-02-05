@@ -22,10 +22,6 @@ Item {
       headerText: "Evaluations"
       headerColor: "#ffa500"
       //            ddb: ddbcomp
-      model: [{
-        "titre": "bla",
-        "id": 5
-      }]
       /* beautify preserve:start */
       property var ddb //need to inject ddb
       /* beautify preserve:end */
@@ -53,11 +49,14 @@ Item {
     }
 
     function test_click_on_item() {
+      var  item = ddb.sp.lessonsList[0]
+      rec.model = ddb.sp.lessonsList
       mouseClick(rec, 5, 35)
-      tryCompare(ddb, "currentPage", 5)
+      tryCompare(ddb, "currentPage", item.id)
     }
 
     function test_ui_values() {
+      rec.model = ddb.sp.lessonsList
       compare(rec.headerText, findChild(rec, "headerLabel").text)
       compare(rec.headerColor, findChild(rec, "headerRectangle").color)
       compare(rec.model[0].titre, findChild(rec, "buttonDelegate").text)

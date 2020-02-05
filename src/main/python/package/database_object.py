@@ -58,7 +58,7 @@ class DatabaseObject(QObject, *MIXINS):
         self.currentPage = item["id"]
         self.currentMatiere = item["matiere"]
         self.activites_signal_all[
-            item["activiteIndex"]
+            item["famille"]
         ].emit()  # force when currentmatiere doesnt change
 
     def onCurrentTitreChanged(self):

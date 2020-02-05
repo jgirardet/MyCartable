@@ -2,23 +2,24 @@ import QtQuick 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.12
 import QtTest 1.12
-import "echantillon.js" as Sample
+import "echantillon.js"
+as Sample
 
 Item {
   id: item
   /* beautify preserve:start */
+  property var sp: Sample.samples
   property var currentMatiere: 3
   property var currentPage: 0
-  property var evaluationsList: ["eval1", "eval2", "eval3"]
-  property var exercicesList: ["exo1", "exo2", "exo3"]
-  property var lessonsList: ["leçon1", "leçon2", "leçon3"]
-  property var matieresListNom: ["Français", "Histoire", "Géo"]
+  property var evaluationsList: sp.evaluationsList
+  property var exercicesList: sp.exercicesList
+  property var lessonsList: sp.lessonsList
+  property var matieresListNom: sp.matieresListNom
   property var pageModel: []
+  property var recentsModel: Sample.samples.recentsModel
   property var setCurrentMatiereFromIndex
   /* beautify preserve:end */
   signal setCurrentMatiereFromIndexSignal(int index)
-
-  property var sp: Sample.samples
 
   function addAnnotation(content) {
     return _addAnnotation
@@ -44,6 +45,10 @@ Item {
     return _loadAnnotations
   }
 
+  function recentsItemClicked(itemId, matiere) {
+    _recentsItemClicked = [itemId, matiere]
+  }
+
   function updateAnnotationText(itemId, text) {
     _updateAnnotationText = [itemId, text]
   }
@@ -58,6 +63,7 @@ Item {
   property int _getMatiereIndexFromId: 1
   property var _loadAnnotations: []
   property var _loadSection: {}
+  property var  _recentsItemClicked: []
   property var _updateAnnotationText: null
   /* beautify preserve:end */
   Component {
@@ -75,4 +81,10 @@ Item {
       "signalName": signaltxt
     })
   }
+
+  function reset_sp() {
+    sp = Sample.samples
+  }
+
+  // Component.onCompleted: sp = Sample.samples
 }

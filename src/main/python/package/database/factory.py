@@ -1,9 +1,10 @@
 from datetime import datetime, timedelta
+from pathlib import Path
 
 import mimesis
 import random
 
-from package.constantes import ACTIVITES, FILES
+from package.constantes import ACTIVITES, FILES, MATIERES
 from pony.orm import db_session
 
 gen = mimesis.Generic("fr")
@@ -55,6 +56,7 @@ def f_page(created=None, activite=None, titre=None, td=False, matiere=None):
                 activite = random.choice(db.Matiere[matiere].activites.select()[:])
             else:
                 activite = db.Activite.get(matiere=matiere, famille=int(activite))
+                print(activite.famille)
         elif activite:
             if isinstance(activite, int):
                 activite = activite
@@ -100,7 +102,12 @@ def f_imageSection(
         created = created or f_datetime()
         page = page or f_page(td=True)["id"]
 
-        path = path or "essai.jpg"
+        path = path or str(
+            Path(__file__).parents[5].absolute()
+            / "tests"
+            / "resources"
+            / "tst_AnnotableImage.png"
+        )
 
         item = db.ImageSection(
             created=created, page=page, path=path, position=position,
@@ -168,17 +175,9 @@ def b_annotation(n, *args, **kwargs):
 
 
 @db_session
-def populate_database(matieres_list=None, nb_page=100):
+def populate_database(matieres_list=MATIERES, nb_page=100):
     annee = f_annee()
-    if matieres_list is not None:
-        matieres = [f_matiere(x, annee) for x in matieres_list]
-    else:
-        matieres = [
-            f_matiere("Math", annee),
-            f_matiere("Français", annee),
-            f_matiere("Histoire", annee),
-            f_matiere("Anglais", annee),
-        ]
+    matieres = [f_matiere(x, annee) for x in matieres_list]
 
     activites = db.Activite.select()[:]
     for i in range(nb_page):

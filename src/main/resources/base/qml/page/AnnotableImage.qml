@@ -19,7 +19,7 @@ FocusScope {
   Component.onCompleted: {
     var content = ddb.loadSection(sectionId)
     img.source = 'file://' + content.path
-    initZones(content.annotations)
+    initZones()
   }
 
   function addAnnotation(mouseEvent) {
@@ -62,7 +62,7 @@ FocusScope {
   }
 
   function initZones(annots) {
-    for (var z of annots) {
+    for (var z of ddb.loadAnnotations(sectionId)) {
 
       var initDict = {
         "relativeX": z.relativeX,

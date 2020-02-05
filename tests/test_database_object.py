@@ -160,13 +160,20 @@ class TestLayoutMixin:
 
 
 class TestSectionMixin:
-    def test_loadsection(self, dao):
+    def test_loadsection_image(self, dao):
         s = f_imageSection()
         b_stabylo(5, section=s.id)
         res = dao.loadSection(s.id)
         assert res["id"] == 1
         assert res["path"] == str(FILES / s.path)
         assert len(res["annotations"]) == 5
+
+    def test_loadSection_text(self, dao):
+        s = f_textSection()
+        res = dao.loadSection(s.id)
+        assert res["id"] == 1
+        assert res["text"] == s.text
+        assert res["classtype"] == "TextSection"
 
 
 class TestImageSectionMixin:
@@ -232,6 +239,11 @@ class TestImageSectionMixin:
         with db_session:
             assert not ddbn.Annotation.exists(id=a.id)
             assert not ddbn.Annotation.exists(id=b.id)
+
+
+class TestTextSectionMixin:
+    def test_update_text(self, ddbr):
+        pass
 
 
 class TestDatabaseObject:

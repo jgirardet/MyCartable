@@ -9,10 +9,8 @@ class SectionMixin:
         res = {}
         with db_session:
             section = self.db.Section.get(id=section_id)
-            print(section)
             if section:
                 res = section.to_dict(with_collections=True)
-                print(res["path"])
                 if res["classtype"] == "ImageSection":
                     res["path"] = str(FILES / res["path"])
         return res

@@ -56,7 +56,6 @@ def f_page(created=None, activite=None, titre=None, td=False, matiere=None):
                 activite = random.choice(db.Matiere[matiere].activites.select()[:])
             else:
                 activite = db.Activite.get(matiere=matiere, famille=int(activite))
-                print(activite.famille)
         elif activite:
             if isinstance(activite, int):
                 activite = activite

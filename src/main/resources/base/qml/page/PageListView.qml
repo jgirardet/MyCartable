@@ -7,9 +7,10 @@ ListView {
   clip: true
 
   Component {
-    id: texteDelegate
+    id: textDelegate
     TextSection {
-//      text: datas.content;width: lv.width
+        sectionId: curSectionId
+        base: lv
     }
   }
 
@@ -29,6 +30,10 @@ ListView {
       sourceComponent: switch (display.classtype) {
         case "ImageSection": {
           return imageDelegate
+        }
+
+        case "TextSection": {
+          return textDelegate
         }
       }
     }

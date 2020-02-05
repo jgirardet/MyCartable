@@ -164,3 +164,5 @@ pip-selfcheck.json
 /targets/qml_tests/
 /tests/qml_tests/echantillon.js
 /aqtinstall.log
+
+/tests/qml_tests/qml_tests.pro.user

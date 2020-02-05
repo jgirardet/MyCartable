@@ -7,7 +7,6 @@ from PySide2.QtCore import QUrl, QObject, QRegExp
 
 import package.database
 from package.constantes import APPNAME
-from package.database_object import DatabaseObject
 import logging
 
 
@@ -47,8 +46,11 @@ if __name__ == "__main__":
     appctxt.app.setApplicationName(APPNAME)
 
     # models
-    database = DatabaseObject(package.database.db)
+    from package.database_object import DatabaseObject
+    from package.database_mixins.text_section_mixin import TextSectionClass
 
+    database = DatabaseObject(package.database.db)
+    qmlRegisterType(TextSectionClass, "TextSectionClass", 1, 0, "TextSectionR")
     engine = main_setup(database)
 
     if not engine.rootObjects():

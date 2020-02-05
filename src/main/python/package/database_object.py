@@ -11,6 +11,7 @@ from package.database_mixins.recents_mixin import RecentsMixin
 from package.database_mixins.section_mixin import SectionMixin
 import logging
 
+from package.database_mixins.text_section_mixin import TextSectionMixin
 
 LOG = logging.getLogger(__name__)
 
@@ -22,6 +23,7 @@ MIXINS = [
     RecentsMixin,
     SectionMixin,
     ImageSectionMixin,
+    TextSectionMixin,
 ]
 
 

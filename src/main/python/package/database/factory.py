@@ -12,7 +12,7 @@ from package.database import db
 
 
 def f_datetime(start=None, end=None):
-    end = end or datetime.now()
+    end = end or datetime.utcnow()
     start = start or end - timedelta(days=400)
     now = datetime.now()
 

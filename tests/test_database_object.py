@@ -173,6 +173,8 @@ class TestImageSectionMixin:
     def test_addAnnotation(self, ddbr):
         d = DatabaseObject(ddbr)
         s = f_imageSection()
+
+        # stabylo
         content = {
             "classtype": "Stabylo",
             "section": 1.0,
@@ -185,6 +187,22 @@ class TestImageSectionMixin:
 
         with db_session:
             item = s.annotations.select()[:][0].to_dict()
+            assert item.pop("id") == res
+            assert item.pop("section") == s.id
+            assert item == content
+
+        # annotatinotext
+        content = {
+            "classtype": "AnnotationText",
+            "section": 1.0,
+            "relativeX": 0.3,
+            "relativeY": 0.4,
+            "text": "",
+        }
+        res = d.addAnnotation(content)
+
+        with db_session:
+            item = s.annotations.select()[:][1].to_dict()
             assert item.pop("id") == res
             assert item.pop("section") == s.id
             assert item == content

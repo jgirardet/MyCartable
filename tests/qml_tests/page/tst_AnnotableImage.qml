@@ -72,17 +72,13 @@ Item {
       anot.destroy()
     }
 
-    function test_saple()
-      {
-        print(ddb.sample())
-      }
 
     function test_init() {
       compare(anot.image.sourceSize.width, item.width)
     }
 
     function test_addannotationText() {
-      ddb._addAnnotation = 5
+      ddb._addAnnotation = ddb.sp.addAnnotation.AnnotationText
       mouseClick(anot, 50, 30, Qt.RightButton)
       var inp = anot.annotations[0]
       compare(inp.focus, true)
@@ -93,7 +89,7 @@ Item {
       compare(inp.relativeY, 30 / anot.image.implicitHeight)
       compare(inp.text, "ab")
       //test ddbIdSet
-      compare(inp.ddbId, 5)
+      compare(inp.ddbId, 2)
     }
 
     function test_detroy_annotations_before_destroy() {
@@ -124,7 +120,7 @@ Item {
     }
 
     function test_store_zone() {
-      ddb._addAnnotation = 1
+      ddb._addAnnotation = ddb.sp.addAnnotation.Stabylo
       mousePress(anot, 50, 50)
       mouseMove(anot, 100, 170)
       mouseRelease(anot, 100, 170)

@@ -12,9 +12,6 @@ def test_creation_all(ddb):
     f_section()
 
 
-
-
-
 class TestPage:
     def test_modified(self, ddb):
         avant = datetime.utcnow()
@@ -60,8 +57,8 @@ class TestPage:
         p = f_page(created=d, titre="bl")
         assert p.to_dict() == {
             "id": 1,
-            "created": d,
-            "modified": d,
+            "created": d.isoformat(),
+            "modified": d.isoformat(),
             "titre": "bl",
             "activite": p.activite.id,
             "matiere": p.activite.matiere.id,
@@ -155,14 +152,11 @@ class TestActivite:
 
 
 class TestSection:
-
     def test_to_dict(self, ddbr):
-        a =datetime.utcnow()
-        x =  f_section(created=a, td=True)
-        assert x['created'] == a.isoformat()
-        assert x['modified'] == a.isoformat()
-
-
+        a = datetime.utcnow()
+        x = f_section(created=a, td=True)
+        assert x["created"] == a.isoformat()
+        assert x["modified"] == a.isoformat()
 
     def test_before_insert_no_position(self, ddb):
         """"remember factory are flushed"""
@@ -219,8 +213,6 @@ class TestSection:
         assert s.created == s.modified
         with db_session:
             assert ddbr.Page[s.page.id].modified >= s.modified
-
-
 
 
 class TestImageSection:

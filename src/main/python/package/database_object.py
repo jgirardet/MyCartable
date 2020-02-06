@@ -11,7 +11,6 @@ from package.database_mixins.recents_mixin import RecentsMixin
 from package.database_mixins.section_mixin import SectionMixin
 import logging
 
-from package.database_mixins.text_section_mixin import TextSectionMixin
 
 LOG = logging.getLogger(__name__)
 
@@ -23,7 +22,6 @@ MIXINS = [
     RecentsMixin,
     SectionMixin,
     ImageSectionMixin,
-    TextSectionMixin,
 ]
 
 
@@ -66,3 +64,11 @@ class DatabaseObject(QObject, *MIXINS):
     def onCurrentTitreChanged(self):
         self.update_activites()
         self.recentsModelChanged.emit()
+
+    @Slot(int, result=QObject)
+    def produceText(self, sectionId):
+        from package.text_section import DocumentEditor
+
+        a = DocumentEditor()
+        a.sectionId = sectionId
+        return a

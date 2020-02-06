@@ -1,6 +1,6 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
-import Qt.labs.qmlmodels 1.0
+
 ListView {
   id: lv
   spacing: 10
@@ -11,7 +11,10 @@ ListView {
     TextSection {
         sectionId: curSectionId
         base: lv
+
+
     }
+
   }
 
   Component {

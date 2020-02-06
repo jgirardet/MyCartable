@@ -47,10 +47,10 @@ if __name__ == "__main__":
 
     # models
     from package.database_object import DatabaseObject
-    from package.database_mixins.text_section_mixin import TextSectionClass
+    from package.text_section import DocumentEditor
 
     database = DatabaseObject(package.database.db)
-    qmlRegisterType(TextSectionClass, "TextSectionClass", 1, 0, "TextSectionR")
+    qmlRegisterType(DocumentEditor, "DocumentEditor", 1, 0, "DocumentEditor")
     engine = main_setup(database)
 
     if not engine.rootObjects():

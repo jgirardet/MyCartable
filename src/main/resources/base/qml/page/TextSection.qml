@@ -1,33 +1,23 @@
 import QtQuick 2.14
 import QtQuick.Controls 2.14
-import TextSectionClass 1.0
-
-//Item {
-//property int sectionId
-//height: parent.width
-//
-
+import DocumentEditor 1.0
 
 TextArea {
   id: area
   property QtObject base
-  property alias sectionId: document.sectionId
-  width: base.width
+  property int sectionId
   wrapMode: TextEdit.Wrap
-//  onFocusChanged: {
-//    if (focus) {
-//    ddb.setDocument(area)
+  width: base.width
 
-  property TextSectionR doc: TextSectionR {
-      id: document
-      document: area
-  }
+  property DocumentEditor doc: DocumentEditor {
+    id: doc
+    document: area
+    position: cursorPosition
+    Binding on sectionId {
+      when: doc.documentChanged
+      value: area.sectionId
+    }
+    }
+
+
 }
-//  Component.onCompleted: {
-//    //ddb.document = textDocument
-//  }
-//TextSectionR {
-//
-//}
-//}
-

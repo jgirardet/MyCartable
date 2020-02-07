@@ -196,7 +196,7 @@ Item {
       })
       print(anno.annotations)
       //var item = not.annotations[1]
-      mouseClick(anno.annotations[1], 1, 1, Qt.MiddleButton)
+      mouseClick(anno.annotations[0], 1, 1, Qt.MiddleButton)
       compare(ddb._deleteAnnotation, 2)
       compare(anno.annotations.length, 1)
       waitForRendering(anno)

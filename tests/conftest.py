@@ -3,6 +3,7 @@ import sys
 from pathlib import Path
 
 from PySide2.QtCore import QObject, QThread, QUrl
+from PySide2.QtGui import QTextDocument
 from PySide2.QtQml import QQmlProperty, QQmlApplicationEngine, qmlRegisterType
 from PySide2.QtWidgets import QApplication
 from fbs_runtime.application_context.PySide2 import ApplicationContext
@@ -108,3 +109,29 @@ def duree_test():
     debut = time.time()
     yield
     print(f"d={int((time.time()-debut)*1000)} ms")
+
+
+@pytest.fixture()
+def doc():
+    from package.text_section import DocumentEditor
+
+    d = DocumentEditor()
+    d._document = QTextDocument()
+    return d
+
+
+@pytest.fixture()
+def check_simple_property(doc, qtbot):
+    def check_simple_property(
+        name, value,
+    ):
+        """ test simplement le getter, le setter, les paramtres du setter et le signal"""
+        check_params_cb = None if value is None else lambda x: x == value
+        assert hasattr(doc, f"_{name}")
+        with qtbot.waitSignal(
+            getattr(doc, f"{name}Changed"), check_params_cb=check_params_cb
+        ):
+            setattr(doc, name, value)
+            assert getattr(doc, f"_{name}") == getattr(doc, name) == value
+
+    return check_simple_property

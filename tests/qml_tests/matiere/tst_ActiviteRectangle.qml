@@ -49,7 +49,7 @@ Item {
     }
 
     function test_click_on_item() {
-      var  item = ddb.sp.lessonsList[0]
+      var item = ddb.sp.lessonsList[0]
       rec.model = ddb.sp.lessonsList
       mouseClick(rec, 5, 35)
       tryCompare(ddb, "currentPage", item.id)

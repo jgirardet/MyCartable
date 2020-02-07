@@ -17,6 +17,7 @@
         <file alias="AnnotationText.qml">base/qml/page/AnnotationText.qml</file>
         <file alias="StabyloRectangle.qml">base/qml/page/StabyloRectangle.qml</file>
         <file alias="TextSection.qml">base/qml/page/TextSection.qml</file>
+        <file alias="MenuFlottant.qml">base/qml/page/MenuFlottant.qml</file>
     </qresource>
     <qresource prefix="/qml/recents">
         <file alias="main.qml">base/qml/main.qml</file>

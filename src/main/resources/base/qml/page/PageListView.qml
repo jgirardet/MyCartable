@@ -9,9 +9,8 @@ ListView {
   Component {
     id: textDelegate
     TextSection {
-        sectionId: curSectionId
-        base: lv
-
+      sectionId: curSectionId
+      base: lv
 
     }
 

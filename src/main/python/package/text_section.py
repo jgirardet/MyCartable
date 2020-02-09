@@ -1,3 +1,5 @@
+import re
+
 from PySide2.QtCore import QObject, Signal, Property, Slot
 from PySide2.QtGui import (
     QTextDocument,
@@ -6,9 +8,13 @@ from PySide2.QtGui import (
     QFont,
     QBrush,
     QColor,
+    QTextBlock,
+    QTextBlockFormat,
 )
 from pony.orm import db_session, make_proxy
 from package.database import db
+
+RE_HEADER = "^#+\s.+"
 
 
 class DocumentEditor(QObject):
@@ -55,18 +61,22 @@ class DocumentEditor(QObject):
 
     @Property(int, notify=selectionEndChanged)
     def selectionEnd(self):
+        pass
         return self._cursor.selectionEnd()
 
     @selectionEnd.setter
     def selectionEnd_set(self, value: int):
-        self._cursor.setPosition(value, QTextCursor.KeepAnchor)
+        pass
+        # self._cursor.setPosition(value, QTextCursor.KeepAnchor)
 
     @Property(int, notify=selectionStartChanged)
     def selectionStart(self):
+        pass
         return self._cursor.selectionStart()
 
     @selectionStart.setter
     def selectionStart_set(self, value: int):
+        pass
         self._cursor.setPosition(value)
 
     #
@@ -86,19 +96,81 @@ class DocumentEditor(QObject):
     def _init(self):
         self._cursor = QTextCursor(self._document)
 
+        # self._document.contentsChanged.connect(self.print_html)
+
     @Slot()
-    def rouge(self):
+    def print_html(self):
+        print(self._document.toHtml())
+
+    def _iter_document(self):
+        bloc = self.document.begin()
+        while True:
+            yield bloc
+            bloc = bloc.next()
+            if bloc == self.document.end() or not bloc.isValid():
+                return
+
+    @Slot(result=bool)
+    def inspect(self):
+
+        print(self._cursor.positionInBlock())
+        if not self._cursor.atBlockEnd():
+            return False
+
+        matched = []
+        P = QTextBlockFormat()
+        P.setHeadingLevel(0)
+        H1 = QTextBlockFormat()
+        H1.setHeadingLevel(1)
+
+        print(self._cursor.selectedText())
+
+        bloc = self._document.findBlock(self._cursor.position())
+        self._cursor.select(QTextCursor.LineUnderCursor)
+        line = self._cursor.selectedText()
+        matched = re.search("^(#+)\s.+", line)
+        if matched:
+            level = len(matched.groups()[0])
+            print(level)
+            new_level = QTextBlockFormat()
+            new_level.setHeadingLevel(level)
+            self._cursor.movePosition(QTextCursor.StartOfLine)
+            self._cursor.setPosition(
+                self._cursor.position() + level + 1, QTextCursor.KeepAnchor
+            )
+            self._cursor.removeSelectedText()
+            self._cursor.mergeBlockFormat(new_level)
+
+        else:
+            return False
+
+        self._cursor.clearSelection()
+
+        #
+        print(bloc.text())
+        if bloc == self._document.lastBlock():
+            self._cursor.movePosition(QTextCursor.End)
+            self._cursor.insertBlock(P)
+        else:
+            print(self._cursor.positionInBlock())
+            self._cursor = QTextCursor(bloc.next())
+            print(self._cursor.positionInBlock())
+            # self._cursor.movePosition(QTextCursor.Down)
+
+        print(self._document.toHtml())
+        print(self._cursor.selectedText())
+        return True
+
+    @Slot("QVariantMap")
+    def setStyle(self, data):
         if not self._cursor.hasSelection():
             self._cursor.select(QTextCursor.WordUnderCursor)
         f = QTextCharFormat()
-        f.setForeground(QBrush(QColor("red")))
-        print(
-            "dans rouge",
-            self._cursor.position(),
-            self._cursor.selectionStart(),
-            self._cursor.selectionEnd(),
-            self._cursor.hasSelection(),
-        )
+        if data["type"] == "color":
+            print(data)
+            f.setForeground(QBrush(QColor(data["value"])))
+
+        self._cursor.mergeCharFormat(f)
 
     @Slot(int)
     def _updateProxy(self, value):
@@ -111,18 +183,9 @@ class DocumentEditor(QObject):
             else:
                 self._proxy = None
 
+    # def
+
     # Other method
     def _setup_connections(self):
         self.sectionIdChanged.connect(self._updateProxy)
         self.sectionIdChanged.connect(self._init)
-
-    @Slot("QVariantMap")
-    def setStyle(self, data):
-        if not self._cursor.hasSelection():
-            self._cursor.select(QTextCursor.WordUnderCursor)
-        f = QTextCharFormat()
-        if data["type"] == "color":
-            print(data)
-            f.setForeground(QBrush(QColor(data["value"])))
-
-        self._cursor.mergeCharFormat(f)

@@ -11,29 +11,31 @@ TextArea {
   wrapMode: TextEdit.Wrap
   width: base.width
 
-
   MouseArea {
     anchors.fill: area
     acceptedButtons: Qt.RightButton
 
-  onPressed: {
+    onPressed: {
 
-    if (pressedButtons == Qt.RightButton) {
-      var d = area.selectionStart
-      var f = area.selectionEnd
-      menu.popup()
-      print("apres popup")
-      cursorPosition = d
-      print('entre position et movecuroser')
-      moveCursorSelection(f, TextEdit.SelectCharacters)
-      print(cursorPosition, selectionStart, selectionEnd)
+      if (pressedButtons == Qt.RightButton) {
+        var d = area.selectionStart
+        var f = area.selectionEnd
+        menu.popup()
+        cursorPosition = d
+        moveCursorSelection(f, TextEdit.SelectCharacters)
 
+      }
 
     }
-
-  }
   }
 
+  Keys.onPressed: {
+        if (event.key == Qt.Key_Return) {
+            var accept = doc.inspect()
+            event.accepted = accept
+        }
+    }
+//
   property DocumentEditor doc: DocumentEditor {
     id: doc
     document: area
@@ -53,6 +55,6 @@ TextArea {
 
   MenuFlottant {
     id: menu
-    document: doc
+    editor: doc
   }
 }

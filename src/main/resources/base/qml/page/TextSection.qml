@@ -10,6 +10,7 @@ TextArea {
   selectByMouse: true
   wrapMode: TextEdit.Wrap
   width: base.width
+//  textFormat: TextEdit.RichText
 
   MouseArea {
     anchors.fill: area

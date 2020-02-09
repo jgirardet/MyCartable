@@ -44,8 +44,9 @@ class DocumentEditor(QObject):
 
     @document.setter
     def document_set(self, value: QObject):
-        self._document = value.children()[0]
-        self._cursor = QTextCursor(self._document)
+        self._document = value.children()[0]  # type: QTextDocument
+        self._cursor = QTextCursor(self._document)  # type: QTextCursor
+        self._document.setDefaultStyleSheet("body { p {font-size:30pt; } }")
         self.documentChanged.emit()
         # ce signal est géré dans le QML
 
@@ -94,7 +95,7 @@ class DocumentEditor(QObject):
 
     @Slot()
     def _init(self):
-        self._cursor = QTextCursor(self._document)
+        self._cursor = QTextCursor(self._document)  # type: QTextCursor
 
         # self._document.contentsChanged.connect(self.print_html)
 
@@ -123,15 +124,12 @@ class DocumentEditor(QObject):
         H1 = QTextBlockFormat()
         H1.setHeadingLevel(1)
 
-        print(self._cursor.selectedText())
-
         bloc = self._document.findBlock(self._cursor.position())
         self._cursor.select(QTextCursor.LineUnderCursor)
         line = self._cursor.selectedText()
         matched = re.search("^(#+)\s.+", line)
         if matched:
             level = len(matched.groups()[0])
-            print(level)
             new_level = QTextBlockFormat()
             new_level.setHeadingLevel(level)
             self._cursor.movePosition(QTextCursor.StartOfLine)
@@ -147,18 +145,13 @@ class DocumentEditor(QObject):
         self._cursor.clearSelection()
 
         #
-        print(bloc.text())
         if bloc == self._document.lastBlock():
             self._cursor.movePosition(QTextCursor.End)
             self._cursor.insertBlock(P)
         else:
-            print(self._cursor.positionInBlock())
             self._cursor = QTextCursor(bloc.next())
-            print(self._cursor.positionInBlock())
-            # self._cursor.movePosition(QTextCursor.Down)
 
         print(self._document.toHtml())
-        print(self._cursor.selectedText())
         return True
 
     @Slot("QVariantMap")
@@ -178,7 +171,11 @@ class DocumentEditor(QObject):
 
             item = db.TextSection.get(id=value)
             if item:
+                print(self._document.defaultStyleSheet())
+
                 self._document.setHtml(item.text)
+                self._document.setDefaultStyleSheet("body { p {font-size:30pt; } }")
+
                 self._proxy = make_proxy(item)
             else:
                 self._proxy = None

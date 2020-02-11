@@ -1,7 +1,4 @@
-from PySide2 import QtGui
-from PySide2.QtCore import QObject, Signal, Property, Slot, QRegExp
-from PySide2.QtQml import QQmlProperty
-from package.constantes import LAYOUT_SIZES
+from PySide2.QtCore import QObject, Slot
 from package.database_mixins.activite_mixin import ActiviteMixin
 from package.database_mixins.image_section_mixin import ImageSectionMixin
 from package.database_mixins.layout_mixin import LayoutMixin
@@ -67,7 +64,7 @@ class DatabaseObject(QObject, *MIXINS):
 
     @Slot(int, result=QObject)
     def produceText(self, sectionId):
-        from package.text_section import DocumentEditor
+        from package.page.text_section import DocumentEditor
 
         a = DocumentEditor()
         a.sectionId = sectionId

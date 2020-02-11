@@ -32,10 +32,16 @@ TextArea {
 
   Keys.onPressed: {
         if (event.key == Qt.Key_Return) {
-            var accept = doc.inspect()
-            event.accepted = accept
+            event.accepted = doc.paragraphAutoFormat()
         }
     }
+
+//    Binding on cursorPosition {
+////      when: doc.documentChanged
+//      when: Component.onCompleted
+//      value: doc.position
+//    }
+
 //
   property DocumentEditor doc: DocumentEditor {
     id: doc
@@ -52,6 +58,11 @@ TextArea {
       when: doc.documentChanged
       value: area.selectionEnd
     }
+
+    onCursorPositionChanged: function (arg) {area.cursorPosition = arg}
+
+
+
   }
 
   MenuFlottant {

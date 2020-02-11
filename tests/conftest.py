@@ -2,13 +2,9 @@ import pytest
 import sys
 from pathlib import Path
 
-from PySide2.QtCore import QObject, QThread, QUrl
 from PySide2.QtGui import QTextDocument
-from PySide2.QtQml import QQmlProperty, QQmlApplicationEngine, qmlRegisterType
-from PySide2.QtWidgets import QApplication
-from fbs_runtime.application_context.PySide2 import ApplicationContext
 from mimesis import Generic
-from pony.orm import db_session, delete, commit, flush
+from pony.orm import db_session, delete
 import subprocess
 
 generic_mimesis = Generic("fr")
@@ -113,7 +109,7 @@ def duree_test():
 
 @pytest.fixture()
 def doc():
-    from package.text_section import DocumentEditor
+    from package.page.text_section import DocumentEditor
 
     d = DocumentEditor()
     d._document = QTextDocument()

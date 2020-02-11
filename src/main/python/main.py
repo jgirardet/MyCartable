@@ -3,7 +3,7 @@ import os
 from fbs_runtime.application_context.PySide2 import ApplicationContext
 import sys
 from PySide2.QtQml import QQmlApplicationEngine, qmlRegisterType
-from PySide2.QtCore import QUrl, QObject, QRegExp
+from PySide2.QtCore import QUrl
 
 import package.database
 from package.constantes import APPNAME
@@ -12,6 +12,8 @@ import logging
 
 logging.basicConfig(level=logging.DEBUG)
 LOG = logging.getLogger(__name__)
+
+import qrc
 
 
 def main_init_database():
@@ -26,8 +28,6 @@ def main_init_database():
 def main_setup(ddb):
     # set env
     os.environ["QT_STYLE_OVERRIDE"] = ""
-
-    import qrc
 
     # import all ddb related stuf after
 
@@ -47,12 +47,13 @@ if __name__ == "__main__":
 
     # models
     from package.database_object import DatabaseObject
-    from package.text_section import DocumentEditor
+
+    from package.page.text_section import DocumentEditor
 
     database = DatabaseObject(package.database.db)
     qmlRegisterType(DocumentEditor, "DocumentEditor", 1, 0, "DocumentEditor")
     engine = main_setup(database)
-
+    #
     if not engine.rootObjects():
         sys.exit(-1)
 

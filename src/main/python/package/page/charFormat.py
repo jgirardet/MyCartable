@@ -57,7 +57,6 @@ def buildBlockFormat(format):
     for k, v in format.items():
         fn_string = "set" + k[0].upper() + k[1:]
         fn = getattr(cf, fn_string)
-        print(k, fn_string)
         if k in ("foreground", "underlineColor", "background"):
             v = QColor(v)
         if k in ("foreground", "background"):

@@ -29,7 +29,6 @@ TextArea {
 
     }
   }
-
   Keys.onPressed: {
         if (event.key == Qt.Key_Return) {
             event.accepted = doc.paragraphAutoFormat()
@@ -59,7 +58,8 @@ TextArea {
       value: area.selectionEnd
     }
 
-    onCursorPositionChanged: function (arg) {area.cursorPosition = arg}
+    onSelectionStartChanged: function () {area.cursorPosition = selectionStart}
+    onSelectionCleared: area.deselect()
 
 
 

@@ -12,21 +12,25 @@ Menu {
       anchors.fill: parent
       spacing: 0
       ColorButton {
+        type: "color"
         color: "red"
         shortcut: "Ctrl+r"
         menu: root
       }
       ColorButton {
+        type: "color"
         color: "blue"
         shortcut: "Ctrl+b"
         menu: root
       }
       ColorButton {
+        type: "color"
         color: "green"
         shortcut: "Ctrl+g"
         menu: root
       }
       ColorButton {
+        type: "color"
         color: "black"
         shortcut: "Ctrl+n"
         menu: root
@@ -47,27 +51,31 @@ Menu {
       anchors.fill: parent
       spacing: 0
       ColorButton {
+        type: "underline"
         color: "red"
-        shortcut: "Ctrl+r"
+        shortcut: "Alt+r"
         menu: root
         text: "S"
       }
       ColorButton {
+        type: "underline"
         color: "blue"
-        shortcut: "Ctrl+b"
+        shortcut: "Alt+b"
         menu: root
         text: "S"
       }
       ColorButton {
+        type: "underline"
         color: "green"
-        shortcut: "Ctrl+g"
+        shortcut: "Alt+g"
         menu: root
         text: "S"
 
       }
       ColorButton {
+        type: "underline"
         color: "black"
-        shortcut: "Ctrl+n"
+        shortcut: "Alt+n"
         menu: root
         text: "S"
 

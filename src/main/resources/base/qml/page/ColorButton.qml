@@ -9,6 +9,7 @@ Button {
   /* beautify preserve:start */
   property var color
   property var menu
+  property var type
   /* beautify preserve:end */
 
 
@@ -28,7 +29,7 @@ Button {
     onTriggered: {
       //      print('trig')
         menu.editor.setStyle({
-        "type": "color",
+        "type": root.type,
         "value": root.color
       })
       menu.visible=false

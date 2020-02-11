@@ -14,15 +14,15 @@ from package.page.charFormat import H1c, H2c, CharFormats
 from pony.orm import db_session, make_proxy
 from package.database import db
 
-RE_HEADER = "^#+\s.+"
-
 
 class DocumentEditor(QObject):
     documentChanged = Signal()
-    cursorPositionChanged = Signal(int)
     sectionIdChanged = Signal(int)
-    selectionStartChanged = Signal()
+    selectionStartChanged = (
+        Signal()
+    )  # pour signal les changements de position de curseur au textarea
     selectionEndChanged = Signal()
+    selectionCleared = Signal()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -32,11 +32,18 @@ class DocumentEditor(QObject):
         # property handler
         self._document = None
         self._sectionId = 0
-        self._position = 0
-        self._selectionStart = None
-        self._selectionEnd = None
 
         self._setup_connections()
+
+    # Other method
+    def _setup_connections(self):
+        # First setup connection next call _init
+        self.sectionIdChanged.connect(self._updateProxy)
+        self.sectionIdChanged.connect(self._init)
+
+    @Slot()
+    def _init(self):
+        self._cursor = QTextCursor(self._document)  # type: QTextCursor
 
     @Property(QObject, notify=documentChanged)
     def document(self):
@@ -74,12 +81,6 @@ class DocumentEditor(QObject):
     @selectionStart.setter
     def selectionStart_set(self, value: int):
         self._cursor.setPosition(value)
-
-    @Slot()
-    def _init(self):
-        self._cursor = QTextCursor(self._document)  # type: QTextCursor
-
-        # self._document.contentsChanged.connect(self.print_html)
 
     @Slot()
     def print_html(self):
@@ -128,12 +129,13 @@ class DocumentEditor(QObject):
         # simple sécurité
         self._cursor.clearSelection()
 
-        # en milieu de paragraphie,on passe simplement à la ligne du dessous
         if self._cursor.block().next().isValid():
+            # en milieu de paragraphie,on passe simplement à la ligne du dessous
             self._cursor.movePosition(QTextCursor.NextBlock)
-            self.cursorPositionChanged.emit(self._cursor.position())
-        # en fin de paragraphe, on créer un nouvelle ligne d'écritue simple.
+            # self.cursorPositionChanged.emit(self._cursor.position())
+            self.selectionStartChanged.emit()
         else:
+            # en fin de paragraphe, on créer un nouvelle ligne d'écritue simple.
             self._cursor.movePosition(QTextCursor.End)
             self._cursor.insertBlock(BlockFormats["p"])
             self._cursor.select(QTextCursor.BlockUnderCursor)
@@ -150,8 +152,12 @@ class DocumentEditor(QObject):
         f = QTextCharFormat()
         if data["type"] == "color":
             f.setForeground(QBrush(QColor(data["value"])))
+        if data["type"] == "underline":
+            f.setForeground(QBrush(QColor(data["value"])))
+            f.setFontUnderline(True)
 
         self._cursor.mergeCharFormat(f)
+        self.selectionCleared.emit()
 
     @Slot(int)
     def _updateProxy(self, value):
@@ -178,8 +184,6 @@ p, li { white-space: pre-wrap; }
             else:
                 self._proxy = None
 
-            print(self._document.toHtml())
-
     def _updateStyle(self):
         b = self._document.begin()
         c = QTextCursor(b)
@@ -198,8 +202,3 @@ p, li { white-space: pre-wrap; }
                 c.setBlockFormat(P)
             b = b.next()
             c.movePosition(QTextCursor.NextBlock)
-
-    # Other method
-    def _setup_connections(self):
-        self.sectionIdChanged.connect(self._updateProxy)
-        self.sectionIdChanged.connect(self._init)

@@ -54,8 +54,6 @@ TextArea {
     onSelectionStartChanged: function () {area.cursorPosition = selectionStart}
     onSelectionCleared: area.deselect()
 
-
-
   }
 
   MenuFlottant {

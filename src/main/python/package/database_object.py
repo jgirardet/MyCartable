@@ -1,4 +1,4 @@
-from PySide2.QtCore import QObject, Slot
+from PySide2.QtCore import QObject, Slot, Signal, Property
 from package.database_mixins.activite_mixin import ActiviteMixin
 from package.database_mixins.image_section_mixin import ImageSectionMixin
 from package.database_mixins.layout_mixin import LayoutMixin
@@ -8,6 +8,7 @@ from package.database_mixins.recents_mixin import RecentsMixin
 from package.database_mixins.section_mixin import SectionMixin
 import logging
 
+from package.page.text_section import DocumentEditor
 
 LOG = logging.getLogger(__name__)
 

@@ -11,3 +11,4 @@ jsbeautifier
 pytest==5.3.2
 mimesis==3.3.0
 pytest-qt
+beautifulsoup4

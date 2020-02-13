@@ -10,7 +10,6 @@ TextArea {
   selectByMouse: true
   wrapMode: TextEdit.Wrap
   width: base.width
-//  textFormat: TextEdit.RichText
 
   MouseArea {
     anchors.fill: area
@@ -19,12 +18,7 @@ TextArea {
     onPressed: {
 
       if (pressedButtons == Qt.RightButton) {
-        var d = area.selectionStart
-        var f = area.selectionEnd
-        menu.popup()
-        cursorPosition = d
-        moveCursorSelection(f, TextEdit.SelectCharacters)
-
+        menuStylePopup(area.selectionStart, area.selectionEnd)
       }
 
     }
@@ -35,13 +29,12 @@ TextArea {
         }
     }
 
-//    Binding on cursorPosition {
-////      when: doc.documentChanged
-//      when: Component.onCompleted
-//      value: doc.position
-//    }
+  function menuStylePopup(start, end) {
+        menu.popup()
+        cursorPosition = start
+        moveCursorSelection(end, TextEdit.SelectCharacters)
+  }
 
-//
   property DocumentEditor doc: DocumentEditor {
     id: doc
     document: area

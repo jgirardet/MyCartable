@@ -2,8 +2,12 @@ from itertools import zip_longest
 from operator import itemgetter, attrgetter
 from unittest.mock import patch, MagicMock
 
+import package.page.blockFormat as blockformat
+import package.page.charFormat as charformat
 from pony.orm import db_session
 from contextlib import contextmanager
+
+from PySide2.QtGui import QFontInfo
 
 
 def compare_items(first, two, key="id"):
@@ -80,3 +84,13 @@ def check_args(fn, exp_args=[], exp_return_type=None, slot_order=0):
         return_type == converted_return_type
     ), f"{return_type} différent de {converted_return_type}"
     assert args == converted_args, f"{args} différent de {converted_args}"
+
+
+def is_blockFormat(item):
+    block_style = item["style"]
+    level = item.name[-1]
+    char_style = item.span["style"]
+    format = getattr(blockformat, f"BF_H{level}")
+    template = f' margin-top:{format["topMargin"]}px; margin-bottom:{format["bottomMargin"]}px; margin-left:{format["leftMargin"]}px; margin-right:{format["rightMargin"]}px; -qt-block-indent:{format["indent"]}; text-indent:0px;'
+
+    return block_style == template

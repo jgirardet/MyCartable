@@ -15,6 +15,9 @@ from pony.orm import db_session, make_proxy
 from package.database import db
 
 
+RE_AUTOPARAGRAPH = re.compile(r"^(#{1,6})\s\S.+\S$")
+
+
 class DocumentEditor(QObject):
     documentChanged = Signal()
     sectionIdChanged = Signal(int)
@@ -72,6 +75,9 @@ class DocumentEditor(QObject):
 
     @selectionEnd.setter
     def selectionEnd_set(self, value: int):
+        """selection de cursor strictement equivalente à textearea.
+        A tester via cursor.hasSelection
+        """
         self._cursor.setPosition(value, QTextCursor.KeepAnchor)
 
     @Property(int, notify=selectionStartChanged)
@@ -80,20 +86,11 @@ class DocumentEditor(QObject):
 
     @selectionStart.setter
     def selectionStart_set(self, value: int):
+        """LE sens prévu est de textarea vers Document Editor.
+        Pour transmettre une nouvelle position a textarea, il faut emmetre
+        selectionStartChanged manuellement.
+        """
         self._cursor.setPosition(value)
-
-    @Slot()
-    def print_html(self):
-        pass
-        print(self._document.toHtml())
-
-    def _iter_document(self):
-        bloc = self.document.begin()
-        while True:
-            yield bloc
-            bloc = bloc.next()
-            if bloc == self.document.end() or not bloc.isValid():
-                return
 
     @Slot(result=bool)
     def paragraphAutoFormat(self):
@@ -105,7 +102,7 @@ class DocumentEditor(QObject):
         # on check les expressions régulières suivantes:
         #   #, ##, ###, ####, #####, ######
         line = self._cursor.block().text()
-        matched = re.search("^(#+)\s.+", line)
+        matched = RE_AUTOPARAGRAPH.search(line)
         if not matched:
             return False
 
@@ -113,14 +110,10 @@ class DocumentEditor(QObject):
 
         bloc = self._cursor.block()
         level = len(matched.groups()[0])
-        if level > 6:
-            self._cursor.endEditBlock()
-            return False
 
         # strip les # et applique les styles par défault
         text = bloc.text()[level + 1 :]
-        self._cursor.select(QTextCursor.BlockUnderCursor)
-        self._cursor.insertBlock(BlockFormats[level])
+        self._cursor.setBlockFormat(BlockFormats[level])
         self._cursor.insertText(text)
         self._cursor.movePosition(QTextCursor.StartOfBlock)
         self._cursor.movePosition(QTextCursor.EndOfBlock, QTextCursor.KeepAnchor)
@@ -132,7 +125,6 @@ class DocumentEditor(QObject):
         if self._cursor.block().next().isValid():
             # en milieu de paragraphie,on passe simplement à la ligne du dessous
             self._cursor.movePosition(QTextCursor.NextBlock)
-            # self.cursorPositionChanged.emit(self._cursor.position())
             self.selectionStartChanged.emit()
         else:
             # en fin de paragraphe, on créer un nouvelle ligne d'écritue simple.
@@ -151,8 +143,10 @@ class DocumentEditor(QObject):
             self._cursor.select(QTextCursor.WordUnderCursor)
         f = QTextCharFormat()
         if data["type"] == "color":
-            f.setForeground(QBrush(QColor(data["value"])))
-        if data["type"] == "underline":
+            if QColor.isValidColor(data["value"]):
+                f.setForeground(QBrush(QColor(data["value"])))
+
+        elif data["type"] == "underline":
             f.setForeground(QBrush(QColor(data["value"])))
             f.setFontUnderline(True)
 
@@ -165,40 +159,23 @@ class DocumentEditor(QObject):
 
             item = db.TextSection.get(id=value)
             if item:
-                # self._document.setDefaultStyleSheet("p {margin-top:30px;}")
-                # self._cursor.insertHtml(f"<body><p>{item.text}</p></body>")
                 self._document.setHtml(item.text)
-                html = """<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
-<html><head><meta name="qrichtext" content="1" /><style type="text/css">
-p, li { white-space: pre-wrap; }
-</style></head><body style=" font-family:''; font-weight:400; font-style:normal;">
-<h1 style=" margin-top:50px; margin-bottom:50px; margin-left:50px; margin-right:50px; -qt-block-indent:0; text-indent:0px;">aaa11</h1>
-<h2 style=" margin-top:50px; margin-bottom:50px; margin-left:50px; margin-right:50px; -qt-block-indent:0; text-indent:0px;">bbb22</h2>
-<h3 style=" margin-top:50px; margin-bottom:50px; margin-left:50px; margin-right:50px; -qt-block-indent:0; text-indent:0px;">aaa33</h3>
-<h2 style=" margin-top:50px; margin-bottom:50px; margin-left:50px; margin-right:50px; -qt-block-indent:0; text-indent:0px;">bbb22</h2>
-<p style=" margin-top:2px; margin-bottom:2px; margin-left:2px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">pppppp</p></body></html>"""
-                # self._document.setHtml(html)
-                self._updateStyle()
+                self._update_block_format()
 
                 self._proxy = make_proxy(item)
             else:
                 self._proxy = None
 
-    def _updateStyle(self):
+    def _update_block_format(self):
         b = self._document.begin()
-        c = QTextCursor(b)
         while b.isValid():
-            if b.blockFormat().headingLevel() == 1:
-                c.setBlockFormat(H1)
+            c = QTextCursor(b)
+            heading_level = b.blockFormat().headingLevel()
+            if heading_level:
+                c.setBlockFormat(BlockFormats[heading_level])
                 c.select(QTextCursor.BlockUnderCursor)
-                c.setCharFormat(H1c)
-            elif b.blockFormat().headingLevel() == 2:
-                c.setBlockFormat(H2)
-                c.select(QTextCursor.BlockUnderCursor)
-                c.setCharFormat(H2c)
-            elif b.blockFormat().headingLevel() == 3:
-                c.setBlockFormat(H3)
-            elif b.blockFormat().headingLevel() == 0:
+                c.setCharFormat(CharFormats[heading_level])
+            else:
                 c.setBlockFormat(P)
+
             b = b.next()
-            c.movePosition(QTextCursor.NextBlock)

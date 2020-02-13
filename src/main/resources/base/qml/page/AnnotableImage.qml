@@ -106,6 +106,7 @@ FocusScope {
       if (newId) {
         rec.ddbId = newId
         annotations.push(rec)
+        return rec
       }
     }
   }
@@ -132,14 +133,14 @@ FocusScope {
     id: mouseArea
     objectName: "mouseArea"
     anchors.fill: root
-    property QtObject temp_rec
+    property var temp_rec: null
     preventStealing: true
     acceptedButtons: Qt.LeftButton | Qt.RightButton
 
     onPressed: {
-      if (pressedButtons === Qt.LeftButton) {
+      if (pressedButtons === Qt.RightButton) {
         temp_rec = root.createZone(mouse)
-      } else if (pressedButtons === Qt.RightButton) {
+      } else if (pressedButtons === Qt.LeftButton) {
         root.focus = true
         root.addAnnotation(mouse)
         mouse.accepted = false
@@ -153,8 +154,17 @@ FocusScope {
     }
 
     onReleased: {
-      root.storeZone(temp_rec)
+      temp_rec = root.storeZone(temp_rec)
+      print(temp_rec)
+      if (!temp_rec) {
+      menuflotant.popup()
+      }
       temp_rec = null
+
+    }
+
+    MenuFlottant {
+      id: menuflotant
     }
   }
 }

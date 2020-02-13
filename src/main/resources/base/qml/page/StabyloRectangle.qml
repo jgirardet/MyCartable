@@ -23,11 +23,18 @@ Rectangle {
   MouseArea {
     objectName: "mouseArea"
     anchors.fill: parent
-    acceptedButtons: Qt.LeftButton | Qt.MiddleButton
+    acceptedButtons: Qt.Right | Qt.MiddleButton
     onPressed: {
       if (mouse.buttons === Qt.MiddleButton) {
         deleteRequested(control)
+      } else if (mouse.buttons === Qt.RightButton) {
+      print("dabs mouse")
+        menuflotant.popup()
+        mouse.accepted=false
       }
+    }
+    MenuFlottant {
+      id: menuflotant
     }
   }
 }

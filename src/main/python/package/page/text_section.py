@@ -7,10 +7,9 @@ from PySide2.QtGui import (
     QTextCursor,
     QBrush,
     QColor,
-    QTextBlockFormat,
 )
-from package.page.blockFormat import H1, H2, H3, P, BlockFormats
-from package.page.charFormat import H1c, H2c, CharFormats
+from package.page.blockFormat import P, BlockFormats
+from package.page.charFormat import CharFormats
 from pony.orm import db_session, make_proxy
 from package.database import db
 
@@ -113,7 +112,10 @@ class DocumentEditor(QObject):
 
         # strip les # et applique les styles par défault
         text = bloc.text()[level + 1 :]
+        self._cursor = QTextCursor(bloc)
         self._cursor.setBlockFormat(BlockFormats[level])
+        self._cursor.select(QTextCursor.LineUnderCursor)
+        print(text)
         self._cursor.insertText(text)
         self._cursor.movePosition(QTextCursor.StartOfBlock)
         self._cursor.movePosition(QTextCursor.EndOfBlock, QTextCursor.KeepAnchor)
@@ -176,6 +178,6 @@ class DocumentEditor(QObject):
                 c.select(QTextCursor.BlockUnderCursor)
                 c.setCharFormat(CharFormats[heading_level])
             else:
-                c.setBlockFormat(P)
+                c.setBlockFormat(BlockFormats["p"])
 
             b = b.next()

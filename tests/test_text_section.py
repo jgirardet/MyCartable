@@ -6,7 +6,6 @@ from PySide2.QtGui import QTextDocument, QTextCursor
 from fixtures import is_blockFormat
 from package.database.factory import f_textSection
 from package.page.blockFormat import BlockFormats
-from package.page.charFormat import CharFormats
 from package.page.text_section import DocumentEditor, RE_AUTOPARAGRAPH
 from bs4 import BeautifulSoup
 from pony.orm.core import EntityProxy, db_session
@@ -86,6 +85,26 @@ class TestProperties:
         assert len(html.body) == 2
         bloc = doc.document.begin()
         assert bloc.blockFormat() == BlockFormats[1]
+        assert html.body.h1.text == "blabla"
+        assert "font-weight:696" in html.body.h1.span["style"]  # check charformat
+        assert "-qt-paragraph-type:empty" in html.body.p["style"]
+
+    def test_paragraphAuto_ok_avec_text_avant(self, doc: DocumentEditor):
+        doc.document.setHtml("<h2>blabla</h2><p># hello</p>")
+        doc._cursor = QTextCursor(doc.document.begin().next())
+        doc._cursor.movePosition(QTextCursor.EndOfBlock)
+        assert doc._cursor.atBlockEnd()
+        assert doc.paragraphAutoFormat()
+        html = doc.bs4()
+        bloc = doc.document.begin()
+        assert bloc.text() == "blabla"
+        assert doc.document.blockCount() == 3
+        assert bloc.blockFormat().headingLevel() == 2
+
+        bloc = bloc.next()
+        assert bloc.blockFormat() == BlockFormats[1]
+        assert bloc.text() == "hello"
+
         assert "font-weight:696" in html.body.h1.span["style"]  # check charformat
         assert "-qt-paragraph-type:empty" in html.body.p["style"]
 
@@ -95,7 +114,6 @@ class TestProperties:
         doc._cursor.movePosition(QTextCursor.EndOfBlock)
         assert doc.paragraphAutoFormat()
         html = doc.bs4()
-        print(html)
         assert len(html.body) == 2
         bloc = doc.document.begin()
         assert bloc.blockFormat() == BlockFormats[1]

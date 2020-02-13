@@ -4,43 +4,35 @@ BF_H1 = {
     "headingLevel": 1,
     "topMargin": 10,
     "bottomMargin": 10,
-    "leftMargin": 10,
+    "leftMargin": 0,
     "rightMargin": 10,
     "indent": 0,
-    # "foreground": "red",
-    # "background": "white",
 }
 
 BF_H2 = {
     "headingLevel": 2,
-    "topMargin": 10,
-    "bottomMargin": 10,
-    "leftMargin": 15,
-    "rightMargin": 10,
+    "topMargin": 5,
+    "bottomMargin": 5,
+    "leftMargin": 5,
+    "rightMargin": 5,
     "indent": 0,
-    # "foreground": "blue",
-    # "background": "white",
 }
 
 BF_H3 = {
     "headingLevel": 3,
-    "topMargin": 10,
-    "bottomMargin": 10,
-    "leftMargin": 20,
-    "rightMargin": 10,
+    "topMargin": 0,
+    "bottomMargin": 0,
+    "leftMargin": 0,
+    "rightMargin": 0,
     "indent": 0,
-    # "foreground": "green",
-    # "background": "white",
 }
 BF_P = {
     "headingLevel": 0,
-    "topMargin": 10,
-    "bottomMargin": 10,
-    "leftMargin": 5,
-    "rightMargin": 10,
+    "topMargin": 0,
+    "bottomMargin": 0,
+    "leftMargin": 0,
+    "rightMargin": 0,
     "indent": 0,
-    # "foreground": "green",
-    # "background": "yellow",
 }
 
 

@@ -41,9 +41,6 @@ def buildBlockFormat(format):
     for k, v in format.items():
         fn_string = "set" + k[0].upper() + k[1:]
         fn = getattr(bf, fn_string)
-
-        if k in ("foreground", "background"):
-            v = QBrush(QColor(v))
         fn(v)
 
     return bf

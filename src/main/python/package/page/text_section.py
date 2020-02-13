@@ -150,10 +150,12 @@ class DocumentEditor(QObject):
 
         elif data["type"] == "underline":
             f.setForeground(QBrush(QColor(data["value"])))
+            f.setUnderlineColor(QColor("yellow"))
             f.setFontUnderline(True)
 
         self._cursor.mergeCharFormat(f)
         self.selectionCleared.emit()
+        print(self._document.toHtml())
 
     @Slot(int)
     def _updateProxy(self, value):

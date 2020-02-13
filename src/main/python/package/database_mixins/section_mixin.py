@@ -11,6 +11,7 @@ class SectionMixin:
             section = self.db.Section.get(id=section_id)
             if section:
                 res = section.to_dict(with_collections=True)
-                if res["classtype"] == "ImageSection":
-                    res["path"] = str(FILES / res["path"])
+                # add if when other types
+                # if res["classtype"] == "ImageSection":
+                res["path"] = str(FILES / res["path"])
         return res

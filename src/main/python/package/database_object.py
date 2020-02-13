@@ -62,11 +62,3 @@ class DatabaseObject(QObject, *MIXINS):
     def onCurrentTitreChanged(self):
         self.update_activites()
         self.recentsModelChanged.emit()
-
-    @Slot(int, result=QObject)
-    def produceText(self, sectionId):
-        from package.page.text_section import DocumentEditor
-
-        a = DocumentEditor()
-        a.sectionId = sectionId
-        return a

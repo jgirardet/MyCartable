@@ -144,11 +144,10 @@ class TestActiviteMixin:
 
 
 class TestRecentsMixin:
-    def test_init(self, ddbr):
-        d = DatabaseObject(ddbr)
-
-
-#
+    def test_init(self, dao, ddbn):
+        a = b_page(5)
+        with db_session:
+            ddbn.Page.recents == dao.recentsModel
 
 
 class TestLayoutMixin:
@@ -168,12 +167,14 @@ class TestSectionMixin:
         assert res["path"] == str(FILES / s.path)
         assert len(res["annotations"]) == 5
 
-    def test_loadSection_text(self, dao):
-        s = f_textSection()
-        res = dao.loadSection(s.id)
-        assert res["id"] == 1
-        assert res["text"] == s.text
-        assert res["classtype"] == "TextSection"
+    def test_loadsection_image_false(self, dao):
+        # s = f_imageSection()
+        # b_stabylo(5, section=s.id)
+        res = dao.loadSection(99999)
+        assert res == {}
+        # assert res["id"] == 1
+        # assert res["path"] == str(FILES / s.path)
+        # assert len(res["annotations"]) == 5
 
 
 class TestImageSectionMixin:
@@ -239,11 +240,6 @@ class TestImageSectionMixin:
         with db_session:
             assert not ddbn.Annotation.exists(id=a.id)
             assert not ddbn.Annotation.exists(id=b.id)
-
-
-class TestTextSectionMixin:
-    def test_update_text(self, ddbr):
-        pass
 
 
 class TestDatabaseObject:

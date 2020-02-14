@@ -49,8 +49,8 @@ Item {
     _recentsItemClicked = [itemId, matiere]
   }
 
-  function updateAnnotationText(itemId, text) {
-    _updateAnnotationText = [itemId, text]
+  function updateAnnotation(itemId, params) {
+    _updateAnnotation = [itemId, params]
   }
 
   // Sous cette ligne, uniquement du non existent dans le vrai ddb
@@ -64,7 +64,7 @@ Item {
   property var _loadAnnotations: []
   property var _loadSection: {}
   property var  _recentsItemClicked: []
-  property var _updateAnnotationText: null
+  property var _updateAnnotation: null
   /* beautify preserve:end */
   Component {
     id: compspyc

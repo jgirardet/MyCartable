@@ -27,5 +27,10 @@ class ImageSectionMixin:
 
     @Slot(int, "QVariantMap")
     def updateAnnotation(self, annotation_id, dico):
+        res = {}
+        if dico["type"] in ["color", "underline"]:
+            res[dico["type"]] = dico["value"].rgba()
+        else:
+            res[dico["type"]] = dico["value"]
         with db_session:
-            self.db.AnnotationText[annotation_id].set(**dico)
+            self.db.Annotation[annotation_id].set(**res)

@@ -42,9 +42,7 @@ Rectangle {
   }
 
   function setStyle(data) {
-    color = data.value
-
-    print(data.type)
-    print(data.value)
+    ddb.updateAnnotation(control.ddbId, data)
+    control[data.type] = data.value
   }
 }

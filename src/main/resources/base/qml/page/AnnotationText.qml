@@ -30,7 +30,7 @@ TextField {
   onFocusChanged: focus ? cursorPosition = text.length : null
   onHoveredChanged: hovered ? focus = true : null
   onPressed: event.buttons === Qt.MiddleButton ? deleteRequested(control) : null
-  onTextChanged: ddb.updateAnnotationText(ddbId, text)
+  onTextChanged: ddb.updateAnnotation(ddbId, {"text":text})
 
   Component.onCompleted: deleteRequested.connect(referent.deleteAnnotation)
 

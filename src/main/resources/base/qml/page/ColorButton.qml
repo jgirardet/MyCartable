@@ -6,7 +6,7 @@ Button {
   id: root
   property alias shortcut: action.shortcut
   /* beautify preserve:start */
-  property var color
+  property color color
   property var menu
   property var type
   /* beautify preserve:end */

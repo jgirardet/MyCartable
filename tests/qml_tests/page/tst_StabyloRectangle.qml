@@ -9,7 +9,10 @@ Item {
   width: 200
   height: 200
   id: item
-
+  Component {
+      id: ddbcomp
+      DdbMock {}
+    }
   Component {
     id: refcomp
     Item {
@@ -28,6 +31,9 @@ Item {
       relativeX: 0.48
       relativeY: 0.10
       //referent: ref
+      /* beautify preserve:start */
+      property var ddb //need to inject ddb
+      /* beautify preserve:end */
     }
   }
 
@@ -36,12 +42,16 @@ Item {
     name: "StabyloRectangle";when: windowShown
     property StabyloRectangle stab
     property Item ref
+    property DdbMock ddb
 
     function init() {
       //            ref = createTemporaryObject(refcomp, item) sinon Warn
       ref = refcomp.createObject(item)
+      ddb = createTemporaryObject(ddbcomp, item)
+      verify(ddb)
       stab = createTemporaryObject(stabcomp, ref, {
-        "referent": ref
+        "referent": ref,
+        "ddb": ddb
       })
       verify(stab)
       verify(ref)
@@ -63,6 +73,17 @@ Item {
     }
 
 
+    function test_update_style() {
+      ddb._updateAnnotation = {}
+      stab.color = "blue"
+      var data = {'type':'color', 'value': 'red'}
+      stab.setStyle(data)
+      compare(stab.color,"#ff0000")
+      compare(ddb._updateAnnotation[0], stab.ddbId)
+      compare(ddb._updateAnnotation[1], data)
+    }
+
+
     function test_menu_show() {
       mouseClick(stab, 0, 0, Qt.RightButton)
       compare(findChild(stab, "menuflottant").opened,true )
@@ -77,6 +98,7 @@ Item {
       compare(Qt.colorEqual(stab.color, "red"), true)
 
     }
+
 
   }
 }

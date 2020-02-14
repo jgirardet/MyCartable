@@ -105,7 +105,9 @@ Item {
     function test_update_text() {
       anot.ddbId = 3
       anot.text = "bla"
-      compare(ddb._updateAnnotationText, [3, "bla"])
+      print(ddb._updateAnnotation)
+      compare(ddb._updateAnnotation[0], 3)
+      compare(ddb._updateAnnotation[1].text, "bla")
     }
 
   }

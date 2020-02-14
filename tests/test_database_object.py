@@ -1,3 +1,4 @@
+import pytest
 from fixtures import compare, ss, check_args
 from package import constantes
 from package.database_mixins.matiere_mixin import MatieresDispatcher
@@ -190,6 +191,7 @@ class TestImageSectionMixin:
             "relativeY": 0.4,
             "relativeWidth": 0.5,
             "relativeHeight": 0.6,
+            "color": 123123123,
         }
         res = d.addAnnotation(content)
 
@@ -206,6 +208,8 @@ class TestImageSectionMixin:
             "relativeX": 0.3,
             "relativeY": 0.4,
             "text": "",
+            "color": 123123123,
+            "underline": None,
         }
         res = d.addAnnotation(content)
 
@@ -221,12 +225,17 @@ class TestImageSectionMixin:
         res = dao.loadAnnotations(s.id)
         assert len(res) == 5
 
-    def test_updateTextAnnotation(self, dao: DatabaseObject, ddbn):
-        check_args(dao.updateAnnotationText, (int, str))
+    def test_udate_annotations_args(self, dao):
+        check_args(dao.updateAnnotation, (int, dict))
+
+    @pytest.mark.parametrize(
+        "key,value", [("text", "bla"), ("color", 123123123), ("underline", 123123123)]
+    )
+    def test_updateAnnotation(self, dao, ddbn, key, value):
         a = f_annotationText()
-        dao.updateAnnotationText(a.id, "bla")
+        dao.updateAnnotation(a.id, {key: value})
         with db_session:
-            assert ddbn.AnnotationText[a.id].text == "bla"
+            assert getattr(ddbn.AnnotationText[a.id], key) == value
 
     def test_deleteAnnotation(self, dao, ddbn):
         check_args(dao.deleteAnnotation, int)

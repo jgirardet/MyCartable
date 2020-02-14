@@ -25,7 +25,7 @@ class ImageSectionMixin:
             obj = self.db.ImageSection[section]
             return [p.to_dict() for p in obj.annotations]
 
-    @Slot(int, str)
-    def updateAnnotationText(self, annotation_id, value):
+    @Slot(int, "QVariantMap")
+    def updateAnnotation(self, annotation_id, dico):
         with db_session:
-            self.db.AnnotationText[annotation_id].text = value
+            self.db.AnnotationText[annotation_id].set(**dico)

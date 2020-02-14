@@ -16,25 +16,35 @@ Rectangle {
   x: relativeX * referent.width
   y: relativeY * referent.height
 
-  color: Qt.rgba(0.5, 0.4, 0.2, 0.4)
+  color: Qt.rgba(0.5, 0.4, 0.2)
+  opacity: 0.2
 
   Component.onCompleted: deleteRequested.connect(referent.deleteAnnotation)
 
   MouseArea {
     objectName: "mouseArea"
     anchors.fill: parent
-    acceptedButtons: Qt.Right | Qt.MiddleButton
+    acceptedButtons: Qt.RightButton | Qt.MiddleButton
     onPressed: {
-      if (mouse.buttons === Qt.MiddleButton) {
-        deleteRequested(control)
-      } else if (mouse.buttons === Qt.RightButton) {
-      print("dabs mouse")
+      if (mouse.button === Qt.MiddleButton) {
+        deleteRequested(control) // tested in tst_annotableimage
+      } else if (mouse.button === Qt.RightButton) {
         menuflotant.popup()
-        mouse.accepted=false
+        mouse.accepted = true
       }
     }
-    MenuFlottant {
-      id: menuflotant
-    }
+
+  }
+  MenuFlottantStabylo {
+    id: menuflotant
+    objectName: "menuflottant"
+    editor: control
+  }
+
+  function setStyle(data) {
+    color = data.value
+
+    print(data.type)
+    print(data.value)
   }
 }

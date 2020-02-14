@@ -24,15 +24,15 @@ TextArea {
     }
   }
   Keys.onPressed: {
-        if (event.key == Qt.Key_Return) {
-            event.accepted = doc.paragraphAutoFormat()
-        }
+    if (event.key == Qt.Key_Return) {
+      event.accepted = doc.paragraphAutoFormat()
     }
+  }
 
   function menuStylePopup(start, end) {
-        menu.popup()
-        cursorPosition = start
-        moveCursorSelection(end, TextEdit.SelectCharacters)
+    menu.popup()
+    cursorPosition = start
+    moveCursorSelection(end, TextEdit.SelectCharacters)
   }
 
   property DocumentEditor doc: DocumentEditor {
@@ -51,7 +51,9 @@ TextArea {
       value: area.selectionEnd
     }
 
-    onSelectionStartChanged: function () {area.cursorPosition = selectionStart}
+    onSelectionStartChanged: function() {
+      area.cursorPosition = selectionStart
+    }
     onSelectionCleared: area.deselect()
 
   }

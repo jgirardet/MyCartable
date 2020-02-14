@@ -1,5 +1,6 @@
 import sys
 from datetime import datetime
+from operator import itemgetter
 from pathlib import Path
 import json
 
@@ -50,8 +51,8 @@ class CreateJs:
             0.1, 0.2, "un annotation", section=self.la_image_section.id
         )
         self.le_stabylo = f_stabylo(
-            0.1, 0.2, 0.3, 0.4, section=self.la_image_section.id
-        )
+            0.1, 0.2, 0.3, 0.4, section=self.la_image_section.id, color="green"
+        )  # green = 4278222848
 
     def matiere(self):
 
@@ -88,12 +89,21 @@ class CreateJs:
 
     def image_section(self):
 
-        self.new["loadAnnotations"] = self.dao.loadAnnotations(self.la_image_section.id)
+        self.new["loadAnnotations"] = sorted(
+            self.dao.loadAnnotations(self.la_image_section.id), key=itemgetter("id")
+        )
 
         # doit retourner 3 et 4 si seulement 2 fabriquées dans populate
         self.new["addAnnotation"] = {
             x["classtype"]: self.dao.addAnnotation(x)
             for x in [
+                {
+                    "classtype": "AnnotationText",
+                    "section": 1.0,
+                    "relativeX": 0.3,
+                    "relativeY": 0.4,
+                    "text": "",
+                },
                 {
                     "classtype": "Stabylo",
                     "section": 1.0,
@@ -101,13 +111,6 @@ class CreateJs:
                     "relativeY": 0.4,
                     "relativeWidth": 0.5,
                     "relativeHeight": 0.6,
-                },
-                {
-                    "classtype": "AnnotationText",
-                    "section": 1.0,
-                    "relativeX": 0.3,
-                    "relativeY": 0.4,
-                    "text": "",
                 },
             ]
         }
@@ -158,19 +161,22 @@ class CreateJs:
                 "relativeX": 0.1,
                 "relativeY": 0.2,
                 "section": 1,
+                "color": None,
                 "classtype": "AnnotationText",
                 "text": "un annotation",
+                "underline": None,
             },
             {
                 "id": 2,
                 "relativeX": 0.1,
                 "relativeY": 0.2,
                 "section": 1,
+                "color": 4278222848,
                 "classtype": "Stabylo",
                 "relativeWidth": 0.3,
                 "relativeHeight": 0.4,
             },
-        ]
+        ], self.new["loadAnnotations"]
         assert (
             len(self.new["recentsModel"]) == 12
         ), f"{len(self.new['recentsModel'])} != {12}"

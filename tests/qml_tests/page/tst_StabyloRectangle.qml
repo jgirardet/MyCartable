@@ -62,5 +62,21 @@ Item {
       compare(stab.y, 20)
     }
 
+
+    function test_menu_show() {
+      mouseClick(stab, 0, 0, Qt.RightButton)
+      compare(findChild(stab, "menuflottant").opened,true )
+    }
+
+    function test_menu_change_color() {
+      compare(stab.color, "#806633")
+      mouseClick(stab, 0, 0, Qt.RightButton)
+      var red = findChild(stab, "menuflottant")
+      waitForRendering(stab)
+      mouseClick(stab, red.x, red.y, Qt.LeftButton)
+      compare(Qt.colorEqual(stab.color, "red"), true)
+
+    }
+
   }
 }

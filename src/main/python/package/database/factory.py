@@ -4,6 +4,7 @@ from pathlib import Path
 import mimesis
 import random
 
+from PySide2.QtGui import QColor
 from package.constantes import ACTIVITES, FILES, MATIERES
 from pony.orm import db_session
 
@@ -134,12 +135,14 @@ def f_stabylo(
     relativeHeight=None,
     td=False,
     section=None,
+    color=None,
 ):
     relativeX = relativeX or random.randint(0, 100) / 100
     relativeY = relativeY or random.randint(0, 100) / 100
     relativeWidth = relativeWidth or random.randint(0, 100) / 100
     relativeHeight = relativeHeight or random.randint(0, 100) / 100
     section = section or f_section().id
+    color = QColor(color).rgba() if color else None
 
     with db_session:
         item = db.Stabylo(
@@ -148,6 +151,7 @@ def f_stabylo(
             relativeWidth=relativeWidth,
             relativeHeight=relativeHeight,
             section=section,
+            color=color,
         )
         return item.to_dict() if td else item
 

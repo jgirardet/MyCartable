@@ -78,7 +78,7 @@ Item {
 
     function test_addannotationText() {
       ddb._addAnnotation = ddb.sp.addAnnotation.AnnotationText
-      mouseClick(anot, 50, 30, Qt.RightButton)
+      mouseClick(anot, 50, 30, Qt.LeftButton)
       var inp = anot.annotations[0]
       compare(inp.focus, true)
       keyPress(Qt.Key_A) //press touche pour vérifier active focus immédiat
@@ -88,7 +88,7 @@ Item {
       compare(inp.relativeY, 30 / anot.image.implicitHeight)
       compare(inp.text, "ab")
       //test ddbIdSet
-      compare(inp.ddbId, 4)
+      compare(inp.ddbId, 3)
     }
 
     function test_detroy_annotations_before_destroy() {
@@ -97,13 +97,13 @@ Item {
     }
 
     function test_init_zone() {
-      mousePress(anot)
+      mousePress(anot, undefined, undefined, Qt.RightButton)
       compare(findChild(anot, "mouseArea").temp_rec.relativeWidth, 0)
       compare(findChild(anot, "mouseArea").preventStealing, true)
     }
 
     function test_update_zone() {
-      mousePress(anot, 50, 50)
+      mousePress(anot, 50, 50, Qt.RightButton)
       mouseMove(anot, 100, 170)
       var rec = findChild(anot, "mouseArea").temp_rec
       compare(rec.relativeWidth, 0.25)
@@ -111,7 +111,7 @@ Item {
     }
 
     function test_update_zone_negative_size() {
-      mousePress(anot, 100, 100)
+      mousePress(anot, 100, 100, Qt.RightButton)
       mouseMove(anot, 50, 50)
       var rec = findChild(anot, "mouseArea").temp_rec
       compare(rec.relativeWidth, 0)
@@ -120,14 +120,23 @@ Item {
 
     function test_store_zone() {
       ddb._addAnnotation = ddb.sp.addAnnotation.Stabylo
-      mousePress(anot, 50, 50)
+      mousePress(anot, 50, 50, Qt.RightButton)
       mouseMove(anot, 100, 170)
-      mouseRelease(anot, 100, 170)
+      mouseRelease(anot, 100, 170, Qt.RightButton)
       var rec = findChild(anot, "mouseArea").temp_rec
       compare(rec, null)
       compare(anot.annotations[0].relativeWidth, 0.25)
       compare(anot.annotations[0].relativeHeight, 120 / 174) //cf plus heut
-      compare(anot.annotations[0].ddbId, 3)
+      compare(anot.annotations[0].ddbId, 4)
+
+      // check popup not opened
+      compare(findChild(anot, "menuflottant").opened,false )
+    }
+
+    function test_affiche_popup() {
+      mouseClick(anot, 100, 100, Qt.RightButton)
+       var rec = findChild(anot, "menuflottant")
+       compare(rec.opened,true )
     }
 
     function test_img_load_init() {
@@ -149,6 +158,8 @@ Item {
       compare(item.relativeWidth, 0.3)
       compare(item.relativeHeight, 0.4)
       compare(item.ddbId, 2)
+//      compare(item.color, null)
+
 
     }
 
@@ -161,6 +172,7 @@ Item {
         'ddb': ddb
       })
       compare(ano.annotations.length, 2)
+      print(ano.annotations)
       var item = ano.annotations[0]
       compare(item.relativeX, 0.1)
       compare(item.relativeY, 0.2)
@@ -196,7 +208,7 @@ Item {
       })
       print(anno.annotations)
       //var item = not.annotations[1]
-      mouseClick(anno.annotations[0], 1, 1, Qt.MiddleButton)
+      mouseClick(anno.annotations[1], 1, 1, Qt.MiddleButton)
       compare(ddb._deleteAnnotation, 2)
       compare(anno.annotations.length, 1)
       waitForRendering(anno)

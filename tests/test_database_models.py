@@ -236,7 +236,7 @@ class TestAnnotations:
         isinstance(a, db.Stabylo)
         a = f_stabylo(0.30, 0.40, 0.50, 0.60, td=True)
         print(a)
-        assert list(a.values()) == [2, 0.3, 0.4, 2, "Stabylo", 0.5, 0.6]
+        assert list(a.values()) == [2, 0.3, 0.4, 2, None, "Stabylo", 0.5, 0.6]
 
     def test_factory_annotation(self, ddbr):
         a = f_annotationText()
@@ -248,8 +248,10 @@ class TestAnnotations:
             0.3,
             0.4,
             2,
+            None,
             "AnnotationText",
             "coucou",
+            None,
         ]
 
     def test_add_modify_section_and_page_modified_attribute(self, ddbr):

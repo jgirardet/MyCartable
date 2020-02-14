@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+from PySide2.QtGui import QColor
 from pony.orm import select, Database, PrimaryKey, Optional, Required, Set, desc, flush
 from package.constantes import ACTIVITES
 
@@ -169,6 +170,7 @@ def init_models(db: Database):
         relativeX = Required(float)
         relativeY = Required(float)
         section = Required(ImageSection)
+        color = Optional(int, size=32, unsigned=True)
 
         def before_insert(self):
             self.section.before_update()
@@ -183,3 +185,4 @@ def init_models(db: Database):
 
     class AnnotationText(Annotation):
         text = Optional(str)
+        underline = Optional(int, size=32, unsigned=True)

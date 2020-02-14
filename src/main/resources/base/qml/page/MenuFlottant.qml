@@ -36,16 +36,16 @@ Menu {
         menu: root
       }
     }
+  }
+  MenuSeparator {
+    contentItem: Rectangle {
+      implicitWidth: 200
+      implicitHeight: 1
+      //        implicitHeight: 1
+      //        maxHeight: 1
+      color: "#21be2b"
     }
-    MenuSeparator {
-      contentItem: Rectangle {
-        implicitWidth: 200
-        implicitHeight: 1
-//        implicitHeight: 1
-//        maxHeight: 1
-        color: "#21be2b"
-      }
-      }
+  }
   MenuItem {
     RowLayout {
       anchors.fill: parent

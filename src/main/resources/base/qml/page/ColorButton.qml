@@ -2,7 +2,6 @@ import QtQuick 2.14
 import QtQuick.Controls 2.14
 import QtQuick.Layouts 1.12
 
-
 Button {
   id: root
   property alias shortcut: action.shortcut
@@ -11,7 +10,6 @@ Button {
   property var menu
   property var type
   /* beautify preserve:end */
-
 
   Layout.fillHeight: true
   Layout.fillWidth: true
@@ -25,14 +23,12 @@ Button {
   action: action
   Action {
     id: action
-    //    shortcut: "Ctrl+l"
     onTriggered: {
-      //      print('trig')
-        menu.editor.setStyle({
+      menu.editor.setStyle({
         "type": root.type,
         "value": root.color
       })
-      menu.visible=false
+      menu.visible = false
     }
   }
 }

@@ -52,7 +52,7 @@ class CreateJs:
         )
         self.le_stabylo = f_stabylo(
             0.1, 0.2, 0.3, 0.4, section=self.la_image_section.id, color="green"
-        )  # green = 4278222848
+        )  # green = 4278222848, '#008000'
 
     def matiere(self):
 
@@ -92,6 +92,10 @@ class CreateJs:
         self.new["loadAnnotations"] = sorted(
             self.dao.loadAnnotations(self.la_image_section.id), key=itemgetter("id")
         )
+        # shunt le problème de QColor non serialisable
+        for x in self.new["loadAnnotations"]:
+            if x["color"]:
+                x["color"] = "#008000"
 
         # doit retourner 3 et 4 si seulement 2 fabriquées dans populate
         self.new["addAnnotation"] = {
@@ -171,7 +175,8 @@ class CreateJs:
                 "relativeX": 0.1,
                 "relativeY": 0.2,
                 "section": 1,
-                "color": 4278222848,
+                # "color": 4278222848,
+                "color": "#008000",  # on triche pour le problème de serialisation de QColor
                 "classtype": "Stabylo",
                 "relativeWidth": 0.3,
                 "relativeHeight": 0.4,

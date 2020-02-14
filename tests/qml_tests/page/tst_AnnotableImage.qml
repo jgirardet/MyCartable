@@ -158,7 +158,7 @@ Item {
       compare(item.relativeWidth, 0.3)
       compare(item.relativeHeight, 0.4)
       compare(item.ddbId, 2)
-//      compare(item.color, null)
+      compare(item.color, "#008000")
 
 
     }

@@ -69,7 +69,7 @@ FocusScope {
         "relativeY": z.relativeY,
         "referent": root,
         "ddbId": z.id,
-//        "color": z.color,
+        "color": z.color,
       }
       let newObject
       switch (z.classtype) {

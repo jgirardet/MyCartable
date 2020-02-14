@@ -172,6 +172,11 @@ def init_models(db: Database):
         section = Required(ImageSection)
         color = Optional(int, size=32, unsigned=True)
 
+        def to_dict(self, *args, **kwargs):
+            dico = super().to_dict(*args, **kwargs)
+            dico["color"] = QColor(dico["color"]) if dico["color"] else None
+            return dico
+
         def before_insert(self):
             self.section.before_update()
 

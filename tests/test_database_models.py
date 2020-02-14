@@ -254,6 +254,15 @@ class TestAnnotations:
             None,
         ]
 
+    def test_annotatation_to_dict(self):
+        a = f_stabylo(td=True, color="red")
+        assert isinstance(a["color"], QColor)
+        assert a["color"] == QColor("red")
+
+        # None case
+        a = f_stabylo(td=True, color=None)
+        assert a["color"] is None
+
     def test_add_modify_section_and_page_modified_attribute(self, ddbr):
         p = f_page()
         before_p = p.modified

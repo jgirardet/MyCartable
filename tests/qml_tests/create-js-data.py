@@ -168,7 +168,7 @@ class CreateJs:
                 "color": None,
                 "classtype": "AnnotationText",
                 "text": "un annotation",
-                "underline": None,
+                "underline": False,
             },
             {
                 "id": 2,

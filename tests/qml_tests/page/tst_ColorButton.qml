@@ -1,6 +1,6 @@
 import QtQuick 2.12
 import QtTest 1.12
-import "../../../src/main/resources/base/qml/page"
+import "../../../src/main/resources/base/qml/page/menu"
 import ".."
 
 Item {

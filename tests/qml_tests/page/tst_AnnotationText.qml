@@ -110,31 +110,53 @@ Item {
       compare(ddb._updateAnnotation[1].type, "text")
     }
 
-//    function test_update_style() {
-//      ddb._updateAnnotation = {}
-//      stab.color = "blue"
-//      var data = {'type':'color', 'value': 'red'}
-//      stab.setStyle(data)
-//      compare(stab.color,"#ff0000")
-//      compare(ddb._updateAnnotation[0], stab.ddbId)
-//      compare(ddb._updateAnnotation[1], data)
-//    }
+    function test_setStyle_color() {
+      ddb._updateAnnotation = {}
+      anot.color = "blue"
+      var data = {'type':'color', 'value': 'red'}
+      anot.setStyle(data)
+      compare(anot.color,"#ff0000")
+      compare(ddb._updateAnnotation[0], anot.ddbId)
+      compare(ddb._updateAnnotation[1], data)
+    }
 
-//
-//    function test_menu_show() {
-//      mouseClick(stab, 0, 0, Qt.RightButton)
-//      compare(findChild(stab, "menuflottant").opened,true )
-//    }
-//
-//    function test_menu_change_color() {
-//      compare(stab.color, "#806633")
-//      mouseClick(stab, 0, 0, Qt.RightButton)
-//      var red = findChild(stab, "menuflottant")
-//      waitForRendering(stab)
-//      mouseClick(stab, red.x, red.y, Qt.LeftButton)
-//      compare(Qt.colorEqual(stab.color, "red"), true)
-//
-//    }
+    function test_setStyle_underline() {
+      ddb._updateAnnotation = {}
+      var data = {'type':'underline', 'value': "red"}
+      anot.setStyle(data)
+      compare(anot.color,"#ff0000")
+      compare(anot.font.underline,true)
+      compare(ddb._updateAnnotation[0], anot.ddbId)
+      compare(ddb._updateAnnotation[1], data)
+    }
+
+    function test_setStyle_remove_underline() {
+      ddb._updateAnnotation = {}
+      anot.color = "blue"
+      anot.font.underline = true
+      var data = {'type':'color', 'value': "red"}
+      anot.setStyle(data)
+      compare(anot.color,"#ff0000")
+      compare(anot.font.underline,false)
+      compare(ddb._updateAnnotation[0], anot.ddbId)
+      compare(ddb._updateAnnotation[1], data)
+    }
+
+
+    function test_menu_show() {
+      mouseClick(anot, 0, 0, Qt.RightButton)
+      compare(findChild(anot, "menuflottant").opened,true )
+    }
+
+    function test_menu_change_color() {
+      compare(anot.color, "#353637")
+      mouseClick(anot, 0, 0, Qt.RightButton)
+      var red = findChild(anot, "menuflottant")
+      waitForRendering(anot)
+      mouseClick(anot, red.x, red.y, Qt.LeftButton)
+      compare(Qt.colorEqual(anot.color, "red"), true)
+
+    }
 
   }
 }

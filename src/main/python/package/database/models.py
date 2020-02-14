@@ -190,4 +190,4 @@ def init_models(db: Database):
 
     class AnnotationText(Annotation):
         text = Optional(str)
-        underline = Optional(int, size=32, unsigned=True)
+        underline = Optional(bool, default=False)

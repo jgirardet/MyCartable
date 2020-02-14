@@ -160,15 +160,29 @@ def b_stabylo(n, *args, **kwargs):
     return [f_stabylo(*args, **kwargs) for x in range(n)]
 
 
-def f_annotationText(relativeX=None, relativeY=None, text=None, td=False, section=None):
+def f_annotationText(
+    relativeX=None,
+    relativeY=None,
+    text=None,
+    td=False,
+    section=None,
+    color=None,
+    underline=False,
+):
     relativeX = relativeX or random.randint(0, 100) / 100
     relativeY = relativeY or random.randint(0, 100) / 100
     text = text or " ".join(gen.text.words(2))
     section = section or f_section().id
+    color = QColor(color).rgba() if color else None
 
     with db_session:
         item = db.AnnotationText(
-            relativeX=relativeX, relativeY=relativeY, text=text, section=section
+            relativeX=relativeX,
+            relativeY=relativeY,
+            text=text,
+            section=section,
+            color=color,
+            underline=underline,
         )
         return item.to_dict() if td else item
 

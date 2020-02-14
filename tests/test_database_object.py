@@ -229,19 +229,19 @@ class TestImageSectionMixin:
         check_args(dao.updateAnnotation, (int, dict))
 
     @pytest.mark.parametrize(
-        "key,value",
+        "key,value,res",
         [
-            ("text", "bla"),
-            ("color", QColor(123123123)),
-            ("underline", QColor(123123123)),
+            ("text", "bla", None),
+            ("color", QColor(123123123), None),
+            ("underline", QColor("red"), True),
         ],
     )
-    def test_updateAnnotationText(self, dao, ddbn, key, value):
+    def test_updateAnnotationText(self, dao, ddbn, key, value, res):
 
         a = f_annotationText()
         dao.updateAnnotation(a.id, {"type": key, "value": value})
         with db_session:
-            assert getattr(ddbn.Annotation[a.id], key) == value
+            assert getattr(ddbn.Annotation[a.id], key) == res or value
 
     @pytest.mark.parametrize("key,value", [("color", QColor(123123123))])
     def test_updateAnnotationStabylo(self, dao, ddbn, key, value):

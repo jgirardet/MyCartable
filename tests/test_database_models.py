@@ -238,7 +238,7 @@ class TestAnnotations:
         print(a)
         assert list(a.values()) == [2, 0.3, 0.4, 2, None, "Stabylo", 0.5, 0.6]
 
-    def test_factory_annotation(self, ddbr):
+    def test_factory_annotationtext(self, ddbr):
         a = f_annotationText()
         isinstance(a, db.AnnotationText)
         a = f_annotationText(0.30, 0.40, "coucou", td=True)
@@ -251,13 +251,23 @@ class TestAnnotations:
             None,
             "AnnotationText",
             "coucou",
-            None,
+            False,
         ]
 
     def test_annotatation_to_dict(self):
         a = f_stabylo(td=True, color="red")
         assert isinstance(a["color"], QColor)
         assert a["color"] == QColor("red")
+
+        # None case
+        a = f_stabylo(td=True, color=None)
+        assert a["color"] is None
+
+    def test_annotatationText_to_dict(self):
+        a = f_annotationText(td=True, color="red", underline=True)
+        assert isinstance(a["color"], QColor)
+        assert a["color"] == QColor("red")
+        assert a["underline"] == True
 
         # None case
         a = f_stabylo(td=True, color=None)

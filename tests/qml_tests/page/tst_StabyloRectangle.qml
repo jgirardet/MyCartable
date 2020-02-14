@@ -73,7 +73,7 @@ Item {
     }
 
 
-    function test_update_style() {
+    function test_setStyle() {
       ddb._updateAnnotation = {}
       stab.color = "blue"
       var data = {'type':'color', 'value': 'red'}

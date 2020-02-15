@@ -145,11 +145,10 @@ class DocumentEditor(QObject):
             self._cursor.select(QTextCursor.WordUnderCursor)
         f = QTextCharFormat()
         if data["type"] == "color":
-            if QColor.isValidColor(data["value"]):
-                f.setForeground(QBrush(QColor(data["value"])))
+            f.setForeground(QBrush(data["value"]))
 
         elif data["type"] == "underline":
-            f.setForeground(QBrush(QColor(data["value"])))
+            f.setForeground(data["value"])
             f.setUnderlineColor(QColor("yellow"))
             f.setFontUnderline(True)
 

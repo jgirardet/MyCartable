@@ -2,7 +2,7 @@ from unittest.mock import MagicMock
 
 import pytest
 from PySide2.QtCore import QObject
-from PySide2.QtGui import QTextDocument, QTextCursor
+from PySide2.QtGui import QTextDocument, QTextCursor, QColor
 from fixtures import is_blockFormat
 from package.database.factory import f_textSection
 from package.page.blockFormat import BlockFormats
@@ -123,20 +123,20 @@ class TestProperties:
     @pytest.mark.parametrize(
         "start,end, type_, value, res",
         [
-            (4, 4, "color", "red", "color:#ff0000"),  # no selection color
-            (3, 7, "color", "blue", "color:#0000ff"),  # selection color
+            (4, 4, "color", QColor("red"), "color:#ff0000"),  # no selection color
+            (3, 7, "color", QColor("blue"), "color:#0000ff"),  # selection color
             (
                 3,
                 7,
                 "underline",
-                "blue",
+                QColor("blue"),
                 ["color:#0000ff", "text-decoration: underline"],  # selection underlien
             ),
             (
                 4,
                 4,
                 "underline",
-                "blue",
+                QColor("blue"),
                 [
                     "color:#0000ff",
                     "text-decoration: underline",

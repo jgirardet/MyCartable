@@ -86,6 +86,7 @@ FocusScope {
         case "AnnotationText": {
           newObject = annotationText.createObject(root, initDict)
           newObject.text = z.text
+          newObject.font.underline = z.underline
           break;
         }
       }

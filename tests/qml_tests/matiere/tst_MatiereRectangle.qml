@@ -56,7 +56,7 @@ Item {
 
     function test_matiere_combo_click() {
       var cb = findChild(rec, "_comboBoxSelectMatiere")
-      var spt = ddb.getSpy("setCurrentMatiereFromIndexSignal", ddb)
+      var spt = ddb.getSpy(ddb, "setCurrentMatiereFromIndexSignal")
       compare(spt.count, 0)
       cb.activated(3)
       compare(spt.count, 2) // called twice... why ???

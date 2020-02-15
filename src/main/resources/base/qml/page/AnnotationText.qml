@@ -17,6 +17,8 @@ TextField {
   x: relativeX * referent.width
   y: relativeY * referent.height
 
+  font.pointSize: 20
+
   // other atributes
   background: Rectangle {
     implicitWidth: parent.width
@@ -28,16 +30,26 @@ TextField {
   hoverEnabled: true
 
   // slots
-  onFocusChanged: focus ? cursorPosition = text.length : null
+  onFocusChanged: {
+
+    focus ? cursorPosition = text.length : null //  toujours curseur à la fin quand focus
+    if (!focus && !text) {
+      deleteRequested(control)
+    }
+  }
+
   onHoveredChanged: hovered ? focus = true : null
   onPressed: {
-      if (event.buttons === Qt.MiddleButton) {
-          deleteRequested(control)
-      } else if (event.buttons === Qt.RightButton) {
-        menuflotant.popup()
-      }
+    if (event.buttons === Qt.MiddleButton) {
+      deleteRequested(control)
+    } else if (event.buttons === Qt.RightButton) {
+      menuflotant.popup()
+    }
   }
-  onTextChanged: ddb.updateAnnotation(ddbId, {"type":"text","value":text})
+  onTextChanged: ddb.updateAnnotation(ddbId, {
+    "type": "text",
+    "value": text
+  })
 
   Component.onCompleted: deleteRequested.connect(referent.deleteAnnotation)
 
@@ -51,5 +63,5 @@ TextField {
     id: menuflotant
     objectName: "menuflottant"
     editor: control
-    }
+  }
 }

@@ -75,7 +75,7 @@ Item {
     }
   }
 
-  function getSpy(signaltxt, targetObj) {
+  function getSpy(targetObj, signaltxt) {
     return compspyc.createObject(item, {
       "target": targetObj,
       "signalName": signaltxt

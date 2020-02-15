@@ -69,6 +69,7 @@ Item {
 
     function test_some_property() {
       compare(anot.selectByMouse, true)
+//      compare(anot.font.underline)
     }
 
     function test_hover() {
@@ -96,11 +97,13 @@ Item {
       compare(anot.cursorPosition, 8)
     }
 
-    //    function test_anot_destroy() {
-    //      mouseClick(anot, 1, 1, Qt.MiddleButton)
-    //      waitForRendering(ref)
-    //      compare(ref.annotations, [])
-    //    }
+    function test_anot_destroy_if_empty_when_leave() {
+      anot.focus=true
+      var spy = ddb.getSpy(anot, "deleteRequested")
+      anot.text=""
+      anot.focus=false
+      spy.wait()
+    }
 
     function test_update_text() {
       anot.ddbId = 3

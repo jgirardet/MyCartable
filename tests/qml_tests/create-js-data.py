@@ -51,8 +51,16 @@ class CreateJs:
             0.1, 0.2, "un annotation", section=self.la_image_section.id
         )
         self.le_stabylo = f_stabylo(
-            0.1, 0.2, 0.3, 0.4, section=self.la_image_section.id, color="green"
+            0.5, 0.6, 0.1, 0.2, section=self.la_image_section.id, color="green"
         )  # green = 4278222848, '#008000'
+        self.la_annotationText2 = f_annotationText(
+            0.1,
+            0.4,
+            "un annotation",
+            section=self.la_image_section.id,
+            color="green",
+            underline=True,
+        )
 
     def matiere(self):
 
@@ -97,7 +105,7 @@ class CreateJs:
             if x["color"]:
                 x["color"] = "#008000"
 
-        # doit retourner 3 et 4 si seulement 2 fabriquées dans populate
+        # doit retourner 4 et 5 si seulement 2 fabriquées dans populate
         self.new["addAnnotation"] = {
             x["classtype"]: self.dao.addAnnotation(x)
             for x in [
@@ -151,14 +159,14 @@ class CreateJs:
             len(self.new["currentTitre"]) == 12
         ), f"{len(self.new['currentTitre'])} != {12}"
         assert (
-            len(self.new["loadAnnotations"]) == 2
-        ), f"{len(self.new['loadAnnotations'])} != { 2}"
+            len(self.new["loadAnnotations"]) == 3
+        ), f"{len(self.new['loadAnnotations'])} != { 3}"
         assert (
             len(self.new["addAnnotation"]) == 2
         ), f"{len(self.new['addAnnotation'])} != { 2}"
         assert (
-            len(self.new["loadSection"]["annotations"]) == 2
-        ), f"{len(self.new['loadSection']['annotations'])} != { 2}"
+            len(self.new["loadSection"]["annotations"]) == 3
+        ), f"{len(self.new['loadSection']['annotations'])} != { 3}"
         assert self.new["loadAnnotations"] == [
             {
                 "id": 1,
@@ -172,14 +180,24 @@ class CreateJs:
             },
             {
                 "id": 2,
-                "relativeX": 0.1,
-                "relativeY": 0.2,
+                "relativeX": 0.5,
+                "relativeY": 0.6,
                 "section": 1,
                 # "color": 4278222848,
                 "color": "#008000",  # on triche pour le problème de serialisation de QColor
                 "classtype": "Stabylo",
-                "relativeWidth": 0.3,
-                "relativeHeight": 0.4,
+                "relativeWidth": 0.1,
+                "relativeHeight": 0.2,
+            },
+            {
+                "id": 3,
+                "relativeX": 0.1,
+                "relativeY": 0.4,
+                "section": 1,
+                "color": "#008000",  # on triche pour le problème de serialisation de QColor
+                "classtype": "AnnotationText",
+                "text": "un annotation",
+                "underline": True,
             },
         ], self.new["loadAnnotations"]
         assert (

@@ -88,7 +88,7 @@ Item {
       compare(inp.relativeY, 30 / anot.image.implicitHeight)
       compare(inp.text, "ab")
       //test ddbIdSet
-      compare(inp.ddbId, 3)
+      compare(inp.ddbId, 4)
     }
 
     function test_detroy_annotations_before_destroy() {
@@ -127,7 +127,7 @@ Item {
       compare(rec, null)
       compare(anot.annotations[0].relativeWidth, 0.25)
       compare(anot.annotations[0].relativeHeight, 120 / 174) //cf plus heut
-      compare(anot.annotations[0].ddbId, 4)
+      compare(anot.annotations[0].ddbId, 5)
 
       // check popup not opened
       compare(findChild(anot, "menuflottant").opened,false )
@@ -151,12 +151,12 @@ Item {
       var ano = createTemporaryObject(anotimg, item, {
         'ddb': ddb
       })
-      compare(ano.annotations.length, 2)
+      compare(ano.annotations.length, 3)
       var item = ano.annotations[1]
-      compare(item.relativeX, 0.1)
-      compare(item.relativeY, 0.2)
-      compare(item.relativeWidth, 0.3)
-      compare(item.relativeHeight, 0.4)
+      compare(item.relativeX, 0.5)
+      compare(item.relativeY, 0.6)
+      compare(item.relativeWidth, 0.1)
+      compare(item.relativeHeight, 0.2)
       compare(item.ddbId, 2)
       compare(item.color, "#008000")
 
@@ -171,13 +171,27 @@ Item {
       var ano = createTemporaryObject(anotimg, item, {
         'ddb': ddb
       })
-      compare(ano.annotations.length, 2)
-      print(ano.annotations)
+      compare(ano.annotations.length, 3)
       var item = ano.annotations[0]
       compare(item.relativeX, 0.1)
       compare(item.relativeY, 0.2)
       compare(item.ddbId, 1)
       compare(item.text, "un annotation")
+
+    }
+
+    function test_load_annotationText__unerlinedon_completed() {
+      anot.destroy()
+      ddb._loadAnnotations = ddb.sp.loadAnnotations
+      ddb._loadSection = ddb.sp.loadSection
+
+      var ano = createTemporaryObject(anotimg, item, {
+        'ddb': ddb
+      })
+      compare(ano.annotations.length, 3)
+      var obj = ano.annotations[2]
+      compare(obj.color, "#008000")
+      compare(obj.font.underline, true)
 
     }
 
@@ -208,9 +222,10 @@ Item {
       })
       print(anno.annotations)
       //var item = not.annotations[1]
+      print(anno.annotations[1].ddbId)
       mouseClick(anno.annotations[1], 1, 1, Qt.MiddleButton)
       compare(ddb._deleteAnnotation, 2)
-      compare(anno.annotations.length, 1)
+      compare(anno.annotations.length, 2)
       waitForRendering(anno)
       compare(anno.ddbId, undefined)
 

@@ -116,7 +116,6 @@ class DocumentEditor(QObject):
         self._cursor = QTextCursor(bloc)
         self._cursor.setBlockFormat(BlockFormats[level])
         self._cursor.select(QTextCursor.LineUnderCursor)
-        print(text)
         self._cursor.insertText(text)
         self._cursor.movePosition(QTextCursor.StartOfBlock)
         self._cursor.movePosition(QTextCursor.EndOfBlock, QTextCursor.KeepAnchor)
@@ -166,9 +165,10 @@ class DocumentEditor(QObject):
 
                 # load content
                 self._document.setHtml(item.text)
+                self._update_block_format()
+
                 # set connection later to avoid save on first load
                 self._document.contentsChanged.connect(self.onDocumenContentsChanged)
-                self._update_block_format()
             else:
                 self._proxy = None
 

@@ -14,4 +14,5 @@ class SectionMixin:
                 # add if when other types
                 # if res["classtype"] == "ImageSection":
                 res["path"] = str(FILES / res["path"])
+        print("find load section")
         return res

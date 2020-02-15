@@ -5,7 +5,6 @@ from pony.orm import db_session
 class ImageSectionMixin:
     @Slot("QVariantMap", result=int)
     def addAnnotation(self, content):
-        print(content)
         item_id = 0
         with db_session:
             section = int(content.pop("section"))
@@ -22,6 +21,7 @@ class ImageSectionMixin:
 
     @Slot(int, result="QVariantList")
     def loadAnnotations(self, section):
+
         with db_session:
             obj = self.db.ImageSection[section]
             return [p.to_dict() for p in obj.annotations]

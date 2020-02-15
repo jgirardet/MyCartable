@@ -206,16 +206,6 @@ class TestImageSectionMixin:
         d = DatabaseObject(ddbr)
         s = f_imageSection()
 
-        # stabylo
-        # content = {
-        #     "classtype": "Stabylo",
-        #     "section": 1.0,
-        #     "relativeX": 0.3,
-        #     "relativeY": 0.4,
-        #     "relativeWidth": 0.5,
-        #     "relativeHeight": 0.6,
-        #     "color": 123123123,
-        # }
         res = d.addAnnotation(content)
 
         with db_session:
@@ -325,9 +315,6 @@ class TestDatabaseObject:
         a = f_page(td=True, activite="1")
         d = DatabaseObject(ddbr)
         with qtbot.wait_signals(
-            [
-                (d.exercicesListChanged, "listchanged"),
-                (d.recentsModelChanged, "modelreset"),
-            ]
+            [(d.exercicesListChanged, "listchanged"),]
         ):
             d.currentTitreChanged.emit()

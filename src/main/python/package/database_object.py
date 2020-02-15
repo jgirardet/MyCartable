@@ -61,4 +61,3 @@ class DatabaseObject(QObject, *MIXINS):
 
     def onCurrentTitreChanged(self):
         self.update_activites()
-        self.recentsModelChanged.emit()

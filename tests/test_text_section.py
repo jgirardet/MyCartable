@@ -185,6 +185,13 @@ class TestProperties:
         with db_session:
             assert doc._proxy.id == a.id
 
+    def test_update_proxy_do_not_change_modified(self, doc, reset_db):
+        # good id
+        a = f_textSection()
+        doc._updateProxy(a.id)
+        with db_session:
+            assert a.modified == doc._proxy.modified
+
     def test_update_block_format(self, doc):
         doc.document.setHtml("<p>bla</p><h1>titre</h1>")
         doc._update_block_format()

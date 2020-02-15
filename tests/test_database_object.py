@@ -191,15 +191,24 @@ class TestImageSectionMixin:
                 "relativeHeight": 0.6,
                 "color": 123123123,
             },
-            # {
-            #     "classtype": "Stabylo",
-            #     "section": 1.0,
-            #     "relativeX": 0.3,
-            #     "relativeY": 0.4,
-            #     "relativeWidth": 0.5,
-            #     "relativeHeight": 0.6,
-            #     "color": QColor(123123123),
-            # },
+            {
+                "classtype": "Stabylo",
+                "section": 1.0,
+                "relativeX": 0.3,
+                "relativeY": 0.4,
+                "relativeWidth": 0.5,
+                "relativeHeight": 0.6,
+                "color": QColor(123123123),
+            },
+            {
+                "classtype": "AnnotationText",
+                "section": 1.0,
+                "relativeX": 0.3,
+                "relativeY": 0.4,
+                "text": "",
+                "color": 123123123,
+                "underline": None,
+            },
         ],
     )
     def test_addAnnotation(self, ddbr, content):
@@ -215,15 +224,7 @@ class TestImageSectionMixin:
             assert item == content
 
         # annotatinotext
-        # content = {
-        #     "classtype": "AnnotationText",
-        #     "section": 1.0,
-        #     "relativeX": 0.3,
-        #     "relativeY": 0.4,
-        #     "text": "",
-        #     "color": 123123123,
-        #     "underline": None,
-        # }
+
         # res = d.addAnnotation(content)
         #
         # with db_session:

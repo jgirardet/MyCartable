@@ -20,5 +20,4 @@
 
 
 # encours:
- - revoir test de add anotation
  - ajout annotatin ou modif ne modifie ps les récents (alor que modified doit l'être)

@@ -45,6 +45,7 @@ class DocumentEditor(QObject):
 
     @Slot()
     def _init(self):
+        # pass
         self._cursor = QTextCursor(self._document)  # type: QTextCursor
 
     @Property(QObject, notify=documentChanged)
@@ -154,7 +155,6 @@ class DocumentEditor(QObject):
 
         self._cursor.mergeCharFormat(f)
         self.selectionCleared.emit()
-        print(self._document.toHtml())
 
     @Slot(int)
     def _updateProxy(self, value):
@@ -162,12 +162,20 @@ class DocumentEditor(QObject):
 
             item = db.TextSection.get(id=value)
             if item:
-                self._document.setHtml(item.text)
-                self._update_block_format()
-
                 self._proxy = make_proxy(item)
+
+                # load content
+                self._document.setHtml(item.text)
+                # set connection later to avoid save on first load
+                self._document.contentsChanged.connect(self.onDocumenContentsChanged)
+                self._update_block_format()
             else:
                 self._proxy = None
+
+    @Slot()
+    def onDocumenContentsChanged(self):
+        with db_session:
+            self._proxy.text = self.document.toHtml()
 
     def _update_block_format(self):
         b = self._document.begin()

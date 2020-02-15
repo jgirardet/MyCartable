@@ -179,20 +179,43 @@ class TestSectionMixin:
 
 
 class TestImageSectionMixin:
-    def test_addAnnotation(self, ddbr):
+    @pytest.mark.parametrize(
+        "content",
+        [
+            {
+                "classtype": "Stabylo",
+                "section": 1.0,
+                "relativeX": 0.3,
+                "relativeY": 0.4,
+                "relativeWidth": 0.5,
+                "relativeHeight": 0.6,
+                "color": 123123123,
+            },
+            # {
+            #     "classtype": "Stabylo",
+            #     "section": 1.0,
+            #     "relativeX": 0.3,
+            #     "relativeY": 0.4,
+            #     "relativeWidth": 0.5,
+            #     "relativeHeight": 0.6,
+            #     "color": QColor(123123123),
+            # },
+        ],
+    )
+    def test_addAnnotation(self, ddbr, content):
         d = DatabaseObject(ddbr)
         s = f_imageSection()
 
         # stabylo
-        content = {
-            "classtype": "Stabylo",
-            "section": 1.0,
-            "relativeX": 0.3,
-            "relativeY": 0.4,
-            "relativeWidth": 0.5,
-            "relativeHeight": 0.6,
-            "color": 123123123,
-        }
+        # content = {
+        #     "classtype": "Stabylo",
+        #     "section": 1.0,
+        #     "relativeX": 0.3,
+        #     "relativeY": 0.4,
+        #     "relativeWidth": 0.5,
+        #     "relativeHeight": 0.6,
+        #     "color": 123123123,
+        # }
         res = d.addAnnotation(content)
 
         with db_session:
@@ -202,22 +225,22 @@ class TestImageSectionMixin:
             assert item == content
 
         # annotatinotext
-        content = {
-            "classtype": "AnnotationText",
-            "section": 1.0,
-            "relativeX": 0.3,
-            "relativeY": 0.4,
-            "text": "",
-            "color": 123123123,
-            "underline": None,
-        }
-        res = d.addAnnotation(content)
-
-        with db_session:
-            item = s.annotations.select()[:][1].to_dict()
-            assert item.pop("id") == res
-            assert item.pop("section") == s.id
-            assert item == content
+        # content = {
+        #     "classtype": "AnnotationText",
+        #     "section": 1.0,
+        #     "relativeX": 0.3,
+        #     "relativeY": 0.4,
+        #     "text": "",
+        #     "color": 123123123,
+        #     "underline": None,
+        # }
+        # res = d.addAnnotation(content)
+        #
+        # with db_session:
+        #     item = s.annotations.select()[:][1].to_dict()
+        #     assert item.pop("id") == res
+        #     assert item.pop("section") == s.id
+        #     assert item == content
 
     def test_loadAnnotations(self, dao):
         s = f_imageSection()

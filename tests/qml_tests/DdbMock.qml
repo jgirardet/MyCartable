@@ -69,9 +69,8 @@ Item {
   Component {
     id: compspyc
     SignalSpy {
-      id: spyc
-      target: item
-      signalName: "setCurrentMatiereFromIndexSignal"
+     // target: item
+      //signalName: "setCurrentMatiereFromIndexSignal"
     }
   }
 

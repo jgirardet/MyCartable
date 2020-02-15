@@ -99,6 +99,11 @@ Item {
 
     }
 
+    function test_stab_destroy() {
+      var spy = ddb.getSpy(stab, "deleteRequested")
+      mouseClick(stab, 0, 0, Qt.MiddleButton)
+      spy.wait()
+    }
 
-  }
+}
 }

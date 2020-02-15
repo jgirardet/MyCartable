@@ -254,7 +254,31 @@ class TestAnnotations:
             False,
         ]
 
-    def test_annotatation_to_dict(self):
+    def test_create_annotation_accept_qcolor(self, ddbr):
+        s = f_section()
+        with db_session:
+            item = ddbr.Stabylo(
+                relativeX=0.5,
+                relativeY=0.5,
+                relativeWidth=0.5,
+                relativeHeight=0.5,
+                section=s.id,
+                color=QColor("red"),
+            )
+            assert item.color == QColor("red").rgba()
+
+            # test with simple wrga int
+            item = ddbr.Stabylo(
+                relativeX=0.5,
+                relativeY=0.5,
+                relativeWidth=0.5,
+                relativeHeight=0.5,
+                section=s.id,
+                color=QColor("red").rgba(),
+            )
+            assert item.color == QColor("red").rgba()
+
+    def test_annotatation_to_dict(self, ddbr):
         a = f_stabylo(td=True, color="red")
         assert isinstance(a["color"], QColor)
         assert a["color"] == QColor("red")
@@ -263,7 +287,7 @@ class TestAnnotations:
         a = f_stabylo(td=True, color=None)
         assert a["color"] is None
 
-    def test_annotatationText_to_dict(self):
+    def test_annotatationText_to_dict(self, ddbr):
         a = f_annotationText(td=True, color="red", underline=True)
         assert isinstance(a["color"], QColor)
         assert a["color"] == QColor("red")

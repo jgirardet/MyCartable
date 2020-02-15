@@ -105,7 +105,7 @@ class CreateJs:
             if x["color"]:
                 x["color"] = "#008000"
 
-        # doit retourner 4 et 5 si seulement 2 fabriquées dans populate
+        # doit retourner 4,5,6 si seulement 2 fabriquées dans populate
         self.new["addAnnotation"] = {
             x["classtype"]: self.dao.addAnnotation(x)
             for x in [
@@ -115,6 +115,14 @@ class CreateJs:
                     "relativeX": 0.3,
                     "relativeY": 0.4,
                     "text": "",
+                },
+                {
+                    "classtype": "Stabylo",
+                    "section": 1.0,
+                    "relativeX": 0.3,
+                    "relativeY": 0.4,
+                    "relativeWidth": 0.5,
+                    "relativeHeight": 0.6,
                 },
                 {
                     "classtype": "Stabylo",

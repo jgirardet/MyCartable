@@ -216,17 +216,18 @@ Item {
       anot.destroy()
       ddb._loadAnnotations = ddb.sp.loadAnnotations
       ddb._loadSection = ddb.sp.loadSection
+      ddb._deleteAnnotation = null
 
       var anno = createTemporaryObject(anotimg, item, {
         'ddb': ddb
       })
-      print(anno.annotations)
-      //var item = not.annotations[1]
-      print(anno.annotations[1].ddbId)
-      mouseClick(anno.annotations[1], 1, 1, Qt.MiddleButton)
-      compare(ddb._deleteAnnotation, 2)
-      compare(anno.annotations.length, 2)
+      var stab = anno.annotations[1]
+      sleep(5000)
+      print(stab.ddbId)
+      mouseClick(stab, 0, 0, Qt.MiddleButton)
       waitForRendering(anno)
+      compare(anno.annotations.length, 2)
+      compare(ddb._deleteAnnotation, 2)
       compare(anno.ddbId, undefined)
 
     }

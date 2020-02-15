@@ -57,6 +57,7 @@ FocusScope {
 
   function deleteAnnotation(anotObj) {
     ddb.deleteAnnotation(anotObj.ddbId)
+    print("dans anot", anotObj.ddbId)
     let objIndex = annotations.indexOf(anotObj)
     annotations.splice(objIndex, 1)
     anotObj.destroy()
@@ -64,7 +65,6 @@ FocusScope {
 
   function initZones(annots) {
     for (var z of ddb.loadAnnotations(sectionId)) {
-      print(z.classtype)
       var initDict = {
         "relativeX": z.relativeX,
         "relativeY": z.relativeY,
@@ -104,7 +104,8 @@ FocusScope {
         "relativeWidth": rec.relativeWidth,
         "relativeHeight": rec.relativeHeight,
         "section": parseInt(root.sectionId),
-        "classtype": "Stabylo"
+        "classtype": "Stabylo",
+        "color": rec.color
       })
       if (newId) {
         rec.ddbId = newId

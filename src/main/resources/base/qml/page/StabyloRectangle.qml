@@ -21,7 +21,6 @@ Rectangle {
   color: Qt.rgba(0.5, 0.4, 0.2)
   opacity: 0.2
 
-  Component.onCompleted: deleteRequested.connect(referent.deleteAnnotation)
 
   MouseArea {
     objectName: "mouseArea"

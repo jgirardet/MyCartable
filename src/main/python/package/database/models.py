@@ -172,6 +172,12 @@ def init_models(db: Database):
         section = Required(ImageSection)
         color = Optional(int, size=32, unsigned=True)
 
+        def __init__(self, *args, **kwargs):
+            color = kwargs.pop("color", None)
+            if color and isinstance(color, QColor):
+                color = color.rgba()
+            super().__init__(*args, color=color, **kwargs)
+
         def to_dict(self, *args, **kwargs):
             dico = super().to_dict(*args, **kwargs)
             dico["color"] = QColor(dico["color"]) if dico["color"] else None

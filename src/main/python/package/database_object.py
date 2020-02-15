@@ -61,3 +61,4 @@ class DatabaseObject(QObject, *MIXINS):
 
     def onCurrentTitreChanged(self):
         self.update_activites()
+        self.recentsModelChanged.emit()  # pour prendre en compte les changement fait sur une page

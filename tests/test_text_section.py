@@ -186,7 +186,7 @@ class TestProperties:
             assert doc._proxy.id == a.id
 
     def test_update_proxy_do_not_change_modified(self, doc, reset_db):
-        # good id
+
         a = f_textSection()
         doc._updateProxy(a.id)
         with db_session:

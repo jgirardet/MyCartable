@@ -223,15 +223,10 @@ class TestImageSectionMixin:
             assert item.pop("section") == s.id
             assert item == content
 
-        # annotatinotext
-
-        # res = d.addAnnotation(content)
-        #
-        # with db_session:
-        #     item = s.annotations.select()[:][1].to_dict()
-        #     assert item.pop("id") == res
-        #     assert item.pop("section") == s.id
-        #     assert item == content
+            # check modified ok
+            item = s.annotations.select()[:][0]
+            section = db.Section[s.id]
+            assert item.section.page.modified > section.modified
 
     def test_loadAnnotations(self, dao):
         s = f_imageSection()
@@ -316,6 +311,9 @@ class TestDatabaseObject:
         a = f_page(td=True, activite="1")
         d = DatabaseObject(ddbr)
         with qtbot.wait_signals(
-            [(d.exercicesListChanged, "listchanged"),]
+            [
+                (d.exercicesListChanged, "listchanged"),
+                (d.recentsModelChanged, "recentchanged"),
+            ]
         ):
             d.currentTitreChanged.emit()

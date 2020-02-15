@@ -32,6 +32,6 @@
         <file alias="RecentsRectangle.qml">base/qml/recents/RecentsRectangle.qml</file>
     </qresource>
     <qresource prefix="/icons">
-        <file alias="hdd.png">../icons/base/hdd.png</file>
+        <file alias="newImageSection">../icons/base/svg/mbri-image-gallery.svg</file>
     </qresource>
 </RCC>

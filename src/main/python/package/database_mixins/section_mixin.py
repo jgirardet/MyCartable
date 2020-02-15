@@ -1,10 +1,11 @@
 import shutil
 from pathlib import Path
 
-from PySide2.QtCore import Slot
+from PySide2.QtCore import Slot, QUrl
 from package.constantes import FILES
 from pony.orm import db_session
 import logging
+from datetime import datetime
 
 LOG = logging.getLogger(__name__)
 
@@ -28,14 +29,13 @@ class SectionMixin:
         if not classtype:
             return 0
         elif classtype == "ImageSection":
-            try:
-                path = Path(content.pop("path", None))
-            except TypeError as err:
-                LOG.error("%s", err)
+            path = content.pop("path", None)
+            if not path:
                 return 0
-
-            if path.is_file():
-                shutil.copy2(path, FILES / path.name)
+            path = path.path() if isinstance(path, QUrl) else path
+            content["path"] = FILES / str(datetime.utcnow())
+            if Path(path).is_file():
+                shutil.copy2(path, content["path"])
             else:
                 return 0
 

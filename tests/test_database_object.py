@@ -1,4 +1,5 @@
 import pytest
+from PySide2.QtCore import QUrl
 from fixtures import compare, ss, check_args
 from package import constantes
 from package.database_mixins.matiere_mixin import MatieresDispatcher
@@ -183,6 +184,14 @@ class TestSectionMixin:
                 },
                 1,
             ),
+            (
+                1,
+                {
+                    "path": QUrl("tests/resources/tst_AnnotableImage.png"),
+                    "classtype": "ImageSection",
+                },
+                1,
+            ),
             (1, {"path": "/my/path", "classtype": "ImageSection"}, 0),
             (1, {"classtype": "TextSection"}, 1),
             (1, {"classtype": "ImageSection"}, 0),
@@ -198,7 +207,11 @@ class TestSectionMixin:
             item = ddbn.Section[1]
             assert item.page.id == 1
             for i in content.keys():
-                assert content[i] == getattr(item, i)
+                if i == "path":
+                    assert content[i] != getattr(item, i)
+                    assert (FILES / item.path).exists()
+                else:
+                    assert content[i] == getattr(item, i)
 
 
 class TestImageSectionMixin:

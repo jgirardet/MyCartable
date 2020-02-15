@@ -1,6 +1,7 @@
 # Bug:
     - la requete matiere_noms dans prendre en compte l'annee
     - definir comment gerer l'annee en global
+    - fialedialog ne prend pas en compte le folder de départ
 
 
 # QML:

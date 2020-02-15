@@ -11,7 +11,6 @@ Rectangle {
       id: pageToolBar
       width: parent.width
       height: ddb.getLayoutSizes("preferredHeaderHeight")
-      onNouveau: ddb.newPage(2)
     }
     TextField {
       text: ddb.currentTitre

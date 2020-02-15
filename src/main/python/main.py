@@ -3,7 +3,7 @@ import os
 from fbs_runtime.application_context.PySide2 import ApplicationContext
 import sys
 from PySide2.QtQml import QQmlApplicationEngine, qmlRegisterType
-from PySide2.QtCore import QUrl
+from PySide2.QtCore import QUrl, QLocale, QStandardPaths
 
 import package.database
 from package.constantes import APPNAME
@@ -56,5 +56,4 @@ if __name__ == "__main__":
     #
     if not engine.rootObjects():
         sys.exit(-1)
-
     sys.exit(appctxt.app.exec_())

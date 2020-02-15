@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+from PySide2.QtCore import QUrl
 from fixtures import compare, compare_items, ss
 from package.database.factory import *
 import pytest
@@ -223,6 +224,10 @@ class TestImageSection:
     def test_to_dict(self):
         a = f_imageSection(path="/mon/path", td=True)
         assert a["path"] == str(FILES / "/mon/path")
+
+    def test_path_accept_qpath_and_Pathlib(self):
+        assert f_imageSection(path=QUrl(__file__)).path == str(Path(__file__))
+        assert f_imageSection(path=Path(__file__)).path == str(Path(__file__))
 
 
 class TestTextSection:

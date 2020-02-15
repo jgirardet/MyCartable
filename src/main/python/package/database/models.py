@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta
+from pathlib import Path
 
+from PySide2.QtCore import QUrl
 from PySide2.QtGui import QColor
 from pony.orm import select, Database, PrimaryKey, Optional, Required, Set, desc, flush
 from package.constantes import ACTIVITES
@@ -161,6 +163,14 @@ def init_models(db: Database):
     class ImageSection(Section):
         path = Optional(str)
         annotations = Set("Annotation")
+
+        def __init__(self, *args, **kwargs):
+            path = kwargs.pop("path")
+            if isinstance(path, Path):
+                path = str(path)
+            elif isinstance(path, QUrl):
+                path = path.toString()
+            super().__init__(*args, path=path, **kwargs)
 
     class TextSection(Section):
         text = Optional(str)

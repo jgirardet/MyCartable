@@ -127,7 +127,7 @@ Item {
       compare(rec, null)
       compare(anot.annotations[0].relativeWidth, 0.25)
       compare(anot.annotations[0].relativeHeight, 120 / 174) //cf plus heut
-      compare(anot.annotations[0].ddbId, 5)
+      compare(anot.annotations[0].ddbId, 6)
 
       // check popup not opened
       compare(findChild(anot, "menuflottant").opened,false )
@@ -213,22 +213,18 @@ Item {
     }
 
     function test_delete_stabylo() {
-      anot.destroy()
-      ddb._loadAnnotations = ddb.sp.loadAnnotations
-      ddb._loadSection = ddb.sp.loadSection
-      ddb._deleteAnnotation = null
-
-      var anno = createTemporaryObject(anotimg, item, {
-        'ddb': ddb
+      var restabb = anottext.createObject(anot, {
+        'ddb': ddb,
+        "ddbId": 5,
+        "referent": anot,
       })
-      var stab = anno.annotations[1]
-      sleep(5000)
-      print(stab.ddbId)
-      mouseClick(stab, 0, 0, Qt.MiddleButton)
-      waitForRendering(anno)
-      compare(anno.annotations.length, 2)
-      compare(ddb._deleteAnnotation, 2)
-      compare(anno.ddbId, undefined)
+      anot.annotations.push(restabb)
+
+      mouseClick(restabb, 1, 1, Qt.MiddleButton)
+      compare(ddb._deleteAnnotation, 5)
+      compare(anot.annotations, [])
+      waitForRendering(anot)
+      compare(restabb.ddbId, undefined)
 
     }
 

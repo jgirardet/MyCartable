@@ -177,6 +177,19 @@ class TestSectionMixin:
         # assert res["path"] == str(FILES / s.path)
         # assert len(res["annotations"]) == 5
 
+    @pytest.mark.parametrize(
+        "page, content", [(1, {"path": "/my/path", "classtype": "ImageSection"}),]
+    )
+    def test_addSection(self, dao, ddbn, page, content):
+        f_page()
+        a = dao.addSection(page, content)
+        assert a == 1
+        with db_session:
+            item = ddbn.Section[1]
+            assert item.page.id == 1
+            for i in content.keys():
+                assert content[i] == getattr(item, i)
+
 
 class TestImageSectionMixin:
     @pytest.mark.parametrize(

@@ -14,5 +14,15 @@ class SectionMixin:
                 # add if when other types
                 # if res["classtype"] == "ImageSection":
                 res["path"] = str(FILES / res["path"])
-        print("find load section")
         return res
+
+    @Slot(int, "QVariantMap", result=int)
+    def addSection(self, page_id, content):
+        res = 0
+        classtype = content.pop("classtype", None)
+        if not classtype:
+            return 0
+
+        with db_session:
+            item = getattr(self.db, classtype)(page=page_id, **content)
+        return item.id

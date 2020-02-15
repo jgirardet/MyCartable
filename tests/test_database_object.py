@@ -169,21 +169,31 @@ class TestSectionMixin:
         assert len(res["annotations"]) == 5
 
     def test_loadsection_image_false(self, dao):
-        # s = f_imageSection()
-        # b_stabylo(5, section=s.id)
         res = dao.loadSection(99999)
         assert res == {}
-        # assert res["id"] == 1
-        # assert res["path"] == str(FILES / s.path)
-        # assert len(res["annotations"]) == 5
 
     @pytest.mark.parametrize(
-        "page, content", [(1, {"path": "/my/path", "classtype": "ImageSection"}),]
+        "page, content, res",
+        [
+            (
+                1,
+                {
+                    "path": "tests/resources/tst_AnnotableImage.png",
+                    "classtype": "ImageSection",
+                },
+                1,
+            ),
+            (1, {"path": "/my/path", "classtype": "ImageSection"}, 0),
+            (1, {"classtype": "TextSection"}, 1),
+            (1, {"classtype": "ImageSection"}, 0),
+        ],
     )
-    def test_addSection(self, dao, ddbn, page, content):
+    def test_addSection(self, dao, ddbn, page, content, res):
         f_page()
         a = dao.addSection(page, content)
-        assert a == 1
+        assert a == res
+        if res == 0:
+            return
         with db_session:
             item = ddbn.Section[1]
             assert item.page.id == 1

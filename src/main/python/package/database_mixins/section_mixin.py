@@ -1,6 +1,12 @@
+import shutil
+from pathlib import Path
+
 from PySide2.QtCore import Slot
 from package.constantes import FILES
 from pony.orm import db_session
+import logging
+
+LOG = logging.getLogger(__name__)
 
 
 class SectionMixin:
@@ -18,10 +24,20 @@ class SectionMixin:
 
     @Slot(int, "QVariantMap", result=int)
     def addSection(self, page_id, content):
-        res = 0
         classtype = content.pop("classtype", None)
         if not classtype:
             return 0
+        elif classtype == "ImageSection":
+            try:
+                path = Path(content.pop("path", None))
+            except TypeError as err:
+                LOG.error("%s", err)
+                return 0
+
+            if path.is_file():
+                shutil.copy2(path, FILES / path.name)
+            else:
+                return 0
 
         with db_session:
             item = getattr(self.db, classtype)(page=page_id, **content)

@@ -7,19 +7,23 @@ ListView {
   clip: true
   function enBas() {
                 print("dans en bas")
-                var newIndex = count - 1 // last index
-                positionViewAtEnd()
-//                positionViewAtIndex(count, ListView.Contain)
+                print(count, oldCount)
+                if (count - oldCount == 1) {
+                  positionViewAtIndex(count-1, ListView.Begin)
+                }
+               oldCount = count
+//                positionViewAtEnd()
 //                currentIndex = newIndex
             }
     property int oldCount
-    onCountChanged: {
-      if (count - oldCount == 1) {
-        enBas()
-      }
-      oldCount = count
-
-    }
+//    onCountChanged: {
+//      print("count changed", count)
+//      if (count - oldCount == 1) {
+//        enBas()
+////      }
+////      oldCount = count
+//
+//    }
 
 //  Component.onCompleted: {
 //    onCountChanged.connect(enBas)
@@ -64,6 +68,14 @@ ListView {
     AnnotableImage {
       sectionId: curSectionId
       base: lv
+
+      Component.onCompleted: {
+//        if (lv.count - lv.oldCount == 1) {
+//          lv.enBas()
+
+        }
+//        lv.oldCount = lv.count
+//      }
 
 
 //      Component.onCompleted: {

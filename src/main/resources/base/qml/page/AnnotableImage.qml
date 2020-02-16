@@ -20,6 +20,8 @@ FocusScope {
   height: img.height
   width: img.width
 
+  //  onActiveFocusChanged: focus==true ? base.currentIndex = root.index : null
+
   //  onImageLoaded: base.enBas()
 
   Component.onCompleted: {

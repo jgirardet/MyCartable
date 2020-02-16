@@ -2,30 +2,39 @@ import QtQuick 2.14
 import QtQuick.Controls 2.14
 
 ListView {
+
   id: lv
   spacing: 10
   clip: true
   property int oldCount
-//  onCountChanged: {
-//    print("count changed", count)
-//    print(count, oldCount)
-//
-//    if (count - oldCount == 1) {
-//      positionViewAtEnd()
-//      currentIndex = count - 1
-//    }
-//    oldCount = count
-//  }
+  currentIndex: 0
+  focus: true
 
+  highlightMoveDuration: 1000
+  highlightMoveVelocity: -1
+  //  cacheBuffer: 500
+
+//  preferredHighlightBegin: 0
+//  preferredHighlightEnd: height / 2 + 1000
+//  highlightRangeMode: ListView.StrictlyEnforceRange
+
+  onCurrentIndexChanged: {
+    print(currentIndex)
+  }
+
+  onCountChanged: {
+    if (count - oldCount == 1) {
+      currentIndex = count - 1
+    }
+    oldCount = count
+  }
 
   Component {
     id: textDelegate
     TextSection {
       sectionId: curSectionId
       base: lv
-
     }
-
   }
 
   Component {
@@ -33,17 +42,12 @@ ListView {
     AnnotableImage {
       sectionId: curSectionId
       base: lv
-      ListView.onAdd: {
-        print(" on delegate")
-      }
     }
   }
   delegate: Component {
     Loader {
+      id: load
       property int curSectionId: page.id
-      ListView.onAdd: {
-        print("on loader")
-      }
       sourceComponent: switch (page.classtype) {
         case "ImageSection": {
           return imageDelegate

@@ -20,14 +20,7 @@
   - personnaliser mis en page par matiere
 
 
-# encours: Ajouter section
-ajouter addSection : ok
-toolbar : ajouter une image
-explorateur
-limiter choix aux images
-executer addSection
-rafraichier et afficher l'élément
-
+#currentIndexFollow scrool
 
 menu: ajouter image
 

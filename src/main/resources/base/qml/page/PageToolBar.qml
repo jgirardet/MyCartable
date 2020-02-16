@@ -15,16 +15,17 @@ ToolBar {
     onClicked: newImageSectionFileDialog.open()
   }
 
-
-
   FileDialog {
     id: newImageSectionFileDialog
     title: "Choisir une image à importer"
     folder: shortcuts.pictures
-    nameFilters: [ "fichiers Images (*.jpg *.png *.bmp)"]
+    nameFilters: ["fichiers Images (*.jpg *.png *.bmp)"]
     onAccepted: {
-        ddb.addSection(ddb.currentPage, {'path':fileUrl, "classtype":"ImageSection"})
+      ddb.addSection(ddb.currentPage, {
+        'path': fileUrl,
+        "classtype": "ImageSection"
+      })
 
     }
-    }
+  }
 }

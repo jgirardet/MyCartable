@@ -21,7 +21,6 @@ Rectangle {
   color: Qt.rgba(0.5, 0.4, 0.2)
   opacity: 0.2
 
-
   MouseArea {
     objectName: "mouseArea"
     anchors.fill: parent

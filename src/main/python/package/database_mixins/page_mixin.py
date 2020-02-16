@@ -26,8 +26,6 @@ class PageMixin:
 
         self.models.update({"pageModel": PageModel()})
 
-        self.currentPageChanged.connect(self.onCurrentPageChanged)
-
     @Property(QObject, notify=currentPageChanged)
     def pageModel(self):
         return self.models["pageModel"]
@@ -87,7 +85,3 @@ class PageMixin:
             self._currentEntry.titre = self._currentTitre
         self.currentTitreChanged.emit()
         LOG.debug(f"nouveau titre : {self._currentTitre}")
-
-    @Slot(int)
-    def onCurrentPageChanged(self, new_id):
-        self.pageModel.slotReset(new_id)

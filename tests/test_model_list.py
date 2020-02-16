@@ -1,56 +1,98 @@
-from package.list_models import BaseListModel
+import pytest
+from package.list_models import PageModel
 from datetime import datetime
 from unittest.mock import MagicMock
 
 from PySide2.QtCore import Qt, QModelIndex
 from fixtures import check_super_init, compare, check_begin_end
-from package.database.factory import f_page, b_page
-from package.list_models import BaseListModel
+from package.database.factory import f_page, b_page, b_section, f_section
+from package.list_models import PageModel
 
 
-class BaseTest(BaseListModel):
-    def populate(self):
-        self._datas = [1, 2, 3, 4]
+@pytest.fixture
+def pm(ddbr):
+    a = PageModel()
+    a._datas = [1, 2, 3, 4]
+    return a
 
 
-class TestBaseModel:
+class TestPAgeModel:
     def test_base_init(self, qtbot, qtmodeltester):
-        assert check_super_init("package.list_models.QAbstractListModel", BaseListModel)
-        b = BaseListModel()
-        assert b._datas is None
+        assert check_super_init("package.list_models.QAbstractListModel", PageModel)
+        b = PageModel()
+        assert b._datas == []
 
-        a = BaseListModel()
+        a = PageModel()
         a._datas = [1, 2, 4]
-        qtmodeltester.check(a)
+        # qtmodeltester.check(a)
 
-    def test_update_datas(self, ddbr):
-        a = BaseTest()
-        a._datas = ["Rien", "de", "bon"]
-        a.update_datas()
-        # update automagicaly called
-        assert a._datas == [1, 2, 3, 4]
-
-        # no populate go to the main model
-        pages = [f_page().to_dict() for p in range(3)]
-        a.db = ddbr.Page
-        a.populate = lambda: None
-        a.update_datas()
-        assert compare(a._datas, pages)
-
-    def test_row_cont(self):
-        a = BaseTest()
-        # row  count is alwauyscalled in real
-        # datas should be populate if not in rowcount
-        assert a.rowCount("parent") == 4
-
-        # called when data not none
-        assert a.rowCount("parent") == 4
-
-    def test_data(self):
-        a = BaseTest()
+    def test_data_role(self):
+        a = PageModel()
+        a._datas = [1, 2, 3, 4]
         # valid index
         assert a.data(a.index(1, 0), a.PageRole) == 2
         # invalid index
         assert a.data(a.index(99, 99), a.PageRole) is None
         # no good role
         assert a.data(a.index(1, 0), 99999) is None
+
+    def test_data(self):
+        p = f_page()
+        c = b_section(3, page=p.id, td=True)
+        pm = PageModel()
+        pm.slotReset(p.id)
+        # valid index
+        assert pm.data(pm.index(1, 0), pm.PageRole) == c[1]
+
+    def test_flags(self):
+        """pas compris comment tester"""
+
+    def test_insertRows(self, pm):
+        p = f_page()
+        c = b_section(3, page=p.id, td=True)
+        pm = PageModel()
+        pm.slotReset(p.id)
+
+        d = f_section(page=p.id, position=2)
+        pm.insertRows(d.position, 1, QModelIndex())
+        print(pm._datas)
+
+        # décallage comme prévu
+        assert pm._datas[0]["id"] == 1
+        assert pm._datas[1]["id"] == 4
+        assert pm._datas[2]["id"] == 2
+        assert pm._datas[3]["id"] == 3
+
+    def test_insertRow(self, pm):
+        """cela test aussi insertion en dernière place
+            et les defautls arguments.
+        """
+        p = f_page()
+        c = b_section(3, page=p.id, td=True)
+        pm = PageModel()
+        pm.slotReset(p.id)
+        d = f_section(page=p.id)
+        assert pm.insertRow()  # on test le retour de insertRows
+
+        # décallage comme prévu
+        assert pm._datas[0]["id"] == 1
+        assert pm._datas[1]["id"] == 2
+        assert pm._datas[2]["id"] == 3
+        assert pm._datas[3]["id"] == 4
+
+    def test_roles(self, pm):
+
+        assert Qt.DisplayRole in pm.roleNames()
+        assert PageModel.PageRole in pm.roleNames()
+        assert pm.roleNames()[PageModel.PageRole] == b"page"
+
+    def test_row_count(self, pm):
+        assert pm.rowCount("parent") == 4
+
+    def test_sloot_reset(self, pm):
+        p = f_page()
+        c = b_section(3, page=p.id, td=True)
+        pm = PageModel()
+        pm.slotReset(p.id)
+        # update automagicaly called
+        assert pm._datas == c

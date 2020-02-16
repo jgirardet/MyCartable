@@ -43,7 +43,10 @@ class DatabaseObject(QObject, *MIXINS):
         self.recentsItemClicked.connect(self.onRecentsItemClicked)
 
         self.currentTitreChanged.connect(self.onCurrentTitreChanged)
+
         self.sectionAdded.connect(self.onSectionAdded)
+
+        self.currentPageChanged.connect(self.onCurrentPageChanged)
 
     def onCurrentMatiereChanged(self):
         self.update_activites()
@@ -65,5 +68,7 @@ class DatabaseObject(QObject, *MIXINS):
         self.recentsModelChanged.emit()  # pour prendre en compte les changement fait sur une page
 
     def onSectionAdded(self, position):
-        self.currentPageChanged.emit(self.currentPage)
-        self.currentPageIndex = position
+        self.pageModel.insertRow()
+
+    def onCurrentPageChanged(self, page_id):
+        self.pageModel.slotReset(page_id)

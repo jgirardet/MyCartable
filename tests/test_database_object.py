@@ -83,8 +83,6 @@ class TestPageMixin:
     def test_on_pagechanged_reset_model(self, dao):
         p1 = f_page()
         f_section(page=p1.id)
-        # p2 = f_page()
-        # b_section(3, page=p2.id)
         dao.currentPage = p1.id
         assert len(dao.pageModel._datas) == 1
 
@@ -371,9 +369,12 @@ class TestDatabaseObject:
     def test_onSectionAdded(self, dao, ddbn):
         p = f_page()
         s1 = f_section(page=p.id)
+        s2 = f_section(page=p.id)
         assert s1.position == 1
         newid = dao.addSection(p.id, {"classtype": "TextSection"})
         with db_session:
             item = ddbn.Section[newid]
-            assert item.position == 2
-        assert dao.currentPageIndex == item.position
+            assert item.position == 3
+        dao.pageModel.slotReset(p.id)
+        assert len(dao.pageModel._datas) == 3
+        assert dao.pageModel._datas[item.position - 1]["id"] == item.id

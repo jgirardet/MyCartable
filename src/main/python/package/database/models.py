@@ -121,7 +121,7 @@ def init_models(db: Database):
         created = Required(datetime, default=datetime.utcnow)
         modified = Optional(datetime)
         page = Required(Page)
-        position = Optional(int, default=0)
+        position = Optional(int, default=0)  # minimum = 1
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)

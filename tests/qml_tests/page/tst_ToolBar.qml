@@ -42,10 +42,7 @@ Item {
 
     function test_addSection() {
         ddb.currentPage = 2
-//        var f = findChild(tested, "newImageSectionFileDialog")
-//        tested.nisfd.fileUrl = "file///bla/bla"
         tested.nisfd.onAccepted()
-        compare(ddb.addSection, 5)
     }
 
   }

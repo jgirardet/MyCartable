@@ -2,13 +2,13 @@ import QtQuick 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.12
 import QtTest 1.12
-import "echantillon.js"
-as Sample
+import "echantillon.js" as Sample
 
 Item {
   id: item
   /* beautify preserve:start */
   property var sp: Sample.samples
+  property var tc: TestCase {}
   property var currentMatiere: 3
   property var currentPage: 0
   property var evaluationsList: sp.evaluationsList
@@ -19,6 +19,8 @@ Item {
   property var recentsModel: Sample.samples.recentsModel
   property var setCurrentMatiereFromIndex
   /* beautify preserve:end */
+
+
   signal setCurrentMatiereFromIndexSignal(int index)
 
   function addAnnotation(content) {
@@ -26,10 +28,10 @@ Item {
   }
 
   function addSection(page, content) {
-//    assert(typeof page === int)
-//    assert(typeof content  === Object)
-//    assert(typeof content.path === String)
-//    assert(typeof content.classtype === String)
+    tc.compare(typeof content,"object")
+    tc.compare(typeof page,typeof page)
+    tc.compare(typeof content.path, "object")
+    tc.compare(content.classtype ,"ImageSection")
     return _addSection
   }
 

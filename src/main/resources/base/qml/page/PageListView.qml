@@ -6,6 +6,13 @@ ListView {
   spacing: 10
   clip: true
 
+  Binding on currentIndex {
+      when: ddb.currentPageIndexChanged
+      value: ddb.currentPageIndex
+    }
+
+   //onCurrentIndexChanged: positionViewAtIndex(currentIndex, ListView.Beginning)
+
   Component {
     id: textDelegate
     TextSection {

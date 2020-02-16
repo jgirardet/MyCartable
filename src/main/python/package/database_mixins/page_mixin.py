@@ -18,13 +18,15 @@ class PageMixin:
         self._currentPage = 0
         self._currentTitre = ""
         self._currentEntry = None
+        self._currentPageIndex = None
 
         self.titreTimer = create_single_shot(self._currentTitreSet)
 
         from package.list_models import PageModel
 
-        # self.models.update({"pageModel": [{"type":"texte"}]})
         self.models.update({"pageModel": PageModel()})
+
+        self.currentPageChanged.connect(self.onCurrentPageChanged)
 
     @Property(QObject, notify=currentPageChanged)
     def pageModel(self):
@@ -48,7 +50,6 @@ class PageMixin:
             return
         self._currentPage = new_id
         LOG.debug(f"CurrentPage changed to {new_id}")
-        self.pageModel.slotReset(new_id)
         self.currentPageChanged.emit(new_id)
         self.setCurrentEntry()
 
@@ -63,6 +64,17 @@ class PageMixin:
     def currentTitre(self):
         return self._currentTitre
 
+    currentPageIndexChanged = Signal()
+
+    @Property(int, notify=currentPageIndexChanged)
+    def currentPageIndex(self):
+        return self._currentPageIndex
+
+    @currentPageIndex.setter
+    def currentPageIndex_set(self, value: int):
+        self._currentPageIndex = value
+        self.currentPageIndexChanged.emit()
+
     @currentTitre.setter
     def currentTitreSet(self, value):
         if self.currentPage:
@@ -75,3 +87,7 @@ class PageMixin:
             self._currentEntry.titre = self._currentTitre
         self.currentTitreChanged.emit()
         LOG.debug(f"nouveau titre : {self._currentTitre}")
+
+    @Slot(int)
+    def onCurrentPageChanged(self, new_id):
+        self.pageModel.slotReset(new_id)

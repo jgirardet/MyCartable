@@ -1,7 +1,7 @@
 import shutil
 from pathlib import Path
 
-from PySide2.QtCore import Slot, QUrl
+from PySide2.QtCore import Slot, QUrl, Signal
 from package.constantes import FILES
 from pony.orm import db_session
 import logging
@@ -11,6 +11,9 @@ LOG = logging.getLogger(__name__)
 
 
 class SectionMixin:
+
+    sectionAdded = Signal(int)
+
     @Slot(int, result="QVariantMap")
     def loadSection(self, section_id):
         res = {}
@@ -41,4 +44,5 @@ class SectionMixin:
 
         with db_session:
             item = getattr(self.db, classtype)(page=page_id, **content)
+        self.sectionAdded.emit(item.position)
         return item.id

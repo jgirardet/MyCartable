@@ -80,6 +80,14 @@ class TestPageMixin:
         with db_session:
             assert ddbr.Page[1].titre == "aaa"
 
+    def test_on_pagechanged_reset_model(self, dao):
+        p1 = f_page()
+        f_section(page=p1.id)
+        # p2 = f_page()
+        # b_section(3, page=p2.id)
+        dao.currentPage = p1.id
+        assert len(dao.pageModel._datas) == 1
+
 
 class TestMatiereMixin:
     def create_matiere(self):
@@ -174,7 +182,7 @@ class TestSectionMixin:
         assert res == {}
 
     @pytest.mark.parametrize(
-        "page, content, res",
+        "page, content, res, signal_emitted",
         [
             (
                 1,
@@ -183,6 +191,7 @@ class TestSectionMixin:
                     "classtype": "ImageSection",
                 },
                 1,
+                True,
             ),
             (
                 1,
@@ -191,15 +200,20 @@ class TestSectionMixin:
                     "classtype": "ImageSection",
                 },
                 1,
+                True,
             ),
-            (1, {"path": "/my/path", "classtype": "ImageSection"}, 0),
-            (1, {"classtype": "TextSection"}, 1),
-            (1, {"classtype": "ImageSection"}, 0),
+            (1, {"path": "/my/path", "classtype": "ImageSection"}, 0, False),
+            (1, {"classtype": "TextSection"}, 1, False),
+            (1, {"classtype": "ImageSection"}, 0, False),
         ],
     )
-    def test_addSection(self, dao, ddbn, page, content, res):
+    def test_addSection(self, dao, ddbn, qtbot, page, content, res, signal_emitted):
         f_page()
-        a = dao.addSection(page, content)
+        if signal_emitted:
+            with qtbot.waitSignal(dao.sectionAdded):
+                a = dao.addSection(page, content)
+        else:
+            a = dao.addSection(page, content)
         assert a == res
         if res == 0:
             return
@@ -353,3 +367,13 @@ class TestDatabaseObject:
             ]
         ):
             d.currentTitreChanged.emit()
+
+    def test_onSectionAdded(self, dao, ddbn):
+        p = f_page()
+        s1 = f_section(page=p.id)
+        assert s1.position == 1
+        newid = dao.addSection(p.id, {"classtype": "TextSection"})
+        with db_session:
+            item = ddbn.Section[newid]
+            assert item.position == 2
+        assert dao.currentPageIndex == item.position

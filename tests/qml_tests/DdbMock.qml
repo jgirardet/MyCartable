@@ -25,6 +25,14 @@ Item {
     return _addAnnotation
   }
 
+  function addSection(page, content) {
+//    assert(typeof page === int)
+//    assert(typeof content  === Object)
+//    assert(typeof content.path === String)
+//    assert(typeof content.classtype === String)
+    return _addSection
+  }
+
   function deleteAnnotation(id) {
     _deleteAnnotation = id
   }
@@ -58,6 +66,7 @@ Item {
 
   /* beautify preserve:start */
   property int _addAnnotation: 0
+  property int _addSection: sp.addSection
   property var _deleteAnnotation
   property int _getLayoutSizes: 100
   property int _getMatiereIndexFromId: 1

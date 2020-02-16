@@ -137,6 +137,9 @@ class CreateJs:
 
     def section(self):
         self.new["loadSection"] = self.dao.loadSection(self.la_image_section.id)
+        self.new["addSection"] = self.dao.addSection(
+            self.la_page.id, {"path": __file__, "classtype": "ImageSection"}
+        )
 
     def recents(self):
         self.new["recentsModel"] = self.dao.recentsModel
@@ -211,6 +214,7 @@ class CreateJs:
         assert (
             len(self.new["recentsModel"]) == 12
         ), f"{len(self.new['recentsModel'])} != {12}"
+        assert self.new["addSection"] == 5, self.new["addSection"]
 
     def write_fixtures(self):
         # init

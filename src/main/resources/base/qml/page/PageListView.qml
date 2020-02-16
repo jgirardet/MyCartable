@@ -5,59 +5,24 @@ ListView {
   id: lv
   spacing: 10
   clip: true
-  function enBas() {
-                print("dans en bas")
-                print(count, oldCount)
-                if (count - oldCount == 1) {
-                  positionViewAtIndex(count-1, ListView.Begin)
-                }
-               oldCount = count
-//                positionViewAtEnd()
-//                currentIndex = newIndex
-            }
-    property int oldCount
-//    onCountChanged: {
-//      print("count changed", count)
-//      if (count - oldCount == 1) {
-//        enBas()
-////      }
-////      oldCount = count
+  property int oldCount
+//  onCountChanged: {
+//    print("count changed", count)
+//    print(count, oldCount)
 //
+//    if (count - oldCount == 1) {
+//      positionViewAtEnd()
+//      currentIndex = count - 1
 //    }
-
-//  Component.onCompleted: {
-//    onCountChanged.connect(enBas)
+//    oldCount = count
 //  }
-  //  ListView.onAdd: {
-                        //                var newIndex = count - 1 // last index
-                        ////                positionViewAtEnd()
-                        //                positionViewAtIndex(count-1, ListView.Beginning)
-                        //                currentIndex = newIndex
-                        //            }
 
-
-  //positionViewAtIndex(lv.count -2, ListView.Beginning)
-
-  //  MouseArea {
-  //    anchors.fill: parent
-  //    onClicked: positionViewAtIndex(lv.count -1, ListView.Beginning)
-  //  }
-
-  //  Binding on currentIndex {
-  //     when: ddb.currentPageIndexChanged
-  //    value: ddb.currentPageIndex
-  // }
-
-  //   onCurrentIndexChanged: {
-  //   positionViewAtIndex(currentIndex +1, ListView.Beginning)
-  //  print(currentIndex)}
 
   Component {
     id: textDelegate
     TextSection {
       sectionId: curSectionId
       base: lv
-
 
     }
 
@@ -68,30 +33,18 @@ ListView {
     AnnotableImage {
       sectionId: curSectionId
       base: lv
-
-      Component.onCompleted: {
-//        if (lv.count - lv.oldCount == 1) {
-//          lv.enBas()
-
-        }
-//        lv.oldCount = lv.count
-//      }
-
-
-//      Component.onCompleted: {
-//        console.log("This prints just fine!")
-//        lv.positionViewAtEnd()
-//      }
+      ListView.onAdd: {
+        print(" on delegate")
+      }
     }
   }
-
   delegate: Component {
     Loader {
       property int curSectionId: page.id
-
-
-      sourceComponent: switch (page.classtype)
-       {
+      ListView.onAdd: {
+        print("on loader")
+      }
+      sourceComponent: switch (page.classtype) {
         case "ImageSection": {
           return imageDelegate
         }
@@ -100,6 +53,7 @@ ListView {
           return textDelegate
         }
       }
+
     }
-}
+  }
 }

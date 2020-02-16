@@ -14,13 +14,13 @@ FocusScope {
     readonly property var stabyloRectangle: Qt.createComponent("qrc:/qml/page/StabyloRectangle.qml")
    /* beautify preserve:end */
 
-  signal imageLoaded()
+  //  signal imageLoaded()
 
   //doit rester comme ça pour les annotations +++
   height: img.height
   width: img.width
 
-  onImageLoaded: base.enBas()
+  //  onImageLoaded: base.enBas()
 
   Component.onCompleted: {
     var content = ddb.loadSection(sectionId)
@@ -137,7 +137,7 @@ FocusScope {
     fillMode: Image.PreserveAspectFit
     source: root.imagePath
     sourceSize.width: base.width
-    onStatusChanged: if (image.status == Image.Ready)  {root.imageLoaded()}
+    //    onStatusChanged: if (image.status == Image.Ready)  {root.imageLoaded()}
 
   }
   MouseArea {

@@ -117,6 +117,14 @@ def init_models(db: Database):
         def before_update(self):
             self.modified = datetime.utcnow()
 
+        @property
+        def lastPosition(self):
+            return (
+                Section[self.lastViewed].position
+                if Section.exists(id=self.lastViewed)
+                else 0
+            )
+
     class Section(db.Entity):
         id = PrimaryKey(int, auto=True)
         created = Required(datetime, default=datetime.utcnow)

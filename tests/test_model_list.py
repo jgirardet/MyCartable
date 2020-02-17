@@ -21,7 +21,6 @@ class TestPAgeModel:
         assert check_super_init("package.list_models.QAbstractListModel", PageModel)
         b = PageModel()
         assert b._datas == []
-        assert b._lastViewed == 0
 
         a = PageModel()
         a._datas = [1, 2, 4]
@@ -106,10 +105,10 @@ class TestPAgeModel:
         with check_begin_end(pm, "ResetModel"):
             pm.slotReset(0)
 
-    def test_lastViewed(self, pm):
-        p = f_page(lastViewed=2)
-        s = f_section(page=p.id)
-        s2 = f_section(page=p.id)
-        assert pm.lastViewed == 0
-        pm.slotReset(p.id)
-        assert pm.lastViewed == 2
+    # def test_lastPosition(self, pm):
+    #     p = f_page(lastViewed=2)
+    #     s = f_section(page=p.id)
+    #     s2 = f_section(page=p.id)
+    #     assert pm.lastPosition == 0
+    #     pm.slotReset(p.id)
+    #     assert pm.lastPosition == 2

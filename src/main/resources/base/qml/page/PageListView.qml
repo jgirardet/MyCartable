@@ -18,6 +18,8 @@ ListView {
 //  preferredHighlightEnd: height / 2 + 1000
 //  highlightRangeMode: ListView.StrictlyEnforceRange
 
+  onMovementEnded: {print("mouvement ende", indexAt)}
+
   onCurrentIndexChanged: {
     print(currentIndex)
   }

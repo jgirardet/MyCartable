@@ -8,6 +8,7 @@ from PySide2.QtCore import (
     QUrl,
     QAbstractItemModel,
     Signal,
+    Property,
 )
 from mimesis import typing
 from package.constantes import FILES
@@ -28,6 +29,7 @@ class PageModel(QAbstractListModel):
     def __init__(self, parent=None):
         self._datas = []
         self.page_id = 0
+        self._lastPosition = 0
         super().__init__(parent=parent)
 
     def data(self, index, role: int) -> typing.Any:
@@ -54,6 +56,9 @@ class PageModel(QAbstractListModel):
         self.beginInsertRows(QModelIndex(), self.rowCount(index), self.rowCount(index))
         success = self._reload()
         self.endInsertRows()
+        print(self.lastPosition, row)
+        self.lastPosition = row
+        print(self.lastPosition, row)
         return success
 
     def roleNames(self) -> typing.Dict:
@@ -76,4 +81,18 @@ class PageModel(QAbstractListModel):
             if not page:
                 return False
             self._datas = page.content_dict
+            self.lastPosition = page.lastPosition
             return True
+
+    ################## Property ########################
+
+    lastPositionChanged = Signal()
+
+    @Property(int, notify=lastPositionChanged)
+    def lastPosition(self):
+        return self._lastPosition
+
+    @lastPosition.setter
+    def lastPosition_set(self, value: int):
+        self._lastPosition = value
+        self.lastPositionChanged.emit()

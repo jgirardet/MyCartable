@@ -21,10 +21,13 @@ Item {
       /* beautify preserve:end */
     }
   }
-  ListModel {
-    id: listmodel
-    signal rowsInserted(int index, int row, int col)
-    signal modelReset()
+  Component {
+    id: modelComp
+    ListModel {
+      signal rowsInserted(int index, int row, int col)
+      signal modelReset()
+      property int lastPosition: 0
+    }
   }
 
   TestCase {
@@ -34,6 +37,7 @@ Item {
 
     property BasePageListView tested
     property DdbMock ddb
+    property ListModel listmodel
     //
     function init() {
       ddb = createTemporaryObject(ddbComp, item)
@@ -65,7 +69,13 @@ Item {
         }
       }, ]
 
-      for (var x of listData) {
+
+
+      listmodel = createTemporaryObject(modelComp, item, {
+        'ddb': ddb,
+        'model': listmodel
+      })
+         for (var x of listData) {
         listmodel.append(x)
       }
 
@@ -90,7 +100,7 @@ Item {
     function test_onInsertRow() {
       // ignore warn  : Error: Invalid write to global property "currentIndex"
       tested.model.rowsInserted(0,123, 0)
-      compare(tested.currentIndex, 123)
+      compare(tested.model.lastPosition, 123)
     }
 
     function test_reset() {
@@ -98,6 +108,15 @@ Item {
       tested.currentIndex = 23
       tested.model.modelReset()
       compare(tested.currentIndex, 0)
+    }
+
+    function test_currentindex_bind_last_position () {
+    // ignore warn : Error: Invalid write to global property "currentIndex"
+      compare(tested.currentIndex, 0)
+    tested.model.lastPosition = 32
+      compare(tested.currentIndex, 32)
+//      tested.currentIndex = 23
+//      tested.model.modelReset()
     }
 
 //    function test_model() {

@@ -105,6 +105,18 @@ class TestPAgeModel:
         with check_begin_end(pm, "ResetModel"):
             pm.slotReset(0)
 
+    def test_lastPostion(self, pm, qtbot):
+        assert pm.lastPosition == 0
+        with qtbot.waitSignal(pm.lastPositionChanged):
+            pm.lastPosition = 2
+        assert pm.lastPosition == 2
+
+    def test_property_last_position(self, pm):
+        p = f_page(lastViewed=2)
+        b_section(3, page=p.id)
+        pm.slotReset(p.id)
+        assert pm.lastPosition == 2
+
     # def test_lastPosition(self, pm):
     #     p = f_page(lastViewed=2)
     #     s = f_section(page=p.id)

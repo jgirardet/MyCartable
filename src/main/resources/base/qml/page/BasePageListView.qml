@@ -6,7 +6,7 @@ ListView {
   id: lv
   spacing: 10
   clip: true
-  currentIndex: 0
+  currentIndex: model.lastPosition
   focus: true
 
   highlightMoveDuration: 1000
@@ -18,19 +18,21 @@ ListView {
 //  preferredHighlightEnd: height / 2 + 1000
 //  highlightRangeMode: ListView.StrictlyEnforceRange
 
+//
+//  function onInsertRows(modelIndex, row, col) {
+//   model.lastPosition = row
+//   print(currentIndex)
+//  }
 
-  function onInsertRows(modelIndex, row, col) {
-   currentIndex = row
-  }
-
-  function onModelReset() {
-   currentIndex = 0
-  }
+//  function onModelReset() {
+//   currentIndex = 0
+//  }
 
 
   Component.onCompleted: {
-    model.rowsInserted.connect(onInsertRows)
-    model.modelReset.connect(onModelReset)
+//    model.rowsInserted.connect(onInsertRows)
+//    model.modelReset.connect(onModelReset)
+//    model.lastPositionChanged.connect(lastPositionChanged)
   }
 
 

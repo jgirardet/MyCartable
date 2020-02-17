@@ -75,6 +75,7 @@ def init_models(db: Database):
         titre = Optional(str)
         activite = Required("Activite")
         sections = Set("Section")
+        lastViewed = Optional(int, default=0)
 
         def _query_recents(self):
             query = select(

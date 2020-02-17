@@ -47,7 +47,9 @@ def f_matiere(nom=None, annee=None):
 #         return db.Activite(nom=nom, famille=famille, matiere=matiere)
 
 
-def f_page(created=None, activite=None, titre=None, td=False, matiere=None):
+def f_page(
+    created=None, activite=None, titre=None, td=False, matiere=None, lastViewed=None
+):
     """actvite int = id mais str = index"""
     with db_session:
         created = created or f_datetime()
@@ -69,7 +71,9 @@ def f_page(created=None, activite=None, titre=None, td=False, matiere=None):
             m.flush()
             activite = random.choice(m.activites.select()[:])
         titre = titre or " ".join(gen.text.words(5))
-        item = db.Page(created=created, activite=activite, titre=titre)
+        item = db.Page(
+            created=created, activite=activite, titre=titre, lastViewed=lastViewed
+        )
         item.flush()
         return item.to_dict() if td else item
 

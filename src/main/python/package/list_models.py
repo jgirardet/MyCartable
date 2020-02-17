@@ -7,6 +7,7 @@ from PySide2.QtCore import (
     QByteArray,
     QUrl,
     QAbstractItemModel,
+    Signal,
 )
 from mimesis import typing
 from package.constantes import FILES
@@ -21,6 +22,8 @@ class PageModel(QAbstractListModel):
 
     db = db
     PageRole = Qt.UserRole + 1
+
+    itemAdded = Signal(int)
 
     def __init__(self, parent=None):
         self._datas = []
@@ -54,6 +57,8 @@ class PageModel(QAbstractListModel):
         print("apres reload inser, nb = ", self.rowCount())
         self.endInsertRows()
         print("apres end")
+        if success:
+            self.itemAdded.emit(row)
         return success
 
     def roleNames(self) -> typing.Dict:

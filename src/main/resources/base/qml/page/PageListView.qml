@@ -20,6 +20,13 @@ ListView {
 
   onMovementEnded: {print("mouvement ende", indexAt)}
 
+  function onItemAdde(row) {
+    currentIndex = row
+  }
+
+  Component.onCompleted: {
+    model.itemAdded.connect(onItemAdded)
+  }
   onCurrentIndexChanged: {
     print(currentIndex)
   }
@@ -50,6 +57,8 @@ ListView {
     Loader {
       id: load
       property int curSectionId: page.id
+      ListView.onAdd: { print("animation !!!!") }
+
       sourceComponent: switch (page.classtype) {
         case "ImageSection": {
           return imageDelegate

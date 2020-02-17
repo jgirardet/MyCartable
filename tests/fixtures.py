@@ -51,10 +51,8 @@ def check_begin_end(obj, name):
         setattr(obj, x + name, MagicMock())
     yield
     for x in lot:
-        try:
-            assert getattr(obj, "begin" + name).called
-        except AssertionError:
-            print(x)
+        print(x)
+        assert getattr(obj, x + name).called, f"{x+name} not called"
 
 
 EQUIVALENTS = {

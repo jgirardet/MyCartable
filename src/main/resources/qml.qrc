@@ -12,6 +12,7 @@
     <qresource prefix="/qml/page">
         <file alias="PageToolBar.qml">base/qml/page/PageToolBar.qml</file>
         <file alias="PageListView.qml">base/qml/page/PageListView.qml</file>
+        <file alias="BasePageListView.qml">base/qml/page/BasePageListView.qml</file>
         <file alias="PageRectangle.qml">base/qml/page/PageRectangle.qml</file>
         <file alias="AnnotableImage.qml">base/qml/page/AnnotableImage.qml</file>
         <file alias="AnnotationText.qml">base/qml/page/AnnotationText.qml</file>

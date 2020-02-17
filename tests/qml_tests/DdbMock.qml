@@ -8,7 +8,6 @@ Item {
   id: item
   /* beautify preserve:start */
   property var sp: Sample.samples
-  property var tc: TestCase {}
   property var currentMatiere: 3
   property var currentPage: 0
   property var evaluationsList: sp.evaluationsList
@@ -20,7 +19,6 @@ Item {
   property var setCurrentMatiereFromIndex
   /* beautify preserve:end */
 
-
   signal setCurrentMatiereFromIndexSignal(int index)
 
   function addAnnotation(content) {
@@ -28,10 +26,6 @@ Item {
   }
 
   function addSection(page, content) {
-    tc.compare(typeof content,"object")
-    tc.compare(typeof page,typeof page)
-    tc.compare(typeof content.path, "object")
-    tc.compare(content.classtype ,"ImageSection")
     return _addSection
   }
 

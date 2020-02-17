@@ -136,7 +136,8 @@ FocusScope {
 
     property QtObject mouseArea: mouseArea
     asynchronous: true
-    fillMode: Image.PreserveAspectFit
+//    fillMode: Image.PreserveAspectFit
+    fillMode: Image.PreserveAspectCrop
     source: root.imagePath
     sourceSize.width: base.width
     //    onStatusChanged: if (image.status == Image.Ready)  {root.imageLoaded()}

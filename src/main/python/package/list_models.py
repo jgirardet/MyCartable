@@ -51,14 +51,9 @@ class PageModel(QAbstractListModel):
         return super().insertRow(row)
 
     def insertRows(self, row: int, value, index=QModelIndex()) -> bool:
-        print("debut inser, nb = ", self.rowCount())
         self.beginInsertRows(QModelIndex(), self.rowCount(index), self.rowCount(index))
         success = self._reload()
-        print("apres reload inser, nb = ", self.rowCount())
         self.endInsertRows()
-        print("apres end")
-        if success:
-            self.itemAdded.emit(row)
         return success
 
     def roleNames(self) -> typing.Dict:

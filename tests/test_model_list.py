@@ -24,7 +24,7 @@ class TestPAgeModel:
 
         a = PageModel()
         a._datas = [1, 2, 4]
-        # qtmodeltester.check(a)
+        qtmodeltester.check(a)
 
     def test_data_role(self):
         a = PageModel()
@@ -80,6 +80,10 @@ class TestPAgeModel:
         assert pm._datas[2]["id"] == 3
         assert pm._datas[3]["id"] == 4
 
+    def test_insertRows_begin_end(self, pm):
+        with check_begin_end(pm, "InsertRows"):
+            pm.insertRows(0, 1, QModelIndex())
+
     def test_roles(self, pm):
 
         assert Qt.DisplayRole in pm.roleNames()
@@ -96,3 +100,7 @@ class TestPAgeModel:
         pm.slotReset(p.id)
         # update automagicaly called
         assert pm._datas == c
+
+    def test_ResetModel_begin_end(self, pm):
+        with check_begin_end(pm, "ResetModel"):
+            pm.slotReset(0)

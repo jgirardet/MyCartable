@@ -71,7 +71,7 @@ class PageModel(QAbstractListModel):
         self.beginResetModel()
         self._reload()
         self.endResetModel()
-        # self.lastPositionChanged.emit()
+        self.lastPositionChanged.emit()
 
     def _reload(self):
         with db_session:
@@ -96,4 +96,5 @@ class PageModel(QAbstractListModel):
         self._lastPosition = value
         self.lastPositionChanged.emit()
         with db_session:
-            self._page.lastPosition = value
+            if self._page:
+                self._page.lastPosition = value

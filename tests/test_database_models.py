@@ -65,7 +65,7 @@ class TestPage:
             "matiere": p.activite.matiere.id,
             "matiereNom": p.activite.matiere.nom,
             "famille": p.activite.famille,
-            "lastViewed": p.lastViewed,
+            "lastPosition": p.lastPosition,
         }
 
     def test_nouvelle_page(self, ddb):

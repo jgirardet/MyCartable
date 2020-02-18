@@ -89,8 +89,7 @@ Item {
 
     function test_init() {
       compare(tested.clip, true)
-      compare(tested.highlightMoveDuration,  1000)
-      compare(tested.highlightMoveVelocity,  -1)
+      compare(tested.highlightMoveDuration,  -1)
       compare(tested.boundsBehavior,  Flickable.DragOverBounds)
 
       compare(tested.currentIndex, 0)

@@ -7,7 +7,7 @@ from PySide2.QtCore import Qt, QModelIndex
 from fixtures import check_super_init, compare, check_begin_end
 from package.database.factory import f_page, b_page, b_section, f_section
 from package.list_models import PageModel
-from pony.orm import db_session
+from pony.orm import db_session, make_proxy
 
 
 @pytest.fixture
@@ -95,7 +95,7 @@ class TestPAgeModel:
         assert pm.rowCount("parent") == 4
 
     def test_sloot_reset(self, pm, ddbr):
-        p = f_page(lastViewed=2)
+        p = f_page(lastPosition=2)
         c = b_section(3, page=p.id, td=True)
         pm = PageModel()
         with db_session:
@@ -106,7 +106,7 @@ class TestPAgeModel:
         assert pm._datas == c
         with db_session:
             item = ddbr.Page[p.id]
-            assert pm.lastPosition == item.lastViewed
+            assert pm.lastPosition == item.lastPosition
             assert item.modified == modidied  # reset do not change modified
 
     def test_ResetModel_begin_end(self, pm):
@@ -114,7 +114,7 @@ class TestPAgeModel:
             pm.slotReset(0)
 
     def test_property_last_position(self, pm):
-        p = f_page(lastViewed=2)
+        p = f_page(lastPosition=2)
         b_section(3, page=p.id)
         pm.slotReset(p.id)
         assert pm.lastPosition == 2
@@ -124,19 +124,20 @@ class TestPAgeModel:
         # section do not exists
         with qtbot.waitSignal(pm.lastPositionChanged):
             pm.lastPosition = 999
-        assert pm.lastPosition == 0
 
         # cas ou ça va
-        p = f_page(lastViewed=2)
+        p = f_page(lastPosition=2)
         b_section(3, page=p.id)
         pm.page_id = p.id
+        with db_session:
+            pm._page = make_proxy(ddbr.Page[p.id])
         with qtbot.waitSignal(pm.lastPositionChanged):
             pm.lastPosition = 1
         with db_session:
             assert ddbr.Page[1].lastPosition == 1
 
     # def test_lastPosition(self, pm):
-    #     p = f_page(lastViewed=2)
+    #     p = f_page(lastPosition=2)
     #     s = f_section(page=p.id)
     #     s2 = f_section(page=p.id)
     #     assert pm.lastPosition == 0

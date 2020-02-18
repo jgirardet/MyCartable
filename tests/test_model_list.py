@@ -7,6 +7,7 @@ from PySide2.QtCore import Qt, QModelIndex
 from fixtures import check_super_init, compare, check_begin_end
 from package.database.factory import f_page, b_page, b_section, f_section
 from package.list_models import PageModel
+from pony.orm import db_session
 
 
 @pytest.fixture
@@ -93,29 +94,46 @@ class TestPAgeModel:
     def test_row_count(self, pm):
         assert pm.rowCount("parent") == 4
 
-    def test_sloot_reset(self, pm):
-        p = f_page()
+    def test_sloot_reset(self, pm, ddbr):
+        p = f_page(lastViewed=2)
         c = b_section(3, page=p.id, td=True)
         pm = PageModel()
+        with db_session:
+            modidied = ddbr.Page[p.id].modified
+
         pm.slotReset(p.id)
         # update automagicaly called
         assert pm._datas == c
+        with db_session:
+            item = ddbr.Page[p.id]
+            assert pm.lastPosition == item.lastViewed
+            assert item.modified == modidied  # reset do not change modified
 
     def test_ResetModel_begin_end(self, pm):
         with check_begin_end(pm, "ResetModel"):
             pm.slotReset(0)
-
-    def test_lastPostion(self, pm, qtbot):
-        assert pm.lastPosition == 0
-        with qtbot.waitSignal(pm.lastPositionChanged):
-            pm.lastPosition = 2
-        assert pm.lastPosition == 2
 
     def test_property_last_position(self, pm):
         p = f_page(lastViewed=2)
         b_section(3, page=p.id)
         pm.slotReset(p.id)
         assert pm.lastPosition == 2
+
+    def test_property_last_position_set_ddb(self, pm, ddbr, qtbot):
+
+        # section do not exists
+        with qtbot.waitSignal(pm.lastPositionChanged):
+            pm.lastPosition = 999
+        assert pm.lastPosition == 0
+
+        # cas ou ça va
+        p = f_page(lastViewed=2)
+        b_section(3, page=p.id)
+        pm.page_id = p.id
+        with qtbot.waitSignal(pm.lastPositionChanged):
+            pm.lastPosition = 1
+        with db_session:
+            assert ddbr.Page[1].lastPosition == 1
 
     # def test_lastPosition(self, pm):
     #     p = f_page(lastViewed=2)

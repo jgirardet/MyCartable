@@ -86,22 +86,6 @@ class TestPage:
                     assert i.position > prev.position
                 prev = i
 
-    def test_lastPosition(self, ddb):
-
-        # default
-        p = f_page()
-        assert p.lastPosition == 0
-
-        # set and section exists
-        p.lastViewed = 2
-        s = f_section(page=p.id)
-        s2 = f_section(page=p.id)
-        assert p.lastPosition == 2
-
-        # set and section does not exists
-        p.lastViewed = 3
-        assert p.lastPosition == 0
-
 
 class TestMatiere:
     def test_noms(self, ddb):

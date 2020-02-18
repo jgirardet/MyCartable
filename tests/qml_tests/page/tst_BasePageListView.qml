@@ -96,36 +96,13 @@ Item {
       compare(tested.currentIndex, 0)
     }
 
-
-    function test_onInsertRow() {
-      // ignore warn  : Error: Invalid write to global property "currentIndex"
-      tested.model.rowsInserted(0,123, 0)
-      compare(tested.model.lastPosition, 123)
-    }
-
-    function test_reset() {
-    // ignore warn : Error: Invalid write to global property "currentIndex"
-      tested.currentIndex = 23
-      tested.model.modelReset()
-      compare(tested.currentIndex, 0)
-    }
-
     function test_currentindex_bind_last_position () {
     // ignore warn : Error: Invalid write to global property "currentIndex"
       compare(tested.currentIndex, 0)
     tested.model.lastPosition = 32
       compare(tested.currentIndex, 32)
-//      tested.currentIndex = 23
-//      tested.model.modelReset()
     }
 
-//    function test_model() {
-//      tested.currentIndex = 0
-//      tested.currentIndex =1
-//      compare(tested.currentItem.curSectionId, 45)
-////      print(tested.contentItem.children[0].item)
-////      compare(Object.keys(tested.contentItem.children[1]), 45)
-//    }
 
   }
 }

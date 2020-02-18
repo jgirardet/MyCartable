@@ -75,7 +75,7 @@ def init_models(db: Database):
         titre = Optional(str)
         activite = Required("Activite")
         sections = Set("Section")
-        lastViewed = Optional(int, default=0)
+        lastPosition = Optional(int, default=0)
 
         def _query_recents(self):
             query = select(
@@ -116,14 +116,6 @@ def init_models(db: Database):
         #
         def before_update(self):
             self.modified = datetime.utcnow()
-
-        @property
-        def lastPosition(self):
-            return (
-                Section[self.lastViewed].position
-                if Section.exists(id=self.lastViewed)
-                else 0
-            )
 
     class Section(db.Entity):
         id = PrimaryKey(int, auto=True)

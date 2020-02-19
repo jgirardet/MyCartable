@@ -40,10 +40,7 @@ Item {
     function cleanup() {
     }
 
-    function test_addSection() {
-        ddb.currentPage = 2
-        tested.nisfd.onAccepted()
-    }
+
 
   }
 }

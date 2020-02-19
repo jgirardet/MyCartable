@@ -34,5 +34,6 @@
     </qresource>
     <qresource prefix="/icons">
         <file alias="newImageSection">../icons/base/svg/mbri-image-gallery.svg</file>
+        <file alias="newTextSection">../icons/base/svg/mbri-edit2.svg</file>
     </qresource>
 </RCC>

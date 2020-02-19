@@ -6,15 +6,22 @@ import QtQuick.Dialogs 1.3
 
 ToolBar {
   id: root
-  /* beautify preserve:start */
-  property var nisfd: newImageSectionFileDialog
-  /* beautify preserve:end */
-  ToolButton {
-    id: newImageSection
-    iconSource: "qrc:///icons/newImageSection"
-    onClicked: newImageSectionFileDialog.open()
-  }
 
+  RowLayout {
+    ToolButton {
+      id: newImageSection
+      iconSource: "qrc:///icons/newImageSection"
+      onClicked: newImageSectionFileDialog.open()
+    }
+
+    ToolButton {
+      id: newTextSection
+      iconSource: "qrc:///icons/newTextSection"
+      onClicked: ddb.addSection(ddb.currentPage, {
+        "classtype": "TextSection"
+      })
+    }
+  }
   FileDialog {
     id: newImageSectionFileDialog
     title: "Choisir une image à importer"

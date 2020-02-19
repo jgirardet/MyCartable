@@ -30,6 +30,9 @@ TextArea {
     }
   }
 
+  Component.onCompleted: {
+    forceActiveFocus()
+  }
   function menuStylePopup(start, end) {
     menu.popup()
     cursorPosition = start

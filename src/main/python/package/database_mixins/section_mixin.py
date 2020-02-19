@@ -44,5 +44,6 @@ class SectionMixin:
 
         with db_session:
             item = getattr(self.db, classtype)(page=page_id, **content)
+            print(item)
         self.sectionAdded.emit(item.position)
         return item.id

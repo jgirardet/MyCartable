@@ -9,6 +9,7 @@ from PySide2.QtCore import (
     QAbstractItemModel,
     Signal,
     Property,
+    QObject,
 )
 from mimesis import typing
 from package.constantes import FILES

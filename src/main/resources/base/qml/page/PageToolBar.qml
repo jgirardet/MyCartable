@@ -7,11 +7,13 @@ import QtQuick.Dialogs 1.3
 ToolBar {
   id: root
 
+
   RowLayout {
     ToolButton {
       id: newImageSection
       iconSource: "qrc:///icons/newImageSection"
       onClicked: newImageSectionFileDialog.open()
+      enabled: ddb.currentPage
     }
 
     ToolButton {
@@ -20,6 +22,7 @@ ToolBar {
       onClicked: ddb.addSection(ddb.currentPage, {
         "classtype": "TextSection"
       })
+      enabled: ddb.currentPage
     }
   }
   FileDialog {

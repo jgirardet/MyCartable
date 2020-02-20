@@ -27,6 +27,15 @@ Rectangle {
         text: headerText
         objectName: "headerLabel"
         anchors.centerIn: parent
+        MouseArea {
+        acceptedButtons: Qt.LeftButton | Qt.RightButton
+          anchors.fill: parent
+          onPressed: {
+            if (mouse.buttons == Qt.RightButton) {
+              print("sho menu to add")
+            }
+          }
+        }
       }
     }
     headerPositioning: ListView.OverlayHeader

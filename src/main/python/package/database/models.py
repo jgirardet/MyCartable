@@ -28,11 +28,22 @@ def init_models(db: Database):
             return self.to_dict()["activites"]
 
         def after_insert(self):
-            for ac in ACTIVITES:
+            for ac in db.Activite.ACTIVITES:
                 Activite(nom=ac.nom, famille=ac.index, matiere=self)
 
         def to_dict(self, *args, **kwargs):
             return super().to_dict(*args, with_collections=True, **kwargs)
+
+        def pages_par_section(self):
+            res = []
+            for x in self.activites.select().order_by(Activite.famille):
+                entry = x.to_dict()
+                entry["pages"] = [
+                    y.to_dict()
+                    for y in select(p for p in x.pages).order_by(desc(Page.modified))
+                ]
+                res.append(entry)
+            return res
 
     class Activite(db.Entity):
 
@@ -77,13 +88,12 @@ def init_models(db: Database):
         sections = Set("Section")
         lastPosition = Optional(int, default=0)
 
-        def _query_recents(self):
-            query = select(
-                p for p in Page if p.modified > datetime.utcnow() - timedelta(days=30)
-            ).order_by(
-                desc(Page.modified)
-            )  # pragma: no cover_all
-            return query
+        def before_insert(self):
+            self.modified = self.created
+
+        #
+        def before_update(self):
+            self.modified = datetime.utcnow()
 
         def to_dict(self, *args, **kwargs):
             dico = super().to_dict(*args, **kwargs)
@@ -93,6 +103,14 @@ def init_models(db: Database):
             dico["created"] = self.created.isoformat()
             dico["modified"] = self.created.isoformat()
             return dico
+
+        def _query_recents(self):
+            query = select(
+                p for p in Page if p.modified > datetime.utcnow() - timedelta(days=30)
+            ).order_by(
+                desc(Page.modified)
+            )  # pragma: no cover_all
+            return query
 
         @classmethod
         def recents(cls):
@@ -110,12 +128,14 @@ def init_models(db: Database):
         def content_dict(self):
             return [p.to_dict() for p in self.content]
 
-        def before_insert(self):
-            self.modified = self.created
-
-        #
-        def before_update(self):
-            self.modified = datetime.utcnow()
+        # @classmethod
+        # def page_par_section(cls, matiere_id):
+        #     query = select(
+        #         p for p in cls if p.activite.matiere.id == matiere_id
+        #     ).order_by(desc(Page.modified))
+        #     res = []
+        #     for ac in
+        #     return query
 
     class Section(db.Entity):
         id = PrimaryKey(int, auto=True)

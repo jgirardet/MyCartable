@@ -75,6 +75,8 @@ class CreateJs:
             self.new["currentMatiere"].append(getattr(self.dao, "currentMatiere"))
 
         self.new["matieresListNom"] = getattr(self.dao, "matieresListNom")
+        self.dao.currentMatiere = 1
+        self.new["pagesParSection"] = self.dao.pagesParSection
 
     def activite(self):
 
@@ -82,9 +84,6 @@ class CreateJs:
         self.new["lessonsList"] = self.dao.lessonsList
         self.new["exercicesList"] = self.dao.exercicesList
         self.new["evaluationsList"] = self.dao.evaluationsList
-        # self.new["currentTitre"] = []
-        # for i in range(1, len(self.dao.matieresListNom) + 1):
-        #     setattr(self.dao, "currentMatiere", i)))
 
     def page(self):
 
@@ -215,6 +214,146 @@ class CreateJs:
             len(self.new["recentsModel"]) == 12
         ), f"{len(self.new['recentsModel'])} != {12}"
         assert self.new["addSection"] == 5, self.new["addSection"]
+
+        copyPageParSection = self.new["pagesParSection"]
+        for x in copyPageParSection:
+            for p in x["pages"]:
+                p.pop("modified")
+                p.pop("created")
+        assert copyPageParSection == [
+            {
+                "id": 1,
+                "nom": "Lessons",
+                "famille": 0,
+                "matiere": 1,
+                "pages": [
+                    {
+                        "id": 1,
+                        "titre": "letitre 0 0",
+                        "activite": 1,
+                        "lastPosition": None,
+                        "matiere": 1,
+                        "matiereNom": "Math",
+                        "famille": 0,
+                    },
+                    {
+                        "id": 10,
+                        "titre": "letitre 0 3",
+                        "activite": 1,
+                        "lastPosition": None,
+                        "matiere": 1,
+                        "matiereNom": "Math",
+                        "famille": 0,
+                    },
+                    {
+                        "id": 7,
+                        "titre": "letitre 0 2",
+                        "activite": 1,
+                        "lastPosition": None,
+                        "matiere": 1,
+                        "matiereNom": "Math",
+                        "famille": 0,
+                    },
+                    {
+                        "id": 4,
+                        "titre": "letitre 0 1",
+                        "activite": 1,
+                        "lastPosition": None,
+                        "matiere": 1,
+                        "matiereNom": "Math",
+                        "famille": 0,
+                    },
+                ],
+            },
+            {
+                "id": 2,
+                "nom": "Exercices",
+                "famille": 1,
+                "matiere": 1,
+                "pages": [
+                    {
+                        "id": 11,
+                        "titre": "letitre 1 3",
+                        "activite": 2,
+                        "lastPosition": None,
+                        "matiere": 1,
+                        "matiereNom": "Math",
+                        "famille": 1,
+                    },
+                    {
+                        "id": 8,
+                        "titre": "letitre 1 2",
+                        "activite": 2,
+                        "lastPosition": None,
+                        "matiere": 1,
+                        "matiereNom": "Math",
+                        "famille": 1,
+                    },
+                    {
+                        "id": 5,
+                        "titre": "letitre 1 1",
+                        "activite": 2,
+                        "lastPosition": None,
+                        "matiere": 1,
+                        "matiereNom": "Math",
+                        "famille": 1,
+                    },
+                    {
+                        "id": 2,
+                        "titre": "letitre 1 0",
+                        "activite": 2,
+                        "lastPosition": None,
+                        "matiere": 1,
+                        "matiereNom": "Math",
+                        "famille": 1,
+                    },
+                ],
+            },
+            {
+                "id": 3,
+                "nom": "Evaluations",
+                "famille": 2,
+                "matiere": 1,
+                "pages": [
+                    {
+                        "id": 12,
+                        "titre": "letitre 2 3",
+                        "activite": 3,
+                        "lastPosition": None,
+                        "matiere": 1,
+                        "matiereNom": "Math",
+                        "famille": 2,
+                    },
+                    {
+                        "id": 9,
+                        "titre": "letitre 2 2",
+                        "activite": 3,
+                        "lastPosition": None,
+                        "matiere": 1,
+                        "matiereNom": "Math",
+                        "famille": 2,
+                    },
+                    {
+                        "id": 6,
+                        "titre": "letitre 2 1",
+                        "activite": 3,
+                        "lastPosition": None,
+                        "matiere": 1,
+                        "matiereNom": "Math",
+                        "famille": 2,
+                    },
+                    {
+                        "id": 3,
+                        "titre": "letitre 2 0",
+                        "activite": 3,
+                        "lastPosition": None,
+                        "matiere": 1,
+                        "matiereNom": "Math",
+                        "famille": 2,
+                    },
+                ],
+            },
+        ], self.new["pagesParSection"]
 
     def write_fixtures(self):
         # init

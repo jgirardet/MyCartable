@@ -8,6 +8,9 @@ class ActiviteMixin:
     exercicesListChanged = Signal()
     evaluationsListChanged = Signal()
 
+    def __init__(self, *args, **kwargs):
+        self._currentActivite = None
+
     # @Slot()
     def update_activites(self):
         self.lessonsListChanged.emit()
@@ -40,3 +43,14 @@ class ActiviteMixin:
             self.exercicesListChanged,
             self.evaluationsListChanged,
         ]
+
+    currentActiviteChanged = Signal()
+
+    @Property(int, notify=currentActiviteChanged)
+    def currentActivite(self):
+        return self._currentActivite
+
+    @currentActivite.setter
+    def currentActivite_set(self, value: int):
+        self._currentActivite = value
+        self.currentActiviteChanged.emit()

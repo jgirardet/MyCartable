@@ -15,6 +15,7 @@ Item {
   property var lessonsList: sp.lessonsList
   property var matieresListNom: sp.matieresListNom
   property var pageModel: []
+  property var pagesParSection: sp.pagesParSection
   property var recentsModel: Sample.samples.recentsModel
   property var setCurrentMatiereFromIndex
   /* beautify preserve:end */
@@ -52,6 +53,8 @@ Item {
   function recentsItemClicked(itemId, matiere) {
     _recentsItemClicked = [itemId, matiere]
   }
+
+
 
   function updateAnnotation(itemId, params) {
     _updateAnnotation = [itemId, params]

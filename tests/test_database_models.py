@@ -86,6 +86,25 @@ class TestPage:
                     assert i.position > prev.position
                 prev = i
 
+    # def test_page_par_section(self, ddbr):
+    #     m = f_matiere()
+    #     a = b_page(5, matiere=m.id)
+    #     with db_session:
+    #         q = ddbr.Page.page_par_section(m.id)
+    #         import itertools
+    #         from operator import attrgetter
+    #
+    #         print(list(q))
+    #         # r = itertools.groupby(q, attrgetter("activite"))
+    #         # print(q[:])
+    #         # r = q
+    #         # for x in r:
+    #         #     print(x)
+    #         #     for y in x:
+    #         #         print(y)
+    #         #         print(y.to_dict())
+    #     assert False
+
 
 class TestMatiere:
     def test_noms(self, ddb):
@@ -98,14 +117,139 @@ class TestMatiere:
         assert ddb.Matiere.noms() == ["a", "b", "c", "d", "e"]
 
     def test_to_dict(self, ddb):
-        f_matiere().to_dict()
+        f_matiere().to_dict()  # forcer une creation d'id
         a = f_matiere(nom="Géo")
+        pages = [b_page(3, matiere=2) for x in a.activites]
         assert a.to_dict() == {
             "id": 2,
             "nom": "Géo",
             "annee": 2,
             "activites": [4, 5, 6],
         }
+
+    def test_activite_auto_create_after_insert(self, ddb):
+        a = f_matiere()
+        len(a.activites) == ddb.Activite.ACTIVITES
+
+    def test_page_par_section(self, ddbr):
+        f_matiere(nom="Math")
+        pages = [
+            {
+                "created": "2019-03-14T17:35:58.111997",
+                "modified": "2019-03-14T17:35:58.111997",
+                "titre": "quoi amener défendre charger seulement",
+                "activite": 1,
+                "lastPosition": None,
+            },
+            {
+                "created": "2019-10-30T10:54:18.834326",
+                "modified": "2019-10-30T10:54:18.834326",
+                "titre": "sujet grandir emporter monter rencontrer",
+                "activite": 3,
+                "lastPosition": None,
+            },
+            {
+                "created": "2019-08-17T21:33:55.644158",
+                "modified": "2019-08-17T21:33:55.644158",
+                "titre": "oreille blague soleil poursuivre riche",
+                "activite": 1,
+                "lastPosition": None,
+            },
+            {
+                "created": "2020-02-18T22:25:14.288186",
+                "modified": "2020-02-18T22:25:14.288186",
+                "titre": "enfer cette simple ensemble rendre",
+                "activite": 3,
+                "lastPosition": None,
+            },
+            {
+                "created": "2019-09-16T03:57:38.860509",
+                "modified": "2019-09-16T03:57:38.860509",
+                "titre": "grand-père monde cœur reposer rappeler",
+                "activite": 1,
+                "lastPosition": None,
+            },
+        ]
+        with db_session:
+            for p in pages:
+                ddbr.Page(**p)
+        with db_session:
+            mm = ddbr.Matiere[1]
+            q = mm.pages_par_section()
+            assert q == [
+                {
+                    "famille": 0,
+                    "id": 1,
+                    "matiere": 1,
+                    "nom": "Lessons",
+                    "pages": [
+                        {
+                            "activite": 1,
+                            "created": "2019-09-16T03:57:38.860509",
+                            "famille": 0,
+                            "id": 5,
+                            "lastPosition": None,
+                            "matiere": 1,
+                            "matiereNom": "Math",
+                            "modified": "2019-09-16T03:57:38.860509",
+                            "titre": "grand-père monde cœur reposer rappeler",
+                        },
+                        {
+                            "activite": 1,
+                            "created": "2019-08-17T21:33:55.644158",
+                            "famille": 0,
+                            "id": 3,
+                            "lastPosition": None,
+                            "matiere": 1,
+                            "matiereNom": "Math",
+                            "modified": "2019-08-17T21:33:55.644158",
+                            "titre": "oreille blague soleil poursuivre riche",
+                        },
+                        {
+                            "activite": 1,
+                            "created": "2019-03-14T17:35:58.111997",
+                            "famille": 0,
+                            "id": 1,
+                            "lastPosition": None,
+                            "matiere": 1,
+                            "matiereNom": "Math",
+                            "modified": "2019-03-14T17:35:58.111997",
+                            "titre": "quoi amener défendre charger seulement",
+                        },
+                    ],
+                },
+                {"famille": 1, "id": 2, "matiere": 1, "nom": "Exercices", "pages": []},
+                {
+                    "famille": 2,
+                    "id": 3,
+                    "matiere": 1,
+                    "nom": "Evaluations",
+                    "pages": [
+                        {
+                            "activite": 3,
+                            "created": "2020-02-18T22:25:14.288186",
+                            "famille": 2,
+                            "id": 4,
+                            "lastPosition": None,
+                            "matiere": 1,
+                            "matiereNom": "Math",
+                            "modified": "2020-02-18T22:25:14.288186",
+                            "titre": "enfer cette simple ensemble rendre",
+                        },
+                        {
+                            "activite": 3,
+                            "created": "2019-10-30T10:54:18.834326",
+                            "famille": 2,
+                            "id": 2,
+                            "lastPosition": None,
+                            "matiere": 1,
+                            "matiereNom": "Math",
+                            "modified": "2019-10-30T10:54:18.834326",
+                            "titre": "sujet grandir emporter monter rencontrer",
+                        },
+                    ],
+                },
+            ]
 
 
 class TestActivite:

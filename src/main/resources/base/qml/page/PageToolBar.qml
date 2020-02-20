@@ -7,7 +7,6 @@ import QtQuick.Dialogs 1.3
 ToolBar {
   id: root
 
-
   RowLayout {
     ToolButton {
       id: newImageSection

@@ -8,7 +8,7 @@ LOG = logging.getLogger(__name__)
 
 
 class PageMixin:
-    currentPageChanged = Signal(int)
+    currentPageChanged = Signal("QVariantMap")
     newPageCreated = Signal(dict)
     currentTitreChanged = Signal()
 
@@ -34,7 +34,7 @@ class PageMixin:
     @Slot(int, result="QVariantMap")
     def newPage(self, activite):
         with db_session:
-            new_item = self.db.Page.new_page(activite=activite, titre="nouveau")
+            new_item = self.db.Page.new_page(activite=activite, titre="titre")
         self.newPageCreated.emit(new_item)
 
     # currentPage
@@ -48,7 +48,9 @@ class PageMixin:
             return
         self._currentPage = new_id
         LOG.debug(f"CurrentPage changed to {new_id}")
-        self.currentPageChanged.emit(new_id)
+        with db_session:
+            page = self.db.Page[new_id].to_dict()
+        self.currentPageChanged.emit(page)
         self.setCurrentEntry()
 
     def setCurrentEntry(self):

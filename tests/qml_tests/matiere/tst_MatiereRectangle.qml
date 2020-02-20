@@ -63,12 +63,14 @@ Item {
     }
 
     function test_activite_rectangle() {
-      var less = findChild(rec, "lessonsRectangle")
-      compare(less.model, ddb.lessonsList)
-      var exo = findChild(rec, "exercicesRectangle")
-      compare(exo.model, ddb.exercicesList)
-      var eva = findChild(rec, "evaluationsRectangle")
-      compare(eva.model, ddb.evaluationsList)
+        var rep = findChild(rec, "repeater")
+        compare(rep.itemAt(0).headerText, "Lessons")
+        compare(rep.itemAt(0).model, ddb.pagesParSection[0].pages)
+        compare(rep.itemAt(1).headerText, "Exercices")
+        compare(rep.itemAt(1).model, ddb.pagesParSection[1].pages)
+        compare(rep.itemAt(2).headerText, "Evaluations")
+        compare(rep.itemAt(2).model, ddb.pagesParSection[2].pages)
+
     }
   }
 }

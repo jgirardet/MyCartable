@@ -16,6 +16,7 @@ class MatiereMixin:
         self._currentMatiere = 0
         self.m_d = MatieresDispatcher(self.db)
         self.setCurrentMatiereFromIndexSignal.connect(self.setCurrentMatiereFromIndex)
+        self.currentMatiereChanged.connect(self.pagesParSectionChanged)
 
     @Property(int, notify=currentMatiereChanged)
     def currentMatiere(self):
@@ -51,6 +52,22 @@ class MatiereMixin:
     def matieresListRefresh(self):
         self.m_d = MatieresDispatcher(self.db)
         self.matiereListNomChanged.emit()
+
+    pagesParSectionChanged = Signal()
+
+    @Property("QVariantList", notify=pagesParSectionChanged)
+    def pagesParSection(self):
+        res = []
+        if self.currentMatiere:
+            with db_session:
+                matiere = self.db.Matiere[self.currentMatiere]
+                res = matiere.pages_par_section()
+        return res
+
+    # @pagesParSection.setter
+    # def pagesParSection_set(self, value: int):
+    #     self._pagesParSection = value
+    #     self.pagesParSectionChanged.emit()
 
 
 class MatieresDispatcher:

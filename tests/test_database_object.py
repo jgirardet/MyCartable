@@ -132,6 +132,19 @@ class TestMatiereMixin:
         a.matieresListRefresh()
         assert a.matieresListNom == ("un", "deux", "trois", "quatre", "cinq")
 
+    def test_pagesParSection(self, ddbr, dao):
+        assert dao.pagesParSection == []
+        f_matiere()
+        p = f_page(td=True, activite=3)
+        dao.currentMatiere = 1
+        assert dao.pagesParSection[0]["id"] == 1
+        assert dao.pagesParSection[0]["famille"] == 0
+        assert dao.pagesParSection[1]["famille"] == 1
+        assert dao.pagesParSection[1]["id"] == 2
+        assert dao.pagesParSection[2]["famille"] == 2
+        assert dao.pagesParSection[2]["id"] == 3
+        assert dao.pagesParSection[2]["pages"] == [p]
+
 
 class TestActiviteMixin:
     def test_lists(self, ddbr):
@@ -145,7 +158,7 @@ class TestActiviteMixin:
             assert all(i["famille"] == ac.index for i in lalist)
             assert all(i["matiere"] == 2 for i in lalist)
 
-    def testupdate(self, ddbr, qtbot):
+    def test_update(self, ddbr, qtbot):
         a = DatabaseObject(ddbr)
         with qtbot.waitSignals(a.activites_signal_all, timeout=100):
             a.update_activites()
@@ -378,3 +391,22 @@ class TestDatabaseObject:
         dao.pageModel.slotReset(p.id)
         assert len(dao.pageModel._datas) == 3
         assert dao.pageModel._datas[item.position - 1]["id"] == item.id
+
+    def test_currentPageChanged(self, dao, ddbr, qtbot):
+        a = f_page(td=True)
+        with qtbot.wait_signals(
+            [
+                (dao.pageModel.modelReset, "model"),
+                (dao.currentMatiereChanged, "matiere"),
+                (dao.currentActiviteChanged, "activite"),
+            ],
+            timeout=2000,
+        ):
+            dao.currentPage = 1
+        assert dao.currentMatiere == a["matiere"]
+        assert dao.currentActivite == a["activite"]
+
+    def test_update_current_and_activite_title(self, dao, qtbot):
+        f_page()
+        with qtbot.wait_signals([dao.recentsModelChanged, *dao.activites_signal_all]):
+            dao._update_current_and_activite_title()

@@ -37,38 +37,35 @@ class DatabaseObject(QObject, *MIXINS):
     def setup_connections(self):
 
         self.currentMatiereChanged.connect(self.onCurrentMatiereChanged)
-
-        self.newPageCreated.connect(self.onNewPageCreated)
-
-        self.recentsItemClicked.connect(self.onRecentsItemClicked)
-
+        self.currentPageChanged.connect(self.onCurrentPageChanged)
         self.currentTitreChanged.connect(self.onCurrentTitreChanged)
 
+        self.newPageCreated.connect(self.onNewPageCreated)
+        self.recentsItemClicked.connect(self.onRecentsItemClicked)
         self.sectionAdded.connect(self.onSectionAdded)
-
-        self.currentPageChanged.connect(self.onCurrentPageChanged)
 
     def onCurrentMatiereChanged(self):
         self.update_activites()
+
+    def onCurrentTitreChanged(self):
+        self._update_current_and_activite_title()
+
+    def onCurrentPageChanged(self, page):
+        self.pageModel.slotReset(page["id"])
+        self.currentMatiere = page["matiere"]
+        self.currentActivite = page["activite"]
+
+    def onNewPageCreated(self, item: dict):
+        self.currentPage = item["id"]
+        self._update_current_and_activite_title()
 
     def onRecentsItemClicked(self, id, matiere):
         self.currentPage = id
         self.currentMatiere = matiere
 
-    def onNewPageCreated(self, item: dict):
-        self.recentsModelChanged.emit()
-        self.currentPage = item["id"]
-        self.currentMatiere = item["matiere"]
-        self.activites_signal_all[
-            item["famille"]
-        ].emit()  # force when currentmatiere doesnt change
-
-    def onCurrentTitreChanged(self):
-        self.update_activites()
-        self.recentsModelChanged.emit()  # pour prendre en compte les changement fait sur une page
-
     def onSectionAdded(self, position):
         self.pageModel.insertRow()
 
-    def onCurrentPageChanged(self, page_id):
-        self.pageModel.slotReset(page_id)
+    def _update_current_and_activite_title(self):
+        self.update_activites()
+        self.recentsModelChanged.emit()  # pour prendre en compte les changement fait sur une page

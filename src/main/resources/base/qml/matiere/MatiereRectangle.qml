@@ -24,23 +24,17 @@ Rectangle {
         Component.onCompleted: activated.connect(ddb.setCurrentMatiereFromIndexSignal)
       }
     }
-    ActiviteRectangle {
-      objectName: "lessonsRectangle"
-      headerText: "Leçons"
-      headerColor: "orange"
-      model: ddb.lessonsList
-    }
-    ActiviteRectangle {
-      objectName: "exercicesRectangle"
-      headerText: "Exercices"
-      headerColor: "orange"
-      model: ddb.exercicesList
-    }
-    ActiviteRectangle {
-      objectName: "evaluationsRectangle"
-      headerText: "Evaluations"
-      headerColor: "orange"
-      model: ddb.evaluationsList
+
+    Repeater {
+      id: repeater
+      objectName: "repeater"
+      model: ddb.pagesParSection
+      ActiviteRectangle {
+        headerText: modelData.nom
+        headerColor: "orange"
+        model: modelData.pages
+      }
+
     }
   }
 }

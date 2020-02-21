@@ -10,9 +10,7 @@ Item {
   property var sp: Sample.samples
   property var currentMatiere: 3
   property var currentPage: 0
-  property var evaluationsList: sp.evaluationsList
-  property var exercicesList: sp.exercicesList
-  property var lessonsList: sp.lessonsList
+  property var currentTitre: ""
   property var matieresListNom: sp.matieresListNom
   property var pageModel: []
   property var pagesParSection: sp.pagesParSection
@@ -21,13 +19,14 @@ Item {
   /* beautify preserve:end */
 
   signal setCurrentMatiereFromIndexSignal(int index)
+  signal newPageCreated(var page)
 
   function addAnnotation(content) {
     return _addAnnotation
   }
 
   function addSection(page, content) {
-    return _addSection
+    _addSection  =[page, content]
   }
 
   function deleteAnnotation(id) {
@@ -69,7 +68,7 @@ Item {
 
   /* beautify preserve:start */
   property int _addAnnotation: 0
-  property int _addSection: sp.addSection
+  property var _addSection
   property var _deleteAnnotation
   property int _getLayoutSizes: 100
   property int _getMatiereIndexFromId: 1

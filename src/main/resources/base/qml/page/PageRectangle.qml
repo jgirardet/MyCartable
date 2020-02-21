@@ -12,20 +12,13 @@ Rectangle {
       width: parent.width
       height: ddb.getLayoutSizes("preferredHeaderHeight")
     }
-    TextField {
-      text: ddb.currentTitre
-      id: _currentTitreTextField
-      readOnly: ddb.currentMatiere == 0 ? true : false
-      Layout.fillWidth: true
-      Layout.preferredHeight: 50
-      //                    onTextChanged: ddb.
-      //                    Component.onCompleted: text.connect(ddb.currentTitre)
-      //                    }
+    PageTitre {
+      id: titre
+      page: pagelistview
     }
-    Binding {
-      target: ddb;property: "currentTitre";value: _currentTitreTextField.text
-    }
+
     PageListView {
+      id: pagelistview
       Layout.fillWidth: true
       Layout.fillHeight: true
       model: ddb.pageModel

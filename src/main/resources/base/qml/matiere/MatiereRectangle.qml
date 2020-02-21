@@ -4,6 +4,9 @@ import QtQuick.Layouts 1.12
 Rectangle {
   id: base
   color: "yellow"
+  /* beautify preserve:start */
+  property var repeater: _repeater
+  /* beautify preserve:end */
   ColumnLayout {
     id: activitesColumn
     anchors.fill: parent
@@ -26,7 +29,7 @@ Rectangle {
     }
 
     Repeater {
-      id: repeater
+      id: _repeater
       objectName: "repeater"
       model: ddb.pagesParSection
       ActiviteRectangle {

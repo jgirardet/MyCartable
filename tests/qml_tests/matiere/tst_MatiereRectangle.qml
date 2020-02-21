@@ -62,15 +62,11 @@ Item {
       compare(spt.count, 2) // called twice... why ???
     }
 
-//    function test_activite_rectangle() {
-//        var rep = findChild(rec, "repeater")
-//        compare(rep.itemAt(0).headerText, "Lessons")
-//        compare(rep.itemAt(0).model, ddb.pagesParSection[0].pages)
-//        compare(rep.itemAt(1).headerText, "Exercices")
-//        compare(rep.itemAt(1).model, ddb.pagesParSection[1].pages)
-//        compare(rep.itemAt(2).headerText, "Evaluations")
-//        compare(rep.itemAt(2).model, ddb.pagesParSection[2].pages)
-//
-//    }
+    function test_activite_rectangle() {
+        ddb.currentPage =1
+        var rep = rec.repeater
+        compare(rep.itemAt(0).model, ddb.pagesParSection[0])
+
+    }
   }
 }

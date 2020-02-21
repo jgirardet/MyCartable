@@ -83,7 +83,7 @@ def init_models(db: Database):
         id = PrimaryKey(int, auto=True)
         created = Required(datetime, default=datetime.utcnow)
         modified = Optional(datetime)
-        titre = Optional(str)
+        titre = Optional(str, default="")
         activite = Required("Activite")
         sections = Set("Section")
         lastPosition = Optional(int, default=0)

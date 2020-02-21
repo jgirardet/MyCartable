@@ -81,9 +81,6 @@ class CreateJs:
     def activite(self):
 
         self.dao.currentMatiere = 1
-        self.new["lessonsList"] = self.dao.lessonsList
-        self.new["exercicesList"] = self.dao.exercicesList
-        self.new["evaluationsList"] = self.dao.evaluationsList
 
     def page(self):
 
@@ -153,15 +150,6 @@ class CreateJs:
         assert (
             len(self.new["matieresListNom"]) == 4
         ), f"{len(self.new['matieresListNom'])} != { 4}"
-        assert (
-            len(self.new["lessonsList"]) == 4
-        ), f"{len(self.new['lessonsList'])} != { 4}"
-        assert (
-            len(self.new["exercicesList"]) == 4
-        ), f"{len(self.new['exercicesList'])} != { 4}"
-        assert (
-            len(self.new["evaluationsList"]) == 4
-        ), f"{len(self.new['evaluationsList'])} != { 4}"
         assert (
             len(self.new["currentPage"]) == 12
         ), f"{len(self.new['currentPage'])} != {12}"

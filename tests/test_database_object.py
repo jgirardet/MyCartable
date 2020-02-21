@@ -17,7 +17,7 @@ class TestPageMixin:
         assert a._currentPage == 0
         assert a._currentTitre == ""
         assert a._currentEntry == None
-        assert a.titreTimer.isSingleShot()
+        assert a.timer_titre.isSingleShot()
 
     def test_newPage(self, ddbr, qtbot):
         a = DatabaseObject(ddbr)
@@ -61,7 +61,7 @@ class TestPageMixin:
         d.currentTitre = "omk"
         assert d._currentTitre == ""
         d.currentPage = 1
-        with patch.object(d.titreTimer, "start") as m:
+        with patch.object(d.timer_titre, "start") as m:
             d.currentTitre = "mokmk"
             assert d.currentTitre == "mokmk"
             assert m.call_args_list == [call(500)]

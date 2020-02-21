@@ -1,6 +1,6 @@
 from PySide2.QtCore import Slot, Signal, Property, QObject, QTimer
 from package.constantes import TITRE_TIMER_DELAY
-from package.utils import create_single_shot
+from package.utils import create_singleshot
 from pony.orm import db_session, make_proxy
 import logging
 
@@ -20,7 +20,7 @@ class PageMixin:
         self._currentEntry = None
         self._currentPageIndex = None
 
-        self.titreTimer = create_single_shot(self._currentTitreSet)
+        self.timer_titre = create_singleshot(self._currentTitreSet)
 
         from package.list_models import PageModel
 
@@ -34,7 +34,7 @@ class PageMixin:
     @Slot(int, result="QVariantMap")
     def newPage(self, activite):
         with db_session:
-            new_item = self.db.Page.new_page(activite=activite, titre="titre")
+            new_item = self.db.Page.new_page(activite=activite)
         self.newPageCreated.emit(new_item)
 
     # currentPage
@@ -80,7 +80,7 @@ class PageMixin:
         if self.currentPage:
             if value != self._currentTitre:
                 self._currentTitre = value
-                self.titreTimer.start(self.TITRE_TIMER_DELAY)
+                self.timer_titre.start(self.TITRE_TIMER_DELAY)
 
     def _currentTitreSet(self):
         with db_session:

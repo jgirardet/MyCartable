@@ -30,9 +30,8 @@ Rectangle {
       objectName: "repeater"
       model: ddb.pagesParSection
       ActiviteRectangle {
-        headerText: modelData.nom
-        headerColor: "orange"
-        model: modelData.pages
+        model: modelData
+
       }
 
     }

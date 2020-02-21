@@ -5,7 +5,7 @@ from pathlib import Path
 FamilleActivite = namedtuple("FamilleActivite", "index nom")
 
 ACTIVITES = [
-    FamilleActivite(0, "Lessons"),
+    FamilleActivite(0, "Leçons"),
     FamilleActivite(1, "Exercices"),
     FamilleActivite(2, "Evaluations"),
 ]

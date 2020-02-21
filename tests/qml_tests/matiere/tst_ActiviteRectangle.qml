@@ -19,9 +19,7 @@ Item {
   Component {
     id: reccomp
     ActiviteRectangle {
-      headerText: "Evaluations"
-      headerColor: "#ffa500"
-      //            ddb: ddbcomp
+      model: ddb.pagesParSection[2]
       /* beautify preserve:start */
       property var ddb //need to inject ddb
       /* beautify preserve:end */
@@ -33,6 +31,9 @@ Item {
     when: windowShown
     property DdbMock ddb
     property ActiviteRectangle rec
+    /* beautify preserve:start */
+    property var lv
+    /* beautify preserve:end */
 
     function init() {
       ddb = createTemporaryObject(ddbcomp, item)
@@ -41,6 +42,7 @@ Item {
         "ddb": ddb
       })
       waitForRendering(rec)
+      lv = findChild(rec, "_listView")
     }
 
     function cleanup() {
@@ -48,18 +50,30 @@ Item {
       ddb.destroy()
     }
 
-    function test_click_on_item() {
-      var item = ddb.sp.lessonsList[0]
-      rec.model = ddb.sp.lessonsList
-      mouseClick(rec, 5, 35)
-      tryCompare(ddb, "currentPage", item.id)
+//
+    function test_header() {
+      compare(lv.headerItem.label.text, "Evaluations")
     }
 
-    function test_ui_values() {
-      rec.model = ddb.sp.lessonsList
-      compare(rec.headerText, findChild(rec, "headerLabel").text)
-      compare(rec.headerColor, findChild(rec, "headerRectangle").color)
-      compare(rec.model[0].titre, findChild(rec, "buttonDelegate").text)
+    function test_header_click() {
+    mouseClick(lv.headerItem, 0, 0 , Qt.RightButton)
+      compare(ddb._newPage, rec.model.id)
     }
+
+    function test_lv_item() {
+      compare(lv.currentItem.text, "letitre 2 3")
+      compare(lv.currentItem.height, lv.headerItem.height)
+    }
+
+
+    function test_click_on_item() {
+      mouseClick(lv.currentItem)
+      compare(ddb.currentPage, 12)
+      }
+//      var item = ddb.sp.lessonsList[0]
+//      rec.model = ddb.sp.lessonsList
+//      mouseClick(rec, 5, 35)
+//      tryCompare(ddb, "currentPage", item.id)
+
   }
 }

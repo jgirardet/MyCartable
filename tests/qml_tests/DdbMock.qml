@@ -50,6 +50,10 @@ Item {
     return _loadAnnotations
   }
 
+  function newPage(ac) {
+    _newPage = ac
+  }
+
   function recentsItemClicked(itemId, matiere) {
     _recentsItemClicked = [itemId, matiere]
   }
@@ -71,6 +75,7 @@ Item {
   property int _getMatiereIndexFromId: 1
   property var _loadAnnotations: []
   property var _loadSection: {}
+  property var _newPage
   property var  _recentsItemClicked: []
   property var _updateAnnotation: null
   /* beautify preserve:end */

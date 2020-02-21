@@ -181,7 +181,7 @@ class TestMatiere:
                     "famille": 0,
                     "id": 1,
                     "matiere": 1,
-                    "nom": "Lessons",
+                    "nom": "Leçons",
                     "pages": [
                         {
                             "activite": 1,

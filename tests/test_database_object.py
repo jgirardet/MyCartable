@@ -146,24 +146,6 @@ class TestMatiereMixin:
         assert dao.pagesParSection[2]["pages"] == [p]
 
 
-class TestActiviteMixin:
-    def test_lists(self, ddbr):
-        un = f_matiere()
-        deux = f_matiere()
-        b_page(10, matiere=un.id)
-        b_page(10, matiere=deux.id)
-        a = DatabaseObject(ddbr)
-        a.currentMatiere = 2
-        for ac, lalist in zip(ACTIVITES, a.activites_all):
-            assert all(i["famille"] == ac.index for i in lalist)
-            assert all(i["matiere"] == 2 for i in lalist)
-
-    def test_update(self, ddbr, qtbot):
-        a = DatabaseObject(ddbr)
-        with qtbot.waitSignals(a.activites_signal_all, timeout=100):
-            a.update_activites()
-
-
 class TestRecentsMixin:
     def test_init(self, dao, ddbn):
         a = b_page(5)
@@ -336,18 +318,6 @@ class TestImageSectionMixin:
 
 
 class TestDatabaseObject:
-    def test_currentMatiereChanged_all_activite_signals_emited(self, ddbr, qtbot):
-        f_matiere()
-        d = DatabaseObject(ddbr)
-        with qtbot.wait_signals(
-            [
-                (d.lessonsListChanged, "lessonslistchanged"),
-                (d.exercicesListChanged, "exercicelistchanged"),
-                (d.evaluationsListChanged, "evaluationslistchanged"),
-            ],
-        ):
-            d.currentMatiere = 1
-
     def test_RecentsItem_Clicked(self, ddbr, qtbot):
         rec1 = f_page(created=datetime.now(), td=True)
         d = DatabaseObject(ddbr)
@@ -360,7 +330,7 @@ class TestDatabaseObject:
         d = DatabaseObject(ddbr)
         with qtbot.wait_signals(
             [
-                (d.exercicesListChanged, "listchanged"),
+                (d.pagesParSectionChanged, "pagesparsection"),
                 (d.recentsModelChanged, "modelreset"),
             ]
         ):
@@ -373,7 +343,7 @@ class TestDatabaseObject:
         d = DatabaseObject(ddbr)
         with qtbot.wait_signals(
             [
-                (d.exercicesListChanged, "listchanged"),
+                (d.pagesParSectionChanged, "activites"),
                 (d.recentsModelChanged, "recentchanged"),
             ]
         ):
@@ -398,15 +368,9 @@ class TestDatabaseObject:
             [
                 (dao.pageModel.modelReset, "model"),
                 (dao.currentMatiereChanged, "matiere"),
-                (dao.currentActiviteChanged, "activite"),
+                (dao.pagesParSectionChanged, "activite"),
             ],
             timeout=2000,
         ):
             dao.currentPage = 1
         assert dao.currentMatiere == a["matiere"]
-        assert dao.currentActivite == a["activite"]
-
-    def test_update_current_and_activite_title(self, dao, qtbot):
-        f_page()
-        with qtbot.wait_signals([dao.recentsModelChanged, *dao.activites_signal_all]):
-            dao._update_current_and_activite_title()

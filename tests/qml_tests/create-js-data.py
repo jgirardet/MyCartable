@@ -223,7 +223,7 @@ class CreateJs:
         assert copyPageParSection == [
             {
                 "id": 1,
-                "nom": "Lessons",
+                "nom": "Leçons",
                 "famille": 0,
                 "matiere": 1,
                 "pages": [

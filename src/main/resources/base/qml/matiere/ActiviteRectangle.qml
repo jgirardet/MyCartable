@@ -3,9 +3,8 @@ import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.12
 Rectangle {
   id: base
-  property alias headerText: _listView.headerText
-  property alias headerColor: _listView.headerColor
-  property alias model: _listView.model
+  property
+  var model
   Layout.preferredHeight: ddb.getLayoutSizes("preferredActiviteHeight")
   Layout.minimumHeight: ddb.getLayoutSizes("minimumActiviteHeight")
   Layout.maximumHeight: Layout.preferredHeight
@@ -16,24 +15,26 @@ Rectangle {
     anchors.fill: parent
     clip: true
     property int commonHeight: 30
-    property string headerText: "header"
-    property string headerColor: "blue"
+    model: base.model.pages
     header: Rectangle {
-      objectName: "headerRectangle"
       height: _listView.commonHeight
-      color: headerColor
+      color: "blue"
       width: ListView.view.width
+      property MouseArea mousearea: headerMouseArea
+      property Label label: headerLabel
       Label {
-        text: headerText
-        objectName: "headerLabel"
+        id: headerLabel
+        text: base.model.nom
         anchors.centerIn: parent
-        MouseArea {
-          acceptedButtons: Qt.LeftButton | Qt.RightButton
-          anchors.fill: parent
-          onPressed: {
-            if (mouse.buttons == Qt.RightButton) {
-              ddb.newPage(ddb.currentActivite)
-            }
+      }
+      MouseArea {
+        id: headerMouseArea
+        acceptedButtons: Qt.RightButton
+        anchors.fill: parent
+        onPressed: {
+          if (mouse.buttons == Qt.RightButton) {
+            ddb.newPage(model.id)
+
           }
         }
       }

@@ -24,6 +24,9 @@ MIXINS = [
 
 
 class DatabaseObject(QObject, *MIXINS):
+
+    updateRecentsAndActivites = Signal()
+
     def __init__(self, db):
         super().__init__()
         self.db = db
@@ -36,28 +39,23 @@ class DatabaseObject(QObject, *MIXINS):
 
     def setup_connections(self):
 
-        self.currentMatiereChanged.connect(self.onCurrentMatiereChanged)
+        self.currentMatiereChanged.connect(self.pagesParSectionChanged)
         self.currentPageChanged.connect(self.onCurrentPageChanged)
-        self.currentTitreChanged.connect(self.onCurrentTitreChanged)
+        self.currentTitreChanged.connect(self.updateRecentsAndActivites)
 
         self.newPageCreated.connect(self.onNewPageCreated)
         self.recentsItemClicked.connect(self.onRecentsItemClicked)
         self.sectionAdded.connect(self.onSectionAdded)
 
-    def onCurrentMatiereChanged(self):
-        self.update_activites()
-
-    def onCurrentTitreChanged(self):
-        self._update_current_and_activite_title()
+        self.updateRecentsAndActivites.connect(self.pagesParSectionChanged)
+        self.updateRecentsAndActivites.connect(self.recentsModelChanged)
 
     def onCurrentPageChanged(self, page):
         self.pageModel.slotReset(page["id"])
         self.currentMatiere = page["matiere"]
-        self.currentActivite = page["activite"]
 
     def onNewPageCreated(self, item: dict):
         self.currentPage = item["id"]
-        self._update_current_and_activite_title()
 
     def onRecentsItemClicked(self, id, matiere):
         self.currentPage = id
@@ -65,7 +63,3 @@ class DatabaseObject(QObject, *MIXINS):
 
     def onSectionAdded(self, position):
         self.pageModel.insertRow()
-
-    def _update_current_and_activite_title(self):
-        self.update_activites()
-        self.recentsModelChanged.emit()  # pour prendre en compte les changement fait sur une page

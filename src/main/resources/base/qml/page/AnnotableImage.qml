@@ -6,6 +6,7 @@ FocusScope {
   id: root
   /* beautify preserve:start */
     property int sectionId
+    property int position
     property var base
     property var annotations: []
     property alias image: img
@@ -147,8 +148,9 @@ FocusScope {
     id: mouseArea
     objectName: "mouseArea"
     anchors.fill: root
-    property
-    var temp_rec: null
+    /* beautify preserve:start */
+    property var temp_rec: null
+    /* beautify preserve:end */
     preventStealing: true
     acceptedButtons: Qt.LeftButton | Qt.RightButton
 
@@ -181,6 +183,8 @@ FocusScope {
     MenuFlottant {
       id: menuflotant
       objectName: "menuflottant"
+      editor: root
+
     }
   }
 }

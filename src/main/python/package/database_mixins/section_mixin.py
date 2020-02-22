@@ -13,6 +13,7 @@ LOG = logging.getLogger(__name__)
 class SectionMixin:
 
     sectionAdded = Signal(int)
+    sectionRemoved = Signal(int)
 
     @Slot(int, result="QVariantMap")
     def loadSection(self, section_id):
@@ -47,3 +48,14 @@ class SectionMixin:
             print(item)
         self.sectionAdded.emit(item.position)
         return item.id
+
+    @Slot(int, int)
+    def removeSection(self, sectionId, index):
+        print(sectionId, index)
+        with db_session:
+            item = self.db.Section.get(id=sectionId)
+            if item:
+                pos = item.position
+                item.delete()
+        # on sort de la session avant d'emit pour que toutes modif/hook pris en compte
+        self.sectionRemoved.emit(index)

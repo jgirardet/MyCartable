@@ -136,10 +136,19 @@ class TestPAgeModel:
         with db_session:
             assert ddbr.Page[1].lastPosition == 1
 
-    # def test_lastPosition(self, pm):
-    #     p = f_page(lastPosition=2)
-    #     s = f_section(page=p.id)
-    #     s2 = f_section(page=p.id)
-    #     assert pm.lastPosition == 0
-    #     pm.slotReset(p.id)
-    #     assert pm.lastPosition == 2
+    def test_RemoveRow_begin_end(self, pm):
+        with check_begin_end(pm, "RemoveRows"):
+            pm.removeRows(0, 1, QModelIndex())
+
+    def test_remove_row(self, pm, ddbr, qtbot):
+        p = f_page()
+        b_section(3, page=p.id)
+        pm.slotReset(p.id)
+        with db_session:
+            ddbr.Section[2].delete()
+
+        assert pm.removeRows(1, 1, QModelIndex())
+
+        assert pm.rowCount() == 2
+        assert pm.data(pm.index(0, 0), pm.PageRole)["id"] == 1
+        assert pm.data(pm.index(1, 0), pm.PageRole)["id"] == 3

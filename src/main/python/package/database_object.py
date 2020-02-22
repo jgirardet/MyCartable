@@ -45,7 +45,8 @@ class DatabaseObject(QObject, *MIXINS):
 
         self.newPageCreated.connect(self.onNewPageCreated)
         self.recentsItemClicked.connect(self.onRecentsItemClicked)
-        self.sectionAdded.connect(self.onSectionAdded)
+        self.sectionAdded.connect(self.pageModel.insertRow)
+        self.sectionRemoved.connect(self.pageModel.removeRow)
 
         self.updateRecentsAndActivites.connect(self.pagesParSectionChanged)
         self.updateRecentsAndActivites.connect(self.recentsModelChanged)
@@ -60,6 +61,3 @@ class DatabaseObject(QObject, *MIXINS):
     def onRecentsItemClicked(self, id, matiere):
         self.currentPage = id
         self.currentMatiere = matiere
-
-    def onSectionAdded(self, position):
-        self.pageModel.insertRow()

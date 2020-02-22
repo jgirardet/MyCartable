@@ -16,12 +16,14 @@ BasePageListView {
     AnnotableImage {
       sectionId: curSectionId
       base: lv
+      position: curPosition
     }
   }
   delegate: Component {
     Loader {
       id: load
       property int curSectionId: page.id
+      property int curPosition: index
 
       sourceComponent: switch (page.classtype) {
         case "ImageSection": {

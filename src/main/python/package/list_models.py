@@ -64,6 +64,16 @@ class PageModel(QAbstractListModel):
         default[self.PageRole] = QByteArray(b"page")
         return default
 
+    def removeRow(self, row):
+        self.removeRows(row, row, parent=QModelIndex())
+
+    def removeRows(self, row: int, count: int, parent: QModelIndex()) -> bool:
+        self.beginRemoveRows(QModelIndex(), row, row)
+        success = self._reload()
+        self.endRemoveRows()
+        self.lastPosition == row
+        return True
+
     def rowCount(self, parent=QModelIndex()) -> int:
         return len(self._datas)
 

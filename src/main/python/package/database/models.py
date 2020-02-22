@@ -172,6 +172,20 @@ def init_models(db: Database):
                 self.modified = datetime.utcnow()
                 self.page.modified = self.modified
 
+        def before_delete(self):
+            # backup la page pour after delete
+            self._page = self.page.id
+
+        def after_delete(self):
+            page = Page.get(id=self._page)
+            if page:
+                n = 1
+                for s in page.content:
+                    s.updating_position = True  # do not update modified on position
+                    s.position = n
+                    n += 1
+                page.modified = datetime.utcnow()
+
         def _update_position(self):
             n = 1
             for x in self.page.content:

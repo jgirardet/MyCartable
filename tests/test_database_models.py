@@ -360,6 +360,23 @@ class TestSection:
         with db_session:
             assert ddbr.Page[s.page.id].modified >= s.modified
 
+    def test_update_position_on_delete(self, ddbr):
+        p = f_page()
+        s1 = f_section(page=p.id, position=1)
+        s2 = f_section(page=p.id, position=2)
+        s3 = f_section(page=p.id, position=3)
+
+        with db_session:
+            now = ddbr.Page[p.id].modified
+            ddbr.Section[s2.id].delete()
+
+        with db_session:
+            # resultat avec décalage
+            ddbr.Section[s1.id].position == 1
+            ddbr.Section[s3.id].position == 2
+            # page mis à jour
+            assert now < ddbr.Page[p.id].modified
+
 
 class TestImageSection:
     def test_factory(self):

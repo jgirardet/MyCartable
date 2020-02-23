@@ -86,6 +86,23 @@ class TestPageMixin:
         dao.currentPage = p1.id
         assert len(dao.pageModel._datas) == 1
 
+    def test_removePAge(self, dao):
+        f_page()
+        dao.removePage(1)
+        with db_session:
+            assert not dao.db.Page.get(id=1)
+
+    def test_removePAge_blanck_if_currentItem(self, dao):
+        f_page()
+        dao.currentPage = 1
+        dao.removePage(1)
+        assert dao.currentPage == 0
+
+    def test_allow_currentPAge_can_be_0(self, dao):
+        f_page()
+        dao.currentPage = 1
+        dao.currentPage = 0
+
 
 class TestMatiereMixin:
     def create_matiere(self):

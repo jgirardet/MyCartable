@@ -18,7 +18,6 @@ class PageMixin:
         self._currentPage = 0
         self._currentTitre = ""
         self._currentEntry = None
-        self._currentPageIndex = None
 
         self.timer_titre = create_singleshot(self._currentTitreSet)
 
@@ -48,10 +47,24 @@ class PageMixin:
             return
         self._currentPage = new_id
         LOG.debug(f"CurrentPage changed to {new_id}")
+
+        if new_id:
+            with db_session:
+                page = self.db.Page[new_id].to_dict()
+            self.currentPageChanged.emit(page)
+            self.setCurrentEntry()
+        else:
+            self._currentEntry = None
+            self._currentPage = 0
+
+    @Slot(int)
+    def removePage(self, pageId):
+        if self.currentPage == pageId:
+            self.currentPage = 0
         with db_session:
-            page = self.db.Page[new_id].to_dict()
-        self.currentPageChanged.emit(page)
-        self.setCurrentEntry()
+            item = self.db.Page.get(id=pageId)
+            if item:
+                item.delete()
 
     def setCurrentEntry(self):
         with db_session:
@@ -63,17 +76,6 @@ class PageMixin:
     @Property(str, notify=currentTitreChanged)
     def currentTitre(self):
         return self._currentTitre
-
-    currentPageIndexChanged = Signal()
-
-    @Property(int, notify=currentPageIndexChanged)
-    def currentPageIndex(self):
-        return self._currentPageIndex
-
-    @currentPageIndex.setter
-    def currentPageIndex_set(self, value: int):
-        self._currentPageIndex = value
-        self.currentPageIndexChanged.emit()
 
     @currentTitre.setter
     def currentTitreSet(self, value):

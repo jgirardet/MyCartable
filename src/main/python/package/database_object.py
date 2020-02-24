@@ -3,6 +3,7 @@ from package.database_mixins.activite_mixin import ActiviteMixin
 from package.database_mixins.image_section_mixin import ImageSectionMixin
 from package.database_mixins.layout_mixin import LayoutMixin
 from package.database_mixins.matiere_mixin import MatiereMixin
+from package.database_mixins.operations_mixin import OperationsMixin
 from package.database_mixins.page_mixin import PageMixin
 from package.database_mixins.recents_mixin import RecentsMixin
 from package.database_mixins.section_mixin import SectionMixin
@@ -20,6 +21,7 @@ MIXINS = [
     RecentsMixin,
     SectionMixin,
     ImageSectionMixin,
+    OperationsMixin,
 ]
 
 

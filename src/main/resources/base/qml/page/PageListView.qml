@@ -1,5 +1,7 @@
 import QtQuick 2.14
 import QtQuick.Controls 2.14
+import "operations"
+import Operations 1.0
 
 BasePageListView {
   id: lv
@@ -19,6 +21,17 @@ BasePageListView {
       position: curPosition
     }
   }
+  Component {
+    id: additionDelegate
+    Addition {
+      sectionId: curSectionId
+//      base: lv
+      position: curPosition
+      model: AdditionModel{
+       datas: ddb.getOperation(curSectionId)
+       }
+    }
+  }
   delegate: Component {
     Loader {
       id: load
@@ -27,11 +40,15 @@ BasePageListView {
 
       sourceComponent: switch (page.classtype) {
         case "ImageSection": {
-          return imageDelegate
+//          return imageDelegate
+          return additionDelegate
         }
-        case "TextSection": {
-          return textDelegate
-        }
+//        case "TextSection": {
+//          return textDelegate
+//        }
+//        case "AdditionSection": {
+//          return additionDelegate
+//        }
       }
 
     }

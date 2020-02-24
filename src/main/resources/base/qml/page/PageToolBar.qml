@@ -2,7 +2,7 @@ import QtQuick 2.14
 import QtQuick.Controls 2.14
 //import QtQuick.Controls 1.4 as Controls1
 import QtQuick.Layouts 1.14
-//import QtQuick.Dialogs 1.3 as Dialogs13
+import QtQuick.Dialogs 1.3 as Dialogs13
 
 ToolBar {
   id: root
@@ -13,6 +13,8 @@ ToolBar {
       icon.source: "qrc:///icons/newImageSection"
       onClicked: newImageSectionFileDialog.open()
       enabled: ddb.currentPage
+      ToolTip.visible: hovered
+      ToolTip.text: "Ajouter une image"
     }
 
     ToolButton {
@@ -22,6 +24,8 @@ ToolBar {
         "classtype": "TextSection"
       })
       enabled: ddb.currentPage
+      ToolTip.visible: hovered
+      ToolTip.text: "Ajouter du texte"
     }
 
     ToolButton {
@@ -29,21 +33,23 @@ ToolBar {
       icon.source: "qrc:///icons/removePage"
       onClicked: dialogRemovePage.open()
       enabled: ddb.currentPage
+      ToolTip.visible: hovered
+      ToolTip.text: "Supprimer la page"
     }
   }
-//  FileDialog {
-//    id: newImageSectionFileDialog
-//    title: "Choisir une image à importer"
-//    folder: shortcuts.pictures
-//    nameFilters: ["fichiers Images (*.jpg *.png *.bmp)"]
-//    onAccepted: {
-//      ddb.addSection(ddb.currentPage, {
-//        'path': fileUrl,
-//        "classtype": "ImageSection"
-//      })
-//
-//    }
-//  }
+  Dialogs13.FileDialog {
+    id: newImageSectionFileDialog
+    title: "Choisir une image à importer"
+    folder: shortcuts.pictures
+    nameFilters: ["fichiers Images (*.jpg *.png *.bmp)"]
+    onAccepted: {
+      ddb.addSection(ddb.currentPage, {
+        'path': fileUrl,
+        "classtype": "ImageSection"
+      })
+
+    }
+  }
   Dialog {
       id: dialogRemovePage
       title: "Supprimer la page ?"

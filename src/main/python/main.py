@@ -49,9 +49,11 @@ if __name__ == "__main__":
     from package.database_object import DatabaseObject
 
     from package.page.text_section import DocumentEditor
+    from package.operations.models import AdditionModel
 
     database = DatabaseObject(package.database.db)
     qmlRegisterType(DocumentEditor, "DocumentEditor", 1, 0, "DocumentEditor")
+    qmlRegisterType(AdditionModel, "Operations", 1, 0, "AdditionModel")
     engine = main_setup(database)
     #
     if not engine.rootObjects():

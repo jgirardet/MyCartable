@@ -28,6 +28,10 @@
         <file alias="ColorButton.qml">base/qml/page/menu/ColorButton.qml</file>
 
     </qresource>
+    <qresource prefix="/qml/page/operations">
+        <file alias="Addition.qml">base/qml/page/operations/Addition.qml</file>
+
+    </qresource>
 
     <qresource prefix="/qml/recents">
         <file alias="main.qml">base/qml/main.qml</file>
@@ -37,5 +41,6 @@
     <qresource prefix="/icons">
         <file alias="newImageSection">../icons/base/svg/mbri-image-gallery.svg</file>
         <file alias="newTextSection">../icons/base/svg/mbri-edit2.svg</file>
+        <file alias="removePage">../icons/base/svg/mbri-trash.svg</file>
     </qresource>
 </RCC>

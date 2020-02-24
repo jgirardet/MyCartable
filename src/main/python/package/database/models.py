@@ -1,3 +1,4 @@
+import json
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -209,6 +210,33 @@ def init_models(db: Database):
 
     class TextSection(Section):
         text = Optional(str)
+
+    class OperationSection(Section):
+        _datas = Optional(str, default="[]")
+
+        def __init__(self, *args, datas=None, **kwargs):
+            super().__init__(*args, **kwargs)
+            if datas:
+                self.datas = datas
+
+        @property
+        def datas(self):
+            return json.loads(self._datas)
+
+        @datas.setter
+        def datas(self, value):
+            value = json.dumps(value)
+            value = value.replace(" ", "")  # strip spaces
+            self._datas = value
+
+        def to_dict(self, *args, **kwargs):
+            dico = super().to_dict(*args, **kwargs)
+            dico.pop("_datas")
+            dico["datas"] = self.datas
+            return dico
+
+    class AdditionSection(OperationSection):
+        pass
 
     class Annotation(db.Entity):
         id = PrimaryKey(int, auto=True)

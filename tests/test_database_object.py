@@ -188,6 +188,22 @@ class TestSectionMixin:
         res = dao.loadSection(99999)
         assert res == {}
 
+    def test_load_section_Operation(self, dao):
+        a = f_additionSection(datas="3+4")
+        assert (
+            dao.loadSection(1)
+            == {
+                "classtype": "AdditionSection",
+                "created": a.created.isoformat(),
+                "datas": [["", ""], ["", "3"], ["+", "4"], ["", ""]],
+                "id": 1,
+                "modified": a.modified.isoformat(),
+                "page": 1,
+                "position": 1,
+            }
+            != [["", ""], ["", "3"], ["+", "4"], ["", ""]]
+        )
+
     @pytest.mark.parametrize(
         "page, content, res, signal_emitted",
         [

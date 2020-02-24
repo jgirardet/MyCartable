@@ -6,6 +6,7 @@ import random
 
 from PySide2.QtGui import QColor
 from package.constantes import ACTIVITES, FILES, MATIERES
+from package.operations.api import convert_addition, create_operation
 from pony.orm import db_session
 
 gen = mimesis.Generic("fr")
@@ -195,6 +196,26 @@ def b_annotation(n, *args, **kwargs):
     return [f_annotationText(*args, **kwargs) for x in range(n)]
 
 
+def f_additionSection(created=None, page=None, position=0, td=False, datas=None):
+    with db_session:
+        created = created or f_datetime()
+        page = page or f_page(td=True)["id"]
+
+        datas = (
+            create_operation(datas)
+            if datas
+            else create_operation(
+                str(random.randint(1, 300)) + "+" + str(random.randint(1, 300))
+            )
+        )
+
+        item = db.AdditionSection(
+            created=created, page=page, position=position, datas=datas,
+        )
+        item.flush()
+        return item.to_dict() if td else item
+
+
 @db_session
 def populate_database(matieres_list=MATIERES, nb_page=100):
     annee = f_annee()
@@ -204,4 +225,10 @@ def populate_database(matieres_list=MATIERES, nb_page=100):
     for i in range(nb_page):
         a = f_page(activite=random.choice(activites))
         for x in range(random.randint(0, 14)):
-            random.choice([f_imageSection(page=a.id), f_textSection(page=a.id)])
+            random.choice(
+                [
+                    f_imageSection(page=a.id),
+                    f_textSection(page=a.id),
+                    f_additionSection(page=a.id),
+                ]
+            )

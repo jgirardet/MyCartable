@@ -14,7 +14,6 @@ def match(string):
 
 def convert_addition(numbers):
     m = len(str(sum(map(int, numbers)))) + 1
-    print(m)
     n = len(numbers) + 2
     res = []
 

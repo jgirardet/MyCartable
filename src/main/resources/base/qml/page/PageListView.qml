@@ -25,10 +25,10 @@ BasePageListView {
     id: additionDelegate
     Addition {
       sectionId: curSectionId
-//      base: lv
+      base: lv
       position: curPosition
       model: AdditionModel{
-       datas: ddb.getOperation(curSectionId)
+       datas: ddb.loadSection(curSectionId).datas
        }
     }
   }
@@ -40,15 +40,14 @@ BasePageListView {
 
       sourceComponent: switch (page.classtype) {
         case "ImageSection": {
-//          return imageDelegate
+          return imageDelegate
+        }
+        case "TextSection": {
+          return textDelegate
+        }
+        case "AdditionSection": {
           return additionDelegate
         }
-//        case "TextSection": {
-//          return textDelegate
-//        }
-//        case "AdditionSection": {
-//          return additionDelegate
-//        }
       }
 
     }

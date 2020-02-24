@@ -15,18 +15,6 @@ class SectionMixin:
     sectionAdded = Signal(int)
     sectionRemoved = Signal(int)
 
-    @Slot(int, result="QVariantMap")
-    def loadSection(self, section_id):
-        res = {}
-        with db_session:
-            section = self.db.Section.get(id=section_id)
-            if section:
-                res = section.to_dict(with_collections=True)
-                # add if when other types
-                # if res["classtype"] == "ImageSection":
-                res["path"] = str(FILES / res["path"])
-        return res
-
     @Slot(int, "QVariantMap", result=int)
     def addSection(self, page_id, content):
         classtype = content.pop("classtype", None)
@@ -45,13 +33,23 @@ class SectionMixin:
 
         with db_session:
             item = getattr(self.db, classtype)(page=page_id, **content)
-            print(item)
         self.sectionAdded.emit(item.position)
         return item.id
 
+    @Slot(int, result="QVariantMap")
+    def loadSection(self, section_id):
+        res = {}
+        with db_session:
+            section = self.db.Section.get(id=section_id)
+            if section:
+                res = section.to_dict(with_collections=True)
+                if res["classtype"] == "ImageSection":
+                    res["path"] = str(FILES / res["path"])
+
+        return res
+
     @Slot(int, int)
     def removeSection(self, sectionId, index):
-        print(sectionId, index)
         with db_session:
             item = self.db.Section.get(id=sectionId)
             if item:

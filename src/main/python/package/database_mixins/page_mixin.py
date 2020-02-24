@@ -45,6 +45,7 @@ class PageMixin:
     def currentPageSet(self, new_id):
         if self._currentPage == new_id:
             return
+
         self._currentPage = new_id
         LOG.debug(f"CurrentPage changed to {new_id}")
 
@@ -56,15 +57,18 @@ class PageMixin:
         else:
             self._currentEntry = None
             self._currentPage = 0
+            self.currentPageChanged.emit({})
 
     @Slot(int)
     def removePage(self, pageId):
-        if self.currentPage == pageId:
-            self.currentPage = 0
+
         with db_session:
             item = self.db.Page.get(id=pageId)
             if item:
                 item.delete()
+        # bien après les modifs de database pour être ne pas emmettres
+        # signaux avant modif de database
+        self.currentPage = 0
 
     def setCurrentEntry(self):
         with db_session:

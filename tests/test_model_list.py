@@ -109,6 +109,14 @@ class TestPAgeModel:
             assert pm.lastPosition == item.lastPosition
             assert item.modified == modidied  # reset do not change modified
 
+    def test_slot_reset_pageId_is_zero(self, pm):
+        f_page()
+        pm.slotReset(1)
+        assert pm._page is not None
+        pm.slotReset(0)
+        assert pm._page is None
+        assert pm.page_id == 0
+
     def test_ResetModel_begin_end(self, pm):
         with check_begin_end(pm, "ResetModel"):
             pm.slotReset(0)

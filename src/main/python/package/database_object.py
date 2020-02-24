@@ -52,8 +52,12 @@ class DatabaseObject(QObject, *MIXINS):
         self.updateRecentsAndActivites.connect(self.recentsModelChanged)
 
     def onCurrentPageChanged(self, page):
-        self.pageModel.slotReset(page["id"])
-        self.currentMatiere = page["matiere"]
+        if not page:
+            self.pageModel.slotReset(0)
+            self.updateRecentsAndActivites.emit()
+        else:
+            self.pageModel.slotReset(page["id"])
+            self.currentMatiere = page["matiere"]
 
     def onNewPageCreated(self, item: dict):
         self.currentPage = item["id"]

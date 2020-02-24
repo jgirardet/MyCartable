@@ -24,9 +24,6 @@ class TestPageMixin:
         f = f_page()  # pour avoir plusieurs dans le resultats
         with qtbot.wait_signal(a.newPageCreated, timeout=100):
             r = a.newPage(f.activite.id)
-        # assert a.currentMatiere == r['matiere']
-        # assert a.currentPage == r['id']
-        # assert a.activites_all[f.activite.famille][0] == r
 
     def test_currentPage(self, ddbr, qtbot):
         a = f_page()
@@ -86,7 +83,7 @@ class TestPageMixin:
         dao.currentPage = p1.id
         assert len(dao.pageModel._datas) == 1
 
-    def test_removePAge(self, dao):
+    def test_removePAge(self, dao, qtbot):
         f_page()
         dao.removePage(1)
         with db_session:
@@ -407,3 +404,17 @@ class TestDatabaseObject:
         ):
             dao.currentPage = 1
         assert dao.currentMatiere == a["matiere"]
+
+    def test_currentPageChanged_With_ZERO(self, dao, ddbr, qtbot):
+        a = f_page(td=True)
+        dao.currentPage = 1
+
+        with qtbot.waitSignal(dao.updateRecentsAndActivites):
+            dao.currentPage = 0
+
+        assert dao.pageModel._page == None
+        assert dao.currentMatiere == a["matiere"]
+
+    def test_updateRecentsAndActivites(self, dao, qtbot):
+        with qtbot.waitSignals([dao.recentsModelChanged, dao.pagesParSectionChanged]):
+            dao.updateRecentsAndActivites.emit()

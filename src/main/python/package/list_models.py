@@ -78,6 +78,9 @@ class PageModel(QAbstractListModel):
         return len(self._datas)
 
     def slotReset(self, value):
+        if not value:
+            self._page = None
+            self._datas = []
         self.page_id = value
         self.beginResetModel()
         self._reload()

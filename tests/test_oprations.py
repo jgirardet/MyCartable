@@ -78,3 +78,7 @@ class TestAddition:
     )
     def test_create_operations(self, string, res):
         assert create_operation(string) == res
+
+
+class TestOperationModel:
+    pass

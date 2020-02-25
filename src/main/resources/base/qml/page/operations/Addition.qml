@@ -16,6 +16,9 @@ GridView {
         height: cellHeight * model.rows
         cellWidth: 50
         cellHeight: 50
+//        focus: true
+//        onFocusChanged: {delegateRectangle.focus=focus}
+//        onCurrentIndexChanged: focus=true
         delegate: Rectangle {
             id: delegateRectangle
             height: root.cellHeight
@@ -24,7 +27,9 @@ GridView {
             border.width: 0.5
             TextInput {
               id: input
-              focus: delegateRectangle.focus
+//              focus: delegateRectangle.focus
+//              focus: true
+//              onFocusChanged: root.model.cursor=index
               anchors.fill: parent
               text: display
               horizontalAlignment: TextInput.AlignHCenter
@@ -32,8 +37,8 @@ GridView {
               readOnly: root.model.readOnly(index)
               validator: IntValidator{bottom: 0; top: 9;}
               onTextEdited:{
-               print(index)
-              root.model.updateCase(index)
+              root.model.autoMoveNext(index)
+              root.forceActiveFocus()
               }
 //
               }

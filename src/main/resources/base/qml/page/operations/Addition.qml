@@ -11,14 +11,14 @@ GridView {
         property var base
         /* beautify preserve:end */
 //        anchors.fill: parent
-        width: base.width/3
-        height: 300
-        cellWidth: 50  //width/model.rowCount()
-        cellHeight: 50 //height / model.columnCount()
+        width: cellWidth *model.columns
+        height: cellHeight * model.rows
+        cellWidth: 50
+        cellHeight: 50
 //        height: 50*rows
 //        contentWidth: width
 //        contentHeight: height
-         flow: GridView.FlowTopToBottom
+//         flow: GridView.FlowTopToBottom
 //        height: 300
 //        columnSpacing: 0
 //        rowSpacing: 0
@@ -33,11 +33,12 @@ GridView {
             TextInput {
               id: input
               anchors.fill: parent
-              text: display + '        ' +  count
-//              horizontalAlignment: TextInput.AlignHCenter
-//              verticalAlignment: TextInput.AlignVCenter
-////              readOnly: (column == 0 || (row > 0 && row < root.rows-1))  ? true : false
-//              validator: IntValidator{bottom: 0; top: 9;}
+              text: display
+              horizontalAlignment: TextInput.AlignHCenter
+              verticalAlignment: TextInput.AlignVCenter
+//              readOnly: (column == 0 || (row > 0 && row < root.rows-1))  ? true : false
+              readOnly: root.model.readOnly(index)
+              validator: IntValidator{bottom: 0; top: 9;}
 //
               }
 //

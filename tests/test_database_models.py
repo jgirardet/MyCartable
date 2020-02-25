@@ -86,25 +86,6 @@ class TestPage:
                     assert i.position > prev.position
                 prev = i
 
-    # def test_page_par_section(self, ddbr):
-    #     m = f_matiere()
-    #     a = b_page(5, matiere=m.id)
-    #     with db_session:
-    #         q = ddbr.Page.page_par_section(m.id)
-    #         import itertools
-    #         from operator import attrgetter
-    #
-    #         print(list(q))
-    #         # r = itertools.groupby(q, attrgetter("activite"))
-    #         # print(q[:])
-    #         # r = q
-    #         # for x in r:
-    #         #     print(x)
-    #         #     for y in x:
-    #         #         print(y)
-    #         #         print(y.to_dict())
-    #     assert False
-
 
 class TestMatiere:
     def test_noms(self, ddb):

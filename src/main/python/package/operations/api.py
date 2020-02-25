@@ -1,3 +1,4 @@
+import itertools
 import re
 
 
@@ -13,8 +14,8 @@ def match(string):
 
 
 def convert_addition(numbers):
-    m = len(str(sum(map(int, numbers)))) + 1
-    n = len(numbers) + 2
+    m = len(str(sum(map(int, numbers)))) + 1  # nombre de colonne nécessaire
+    n = len(numbers) + 2  # nombre de row
     res = []
 
     num_index = 0
@@ -28,7 +29,8 @@ def convert_addition(numbers):
             res.append([signe] + [""] * o + list(num))
             num_index += 1
 
-    return res
+    # TODO: refaire l'algo à l'occasion
+    return n, m, list(itertools.chain.from_iterable(res))
 
 
 def create_operation(string):

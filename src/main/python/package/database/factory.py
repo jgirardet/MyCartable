@@ -196,21 +196,19 @@ def b_annotation(n, *args, **kwargs):
     return [f_annotationText(*args, **kwargs) for x in range(n)]
 
 
-def f_additionSection(created=None, page=None, position=0, td=False, datas=None):
+def f_additionSection(string=None, created=None, page=None, position=0, td=False):
     with db_session:
         created = created or f_datetime()
         page = page or f_page(td=True)["id"]
 
-        datas = (
-            create_operation(datas)
-            if datas
-            else create_operation(
-                str(random.randint(1, 300)) + "+" + str(random.randint(1, 300))
-            )
+        string = (
+            string
+            if string
+            else str(random.randint(1, 300)) + "+" + str(random.randint(1, 300))
         )
 
         item = db.AdditionSection(
-            created=created, page=page, position=position, datas=datas,
+            string, created=created, page=page, position=position,
         )
         item.flush()
         return item.to_dict() if td else item

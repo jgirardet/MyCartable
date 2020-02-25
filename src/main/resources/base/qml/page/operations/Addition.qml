@@ -7,6 +7,7 @@ GridView {
         id: root
         property int position
         property int sectionId
+//        currentIndex: model.cursor
         /* beautify preserve:start */
         property var base
         /* beautify preserve:end */
@@ -15,32 +16,32 @@ GridView {
         height: cellHeight * model.rows
         cellWidth: 50
         cellHeight: 50
-//        height: 50*rows
-//        contentWidth: width
-//        contentHeight: height
-//         flow: GridView.FlowTopToBottom
-//        height: 300
-//        columnSpacing: 0
-//        rowSpacing: 0
         delegate: Rectangle {
             id: delegateRectangle
             height: root.cellHeight
             width: root.cellWidth
-////            implicitWidth: root.width / root.columns
-////            implicitHeight: root.height / root.rows
             color: "white"
             border.width: 0.5
             TextInput {
               id: input
+              focus: delegateRectangle.focus
               anchors.fill: parent
               text: display
               horizontalAlignment: TextInput.AlignHCenter
               verticalAlignment: TextInput.AlignVCenter
-//              readOnly: (column == 0 || (row > 0 && row < root.rows-1))  ? true : false
               readOnly: root.model.readOnly(index)
               validator: IntValidator{bottom: 0; top: 9;}
+              onTextEdited:{
+               print(index)
+              root.model.updateCase(index)
+              }
 //
               }
 //
           }
+
+         Binding on currentIndex {
+          when: model.cursorChanged
+          value: model.cursor
+    }
     }

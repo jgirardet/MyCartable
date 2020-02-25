@@ -382,37 +382,43 @@ class TestOperationSection:
     def test_init(self, ddb):
         f_page()
         # normal
-        a = ddb.OperationSection(datas=[[1, 2]], page=1)
-        assert a._datas == "[[1,2]]"
-        assert a.datas == [[1, 2]]
+        a = ddb.OperationSection(string="1+2", page=1)
+        assert a._datas == '["", "", "", "1", "+", "2", "", ""]'
+        assert a.datas == ["", "", "", "1", "+", "2", "", ""]
+        assert a.rows == 4
+        assert a.columns == 2
 
-        # strip spaces
-        a = ddb.OperationSection(datas=[[1, 2]], page=1)
-        assert a._datas == "[[1,2]]"
-        assert a.datas == [[1, 2]]
-
-        # setter
-        a.datas = [[3, 4]]
-        assert a.datas == [[3, 4]]
-        assert a._datas == "[[3,4]]"
+    def test_datas(self, ddb):
+        f_page()
 
         # do not use data if None
-        a = ddb.OperationSection(page=1)
-
-        # defautl valut
-        a = ddb.OperationSection(page=1)
-        assert a.datas == []
+        with pytest.raises(TypeError):
+            a = ddb.OperationSection(page=1)
 
     def test_to_dict(self, reset_db):
-        item = f_additionSection(datas="259+135", td=True)
+        item = f_additionSection(string="259+135", td=True)
         assert item == {
             "classtype": "AdditionSection",
             "created": item["created"],
+            "rows": 4,
+            "columns": 4,
             "datas": [
-                ["", "", "", ""],
-                ["", "2", "5", "9"],
-                ["+", "1", "3", "5"],
-                ["", "", "", ""],
+                "",
+                "",
+                "",
+                "",
+                "",
+                "2",
+                "5",
+                "9",
+                "+",
+                "1",
+                "3",
+                "5",
+                "",
+                "",
+                "",
+                "",
             ],
             "id": 1,
             "modified": item["modified"],
@@ -423,12 +429,21 @@ class TestOperationSection:
 
 class TestAddditionSection:
     def test_factory(self):
-        assert f_additionSection(datas="15+3").datas == [
-            ["", "", ""],
-            ["", "1", "5"],
-            ["+", "", "3"],
-            ["", "", ""],
+        assert f_additionSection(string="15+3").datas == [
+            "",
+            "",
+            "",
+            "",
+            "1",
+            "5",
+            "+",
+            "",
+            "3",
+            "",
+            "",
+            "",
         ]
+
         f_additionSection()
 
 

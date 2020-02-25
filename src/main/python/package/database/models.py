@@ -4,6 +4,7 @@ from pathlib import Path
 
 from PySide2.QtCore import QUrl
 from PySide2.QtGui import QColor
+from package.operations.api import create_operation
 from pony.orm import select, Database, PrimaryKey, Optional, Required, Set, desc, flush
 from package.constantes import ACTIVITES
 
@@ -212,22 +213,19 @@ def init_models(db: Database):
         text = Optional(str)
 
     class OperationSection(Section):
-        _datas = Optional(str, default="[]")
+        _datas = Required(str)
+        rows = Required(int)
+        columns = Required(int)
 
-        def __init__(self, *args, datas=None, **kwargs):
-            super().__init__(*args, **kwargs)
-            if datas:
-                self.datas = datas
+        def __init__(self, string, **kwargs):
+            rows, columns, datas = create_operation(string)
+            super().__init__(
+                rows=rows, columns=columns, _datas=json.dumps(datas), **kwargs
+            )
 
         @property
         def datas(self):
             return json.loads(self._datas)
-
-        @datas.setter
-        def datas(self, value):
-            value = json.dumps(value)
-            value = value.replace(" ", "")  # strip spaces
-            self._datas = value
 
         def to_dict(self, *args, **kwargs):
             dico = super().to_dict(*args, **kwargs)

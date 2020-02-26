@@ -51,9 +51,9 @@ ToolBar {
     }
   }
   Dialog {
-      id: dialogRemovePage
-      title: "Supprimer la page ?"
-      standardButtons: Dialog.Ok | Dialog.Cancel
-      onAccepted: ddb.removePage(ddb.currentPage)
-    }
+    id: dialogRemovePage
+    title: "Supprimer la page ?"
+    standardButtons: Dialog.Ok | Dialog.Cancel
+    onAccepted: ddb.removePage(ddb.currentPage)
+  }
 }

@@ -204,7 +204,7 @@ def f_additionSection(string=None, created=None, page=None, position=0, td=False
         string = (
             string
             if string
-            else str(random.randint(1, 300)) + "+" + str(random.randint(1, 300))
+            else random.choice(["3+2", "8+9", "32+45", "87+76", "3458+23+827"])
         )
 
         item = db.AdditionSection(

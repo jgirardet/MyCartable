@@ -92,17 +92,16 @@ Menu {
     }
 
   }
-   Dialog {
-      id: dialogSupprimer
-      title: "Supprimer l'image ?"
-      standardButtons: Dialog.Ok | Dialog.Cancel
-      parent: root.editor
-      anchors.centerIn: parent
+  Dialog {
+    id: dialogSupprimer
+    title: "Supprimer l'image ?"
+    standardButtons: Dialog.Ok | Dialog.Cancel
+    parent: root.editor
+    anchors.centerIn: parent
 
-
-      onAccepted: ddb.removeSection(root.editor.sectionId, root.editor.position)
-//      onRejected: null
-    }
+    onAccepted: ddb.removeSection(root.editor.sectionId, root.editor.position)
+    //      onRejected: null
+  }
 
   //      }
   //    Button {

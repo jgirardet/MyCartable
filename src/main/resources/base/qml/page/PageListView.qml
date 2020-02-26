@@ -27,9 +27,9 @@ BasePageListView {
       sectionId: curSectionId
       base: lv
       position: curPosition
-      model: AdditionModel{
-       params: ddb.loadSection(curSectionId)
-       }
+      model: AdditionModel {
+        params: ddb.loadSection(curSectionId)
+      }
     }
   }
   delegate: Component {

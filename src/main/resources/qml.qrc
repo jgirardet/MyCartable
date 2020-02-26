@@ -34,9 +34,11 @@
     </qresource>
 
     <qresource prefix="/qml/recents">
-        <file alias="main.qml">base/qml/main.qml</file>
         <file alias="RecentsListView.qml">base/qml/recents/RecentsListView.qml</file>
         <file alias="RecentsRectangle.qml">base/qml/recents/RecentsRectangle.qml</file>
+    </qresource>
+    <qresource prefix="/qml/divers">
+        <file alias="BorderRectangle.qml">base/qml/divers/BorderRectangle.qml</file>
     </qresource>
     <qresource prefix="/icons">
         <file alias="newImageSection">../icons/base/svg/mbri-image-gallery.svg</file>

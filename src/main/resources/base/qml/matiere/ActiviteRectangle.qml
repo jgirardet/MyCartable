@@ -3,8 +3,10 @@ import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.12
 Rectangle {
   id: base
-  property
-  var model
+
+  /* beautify preserve:start */
+  property var model
+  /* beautify preserve:end */
   Layout.preferredHeight: ddb.getLayoutSizes("preferredActiviteHeight")
   Layout.minimumHeight: ddb.getLayoutSizes("minimumActiviteHeight")
   Layout.maximumHeight: Layout.preferredHeight

@@ -115,15 +115,15 @@ class TestOperationModel:
             to.cursor = 1
         assert to.cursor == 1
 
+    def test_params(self):
+        a = AdditionModel()
+        x = f_additionSection(string="9+8", td=True)
+        a.params = x
+        assert a.params == x
+
     def test_autoMoveNext(self, to):
-        to.auto_move_next = lambda x: x
         to.autoMoveNext(99)
         assert to.cursor == 99
-
-    def test_ReadOnly(self, to):
-        to.editables = [1, 6]
-        assert to.readOnly(2)
-        assert not to.readOnly(6)
 
     def test_data(self, to):
         # valid index
@@ -132,6 +132,22 @@ class TestOperationModel:
         assert to.data(to.index(99, 0), Qt.DisplayRole) is None
         # unvalid role
         assert to.data(to.index(5, 0), 999999) is None
+
+    def test_isIResultline(self, to):
+        assert to.isResultLine(99) is False
+
+    def test_isRetenueline(self, to):
+        assert to.isRetenueLine(99) is False
+
+    def test_move_cursor(self, to):
+        c = to.cursor
+        to.moveCursor(13, 927)
+        assert c == to.cursor
+
+    def test_ReadOnly(self, to):
+        to.editables = [1, 6]
+        assert to.readOnly(2)
+        assert not to.readOnly(6)
 
     def test_rowCount(self, to):
         assert to.rowCount() == 12
@@ -187,6 +203,7 @@ class TestadditionModel:
             (13, Qt.Key_Right, 14),
             (14, Qt.Key_Right, 15),
             (15, Qt.Key_Right, 99),
+            (15, Qt.Key_X, 99),
         ],
     )
     def test_move_cursor(self, index, key, res):
@@ -195,3 +212,23 @@ class TestadditionModel:
         a.params = f_additionSection(string="254+141", td=True)
         # ['', '', '', '', '', '2', '5', '4', '+', '1', '4', '1', '', '', '', ''] 4x4
         assert a.move_cursor(index, key) == res
+
+    def test_isMiddleLinee(self, ta):
+        for i in range(3, 9):
+            assert ta.isMiddleLine(i)
+        for i in range(0, 3):
+            assert not ta.isMiddleLine(i)
+        for i in range(9, 12):
+            assert not ta.isMiddleLine(i)
+
+    def test_is_result_line(self, ta):
+        for i in range(9, 12):
+            assert ta.isResultLine(i)
+        for i in range(0, 9):
+            assert not ta.isResultLine(i)
+
+    def test_is_retenue_line(self, ta):
+        for i in range(0, 3):
+            assert ta.isRetenueLine(i)
+        for i in range(3, 12):
+            assert not ta.isRetenueLine(i)

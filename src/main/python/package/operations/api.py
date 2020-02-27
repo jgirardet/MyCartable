@@ -39,8 +39,8 @@ def create_operation(string):
 
     # match
     signe, numbers = match(string)
-    if not signe:
-        return None
 
     if signe == "+":
         return convert_addition(numbers)
+    else:
+        return None

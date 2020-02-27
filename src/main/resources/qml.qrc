@@ -30,6 +30,7 @@
     </qresource>
     <qresource prefix="/qml/page/operations">
         <file alias="Addition.qml">base/qml/page/operations/Addition.qml</file>
+        <file alias="AdditionDelegate.qml">base/qml/page/operations/AdditionDelegate.qml</file>
 
     </qresource>
 

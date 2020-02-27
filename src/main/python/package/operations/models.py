@@ -71,11 +71,25 @@ class OperationModel(QAbstractListModel):
     def readOnly(self, value):
         return value not in self.editables
 
+    @Slot(int, result=bool)
+    def isResultLine(self, index):
+        return self.is_result_line(index)
+
+    @Slot(int, result=bool)
+    def isRetenueLine(self, index):
+        return self.is_retenue_line(index)
+
     def auto_move_next(self, position):
         return position
 
     def get_editables(self):
         return []
+
+    def is_result_line(self, index):
+        return False
+
+    def is_retenue_line(self, index):
+        return False
 
     def move_cursor(self, index, key):
         return self.cursor
@@ -101,6 +115,16 @@ class AdditionModel(OperationModel):
             x for x in range(self.rowCount() - self.columns + 1, self.rowCount())
         ]
         return first_line + last_line
+
+    @Slot(int, result=bool)
+    def isMiddleLine(self, index):
+        return not self.isResultLine(index) and not self.isRetenueLine(index)
+
+    def is_result_line(self, index):
+        return index >= self.rowCount() - self.columns
+
+    def is_retenue_line(self, index):
+        return 0 <= index and index < self.columns
 
     def move_cursor(self, index, key):
         new = self.cursor

@@ -10,9 +10,9 @@ Rectangle {
   property alias borderRight: borderItem.anchors.rightMargin
   Rectangle {
     id: borderItem
-    z:-1
+    z: -1
     anchors {
       fill: parent
+    }
   }
-}
 }

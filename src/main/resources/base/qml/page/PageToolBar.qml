@@ -36,6 +36,7 @@ ToolBar {
       ToolTip.visible: hovered
       ToolTip.text: "Supprimer la page"
     }
+
   }
   Dialogs13.FileDialog {
     id: newImageSectionFileDialog

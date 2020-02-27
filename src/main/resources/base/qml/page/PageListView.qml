@@ -25,7 +25,6 @@ BasePageListView {
     id: additionDelegate
     Addition {
       sectionId: curSectionId
-      base: lv
       position: curPosition
       model: AdditionModel {
         params: ddb.loadSection(curSectionId)

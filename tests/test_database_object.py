@@ -226,6 +226,7 @@ class TestSectionMixin:
             (1, {"path": "/my/path", "classtype": "ImageSection"}, 0, False),
             (1, {"classtype": "TextSection"}, 1, False),
             (1, {"classtype": "ImageSection"}, 0, False),
+            (1, {"classtype": "AdditionSection", "string": "3+4"}, 1, True),
         ],
     )
     def test_addSection(self, dao, ddbn, qtbot, page, content, res, signal_emitted):
@@ -245,6 +246,8 @@ class TestSectionMixin:
                 if i == "path":
                     assert content[i] != getattr(item, i)
                     assert (FILES / item.path).exists()
+                elif i == "string":
+                    item.datas == create_operation(content["string"])
                 else:
                     assert content[i] == getattr(item, i)
 

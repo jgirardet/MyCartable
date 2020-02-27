@@ -39,15 +39,16 @@ ToolBar {
 
     ToolBar {
       visible: ddb.currentMatiere == 1
-    ToolButton {
-      id: addAddition
-      icon.source: "qrc:///icons/addAddition"
-      icon.color: "transparent"
-      onClicked: dialogAddAddition.open()
-      enabled: ddb.currentPage
-      ToolTip.visible: hovered
-      ToolTip.text: "Ajouter une addition"
-    }}
+      ToolButton {
+        id: addAddition
+        icon.source: "qrc:///icons/addAddition"
+        icon.color: "transparent"
+        onClicked: dialogAddAddition.open()
+        enabled: ddb.currentPage
+        ToolTip.visible: hovered
+        ToolTip.text: "Ajouter une addition"
+      }
+    }
 
   }
   Dialogs13.FileDialog {
@@ -71,14 +72,23 @@ ToolBar {
   }
   Dialog {
     id: dialogAddAddition
-    title: "Entrer l'operation, par exemple : 2345+123+12"
+    title: "Entrer l'addition. ex: 123+12"
     standardButtons: Dialog.Ok | Dialog.Cancel
     focus: true
     contentItem: TextField {
-    focus: true
-      background: Rectangle {anchors.fill: parent; color:"white"}
+      focus: true
+      background: Rectangle {
+        anchors.fill: parent;
+        color: "white"
+      }
+      onAccepted: dialogAddAddition.accept()
     }
-    onAccepted: console.log(contentItem.text)
-    onRejected: console.log("Cancel clicked")
+    onAccepted: {
+      ddb.addSection(ddb.currentPage, {
+        'string': contentItem.text,
+        "classtype": "AdditionSection"
+      })
+      contentItem.clear()
+      }
   }
 }

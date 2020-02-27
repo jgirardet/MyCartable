@@ -22,5 +22,5 @@ GridView {
   delegate: AdditionDelegate {
     model: root.model
   }
-
+  Component.onCompleted: {currentIndex = count -1}
 }

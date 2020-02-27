@@ -115,6 +115,13 @@ class TestOperationModel:
             to.cursor = 1
         assert to.cursor == 1
 
+    def test_cursor_no_update_and_no_emit_if_unchanged(self, to, qtbot):
+
+        to.cursor = 1
+        with qtbot.assertNotEmitted(to.cursorChanged):
+            to.cursor = 1
+        assert to.cursor == 1
+
     def test_params(self):
         a = AdditionModel()
         x = f_additionSection(string="9+8", td=True)

@@ -18,7 +18,6 @@ Menu {
 
   function ouvre(newTarget) {
     uiManager.menuTarget = newTarget
-    print(newTarget, root)
     root.popup()
   }
 

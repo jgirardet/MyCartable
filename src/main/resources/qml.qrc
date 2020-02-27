@@ -45,5 +45,6 @@
         <file alias="newImageSection">../icons/base/svg/mbri-image-gallery.svg</file>
         <file alias="newTextSection">../icons/base/svg/mbri-edit2.svg</file>
         <file alias="removePage">../icons/base/svg/mbri-trash.svg</file>
+        <file alias="addAddition">../icons/base/operations/add-64.png</file>
     </qresource>
 </RCC>

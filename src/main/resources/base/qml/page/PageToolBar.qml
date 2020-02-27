@@ -37,6 +37,18 @@ ToolBar {
       ToolTip.text: "Supprimer la page"
     }
 
+    ToolBar {
+      visible: ddb.currentMatiere == 1
+    ToolButton {
+      id: addAddition
+      icon.source: "qrc:///icons/addAddition"
+      icon.color: "transparent"
+      onClicked: dialogAddAddition.open()
+      enabled: ddb.currentPage
+      ToolTip.visible: hovered
+      ToolTip.text: "Ajouter une addition"
+    }}
+
   }
   Dialogs13.FileDialog {
     id: newImageSectionFileDialog
@@ -56,5 +68,17 @@ ToolBar {
     title: "Supprimer la page ?"
     standardButtons: Dialog.Ok | Dialog.Cancel
     onAccepted: ddb.removePage(ddb.currentPage)
+  }
+  Dialog {
+    id: dialogAddAddition
+    title: "Entrer l'operation, par exemple : 2345+123+12"
+    standardButtons: Dialog.Ok | Dialog.Cancel
+    focus: true
+    contentItem: TextField {
+    focus: true
+      background: Rectangle {anchors.fill: parent; color:"white"}
+    }
+    onAccepted: console.log(contentItem.text)
+    onRejected: console.log("Cancel clicked")
   }
 }

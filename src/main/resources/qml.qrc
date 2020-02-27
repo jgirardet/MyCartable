@@ -21,11 +21,12 @@
         <file alias="PageTitre.qml">base/qml/page/PageTitre.qml</file>
 
     </qresource>
-    <qresource prefix="/qml/page/menu">
-        <file alias="MenuFlottant.qml">base/qml/page/menu/MenuFlottant.qml</file>
-        <file alias="MenuFlottantStabylo.qml">base/qml/page/menu/MenuFlottantStabylo.qml</file>
-        <file alias="MenuFlottantAnnotationText.qml">base/qml/page/menu/MenuFlottantAnnotationText.qml</file>
-        <file alias="ColorButton.qml">base/qml/page/menu/ColorButton.qml</file>
+    <qresource prefix="/qml/menu">
+        <file alias="BaseMenu.qml">base/qml/menu/BaseMenu.qml</file>
+        <file alias="MenuFlottantText.qml">base/qml/menu/MenuFlottantText.qml</file>
+        <file alias="MenuFlottantStabylo.qml">base/qml/menu/MenuFlottantStabylo.qml</file>
+<!--        <file alias="MenuFlottantAnnotationText.qml">base/qml/menu/MenuFlottantAnnotationText.qml</file>-->
+        <file alias="ColorButton.qml">base/qml/menu/ColorButton.qml</file>
 
     </qresource>
     <qresource prefix="/qml/page/operations">

@@ -25,7 +25,7 @@ def main_init_database():
     return package.database.db
 
 
-def main_setup(ddb):
+def main_setup(ddb, ui_manger):
     # set env
     os.environ["QT_STYLE_OVERRIDE"] = ""
 
@@ -33,6 +33,7 @@ def main_setup(ddb):
 
     engine = QQmlApplicationEngine()
     engine.rootContext().setContextProperty("ddb", ddb)
+    engine.rootContext().setContextProperty("uiManager", ui_manager)
     engine.load(QUrl("qrc:///qml/main.qml"))
 
     return engine
@@ -47,14 +48,16 @@ if __name__ == "__main__":
 
     # models
     from package.database_object import DatabaseObject
+    from package.ui_manager import UiManager
 
     from package.page.text_section import DocumentEditor
     from package.operations.models import AdditionModel
 
     database = DatabaseObject(package.database.db)
+    ui_manager = UiManager()
     qmlRegisterType(DocumentEditor, "DocumentEditor", 1, 0, "DocumentEditor")
     qmlRegisterType(AdditionModel, "Operations", 1, 0, "AdditionModel")
-    engine = main_setup(database)
+    engine = main_setup(database, ui_manager)
     #
     if not engine.rootObjects():
         sys.exit(-1)

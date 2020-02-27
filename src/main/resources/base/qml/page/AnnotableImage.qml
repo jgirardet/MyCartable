@@ -1,6 +1,6 @@
 import QtQuick 2.14
 import QtQuick.Controls 2.14
-import "menu"
+import "qrc:/qml/menu"
 
 FocusScope {
   id: root
@@ -174,17 +174,28 @@ FocusScope {
       if (mouse.button == Qt.RightButton) {
         temp_rec = root.storeZone(temp_rec)
         if (!temp_rec) {
-          menuflotant.popup()
+//          menuflotant.popup()
         }
         temp_rec = null
       }
     }
 
-    MenuFlottant {
-      id: menuflotant
-      objectName: "menuflottant"
-      editor: root
-
-    }
+//    MenuFlottant {
+//      id: menuflotant
+//      objectName: "menuflottant"
+//      editor: root
+//
+//    }
   }
 }
+
+//  Dialog {
+//    id: dialogSupprimer
+//    title: "Supprimer l'image ?"
+//    standardButtons: Dialog.Ok | Dialog.Cancel
+//    parent: root.editor
+//    anchors.centerIn: parent
+//
+//    onAccepted: ddb.removeSection(root.editor.sectionId, root.editor.position)
+//    //      onRejected: null
+//  }

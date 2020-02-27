@@ -140,7 +140,7 @@ class DocumentEditor(QObject):
         return True
 
     @Slot("QVariantMap")
-    def setStyle(self, data):
+    def setStyleFromMenu(self, data):
         if not self._cursor.hasSelection():
             self._cursor.select(QTextCursor.WordUnderCursor)
         f = QTextCharFormat()

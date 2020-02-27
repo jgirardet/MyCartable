@@ -2,10 +2,8 @@ import QtQuick 2.14
 import QtQuick.Controls 2.14
 import QtQuick.Layouts 1.12
 
-Menu {
+BaseMenu {
   id: root
-  property QtObject editor
-  signal styleChange(var data)
 
   MenuItem {
     RowLayout {
@@ -80,5 +78,7 @@ Menu {
       }
     }
   }
+
+
 
 }

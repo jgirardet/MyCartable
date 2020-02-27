@@ -24,11 +24,11 @@ Button {
   Action {
     id: action
     onTriggered: {
-      menu.editor.setStyle({
+      uiManager.menuTarget.setStyleFromMenu({
         "type": root.type,
         "value": root.color
       })
-      menu.visible = false
+      menu.ferme()
     }
   }
 }

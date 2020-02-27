@@ -1,6 +1,6 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
-import "menu"
+//import "menu"
 
 TextField {
   id: control
@@ -36,6 +36,7 @@ TextField {
     if (!focus && !text) {
       deleteRequested(control)
     }
+    focus ? uiManager.menuTarget = control : null
   }
 
   onHoveredChanged: hovered ? focus = true : null
@@ -43,7 +44,7 @@ TextField {
     if (event.buttons === Qt.MiddleButton) {
       deleteRequested(control)
     } else if (event.buttons === Qt.RightButton) {
-      menuflotant.popup()
+      uiManager.menuFlottantText.ouvre(control)
     }
   }
   onTextChanged: ddb.updateAnnotation(ddbId, {
@@ -53,15 +54,9 @@ TextField {
 
   Component.onCompleted: deleteRequested.connect(referent.deleteAnnotation)
 
-  function setStyle(data) {
+  function setStyleFromMenu(data) {
     control.font.underline = (data.type == "underline")
     control.color = data.value
     ddb.updateAnnotation(control.ddbId, data)
-  }
-
-  MenuFlottant {
-    id: menuflotant
-    objectName: "menuflottant"
-    editor: control
   }
 }

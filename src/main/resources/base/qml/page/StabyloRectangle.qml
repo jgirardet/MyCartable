@@ -1,6 +1,6 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
-import "menu"
+import "qrc:/qml/menu"
 
 Rectangle {
   id: control
@@ -29,19 +29,14 @@ Rectangle {
       if (mouse.button === Qt.MiddleButton) {
         deleteRequested(control) // tested in tst_annotableimage
       } else if (mouse.button === Qt.RightButton) {
-        menuflotant.popup()
+        uiManager.menuFlottantStabylo.ouvre(control)
         mouse.accepted = true
       }
     }
 
   }
-  MenuFlottantStabylo {
-    id: menuflotant
-    objectName: "menuflottant"
-    editor: control
-  }
 
-  function setStyle(data) {
+  function setStyleFromMenu(data) {
     ddb.updateAnnotation(control.ddbId, data)
     control[data.type] = data.value
   }

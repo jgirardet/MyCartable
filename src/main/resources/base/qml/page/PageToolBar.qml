@@ -89,6 +89,6 @@ ToolBar {
         "classtype": "AdditionSection"
       })
       contentItem.clear()
-      }
+    }
   }
 }

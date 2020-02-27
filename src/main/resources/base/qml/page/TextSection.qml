@@ -1,7 +1,7 @@
 import QtQuick 2.14
 import QtQuick.Controls 2.14
 import DocumentEditor 1.0
-import "menu"
+import "qrc:/qml/menu"
 
 TextArea {
   id: area
@@ -12,13 +12,24 @@ TextArea {
   wrapMode: TextEdit.Wrap
   width: base.width
 
+  onFocusChanged: focus ? uiManager.menuTarget = doc : null
+
   MouseArea {
     anchors.fill: area
-    acceptedButtons: Qt.RightButton
+    acceptedButtons: Qt.LeftButton | Qt.RightButton
 
+//    hoverEnabled: true
+//    onEntered:{
+//        area.forceActiveFocus()
+//    }
     onPressed: {
 
-      if (pressedButtons == Qt.RightButton) {
+      if (pressedButtons == Qt.LeftButton) {
+        uiManager.menuTarget = doc
+        mouse.accepted = false
+      }
+
+      else if (pressedButtons == Qt.RightButton) {
         menuStylePopup(area.selectionStart, area.selectionEnd)
       }
 
@@ -35,7 +46,7 @@ TextArea {
   }
 
   function menuStylePopup(start, end) {
-    menu.popup()
+    uiManager.menuFlottantText.ouvre(doc)
     cursorPosition = start
     moveCursorSelection(end, TextEdit.SelectCharacters)
   }
@@ -61,10 +72,5 @@ TextArea {
     }
     onSelectionCleared: area.deselect()
 
-  }
-
-  MenuFlottant {
-    id: menu
-    editor: doc
   }
 }

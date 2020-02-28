@@ -156,7 +156,7 @@ class TestProperties:
         doc.selectionEnd = end
 
         with qtbot.waitSignal(doc.selectionCleared):
-            doc.setStyle({"type": type_, "value": value})
+            doc.setStyleFromMenu({"type": type_, "value": value})
 
         html = doc.bs4().p.span
         if res is not None:

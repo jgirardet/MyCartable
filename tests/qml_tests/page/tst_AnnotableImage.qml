@@ -13,7 +13,6 @@ Item {
     id: ddbcomp
     DdbMock {}
   }
-
   Component {
     id: anottext
     AnnotationText {
@@ -21,6 +20,7 @@ Item {
       relativeY: 0.10
       /* beautify preserve:start */
       property var ddb //need to inject ddb
+      property var uiManager //need to inject ddb
       /* beautify preserve:end */
     }
   }
@@ -42,6 +42,8 @@ Item {
       //                source: '../resources/tst_AnnotableImage.png' // 767 x 669
       /* beautify preserve:start */
       property var ddb //need to inject ddb
+      property var uiManager //need to inject ddb
+
       /* beautify preserve:end */
     }
   }
@@ -51,13 +53,16 @@ Item {
     name: "AnnotableImage";when: windowShown
     property AnnotableImage anot: null
     property DdbMock ddb: null
+    property Item uiManager: null
     //
     function init() {
       ddb = createTemporaryObject(ddbcomp, item)
+      uiManager = createTemporaryObject(Qt.createComponent("../UiManager.qml"), item)
       verify(ddb)
       ddb._loadSection = ddb.sp.loadSection
       anot = createTemporaryObject(anotimg, item, {
-        'ddb': ddb
+        'ddb': ddb,
+        "uiManager": uiManager
       })
       tryCompare(anot.image, "progress", 1.0) // permet le temps de chargement async de l'image
     }
@@ -70,6 +75,7 @@ Item {
         anot.destroy()
       }
       ddb.destroy()
+      uiManager.destroy()
     }
 
     function test_init() {
@@ -129,15 +135,8 @@ Item {
       compare(anot.annotations[0].relativeHeight, 120 / 174) //cf plus heut
       compare(anot.annotations[0].ddbId, 6)
 
-      // check popup not opened
-      compare(findChild(anot, "menuflottant").opened,false )
     }
 
-    function test_affiche_popup() {
-      mouseClick(anot, 100, 100, Qt.RightButton)
-       var rec = findChild(anot, "menuflottant")
-       compare(rec.opened,true )
-    }
 
     function test_img_load_init() {
       compare(anot.image.source, Qt.resolvedUrl(ddb.sp.loadSection.path))
@@ -186,7 +185,8 @@ Item {
       ddb._loadSection = ddb.sp.loadSection
 
       var ano = createTemporaryObject(anotimg, item, {
-        'ddb': ddb
+        'ddb': ddb,
+        "uiManager": uiManager
       })
       compare(ano.annotations.length, 3)
       var obj = ano.annotations[2]
@@ -200,7 +200,8 @@ Item {
         'ddb': ddb,
         "ddbId": 5,
         "referent": anot,
-        "text": "blabla"
+        "text": "blabla",
+        "uiManager": uiManager
       })
       anot.annotations.push(anotText)
 
@@ -217,6 +218,7 @@ Item {
         'ddb': ddb,
         "ddbId": 5,
         "referent": anot,
+        "uiManager": uiManager
       })
       anot.annotations.push(restabb)
 
@@ -230,4 +232,5 @@ Item {
 
 
   }
+
 }

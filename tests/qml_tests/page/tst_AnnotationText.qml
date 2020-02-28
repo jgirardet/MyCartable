@@ -10,11 +10,6 @@ Item {
   id: item
 
   Component {
-    id: ddbcomp
-    DdbMock {}
-  }
-
-  Component {
     id: refcomp
     Item {
       width: item.width
@@ -25,89 +20,77 @@ Item {
       function deleteAnnotation(obj) {}
     }
   }
-  Component {
-    id: anotinp
-    AnnotationText {
-      relativeX: 0.48
-      relativeY: 0.10
-      /* beautify preserve:start */
-      property var ddb //need to inject ddb
-      /* beautify preserve:end */
-    }
-  }
-  TestCase {
-    //
-    name: "AnnotationText";when: windowShown
-    property AnnotationText anot
-    property Item ref
-    property DdbMock ddb: null
 
-    function init() {
-      ddb = createTemporaryObject(ddbcomp, item)
-      //      et pas   ref = createTemporaryObject(refcomp, item)// sinon Warn
-      ref = refcomp.createObject(item)
-      anot = anotinp.createObject(ref, {
-        'ddb': ddb,
-        "referent": ref
-      })
-      verify(anot)
-      verify(ref)
-      ref.annotations.push(anot)
-    }
-
+  CasTest {
+    name: "AnnotationText Cas"
+    testedNom: "qrc:/qml/page/AnnotationText.qml"
+    /* beautify preserve:start */
+    property var ref
+    /* beautify preserve:end */
+     function initPre() {
+        ref = refcomp.createObject(item)
+        params = {
+          "referent": ref,
+          "relativeX": 0.48,
+          "relativeY": 0.10
+        }
+     }
+     function initPost() {
+      ref.annotations.push(tested)
+     }
     function test_AnotXY() {
-      compare(anot.x, 96)
-      compare(anot.y, 20)
+      compare(tested.x, 96)
+      compare(tested.y, 20)
     }
 
     function test_focus() {
-      anot.focus = true
-      compare(anot.background.border.color, "#21be2b")
-      anot.focus = false
-      compare(anot.background.border.color, "#00000000")
+      tested.focus = true
+      compare(tested.background.border.color, "#21be2b")
+      tested.focus = false
+      compare(tested.background.border.color, "#00000000")
     }
 
     function test_some_property() {
-      compare(anot.selectByMouse, true)
-//      compare(anot.font.underline)
+      compare(tested.selectByMouse, true)
     }
 
     function test_hover() {
-      anot.focus = false
-      mouseMove(anot, 1, 1)
-      compare(anot.focus, true)
-      var anot2 = createTemporaryObject(anotinp, ref, {
+      tested.focus = false
+      mouseMove(tested, 1, 1)
+      compare(tested.focus, true)
+      var tested2 = createObj("qrc:/qml/page/AnnotationText.qml", {
         "referent": ref,
         "relativeX": 0.8,
-        "relativeY": 0.8
+        "relativeY": 0.8,
+        "uiManager": uiManager
       })
-      mouseMove(anot2, 1, 1)
-      compare(anot.focus, false)
-      compare(anot2.focus, true)
+      mouseMove(tested2, 1, 1)
+      compare(tested.focus, false)
+      compare(tested2.focus, true)
     }
 
     function test_hover_cursor_at_end() {
-      anot.text = "12345678"
-      mouseMove(anot, 1, 1)
-      mouseClick(anot)
-      compare(anot.cursorPosition, 4)
-      mouseMove(anot, anot.width + 10, anot.height + 10)
-      anot.focus = false
-      mouseMove(anot, 1, 1)
-      compare(anot.cursorPosition, 8)
+      tested.text = "12345678"
+      mouseMove(tested, 1, 1)
+      mouseClick(tested)
+      compare(tested.cursorPosition, 4)
+      mouseMove(tested, tested.width + 10, tested.height + 10)
+      tested.focus = false
+      mouseMove(tested, 1, 1)
+      compare(tested.cursorPosition, 8)
     }
 
-    function test_anot_destroy_if_empty_when_leave() {
-      anot.focus=true
-      var spy = ddb.getSpy(anot, "deleteRequested")
-      anot.text=""
-      anot.focus=false
+    function test_tested_destroy_if_empty_when_leave() {
+      tested.focus=true
+      var spy = getSpy(tested, "deleteRequested")
+      tested.text=""
+      tested.focus=false
       spy.wait()
     }
 
     function test_update_text() {
-      anot.ddbId = 3
-      anot.text = "bla"
+      tested.ddbId = 3
+      tested.text = "bla"
       compare(ddb._updateAnnotation[0], 3)
       compare(ddb._updateAnnotation[1].value, "bla")
       compare(ddb._updateAnnotation[1].type, "text")
@@ -115,51 +98,58 @@ Item {
 
     function test_setStyle_color() {
       ddb._updateAnnotation = {}
-      anot.color = "blue"
+      tested.color = "blue"
       var data = {'type':'color', 'value': 'red'}
-      anot.setStyle(data)
-      compare(anot.color,"#ff0000")
-      compare(ddb._updateAnnotation[0], anot.ddbId)
+      tested.setStyleFromMenu(data)
+      compare(tested.color,"#ff0000")
+      compare(ddb._updateAnnotation[0], tested.ddbId)
       compare(ddb._updateAnnotation[1], data)
     }
 
     function test_setStyle_underline() {
       ddb._updateAnnotation = {}
       var data = {'type':'underline', 'value': "red"}
-      anot.setStyle(data)
-      compare(anot.color,"#ff0000")
-      compare(anot.font.underline,true)
-      compare(ddb._updateAnnotation[0], anot.ddbId)
+      tested.setStyleFromMenu(data)
+      compare(tested.color,"#ff0000")
+      compare(tested.font.underline,true)
+      compare(ddb._updateAnnotation[0], tested.ddbId)
       compare(ddb._updateAnnotation[1], data)
     }
 
     function test_setStyle_remove_underline() {
       ddb._updateAnnotation = {}
-      anot.color = "blue"
-      anot.font.underline = true
+      tested.color = "blue"
+      tested.font.underline = true
       var data = {'type':'color', 'value': "red"}
-      anot.setStyle(data)
-      compare(anot.color,"#ff0000")
-      compare(anot.font.underline,false)
-      compare(ddb._updateAnnotation[0], anot.ddbId)
+      tested.setStyleFromMenu(data)
+      compare(tested.color,"#ff0000")
+      compare(tested.font.underline,false)
+      compare(ddb._updateAnnotation[0], tested.ddbId)
       compare(ddb._updateAnnotation[1], data)
     }
 
-
     function test_menu_show() {
-      mouseClick(anot, 0, 0, Qt.RightButton)
-      compare(findChild(anot, "menuflottant").opened,true )
+      mouseClick(tested, 0, 0, Qt.RightButton)
+      compare(uiManager.menuTarget,tested )
     }
 
-    function test_menu_change_color() {
-      compare(anot.color, "#353637")
-      mouseClick(anot, 0, 0, Qt.RightButton)
-      var red = findChild(anot, "menuflottant")
-      waitForRendering(anot)
-      mouseClick(anot, red.x, red.y, Qt.LeftButton)
-      compare(Qt.colorEqual(anot.color, "red"), true)
-
-    }
+      function test_menu_change_color() {
+    compare(tested.color, "#353637")
+    tested.text= "1234"
+    tested.focus=true
+    mouseClick(tested,  Qt.RightButton)
+//    var red = findChild(tested, "menuflottant")
+    waitForRendering(tested)
+//    var menu = uiManager.menuFlottantText
+//    waitForRendering(tested)
+//    sleep(1000)
+    mouseClick(tested)
+//    sleep(5000)
+    print(tested.color)
+    compare(Qt.colorEqual(tested.color, "red"), true)
 
   }
+
+    }
+
 }

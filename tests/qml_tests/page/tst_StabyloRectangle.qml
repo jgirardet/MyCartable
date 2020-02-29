@@ -1,110 +1,84 @@
-import QtQuick 2.12
-import QtQuick.Layouts 1.12
-import QtQuick.Controls 2.12
-import QtTest 1.12
-import "../../../src/main/resources/base/qml/page"
-import ".."
+import QtQuick 2.14
 
+import ".."
 Item {
   width: 200
   height: 200
   id: item
-  Component {
-      id: ddbcomp
-      DdbMock {}
-    }
+
   Component {
     id: refcomp
     Item {
+      x: item.x
+      y: item.y
       width: item.width
       height: item.height
       /* beautify preserve:start */
       property var annotations: []
-      function deleteAnnotation(obj)  {}
       /* beautify preserve:end */
+      function deleteAnnotation(obj) {}
     }
   }
 
-  Component {
-    id: stabcomp
-    StabyloRectangle {
-      relativeX: 0.48
-      relativeY: 0.10
-      //referent: ref
-      /* beautify preserve:start */
-      property var ddb //need to inject ddb
-      /* beautify preserve:end */
-    }
-  }
-
-  TestCase {
-
-    name: "StabyloRectangle";when: windowShown
-    property StabyloRectangle stab
-    property Item ref
-    property DdbMock ddb
-    property Item uiManager
-
-    function init() {
-      uiManager = createTemporaryObject(Qt.createComponent("../UiManager.qml"), item)
-
-      //            ref = createTemporaryObject(refcomp, item) sinon Warn
-      ref = refcomp.createObject(item)
-      ddb = createTemporaryObject(ddbcomp, item)
-      verify(ddb)
-      stab = createTemporaryObject(stabcomp, ref, {
-        "referent": ref,
-        "ddb": ddb
-      })
-      verify(stab)
-      verify(ref)
-      ref.annotations.push(stab)
-    }
-
-    function cleanup() {
-      ref.destroy
-    }
+  CasTest {
+    name: "Stabylo Rectangle"
+    testedNom: "qrc:/qml/page/StabyloRectangle.qml"
+    /* beautify preserve:start */
+    property var ref
+    /* beautify preserve:end */
+     function initPre() {
+        ref = refcomp.createObject(item)
+        params = {
+          "referent": ref,
+          "relativeX": 0.48,
+          "relativeY": 0.10
+        }
+     }
+     function initPost() {
+      ref.annotations.push(tested)
+     }
 
     function test_id() {
-      compare(stab.relativeX, 0.48)
-      compare(stab.ddbId, 0)
+      compare(tested.relativeX, 0.48)
+      compare(tested.ddbId, 0)
     }
 
     function test_AnotXY() {
-      compare(stab.x, 96)
-      compare(stab.y, 20)
+      compare(tested.x, 96)
+      compare(tested.y, 20)
     }
 
 
     function test_setStyle() {
       ddb._updateAnnotation = {}
-      stab.color = "blue"
+      tested.color = "blue"
       var data = {'type':'color', 'value': 'red'}
-      stab.setStyleFromMenu(data)
-      compare(stab.color,"#ff0000")
-      compare(ddb._updateAnnotation[0], stab.ddbId)
+      tested.setStyleFromMenu(data)
+      compare(tested.color,"#ff0000")
+      compare(ddb._updateAnnotation[0], tested.ddbId)
       compare(ddb._updateAnnotation[1], data)
     }
 
 
-//    function test_menu_show() {
-//      mouseClick(stab, 0, 0, Qt.RightButton)
-//      compare(findChild(stab, "menuflottant").opened,true )
-//    }
 
-//    function test_menu_change_color() {
-//      compare(stab.color, "#806633")
-//      mouseClick(stab, 0, 0, Qt.RightButton)
-//      var red = findChild(stab, "menuflottant")
-//      waitForRendering(stab)
-//      mouseClick(stab, red.x, red.y, Qt.LeftButton)
-//      compare(Qt.colorEqual(stab.color, "red"), true)
-//
-//    }
+    function test_menu_show() {
+      compare(uiManager.menuTarget,undefined )
+      mouseClick(tested, 0, 0, Qt.RightButton)
+      compare(uiManager.menuFlottantStabylo.opened , true)
+      compare(uiManager.menuFlottantStabylo.target, tested)
+    }
 
-    function test_stab_destroy() {
-      var spy = ddb.getSpy(stab, "deleteRequested")
-      mouseClick(stab, 0, 0, Qt.MiddleButton)
+    function test_menu_change_color() {
+          tested.color = "blue"
+          mouseClick(tested, 0, 0, Qt.RightButton)
+          menuClick(uiManager.menuFlottantStabylo, 1, 30)
+          compare(Qt.colorEqual(tested.color, "red"), true)
+
+        }
+
+    function test_tested_destroy() {
+      var spy = ddb.getSpy(tested, "deleteRequested")
+      mouseClick(tested, 0, 0, Qt.MiddleButton)
       spy.wait()
     }
 

@@ -30,13 +30,13 @@ Rectangle {
   Component.onCompleted: {
     var newComp = Qt.createComponent("qrc:/qml/menu/MenuFlottantStabylo.qml")
     if (newComp.status == Component.Ready) {
-      uiManager.menuFlottantStabylo  = newComp.createObject(base)
+      uiManager.menuFlottantStabylo = newComp.createObject(base)
     } else {
       print(newComp.errorString())
     }
     var newComp = Qt.createComponent("qrc:/qml/menu/MenuFlottantText.qml")
     if (newComp.status == Component.Ready) {
-      uiManager.menuFlottantText  = newComp.createObject(base)
+      uiManager.menuFlottantText = newComp.createObject(base)
     } else {
       print(newComp.errorString())
     }

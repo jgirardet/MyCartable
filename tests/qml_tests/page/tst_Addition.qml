@@ -1,73 +1,13 @@
-import QtQuick 2.12
-import QtTest 1.12
-import "../../../src/main/resources/base/qml/page/operations"
+import QtQuick 2.14
 import ".."
-import QtQml.Models 2.14
 
 Item {
-  id: item
   width: 200
-  height: 300
+  height: 200
+  id: item
 
   Component {
-    id: ddbComp
-    DdbMock {}
-  }
-Component {
-    id: tempItemComp
-    Rectangle {
-      property TextInput textinput: input
-      property QtObject model
-      TextInput {
-        id: input
-        text: display
-      }
-    }
-  }
-
-  Component {
-    id: testedComp
-    Addition {
-      /* beautify preserve:start */
-      property var ddb //need to inject ddb
-      /* beautify preserve:end */
-    }
-  }
-  Component {
-    id: testedCompDelegate
-    AdditionDelegate {
-      /* beautify preserve:start */
-      property var ddb //need to inject ddb
-      /* beautify preserve:end */
-    }
-  }
-
-//  Component {
-//    id: modelComp
-//    QtObject {
-//      property int rows: 4
-//      property int columns: 3
-//      property int cursor: 0
-//      /* beautify preserve:start */
-//      property var datas: ["", "", "", "", "", "9", "+", "", "8", "", "", ""]
-//      /* beautify preserve:end */
-//
-//      function rowCount(parent) {return 7}
-//      function data(index, role) {return datas[index]}
-//
-//      function isResultLine(index) {return _isResultLine}
-//      property bool _isResultLine: false
-//      function isRetenueLine(index) {return _isRetenueLine}
-//      property bool _isRetenueLine: false
-//      function isMiddleLine(index) {return _isMiddleLine}
-//      property bool _isMiddleLine: false
-//      function readOnly(index) {return _readOnly}
-//      property bool _readOnly: false
-//
-//    }
-//  }
-  Component {
-  id:modelComp
+  id: modelComp
   ListModel {
   id: listmodel
     property int rows: 4
@@ -110,34 +50,28 @@ Component {
             }
           };
         }
-   }
+        }
    }
 
-  TestCase {
-    id: testcase
+
+  CasTest {
     name: "Addition"
-    when: windowShown
+    testedNom: "qrc:/qml/page/operations/Addition.qml"
+    /* beautify preserve:start */
+    property var model
+    /* beautify preserve:end */
 
-    property Addition tested
-    property DdbMock ddb
-    property ListModel model
-    //
-    function init() {
-      ddb = createTemporaryObject(ddbComp, item)
-      model = createTemporaryObject(modelComp, item)
-      tested = createTemporaryObject(testedComp, item, {
-        'ddb': ddb,
-        "model": model,
-      })
+    function initPre() {
+      model = createTemporaryObject(modelComp,item)
+      params = {"model": model}
     }
 
-    function cleanup() {
-      tested.destroy() //avoid warnings
+    function initPost() {
     }
 
     function test_the_mock_model() {
       compare(model.count, 12)
-      compare(tested.model.count, 12)
+      compare(tested.model,  model)
       }
     function test_init() {
       compare(tested.keyNavigationEnabled, false)

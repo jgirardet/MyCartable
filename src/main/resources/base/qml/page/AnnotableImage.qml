@@ -10,20 +10,14 @@ FocusScope {
     property var base
     property var annotations: []
     property alias image: img
-//    property alias status: img.status
     readonly property var annotationText: Qt.createComponent("qrc:/qml/page/AnnotationText.qml")
     readonly property var stabyloRectangle: Qt.createComponent("qrc:/qml/page/StabyloRectangle.qml")
    /* beautify preserve:end */
 
-  //  signal imageLoaded()
 
   //doit rester comme ça pour les annotations +++
   height: img.height
   width: img.width
-
-  //  onActiveFocusChanged: focus==true ? base.currentIndex = root.index : null
-
-  //  onImageLoaded: base.enBas()
 
   Component.onCompleted: {
     var content = ddb.loadSection(sectionId)
@@ -65,7 +59,6 @@ FocusScope {
 
   function deleteAnnotation(anotObj) {
     ddb.deleteAnnotation(anotObj.ddbId)
-    print("dans anot", anotObj.ddbId)
     let objIndex = annotations.indexOf(anotObj)
     annotations.splice(objIndex, 1)
     anotObj.destroy()
@@ -174,18 +167,11 @@ FocusScope {
       if (mouse.button == Qt.RightButton) {
         temp_rec = root.storeZone(temp_rec)
         if (!temp_rec) {
-//          menuflotant.popup()
+          //          menuflotant.popup()
         }
         temp_rec = null
       }
     }
-
-//    MenuFlottant {
-//      id: menuflotant
-//      objectName: "menuflottant"
-//      editor: root
-//
-//    }
   }
 }
 

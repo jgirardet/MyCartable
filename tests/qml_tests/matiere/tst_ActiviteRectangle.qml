@@ -1,79 +1,60 @@
-import QtQuick 2.12
-import QtQuick.Layouts 1.12
-import QtQuick.Controls 2.12
-import QtTest 1.12
-import "../../../src/main/resources/base/qml/matiere"
+import QtQuick 2.14
 import ".."
+
 Item {
-  id: item
   width: 200
-  height: 60
-  Component {
-    id: ddbcomp
-    DdbMock {}
-  }
-  ColumnLayout {
-    id: col
-    anchors.fill: parent
-  }
-  Component {
-    id: reccomp
-    ActiviteRectangle {
-      model: ddb.pagesParSection[2]
-      /* beautify preserve:start */
-      property var ddb //need to inject ddb
-      /* beautify preserve:end */
+  height: 200
+  id: item
+
+
+  Item {
+  id:model
+  property string nom: "Evaluations"
+  property ListModel pages: ListModel {
+      id: listmodel
+    Component.onCompleted: {
+      listmodel.append({"modelData":{"titre":"premier", "id":99}})
+    }
     }
   }
-  TestCase {
-    id: testcase
+
+  CasTest {
     name: "ActiviteRectangle"
-    when: windowShown
-    property DdbMock ddb
-    property ActiviteRectangle rec
+    testedNom: "qrc:/qml/matiere/ActiviteRectangle.qml"
+    params: {"model": model}
     /* beautify preserve:start */
     property var lv
     /* beautify preserve:end */
 
-    function init() {
-      ddb = createTemporaryObject(ddbcomp, item)
-      verify(ddb)
-      rec = createTemporaryObject(reccomp, col, {
-        "ddb": ddb
-      })
-      waitForRendering(rec)
-      lv = findChild(rec, "_listView")
+    function initPost(){
+        lv = findChild(tested, "_listView")
+        tested.width = item.width //fix le problème deLayout.fillWidth
+        tested.height = item.height //fix le problème deLayout en test
     }
 
-    function cleanup() {
-      rec.destroy() // remove warn message
-      ddb.destroy()
-    }
-
-//
     function test_header() {
       compare(lv.headerItem.label.text, "Evaluations")
     }
 
     function test_header_click() {
     mouseClick(lv.headerItem, 0, 0 , Qt.RightButton)
-      compare(ddb._newPage, rec.model.id)
+      compare(ddb._newPage, tested.model.id)
     }
 
     function test_lv_item() {
-      compare(lv.currentItem.text, "letitre 2 3")
+      lv.currentIndex = 0
+      ddb.currentPage = 0
+      compare(lv.currentItem.text, "premier")
       compare(lv.currentItem.height, lv.headerItem.height)
     }
 
 
     function test_click_on_item() {
+      lv.currentIndex = 0
+      lv.forceLayout()
       mouseClick(lv.currentItem)
-      compare(ddb.currentPage, 12)
+      compare(ddb.currentPage, 99)
       }
-//      var item = ddb.sp.lessonsList[0]
-//      rec.model = ddb.sp.lessonsList
-//      mouseClick(rec, 5, 35)
-//      tryCompare(ddb, "currentPage", item.id)
 
   }
 }

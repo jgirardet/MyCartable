@@ -1,70 +1,40 @@
-import QtQuick 2.12
-import QtQuick.Layouts 1.12
-import QtQuick.Controls 2.12
-import QtTest 1.12
-import "../../../src/main/resources/base/qml/matiere"
+import QtQuick 2.14
 import ".."
+
 Item {
+  width: 200
+  height: 200
   id: item
-  width: 800
-  height: 600
-  Component {
-    id: ddbcomp
-    DdbMock {}
-  }
-  RowLayout {
-    id: col
-    anchors.fill: parent
-  }
-  Component {
-    id: reccomp
-    MatiereRectangle {
-      property
-      var ddb
-    }
-  }
-  Component {
-    id: spycomp
-    SignalSpy {}
-  }
-  TestCase {
-    id: testcase
+
+  CasTest {
     name: "MatiereRectangle"
-    when: windowShown
-    property DdbMock ddb
-    property MatiereRectangle rec
+    testedNom: "qrc:/qml/matiere/MatiereRectangle.qml"
+    params: {}
 
-    function init() {
-      ddb = createTemporaryObject(ddbcomp, item)
-      verify(ddb)
-      rec = createTemporaryObject(reccomp, col, {
-        "ddb": ddb
-      })
-      waitForRendering(rec)
+    function initPre() {
     }
 
-    function cleanup() {
-      rec.destroy()
+    function initPost() {
     }
 
     function test_matiere_combox() {
       ddb._getMatiereIndexFromId = ddb.sp.getMatiereIndexFromId.id3
-      var cb = findChild(rec, "_comboBoxSelectMatiere")
+      var cb = findChild(tested, "_comboBoxSelectMatiere")
       compare(cb.currentIndex, 2)
       compare(cb.currentText, "Histoire")
     }
 
     function test_matiere_combo_click() {
-      var cb = findChild(rec, "_comboBoxSelectMatiere")
-      var spt = ddb.getSpy(ddb, "setCurrentMatiereFromIndexSignal")
+      var cb = findChild(tested, "_comboBoxSelectMatiere")
+      var spt = getSpy(ddb, "setCurrentMatiereFromIndexSignal")
       compare(spt.count, 0)
       cb.activated(3)
       compare(spt.count, 2) // called twice... why ???
     }
 
-    function test_activite_rectangle() {
+    function test_activite_testedtangle() {
         ddb.currentPage =1
-        var rep = rec.repeater
+        var rep = tested.repeater
         compare(rep.itemAt(0).model, ddb.pagesParSection[0])
 
     }

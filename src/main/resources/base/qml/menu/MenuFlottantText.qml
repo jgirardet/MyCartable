@@ -4,7 +4,6 @@ import QtQuick.Layouts 1.12
 
 BaseMenu {
   id: root
-
   MenuItem {
     RowLayout {
       anchors.fill: parent
@@ -78,7 +77,5 @@ BaseMenu {
       }
     }
   }
-
-
 
 }

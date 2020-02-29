@@ -44,14 +44,16 @@ Rectangle {
     headerPositioning: ListView.OverlayHeader
     delegate: Button {
       id: but
-      objectName: "buttonDelegate"
+      //      objectName: "buttonDelegate"
       text: modelData.titre
       width: ListView.view.width
       height: _listView.commonHeight
       onClicked: {
+        print("clicked")
         ddb.currentPage = modelData.id
 
       }
+      //      Component.onCompleted:print(modelData['id'])
     }
   }
 }

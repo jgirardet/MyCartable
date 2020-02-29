@@ -18,18 +18,16 @@ TextArea {
     anchors.fill: area
     acceptedButtons: Qt.LeftButton | Qt.RightButton
 
-//    hoverEnabled: true
-//    onEntered:{
-//        area.forceActiveFocus()
-//    }
+    //    hoverEnabled: true
+    //    onEntered:{
+    //        area.forceActiveFocus()
+    //    }
     onPressed: {
 
       if (pressedButtons == Qt.LeftButton) {
         uiManager.menuTarget = doc
         mouse.accepted = false
-      }
-
-      else if (pressedButtons == Qt.RightButton) {
+      } else if (pressedButtons == Qt.RightButton) {
         menuStylePopup(area.selectionStart, area.selectionEnd)
       }
 

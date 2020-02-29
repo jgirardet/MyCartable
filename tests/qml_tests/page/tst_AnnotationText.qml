@@ -1,8 +1,5 @@
-import QtQuick 2.12
-import QtQuick.Layouts 1.12
-import QtQuick.Controls 2.12
-import QtTest 1.12
-import "../../../src/main/resources/base/qml/page"
+import QtQuick 2.14
+
 import ".."
 Item {
   width: 200
@@ -12,6 +9,8 @@ Item {
   Component {
     id: refcomp
     Item {
+      x: item.x
+      y: item.y
       width: item.width
       height: item.height
       /* beautify preserve:start */
@@ -128,24 +127,23 @@ Item {
       compare(ddb._updateAnnotation[1], data)
     }
 
-    function test_menu_show() {
-      mouseClick(tested, 0, 0, Qt.RightButton)
+    function test_focus_set_menu_tearget() {
+      compare(uiManager.menuTarget,undefined )
+      tested.focus = true
       compare(uiManager.menuTarget,tested )
     }
 
-      function test_menu_change_color() {
+    function test_menu_show() {
+      compare(uiManager.menuTarget,undefined )
+      mouseClick(tested, 0, 0, Qt.RightButton)
+      compare(uiManager.menuFlottantText.opened , true)
+      compare(uiManager.menuFlottantText.target, tested)
+    }
+
+    function test_menu_change_color() {
     compare(tested.color, "#353637")
-    tested.text= "1234"
-    tested.focus=true
-    mouseClick(tested,  Qt.RightButton)
-//    var red = findChild(tested, "menuflottant")
-    waitForRendering(tested)
-//    var menu = uiManager.menuFlottantText
-//    waitForRendering(tested)
-//    sleep(1000)
-    mouseClick(tested)
-//    sleep(5000)
-    print(tested.color)
+    mouseClick(tested, 0, 0, Qt.RightButton)
+    menuClick(uiManager.menuFlottantText, 1, 30)
     compare(Qt.colorEqual(tested.color, "red"), true)
 
   }

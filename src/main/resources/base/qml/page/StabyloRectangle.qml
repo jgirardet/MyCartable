@@ -35,6 +35,7 @@ Rectangle {
     }
 
   }
+  Component.onCompleted: deleteRequested.connect(referent.deleteAnnotation)
 
   function setStyleFromMenu(data) {
     ddb.updateAnnotation(control.ddbId, data)

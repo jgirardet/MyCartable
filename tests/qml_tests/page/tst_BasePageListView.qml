@@ -1,6 +1,5 @@
 import QtQuick 2.14
 import QtTest 1.14
-import "../../../src/main/resources/base/qml/page"
 import ".."
 
 Item {
@@ -8,41 +7,16 @@ Item {
   width: 200
   height: 300
 
-  Component {
-    id: ddbComp
-    DdbMock {}
-  }
 
-  Component {
-    id: testedComp
-    BasePageListView {
-      /* beautify preserve:start */
-      property var ddb //need to inject ddb
-      /* beautify preserve:end */
-    }
-  }
   Component {
     id: modelComp
     ListModel {
       signal rowsInserted(int index, int row, int col)
       signal modelReset()
       property int lastPosition: 0
-    }
-  }
-
-  TestCase {
-    id: testcase
-    name: "BasePageListView"
-    when: windowShown
-
-    property BasePageListView tested
-    property DdbMock ddb
-    property ListModel listmodel
-    //
-    function init() {
-      ddb = createTemporaryObject(ddbComp, item)
-
-      var listData = [{
+      id: listmodel
+      Component.onCompleted: {
+         var listData = [{
         "page": {
           "id": 34,
           "classtype": "TextSection"
@@ -69,24 +43,27 @@ Item {
         }
       }, ]
 
-
-
-      listmodel = createTemporaryObject(modelComp, item, {
-        'ddb': ddb,
-        'model': listmodel
-      })
          for (var x of listData) {
         listmodel.append(x)
       }
+        }
+      }
 
-      tested = createTemporaryObject(testedComp, item, {
-        'ddb': ddb,
-        'model': listmodel
-      })
     }
 
-    function cleanup() {}
 
+  CasTest {
+    name: "BasePageListView"
+    testedNom: "qrc:/qml/page/BasePageListView.qml"
+    property ListModel listmodel
+
+    function initPre() {
+    listmodel = createTemporaryObject(modelComp, item)
+    params= {'model': listmodel}
+    }
+
+    function initPost(){
+    }
     function test_init() {
       compare(tested.clip, true)
       compare(tested.highlightMoveDuration,  -1)
@@ -96,10 +73,9 @@ Item {
     }
 
     function test_currentindex_bind_last_position () {
-    // ignore warn : Error: Invalid write to global property "currentIndex"
       compare(tested.currentIndex, 0)
-    tested.model.lastPosition = 32
-      compare(tested.currentIndex, 32)
+    listmodel.lastPosition = 4
+      compare(tested.currentIndex, 4)
     }
 
 

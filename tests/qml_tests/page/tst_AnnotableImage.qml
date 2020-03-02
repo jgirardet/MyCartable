@@ -1,82 +1,3 @@
-//import QtQuick 2.12
-//import QtQuick.Layouts 1.12
-//import QtQuick.Controls 2.12
-//import QtTest 1.12
-//import "../../../src/main/resources/base/qml/page"
-//import ".."
-//Item {
-//  id: item
-//  width: 200
-//  height: 300
-//
-//  Component {
-//    id: ddbcomp
-//    DdbMock {}
-//  }
-//  Component {
-//    id: anottext
-//    AnnotationText {
-//      relativeX: 0.48
-//      relativeY: 0.10
-//      /* beautify preserve:start */
-//      property var ddb //need to inject ddb
-//      property var uiManager //need to inject ddb
-//      /* beautify preserve:end */
-//    }
-//  }
-//
-//  Component {
-//    id: stabcomp
-//    StabyloRectangle {
-//      relativeX: 0.48
-//      relativeY: 0.10
-//      //referent: ref
-//    }
-//  }
-//
-//  Component {
-//    id: anotimg
-//    AnnotableImage {
-//      sectionId: 1
-//      base: item
-//      //                source: '../resources/tst_AnnotableImage.png' // 767 x 669
-//      /* beautify preserve:start */
-//      property var ddb //need to inject ddb
-//      property var uiManager //need to inject ddb
-//
-//      /* beautify preserve:end */
-//    }
-//  }
-  //
-//  TestCase {
-//    id: testcase
-//    name: "AnnotableImage";when: windowShown
-//    property AnnotableImage anot: null
-//    property DdbMock ddb: null
-//    property Item uiManager: null
-//    //
-//    function init() {
-//      ddb = createTemporaryObject(ddbcomp, item)
-//      uiManager = createTemporaryObject(Qt.createComponent("../UiManager.qml"), item)
-//      verify(ddb)
-//      ddb._loadSection = ddb.sp.loadSection
-//      anot = createTemporaryObject(anotimg, item, {
-//        'ddb': ddb,
-//        "uiManager": uiManager
-//      })
-//      tryCompare(anot.image, "progress", 1.0) // permet le temps de chargement async de l'image
-//    }
-//
-//    function cleanup() {
-//      if (anot) {
-//        for (var x of anot.annotations) {
-//          x.destroy()
-//        }
-//        anot.destroy()
-//      }
-//      ddb.destroy()
-//      uiManager.destroy()
-//    }
 import QtQuick 2.14
 import ".."
 
@@ -98,6 +19,10 @@ Item {
     }
     function initPost() {
     tryCompare(tested.image, "progress", 1.0) // permet le temps de chargement async de l'image
+    }
+
+    function cleanup(){
+        tested.destroy()
     }
 
     function test_init() {
@@ -171,15 +96,15 @@ Item {
       ddb._loadAnnotations = ddb.sp.loadAnnotations
       ddb._loadSection = ddb.sp.loadSection
 
-      var ano = createObj("qrc:/qml/page/AnnotableImage.qml")
+      var ano = createObj("qrc:/qml/page/AnnotableImage.qml", {"sectionId": 1, "base": item})
       compare(ano.annotations.length, 3)
-      var item = ano.annotations[1]
-      compare(item.relativeX, 0.5)
-      compare(item.relativeY, 0.6)
-      compare(item.relativeWidth, 0.1)
-      compare(item.relativeHeight, 0.2)
-      compare(item.ddbId, 2)
-      compare(item.color, "#008000")
+      var item2 = ano.annotations[1]
+      compare(item2.relativeX, 0.5)
+      compare(item2.relativeY, 0.6)
+      compare(item2.relativeWidth, 0.1)
+      compare(item2.relativeHeight, 0.2)
+      compare(item2.ddbId, 2)
+      compare(item2.color, "#008000")
 
 
     }
@@ -188,14 +113,14 @@ Item {
       tested.destroy()
       ddb._loadAnnotations = ddb.sp.loadAnnotations
       ddb._loadSection = ddb.sp.loadSection
-      var ano = createObj("qrc:/qml/page/AnnotableImage.qml")
+      var ano = createObj("qrc:/qml/page/AnnotableImage.qml", {"sectionId": 1, "base": item})
 
       compare(ano.annotations.length, 3)
-      var item = ano.annotations[0]
-      compare(item.relativeX, 0.1)
-      compare(item.relativeY, 0.2)
-      compare(item.ddbId, 1)
-      compare(item.text, "un annotation")
+      var itemx = ano.annotations[0]
+      compare(itemx.relativeX, 0.1)
+      compare(itemx.relativeY, 0.2)
+      compare(itemx.ddbId, 1)
+      compare(itemx.text, "un annotation")
 
     }
 
@@ -203,7 +128,7 @@ Item {
       tested.destroy()
       ddb._loadAnnotations = ddb.sp.loadAnnotations
       ddb._loadSection = ddb.sp.loadSection
-      var ano = createObj("qrc:/qml/page/AnnotableImage.qml")
+      var ano = createObj("qrc:/qml/page/AnnotableImage.qml", {"sectionId": 1, "base": item})
 
       compare(ano.annotations.length, 3)
       var obj = ano.annotations[2]

@@ -77,6 +77,22 @@ class TestPageMixin:
         with db_session:
             assert ddbr.Page[1].titre == "aaa"
 
+    def test_setCurrentTitre(self, dao, qtbot):
+        f_page()
+        dao.currentPage = 1
+        dao.TITRE_TIMER_DELAY = 0
+        with qtbot.assertNotEmitted(dao.currentTitreChanged):
+            dao.setCurrentTitre("blabla")
+        assert dao.currentTitre == "blabla"
+
+        with qtbot.waitSignal(dao.currentTitreSetted):
+            dao.setCurrentTitre("ble")
+
+        # no curerntPage
+        dao.currentPage = 0
+        with qtbot.assertNotEmitted(dao.currentTitreSetted):
+            dao.setCurrentTitre("blabla")
+
     def test_on_pagechanged_reset_model(self, dao):
         p1 = f_page()
         f_section(page=p1.id)
@@ -88,6 +104,11 @@ class TestPageMixin:
         dao.removePage(1)
         with db_session:
             assert not dao.db.Page.get(id=1)
+        assert dao.currentPage == 0
+
+    def test_removePAge_no_item_in_db(self, dao, qtbot):
+        dao.removePage(99)
+        assert dao.currentPage == 0
 
     def test_removePAge_blanck_if_currentItem(self, dao):
         f_page()
@@ -227,6 +248,7 @@ class TestSectionMixin:
             (1, {"classtype": "TextSection"}, 1, False),
             (1, {"classtype": "ImageSection"}, 0, False),
             (1, {"classtype": "AdditionSection", "string": "3+4"}, 1, True),
+            (1, {"string": "3+4"}, 0, False),
         ],
     )
     def test_addSection(self, dao, ddbn, qtbot, page, content, res, signal_emitted):
@@ -251,12 +273,16 @@ class TestSectionMixin:
                 else:
                     assert content[i] == getattr(item, i)
 
-    def test_removeSection(self, dao):
+    def test_removeSection(self, dao, qtbot):
         r = [f_imageSection(), f_textSection()]
         for x in r:
             dao.removeSection(x.id, 99)
         with db_session:
             assert len(dao.db.Section.select()) == 0
+
+        # not item
+        with qtbot.waitSignal(dao.sectionRemoved, check_params_cb=lambda x: x == 99):
+            dao.removeSection(9999, 99)
 
     def test_removeSection_signal(self, dao, qtbot):
         r = f_imageSection()
@@ -375,17 +401,11 @@ class TestDatabaseObject:
     def test_onNewPageCreated(self, ddbr, qtbot):
         a = f_page(td=True, activite="1")
         d = DatabaseObject(ddbr)
-        with qtbot.wait_signals(
-            [
-                (d.pagesParSectionChanged, "pagesparsection"),
-                (d.recentsModelChanged, "modelreset"),
-            ]
-        ):
-            d.onNewPageCreated(a)
+        d.onNewPageCreated(a)
         assert d.currentPage == a["id"]
         assert d.currentMatiere == a["matiere"]
 
-    def test_onCurrentTitreChanged(self, ddbr, qtbot):
+    def test_onCurrentTitreSetted(self, ddbr, qtbot):
         a = f_page(td=True, activite="1")
         d = DatabaseObject(ddbr)
         with qtbot.wait_signals(
@@ -394,7 +414,7 @@ class TestDatabaseObject:
                 (d.recentsModelChanged, "recentchanged"),
             ]
         ):
-            d.currentTitreChanged.emit()
+            d.currentTitreSetted.emit()
 
     def test_onSectionAdded(self, dao, ddbn):
         p = f_page()
@@ -417,7 +437,7 @@ class TestDatabaseObject:
                 (dao.currentMatiereChanged, "matiere"),
                 (dao.pagesParSectionChanged, "activite"),
             ],
-            timeout=2000,
+            # timeout=2000,
         ):
             dao.currentPage = 1
         assert dao.currentMatiere == a["matiere"]

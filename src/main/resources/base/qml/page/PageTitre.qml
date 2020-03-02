@@ -6,7 +6,7 @@ TextField {
 
   /* beautify preserve:start */
       property var page
-      /* beautify preserve:end */
+  /* beautify preserve:end */
 
   text: ddb.currentPage ? ddb.currentTitre : ""
   id: root
@@ -15,8 +15,10 @@ TextField {
   Layout.preferredHeight: 50
 
   onTextChanged: {
-    ddb.currentTitre = text
+    ddb.setCurrentTitre(text)
   }
+
+
 
   Keys.onPressed: {
     if (event.key == Qt.Key_Return) {
@@ -34,5 +36,6 @@ TextField {
       forceActiveFocus()
     }
   }
+
 
 }

@@ -1,3 +1,5 @@
+from functools import partial
+
 from PySide2.QtCore import Slot, Signal, Property, QObject, QTimer
 from package.constantes import TITRE_TIMER_DELAY
 from package.utils import create_singleshot
@@ -11,6 +13,7 @@ class PageMixin:
     currentPageChanged = Signal("QVariantMap")
     newPageCreated = Signal(dict)
     currentTitreChanged = Signal()
+    currentTitreSetted = Signal()
 
     TITRE_TIMER_DELAY = TITRE_TIMER_DELAY
 
@@ -20,6 +23,9 @@ class PageMixin:
         self._currentEntry = None
 
         self.timer_titre = create_singleshot(self._currentTitreSet)
+        self.timer_titre_setted = create_singleshot(
+            partial(self._currentTitreSet, setted=True)
+        )
 
         from package.list_models import PageModel
 
@@ -88,8 +94,19 @@ class PageMixin:
                 self._currentTitre = value
                 self.timer_titre.start(self.TITRE_TIMER_DELAY)
 
-    def _currentTitreSet(self):
+    def _currentTitreSet(self, setted=False):
         with db_session:
             self._currentEntry.titre = self._currentTitre
-        self.currentTitreChanged.emit()
+        if setted:
+            self.currentTitreSetted.emit()
+        else:
+            self.currentTitreChanged.emit()
         LOG.debug(f"nouveau titre : {self._currentTitre}")
+
+    @Slot(str)
+    def setCurrentTitre(self, value):
+        """comme setter maais sans signal"""
+
+        if self.currentPage and value != self._currentTitre:
+            self._currentTitre = value
+            self.timer_titre_setted.start(self.TITRE_TIMER_DELAY)

@@ -1,46 +1,21 @@
-import QtQuick 2.12
-import QtTest 1.12
-import "../../../src/main/resources/base/qml/page"
+import QtQuick 2.14
 import ".."
 
 Item {
-  id: item
   width: 200
-  height: 300
+  height: 200
+  id: item
 
-  Component {
-    id: ddbComp
-    DdbMock {}
-  }
-
-  Component {
-    id: testedComp
-    PageTitre {
-      /* beautify preserve:start */
-      property var ddb //need to inject ddb
-      /* beautify preserve:end */
-    }
-  }
-
-  TestCase {
-    id: testcase
+  CasTest {
     name: "PageTitre"
-    when: windowShown
-    
-    property PageTitre tested
-    property DdbMock ddb
-    //
-    function init() {
-      ddb = createTemporaryObject(ddbComp, item)
-//      ddb.currentPage =1
-      tested = createTemporaryObject(testedComp, item, {
-        'ddb': ddb
-      })
-    }
+    testedNom: "qrc:/qml/page/PageTitre.qml"
+    params: {}
 
-    function cleanup() {
-      tested.destroy()
-    }
+//    function initPre() {
+//    }
+//
+//    function initPost() {
+//    }
 
     function test_init() {
       ddb.currentTitre = "le titre"
@@ -61,7 +36,7 @@ Item {
       ddb.currentPage=1
       tested.forceActiveFocus()
       keySequence("a")
-      compare(ddb.currentTitre, "a")
+      compare(ddb._setCurrentTitre, "a")
     }
 
     function test_add_sectionText_on_enter_no_other_section() {

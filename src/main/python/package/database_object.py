@@ -41,7 +41,7 @@ class DatabaseObject(QObject, *MIXINS):
 
         self.currentMatiereChanged.connect(self.pagesParSectionChanged)
         self.currentPageChanged.connect(self.onCurrentPageChanged)
-        self.currentTitreChanged.connect(self.updateRecentsAndActivites)
+        self.currentTitreSetted.connect(self.updateRecentsAndActivites)
 
         self.newPageCreated.connect(self.onNewPageCreated)
         self.recentsItemClicked.connect(self.onRecentsItemClicked)

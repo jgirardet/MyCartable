@@ -4,6 +4,7 @@ import QtQuick.Layouts 1.12
 Rectangle {
   id: base
   color: "orange"
+  property alias listview: recentsListView
   Column {
     id: recentsColumn
     anchors.fill: parent
@@ -18,7 +19,6 @@ Rectangle {
     }
     RecentsListView {
       id: recentsListView
-      objectName: "recentsListView"
       model: ddb.recentsModel
       onItemClicked: ddb.recentsItemClicked(id, matiere)
     }

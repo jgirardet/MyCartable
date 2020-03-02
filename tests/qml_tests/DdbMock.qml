@@ -58,6 +58,9 @@ Item {
   }
 
 
+  function setCurrentTitre(value) {
+    _setCurrentTitre = value
+  }
 
   function updateAnnotation(itemId, params) {
     _updateAnnotation = [itemId, params]
@@ -76,6 +79,7 @@ Item {
   property var _loadSection: {}
   property var _newPage
   property var  _recentsItemClicked: []
+  property var  _setCurrentTitre
   property var _updateAnnotation: null
   /* beautify preserve:end */
   Component {

@@ -2,11 +2,14 @@ from PySide2.QtCore import QObject, Property, Signal
 
 
 class UiManager(QObject):
+
+    menuFlottantTextChanged = Signal()
+    menuFlottantStabyloChanged = Signal()
+    menuTargetChanged = Signal()
+
     def __init__(self):
         super().__init__()
         self._menuTarget = None
-
-    menuFlottantTextChanged = Signal()
 
     @Property(QObject, notify=menuFlottantTextChanged)
     def menuFlottantText(self):
@@ -17,8 +20,6 @@ class UiManager(QObject):
         self._menuFlottantText = value
         self.menuFlottantTextChanged.emit()
 
-    menuFlottantStabyloChanged = Signal()
-
     @Property(QObject, notify=menuFlottantStabyloChanged)
     def menuFlottantStabylo(self):
         return self._menuFlottantStabylo
@@ -27,8 +28,6 @@ class UiManager(QObject):
     def menuFlottantStabylo_set(self, value: int):
         self._menuFlottantStabylo = value
         self.menuFlottantStabyloChanged.emit()
-
-    menuTargetChanged = Signal()
 
     @Property(QObject, notify=menuTargetChanged)
     def menuTarget(self):

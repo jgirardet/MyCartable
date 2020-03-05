@@ -18,7 +18,7 @@ Item {
       /* beautify preserve:end */
       Component.onCompleted: {
         for (var x of datas){
-          listmodel.append({"display":x})
+          listmodel.append({"display":x, "edit":x})
         }
       }
       function isResultLine(index) {
@@ -98,9 +98,11 @@ Item {
       compare(tested.currentItem.textinput.focus,true) // si pas fait
       keyClick(Qt.Key_5)
       compare(tested.itemAtIndex(11).textinput.text, "5")
+      compare(model.get(11).edit, "5")
       compare(tested.currentIndex,1)
       keyClick(Qt.Key_2)
       compare(tested.itemAtIndex(1).textinput.text, "2")
+      compare(model.get(1).edit, "2")
       compare(tested.currentIndex,10)
       keyClick(Qt.Key_3)
       compare(tested.currentItem.textinput.text, "3") //no automove after last
@@ -148,6 +150,7 @@ Item {
       compare(model._moveCursor, [11, Qt.Key_Right])
 
     }
+
 
   }
 

@@ -6,6 +6,7 @@ Rectangle {
   id: root
   property alias model: input.model
   property alias textinput: input
+
   property GridView grid: GridView.view
   height: grid.cellHeight
   width: grid.cellWidth
@@ -27,6 +28,7 @@ Rectangle {
       bottom: 0;top: 9;
     }
     onTextEdited: {
+      edit = text
       model.autoMoveNext(index)
     }
     onFocusChanged: {
@@ -45,6 +47,7 @@ Rectangle {
       borderColor: model.isResultLine(index) ? "black" : root.color
       borderTop: -2
     }
+
 
   }
 

@@ -233,6 +233,11 @@ def init_models(db: Database):
             dico["datas"] = self.datas
             return dico
 
+        def update_datas(self, index, value):
+            datas = self.datas
+            datas[index] = value
+            self._datas = json.dumps(datas)
+
     class AdditionSection(OperationSection):
         pass
 

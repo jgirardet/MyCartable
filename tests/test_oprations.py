@@ -4,6 +4,7 @@ from fixtures import check_super_init
 from package.database.factory import f_additionSection
 from package.operations.api import match, convert_addition, create_operation
 from package.operations.models import OperationModel, AdditionModel
+from pony.orm import db_session
 
 
 class TestAddition:
@@ -88,6 +89,7 @@ class TestAddition:
 def to(ddbr):
     a = OperationModel()
     a.params = f_additionSection(string="9+8", td=True)
+    a.sectionId = 1
     return a
 
 
@@ -95,6 +97,7 @@ def to(ddbr):
 def ta(ddbr):
     a = AdditionModel()
     a.params = f_additionSection(string="9+8", td=True)
+    a.sectionId = 1
     return a
 
 
@@ -110,6 +113,7 @@ class TestOperationModel:
         assert to.rows == 4
         assert to.columns == 3
         assert to.cursor == 0
+        assert to.sectionId == 1
 
         with qtbot.waitSignal(to.cursorChanged):
             to.cursor = 1
@@ -139,6 +143,20 @@ class TestOperationModel:
         assert to.data(to.index(99, 0), Qt.DisplayRole) is None
         # unvalid role
         assert to.data(to.index(5, 0), 999999) is None
+
+    def test_flags(self, to):
+        to.flags(to.index(99, 99)) == Qt.ItemIsDropEnabled
+
+    def test_setData(self, to):
+        assert to.setData(to.index(11, 0), 5, Qt.EditRole)  # doit retourner True
+        with db_session:
+            assert to.db.Section[1].datas[11] == 5
+            assert to.datas[11] == 5
+
+        assert not to.setData(to.index(99, 0), 5, Qt.EditRole)
+        assert not to.setData(to.index(11, 0), 8, Qt.DisplayRole)
+        with db_session:
+            assert to.db.Section[1].datas[11] == 5  # pas de modif
 
     def test_isIResultline(self, to):
         assert to.isResultLine(99) is False

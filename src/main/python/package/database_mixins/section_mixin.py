@@ -31,8 +31,6 @@ class SectionMixin:
             else:
                 return 0
 
-        # elif classtype == ""
-
         with db_session:
             item = getattr(self.db, classtype)(page=page_id, **content)
         self.sectionAdded.emit(item.position)
@@ -55,7 +53,6 @@ class SectionMixin:
         with db_session:
             item = self.db.Section.get(id=sectionId)
             if item:
-                pos = item.position
                 item.delete()
         # on sort de la session avant d'emit pour que toutes modif/hook pris en compte
         self.sectionRemoved.emit(index)

@@ -4,7 +4,7 @@ from PySide2.QtCore import QUrl
 from fixtures import compare, compare_items, ss
 from package.database.factory import *
 import pytest
-from pony.orm import flush, exists, commit
+from pony.orm import flush, exists, commit, Database
 
 
 def test_creation_all(ddb):
@@ -425,6 +425,14 @@ class TestOperationSection:
             "page": 1,
             "position": 1,
         }
+
+    def test_update_datas(self, ddbr: Database):
+        item = f_additionSection(string="259+135")
+        with db_session:
+            ddbr.Section[item.id].update_datas(15, 4)
+
+        with db_session:
+            assert ddbr.Section[item.id].datas[15] == 4
 
 
 class TestAddditionSection:

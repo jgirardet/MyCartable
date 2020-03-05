@@ -9,15 +9,20 @@ from PySide2.QtCore import (
     Slot,
 )
 
+from package.database import db
+from pony.orm import db_session, make_proxy
+
 
 class OperationModel(QAbstractListModel):
-    paramsChanged = Signal()
     cursorChanged = Signal()
+    paramsChanged = Signal()
+    sectionIdChanged = Signal()
 
     def __init__(self):
         super().__init__()
         self._cursor = 0
         self.editables = []
+        self.db = db
 
     @Property("QVariantList", notify=paramsChanged)
     def datas(self):
@@ -41,6 +46,15 @@ class OperationModel(QAbstractListModel):
         self.editables = self.get_editables()
         self.paramsChanged.emit()
 
+    @Property(int, notify=sectionIdChanged)
+    def sectionId(self):
+        return self._sectionId
+
+    @sectionId.setter
+    def SectionId_set(self, value: int):
+        self._sectionId = value
+        self.sectionIdChanged.emit()
+
     @Property(int, notify=cursorChanged)
     def cursor(self):
         return self._cursor
@@ -59,6 +73,25 @@ class OperationModel(QAbstractListModel):
         if index.isValid() and role == Qt.DisplayRole:
             value = self.datas[index.row()]
             return value
+
+    def flags(self, index):
+        if not index.isValid():
+            return Qt.ItemIsDropEnabled
+
+        return QAbstractItemModel.flags(index) | Qt.ItemIsEditable
+
+    def setData(self, index, value, role) -> bool:
+        if not hasattr(self, "proxy"):
+            with db_session:
+                self.proxy = make_proxy(self.db.Section.get(id=self.sectionId))
+
+        if index.isValid() and role == Qt.EditRole:
+            with db_session:
+                self.proxy.update_datas(index.row(), value)
+            self.datas[index.row()] = value
+            self.dataChanged.emit(index, index)
+            return True
+        return False
 
     @Slot(int)
     def autoMoveNext(self, currentIndex):

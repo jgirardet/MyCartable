@@ -87,17 +87,17 @@ class TestAddition:
 
 @pytest.fixture
 def to(ddbr):
+    x = f_additionSection(string="9+8")
     a = OperationModel()
-    a.params = f_additionSection(string="9+8", td=True)
-    a.sectionId = 1
+    a.sectionId = x.id
     return a
 
 
 @pytest.fixture
 def ta(ddbr):
+    x = f_additionSection(string="9+8")
     a = AdditionModel()
-    a.params = f_additionSection(string="9+8", td=True)
-    a.sectionId = 1
+    a.sectionId = x.id
     return a
 
 
@@ -201,8 +201,9 @@ class TestadditionModel:
         ],
     )
     def test_get_editables(self, string, res):
+        x = f_additionSection(string=string)
         a = AdditionModel()
-        a.params = f_additionSection(string=string, td=True)
+        a.sectionId = x.id
         assert a.editables == res
 
     @pytest.mark.parametrize(
@@ -232,10 +233,11 @@ class TestadditionModel:
         ],
     )
     def test_move_cursor(self, index, key, res):
-        a = AdditionModel()
-        a.cursor = 99  # controle pas modif, 0 pourrait être faux
-        a.params = f_additionSection(string="254+141", td=True)
+        x = f_additionSection(string="254+141")
         # ['', '', '', '', '', '2', '5', '4', '+', '1', '4', '1', '', '', '', ''] 4x4
+        a = AdditionModel()
+        a.sectionId = x.id
+        a.cursor = 99  # controle pas modif, 0 pourrait être faux
         assert a.move_cursor(index, key) == res
 
     def test_isMiddleLinee(self, ta):

@@ -27,8 +27,7 @@ BasePageListView {
       sectionId: curSectionId
       position: curPosition
       model: AdditionModel {
-        params: ddb.loadSection(curSectionId)
-        sectionId: curSectionId
+        sectionId: curSectionId // on laisse tout là pour les tests
       }
     }
   }

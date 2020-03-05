@@ -23,28 +23,27 @@ class OperationModel(QAbstractListModel):
         self._cursor = 0
         self.editables = []
         self.db = db
+        self.params = None
+        self.sectionIdChanged.connect(self.on_sectionId_changed)
+
+    def on_sectionId_changed(self):
+        # c'est une post init method
+        with db_session:
+            self.proxy = make_proxy(self.db.Section.get(id=self.sectionId))
+            self.params = self.proxy.to_dict(with_collections=True)
+        self.editables = self.get_editables()
 
     @Property("QVariantList", notify=paramsChanged)
     def datas(self):
-        return self._params["datas"]
+        return self.params["datas"]
 
     @Property(int, notify=paramsChanged)
     def rows(self):
-        return int(self._params["rows"])
+        return int(self.params["rows"])
 
     @Property(int, notify=paramsChanged)
     def columns(self):
-        return int(self._params["columns"])
-
-    @Property("QVariantMap", notify=paramsChanged)
-    def params(self):
-        return self._params
-
-    @params.setter
-    def params_set(self, value: int):
-        self._params = value
-        self.editables = self.get_editables()
-        self.paramsChanged.emit()
+        return int(self.params["columns"])
 
     @Property(int, notify=sectionIdChanged)
     def sectionId(self):
@@ -81,9 +80,6 @@ class OperationModel(QAbstractListModel):
         return QAbstractItemModel.flags(index) | Qt.ItemIsEditable
 
     def setData(self, index, value, role) -> bool:
-        if not hasattr(self, "proxy"):
-            with db_session:
-                self.proxy = make_proxy(self.db.Section.get(id=self.sectionId))
 
         if index.isValid() and role == Qt.EditRole:
             with db_session:

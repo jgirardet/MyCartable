@@ -18,6 +18,7 @@ class OperationModel(QAbstractListModel):
     cursorChanged = Signal()
     paramsChanged = Signal()
     sectionIdChanged = Signal()
+    ddb = None
 
     def __init__(self):
         super().__init__()
@@ -27,6 +28,7 @@ class OperationModel(QAbstractListModel):
         self.params = {"rows": 0, "columns": 0, "datas": [], "size": 0}
         self._sectionId = None
         self.sectionIdChanged.connect(self.load_params)
+        self.dataChanged.connect(self.ddb.recentsModelChanged)
 
     @db_session
     def load_params(self):

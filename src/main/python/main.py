@@ -55,7 +55,9 @@ if __name__ == "__main__":
 
     databaseObject = DatabaseObject(package.database.db)
     ui_manager = UiManager()
+
     qmlRegisterType(DocumentEditor, "DocumentEditor", 1, 0, "DocumentEditor")
+    AdditionModel.ddb = databaseObject
     qmlRegisterType(AdditionModel, "Operations", 1, 0, "AdditionModel")
     engine = main_setup(databaseObject, ui_manager)
     #

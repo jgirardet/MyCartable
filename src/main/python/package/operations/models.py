@@ -14,6 +14,7 @@ from pony.orm import db_session, make_proxy
 
 
 class OperationModel(QAbstractListModel):
+
     cursorChanged = Signal()
     paramsChanged = Signal()
     sectionIdChanged = Signal()
@@ -23,36 +24,26 @@ class OperationModel(QAbstractListModel):
         self._cursor = 0
         self.editables = []
         self.db = db
-        self.params = None
-        self.sectionIdChanged.connect(self.on_sectionId_changed)
+        self.params = {"rows": 0, "columns": 0, "datas": [], "size": 0}
+        self._sectionId = None
+        self.sectionIdChanged.connect(self.load_params)
 
-    def on_sectionId_changed(self):
+    @db_session
+    def load_params(self):
         # c'est une post init method
-        with db_session:
+        try:
             self.proxy = make_proxy(self.db.Section.get(id=self.sectionId))
-            self.params = self.proxy.to_dict(with_collections=True)
+        except AttributeError:
+            self._sectionId = None
+            return
+        self.params = self.proxy.to_dict()
         self.editables = self.get_editables()
 
-    @Property("QVariantList", notify=paramsChanged)
-    def datas(self):
-        return self.params["datas"]
-
-    @Property(int, notify=paramsChanged)
-    def rows(self):
-        return int(self.params["rows"])
+    # Property
 
     @Property(int, notify=paramsChanged)
     def columns(self):
         return int(self.params["columns"])
-
-    @Property(int, notify=sectionIdChanged)
-    def sectionId(self):
-        return self._sectionId
-
-    @sectionId.setter
-    def SectionId_set(self, value: int):
-        self._sectionId = value
-        self.sectionIdChanged.emit()
 
     @Property(int, notify=cursorChanged)
     def cursor(self):
@@ -64,9 +55,24 @@ class OperationModel(QAbstractListModel):
             self._cursor = value
             self.cursorChanged.emit()
 
-    def rowCount(self, parent=QModelIndex()) -> int:
+    @Property("QVariantList", notify=paramsChanged)
+    def datas(self):
+        return self.params["datas"]
 
-        return len(self.datas)
+    @Property(int, notify=paramsChanged)
+    def rows(self):
+        return int(self.params["rows"])
+
+    @Property(int, notify=sectionIdChanged)
+    def sectionId(self):
+        return self._sectionId
+
+    @sectionId.setter
+    def SectionId_set(self, value: int):
+        self._sectionId = value
+        self.sectionIdChanged.emit()
+
+    # method de QAbstractModel
 
     def data(self, index, role):
         if index.isValid() and role == Qt.DisplayRole:
@@ -79,6 +85,9 @@ class OperationModel(QAbstractListModel):
 
         return QAbstractItemModel.flags(index) | Qt.ItemIsEditable
 
+    def rowCount(self, parent=QModelIndex()) -> int:
+        return int(self.params["size"])
+
     def setData(self, index, value, role) -> bool:
 
         if index.isValid() and role == Qt.EditRole:
@@ -88,6 +97,8 @@ class OperationModel(QAbstractListModel):
             self.dataChanged.emit(index, index)
             return True
         return False
+
+    # Slot en plus
 
     @Slot(int)
     def autoMoveNext(self, currentIndex):
@@ -108,6 +119,8 @@ class OperationModel(QAbstractListModel):
     @Slot(int, result=bool)
     def isRetenueLine(self, index):
         return self.is_retenue_line(index)
+
+    # fonction overidable par subclass
 
     def auto_move_next(self, position):
         return position

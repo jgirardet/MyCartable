@@ -221,6 +221,7 @@ class TestSectionMixin:
             "modified": a.modified.isoformat(),
             "page": 1,
             "position": 1,
+            "size": 8,
         }
 
     @pytest.mark.parametrize(

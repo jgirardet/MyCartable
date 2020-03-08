@@ -102,18 +102,36 @@ def ta(ddbr):
 
 
 class TestOperationModel:
-    def test_base_init(self, to, qtmodeltester, qtbot):
+    def test_base_init(self, qtmodeltester, qtbot):
+        op = OperationModel()
+
         assert check_super_init(
             "package.list_models.QAbstractListModel", OperationModel
         )
-        qtmodeltester.check(to)
+        qtmodeltester.check(op)
+        assert op.datas == []
+        assert op.rows == 0
+        assert op.columns == 0
+        assert op.cursor == 0
+        assert op._sectionId is None
 
-        # signal tester par le fait que les valeurs sont updatées
-        assert to.datas == ["", "", "", "", "", "9", "+", "", "8", "", "", ""]
-        assert to.rows == 4
-        assert to.columns == 3
-        assert to.cursor == 0
-        assert to.sectionId == 1
+    def test_load_params(self, ddbr, qtbot):
+        op = OperationModel()
+        op.sectionId = 1
+        assert op.sectionId is None
+
+        td = f_additionSection(string="9+8", td=True)
+
+        with qtbot.waitSignal(op.sectionIdChanged):
+            op.sectionId = 1
+
+        assert op.params == td
+        assert op.datas == ["", "", "", "", "", "9", "+", "", "8", "", "", ""]
+        assert op.rows == 4
+        assert op.columns == 3
+        assert op.sectionId == 1
+
+    def test_cursor(self, to, qtbot):
 
         with qtbot.waitSignal(to.cursorChanged):
             to.cursor = 1
@@ -125,12 +143,6 @@ class TestOperationModel:
         with qtbot.assertNotEmitted(to.cursorChanged):
             to.cursor = 1
         assert to.cursor == 1
-
-    def test_params(self):
-        a = AdditionModel()
-        x = f_additionSection(string="9+8", td=True)
-        a.params = x
-        assert a.params == x
 
     def test_autoMoveNext(self, to):
         to.autoMoveNext(99)
@@ -190,21 +202,6 @@ class TestadditionModel:
         a.params = f_additionSection(string="254+141", td=True)
         # ['', '', '', '', '', '2', '5', '4', '+', '1', '4', '1', '', '', '', ''] 4x4
         assert a.auto_move_next(index) == res
-
-    @pytest.mark.parametrize(
-        "string, res",
-        [
-            ("9+8", [1, 10, 11]),
-            ("1+2", [7]),
-            ("345+289", [1, 2, 13, 14, 15]),
-            ("1+2+3", [9]),
-        ],
-    )
-    def test_get_editables(self, string, res):
-        x = f_additionSection(string=string)
-        a = AdditionModel()
-        a.sectionId = x.id
-        assert a.editables == res
 
     @pytest.mark.parametrize(
         "index,key,res",

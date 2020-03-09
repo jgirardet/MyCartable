@@ -425,6 +425,7 @@ class TestOperationSection:
             "page": 1,
             "position": 1,
             "size": 16,
+            "virgule": 0,
         }
 
     def test_update_datas(self, ddbr: Database):
@@ -458,16 +459,15 @@ class TestAddditionSection:
     @pytest.mark.parametrize(
         "string, res",
         [
-            ("9+8", [1, 10, 11]),
-            ("1+2", [7]),
-            ("345+289", [1, 2, 13, 14, 15]),
-            ("1+2+3", [9]),
+            ("9+8", {1, 10, 11}),
+            ("1+2", {7}),
+            ("345+289", {1, 2, 13, 14, 15}),
+            ("1+2+3", {9}),
+            ("1,1+1", {1, 13, 15}),
         ],
     )
     def test_get_editables(self, ddb, string, res):
         x = f_additionSection(string=string)
-        # a = AdditionModel()
-        # a.sectionId = x.id
         assert x.get_editables() == res
 
 

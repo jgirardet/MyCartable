@@ -217,15 +217,17 @@ def init_models(db: Database):
         rows = Required(int)
         columns = Required(int)
         size = Required(int)
+        virgule = Required(int)
 
         def __init__(self, string, **kwargs):
-            rows, columns, datas = create_operation(string)
+            rows, columns, virgule, datas = create_operation(string)
             size = len(datas)
             super().__init__(
                 rows=rows,
                 columns=columns,
                 _datas=json.dumps(datas),
                 size=size,
+                virgule=virgule,
                 **kwargs
             )
 
@@ -246,9 +248,14 @@ def init_models(db: Database):
 
     class AdditionSection(OperationSection):
         def get_editables(self):
-            first_line = [x for x in range(1, self.columns - 1)]
-            last_line = [x for x in range(self.size - self.columns + 1, self.size)]
-            return first_line + last_line
+            first_line = {x for x in range(1, self.columns - 1)}
+            last_line = {x for x in range(self.size - self.columns + 1, self.size)}
+            res = first_line | last_line
+            if self.virgule:
+                virgule_ll = self.size - self.columns + self.virgule
+                res = res - {self.virgule, virgule_ll}
+
+            return res
 
     class Annotation(db.Entity):
         id = PrimaryKey(int, auto=True)

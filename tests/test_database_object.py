@@ -222,6 +222,7 @@ class TestSectionMixin:
             "page": 1,
             "position": 1,
             "size": 8,
+            "virgule": 0,
         }
 
     @pytest.mark.parametrize(

@@ -39,7 +39,7 @@ class OperationModel(QAbstractListModel):
             self._sectionId = None
             return
         self.params = self.proxy.to_dict()
-        self.editables = self.get_editables()
+        self.editables = self.proxy.get_editables()
 
     # Property
 
@@ -70,11 +70,13 @@ class OperationModel(QAbstractListModel):
         return self._sectionId
 
     @sectionId.setter
-    def SectionId_set(self, value: int):
+    def sectionId_set(self, value: int):
         self._sectionId = value
         self.sectionIdChanged.emit()
 
-    # method de QAbstractModel
+    @Property(int, notify=paramsChanged)
+    def virgule(self):
+        return self.params["virgule"]
 
     def data(self, index, role):
         if index.isValid() and role == Qt.DisplayRole:
@@ -127,9 +129,6 @@ class OperationModel(QAbstractListModel):
     def auto_move_next(self, position):
         return position
 
-    def get_editables(self):
-        return []
-
     def is_result_line(self, index):
         return False
 
@@ -145,21 +144,16 @@ class OperationModel(QAbstractListModel):
 
 class AdditionModel(OperationModel):
     def auto_move_next(self, position):
-        if position == self.rowCount() - self.columns + 1:
+        if position == self.rowCount() - self.columns + 1:  # début de ligne résultat
             return position
-        elif position > self.columns:
+        elif position > self.columns:  # reste ligne résutlat
             diff = self.rowCount() - position
             new = int(self.columns - diff - 1)
-        else:
+            if new == self.virgule:
+                new -= 1  # saute la virgule dans les retenues
+        else:  # le haut
             new = self.columns * (self.rows - 1) + position
         return new
-
-    def get_editables(self):
-        first_line = [x for x in range(1, self.columns - 1)]
-        last_line = [
-            x for x in range(self.rowCount() - self.columns + 1, self.rowCount())
-        ]
-        return first_line + last_line
 
     @Slot(int, result=bool)
     def isMiddleLine(self, index):

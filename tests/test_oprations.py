@@ -1,10 +1,62 @@
+from decimal import Decimal
+
 import pytest
 from PySide2.QtCore import Qt
 from fixtures import check_super_init
 from package.database.factory import f_additionSection
-from package.operations.api import match, convert_addition, create_operation
+from package.operations.api import (
+    match,
+    convert_addition,
+    create_operation,
+    DecimalLitteral,
+)
 from package.operations.models import OperationModel, AdditionModel
 from pony.orm import db_session
+
+
+class TestDecimal:
+    @pytest.mark.parametrize(
+        "inp, value, v_int, v_dec, l_int, l_dec",
+        [
+            ("1", "1", Decimal(1), Decimal(0), 1, 0),
+            ("12", "12", Decimal(12), Decimal(0), 2, 0),
+            ("0.3", "0.3", Decimal(0), Decimal("0.3"), 1, 1),
+            ("0,3", "0.3", Decimal(0), Decimal("0.3"), 1, 1),
+            ("12,311", "12.311", Decimal(12), Decimal("0.311"), 2, 3),
+            ("0.10", "0.10", Decimal(0), Decimal("0.10"), 1, 2),
+        ],
+    )
+    def test_init(self, inp, value, v_int, v_dec, l_int, l_dec):
+        a = DecimalLitteral(inp)
+        assert a == Decimal(value)
+        assert a.int == v_int
+        assert a.dec == v_dec
+        assert a.l_int == l_int
+        assert a.l_dec == l_dec
+
+    @pytest.mark.parametrize("value, res", [("1", True), ("1.1", False)])
+    def test_is_int(self, value, res):
+        a = DecimalLitteral(value)
+        assert a.is_int() == res
+
+    @pytest.mark.parametrize(
+        "value, size, apres, res",
+        [
+            ("1", 3, 0, ["", "", "1"]),
+            ("1", 4, 0, ["", "", "", "1"]),
+            ("1", 4, 1, ["", "1", "", ""]),
+            ("1", 8, 3, ["", "", "", "1", "", "", "", "",]),
+            ("12", 3, 0, ["", "1", "2"]),
+            ("1.1", 3, 0, ["1", ",", "1"]),
+            ("1,1", 3, 0, ["1", ",", "1"]),
+            ("211,2", 10, 4, ["", "", "2", "1", "1", ",", "2", "", "", ""]),
+            ("11,20", 10, 4, ["", "", "", "1", "1", ",", "2", "0", "", ""]),
+            ("0,20", 6, 3, ["", "0", ",", "2", "0", ""]),
+        ],
+    )
+    def test_to_string_list(self, value, size, apres, res):
+        a = DecimalLitteral(value)
+        assert a.to_string_list(size, apres_virgule=apres) == res
 
 
 class TestAddition:
@@ -12,6 +64,8 @@ class TestAddition:
         "string, res",
         [
             ("1+2", ("+", ["1", "2"])),
+            ("1.2+2.3", ("+", ["1.2", "2.3"])),
+            ("1,2+2,3", ("+", ["1,2", "2,3"])),
             ("1+2+3", ("+", ["1", "2", "3"])),
             ("111+2222+33333", ("+", ["111", "2222", "33333"])),
             ("111-2222-33333", ("-", ["111", "2222", "33333"])),
@@ -25,14 +79,146 @@ class TestAddition:
     @pytest.mark.parametrize(
         "string, res",
         [
-            (["1", "2"], (4, 2, ["", "", "", "1", "+", "2", "", ""])),
-            (["9", "8"], (4, 3, ["", "", "", "", "", "9", "+", "", "8", "", "", ""])),
-            (["1", "2", "3"], (5, 2, ["", "", "", "1", "+", "2", "+", "3", "", ""])),
+            (["1", "2"], (4, 2, 0, ["", "", "", "1", "+", "2", "", ""])),
+            (
+                ["1,2", "2,3"],
+                (
+                    4,
+                    4,
+                    2,
+                    [
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "1",
+                        ",",
+                        "2",
+                        "+",
+                        "2",
+                        ",",
+                        "3",
+                        "",
+                        "",
+                        ",",
+                        "",
+                    ],
+                ),
+            ),
+            (
+                ["1,2", "33,33", "444,444"],
+                (
+                    5,
+                    8,
+                    4,
+                    [
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "1",
+                        ",",
+                        "2",
+                        "",
+                        "",
+                        "+",
+                        "",
+                        "3",
+                        "3",
+                        ",",
+                        "3",
+                        "3",
+                        "",
+                        "+",
+                        "4",
+                        "4",
+                        "4",
+                        ",",
+                        "4",
+                        "4",
+                        "4",
+                        "",
+                        "",
+                        "",
+                        "",
+                        ",",
+                        "",
+                        "",
+                        "",
+                    ],
+                ),
+            ),
+            (
+                ["1.2", "2.3"],
+                (
+                    4,
+                    4,
+                    2,
+                    [
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "1",
+                        ",",
+                        "2",
+                        "+",
+                        "2",
+                        ",",
+                        "3",
+                        "",
+                        "",
+                        ",",
+                        "",
+                    ],
+                ),
+            ),
+            (
+                ["9", "8"],
+                (4, 3, 0, ["", "", "", "", "", "9", "+", "", "8", "", "", ""]),
+            ),
+            (["1", "2", "3"], (5, 2, 0, ["", "", "", "1", "+", "2", "+", "3", "", ""])),
+            (
+                ["1", "2,1"],
+                (
+                    4,
+                    4,
+                    2,
+                    [
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "1",
+                        "",
+                        "",
+                        "+",
+                        "2",
+                        ",",
+                        "1",
+                        "",
+                        "",
+                        ",",
+                        "",
+                    ],
+                ),
+            ),
             (
                 ["1", "25", "348", "4789"],
                 (
                     6,
                     5,
+                    0,
                     [
                         "",
                         "",
@@ -75,10 +261,48 @@ class TestAddition:
     @pytest.mark.parametrize(
         "string, res",
         [
-            ("1+2", (4, 2, ["", "", "", "1", "+", "2", "", ""])),  # normal
-            (" 1+ 2 ", (4, 2, ["", "", "", "1", "+", "2", "", ""])),  # space
+            ("1+2", (4, 2, 0, ["", "", "", "1", "+", "2", "", ""])),  # normal
+            (" 1+ 2 ", (4, 2, 0, ["", "", "", "1", "+", "2", "", ""])),  # space
             ("1A2", None),  # no match
-            ("9+8", (4, 3, ["", "", "", "", "", "9", "+", "", "8", "", "", ""])),
+            ("9+8", (4, 3, 0, ["", "", "", "", "", "9", "+", "", "8", "", "", ""])),
+            (
+                "9,1+8,830",
+                (
+                    4,
+                    7,
+                    3,
+                    [
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "9",
+                        ",",
+                        "1",
+                        "",
+                        "",
+                        "+",
+                        "",
+                        "8",
+                        ",",
+                        "8",
+                        "3",
+                        "0",
+                        "",
+                        "",
+                        "",
+                        ",",
+                        "",
+                        "",
+                        "",
+                    ],
+                ),
+            ),
         ],
     )
     def test_create_operations(self, string, res):
@@ -88,6 +312,9 @@ class TestAddition:
 @pytest.fixture
 def to(ddbr):
     x = f_additionSection(string="9+8")
+    from package.database_object import DatabaseObject
+
+    OperationModel.ddb = DatabaseObject(ddbr)
     a = OperationModel()
     a.sectionId = x.id
     return a
@@ -96,13 +323,19 @@ def to(ddbr):
 @pytest.fixture
 def ta(ddbr):
     x = f_additionSection(string="9+8")
+    from package.database_object import DatabaseObject
+
+    OperationModel.ddb = DatabaseObject(ddbr)
     a = AdditionModel()
     a.sectionId = x.id
     return a
 
 
 class TestOperationModel:
-    def test_base_init(self, qtmodeltester, qtbot):
+    def test_base_init(self, qtmodeltester, qtbot, ddbr):
+        from package.database_object import DatabaseObject
+
+        OperationModel.ddb = DatabaseObject(ddbr)
         op = OperationModel()
 
         assert check_super_init(
@@ -116,6 +349,9 @@ class TestOperationModel:
         assert op._sectionId is None
 
     def test_load_params(self, ddbr, qtbot):
+        from package.database_object import DatabaseObject
+
+        OperationModel.ddb = DatabaseObject(ddbr)
         op = OperationModel()
         op.sectionId = 1
         assert op.sectionId is None
@@ -130,6 +366,7 @@ class TestOperationModel:
         assert op.rows == 4
         assert op.columns == 3
         assert op.sectionId == 1
+        assert op.virgule == 0
 
     def test_cursor(self, to, qtbot):
 
@@ -170,6 +407,11 @@ class TestOperationModel:
         with db_session:
             assert to.db.Section[1].datas[11] == 5  # pas de modif
 
+    def test_setData_changerecents(self, to, qtbot):
+
+        with qtbot.waitSignal(to.ddb.recentsModelChanged):
+            to.setData(to.index(11, 0), 5, Qt.EditRole)  # doit retourner True
+
     def test_isIResultline(self, to):
         assert to.isResultLine(99) is False
 
@@ -190,17 +432,27 @@ class TestOperationModel:
         assert to.rowCount() == 12
 
     def test_get_editables(self, to):
-        assert to.editables == []
+        assert to.editables == {1, 10, 11}
 
 
-class TestadditionModel:
+class TestAdditionModel:
     @pytest.mark.parametrize(
         "index,res", [(1, 13), (2, 14), (13, 13), (14, 1), (15, 2),],
     )
-    def test_automove_text(self, ta, index, res):
+    def test_automove_next(self, ta, index, res):
         a = AdditionModel()
         a.params = f_additionSection(string="254+141", td=True)
         # ['', '', '', '', '', '2', '5', '4', '+', '1', '4', '1', '', '', '', ''] 4x4
+        assert a.auto_move_next(index) == res
+
+    @pytest.mark.parametrize(
+        "index,res", [(23, 4), (4, 22), (22, 2), (2, 20), (20, 1), (1, 19)],
+    )
+    def test_automove_next_virgule(self, ta, index, res):
+        a = AdditionModel()
+        a.params = f_additionSection(string="2,54+14,1", td=True)
+        print(a.datas)
+        # ['', '', '', '', '', '', '', '', '2', ',', '5', '4', '+', '1', '4', ',', '1', '', '', '', '', '', '', ''] 6x4
         assert a.auto_move_next(index) == res
 
     @pytest.mark.parametrize(

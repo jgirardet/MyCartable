@@ -451,7 +451,6 @@ class TestAdditionModel:
     def test_automove_next_virgule(self, ta, index, res):
         a = AdditionModel()
         a.params = f_additionSection(string="2,54+14,1", td=True)
-        print(a.datas)
         # ['', '', '', '', '', '', '', '', '2', ',', '5', '4', '+', '1', '4', ',', '1', '', '', '', '', '', '', ''] 6x4
         assert a.auto_move_next(index) == res
 
@@ -481,13 +480,52 @@ class TestAdditionModel:
             (15, Qt.Key_X, 99),
         ],
     )
-    def test_move_cursor(self, index, key, res):
+    def test_move_cursor(self, ta, index, key, res):
         x = f_additionSection(string="254+141")
         # ['', '', '', '', '', '2', '5', '4', '+', '1', '4', '1', '', '', '', ''] 4x4
-        a = AdditionModel()
-        a.sectionId = x.id
-        a.cursor = 99  # controle pas modif, 0 pourrait être faux
-        assert a.move_cursor(index, key) == res
+        ta.sectionId = x.id
+        ta.cursor = 99  # controle pas modif, 0 pourrait être faux
+        assert ta.move_cursor(index, key) == res
+
+    @pytest.mark.parametrize(
+        "index,key,res",
+        [
+            (1, Qt.Key_Up, 99),
+            (2, Qt.Key_Up, 99),
+            (4, Qt.Key_Up, 99),
+            (19, Qt.Key_Up, 1),
+            (20, Qt.Key_Up, 2),
+            (22, Qt.Key_Up, 4),
+            (23, Qt.Key_Up, 4),
+            (1, Qt.Key_Down, 19),
+            (2, Qt.Key_Down, 20),
+            (4, Qt.Key_Down, 22),
+            (19, Qt.Key_Down, 99),
+            (20, Qt.Key_Down, 99),
+            (22, Qt.Key_Down, 99),
+            (23, Qt.Key_Down, 99),
+            (1, Qt.Key_Left, 99),
+            (2, Qt.Key_Left, 1),
+            (4, Qt.Key_Left, 2),
+            (19, Qt.Key_Left, 99),
+            (20, Qt.Key_Left, 19),
+            (22, Qt.Key_Left, 20),
+            (23, Qt.Key_Left, 22),
+            (1, Qt.Key_Right, 2),
+            (2, Qt.Key_Right, 4),
+            (4, Qt.Key_Right, 99),
+            (19, Qt.Key_Right, 20),
+            (20, Qt.Key_Right, 22),
+            (22, Qt.Key_Right, 23),
+            (23, Qt.Key_Right, 99),
+            (22, Qt.Key_X, 99),
+        ],
+    )
+    def test_move_cursor_virgule(self, ta, index, key, res):
+        x = f_additionSection(string="2,54+14,1")
+        ta.sectionId = x.id
+        ta.cursor = 99  # controle pas modif, 0 pourrait être faux
+        assert ta.move_cursor(index, key) == res
 
     def test_isMiddleLinee(self, ta):
         for i in range(3, 9):

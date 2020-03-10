@@ -180,8 +180,12 @@ class AdditionModel(OperationModel):
         elif key == Qt.Key_Left:
             if index - 1 in self.editables:
                 new = index - 1
+            elif index - 2 in self.editables:
+                new = index - 2
         elif key == Qt.Key_Right:
             if index + 1 in self.editables:
                 new = index + 1
+            elif index + 2 in self.editables:
+                new = index + 2
 
         return new

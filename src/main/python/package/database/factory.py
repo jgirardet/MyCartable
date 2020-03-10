@@ -196,22 +196,38 @@ def b_annotation(n, *args, **kwargs):
     return [f_annotationText(*args, **kwargs) for x in range(n)]
 
 
-def f_additionSection(string=None, created=None, page=None, position=0, td=False):
+def _operation_section(model, string, created=None, page=None, position=0, td=False):
     with db_session:
         created = created or f_datetime()
         page = page or f_page(td=True)["id"]
 
-        string = (
-            string
-            if string
-            else random.choice(["3+2", "8+9", "32+45", "87+76", "3458+23+827"])
-        )
-
-        item = db.AdditionSection(
+        item = getattr(db, model)(
             string, created=created, page=page, position=position,
         )
         item.flush()
         return item.to_dict() if td else item
+
+
+def f_additionSection(string=None, created=None, page=None, position=0, td=False):
+    string = (
+        string
+        if string
+        else random.choice(["3+2", "8+9", "32+45", "87+76", "3458+23+827"])
+    )
+
+    return _operation_section("AdditionSection", string, created, page, position, td)
+
+
+def f_soustractionSection(string=None, created=None, page=None, position=0, td=False):
+    string = (
+        string
+        if string
+        else random.choice(["3-2", "12-3", "12-8", "87-76", "3458-827"])
+    )
+
+    return _operation_section(
+        "SoustractionSection", string, created, page, position, td
+    )
 
 
 @db_session
@@ -228,5 +244,6 @@ def populate_database(matieres_list=MATIERES, nb_page=100):
                     f_imageSection(page=a.id),
                     f_textSection(page=a.id),
                     f_additionSection(page=a.id),
+                    f_soustractionSection(page=a.id),
                 ]
             )

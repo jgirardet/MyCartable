@@ -257,6 +257,18 @@ def init_models(db: Database):
 
             return res
 
+    class SoustractionSection(OperationSection):
+        def get_editables(self):
+            # first_line = {x for x in range(1, self.columns - 1)}
+            # last_line = {x for x in range(self.size - self.columns + 1, self.size)}
+            # res = first_line | last_line
+            # if self.virgule:
+            #     virgule_ll = self.size - self.columns + self.virgule
+            #     res = res - {self.virgule, virgule_ll}
+
+            # return res
+            return self.datas
+
     class Annotation(db.Entity):
         id = PrimaryKey(int, auto=True)
         relativeX = Required(float)

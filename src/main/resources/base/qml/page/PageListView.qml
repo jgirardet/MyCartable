@@ -31,6 +31,16 @@ BasePageListView {
       }
     }
   }
+  Component {
+    id: soustractionDelegate
+    Addition {
+      sectionId: curSectionId
+      position: curPosition
+      model: SoustractionModel {
+        sectionId: curSectionId // on laisse tout là pour les tests
+      }
+    }
+  }
   delegate: Component {
     Loader {
       id: load
@@ -45,6 +55,9 @@ BasePageListView {
           return textDelegate
         }
         case "AdditionSection": {
+          return additionDelegate
+        }
+        case "SoustractionSection": {
           return additionDelegate
         }
       }

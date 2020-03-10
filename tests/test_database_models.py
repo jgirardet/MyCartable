@@ -471,6 +471,43 @@ class TestAddditionSection:
         assert x.get_editables() == res
 
 
+class TestSoustractionSection:
+    def test_factory(self):
+        assert f_soustractionSection(string="15-3").datas == [
+            "",
+            "",
+            "1",
+            "",
+            "5",
+            "-",
+            "",
+            "",
+            "3",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+        ]
+
+        f_soustractionSection()
+
+    # @pytest.mark.parametrize(
+    #     "string, res",
+    #     [
+    #         ("9+8", {1, 10, 11}),
+    #         ("1+2", {7}),
+    #         ("345+289", {1, 2, 13, 14, 15}),
+    #         ("1+2+3", {9}),
+    #         ("1,1+1", {1, 13, 15}),
+    #     ],
+    # )
+    # def test_get_editables(self, ddb, string, res):
+    #     x = f_additionSection(string=string)
+    #     assert x.get_editables() == res
+
+
 class TestAnnotations:
     def test_factory_stabylo(self, ddbr):
         a = f_stabylo()

@@ -29,7 +29,7 @@ class DecimalLitteral(Decimal):
     def is_int(self):
         return not bool(self.l_dec)
 
-    def to_string_list(self, size, apres_virgule=0):
+    def to_string_list_addition(self, size, apres_virgule=0):
         if apres_virgule == 0:
             space_after = 0
         else:
@@ -41,6 +41,29 @@ class DecimalLitteral(Decimal):
                 space_after = apres_virgule - self.l_dec
         avant = size - self.len - space_after
         return [""] * avant + list(self.string) + [""] * space_after
+
+    def to_string_list_soustraction(self, size, apres_virgule=0):
+        # size  = total comprenant avant, retenus, entier, virgule decimal
+        if apres_virgule == 0:
+            space_after = 0
+            avant = size - self.len * 2
+        else:
+            if self.is_int():
+                space_after = (apres_virgule * 2) + 1
+            elif apres_virgule <= self.l_dec:
+                space_after = 0
+            else:
+                space_after = (apres_virgule - self.l_dec) * 2
+
+            avant = size - ((self.len * 2) - bool(self.l_dec)) - space_after
+        corps = []
+        for x in self.string:
+            if x != ",":
+                corps.append("")
+            corps.append(x)
+        res = [""] * avant + corps + [""] * space_after
+
+        return res
 
 
 def convert_addition(numbers):
@@ -63,7 +86,8 @@ def convert_addition(numbers):
             num = addition_list[num_index]
             signe = "+" if num_index else ""  # pas de signe pour la premiere ligne
             res.append(
-                [signe] + num.to_string_list(n_col - 1, apres_virgule=n_apres_virgule,)
+                [signe]
+                + num.to_string_list_addition(n_col - 1, apres_virgule=n_apres_virgule,)
             )  # n_col-1 car signe prend une colonne
             num_index += 1
     return n_row, n_col, virgule, list(itertools.chain.from_iterable(res))

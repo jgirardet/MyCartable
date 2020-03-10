@@ -189,3 +189,53 @@ class AdditionModel(OperationModel):
                 new = index + 2
 
         return new
+
+
+#
+# class SoustractionModel(OperationModel):
+#     def auto_move_next(self, position):
+#         if position == self.rowCount() - self.columns + 1:  # début de ligne résultat
+#             return position
+#         elif position > self.columns:  # reste ligne résutlat
+#             diff = self.rowCount() - position
+#             new = int(self.columns - diff - 1)
+#             if new == self.virgule:
+#                 new -= 1  # saute la virgule dans les retenues
+#         else:  # le haut
+#             new = self.columns * (self.rows - 1) + position
+#         return new
+#
+#     @Slot(int, result=bool)
+#     def isMiddleLine(self, index):
+#         return not self.isResultLine(index) and not self.isRetenueLine(index)
+#
+#     def is_result_line(self, index):
+#         return index >= self.rowCount() - self.columns
+#
+#     def is_retenue_line(self, index):
+#         return 0 <= index and index < self.columns
+#
+#     def move_cursor(self, index, key):
+#         new = self.cursor
+#         if key == Qt.Key_Up:
+#             temp = index - self.columns * (self.rows - 1)
+#             if temp == self.columns - 1:
+#                 new = temp - 1
+#             elif temp > 0:
+#                 new = temp
+#         elif key == Qt.Key_Down:
+#             temp = index + self.columns * (self.rows - 1)
+#             if temp <= self.rowCount():
+#                 new = temp
+#         elif key == Qt.Key_Left:
+#             if index - 1 in self.editables:
+#                 new = index - 1
+#             elif index - 2 in self.editables:
+#                 new = index - 2
+#         elif key == Qt.Key_Right:
+#             if index + 1 in self.editables:
+#                 new = index + 1
+#             elif index + 2 in self.editables:
+#                 new = index + 2
+#
+#         return new

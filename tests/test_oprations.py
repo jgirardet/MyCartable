@@ -54,9 +54,33 @@ class TestDecimal:
             ("0,20", 6, 3, ["", "0", ",", "2", "0", ""]),
         ],
     )
-    def test_to_string_list(self, value, size, apres, res):
+    def test_to_string_list_addition(self, value, size, apres, res):
         a = DecimalLitteral(value)
-        assert a.to_string_list(size, apres_virgule=apres) == res
+        assert a.to_string_list_addition(size, apres_virgule=apres) == res
+
+    @pytest.mark.parametrize(
+        "value, size, apres, res",
+        [
+            ("1", 3, 0, ["", "", "1"]),
+            ("1", 4, 0, ["", "", "", "1"]),
+            ("1", 5, 1, ["", "1", "", "", ""]),
+            ("1", 8, 3, ["", "1", "", "", "", "", "", "", ""]),
+            ("12", 4, 0, ["", "1", "", "2"]),
+            ("1.1", 5, 1, ["", "1", ",", "", "1"]),
+            ("1,12", 6, 0, ["", "1", ",", "", "1", "", "2"]),
+            (
+                "211,2",
+                15,
+                4,
+                ["", "2", "", "1", "", "1", ",", "", "2", "", "", "", "", "", "",],
+            ),
+            ("11,20", 13, 4, ["", "1", "", "1", ",", "", "2", "", "0", "", "", "", ""]),
+            ("0,20", 10, 3, ["", "", "0", ",", "", "2", "", "0", "", ""]),
+        ],
+    )
+    def test_to_string_list_soustraction(self, value, size, apres, res):
+        a = DecimalLitteral(value)
+        assert a.to_string_list_soustraction(size, apres_virgule=apres) == res
 
 
 class TestAddition:

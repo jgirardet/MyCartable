@@ -258,16 +258,38 @@ def init_models(db: Database):
             return res
 
     class SoustractionSection(OperationSection):
-        def get_editables(self):
-            # first_line = {x for x in range(1, self.columns - 1)}
-            # last_line = {x for x in range(self.size - self.columns + 1, self.size)}
-            # res = first_line | last_line
-            # if self.virgule:
-            #     virgule_ll = self.size - self.columns + self.virgule
-            #     res = res - {self.virgule, virgule_ll}
+        @property
+        def line_0(self):
+            return self.datas[0 : self.columns]
 
-            # return res
-            return self.datas
+        @property
+        def line_1(self):
+            return self.datas[self.columns : self.columns * 2]
+
+        @property
+        def line_2(self):
+            return self.datas[self.columns * 2 :]
+
+        def get_editables(self):
+            if len(self.line_0) == len(self.line_1) == 4:
+                return {10}
+
+            res = set()
+            i = 4  # premire ligne
+            while i < len(self.line_1):
+                res.add(i)
+                i += 3
+
+            i = self.columns + 3  # deuxième ligne
+            while i < self.columns * 2 - 1:
+                res.add(i)
+                i += 3
+
+            i = self.columns * 2 + 2
+            while i < self.size:
+                res.add(i)
+                i += 3
+            return res
 
     class Annotation(db.Entity):
         id = PrimaryKey(int, auto=True)

@@ -39,7 +39,9 @@ class OperationModel(QAbstractListModel):
             self._sectionId = None
             return
         self.params = self.proxy.to_dict()
+        print(self.datas)
         self.editables = self.proxy.get_editables()
+        print(self.editables)
 
     # Property
 

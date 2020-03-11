@@ -43,27 +43,28 @@ class DecimalLitteral(Decimal):
         return [""] * avant + list(self.string) + [""] * space_after
 
     def to_string_list_soustraction(self, size, ligne, apres_virgule=0):
+        """
+        Convertit un nombre en liste de taille `size`. On ne vérifie pas la validité des paramètres.
+        :param size: taille de la liste. donnée par line_0 pour line_1. sans intéret pour line 0
+        :param ligne: index 0 ou 1
+        :param apres_virgule: nombre de chiffres après la virgule à considérer
+        :return: liste de charactères
+        """
         # size  = total comprenant avant, retenus, entier, virgule decimal
-        add_virgule = []
-        add_signe = ["-"] if ligne else []
-
-        """
-            Cas sans virgule:
-                1/1 => pas de retenu
-                même nb haut et bas => retenu partout 
-                haut + long que bas => idem
-        """
+        # algo pas hyper joli mais simple à débugger.
 
         if apres_virgule == 0:
             if not ligne:
-                corps = []
+                corps = [""]
                 for x in self.string:
                     corps.append("")
                     corps.append(x)
-                return [""] + corps
+                    corps.append("")
+                return corps
             else:
                 corps = []
                 for x in self.string:
+                    corps.append("")
                     corps.append(x)
                     corps.append("")
 
@@ -72,33 +73,37 @@ class DecimalLitteral(Decimal):
                     avant = (size - (len(corps) + 1)) * [""]
                 return ["-"] + avant + corps
 
-        #     space_after = 0
-        #     avant = size - 1 - self.len
-        #     print(avant, size)
-        # else:
-        #     if self.is_int():
-        #         space_after = apres_virgule * 2
-        #         add_virgule = [","]
-        #     elif apres_virgule <= self.l_dec:
-        #         space_after = 0
-        #     else:
-        #         space_after = (apres_virgule - self.l_dec) * 2
-        #
-        #     avant = (
-        #         size
-        #         - ((self.len * 2) - bool(self.l_dec))
-        #         - space_after
-        #         - len(add_virgule)
-        #         - len(add_signe)
-        #     )
-        # corps = []
-        # for x in self.string:
-        #     if x != ",":
-        #         corps.append("")
-        #     corps.append(x)
-        # res = add_signe + [""] * avant + corps + add_virgule + [""] * space_after
+        else:
+            if not ligne:
+                corps = [""]
+                for x in self.string:
+                    if x != ",":
+                        corps.append("")
+                    corps.append(x)
+                    if x != ",":
+                        corps.append("")
+                return corps
+            else:
+                corps = []
+                deja_apres_virg = 0
+                virg_passee = False
+                for x in self.string:
+                    if virg_passee:
+                        deja_apres_virg += 1
+                    if x != ",":
+                        corps.append("")
+                    corps.append(x)
+                    if x != ",":
+                        corps.append("")
+                    else:
+                        virg_passee = True
 
-        # return res
+                apres = [""] * (apres_virgule - deja_apres_virg) * 3
+                corps = corps + apres
+                avant = []
+                if (len(corps) + 1) < size:  # le + 1 c pour le signe
+                    avant = (size - (len(corps) + 1)) * [""]
+                return ["-"] + avant + corps
 
 
 def convert_addition(numbers):
@@ -131,14 +136,27 @@ def convert_addition(numbers):
 def convert_soustraction(numbers):
     work_list = [DecimalLitteral(x) for x in numbers]
     n_apres_virgule = max(a.l_dec for a in work_list)  # nombre apres vigule
+    res = []
+
     if not n_apres_virgule:
-        n_col = max(len(x) for x in numbers) * 2 + 1  # nombre de colonne nécessaire
+        n_col = (
+            max(len(x) for x in numbers) * 3 + 1
+        )  # nombre de colonne nécessaire/ +1 = signe
         virgule = n_col - n_apres_virgule - 1 if n_apres_virgule else 0
-        res = []
 
         res.append(work_list[0].to_string_list_soustraction(n_col, 0, n_apres_virgule))
         res.append(work_list[1].to_string_list_soustraction(n_col, 1, n_apres_virgule))
         res.append([""] * n_col)
+
+    # else:
+    #     n_col = (
+    #         max(len(x) for x in numbers) * 3 + 1
+    #     )  # nombre de colonne nécessaire/ +1 = signe
+    #     virgule = n_col - n_apres_virgule - 1 if n_apres_virgule else 0
+    #
+    #     res.append(work_list[0].to_string_list_soustraction(n_col, 0, n_apres_virgule))
+    #     res.append(work_list[1].to_string_list_soustraction(n_col, 1, n_apres_virgule))
+    #     res.append([""] * n_col)
 
     # num_index = 0
     # for x in range(n_row):

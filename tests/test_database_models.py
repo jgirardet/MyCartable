@@ -470,42 +470,62 @@ class TestAddditionSection:
         x = f_additionSection(string=string)
         assert x.get_editables() == res
 
+        class TestSoustractionSection:
+            def test_factory(self):
+                assert f_soustractionSection(string="15-3").datas == [
+                    "",
+                    "",
+                    "1",
+                    "",
+                    "",
+                    "5",
+                    "",
+                    "-",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "3",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                ]
 
-class TestSoustractionSection:
-    def test_factory(self):
-        assert f_soustractionSection(string="15-3").datas == [
-            "",
+        f_soustractionSection()
+
+    def test_lines(self, ddb):
+        a = f_soustractionSection(string="24-13")
+        # ['', '', '2', '', '', '4', '', '-', '', '1', '', '', '3', '', '', '', '', '', '', '', ''] 7 3
+        assert a.line_0 == ["", "", "2", "", "", "4", ""]
+        assert a.line_1 == [
+            "-",
             "",
             "1",
-            "",
-            "5",
-            "-",
             "",
             "",
             "3",
             "",
-            "",
-            "",
-            "",
-            "",
-            "",
         ]
+        assert a.line_2 == [""] * a.columns
 
-        f_soustractionSection()
-
-    # @pytest.mark.parametrize(
-    #     "string, res",
-    #     [
-    #         ("9+8", {1, 10, 11}),
-    #         ("1+2", {7}),
-    #         ("345+289", {1, 2, 13, 14, 15}),
-    #         ("1+2+3", {9}),
-    #         ("1,1+1", {1, 13, 15}),
-    #     ],
-    # )
-    # def test_get_editables(self, ddb, string, res):
-    #     x = f_additionSection(string=string)
-    #     assert x.get_editables() == res
+    @pytest.mark.parametrize(
+        "string, res",
+        [
+            ("9-8", {10}),
+            ("22-2", {4, 10, 16, 19}),
+            ("22-21", {4, 10, 16, 19}),
+            ("345-28", {4, 7, 13, 16, 22, 25, 28}),
+            ("345-285", {4, 7, 13, 16, 22, 25, 28}),
+        ],
+    )
+    def test_get_editables(self, ddb, string, res):
+        x = f_soustractionSection(string=string)
+        assert x.get_editables() == res
 
 
 class TestAnnotations:

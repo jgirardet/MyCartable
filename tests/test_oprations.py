@@ -3,7 +3,7 @@ from decimal import Decimal
 import pytest
 from PySide2.QtCore import Qt
 from fixtures import check_super_init
-from package.database.factory import f_additionSection
+from package.database.factory import f_additionSection, f_soustractionSection
 from package.operations.api import (
     match,
     convert_addition,
@@ -11,7 +11,7 @@ from package.operations.api import (
     DecimalLitteral,
     convert_soustraction,
 )
-from package.operations.models import OperationModel, AdditionModel
+from package.operations.models import OperationModel, AdditionModel, SoustractionModel
 from pony.orm import db_session
 
 
@@ -141,11 +141,21 @@ class TestDecimal:
             ("0,20", 10, 1, 2, ["-", "", "0", "", ",", "", "2", "", "", "0", ""]),
             (
                 "0,20",
-                12,
-                0,
-                2,
-                ["", "", "", "", "0", "", ",", "", "2", "", "", "0", ""],
+                14,
+                1,
+                3,
+                ["-", "", "0", "", ",", "", "2", "", "", "0", "", "", "", ""],
             ),
+            ("0,2", 10, 0, 2, ["", "", "0", "", ",", "", "2", "", "", "", ""]),
+            (
+                "0,20",
+                14,
+                0,
+                3,
+                ["", "", "0", "", ",", "", "2", "", "", "0", "", "", "", ""],
+            ),
+            ("20", 11, 0, 1, ["", "", "2", "", "", "0", "", "", "", "", ""]),
+            ("20", 11, 1, 1, ["-", "", "2", "", "", "0", "", "", "", "", ""]),
         ],
     )
     def test_to_string_list_soustraction(self, value, size, ligne, apres, res):
@@ -461,6 +471,83 @@ class TestOperation:
                     ],
                 ),
             ),
+            (
+                ["20", "0,2"],
+                (
+                    3,
+                    11,
+                    7,
+                    [
+                        "",
+                        "",
+                        "2",
+                        "",
+                        "",
+                        "0",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "-",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "0",
+                        "",
+                        ",",
+                        "",
+                        "2",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                    ],
+                ),
+            ),
+            (
+                ["2,2", "1,1"],
+                (
+                    3,
+                    8,
+                    4,
+                    [
+                        "",
+                        "",
+                        "2",
+                        "",
+                        ",",
+                        "",
+                        "2",
+                        "",
+                        "-",
+                        "",
+                        "1",
+                        "",
+                        ",",
+                        "",
+                        "1",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                    ],
+                ),
+            ),
         ],
     )
     def test_convert_soustraction(self, string, res):
@@ -483,23 +570,28 @@ class TestOperation:
 
 
 @pytest.fixture
-def to(ddbr):
+def to(dao):
     x = f_additionSection(string="9+8")
-    from package.database_object import DatabaseObject
-
-    OperationModel.ddb = DatabaseObject(ddbr)
+    OperationModel.ddb = dao
     a = OperationModel()
     a.sectionId = x.id
     return a
 
 
 @pytest.fixture
-def ta(ddbr):
+def ta(dao):
     x = f_additionSection(string="9+8")
-    from package.database_object import DatabaseObject
-
-    OperationModel.ddb = DatabaseObject(ddbr)
+    OperationModel.ddb = dao
     a = AdditionModel()
+    a.sectionId = x.id
+    return a
+
+
+@pytest.fixture
+def ts(dao):
+    x = f_soustractionSection(string="34-22")
+    OperationModel.ddb = dao
+    a = SoustractionModel()
     a.sectionId = x.id
     return a
 
@@ -607,6 +699,14 @@ class TestOperationModel:
     def test_get_editables(self, to):
         assert to.editables == {1, 10, 11}
 
+    def test_isMiddleLinee(self, ta):
+        for i in range(3, 9):
+            assert ta.isMiddleLine(i)
+        for i in range(0, 3):
+            assert not ta.isMiddleLine(i)
+        for i in range(9, 12):
+            assert not ta.isMiddleLine(i)
+
 
 class TestAdditionModel:
     @pytest.mark.parametrize(
@@ -700,14 +800,6 @@ class TestAdditionModel:
         ta.cursor = 99  # controle pas modif, 0 pourrait être faux
         assert ta.move_cursor(index, key) == res
 
-    def test_isMiddleLinee(self, ta):
-        for i in range(3, 9):
-            assert ta.isMiddleLine(i)
-        for i in range(0, 3):
-            assert not ta.isMiddleLine(i)
-        for i in range(9, 12):
-            assert not ta.isMiddleLine(i)
-
     def test_is_result_line(self, ta):
         for i in range(9, 12):
             assert ta.isResultLine(i)
@@ -719,3 +811,93 @@ class TestAdditionModel:
             assert ta.isRetenueLine(i)
         for i in range(3, 12):
             assert not ta.isRetenueLine(i)
+
+
+class TestSoustractionModel:
+    @pytest.mark.parametrize(
+        "index,res", [(7, 16), (16, 28), (28, 4), (4, 13), (13, 25), (25, 22)],
+    )
+    def test_automove_next(self, ts, index, res):
+        # '',  '', '2', '', '', '5', '', '', '4', '',
+        # '-', '', '1', '', '', '4', '', '', '1', '',
+        # '',  '', '',  '', '', '',  '', '', '',  '']
+        ts.params = f_additionSection(string="254-141", td=True)
+        assert ts.auto_move_next(index) == res
+
+    @pytest.mark.parametrize(
+        "index,res",
+        [
+            (14, 30),
+            (30, 49),
+            (49, 11),
+            (11, 26),
+            (26, 46),
+            (46, 7),
+            (7, 23),
+            (23, 42),
+            (42, 4),
+            (4, 20),
+            (20, 39),
+            (39, 36),
+        ],
+    )
+    def test_automove_next_virgule(self, ts, index, res):
+        # '',  '', '4', '', '', '3', '', '', '2', '', ',' ,'', '5', '', '', '4', '', //16
+        # '-', '', '3', '', '', '9', '', '', '1', '', ',' ,'', '4', '', '', '1', '', //33
+        # '',  '', '' , '', '', '' , '', '', '' , '', ',', '', '',  '', '', '' , ''] //50
+        ts.params = f_additionSection(string="432,54-391,41", td=True)
+        assert ts.auto_move_next(index) == res
+
+    def test_is_result_line(self, ts):
+        # 3 * 7
+        # ['', '', '3', '', '', '4', '', '-', '', '2', '', '', '2', '', '', '', '', '', '', '', '']
+        for i in range(14, 22):
+            assert ts.isResultLine(i)
+        for i in range(0, 14):
+            assert not ts.isResultLine(i)
+
+    def test_is_retenue_line(self, ts):
+        for i in range(0, 7):
+            assert ts.isRetenueLine(i)
+        for i in range(7, 22):
+            assert not ts.isRetenueLine(i)
+
+    @pytest.mark.parametrize(
+        "index,key, res",
+        [
+            (4, Qt.Key_Up, 99),
+            (7, Qt.Key_Up, 99),
+            (11, Qt.Key_Up, 99),
+            (14, Qt.Key_Up, 99),
+            (20, Qt.Key_Up, 4),
+            (23, Qt.Key_Up, 7),
+            (26, Qt.Key_Up, 11),
+            (30, Qt.Key_Up, 14),
+            (36, Qt.Key_Up, 20),
+            (39, Qt.Key_Up, 23),
+            (42, Qt.Key_Up, 26),
+            (46, Qt.Key_Up, 30),
+            (49, Qt.Key_Up, 14),
+            (4, Qt.Key_Down, 20),
+            (7, Qt.Key_Down, 23),
+            (11, Qt.Key_Down, 26),
+            (14, Qt.Key_Down, 30),
+            (20, Qt.Key_Down, 36),
+            (23, Qt.Key_Down, 39),
+            (26, Qt.Key_Down, 42),
+            (30, Qt.Key_Down, 46),
+            (36, Qt.Key_Down, 99),
+            (39, Qt.Key_Down, 99),
+            (42, Qt.Key_Down, 99),
+            (46, Qt.Key_Down, 99),
+            (49, Qt.Key_Down, 99),
+        ],
+    )
+    def test_movecursor(self, ts, index, key, res):
+        # '',  '', '4', '', '', '3', '', '', '2', '', ',' ,'', '5', '', '', '4', '', //16
+        # '-', '', '3', '', '', '9', '', '', '1', '', ',' ,'', '4', '', '', '1', '', //33
+        # '',  '', '' , '', '', '' , '', '', '' , '', ',', '', '',  '', '', '' , ''] //50
+        a = f_soustractionSection(string="432,54-391,41")
+        ts.sectionId = a.id
+        ts.cursor = 99  # controle pas modif, 0 pourrait être faux
+        assert ts.move_cursor(index, key) == res

@@ -222,7 +222,7 @@ def f_soustractionSection(string=None, created=None, page=None, position=0, td=F
     string = (
         string
         if string
-        else random.choice(["3-2", "12-3", "12-8", "87-76", "3458-827"])
+        else random.choice(["3-2", "12-3", "12-8", "87-76", "3458-827", "12-3,345"])
     )
 
     return _operation_section(

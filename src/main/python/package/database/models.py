@@ -271,24 +271,50 @@ def init_models(db: Database):
             return self.datas[self.columns * 2 :]
 
         def get_editables(self):
-            if len(self.line_0) == len(self.line_1) == 4:
-                return {10}
-
             res = set()
-            i = 4  # premire ligne
-            while i < len(self.line_1):
-                res.add(i)
-                i += 3
 
-            i = self.columns + 3  # deuxième ligne
-            while i < self.columns * 2 - 1:
-                res.add(i)
-                i += 3
+            def aide(res, debut, limite):
+                i = debut
+                while i < limite:
+                    res.add(i)
+                    i += 3
 
-            i = self.columns * 2 + 2
-            while i < self.size:
-                res.add(i)
-                i += 3
+            if not self.virgule:
+                if len(self.line_0) == len(self.line_1) == 4:
+                    return {10}
+
+                aide(res, 4, len(self.line_1))  # premire ligne
+                aide(res, self.columns + 3, self.columns * 2 - 1)  # deuxieme ligne
+                aide(res, self.columns * 2 + 2, self.size)  # troisieme ligne
+
+            else:
+                i = 4  # premire ligne
+                while i < len(self.line_1):
+                    if i == self.virgule:
+                        i += 1
+                        continue
+                    res.add(i)
+                    i += 3
+
+                i = self.columns + 3  # deuxième ligne
+                flag = True
+                while i < self.columns * 2 - 1:
+                    if i > self.virgule + self.columns and flag:
+                        i += 1
+                        flag = False
+                        continue
+                    res.add(i)
+                    i += 3
+
+                i = self.columns * 2 + 2
+                flag = True
+                while i < self.size:
+                    if i >= self.virgule + (self.columns * 2) and flag:
+                        i += 1
+                        flag = False
+                        continue
+                    res.add(i)
+                    i += 3
             return res
 
     class Annotation(db.Entity):

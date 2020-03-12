@@ -58,7 +58,7 @@ BasePageListView {
           return additionDelegate
         }
         case "SoustractionSection": {
-          return additionDelegate
+          return soustractionDelegate
         }
       }
 

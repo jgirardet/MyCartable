@@ -39,9 +39,7 @@ class OperationModel(QAbstractListModel):
             self._sectionId = None
             return
         self.params = self.proxy.to_dict()
-        print(self.datas)
         self.editables = self.proxy.get_editables()
-        print(self.editables)
 
     # Property
 
@@ -119,6 +117,10 @@ class OperationModel(QAbstractListModel):
         return value not in self.editables
 
     @Slot(int, result=bool)
+    def isMiddleLine(self, index):
+        return not self.isResultLine(index) and not self.isRetenueLine(index)
+
+    @Slot(int, result=bool)
     def isResultLine(self, index):
         return self.is_result_line(index)
 
@@ -157,10 +159,6 @@ class AdditionModel(OperationModel):
             new = self.columns * (self.rows - 1) + position
         return new
 
-    @Slot(int, result=bool)
-    def isMiddleLine(self, index):
-        return not self.isResultLine(index) and not self.isRetenueLine(index)
-
     def is_result_line(self, index):
         return index >= self.rowCount() - self.columns
 
@@ -194,50 +192,67 @@ class AdditionModel(OperationModel):
 
 
 class SoustractionModel(OperationModel):
-    pass
-    # def auto_move_next(self, position):
-    #     if position == self.rowCount() - self.columns + 1:  # début de ligne résultat
-    #         return position
-    #     elif position > self.columns:  # reste ligne résutlat
-    #         diff = self.rowCount() - position
-    #         new = int(self.columns - diff - 1)
-    #         if new == self.virgule:
-    #             new -= 1  # saute la virgule dans les retenues
-    #     else:  # le haut
-    #         new = self.columns * (self.rows - 1) + position
-    #     return new
-    #
-    # @Slot(int, result=bool)
-    # def isMiddleLine(self, index):
-    #     return not self.isResultLine(index) and not self.isRetenueLine(index)
-    #
-    # def is_result_line(self, index):
-    #     return index >= self.rowCount() - self.columns
-    #
-    # def is_retenue_line(self, index):
-    #     return 0 <= index and index < self.columns
-    #
-    # def move_cursor(self, index, key):
-    #     new = self.cursor
-    #     if key == Qt.Key_Up:
-    #         temp = index - self.columns * (self.rows - 1)
-    #         if temp == self.columns - 1:
-    #             new = temp - 1
-    #         elif temp > 0:
-    #             new = temp
-    #     elif key == Qt.Key_Down:
-    #         temp = index + self.columns * (self.rows - 1)
-    #         if temp <= self.rowCount():
-    #             new = temp
-    #     elif key == Qt.Key_Left:
-    #         if index - 1 in self.editables:
-    #             new = index - 1
-    #         elif index - 2 in self.editables:
-    #             new = index - 2
-    #     elif key == Qt.Key_Right:
-    #         if index + 1 in self.editables:
-    #             new = index + 1
-    #         elif index + 2 in self.editables:
-    #             new = index + 2
-    #
-    #     return new
+    def auto_move_next(self, position):
+        if position < self.columns:  # premiere ligne
+            res = position + self.columns - 1
+            print(position, res, self.columns, self.virgule)
+            if position > self.virgule and res - self.columns <= self.virgule:
+                res -= 1
+
+            return res
+        elif self.columns <= position < self.columns * 2:  # deuxième ligne
+            res = position + self.columns + 2
+            print(position, res, self.columns, self.virgule)
+            if (
+                position - self.columns <= self.virgule
+                and res - (self.columns * 2) >= self.virgule
+            ):
+                res += 1
+            return res
+
+        elif self.columns * 2 <= position < self.columns * 3:  # troisieme ligne
+            if position - (self.columns * 2) == 5:  # avant dernier aucun autre choix
+                return position - 3
+            res = position - self.columns * 2 - 4
+            if position - (self.columns * 2) >= self.virgule and res < self.virgule:
+                res -= 1
+            return res
+
+    def is_result_line(self, index):
+        return index >= self.columns * 2
+
+    def is_retenue_line(self, index):
+        """retenu == fistr line"""
+        return 0 <= index and index < self.columns
+
+    def move_cursor(self, index, key):
+        new = self.cursor
+        if key == Qt.Key_Up:
+            temp = index - self.columns
+            # print(index, temp, self.editables, self.columns)
+            if temp in self.editables:
+                # print("ping")
+                new = temp
+            elif temp + 1 in self.editables:
+                new = temp + 1
+            elif self.datas[temp + 1] == ",":
+                new = temp + 2
+            elif index == self.rowCount() - 2:
+                new = self.columns - 3
+        elif key == Qt.Key_Down:
+            temp = index + self.columns
+            print(index, temp, self.editables, self.columns)
+
+            if index > self.columns * 2:
+                pass
+            elif temp in self.editables:
+                # print("ping")
+                new = temp
+            elif temp - 1 in self.editables:
+                new = temp - 1
+            elif self.datas[temp - 1] == ",":
+                new = temp - 2
+            # elif index == self.rowCount() - 2:
+            #     new = self.columns - 3
+
+        return new

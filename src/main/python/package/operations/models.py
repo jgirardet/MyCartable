@@ -252,7 +252,23 @@ class SoustractionModel(OperationModel):
                 new = temp - 1
             elif self.datas[temp - 1] == ",":
                 new = temp - 2
-            # elif index == self.rowCount() - 2:
-            #     new = self.columns - 3
+        elif key == Qt.Key_Right:
+            temp = index + 3
+            if temp in self.editables:
+                new = temp
+            elif index % self.columns >= self.columns - 4:
+                pass
+            elif not self.datas[temp + 1].isdigit():
+                new = temp + 1
+        elif key == Qt.Key_Left:
+            temp = index - 3
+            print(self.datas)
+            print(self.datas[temp + 1], temp)
+            if temp in self.editables:
+                new = temp
+            elif self.datas[temp].isdigit() or self.datas[temp] == ",":
+                new = temp - 1
+            elif self.datas[temp + 1] == ",":
+                new = temp - 1
 
         return new

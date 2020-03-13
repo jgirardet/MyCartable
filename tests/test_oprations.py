@@ -69,6 +69,7 @@ class TestDecimal:
             ("11", 3, 1, 0, ["-", "", "1", "", "", "1", ""]),
             ("111", 3, 1, 0, ["-", "", "1", "", "", "1", "", "", "1", ""]),
             ("3", 6, 1, 0, ["-", "", "", "", "3", ""]),
+            ("1", 8, 0, 1, ["", "", "1", "", ",", "", "", ""]),
             ("1,1", 3, 0, 1, ["", "", "1", "", ",", "", "1", ""]),
             (
                 "11,11",
@@ -154,8 +155,8 @@ class TestDecimal:
                 3,
                 ["", "", "0", "", ",", "", "2", "", "", "0", "", "", "", ""],
             ),
-            ("20", 11, 0, 1, ["", "", "2", "", "", "0", "", "", "", "", ""]),
-            ("20", 11, 1, 1, ["-", "", "2", "", "", "0", "", "", "", "", ""]),
+            ("20", 11, 0, 1, ["", "", "2", "", "", "0", "", ",", "", "", ""]),
+            ("20", 11, 1, 1, ["-", "", "2", "", "", "0", "", ",", "", "", ""]),
         ],
     )
     def test_to_string_list_soustraction(self, value, size, ligne, apres, res):
@@ -485,7 +486,7 @@ class TestOperation:
                         "",
                         "0",
                         "",
-                        "",
+                        ",",
                         "",
                         "",
                         "",
@@ -839,6 +840,7 @@ class TestSoustractionModel:
             (4, 20),
             (20, 39),
             (39, 36),
+            (36, 36),
         ],
     )
     def test_automove_next_virgule(self, ts, index, res):
@@ -870,18 +872,18 @@ class TestSoustractionModel:
             (11, Qt.Key_Up, 99),
             (14, Qt.Key_Up, 99),
             (20, Qt.Key_Up, 4),
-            (23, Qt.Key_Up, 7),
-            (26, Qt.Key_Up, 11),
-            (30, Qt.Key_Up, 14),
+            (23, Qt.Key_Up, 4),
+            (26, Qt.Key_Up, 7),
+            (30, Qt.Key_Up, 11),
             (36, Qt.Key_Up, 20),
             (39, Qt.Key_Up, 23),
             (42, Qt.Key_Up, 26),
             (46, Qt.Key_Up, 30),
             (49, Qt.Key_Up, 14),
-            (4, Qt.Key_Down, 20),
-            (7, Qt.Key_Down, 23),
-            (11, Qt.Key_Down, 26),
-            (14, Qt.Key_Down, 30),
+            (4, Qt.Key_Down, 23),
+            (7, Qt.Key_Down, 26),
+            (11, Qt.Key_Down, 30),
+            (14, Qt.Key_Down, 49),
             (20, Qt.Key_Down, 36),
             (23, Qt.Key_Down, 39),
             (26, Qt.Key_Down, 42),
@@ -920,10 +922,97 @@ class TestSoustractionModel:
         ],
     )
     def test_movecursor(self, ts, index, key, res):
-        # '',  '', '4', '', '', '3', '', '', '2', '', ',' ,'', '5', '', '', '4', '', //16
-        # '-', '', '3', '', '', '9', '', '', '1', '', ',' ,'', '4', '', '', '1', '', //33
-        # '',  '', '' , '', '', '' , '', '', '' , '', ',', '', '',  '', '', '' , ''] //50
+        # '',  '', '4', '', '*', '3', '', '*', '2', '', ',' ,'*', '5', '', '*', '4', '', //16
+        # '-', '', '3', '*', '', '9', '*', '', '1', '*', ',' ,'', '4', '*', '', '1', '', //33
+        # '',  '', '*' , '', '', '*' , '', '', '*' , '', ',', '', '*',  '', '', '*' , ''] //50
         a = f_soustractionSection(string="432,54-391,41")
         ts.sectionId = a.id
         ts.cursor = 99  # controle pas modif, 0 pourrait être faux
         assert ts.move_cursor(index, key) == res
+
+    @pytest.mark.parametrize(
+        "index,key, res",
+        [
+            (4, Qt.Key_Up, 99),
+            (8, Qt.Key_Up, 99),
+            (11, Qt.Key_Up, 99),
+            (14, Qt.Key_Up, 99),
+            (20, Qt.Key_Up, 4),
+            (23, Qt.Key_Up, 4),
+            (27, Qt.Key_Up, 8),
+            (30, Qt.Key_Up, 11),
+            (36, Qt.Key_Up, 20),
+            (39, Qt.Key_Up, 23),
+            (43, Qt.Key_Up, 27),
+            (46, Qt.Key_Up, 30),
+            (49, Qt.Key_Up, 14),
+            (4, Qt.Key_Down, 23),
+            (8, Qt.Key_Down, 27),
+            (11, Qt.Key_Down, 30),
+            (14, Qt.Key_Down, 49),
+            (20, Qt.Key_Down, 36),
+            (23, Qt.Key_Down, 39),
+            (27, Qt.Key_Down, 43),
+            (30, Qt.Key_Down, 46),
+            (36, Qt.Key_Down, 99),
+            (39, Qt.Key_Down, 99),
+            (43, Qt.Key_Down, 99),
+            (46, Qt.Key_Down, 99),
+            (49, Qt.Key_Down, 99),
+            (4, Qt.Key_Right, 8),
+            (8, Qt.Key_Right, 11),
+            (11, Qt.Key_Right, 14),
+            (14, Qt.Key_Right, 99),
+            (20, Qt.Key_Right, 23),
+            (23, Qt.Key_Right, 27),
+            (27, Qt.Key_Right, 30),
+            (30, Qt.Key_Right, 99),
+            (36, Qt.Key_Right, 39),
+            (39, Qt.Key_Right, 43),
+            (43, Qt.Key_Right, 46),
+            (46, Qt.Key_Right, 49),
+            (49, Qt.Key_Right, 99),
+            (4, Qt.Key_Left, 99),
+            (8, Qt.Key_Left, 4),
+            (11, Qt.Key_Left, 8),
+            (14, Qt.Key_Left, 11),
+            (20, Qt.Key_Left, 99),
+            (23, Qt.Key_Left, 20),
+            (27, Qt.Key_Left, 23),
+            (30, Qt.Key_Left, 27),
+            (36, Qt.Key_Left, 99),
+            (39, Qt.Key_Left, 36),
+            (43, Qt.Key_Left, 39),
+            (46, Qt.Key_Left, 43),
+            (49, Qt.Key_Left, 46),
+        ],
+    )
+    def test_movecursor2(self, dao, index, key, res):
+        # '',  '', '1', '', '*', '2', '', ',',  '*', '',  '', '*', '',  '', '*', '',  '', //16
+        # '-', '', '',  '*', '', '3', '*', ',', '', '3', '*', '', '4', '*', '', '5', '',//33
+        # '',  '', '*',  '', '', '*',  '', ',', '', '*',  '', '', '*',  '', '', '*',  ''//50
+        # {4, 36, 39, 8, 11, 43, 14, 46, 49, 20, 23, 27, 30}
+        a = f_soustractionSection(string="12-3,345")
+        SoustractionModel.ddb = dao
+        test = SoustractionModel()
+        test.sectionId = a.id
+        test.cursor = 99  # controle pas modif, 0 pourrait être faux
+        assert test.move_cursor(index, key) == res
+
+    @pytest.mark.parametrize(
+        "cote, ok", [("Gauche", {4, 7, 11, 14}), ("Droit", {20, 23, 26, 30}),]
+    )
+    def test_isretenucell(self, dao, cote, ok):
+        a = f_soustractionSection(string="432,54-391,41")
+        # '',  '', '4', '', '', '3', '', '', '2', '', ',' ,'', '5', '', '', '4', '', //16
+        # '-', '', '3', '', '', '9', '', '', '1', '', ',' ,'', '4', '', '', '1', '', //33
+        # '',  '', '' , '', '', '' , '', '', '' , '', ',', '', '',  '', '', '' , ''] //50
+        SoustractionModel.ddb = dao
+        test = SoustractionModel()
+        test.sectionId = a.id
+        ok = set(ok)
+        pasok = set(range(test.rowCount()))
+        pasok = pasok - ok
+        for i in range(test.rowCount()):
+            if getattr(test, "isRetenue" + cote)(i):
+                assert i in ok and i not in pasok

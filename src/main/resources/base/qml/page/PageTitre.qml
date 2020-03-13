@@ -18,8 +18,6 @@ TextField {
     ddb.setCurrentTitre(text)
   }
 
-
-
   Keys.onPressed: {
     if (event.key == Qt.Key_Return) {
       if (!page.model.rowCount()) {
@@ -36,6 +34,5 @@ TextField {
       forceActiveFocus()
     }
   }
-
 
 }

@@ -29,11 +29,12 @@ BasePageListView {
       model: AdditionModel {
         sectionId: curSectionId // on laisse tout là pour les tests
       }
+
     }
   }
   Component {
     id: soustractionDelegate
-    Addition {
+    Soustraction {
       sectionId: curSectionId
       position: curPosition
       model: SoustractionModel {

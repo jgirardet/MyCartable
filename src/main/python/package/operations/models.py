@@ -195,14 +195,12 @@ class SoustractionModel(OperationModel):
     def auto_move_next(self, position):
         if position < self.columns:  # premiere ligne
             res = position + self.columns - 1
-            print(position, res, self.columns, self.virgule)
             if position > self.virgule and res - self.columns <= self.virgule:
                 res -= 1
 
             return res
         elif self.columns <= position < self.columns * 2:  # deuxième ligne
             res = position + self.columns + 2
-            print(position, res, self.columns, self.virgule)
             if (
                 position - self.columns <= self.virgule
                 and res - (self.columns * 2) >= self.virgule
@@ -213,10 +211,20 @@ class SoustractionModel(OperationModel):
         elif self.columns * 2 <= position < self.columns * 3:  # troisieme ligne
             if position - (self.columns * 2) == 5:  # avant dernier aucun autre choix
                 return position - 3
+            elif position - (self.columns * 2) == 2:  # dernier aucun autre choix
+                return position
             res = position - self.columns * 2 - 4
             if position - (self.columns * 2) >= self.virgule and res < self.virgule:
                 res -= 1
             return res
+
+    @Slot(int, result=bool)
+    def isRetenueGauche(self, index):
+        return index in self.editables and self.isRetenueLine(index)
+
+    @Slot(int, result=bool)
+    def isRetenueDroit(self, index):
+        return index in self.editables and self.isMiddleLine(index)
 
     def is_result_line(self, index):
         return index >= self.columns * 2
@@ -228,30 +236,21 @@ class SoustractionModel(OperationModel):
     def move_cursor(self, index, key):
         new = self.cursor
         if key == Qt.Key_Up:
-            temp = index - self.columns
-            # print(index, temp, self.editables, self.columns)
-            if temp in self.editables:
-                # print("ping")
-                new = temp
-            elif temp + 1 in self.editables:
-                new = temp + 1
-            elif self.datas[temp + 1] == ",":
-                new = temp + 2
-            elif index == self.rowCount() - 2:
+            if index == self.columns + 3:  # premier 2èmeligne
+                new = min(self.editables)
+            elif self.isMiddleLine(index):
+                new = index - self.columns - 2
+            elif index == self.rowCount() - 2:  # dernier dernière ligne
                 new = self.columns - 3
+            elif self.isResultLine(index):
+                new = index - self.columns + 1
         elif key == Qt.Key_Down:
-            temp = index + self.columns
-            print(index, temp, self.editables, self.columns)
-
-            if index > self.columns * 2:
-                pass
-            elif temp in self.editables:
-                # print("ping")
-                new = temp
-            elif temp - 1 in self.editables:
-                new = temp - 1
-            elif self.datas[temp - 1] == ",":
-                new = temp - 2
+            if index == self.columns - 3:  # dernier premiere ligne
+                new = self.rowCount() - 2
+            elif self.isRetenueLine(index):
+                new = index + self.columns + 2
+            elif self.isMiddleLine(index):
+                new = index + self.columns - 1
         elif key == Qt.Key_Right:
             temp = index + 3
             if temp in self.editables:
@@ -262,8 +261,6 @@ class SoustractionModel(OperationModel):
                 new = temp + 1
         elif key == Qt.Key_Left:
             temp = index - 3
-            print(self.datas)
-            print(self.datas[temp + 1], temp)
             if temp in self.editables:
                 new = temp
             elif self.datas[temp].isdigit() or self.datas[temp] == ",":

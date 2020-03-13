@@ -14,7 +14,6 @@ FocusScope {
     readonly property var stabyloRectangle: Qt.createComponent("qrc:/qml/page/StabyloRectangle.qml")
    /* beautify preserve:end */
 
-
   //doit rester comme ça pour les annotations +++
   height: img.height
   width: img.width

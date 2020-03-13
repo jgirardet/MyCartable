@@ -2,14 +2,14 @@ import QtQuick 2.14
 
 BaseOperation {
   id: root
-  cellWidth: 50
+  cellWidth: 30
   cellHeight: 50
 
-  delegate: AdditionDelegate {
+  delegate: SoustractionDelegate {
       model: root.model
     }
 
   Component.onCompleted: {
-    currentIndex = count - 1
+    currentIndex = model.columns - 2
   }
 }

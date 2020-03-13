@@ -56,14 +56,14 @@ Item {
 
   CasTest {
     name: "Addition"
-    testedNom: "qrc:/qml/page/operations/Addition.qml"
+    testedNom: "qrc:/qml/page/operations/BaseOperation.qml"
     /* beautify preserve:start */
     property var model
     /* beautify preserve:end */
 
     function initPre() {
       model = createTemporaryObject(modelComp,item)
-      params = {"model": model}
+      params = {"model": model, "delegateClass": "addition"}
     }
 
     function initPost() {
@@ -73,23 +73,7 @@ Item {
       compare(model.count, 12)
       compare(tested.model,  model)
       }
-    function test_init() {
-      compare(tested.keyNavigationEnabled, false)
-      compare(tested.width, 150)
-      compare(tested.height, 200)
-    }
 
-    function test_cursor_binding() {
-       model.cursor = 11
-       compare(tested.currentIndex, 11)
-    }
-
-    function test_on_currentItemchanged() {
-      tested.currentIndex = 1
-      tested.currentIndex = 6
-      compare(tested.currentItem.textinput.text,"+")
-      compare(tested.currentItem.textinput.focus,true)
-  }
 
 
     function test_whole_usage_delegate() {
@@ -135,21 +119,7 @@ Item {
 
     }
 
-    function test_validator() {
-      mouseClick(tested.itemAtIndex(11).textinput)
-      keyClick(Qt.Key_A)
-      compare(tested.currentItem.textinput.text, "")
-      keyClick(Qt.Key_1)
-      compare(tested.itemAtIndex(11).textinput.text, "1")
-    }
 
-    function test_move_with_arrows() {
-    // on controle juste le call car fonction non refaite
-      mouseClick(tested.itemAtIndex(11).textinput)
-      keyClick(Qt.Key_Right)
-      compare(model._moveCursor, [11, Qt.Key_Right])
-
-    }
 
 
   }

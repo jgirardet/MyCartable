@@ -212,7 +212,9 @@ def f_additionSection(string=None, created=None, page=None, position=0, td=False
     string = (
         string
         if string
-        else random.choice(["3+2", "8+9", "32+45", "87+76", "3458+23+827"])
+        else random.choice(
+            ["3+2", "8+9", "8,1+5", "23,45+365,2", "32+45", "87+76", "3458+23+827"]
+        )
     )
 
     return _operation_section("AdditionSection", string, created, page, position, td)

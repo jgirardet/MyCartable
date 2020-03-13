@@ -30,8 +30,12 @@
 
     </qresource>
     <qresource prefix="/qml/page/operations">
-        <file alias="Addition.qml">base/qml/page/operations/Addition.qml</file>
+        <file alias="BaseOperation.qml">base/qml/page/operations/BaseOperation.qml</file>
+        <file alias="TextInputDelegate.qml">base/qml/page/operations/TextInputDelegate.qml</file>
         <file alias="AdditionDelegate.qml">base/qml/page/operations/AdditionDelegate.qml</file>
+        <file alias="Addition.qml">base/qml/page/operations/Addition.qml</file>
+        <file alias="SoustractionDelegate.qml">base/qml/page/operations/SoustractionDelegate.qml</file>
+        <file alias="Soustraction.qml">base/qml/page/operations/Soustraction.qml</file>
 
     </qresource>
 
@@ -47,5 +51,9 @@
         <file alias="newTextSection">../icons/base/svg/mbri-edit2.svg</file>
         <file alias="removePage">../icons/base/svg/mbri-trash.svg</file>
         <file alias="addAddition">../icons/base/operations/addAddition-64.png</file>
+    </qresource>
+    <qresource prefix="/js">
+        <file alias="lodash.js">base/js/lodash.js</file>
+        <file alias="core.js">base/js/core.js</file>
     </qresource>
 </RCC>

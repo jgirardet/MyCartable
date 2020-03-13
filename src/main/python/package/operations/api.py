@@ -74,16 +74,6 @@ class DecimalLitteral(Decimal):
                 return ["-"] + avant + corps
 
         else:
-            # if not ligne:
-            #     corps = [""]
-            #     for x in self.string:
-            #         if x != ",":
-            #             corps.append("")
-            #         corps.append(x)
-            #         if x != ",":
-            #             corps.append("")
-            #     return corps
-            # else:
             signe = ["-"] if ligne else [""]
             corps = []
             deja_apres_virg = 0
@@ -99,9 +89,8 @@ class DecimalLitteral(Decimal):
                 else:
                     virg_passee = True
 
-            apres = [""] * (apres_virgule - deja_apres_virg) * 3
-            if self.is_int():
-                apres.append("")
+            apres = [","] if self.is_int() else []
+            apres = apres + [""] * (apres_virgule - deja_apres_virg) * 3
             corps = corps + apres
             avant = []
             if (len(corps) + 1) < size:  # le + 1 c pour le signe

@@ -18,18 +18,20 @@ TextField {
       model.autoMoveNext(index)
     }
     onFocusChanged: {
-      print(index)
       if (focus && !readOnly) {
+        print(index)
         parent.GridView.view.currentIndex = index
       }
     }
     Keys.onPressed: {
       model.moveCursor(index, event.key)
       event.accepted = [Qt.Key_Up, Qt.Key_Left, Qt.Key_Down, Qt.Key_Right].includes(event.key)
-      if ([Qt.Key_0,Qt.Key_1,Qt.Key_2,Qt.Key_3,Qt.Key_4,Qt.Key_5,Qt.Key_6,Qt.Key_7,Qt.Key_8,Qt.Key_9].includes(event.key))
+      var numPressed = [Qt.Key_0,Qt.Key_1,Qt.Key_2,Qt.Key_3,Qt.Key_4,Qt.Key_5,Qt.Key_6,Qt.Key_7,Qt.Key_8,Qt.Key_9].includes(event.key)
+      if (numPressed)
         {
         selectAll()
         }
+//      event.accepted = numPressed
     }
 
     background: BorderRectangle {

@@ -53,6 +53,7 @@ class OperationModel(QAbstractListModel):
 
     @cursor.setter
     def cursor_set(self, value: int):
+        print(value, "dans cursor set")
         if value != self._cursor:
             self._cursor = value
             self.cursorChanged.emit()

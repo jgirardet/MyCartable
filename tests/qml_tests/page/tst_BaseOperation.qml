@@ -13,6 +13,8 @@ Item {
     property int rows: 4
       property int columns: 3
       property int cursor: 0
+      property int sectionId: 0
+
       /* beautify preserve:start */
       property var datas: ["", "", "", "", "", "9", "+", "", "8", "", "", ""]
       /* beautify preserve:end */
@@ -52,7 +54,14 @@ Item {
         }
         }
    }
-
+  Component {
+    id: delegComp
+    Item {
+      property TextInput textinput: TextInput{
+        property ListModel model: modelComp.createObject(item)
+      }
+    }
+  }
 
   CasTest {
     name: "BaseOperation"
@@ -63,7 +72,7 @@ Item {
 
     function initPre() {
       model = createTemporaryObject(modelComp,item)
-      params = {"model": model, "delegateClass": "addition"}
+      params = {"model": model, "delegate": delegComp}
     }
 
     function initPost() {
@@ -87,26 +96,10 @@ Item {
     function test_on_currentItemchanged() {
       tested.currentIndex = 1
       tested.currentIndex = 6
-      compare(tested.currentItem.textinput.text,"+")
       compare(tested.currentItem.textinput.focus,true)
   }
-//
-//  function test_validator() {
-//      mouseClick(tested.itemAtIndex(11).textinput)
-//      keyClick(Qt.Key_A)
-//      compare(tested.currentItem.textinput.text, "")
-//      keyClick(Qt.Key_1)
-//      compare(tested.itemAtIndex(11).textinput.text, "1")
-//    }
-//
-//    function test_move_with_arrows() {
-//    // on controle juste le call car fonction non refaite
-//      mouseClick(tested.itemAtIndex(11).textinput)
-//      keyClick(Qt.Key_Right)
-//      compare(model._moveCursor, [11, Qt.Key_Right])
-//      tested.destroy()
-//
-//    }
+
+  // test Textinputdelegat in additoin
 
 
 

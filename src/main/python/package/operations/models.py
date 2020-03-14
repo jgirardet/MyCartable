@@ -55,6 +55,7 @@ class OperationModel(QAbstractListModel):
     def cursor_set(self, value: int):
         print(value, "dans cursor set")
         if value != self._cursor:
+            print("cursor set donc emot = ", value)
             self._cursor = value
             self.cursorChanged.emit()
 
@@ -111,7 +112,9 @@ class OperationModel(QAbstractListModel):
 
     @Slot(int, int)
     def moveCursor(self, index, key):
-        self.cursor = self.move_cursor(index, key)
+        res = self.move_cursor(index, key)
+        if res != index:
+            self.cursor = self.move_cursor(index, key)
 
     @Slot(int, result=bool)
     def readOnly(self, value):
@@ -258,7 +261,7 @@ class SoustractionModel(OperationModel):
                 new = temp
             elif index % self.columns >= self.columns - 4:
                 pass
-            elif not self.datas[temp + 1].isdigit():
+            elif temp + 1 in self.editables:
                 new = temp + 1
         elif key == Qt.Key_Left:
             temp = index - 3

@@ -11,6 +11,7 @@ Item {
   ListModel {
   id: listmodel
     property int rows: 4
+    property int sectionId: 0
       property int columns: 3
       property int cursor: 0
       /* beautify preserve:start */
@@ -56,14 +57,14 @@ Item {
 
   CasTest {
     name: "Addition"
-    testedNom: "qrc:/qml/page/operations/BaseOperation.qml"
+    testedNom: "qrc:/qml/page/operations/Addition.qml"
     /* beautify preserve:start */
     property var model
     /* beautify preserve:end */
 
     function initPre() {
       model = createTemporaryObject(modelComp,item)
-      params = {"model": model, "delegateClass": "addition"}
+      params = {"model": model}
     }
 
     function initPost() {
@@ -121,6 +122,22 @@ Item {
 
 
 
+    function test_validator() {
+      mouseClick(tested.itemAtIndex(11).textinput)
+      keyClick(Qt.Key_A)
+      compare(tested.currentItem.textinput.text, "")
+      keyClick(Qt.Key_1)
+      compare(tested.itemAtIndex(11).textinput.text, "1")
+    }
+
+    function test_move_with_arrows() {
+    // on controle juste le call car fonction non refaite
+      mouseClick(tested.itemAtIndex(11).textinput)
+      keyClick(Qt.Key_Right)
+      compare(model._moveCursor, [11, Qt.Key_Right])
+      tested.destroy()
+
+    }
 
   }
 

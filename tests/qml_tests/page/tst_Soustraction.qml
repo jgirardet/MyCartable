@@ -16,6 +16,7 @@ Item {
     property int rows: 4
       property int columns: 17
       property int cursor: 0
+      property int sectionId: 0
       /* beautify preserve:start */
       property var datas: ['',  '', '4', '', '', '3', '', '', '2', '', ',' ,'', '5', '', '', '4', '', '-', '', '3', '', '', '9', '', '', '1', '', ',' ,'', '4', '', '', '1', '', '',  '', '' , '', '', '' , '', '', '' , '', ',', '', '',  '', '', '' , '']
       /* beautify preserve:end */
@@ -59,14 +60,14 @@ Item {
 
   CasTest {
     name: "Soustraction"
-    testedNom: "qrc:/qml/page/operations/BaseOperation.qml"
+    testedNom: "qrc:/qml/page/operations/Soustraction.qml"
     /* beautify preserve:start */
     property var model
     /* beautify preserve:end */
 
     function initPre() {
       model = createTemporaryObject(modelComp,item)
-      params = {"model": model, "delegateClass": "soustraction"}
+      params = {"model": model}
     }
 
     function initPost() {
@@ -105,7 +106,7 @@ Item {
       compare(tested.itemAtIndex(20).textinput.leftPadding,0)
       // "Gauche", {4, 7, 11, 14}
       compare(tested.itemAtIndex(0).textinput.rightPadding,5)
-      compare(tested.itemAtIndex(4).textinput.rightPadding,0)
+      compare(tested.itemAtIndex(4).textinput.rightPadding,1)
 
       compare(tested.itemAtIndex(0).textinput.color,"#000000") //black
       compare(tested.itemAtIndex(20).textinput.color,"#ff0000") //Red

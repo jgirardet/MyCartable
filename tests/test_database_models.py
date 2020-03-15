@@ -1,3 +1,5 @@
+import itertools
+import json
 from datetime import datetime, timedelta
 
 from PySide2.QtCore import QUrl
@@ -470,31 +472,15 @@ class TestAddditionSection:
         x = f_additionSection(string=string)
         assert x.get_editables() == res
 
-        class TestSoustractionSection:
-            def test_factory(self):
-                assert f_soustractionSection(string="15-3").datas == [
-                    "",
-                    "",
-                    "1",
-                    "",
-                    "",
-                    "5",
-                    "",
-                    "-",
-                    "",
-                    "",
-                    "",
-                    "",
-                    "3",
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                ]
+
+class TestSoustractionSection:
+    def test_factory(self):
+        res = (
+            ["", "", "1", "", "", "5", "", "-", "",]
+            + ["", "", "", "3", "", "", "", "",]
+            + ["", "", "", "",]
+        )
+        assert f_soustractionSection(string="15-3").datas == res
 
         f_soustractionSection()
 
@@ -529,19 +515,80 @@ class TestAddditionSection:
         assert x.get_editables() == res
 
 
+class TestMultiplicationSection:
+    def test_factory(self):
+        assert f_multiplicationSection(string="1*2").datas == [
+            "",
+            "",
+            "",
+            "1",
+            "x",
+            "2",
+            "",
+            "",
+        ]
+
+        f_multiplicationSection()
+
+    def test_properties(self, ddb):
+        a = f_multiplicationSection(string="12*34")
+        assert a.n_chiffres == 2
+        assert a.line_0 == ["", "", "1", "2"]
+        assert a.line_1 == ["x", "", "3", "4"]
+
+        # res sans virgule
+        a._datas = '["", "", "", "", "", "", "", "", "", "", "1", "2", "x", "", "3", "4", "", "", "", "", "", "", "", "", "", "", "", "", "f", "", "", "z"]'
+        assert a.line_res == ["f", "", "", "z"]
+
+        # res avec virgule
+        a = f_multiplicationSection(string="1,2*2,4")
+        a._datas = '["", "", "", "", "", "", "", "", "", "", "", "", "1", ",", "2", "x", "", "2", ",", "4", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "f", "", "", "", "z", "", "", "", "", ""]'
+        assert a.line_res == ["f", "", "", "", "z"]
+
+    @pytest.mark.parametrize(
+        "string, res",
+        [
+            ("2*1", {7}),
+            ("2*5", {1, 10, 11}),
+            ("22*5", {1, 2, 13, 14, 15}),
+            (
+                "22*55",
+                {3, 8, 21, 22, 23, 24, 26, 27, 28, 29, 31, 32, 33, 34, 36, 37, 38, 39},
+            ),
+            (
+                "2,2*5,5",
+                {3, 9, 25, 26, 27, 29, 31, 32, 33, 35, 37}
+                | {38, 39, 41, 43, 44, 45, 47, 49, 50, 51, 52,},
+            ),
+            (
+                "325,12*99,153",
+                set(
+                    itertools.chain.from_iterable(
+                        range(x, 60, 12) for x in [5, 6, 7, 9]
+                    )
+                )
+                | set(range(84, 177))
+                - set(range(84, 169, 12))
+                - set(range(92, 168, 12)),
+            ),
+        ],
+    )
+    def test_get_editables(self, ddb, string, res):
+        x = f_multiplicationSection(string=string)
+        assert x.get_editables() == res
+
+
 class TestAnnotations:
     def test_factory_stabylo(self, ddbr):
         a = f_stabylo()
         isinstance(a, db.Stabylo)
         a = f_stabylo(0.30, 0.40, 0.50, 0.60, td=True)
-        print(a)
         assert list(a.values()) == [2, 0.3, 0.4, 2, None, "Stabylo", 0.5, 0.6]
 
     def test_factory_annotationtext(self, ddbr):
         a = f_annotationText()
         isinstance(a, db.AnnotationText)
         a = f_annotationText(0.30, 0.40, "coucou", td=True)
-        print(a)
         assert list(a.values()) == [
             2,
             0.3,

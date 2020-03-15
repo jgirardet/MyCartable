@@ -232,6 +232,29 @@ def f_soustractionSection(string=None, created=None, page=None, position=0, td=F
     )
 
 
+def f_multiplicationSection(string=None, created=None, page=None, position=0, td=False):
+    string = (
+        string
+        if string
+        else random.choice(
+            [
+                "3*2",
+                "12*3",
+                "8*12",
+                "87*76",
+                "3458*827",
+                "8,7*76",
+                "345,8*8,27",
+                "12*3,345",
+            ]
+        )
+    )
+
+    return _operation_section(
+        "MultiplicationSection", string, created, page, position, td
+    )
+
+
 @db_session
 def populate_database(matieres_list=MATIERES, nb_page=100):
     annee = f_annee()

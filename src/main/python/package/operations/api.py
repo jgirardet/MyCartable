@@ -1,4 +1,6 @@
+import functools
 import itertools
+import operator
 import re
 from decimal import Decimal
 
@@ -97,6 +99,20 @@ class DecimalLitteral(Decimal):
                 avant = (size - (len(corps) + 1)) * [""]
             return signe + avant + corps
 
+    def to_string_list_multiplication(self, size, apres_virgule=0):
+        return self.to_string_list_addition(size=size, apres_virgule=apres_virgule)
+        # if apres_virgule == 0:
+        #     space_after = 0
+        # else:
+        #     if self.is_int():
+        #         space_after = apres_virgule + 1
+        #     elif apres_virgule <= self.l_dec:
+        #         space_after = 0
+        #     else:
+        #         space_after = apres_virgule - self.l_dec
+        # avant = size - self.len - space_after
+        # return [""] * avant + list(self.string) + [""] * space_after
+
 
 def convert_addition(numbers):
     addition_list = [DecimalLitteral(x) for x in numbers]
@@ -147,6 +163,39 @@ def convert_soustraction(numbers):
     return 3, n_col, virgule, list(itertools.chain.from_iterable(res))
 
 
+def convert_multiplication(numbers):
+    work_list = [DecimalLitteral(x) for x in numbers]
+    ligne1 = work_list[1]  # membre 2
+
+    n_col = (
+        len(functools.reduce(operator.mul, work_list).to_eng_string()) + 1
+    )  # nombre de colonne nécessaire
+    n_apres_virgule = max(a.l_dec for a in work_list)  # nombre apres vigule
+    n_avant_virgule = max(a.l_int for a in work_list)  # nombre avant vigule
+    n_chiffres = ligne1.l_dec + ligne1.l_int
+    n_row = 4  # les 2 membres +  1row retenu + res
+
+    if n_chiffres > 1:
+        n_row = n_row + (n_chiffres * 2)  # les retenues du haut + n ligne d'addition
+    virgule = n_col - n_apres_virgule - 1 if n_apres_virgule else 0
+
+    res = []
+
+    res.append([""] * n_col * n_chiffres)  # d'abord les row de retenu
+    res.append(work_list[0].to_string_list_multiplication(n_col, n_apres_virgule))
+    membre2 = work_list[1].to_string_list_multiplication(n_col, n_apres_virgule)
+    membre2[0] = "x"
+    res.append(membre2)
+    res.append([""] * n_col)  # ligne resultat
+
+    if n_chiffres > 1:
+        res.append([""] * n_col * (n_chiffres + 1))  # additions + retenue
+    if n_apres_virgule:
+        res.append([""] * n_col)  # ligne de virgule du résultat
+
+    return n_row, n_col, virgule, list(itertools.chain.from_iterable(res))
+
+
 def create_operation(string):
     # strip space
     string = string.replace(" ", "")
@@ -157,5 +206,7 @@ def create_operation(string):
         return convert_addition(numbers)
     elif signe == "-":
         return convert_soustraction(numbers)
+    elif signe == "*":
+        return convert_multiplication(numbers)
     else:
         return None

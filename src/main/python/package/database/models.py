@@ -317,6 +317,75 @@ def init_models(db: Database):
                     i += 3
             return res
 
+    class MultiplicationSection(OperationSection):
+        @property
+        def n_chiffres(self):
+            return int((self.rows - 4) / 2)  # toujours pairs
+
+        @property
+        def line_0(self):
+            start = self.n_chiffres * self.columns
+            return self.datas[start : start + self.columns]
+
+        @property
+        def line_1(self):
+            start = (1 + self.n_chiffres) * self.columns
+            return self.datas[start : start + self.columns]
+
+        @property
+        def line_res_index(self):
+            if self.virgule:
+                return self.size - self.columns * 2, self.size - self.columns
+            else:
+                return self.size - self.columns, self.size
+
+        @property
+        def line_res(self):
+            start, stop = self.line_res_index
+            return self.datas[start:stop]
+
+        def get_editables(self):
+            res = set()
+            if not self.n_chiffres:
+                start, stop = self.line_res_index
+                res = set(range(start + 1, stop)) | set(range(1, self.columns - 1))
+            else:
+                # d'abord les retenues via les même index que ligne0 - le dernier
+                indexes = [n for n, x in enumerate(self.line_0) if x.isdigit()][:-1]
+                for i in range(self.n_chiffres):
+                    k = self.columns * i
+                    for j in indexes:
+                        res.add(k + j)
+
+                # ensuite on faite tout le reste (sans la ligne de la vifgule flottante)
+                if self.virgule:
+                    reste = set(
+                        range(
+                            self.columns * (self.n_chiffres + 2),
+                            self.size - self.columns,
+                        )
+                    )
+                else:
+                    reste = set(range(self.columns * (self.n_chiffres + 2), self.size))
+
+                # on enleve la collone des signe
+                colonne_signe = set(range(0, self.size, self.columns))
+                reste = reste - colonne_signe
+
+                # puis les virgules s'il y en a
+                if self.virgule:
+                    colonne_virgule = set(range(self.virgule, self.size, self.columns))
+                    reste = reste - colonne_virgule
+
+                    # enfin on rajoute la ligne de la virgule flottante
+                    start = self.size - self.columns
+                    last = set(range(start + 1, start + self.virgule + 1))
+                    reste = reste | last
+
+                res = res | reste
+
+            return res
+
     class Annotation(db.Entity):
         id = PrimaryKey(int, auto=True)
         relativeX = Required(float)

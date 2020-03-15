@@ -53,9 +53,7 @@ class OperationModel(QAbstractListModel):
 
     @cursor.setter
     def cursor_set(self, value: int):
-        print(value, "dans cursor set")
         if value != self._cursor:
-            print("cursor set donc emot = ", value)
             self._cursor = value
             self.cursorChanged.emit()
 
@@ -75,6 +73,10 @@ class OperationModel(QAbstractListModel):
     def sectionId_set(self, value: int):
         self._sectionId = value
         self.sectionIdChanged.emit()
+
+    @Property(int, notify=paramsChanged)
+    def size(self):
+        return int(self.params["size"])
 
     @Property(int, notify=paramsChanged)
     def virgule(self):
@@ -275,48 +277,119 @@ class SoustractionModel(OperationModel):
         return new
 
 
-#
-# class SoustractionModel(OperationModel):
-#     def auto_move_next(self, position):
-#         if position < self.columns:  # premiere ligne
-#             res = position + self.columns - 1
-#             if position > self.virgule and res - self.columns <= self.virgule:
-#                 res -= 1
-#
-#             return res
-#         elif self.columns <= position < self.columns * 2:  # deuxième ligne
-#             res = position + self.columns + 2
-#             if (
-#                 position - self.columns <= self.virgule
-#                 and res - (self.columns * 2) >= self.virgule
-#             ):
-#                 res += 1
-#             return res
-#
-#         elif self.columns * 2 <= position < self.columns * 3:  # troisieme ligne
-#             if position - (self.columns * 2) == 5:  # avant dernier aucun autre choix
-#                 return position - 3
-#             elif position - (self.columns * 2) == 2:  # dernier aucun autre choix
-#                 return position
-#             res = position - self.columns * 2 - 4
-#             if position - (self.columns * 2) >= self.virgule and res < self.virgule:
-#                 res -= 1
-#             return res
-#
-#     @Slot(int, result=bool)
-#     def isRetenueGauche(self, index):
-#         return index in self.editables and self.isRetenueLine(index)
-#
-#     @Slot(int, result=bool)
-#     def isRetenueDroit(self, index):
-#         return index in self.editables and self.isMiddleLine(index)
-#
-#     def is_result_line(self, index):
-#         return index >= self.columns * 2
-#
-#     def is_retenue_line(self, index):
-#         """retenu == fistr line"""
-#         return 0 <= index and index < self.columns
+class MultiplicationModel(OperationModel):
+    def auto_move_next(self, position):
+        res = position
+        if self.isMiddleLine(position):
+            first_middle_index = self.columns * (self.n_chiffres + 2)
+            r_index = position - first_middle_index  # inde relatif au premier middle
+            i_line = r_index // self.columns  # index de la ligne dans les n_chiffres
+            i_case = r_index % self.columns  # index dans la ligne elle même
+            i_retenue_line = (
+                self.n_chiffres - i_line - 1
+            )  # absolut index de ligne de retenu
+
+            #############
+            # temp
+
+            i_rel_base = (
+                self.columns - i_line - 1
+            )  # index "zéro" relatif de chaque ligne
+            i_rel = i_rel_base - i_case
+            if i_rel <= self.virgule:
+                i_rel -= 1
+            ##########
+            if i_case + i_line + bool(self.virgule) > self.n_chiffres:
+                print("cas 1")
+                if self.columns - i_case - 1 <= i_line - 1:
+                    res = position - 1
+                else:
+                    i_rel_base = (
+                        self.columns - i_line - 1
+                    )  # index "zéro" relatif de chaque ligne
+                    i_rel = i_rel_base - i_case
+                    print("irel", i_rel, i_rel_base)
+
+                    # cas ou le premier le chiffre de première ligne est nul ou zéro quand virgule
+                    index0_ligne0 = self.columns * self.n_chiffres
+                    i_ligne0 = index0_ligne0 + self.columns - 1 - i_rel
+                    content_i_ligne0 = self.datas[i_ligne0]
+                    print("ilign0", i_ligne0, content_i_ligne0)
+                    if content_i_ligne0 in {"", "0"}:
+                        res = position - 1
+
+                    else:  # cas général avec retenu
+                        retenue_index = self.columns - 2 - i_rel
+                        if retenue_index == self.virgule:
+                            retenue_index -= 1
+                        res = self.columns * i_retenue_line + retenue_index
+            # elif (
+            #     1 < i_case and self.columns - i_line - i_case <= self.n_chiffres
+            # ):  # dans les clous
+            elif 1 < i_case and i_rel < self.n_chiffres:  # dans les clous
+                print("cas 2,", i_case, i_line, i_rel)
+                res = position - 1
+
+            elif (
+                1 < i_case and i_rel <= self.n_chiffres and self.virgule
+            ):  # dans les clous
+                print("cas 2,", i_case, i_line, i_rel)
+                res = position - 1
+            else:  # hors clous, retour à la ligne, on saute la ligne de retnue si dernière
+                print("hors clou", i_case, i_line, i_rel)
+                print(i_line)
+                if i_line < self.n_chiffres:
+                    ligne = position // self.columns
+                    res = (ligne + 2) * self.columns - 1
+                    if self.isRetenueLine(res):
+                        res = res + self.columns
+                    # res = self.columns * (self.n_chiffres + 2 + i_line + 1)
+
+        elif self.isRetenueLine(position):
+            if position < self.columns * self.n_chiffres:  # retenu du haut.
+                i_line = self.n_chiffres - (position // self.columns) - 1
+                i_case = position % self.columns
+                retenue_index = self.columns - 2 - i_case
+                i_rel = self.columns - 1 - i_line - retenue_index
+                print(i_line, i_case)
+                res = (self.n_chiffres + 2 + i_line) * self.columns + i_rel - 1
+
+            else:  # retenu du bas
+                res = position + self.columns
+
+        elif self.isResultLine(position):
+            if position - 1 != self.size - self.columns:
+                res = position - self.columns - 1
+
+        return res
+
+    @property
+    def n_chiffres(self):
+        return int((self.rows - 4) / 2)
+
+    def is_result_line(self, index):
+        if self.virgule:
+            return self.size - self.columns * 2 <= index < self.size - self.columns
+        else:
+            return self.size - self.columns <= index < self.size
+
+    def is_retenue_line(self, index):
+        """retenu première lignes et  appres addition"""
+        if self.rows == 4:  # 1 chiffre en bas
+            if index < self.columns:  # premire ligne
+                return True
+        else:
+            if index < self.columns * self.n_chiffres:  # premieres lignes
+                return True
+            elif (
+                (self.n_chiffres * 2 + 2) * self.columns
+                <= index
+                < (self.n_chiffres * 2 + 2) * self.columns + self.columns
+            ):
+                return True
+        return False
+
+
 #
 #     def move_cursor(self, index, key):
 #         new = self.cursor

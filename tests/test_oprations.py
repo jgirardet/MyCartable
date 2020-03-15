@@ -1,9 +1,10 @@
 from decimal import Decimal
 
 import pytest
-from PySide2.QtCore import Qt
+from PySide2.QtCore import Qt, Signal
 from fixtures import check_super_init
 from package.database.factory import f_additionSection, f_soustractionSection
+from package.database_object import DatabaseObject
 from package.operations.api import (
     match,
     convert_addition,
@@ -12,7 +13,12 @@ from package.operations.api import (
     convert_soustraction,
     convert_multiplication,
 )
-from package.operations.models import OperationModel, AdditionModel, SoustractionModel
+from package.operations.models import (
+    OperationModel,
+    AdditionModel,
+    SoustractionModel,
+    MultiplicationModel,
+)
 from pony.orm import db_session
 
 
@@ -416,22 +422,44 @@ def to(dao):
     return a
 
 
-@pytest.fixture
-def ta(dao):
-    x = f_additionSection(string="9+8")
-    OperationModel.ddb = dao
-    a = AdditionModel()
-    a.sectionId = x.id
-    return a
+#
+# @pytest.fixture
+# def ta(dao):
+#     x = f_additionSection(string="9+8")
+#     OperationModel.ddb = dao
+#     a = AdditionModel()
+#     a.sectionId = x.id
+#     return a
 
 
 @pytest.fixture
-def ts(dao):
-    x = f_soustractionSection(string="34-22")
-    OperationModel.ddb = dao
-    a = SoustractionModel()
-    a.sectionId = x.id
+def ta():
+    class Dbo:
+        recentsModelChanged = Signal()
+        sectionIdChanged = Signal()
+
+    class Mock(AdditionModel):
+        def __call__(self, string):
+            rows, columns, virgule, datas = create_operation(string)
+            self.params["rows"] = rows
+            self.params["columns"] = columns
+            self.params["virgule"] = virgule
+            self.params["datas"] = datas
+            self.params["size"] = self.rows * self.columns
+
+    Mock.ddb = Dbo()
+    a = Mock()
     return a
+
+
+#
+# @pytest.fixture
+# def ts(dao):
+#     x = f_soustractionSection(string="34-22")
+#     OperationModel.ddb = dao
+#     a = SoustractionModel()
+#     a.sectionId = x.id
+#     return a
 
 
 class TestOperationModel:
@@ -538,6 +566,7 @@ class TestOperationModel:
         assert to.editables == {1, 10, 11}
 
     def test_isMiddleLinee(self, ta):
+        ta("9+8")
         for i in range(3, 9):
             assert ta.isMiddleLine(i)
         for i in range(0, 3):
@@ -551,19 +580,18 @@ class TestAdditionModel:
         "index,res", [(1, 13), (2, 14), (13, 13), (14, 1), (15, 2),],
     )
     def test_automove_next(self, ta, index, res):
-        a = AdditionModel()
-        a.params = f_additionSection(string="254+141", td=True)
+        # a = AdditionModel()
+        ta("254+141")
         # ['', '', '', '', '', '2', '5', '4', '+', '1', '4', '1', '', '', '', ''] 4x4
-        assert a.auto_move_next(index) == res
+        assert ta.auto_move_next(index) == res
 
     @pytest.mark.parametrize(
         "index,res", [(23, 4), (4, 22), (22, 2), (2, 20), (20, 1), (1, 19)],
     )
     def test_automove_next_virgule(self, ta, index, res):
-        a = AdditionModel()
-        a.params = f_additionSection(string="2,54+14,1", td=True)
+        ta("2,54+14,1")
         # ['', '', '', '', '', '', '', '', '2', ',', '5', '4', '+', '1', '4', ',', '1', '', '', '', '', '', '', ''] 6x4
-        assert a.auto_move_next(index) == res
+        assert ta.auto_move_next(index) == res
 
     @pytest.mark.parametrize(
         "index,key,res",
@@ -592,9 +620,9 @@ class TestAdditionModel:
         ],
     )
     def test_move_cursor(self, ta, index, key, res):
-        x = f_additionSection(string="254+141")
         # ['', '', '', '', '', '2', '5', '4', '+', '1', '4', '1', '', '', '', ''] 4x4
-        ta.sectionId = x.id
+        ta("254+141")
+        ta.editables = {1, 2, 13, 14, 15}
         ta.cursor = 99  # controle pas modif, 0 pourrait être faux
         assert ta.move_cursor(index, key) == res
 
@@ -633,22 +661,44 @@ class TestAdditionModel:
         ],
     )
     def test_move_cursor_virgule(self, ta, index, key, res):
-        x = f_additionSection(string="2,54+14,1")
-        ta.sectionId = x.id
+        ta("2,54+14,1")
+        ta.editables = {1, 2, 4, 19, 20, 22, 23}
         ta.cursor = 99  # controle pas modif, 0 pourrait être faux
         assert ta.move_cursor(index, key) == res
 
     def test_is_result_line(self, ta):
+        ta("9+8")
         for i in range(9, 12):
             assert ta.isResultLine(i)
         for i in range(0, 9):
             assert not ta.isResultLine(i)
 
     def test_is_retenue_line(self, ta):
+        ta("9+8")
         for i in range(0, 3):
             assert ta.isRetenueLine(i)
         for i in range(3, 12):
             assert not ta.isRetenueLine(i)
+
+
+@pytest.fixture
+def ts():
+    class Dbo:
+        recentsModelChanged = Signal()
+        sectionIdChanged = Signal()
+
+    class Mock(SoustractionModel):
+        def __call__(self, string):
+            rows, columns, virgule, datas = create_operation(string)
+            self.params["rows"] = rows
+            self.params["columns"] = columns
+            self.params["virgule"] = virgule
+            self.params["datas"] = datas
+            self.params["size"] = self.rows * self.columns
+
+    Mock.ddb = Dbo()
+    a = Mock()
+    return a
 
 
 class TestSoustractionModel:
@@ -659,7 +709,7 @@ class TestSoustractionModel:
         # '',  '', '2', '', '', '5', '', '', '4', '',
         # '-', '', '1', '', '', '4', '', '', '1', '',
         # '',  '', '',  '', '', '',  '', '', '',  '']
-        ts.params = f_additionSection(string="254-141", td=True)
+        ts("254-141")
         assert ts.auto_move_next(index) == res
 
     @pytest.mark.parametrize(
@@ -684,10 +734,12 @@ class TestSoustractionModel:
         # '',  '', '4', '', '', '3', '', '', '2', '', ',' ,'', '5', '', '', '4', '', //16
         # '-', '', '3', '', '', '9', '', '', '1', '', ',' ,'', '4', '', '', '1', '', //33
         # '',  '', '' , '', '', '' , '', '', '' , '', ',', '', '',  '', '', '' , ''] //50
-        ts.params = f_additionSection(string="432,54-391,41", td=True)
+        ts("432,54-391,41")
+
         assert ts.auto_move_next(index) == res
 
     def test_is_result_line(self, ts):
+        ts("34-22")
         # 3 * 7
         # ['', '', '3', '', '', '4', '', '-', '', '2', '', '', '2', '', '', '', '', '', '', '', '']
         for i in range(14, 22):
@@ -696,6 +748,7 @@ class TestSoustractionModel:
             assert not ts.isResultLine(i)
 
     def test_is_retenue_line(self, ts):
+        ts("34-22")
         for i in range(0, 7):
             assert ts.isRetenueLine(i)
         for i in range(7, 22):
@@ -762,8 +815,8 @@ class TestSoustractionModel:
         # '',  '', '4', '', '*', '3', '', '*', '2', '', ',' ,'*', '5', '', '*', '4', '', //16
         # '-', '', '3', '*', '', '9', '*', '', '1', '*', ',' ,'', '4', '*', '', '1', '', //33
         # '',  '', '*' , '', '', '*' , '', '', '*' , '', ',', '', '*',  '', '', '*' , ''] //50
-        a = f_soustractionSection(string="432,54-391,41")
-        ts.sectionId = a.id
+        ts("432,54-391,41")
+        ts.editables = {4, 36, 7, 39, 42, 11, 14, 46, 49, 20, 23, 26, 30}
         ts.cursor = 99  # controle pas modif, 0 pourrait être faux
         assert ts.move_cursor(index, key) == res
 
@@ -824,32 +877,321 @@ class TestSoustractionModel:
             (49, Qt.Key_Left, 46),
         ],
     )
-    def test_movecursor2(self, dao, index, key, res):
+    def test_movecursor2(self, ts, index, key, res):
         # '',  '', '1', '', '*', '2', '', ',',  '*', '',  '', '*', '',  '', '*', '',  '', //16
         # '-', '', '',  '*', '', '3', '*', ',', '', '3', '*', '', '4', '*', '', '5', '',//33
         # '',  '', '*',  '', '', '*',  '', ',', '', '*',  '', '', '*',  '', '', '*',  ''//50
         # {4, 36, 39, 8, 11, 43, 14, 46, 49, 20, 23, 27, 30}
-        a = f_soustractionSection(string="12-3,345")
-        SoustractionModel.ddb = dao
-        test = SoustractionModel()
-        test.sectionId = a.id
-        test.cursor = 99  # controle pas modif, 0 pourrait être faux
-        assert test.move_cursor(index, key) == res
+        ts("12-3,345")
+        ts.editables = {4, 36, 39, 8, 11, 43, 14, 46, 49, 20, 23, 27, 30}
+        ts.cursor = 99  # controle pas modif, 0 pourrait être faux
+        assert ts.move_cursor(index, key) == res
 
     @pytest.mark.parametrize(
         "cote, ok", [("Gauche", {4, 7, 11, 14}), ("Droit", {20, 23, 26, 30}),]
     )
-    def test_isretenucell(self, dao, cote, ok):
-        a = f_soustractionSection(string="432,54-391,41")
+    def test_isretenucell(self, ts, cote, ok):
+        ts("432,54-391,41")
         # '',  '', '4', '', '', '3', '', '', '2', '', ',' ,'', '5', '', '', '4', '', //16
         # '-', '', '3', '', '', '9', '', '', '1', '', ',' ,'', '4', '', '', '1', '', //33
         # '',  '', '' , '', '', '' , '', '', '' , '', ',', '', '',  '', '', '' , ''] //50
-        SoustractionModel.ddb = dao
-        test = SoustractionModel()
-        test.sectionId = a.id
         ok = set(ok)
-        pasok = set(range(test.rowCount()))
+        pasok = set(range(ts.rowCount()))
         pasok = pasok - ok
-        for i in range(test.rowCount()):
-            if getattr(test, "isRetenue" + cote)(i):
+        for i in range(ts.rowCount()):
+            if getattr(ts, "isRetenue" + cote)(i):
                 assert i in ok and i not in pasok
+
+
+@pytest.fixture
+def tm():
+    class Dbo:
+        recentsModelChanged = Signal()
+        sectionIdChanged = Signal()
+
+    class Mock(MultiplicationModel):
+        def __call__(self, string):
+            rows, columns, virgule, datas = create_operation(string)
+            self.params["rows"] = rows
+            self.params["columns"] = columns
+            self.params["virgule"] = virgule
+            self.params["datas"] = datas
+            self.params["size"] = len(self.params["datas"])
+
+    Mock.ddb = Dbo()
+    a = Mock()
+    return a
+
+
+class TestMultiplicationModel:
+    @pytest.mark.parametrize(
+        "numbers, compris",
+        [
+            ("2*1", {6, 7}),
+            ("23*77", {35, 36, 37, 38, 39}),
+            ("2,3*7,7", set(range(42, 48))),
+        ],
+    )
+    def test_is_result_line(self, tm, numbers, compris):
+        tm(numbers)
+        # '', '', '', '', '', '',
+        # '', '', '', '', '', '',
+        # '', '', '', '2', ',', '3',
+        # 'x', '', '', '7', ',', '7',
+        # '', '', '', '', '', '',
+        # '', '', '', '', '', '',
+        # '', '', '', '', '', '',
+        # '', '', '', '', '', '',
+        # '', '', '', '', '', '']
+
+        for i in compris:
+            assert tm.isResultLine(i), f" {i} should return True"
+        non_compris = set(range(0, tm.size))
+        non_compris = non_compris - compris
+        for i in non_compris:
+            assert not tm.isResultLine(i), f" {i} should return False"
+
+    @pytest.mark.parametrize(
+        "numbers, compris",
+        [
+            ("2*1", {0, 1}),
+            ("23*77", set(range(10)) | set(range(30, 35))),
+            ("2,3*7,7", set(range(12)) | set(range(36, 42))),
+        ],
+    )
+    def test_is_retenue_line(self, tm, numbers, compris):
+        tm(numbers)
+        for i in compris:
+            assert tm.isRetenueLine(i), f" {i} should return True"
+        non_compris = set(range(0, tm.size))
+        non_compris = non_compris - compris
+        for i in non_compris:
+            assert not tm.isRetenueLine(i), f" {i} should return False"
+
+    @pytest.mark.parametrize(
+        "index,res",
+        [(35, 16), (16, 34), (34, 15), (15, 33), (33, 32), (32, 41)]
+        + [(41, 40), (40, 10), (10, 39), (39, 9), (9, 38), (38, 37), (37, 47)]
+        + [(47, 46), (46, 45), (45, 4), (4, 44), (44, 3), (3, 43), (43, 59)]
+        + [(59, 52), (52, 58), (58, 51), (51, 57), (57, 50), (50, 56), (56, 49)]
+        + [(49, 55), (55, 55)],
+    )
+    def test_automove_next(self, tm, index, res):
+        # 10 rows, 6 columns
+        # '', '', '', 's', 'q', '', //5
+        # '', '', '', 'k', 'i', '', //11
+        # '', '', '', 'd', 'b', '', //17
+        # '', '', '', '2', '5', '1', //23
+        # 'x', '', '', '1', '4', '8', //29
+        # '', '', 'f', 'e', 'c', 'a', //35
+        # '', 'm', 'l', 'j', 'h', 'g', //41
+        # '', 't', 'r', 'p', 'o', 'n', //47
+        # '', 'b', 'z', 'x', 'v', '', //53
+        # '', 'c', 'a', 'y', 'w', 'u' //59
+
+        tm("251*148")
+        assert tm.auto_move_next(index) == res
+
+    @pytest.mark.parametrize(
+        "index,res",
+        [(41, 40), (40, 17), (17, 38), (38, 16), (16, 37), (37, 36), (36, 48)]
+        # + [(41, 40), (40, 10), (10, 39), (39, 9), (9, 38), (38, 37), (37, 47)]
+        # + [(47, 46), (46, 45), (45, 4), (4, 44), (44, 3), (3, 43), (43, 59)]
+        # + [(59, 52), (52, 58), (58, 51), (51, 57), (57, 50), (50, 56), (56, 49)]
+        # + [(49, 55), (55, 55)],
+    )
+    def test_automove_next_virgule(self, tm, index, res):
+        # 10 rows, 7 columns, virgule 4, size 70
+        # ' ', ' ', ' ', 's', ' ', ' ', ' ',//6
+        # ' ', ' ', 'm', 'k', ' ', ' ', ' ',//13
+        # ' ', ' ', 'e', 'c', ' ', ' ', ' ',//20
+        # ' ', ' ', '2', '5', ',', '1', ' ',//27
+        # 'x', ' ', ' ', '1', ',', '4', '8',//34
+        # ' ', 'g', 'f', 'd', ' ', 'b', 'a',//41
+        # ' ', 'n', 'l', 'j', ' ', 'i', 'h',//48
+        # ' ', 't', 'r', 'q', ' ', 'p', 'o',//55
+        # ' ', 'd', 'b', 'z', 'x', 'v', ' ',//62
+        # ' ', 'e', 'c', 'a', 'y', 'w', 'u',//69
+        # ' ', ' ', ' ', ' ', 'f', ' ', ' ' ,//76
+
+        tm("25,1*1,48")
+        assert tm.auto_move_next(index) == res
+
+    # @pytest.mark.parametrize(
+    #     "index,res",
+    #     [
+    #         (14, 30),
+    #         (30, 49),
+    #         (49, 11),
+    #         (11, 26),
+    #         (26, 46),
+    #         (46, 7),
+    #         (7, 23),
+    #         (23, 42),
+    #         (42, 4),
+    #         (4, 20),
+    #         (20, 39),
+    #         (39, 36),
+    #         (36, 36),
+    #     ],
+    # )
+    # def test_automove_next_virgule(self, ts, index, res):
+    #     # ' ',  '', '4', '', '', '3', '', '', '2', '', ',' ,'', '5', '', '', '4', '', //16
+    #     # '-', '', '3', '', '', '9', '', '', '1', '', ',' ,'', '4', '', '', '1', '', //33
+    #     # '',  '', '' , '', '', '' , '', '', '' , '', ',', '', '',  '', '', '' , ''] //50
+    #     ts.params = f_additionSection(string="432,54-391,41", td=True)
+    #     assert ts.auto_move_next(index) == res
+
+    #
+    # @pytest.mark.parametrize(
+    #     "index,key, res",
+    #     [
+    #         (4, Qt.Key_Up, 99),
+    #         (7, Qt.Key_Up, 99),
+    #         (11, Qt.Key_Up, 99),
+    #         (14, Qt.Key_Up, 99),
+    #         (20, Qt.Key_Up, 4),
+    #         (23, Qt.Key_Up, 4),
+    #         (26, Qt.Key_Up, 7),
+    #         (30, Qt.Key_Up, 11),
+    #         (36, Qt.Key_Up, 20),
+    #         (39, Qt.Key_Up, 23),
+    #         (42, Qt.Key_Up, 26),
+    #         (46, Qt.Key_Up, 30),
+    #         (49, Qt.Key_Up, 14),
+    #         (4, Qt.Key_Down, 23),
+    #         (7, Qt.Key_Down, 26),
+    #         (11, Qt.Key_Down, 30),
+    #         (14, Qt.Key_Down, 49),
+    #         (20, Qt.Key_Down, 36),
+    #         (23, Qt.Key_Down, 39),
+    #         (26, Qt.Key_Down, 42),
+    #         (30, Qt.Key_Down, 46),
+    #         (36, Qt.Key_Down, 99),
+    #         (39, Qt.Key_Down, 99),
+    #         (42, Qt.Key_Down, 99),
+    #         (46, Qt.Key_Down, 99),
+    #         (49, Qt.Key_Down, 99),
+    #         (4, Qt.Key_Right, 7),
+    #         (7, Qt.Key_Right, 11),
+    #         (11, Qt.Key_Right, 14),
+    #         (14, Qt.Key_Right, 99),
+    #         (20, Qt.Key_Right, 23),
+    #         (23, Qt.Key_Right, 26),
+    #         (26, Qt.Key_Right, 30),
+    #         (30, Qt.Key_Right, 99),
+    #         (36, Qt.Key_Right, 39),
+    #         (39, Qt.Key_Right, 42),
+    #         (42, Qt.Key_Right, 46),
+    #         (46, Qt.Key_Right, 49),
+    #         (49, Qt.Key_Right, 99),
+    #         (4, Qt.Key_Left, 99),
+    #         (7, Qt.Key_Left, 4),
+    #         (11, Qt.Key_Left, 7),
+    #         (14, Qt.Key_Left, 11),
+    #         (20, Qt.Key_Left, 99),
+    #         (23, Qt.Key_Left, 20),
+    #         (26, Qt.Key_Left, 23),
+    #         (30, Qt.Key_Left, 26),
+    #         (36, Qt.Key_Left, 99),
+    #         (39, Qt.Key_Left, 36),
+    #         (42, Qt.Key_Left, 39),
+    #         (46, Qt.Key_Left, 42),
+    #         (49, Qt.Key_Left, 46),
+    #     ],
+    # )
+    # def test_movecursor(self, ts, index, key, res):
+    #     # '',  '', '4', '', '*', '3', '', '*', '2', '', ',' ,'*', '5', '', '*', '4', '', //16
+    #     # '-', '', '3', '*', '', '9', '*', '', '1', '*', ',' ,'', '4', '*', '', '1', '', //33
+    #     # '',  '', '*' , '', '', '*' , '', '', '*' , '', ',', '', '*',  '', '', '*' , ''] //50
+    #     a = f_soustractionSection(string="432,54-391,41")
+    #     ts.sectionId = a.id
+    #     ts.cursor = 99  # controle pas modif, 0 pourrait être faux
+    #     assert ts.move_cursor(index, key) == res
+    #
+    # @pytest.mark.parametrize(
+    #     "index,key, res",
+    #     [
+    #         (4, Qt.Key_Up, 99),
+    #         (8, Qt.Key_Up, 99),
+    #         (11, Qt.Key_Up, 99),
+    #         (14, Qt.Key_Up, 99),
+    #         (20, Qt.Key_Up, 4),
+    #         (23, Qt.Key_Up, 4),
+    #         (27, Qt.Key_Up, 8),
+    #         (30, Qt.Key_Up, 11),
+    #         (36, Qt.Key_Up, 20),
+    #         (39, Qt.Key_Up, 23),
+    #         (43, Qt.Key_Up, 27),
+    #         (46, Qt.Key_Up, 30),
+    #         (49, Qt.Key_Up, 14),
+    #         (4, Qt.Key_Down, 23),
+    #         (8, Qt.Key_Down, 27),
+    #         (11, Qt.Key_Down, 30),
+    #         (14, Qt.Key_Down, 49),
+    #         (20, Qt.Key_Down, 36),
+    #         (23, Qt.Key_Down, 39),
+    #         (27, Qt.Key_Down, 43),
+    #         (30, Qt.Key_Down, 46),
+    #         (36, Qt.Key_Down, 99),
+    #         (39, Qt.Key_Down, 99),
+    #         (43, Qt.Key_Down, 99),
+    #         (46, Qt.Key_Down, 99),
+    #         (49, Qt.Key_Down, 99),
+    #         (4, Qt.Key_Right, 8),
+    #         (8, Qt.Key_Right, 11),
+    #         (11, Qt.Key_Right, 14),
+    #         (14, Qt.Key_Right, 99),
+    #         (20, Qt.Key_Right, 23),
+    #         (23, Qt.Key_Right, 27),
+    #         (27, Qt.Key_Right, 30),
+    #         (30, Qt.Key_Right, 99),
+    #         (36, Qt.Key_Right, 39),
+    #         (39, Qt.Key_Right, 43),
+    #         (43, Qt.Key_Right, 46),
+    #         (46, Qt.Key_Right, 49),
+    #         (49, Qt.Key_Right, 99),
+    #         (4, Qt.Key_Left, 99),
+    #         (8, Qt.Key_Left, 4),
+    #         (11, Qt.Key_Left, 8),
+    #         (14, Qt.Key_Left, 11),
+    #         (20, Qt.Key_Left, 99),
+    #         (23, Qt.Key_Left, 20),
+    #         (27, Qt.Key_Left, 23),
+    #         (30, Qt.Key_Left, 27),
+    #         (36, Qt.Key_Left, 99),
+    #         (39, Qt.Key_Left, 36),
+    #         (43, Qt.Key_Left, 39),
+    #         (46, Qt.Key_Left, 43),
+    #         (49, Qt.Key_Left, 46),
+    #     ],
+    # )
+    # def test_movecursor2(self, dao, index, key, res):
+    #     # '',  '', '1', '', '*', '2', '', ',',  '*', '',  '', '*', '',  '', '*', '',  '', //16
+    #     # '-', '', '',  '*', '', '3', '*', ',', '', '3', '*', '', '4', '*', '', '5', '',//33
+    #     # '',  '', '*',  '', '', '*',  '', ',', '', '*',  '', '', '*',  '', '', '*',  ''//50
+    #     # {4, 36, 39, 8, 11, 43, 14, 46, 49, 20, 23, 27, 30}
+    #     a = f_soustractionSection(string="12-3,345")
+    #     SoustractionModel.ddb = dao
+    #     test = SoustractionModel()
+    #     test.sectionId = a.id
+    #     test.cursor = 99  # controle pas modif, 0 pourrait être faux
+    #     assert test.move_cursor(index, key) == res
+
+    # @pytest.mark.parametrize(
+    #     "cote, ok", [("Gauche", {4, 7, 11, 14}), ("Droit", {20, 23, 26, 30}),]
+    # )
+    # def test_isretenucell(self, dao, cote, ok):
+    #     a = f_soustractionSection(string="432,54-391,41")
+    #     # '',  '', '4', '', '', '3', '', '', '2', '', ',' ,'', '5', '', '', '4', '', //16
+    #     # '-', '', '3', '', '', '9', '', '', '1', '', ',' ,'', '4', '', '', '1', '', //33
+    #     # '',  '', '' , '', '', '' , '', '', '' , '', ',', '', '',  '', '', '' , ''] //50
+    #     SoustractionModel.ddb = dao
+    #     test = SoustractionModel()
+    #     test.sectionId = a.id
+    #     ok = set(ok)
+    #     pasok = set(range(test.rowCount()))
+    #     pasok = pasok - ok
+    #     for i in range(test.rowCount()):
+    #         if getattr(test, "isRetenue" + cote)(i):
+    #             assert i in ok and i not in pasok

@@ -299,14 +299,18 @@ class MultiplicationModel(OperationModel):
             if i_rel <= self.virgule:
                 i_rel -= 1
             ##########
-            if i_case + i_line + bool(self.virgule) > self.n_chiffres:
+            if i_case + i_line + bool(self.virgule) > self.n_chiffres and i_case > 1:
                 print("cas 1")
                 if self.columns - i_case - 1 <= i_line - 1:
                     res = position - 1
+                    if res % self.columns == self.virgule:
+                        res -= 1
                 else:
                     i_rel_base = (
                         self.columns - i_line - 1
                     )  # index "zéro" relatif de chaque ligne
+                    if i_rel_base == self.virgule:
+                        i_rel_base -= 1
                     i_rel = i_rel_base - i_case
                     print("irel", i_rel, i_rel_base)
 
@@ -316,9 +320,14 @@ class MultiplicationModel(OperationModel):
                     content_i_ligne0 = self.datas[i_ligne0]
                     print("ilign0", i_ligne0, content_i_ligne0)
                     if content_i_ligne0 in {"", "0"}:
+                        print("iligne0")
                         res = position - 1
+                        # au cas ou ça otmbe sur la virgule
+                        if res % self.columns == self.virgule:
+                            res -= 1
 
                     else:  # cas général avec retenu
+                        print("cas général")
                         retenue_index = self.columns - 2 - i_rel
                         if retenue_index == self.virgule:
                             retenue_index -= 1
@@ -360,6 +369,8 @@ class MultiplicationModel(OperationModel):
         elif self.isResultLine(position):
             if position - 1 != self.size - self.columns:
                 res = position - self.columns - 1
+                if res % self.columns == self.virgule:
+                    res -= 1
 
         return res
 

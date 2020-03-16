@@ -3,7 +3,11 @@ from decimal import Decimal
 import pytest
 from PySide2.QtCore import Qt, Signal
 from fixtures import check_super_init
-from package.database.factory import f_additionSection, f_soustractionSection
+from package.database.factory import (
+    f_additionSection,
+    f_soustractionSection,
+    f_multiplicationSection,
+)
 from package.database_object import DatabaseObject
 from package.operations.api import (
     match,
@@ -995,10 +999,10 @@ class TestMultiplicationModel:
     @pytest.mark.parametrize(
         "index,res",
         [(41, 40), (40, 17), (17, 38), (38, 16), (16, 37), (37, 36), (36, 48)]
-        # + [(41, 40), (40, 10), (10, 39), (39, 9), (9, 38), (38, 37), (37, 47)]
-        # + [(47, 46), (46, 45), (45, 4), (4, 44), (44, 3), (3, 43), (43, 59)]
-        # + [(59, 52), (52, 58), (58, 51), (51, 57), (57, 50), (50, 56), (56, 49)]
-        # + [(49, 55), (55, 55)],
+        + [(48, 47), (47, 45), (45, 10), (10, 44), (44, 9), (9, 43), (43, 55)]
+        + [(55, 54), (54, 52), (52, 51), (51, 3), (3, 50), (50, 69)]
+        + [(69, 61), (61, 68), (68, 59), (59, 66), (66, 58), (58, 65), (65, 57)]
+        + [(57, 64),],
     )
     def test_automove_next_virgule(self, tm, index, res):
         # 10 rows, 7 columns, virgule 4, size 70
@@ -1010,37 +1014,70 @@ class TestMultiplicationModel:
         # ' ', 'g', 'f', 'd', ' ', 'b', 'a',//41
         # ' ', 'n', 'l', 'j', ' ', 'i', 'h',//48
         # ' ', 't', 'r', 'q', ' ', 'p', 'o',//55
-        # ' ', 'd', 'b', 'z', 'x', 'v', ' ',//62
-        # ' ', 'e', 'c', 'a', 'y', 'w', 'u',//69
-        # ' ', ' ', ' ', ' ', 'f', ' ', ' ' ,//76
+        # ' ', 'b', 'z', 'x', '', 'v', ' ',//62
+        # ' ', 'c', 'a', 'y', '', 'w', 'u',//69
+        # ' ', ' ', ' ', ' ', 'd', ' ', ' ' ,//76
 
         tm("25,1*1,48")
         assert tm.auto_move_next(index) == res
 
-    # @pytest.mark.parametrize(
-    #     "index,res",
-    #     [
-    #         (14, 30),
-    #         (30, 49),
-    #         (49, 11),
-    #         (11, 26),
-    #         (26, 46),
-    #         (46, 7),
-    #         (7, 23),
-    #         (23, 42),
-    #         (42, 4),
-    #         (4, 20),
-    #         (20, 39),
-    #         (39, 36),
-    #         (36, 36),
-    #     ],
-    # )
-    # def test_automove_next_virgule(self, ts, index, res):
-    #     # ' ',  '', '4', '', '', '3', '', '', '2', '', ',' ,'', '5', '', '', '4', '', //16
-    #     # '-', '', '3', '', '', '9', '', '', '1', '', ',' ,'', '4', '', '', '1', '', //33
-    #     # '',  '', '' , '', '', '' , '', '', '' , '', ',', '', '',  '', '', '' , ''] //50
-    #     ts.params = f_additionSection(string="432,54-391,41", td=True)
-    #     assert ts.auto_move_next(index) == res
+    @pytest.mark.parametrize(
+        "index, res",
+        [(2, 99), (3, 99), (9, 2), (10, 3), (16, 9), (17, 10), (36, 99),]
+        + [
+            (37, 16),
+            (38, 17),
+            (40, 99),
+            (41, 99),
+            (43, 36),
+            (44, 37),
+            (45, 38),
+            (47, 40),
+            (48, 41),
+            (50, 43),
+            (51, 44),
+            (52, 45),
+            (54, 47),
+            (55, 48),
+            (57, 50),
+            (58, 51),
+            (59, 52),
+            (61, 54),
+            (62, 55),
+            (64, 57),
+            (65, 58),
+            (66, 59),
+            (68, 61),
+            (69, 62),
+            (71, 64),
+            (72, 65),
+            (73, 66),
+            (74, 99),
+        ],
+    )
+    def test_movecursor_keyup(self, tm, index, res):
+        # 10 rows, 7 columns, virgule 4, size 70
+        # ' ', ' ', ' ', 's', ' ', ' ', ' ',//6
+        # ' ', ' ', 'm', 'k', ' ', ' ', ' ',//13
+        # ' ', ' ', 'e', 'c', ' ', ' ', ' ',//20
+        # ' ', ' ', '2', '5', ',', '1', ' ',//27
+        # 'x', ' ', ' ', '1', ',', '4', '8',//34
+        # ' ', 'g', 'f', 'd', ' ', 'b', 'a',//41
+        # ' ', 'n', 'l', 'j', ' ', 'i', 'h',//48
+        # ' ', 't', 'r', 'q', ' ', 'p', 'o',//55
+        # ' ', 'b', 'z', 'x', '', 'v', ' ',//62
+        # ' ', 'c', 'a', 'y', '', 'w', 'u',//69
+        # ' ', ' ', ' ', ' ', 'd', ' ', ' ' ,//76
+
+        tm("25,1*1,48")
+        tm.editables = (
+            {2, 3, 9, 10, 16, 17, 36, 37, 38, 40, 41, 43,}
+            | {44, 45, 47, 48, 50, 51, 52, 54, 55, 57, 58, 59, 61, 62, 64,}
+            | {65, 66, 68, 69, 71, 72, 73, 74,},
+        )
+        ts.cursor = 99  # controle pas modif, 0 pourrait être faux
+        assert ts.move_cursor(index, Qt.Key_Up) == res
+        assert tm.auto_move_next(index) == res
 
     #
     # @pytest.mark.parametrize(

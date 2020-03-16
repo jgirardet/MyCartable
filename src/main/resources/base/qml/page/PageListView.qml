@@ -42,6 +42,16 @@ BasePageListView {
       }
     }
   }
+  Component {
+    id: multiplicationDelegate
+    Multiplication {
+      sectionId: curSectionId
+      position: curPosition
+      model: MultiplicationModel {
+        sectionId: curSectionId // on laisse tout là pour les tests
+      }
+    }
+  }
   delegate: Component {
     Loader {
       id: load
@@ -60,6 +70,9 @@ BasePageListView {
         }
         case "SoustractionSection": {
           return soustractionDelegate
+        }
+        case "MultiplicationSection": {
+          return multiplicationDelegate
         }
       }
 

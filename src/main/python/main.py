@@ -51,7 +51,11 @@ if __name__ == "__main__":
     from package.ui_manager import UiManager
 
     from package.page.text_section import DocumentEditor
-    from package.operations.models import AdditionModel, SoustractionModel
+    from package.operations.models import (
+        AdditionModel,
+        SoustractionModel,
+        MultiplicationModel,
+    )
 
     databaseObject = DatabaseObject(package.database.db)
     ui_manager = UiManager()
@@ -59,8 +63,11 @@ if __name__ == "__main__":
     qmlRegisterType(DocumentEditor, "DocumentEditor", 1, 0, "DocumentEditor")
     AdditionModel.ddb = databaseObject
     SoustractionModel.ddb = databaseObject
+    MultiplicationModel.ddb = databaseObject
+
     qmlRegisterType(AdditionModel, "Operations", 1, 0, "AdditionModel")
     qmlRegisterType(SoustractionModel, "Operations", 1, 0, "SoustractionModel")
+    qmlRegisterType(MultiplicationModel, "Operations", 1, 0, "MultiplicationModel")
     engine = main_setup(databaseObject, ui_manager)
     #
     if not engine.rootObjects():

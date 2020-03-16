@@ -996,64 +996,38 @@ class TestMultiplicationModel:
         tm("251*148")
         assert tm.auto_move_next(index) == res
 
-    @pytest.mark.parametrize(
-        "index,res",
-        [(41, 40), (40, 17), (17, 38), (38, 16), (16, 37), (37, 36), (36, 48)]
-        + [(48, 47), (47, 45), (45, 10), (10, 44), (44, 9), (9, 43), (43, 55)]
-        + [(55, 54), (54, 52), (52, 51), (51, 3), (3, 50), (50, 69)]
-        + [(69, 61), (61, 68), (68, 59), (59, 66), (66, 58), (58, 65), (65, 57)]
-        + [(57, 64),],
-    )
-    def test_automove_next_virgule(self, tm, index, res):
-        # 10 rows, 7 columns, virgule 4, size 70
-        # ' ', ' ', ' ', 's', ' ', ' ', ' ',//6
-        # ' ', ' ', 'm', 'k', ' ', ' ', ' ',//13
-        # ' ', ' ', 'e', 'c', ' ', ' ', ' ',//20
-        # ' ', ' ', '2', '5', ',', '1', ' ',//27
-        # 'x', ' ', ' ', '1', ',', '4', '8',//34
-        # ' ', 'g', 'f', 'd', ' ', 'b', 'a',//41
-        # ' ', 'n', 'l', 'j', ' ', 'i', 'h',//48
-        # ' ', 't', 'r', 'q', ' ', 'p', 'o',//55
-        # ' ', 'b', 'z', 'x', '', 'v', ' ',//62
-        # ' ', 'c', 'a', 'y', '', 'w', 'u',//69
-        # ' ', ' ', ' ', ' ', 'd', ' ', ' ' ,//76
-
-        tm("25,1*1,48")
-        assert tm.auto_move_next(index) == res
+    # @pytest.mark.parametrize(
+    #     "index,res",
+    #     [(41, 40), (40, 17), (17, 38), (38, 16), (16, 37), (37, 36), (36, 48)]
+    #     + [(48, 47), (47, 45), (45, 10), (10, 44), (44, 9), (9, 43), (43, 55)]
+    #     + [(55, 54), (54, 52), (52, 51), (51, 3), (3, 50), (50, 69)]
+    #     + [(69, 61), (61, 68), (68, 59), (59, 66), (66, 58), (58, 65), (65, 57)]
+    #     + [(57, 64),],
+    # )
+    # def test_automove_next_virgule(self, tm, index, res):
+    #     # 10 rows, 7 columns, virgule 4, size 70
+    #     # ' ', ' ', ' ', 's', ' ', ' ', ' ',//6
+    #     # ' ', ' ', 'm', 'k', ' ', ' ', ' ',//13
+    #     # ' ', ' ', 'e', 'c', ' ', ' ', ' ',//20
+    #     # ' ', ' ', '2', '5', ',', '1', ' ',//27
+    #     # 'x', ' ', ' ', '1', ',', '4', '8',//34
+    #     # ' ', 'g', 'f', 'd', ' ', 'b', 'a',//41
+    #     # ' ', 'n', 'l', 'j', ' ', 'i', 'h',//48
+    #     # ' ', 't', 'r', 'q', ' ', 'p', 'o',//55
+    #     # ' ', 'b', 'z', 'x', '', 'v', ' ',//62
+    #     # ' ', 'c', 'a', 'y', '', 'w', 'u',//69
+    #     # ' ', ' ', ' ', ' ', 'd', ' ', ' ' ,//76
+    #
+    #     tm("25,1*1,48")
+    #     assert tm.auto_move_next(index) == res
 
     @pytest.mark.parametrize(
         "index, res",
         [(2, 99), (3, 99), (9, 2), (10, 3), (16, 9), (17, 10), (36, 99),]
-        + [
-            (37, 16),
-            (38, 17),
-            (40, 99),
-            (41, 99),
-            (43, 36),
-            (44, 37),
-            (45, 38),
-            (47, 40),
-            (48, 41),
-            (50, 43),
-            (51, 44),
-            (52, 45),
-            (54, 47),
-            (55, 48),
-            (57, 50),
-            (58, 51),
-            (59, 52),
-            (61, 54),
-            (62, 55),
-            (64, 57),
-            (65, 58),
-            (66, 59),
-            (68, 61),
-            (69, 62),
-            (71, 64),
-            (72, 65),
-            (73, 66),
-            (74, 99),
-        ],
+        + [(37, 16), (38, 17), (40, 99), (41, 99), (43, 36), (44, 37), (45, 38),]
+        + [(47, 40), (48, 41), (50, 43), (51, 44), (52, 45), (54, 47), (55, 48),]
+        + [(57, 50), (58, 51), (59, 52), (61, 54), (62, 55), (64, 57), (65, 58),]
+        + [(66, 59), (68, 61), (69, 62), (71, 64), (72, 65), (73, 66), (74, 99),],
     )
     def test_movecursor_keyup(self, tm, index, res):
         # 10 rows, 7 columns, virgule 4, size 70
@@ -1073,162 +1047,105 @@ class TestMultiplicationModel:
         tm.editables = (
             {2, 3, 9, 10, 16, 17, 36, 37, 38, 40, 41, 43,}
             | {44, 45, 47, 48, 50, 51, 52, 54, 55, 57, 58, 59, 61, 62, 64,}
-            | {65, 66, 68, 69, 71, 72, 73, 74,},
+            | {65, 66, 68, 69, 71, 72, 73, 74,}
         )
-        ts.cursor = 99  # controle pas modif, 0 pourrait être faux
-        assert ts.move_cursor(index, Qt.Key_Up) == res
-        assert tm.auto_move_next(index) == res
+
+        tm.cursor = 99  # controle pas modif, 0 pourrait être faux
+        assert tm.move_cursor(index, Qt.Key_Up) == res
+
+    @pytest.mark.parametrize(
+        "index, res",
+        [(2, 9), (3, 10), (9, 16), (10, 17), (16, 37), (17, 38), (36, 43),]
+        + [(37, 44), (38, 45), (40, 47), (41, 48), (43, 50), (44, 51), (45, 52),]
+        + [(47, 54), (48, 55), (50, 57), (51, 58), (52, 59), (54, 61), (55, 62),]
+        + [(57, 64), (58, 65), (59, 66), (61, 68), (62, 69), (64, 71), (65, 72),]
+        + [(66, 73), (68, 99), (69, 99), (71, 99), (72, 99), (73, 99), (74, 99),],
+    )
+    def test_movecursor_down(self, tm, index, res):
+        # 10 rows, 7 columns, virgule 4, size 70
+        # ' ', ' ', ' ', 's', ' ', ' ', ' ',//6
+        # ' ', ' ', 'm', 'k', ' ', ' ', ' ',//13
+        # ' ', ' ', 'e', 'c', ' ', ' ', ' ',//20
+        # ' ', ' ', '2', '5', ',', '1', ' ',//27
+        # 'x', ' ', ' ', '1', ',', '4', '8',//34
+        # ' ', 'g', 'f', 'd', ' ', 'b', 'a',//41
+        # ' ', 'n', 'l', 'j', ' ', 'i', 'h',//48
+        # ' ', 't', 'r', 'q', ' ', 'p', 'o',//55
+        # ' ', 'b', 'z', 'x', '', 'v', ' ',//62
+        # ' ', 'c', 'a', 'y', '', 'w', 'u',//69
+        # ' ', ' ', ' ', ' ', 'd', ' ', ' ' ,//76
+
+        tm("25,1*1,48")
+        tm.editables = (
+            {2, 3, 9, 10, 16, 17, 36, 37, 38, 40, 41, 43,}
+            | {44, 45, 47, 48, 50, 51, 52, 54, 55, 57, 58, 59, 61, 62, 64,}
+            | {65, 66, 68, 69, 71, 72, 73, 74,}
+        )
+
+        tm.cursor = 99  # controle pas modif, 0 pourrait être faux
+        assert tm.move_cursor(index, Qt.Key_Down) == res
 
     #
-    # @pytest.mark.parametrize(
-    #     "index,key, res",
-    #     [
-    #         (4, Qt.Key_Up, 99),
-    #         (7, Qt.Key_Up, 99),
-    #         (11, Qt.Key_Up, 99),
-    #         (14, Qt.Key_Up, 99),
-    #         (20, Qt.Key_Up, 4),
-    #         (23, Qt.Key_Up, 4),
-    #         (26, Qt.Key_Up, 7),
-    #         (30, Qt.Key_Up, 11),
-    #         (36, Qt.Key_Up, 20),
-    #         (39, Qt.Key_Up, 23),
-    #         (42, Qt.Key_Up, 26),
-    #         (46, Qt.Key_Up, 30),
-    #         (49, Qt.Key_Up, 14),
-    #         (4, Qt.Key_Down, 23),
-    #         (7, Qt.Key_Down, 26),
-    #         (11, Qt.Key_Down, 30),
-    #         (14, Qt.Key_Down, 49),
-    #         (20, Qt.Key_Down, 36),
-    #         (23, Qt.Key_Down, 39),
-    #         (26, Qt.Key_Down, 42),
-    #         (30, Qt.Key_Down, 46),
-    #         (36, Qt.Key_Down, 99),
-    #         (39, Qt.Key_Down, 99),
-    #         (42, Qt.Key_Down, 99),
-    #         (46, Qt.Key_Down, 99),
-    #         (49, Qt.Key_Down, 99),
-    #         (4, Qt.Key_Right, 7),
-    #         (7, Qt.Key_Right, 11),
-    #         (11, Qt.Key_Right, 14),
-    #         (14, Qt.Key_Right, 99),
-    #         (20, Qt.Key_Right, 23),
-    #         (23, Qt.Key_Right, 26),
-    #         (26, Qt.Key_Right, 30),
-    #         (30, Qt.Key_Right, 99),
-    #         (36, Qt.Key_Right, 39),
-    #         (39, Qt.Key_Right, 42),
-    #         (42, Qt.Key_Right, 46),
-    #         (46, Qt.Key_Right, 49),
-    #         (49, Qt.Key_Right, 99),
-    #         (4, Qt.Key_Left, 99),
-    #         (7, Qt.Key_Left, 4),
-    #         (11, Qt.Key_Left, 7),
-    #         (14, Qt.Key_Left, 11),
-    #         (20, Qt.Key_Left, 99),
-    #         (23, Qt.Key_Left, 20),
-    #         (26, Qt.Key_Left, 23),
-    #         (30, Qt.Key_Left, 26),
-    #         (36, Qt.Key_Left, 99),
-    #         (39, Qt.Key_Left, 36),
-    #         (42, Qt.Key_Left, 39),
-    #         (46, Qt.Key_Left, 42),
-    #         (49, Qt.Key_Left, 46),
-    #     ],
-    # )
-    # def test_movecursor(self, ts, index, key, res):
-    #     # '',  '', '4', '', '*', '3', '', '*', '2', '', ',' ,'*', '5', '', '*', '4', '', //16
-    #     # '-', '', '3', '*', '', '9', '*', '', '1', '*', ',' ,'', '4', '*', '', '1', '', //33
-    #     # '',  '', '*' , '', '', '*' , '', '', '*' , '', ',', '', '*',  '', '', '*' , ''] //50
-    #     a = f_soustractionSection(string="432,54-391,41")
-    #     ts.sectionId = a.id
-    #     ts.cursor = 99  # controle pas modif, 0 pourrait être faux
-    #     assert ts.move_cursor(index, key) == res
-    #
-    # @pytest.mark.parametrize(
-    #     "index,key, res",
-    #     [
-    #         (4, Qt.Key_Up, 99),
-    #         (8, Qt.Key_Up, 99),
-    #         (11, Qt.Key_Up, 99),
-    #         (14, Qt.Key_Up, 99),
-    #         (20, Qt.Key_Up, 4),
-    #         (23, Qt.Key_Up, 4),
-    #         (27, Qt.Key_Up, 8),
-    #         (30, Qt.Key_Up, 11),
-    #         (36, Qt.Key_Up, 20),
-    #         (39, Qt.Key_Up, 23),
-    #         (43, Qt.Key_Up, 27),
-    #         (46, Qt.Key_Up, 30),
-    #         (49, Qt.Key_Up, 14),
-    #         (4, Qt.Key_Down, 23),
-    #         (8, Qt.Key_Down, 27),
-    #         (11, Qt.Key_Down, 30),
-    #         (14, Qt.Key_Down, 49),
-    #         (20, Qt.Key_Down, 36),
-    #         (23, Qt.Key_Down, 39),
-    #         (27, Qt.Key_Down, 43),
-    #         (30, Qt.Key_Down, 46),
-    #         (36, Qt.Key_Down, 99),
-    #         (39, Qt.Key_Down, 99),
-    #         (43, Qt.Key_Down, 99),
-    #         (46, Qt.Key_Down, 99),
-    #         (49, Qt.Key_Down, 99),
-    #         (4, Qt.Key_Right, 8),
-    #         (8, Qt.Key_Right, 11),
-    #         (11, Qt.Key_Right, 14),
-    #         (14, Qt.Key_Right, 99),
-    #         (20, Qt.Key_Right, 23),
-    #         (23, Qt.Key_Right, 27),
-    #         (27, Qt.Key_Right, 30),
-    #         (30, Qt.Key_Right, 99),
-    #         (36, Qt.Key_Right, 39),
-    #         (39, Qt.Key_Right, 43),
-    #         (43, Qt.Key_Right, 46),
-    #         (46, Qt.Key_Right, 49),
-    #         (49, Qt.Key_Right, 99),
-    #         (4, Qt.Key_Left, 99),
-    #         (8, Qt.Key_Left, 4),
-    #         (11, Qt.Key_Left, 8),
-    #         (14, Qt.Key_Left, 11),
-    #         (20, Qt.Key_Left, 99),
-    #         (23, Qt.Key_Left, 20),
-    #         (27, Qt.Key_Left, 23),
-    #         (30, Qt.Key_Left, 27),
-    #         (36, Qt.Key_Left, 99),
-    #         (39, Qt.Key_Left, 36),
-    #         (43, Qt.Key_Left, 39),
-    #         (46, Qt.Key_Left, 43),
-    #         (49, Qt.Key_Left, 46),
-    #     ],
-    # )
-    # def test_movecursor2(self, dao, index, key, res):
-    #     # '',  '', '1', '', '*', '2', '', ',',  '*', '',  '', '*', '',  '', '*', '',  '', //16
-    #     # '-', '', '',  '*', '', '3', '*', ',', '', '3', '*', '', '4', '*', '', '5', '',//33
-    #     # '',  '', '*',  '', '', '*',  '', ',', '', '*',  '', '', '*',  '', '', '*',  ''//50
-    #     # {4, 36, 39, 8, 11, 43, 14, 46, 49, 20, 23, 27, 30}
-    #     a = f_soustractionSection(string="12-3,345")
-    #     SoustractionModel.ddb = dao
-    #     test = SoustractionModel()
-    #     test.sectionId = a.id
-    #     test.cursor = 99  # controle pas modif, 0 pourrait être faux
-    #     assert test.move_cursor(index, key) == res
+    @pytest.mark.parametrize(
+        "index, res",
+        [(2, 3), (3, 99), (9, 10), (10, 99), (16, 17), (17, 99), (36, 37),]
+        + [(37, 38), (38, 40), (40, 41), (41, 99), (43, 44), (44, 45), (45, 47),]
+        + [(47, 48), (48, 99), (50, 51), (51, 52), (52, 54), (54, 55), (55, 99),]
+        + [(57, 58), (58, 59), (59, 61), (61, 62), (62, 99), (64, 65), (65, 66),]
+        + [(66, 68), (68, 69), (69, 99), (71, 72), (72, 73), (73, 74), (74, 99),],
+    )
+    def test_movecursor_right(self, tm, index, res):
+        # 10 rows, 7 columns, virgule 4, size 70
+        # ' ', ' ', ' ', 's', ' ', ' ', ' ',//6
+        # ' ', ' ', 'm', 'k', ' ', ' ', ' ',//13
+        # ' ', ' ', 'e', 'c', ' ', ' ', ' ',//20
+        # ' ', ' ', '2', '5', ',', '1', ' ',//27
+        # 'x', ' ', ' ', '1', ',', '4', '8',//34
+        # ' ', 'g', 'f', 'd', ' ', 'b', 'a',//41
+        # ' ', 'n', 'l', 'j', ' ', 'i', 'h',//48
+        # ' ', 't', 'r', 'q', ' ', 'p', 'o',//55
+        # ' ', 'b', 'z', 'x', '', 'v', ' ',//62
+        # ' ', 'c', 'a', 'y', '', 'w', 'u',//69
+        # ' ', ' ', ' ', ' ', 'd', ' ', ' ' ,//76
 
-    # @pytest.mark.parametrize(
-    #     "cote, ok", [("Gauche", {4, 7, 11, 14}), ("Droit", {20, 23, 26, 30}),]
-    # )
-    # def test_isretenucell(self, dao, cote, ok):
-    #     a = f_soustractionSection(string="432,54-391,41")
-    #     # '',  '', '4', '', '', '3', '', '', '2', '', ',' ,'', '5', '', '', '4', '', //16
-    #     # '-', '', '3', '', '', '9', '', '', '1', '', ',' ,'', '4', '', '', '1', '', //33
-    #     # '',  '', '' , '', '', '' , '', '', '' , '', ',', '', '',  '', '', '' , ''] //50
-    #     SoustractionModel.ddb = dao
-    #     test = SoustractionModel()
-    #     test.sectionId = a.id
-    #     ok = set(ok)
-    #     pasok = set(range(test.rowCount()))
-    #     pasok = pasok - ok
-    #     for i in range(test.rowCount()):
-    #         if getattr(test, "isRetenue" + cote)(i):
-    #             assert i in ok and i not in pasok
+        tm("25,1*1,48")
+        tm.editables = (
+            {2, 3, 9, 10, 16, 17, 36, 37, 38, 40, 41, 43,}
+            | {44, 45, 47, 48, 50, 51, 52, 54, 55, 57, 58, 59, 61, 62, 64,}
+            | {65, 66, 68, 69, 71, 72, 73, 74,}
+        )
+
+        tm.cursor = 99  # controle pas modif, 0 pourrait être faux
+        assert tm.move_cursor(index, Qt.Key_Right) == res
+
+    @pytest.mark.parametrize(
+        "index, res",
+        [(2, 99), (3, 2), (9, 99), (10, 9), (16, 99), (17, 16), (36, 99),]
+        + [(37, 36), (38, 37), (40, 38), (41, 40), (43, 99), (44, 43), (45, 44),]
+        + [(47, 45), (48, 47), (50, 99), (51, 50), (52, 51), (54, 52), (55, 54),]
+        + [(57, 99), (58, 57), (59, 58), (61, 59), (62, 61), (64, 99), (65, 64),]
+        + [(66, 65), (68, 66), (69, 68), (71, 99), (72, 71), (73, 72), (74, 73),],
+    )
+    def test_movecursor_left(self, tm, index, res):
+        # 10 rows, 7 columns, virgule 4, size 70
+        # ' ', ' ', ' ', 's', ' ', ' ', ' ',//6
+        # ' ', ' ', 'm', 'k', ' ', ' ', ' ',//13
+        # ' ', ' ', 'e', 'c', ' ', ' ', ' ',//20
+        # ' ', ' ', '2', '5', ',', '1', ' ',//27
+        # 'x', ' ', ' ', '1', ',', '4', '8',//34
+        # ' ', 'g', 'f', 'd', ' ', 'b', 'a',//41
+        # ' ', 'n', 'l', 'j', ' ', 'i', 'h',//48
+        # ' ', 't', 'r', 'q', ' ', 'p', 'o',//55
+        # ' ', 'b', 'z', 'x', '', 'v', ' ',//62
+        # ' ', 'c', 'a', 'y', '', 'w', 'u',//69
+        # ' ', ' ', ' ', ' ', 'd', ' ', ' ' ,//76
+
+        tm("25,1*1,48")
+        tm.editables = (
+            {2, 3, 9, 10, 16, 17, 36, 37, 38, 40, 41, 43,}
+            | {44, 45, 47, 48, 50, 51, 52, 54, 55, 57, 58, 59, 61, 62, 64,}
+            | {65, 66, 68, 69, 71, 72, 73, 74,}
+        )
+
+        tm.cursor = 99  # controle pas modif, 0 pourrait être faux
+        assert tm.move_cursor(index, Qt.Key_Left) == res

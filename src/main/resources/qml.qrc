@@ -36,6 +36,8 @@
         <file alias="Addition.qml">base/qml/page/operations/Addition.qml</file>
         <file alias="SoustractionDelegate.qml">base/qml/page/operations/SoustractionDelegate.qml</file>
         <file alias="Soustraction.qml">base/qml/page/operations/Soustraction.qml</file>
+        <file alias="MultiplicationDelegate.qml">base/qml/page/operations/MultiplicationDelegate.qml</file>
+        <file alias="Multiplication.qml">base/qml/page/operations/Multiplication.qml</file>
 
     </qresource>
 

@@ -270,5 +270,6 @@ def populate_database(matieres_list=MATIERES, nb_page=100):
                     f_textSection(page=a.id),
                     f_additionSection(page=a.id),
                     f_soustractionSection(page=a.id),
+                    f_multiplicationSection(page=a.id),
                 ]
             )

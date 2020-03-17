@@ -982,18 +982,29 @@ class TestMultiplicationModel:
     )
     def test_automove_next(self, tm, index, res):
         # 10 rows, 6 columns
-        # '', '', '', 's', 'q', '', //5
-        # '', '', '', 'k', 'i', '', //11
-        # '', '', '', 'd', 'b', '', //17
-        # '', '', '', '2', '5', '1', //23
-        # 'x', '', '', '1', '4', '8', //29
-        # '', '', 'f', 'e', 'c', 'a', //35
+        # '', '', '',  's',  'q', '', //5
+        # '', '', '',  'k',  'i', '', //11
+        # '', '', '',  'd',  'b', '', //17
+        # '', '', '',  '2',  '5', '1', //23
+        # 'x','', '',  '1',  '4', '8', //29
+        # '', '', 'f', 'e',  'c', 'a', //35
         # '', 'm', 'l', 'j', 'h', 'g', //41
         # '', 't', 'r', 'p', 'o', 'n', //47
         # '', 'b', 'z', 'x', 'v', '', //53
         # '', 'c', 'a', 'y', 'w', 'u' //59
 
         tm("251*148")
+        assert tm.auto_move_next(index) == res
+
+    @pytest.mark.parametrize(
+        "index,res", [(11, 1), (1, 10),],
+    )
+    def test_automove_next2(self, tm, index, res):
+        # '',  '',  '',
+        # '',  '1', '2',
+        # 'x', '',  '3',
+        # '',  '',  ''
+        tm("12*3")
         assert tm.auto_move_next(index) == res
 
     # @pytest.mark.parametrize(

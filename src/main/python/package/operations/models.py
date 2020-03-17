@@ -13,6 +13,7 @@ from PySide2.QtCore import (
 
 from package.database import db
 from pony.orm import db_session, make_proxy
+from descriptors import cachedproperty
 
 
 class OperationModel(QAbstractListModel):
@@ -280,32 +281,129 @@ class SoustractionModel(OperationModel):
 
 
 class MultiplicationModel(OperationModel):
-    @property
-    def retenuesHautesIndexes(self):
-        if hasattr(self, "_retenuesHautesIndexes"):
-            return self._retenuesHautesIndexes
+    @cachedproperty
+    def i_line_0(self):
+        start = self.n_chiffres * self.columns
+        return slice(start, start + self.columns)
+
+    @cachedproperty
+    def i_line_1(self):
+        start = self.i_line_0.stop
+        return slice(start, start + self.columns)
+
+    @cachedproperty
+    def i_line_res(self):
+        if self.virgule:
+            return slice(self.size - self.columns * 2, self.size - self.columns)
         else:
-            self._retenuesHautesIndexes = {}
-        for i in range(self.n_chiffres):
-            self._retenuesHautesIndexes[i] = list()
+            return slice(self.size - self.columns, self.size)
+
+    def get_retenue(self, y, x):
+        rev_y = self.n_chiffres - y
+        start = rev_y * self.columns - 1  # en fin de ligne de la bonne ligne de retenu
+        return start - x - 1  # -1 car la retenu décale d'une colonne
+
+    def get_middle(self, y, x):
+        start = self.i_line_1.stop + (self.columns * y)
+        new_i_case = self.columns - y - x - 1
+        return start + new_i_case
+
+    def get_next_line(self, y):
+        bonus = 0
+        # cas où on saute la ligne de la retenue
+        if y == self.n_chiffres - 1:
+            bonus += 1
+
+        return self.columns * (self.n_chiffres + 2 + y + +bonus + 2) - 1
+
+    def if_middle_line(self, position):
+        i_case = position % self.columns
+        if self.n_chiffres == 1:
+            y = 0
+        else:
+            y = (position - self.i_line_1.stop) // self.columns
+        x = self.columns - i_case - y - 1
+        print(i_case, y, x, self.len_ligne0)
+
+        # cas du point de décalge
+        if x < 0:
+            return position - 1
+        # cas du l'avant dernier à gauche qui sera toujorus un retour à la ligne
+        elif i_case == 1:
+            return self.get_next_line(y)
+
+        # cas où on va vers la retenu
+        elif x < self.len_ligne0 - 1:  # pas de retenu pour le dernier de line0
+            return self.get_retenue(y, x)
+
+        # cas pré fin de ligne
+        elif x == self.len_ligne0 - 1:
+            return position - 1
+
+        # cas fin de ligne
+        elif x > self.len_ligne0 - 1:
+            return self.get_next_line(y)
+        return None
+
+    @cachedproperty
+    def len_ligne0(self):
+        line1 = self.datas[self.i_line_0]
+        for n, i in enumerate(line1):
+            if i == "":
+                pass
+            elif i.isdigit():
+                self._len_ligne0 = self.columns - n
+                return self._len_ligne0
 
     def auto_move_next(self, position):
+        if not self.virgule:
+            return self.auto_move_next_sans_virgule(position)
+
+    def auto_move_next_sans_virgule(self, position):
+        """
+        x: index du chiffre ligne0
+        y: index du chiffre ligne1
+        i_case: index de la ligne en cours
+        res: résultat
+        """
+        res = position
         i_case = position % self.columns
 
-        if self.isRetenueLine(position):
+        print(self.isResultLine(11))
+        print(self.isMiddleLine(11))
+
+        # ordre result/middle est important pour le cas ouligne1 a 1 chiffre
+
+        if self.isResultLine(position):
+            if self.n_chiffres == 1:
+                # tant que pas l'avant dernier
+                if position - 1 != self.size - self.columns:
+                    temp = self.if_middle_line(position)
+                    if temp is not None:
+                        res = temp
+
+            else:
+                # tant que pas l'avant dernier
+                if position - 1 != self.size - self.columns:
+                    res = position - self.columns - 1
+
+        elif self.isMiddleLine(position):
+            temp = self.if_middle_line(position)
+            if temp is not None:
+                res = temp
+
+        elif self.isRetenueLine(position):
             if position < self.columns * self.n_chiffres:  # retenu du haut.
-                pass
-            #         i_line = self.n_chiffres - (position // self.columns) - 1
-            #         i_case = position % self.columns
-            #         retenue_index = self.columns - 2 - i_case
-            #         i_rel = self.columns - 1 - i_line - retenue_index
-            #         print(i_line, i_case)
-            #         res = (self.n_chiffres + 2 + i_line) * self.columns + i_rel - 1
-            #
+                y = self.n_chiffres - (position // self.columns) - 1
+                x = (
+                    self.columns - i_case - 1
+                )  # une colonne de retenu correspond toujorus au même x
+                print("y ", y, "x ", x)
+                res = self.get_middle(y, x)
+
             else:  # retenu du bas
                 res = position + self.columns
 
-        # res = position
         # if self.isMiddleLine(position):
         #     first_middle_index = self.columns * (self.n_chiffres + 2)
         #     r_index = position - first_middle_index  # inde relatif au premier middle
@@ -397,12 +495,13 @@ class MultiplicationModel(OperationModel):
         #         res = position - self.columns - 1
         #         if res % self.columns == self.virgule:
         #             res -= 1
-        #
-        # return res
+        # print(res)
+        return res
 
     @property
     def n_chiffres(self):
-        return int((self.rows - 4) / 2)
+        res = int((self.rows - 4) / 2)
+        return res if res else res + 1
 
     def is_result_line(self, index):
         if self.virgule:

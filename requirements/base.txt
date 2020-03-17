@@ -2,6 +2,7 @@
 fbs==0.8.4
 pony==0.7.11
 PySide2==5.14.0
+dickens==1.0.1
 
 # dev
 aqtinstall

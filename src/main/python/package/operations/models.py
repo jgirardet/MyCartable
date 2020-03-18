@@ -329,9 +329,6 @@ class MultiplicationModel(OperationModel):
         print(res)
         if self.is_virgule_index(res):
             res -= 1
-        # elif new_i_case < self.virgule:
-        #     print("icase et icas < virgule", new_i_case, self.virgule)
-        #     res -= 1
         return res
 
     def get_next_line(self, y):
@@ -451,6 +448,8 @@ class MultiplicationModel(OperationModel):
                 # tant que pas l'avant dernier
                 if position - 1 != self.size - self.columns:
                     res = position - self.columns - 1
+                    if self.is_virgule_index(res):
+                        res -= 1
 
         elif self.isMiddleLine(position):
             if self.virgule:
@@ -466,104 +465,16 @@ class MultiplicationModel(OperationModel):
                 x = (
                     self.columns - i_case - 1
                 )  # une colonne de retenu correspond toujorus au même x
+                if i_case < self.virgule:
+                    print("icase et icas < virgule", i_case, self.virgule)
+                    x -= 1
                 print("y ", y, "x ", x)
                 res = self.get_middle(y, x)
 
             else:  # retenu du bas
                 res = position + self.columns
+                print("dans retenu bass", res)
 
-        # if self.isMiddleLine(position):
-        #     first_middle_index = self.columns * (self.n_chiffres + 2)
-        #     r_index = position - first_middle_index  # inde relatif au premier middle
-        #     i_line = r_index // self.columns  # index de la ligne dans les n_chiffres
-        #     i_case = r_index % self.columns  # index dans la ligne elle même
-        #     i_retenue_line = (
-        #         self.n_chiffres - i_line - 1
-        #     )  # absolut index de ligne de retenu
-        #
-        #     #############
-        #     # temp
-        #
-        #     i_rel_base = (
-        #         self.columns - i_line - 1
-        #     )  # index "zéro" relatif de chaque ligne
-        #     i_rel = i_rel_base - i_case
-        #     if i_rel <= self.virgule:
-        #         i_rel -= 1
-        #     ##########
-        #     if i_case + i_line + bool(self.virgule) > self.n_chiffres and i_case > 1:
-        #         print("cas 1")
-        #         if self.columns - i_case - 1 <= i_line - 1:
-        #             res = position - 1
-        #             if res % self.columns == self.virgule:
-        #                 res -= 1
-        #         else:
-        #             i_rel_base = (
-        #                 self.columns - i_line - 1
-        #             )  # index "zéro" relatif de chaque ligne
-        #             if i_rel_base == self.virgule:
-        #                 i_rel_base -= 1
-        #             i_rel = i_rel_base - i_case
-        #             print("irel", i_rel, i_rel_base)
-        #
-        #             # cas ou le premier le chiffre de première ligne est nul ou zéro quand virgule
-        #             index0_ligne0 = self.columns * self.n_chiffres
-        #             i_ligne0 = index0_ligne0 + self.columns - 1 - i_rel
-        #             content_i_ligne0 = self.datas[i_ligne0]
-        #             print("ilign0", i_ligne0, content_i_ligne0)
-        #             if content_i_ligne0 in {"", "0"}:
-        #                 print("iligne0")
-        #                 res = position - 1
-        #                 # au cas ou ça otmbe sur la virgule
-        #                 if res % self.columns == self.virgule:
-        #                     res -= 1
-        #
-        #             else:  # cas général avec retenu
-        #                 print("cas général")
-        #                 retenue_index = self.columns - 2 - i_rel
-        #                 if retenue_index == self.virgule:
-        #                     retenue_index -= 1
-        #                 res = self.columns * i_retenue_line + retenue_index
-        #     # elif (
-        #     #     1 < i_case and self.columns - i_line - i_case <= self.n_chiffres
-        #     # ):  # dans les clous
-        #     elif 1 < i_case and i_rel < self.n_chiffres:  # dans les clous
-        #         print("cas 2,", i_case, i_line, i_rel)
-        #         res = position - 1
-        #
-        #     elif (
-        #         1 < i_case and i_rel <= self.n_chiffres and self.virgule
-        #     ):  # dans les clous
-        #         print("cas 2,", i_case, i_line, i_rel)
-        #         res = position - 1
-        #     else:  # hors clous, retour à la ligne, on saute la ligne de retnue si dernière
-        #         print("hors clou", i_case, i_line, i_rel)
-        #         print(i_line)
-        #         if i_line < self.n_chiffres:
-        #             ligne = position // self.columns
-        #             res = (ligne + 2) * self.columns - 1
-        #             if self.isRetenueLine(res):
-        #                 res = res + self.columns
-        #             # res = self.columns * (self.n_chiffres + 2 + i_line + 1)
-        #
-        # elif self.isRetenueLine(position):
-        #     if position < self.columns * self.n_chiffres:  # retenu du haut.
-        #         i_line = self.n_chiffres - (position // self.columns) - 1
-        #         i_case = position % self.columns
-        #         retenue_index = self.columns - 2 - i_case
-        #         i_rel = self.columns - 1 - i_line - retenue_index
-        #         print(i_line, i_case)
-        #         res = (self.n_chiffres + 2 + i_line) * self.columns + i_rel - 1
-        #
-        #     else:  # retenu du bas
-        #         res = position + self.columns
-        #
-        # elif self.isResultLine(position):
-        #     if position - 1 != self.size - self.columns:
-        #         res = position - self.columns - 1
-        #         if res % self.columns == self.virgule:
-        #             res -= 1
-        # print(res)
         return res
 
     @property

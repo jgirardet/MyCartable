@@ -56,6 +56,6 @@
     </qresource>
     <qresource prefix="/js">
         <file alias="lodash.js">base/js/lodash.js</file>
-        <file alias="core.js">base/js/core.js</file>
+<!--        <file alias="core.js">base/js/core.js</file>-->
     </qresource>
 </RCC>

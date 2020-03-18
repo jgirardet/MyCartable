@@ -298,15 +298,41 @@ class MultiplicationModel(OperationModel):
         else:
             return slice(self.size - self.columns, self.size)
 
+    def is_virgule_index(self, index):
+        return index % self.columns == self.virgule
+
     def get_retenue(self, y, x):
         rev_y = self.n_chiffres - y
         start = rev_y * self.columns - 1  # en fin de ligne de la bonne ligne de retenu
-        return start - x - 1  # -1 car la retenu décale d'une colonne
+        print(start)
+        res = start - x - 1  # -1 car la retenu décale d'une colonne
+        new_i_case = res % self.columns
+        if self.is_virgule_index(res):
+            print("oui is virgule index")
+            res -= 1
+        elif new_i_case < self.virgule:
+            print("icase et icas < virgule", new_i_case, self.virgule)
+            res -= 1
+        return res
 
     def get_middle(self, y, x):
+        print("dans get middle", y, x)
         start = self.i_line_1.stop + (self.columns * y)
-        new_i_case = self.columns - y - x - 1
-        return start + new_i_case
+        new_i_case = self.columns - 1 - y - x
+        if new_i_case < self.virgule:
+            print("icase et icas < virgule", new_i_case, self.virgule)
+            new_i_case -= 1
+        print("newicas", new_i_case)
+        res = start + new_i_case
+        # new_i_case = res % self.columns
+
+        print(res)
+        if self.is_virgule_index(res):
+            res -= 1
+        # elif new_i_case < self.virgule:
+        #     print("icase et icas < virgule", new_i_case, self.virgule)
+        #     res -= 1
+        return res
 
     def get_next_line(self, y):
         bonus = 0
@@ -327,13 +353,48 @@ class MultiplicationModel(OperationModel):
 
         # cas du point de décalge
         if x < 0:
-            return position - 1
+            temp = position - 1
+            print("ici")
+            return temp
         # cas du l'avant dernier à gauche qui sera toujorus un retour à la ligne
         elif i_case == 1:
             return self.get_next_line(y)
 
         # cas où on va vers la retenu
         elif x < self.len_ligne0 - 1:  # pas de retenu pour le dernier de line0
+            return self.get_retenue(y, x)
+
+        # cas pré fin de ligne
+        elif x == self.len_ligne0 - 1:
+            return position - 1
+
+        # cas fin de ligne
+        elif x > self.len_ligne0 - 1:
+            return self.get_next_line(y)
+        return None
+
+    def if_middle_line_virgule(self, position):
+        i_case = position % self.columns
+        if self.n_chiffres == 1:
+            y = 0
+        else:
+            y = (position - self.i_line_1.stop) // self.columns
+        x = self.columns - i_case - y - 1 - (i_case < self.virgule)
+        print(i_case, y, x, self.len_ligne0)
+
+        # cas du point de décalge
+        if x < 0:
+            temp = position - 1
+            if self.is_virgule_index(temp):
+                temp -= 1
+            return temp
+        # cas du l'avant dernier à gauche qui sera toujorus un retour à la ligne
+        elif i_case == 1:
+            return self.get_next_line(y)
+
+        # cas où on va vers la retenu
+        elif x < self.len_ligne0 - 1:  # pas de retenu pour le dernier de line0
+            print(f"on va à la retenu avec ", y, x)
             return self.get_retenue(y, x)
 
         # cas pré fin de ligne
@@ -353,10 +414,14 @@ class MultiplicationModel(OperationModel):
                 pass
             elif i.isdigit():
                 self._len_ligne0 = self.columns - n
+                if "," in line1:
+                    self._len_ligne0 -= 1
                 return self._len_ligne0
 
     def auto_move_next(self, position):
         if not self.virgule:
+            return self.auto_move_next_sans_virgule(position)
+        else:
             return self.auto_move_next_sans_virgule(position)
 
     def auto_move_next_sans_virgule(self, position):
@@ -388,7 +453,10 @@ class MultiplicationModel(OperationModel):
                     res = position - self.columns - 1
 
         elif self.isMiddleLine(position):
-            temp = self.if_middle_line(position)
+            if self.virgule:
+                temp = self.if_middle_line_virgule(position)
+            else:
+                temp = self.if_middle_line(position)
             if temp is not None:
                 res = temp
 

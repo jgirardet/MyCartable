@@ -141,23 +141,23 @@ class TestDecimal:
         assert a.to_string_list_soustraction(size, ligne, apres_virgule=apres) == res
 
     @pytest.mark.parametrize(
-        "value, size, apres, res",
+        "value, size, res",
         [
-            ("1", 3, 0, ["", "", "1"]),
-            ("1", 4, 0, ["", "", "", "1"]),
-            ("1", 4, 1, ["", "1", "", ""]),
-            ("1", 8, 3, ["", "", "", "1", "", "", "", "",]),
-            ("12", 3, 0, ["", "1", "2"]),
-            ("1.1", 3, 0, ["1", ",", "1"]),
-            ("1,1", 3, 0, ["1", ",", "1"]),
-            ("211,2", 10, 4, ["", "", "2", "1", "1", ",", "2", "", "", ""]),
-            ("11,20", 10, 4, ["", "", "", "1", "1", ",", "2", "0", "", ""]),
-            ("0,20", 6, 3, ["", "0", ",", "2", "0", ""]),
+            ("1", 3, ["", "", "1"]),
+            ("1", 4, ["", "", "", "1"]),
+            ("1", 4, ["", "", "", "1"]),
+            ("1", 8, ["", "", "", "", "", "", "", "1",]),
+            ("12", 3, ["", "1", "2"]),
+            ("1.1", 3, ["1", ",", "1"]),
+            ("1,1", 3, ["1", ",", "1"]),
+            ("211,2", 10, ["", "", "", "", "", "2", "1", "1", ",", "2"]),
+            ("11,20", 10, ["", "", "", "", "", "1", "1", ",", "2", "0"]),
+            ("0,20", 6, ["", "", "0", ",", "2", "0"]),
         ],
     )
-    def test_to_string_list_multiplication(self, value, size, apres, res):
+    def test_to_string_list_multiplication(self, value, size, res):
         a = DecimalLitteral(value)
-        assert a.to_string_list_multiplication(size, apres_virgule=apres) == res
+        assert a.to_string_list_multiplication(size) == res
 
 
 class TestOperation:
@@ -934,6 +934,7 @@ class TestMultiplicationModel:
             ("2*1", {6, 7}),
             ("23*77", {35, 36, 37, 38, 39}),
             ("2,3*7,7", set(range(42, 48))),
+            ("251*148", set(range(54, 60))),
         ],
     )
     def test_is_result_line(self, tm, numbers, compris):
@@ -961,6 +962,7 @@ class TestMultiplicationModel:
             ("2*1", {0, 1}),
             ("23*77", set(range(10)) | set(range(30, 35))),
             ("2,3*7,7", set(range(12)) | set(range(36, 42))),
+            ("251*148", set(range(18)) | set(range(48, 54))),
         ],
     )
     def test_is_retenue_line(self, tm, numbers, compris):
@@ -1032,6 +1034,35 @@ class TestMultiplicationModel:
 
         tm("25,1*1,48")
         assert tm.auto_move_next(index) == res
+
+    # #
+    # @pytest.mark.parametrize(
+    #     "index,res",
+    #     [(41, 19), (19, 40), (40, 17), (17, 38), (38, 16), (16, 37), (37, 36), (36, 48)]
+    #     + [(48, 47), (47, 12), (12, 45), (45, 10), (10, 44), (44, 9), (9, 43), (43, 55)]
+    #     + [(55, 54), (54, 52), (52, 5), (5, 51), (51, 3), (3, 50), (50, 69)]
+    #     + [(69, 61), (61, 68), (68, 59), (59, 66), (66, 58), (58, 65), (65, 57)]
+    #     + [(57, 64),],
+    # )
+    # def test_automove_next_virgule2(self, tm, index, res):
+    #     # 12 rows, 7 columns, virgule 3, size 91
+    #     # '', '',  '',  '', ' ',  '', '',
+    #     # '', '',  's',  '',  '',  '', '',
+    #     # '', '',  'l',  '',  '',  'j', '',
+    #     # '', '',  'f',  '',  'd',  'b', '',
+    #     # '', '1', '2',  '',  '', '', '',
+    #     # 'x', '', '3', ',', '3', '4', '5',
+    #     # '',  'h', 'g',  '',  'e',  'c',  'a',
+    #     # '', 'n', 'm', '', 'k', 'i', 'h',
+    #     # '', 't', 'r', '', 'q', 'p', 'o',
+    #     # '', '', 'x', '', 'w', 'v', 'u',
+    #     # '', '', '', '', '', '', '',
+    #     # '', '', '', '', '', '', '',
+    #     # '', '', '', '', '', '', '']
+    #
+    #     tm("12*3,345")
+    #     print(tm.params)
+    #     assert tm.auto_move_next(index) == res
 
     @pytest.mark.parametrize(
         "index, res",

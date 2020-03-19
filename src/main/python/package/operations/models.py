@@ -475,6 +475,7 @@ class MultiplicationModel(OperationModel):
                 res = position + self.columns
                 print("dans retenu bass", res)
 
+        print(res)
         return res
 
     @property

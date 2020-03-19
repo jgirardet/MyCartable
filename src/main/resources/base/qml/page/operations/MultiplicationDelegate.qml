@@ -14,14 +14,12 @@ Rectangle {
   color: "white"
   TextInputDelegate {
     id: input
-    bottomPadding: model.isRetenueLine(index) ? 0 : 5
-    topPadding: model.isMiddleLine(index) ? 0 : 5
     anchors.fill: parent
 
     color: model.isRetenueLine(index) ? "red" : "black"
     horizontalAlignment: TextInput.AlignHCenter
-    verticalAlignment: model.isResultLine(index) ? TextInput.AlignVCenter : model.isRetenueLine(index) ? TextInput.AlignBottom : TextInput.AlignTop
-
+//    verticalAlignment: model.isResultLine(index) ? TextInput.AlignVCenter : model.isRetenueLine(index) ? TextInput.AlignBottom : TextInput.AlignTop
+    verticalAlignment: TextInput.AlignVCenter
 
   }
 

@@ -99,19 +99,9 @@ class DecimalLitteral(Decimal):
                 avant = (size - (len(corps) + 1)) * [""]
             return signe + avant + corps
 
-    def to_string_list_multiplication(self, size, apres_virgule=0):
-        return self.to_string_list_addition(size=size, apres_virgule=apres_virgule)
-        # if apres_virgule == 0:
-        #     space_after = 0
-        # else:
-        #     if self.is_int():
-        #         space_after = apres_virgule + 1
-        #     elif apres_virgule <= self.l_dec:
-        #         space_after = 0
-        #     else:
-        #         space_after = apres_virgule - self.l_dec
-        # avant = size - self.len - space_after
-        # return [""] * avant + list(self.string) + [""] * space_after
+    def to_string_list_multiplication(self, size):
+        len_residuel = size - self.len
+        return len_residuel * [""] + list(self.string)
 
 
 def convert_addition(numbers):
@@ -165,25 +155,24 @@ def convert_soustraction(numbers):
 
 def convert_multiplication(numbers):
     work_list = [DecimalLitteral(x) for x in numbers]
-    ligne1 = work_list[1]  # membre 2
+    ligne1 = max(work_list, key=operator.attrgetter("len"))  # membre 2
 
     n_col = (
         len(functools.reduce(operator.mul, work_list).to_eng_string()) + 1
     )  # nombre de colonne nécessaire
     n_apres_virgule = max(a.l_dec for a in work_list)  # nombre apres vigule
-    n_avant_virgule = max(a.l_int for a in work_list)  # nombre avant vigule
     n_chiffres = ligne1.l_dec + ligne1.l_int
     n_row = 4  # les 2 membres +  1row retenu + res
 
     if n_chiffres > 1:
         n_row = n_row + (n_chiffres * 2)  # les retenues du haut + n ligne d'addition
-    virgule = n_col - n_apres_virgule - 1 if n_apres_virgule else 0
-
+    # virgule = n_col - n_apres_virgule - 1 if n_apres_virgule else 0
+    virgule = 1
     res = []
 
     res.append([""] * n_col * n_chiffres)  # d'abord les row de retenu
-    res.append(work_list[0].to_string_list_multiplication(n_col, n_apres_virgule))
-    membre2 = work_list[1].to_string_list_multiplication(n_col, n_apres_virgule)
+    res.append(work_list[0].to_string_list_multiplication(n_col))
+    membre2 = work_list[1].to_string_list_multiplication(n_col)
     membre2[0] = "x"
     res.append(membre2)
     res.append([""] * n_col)  # ligne resultat

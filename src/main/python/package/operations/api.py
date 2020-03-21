@@ -25,6 +25,7 @@ class DecimalLitteral(Decimal):
         new.len = len(new.string)
         new.l_int = len(new.int.as_tuple().digits)
         new.l_dec = len(new.dec.as_tuple().digits) if new.dec else 0
+        new.l_chiffres = new.l_int + new.l_dec
 
         return new
 
@@ -155,31 +156,35 @@ def convert_soustraction(numbers):
 
 def convert_multiplication(numbers):
     work_list = [DecimalLitteral(x) for x in numbers]
-    ligne1 = max(work_list, key=operator.attrgetter("len"))  # membre 2
+    if work_list[0].len != work_list[1].len:
+        ligne1 = min(work_list, key=operator.attrgetter("len"))  # membre 2
+    else:
+        ligne1 = min(work_list)
+    ligne0 = [i for i in work_list if i != ligne1][0]
+    n_chiffres = ligne1.l_dec + ligne1.l_int
+    virgule = int(any(x.l_dec for x in work_list))
 
     n_col = (
         len(functools.reduce(operator.mul, work_list).to_eng_string()) + 1
     )  # nombre de colonne nécessaire
-    n_apres_virgule = max(a.l_dec for a in work_list)  # nombre apres vigule
-    n_chiffres = ligne1.l_dec + ligne1.l_int
+
     n_row = 4  # les 2 membres +  1row retenu + res
 
     if n_chiffres > 1:
         n_row = n_row + (n_chiffres * 2)  # les retenues du haut + n ligne d'addition
-    # virgule = n_col - n_apres_virgule - 1 if n_apres_virgule else 0
-    virgule = 1
+
     res = []
 
     res.append([""] * n_col * n_chiffres)  # d'abord les row de retenu
-    res.append(work_list[0].to_string_list_multiplication(n_col))
-    membre2 = work_list[1].to_string_list_multiplication(n_col)
+    res.append(ligne0.to_string_list_multiplication(n_col))
+    membre2 = ligne1.to_string_list_multiplication(n_col)
     membre2[0] = "x"
     res.append(membre2)
     res.append([""] * n_col)  # ligne resultat
 
     if n_chiffres > 1:
         res.append([""] * n_col * (n_chiffres + 1))  # additions + retenue
-    if n_apres_virgule:
+    if virgule:
         res.append([""] * n_col)  # ligne de virgule du résultat
 
     return n_row, n_col, virgule, list(itertools.chain.from_iterable(res))

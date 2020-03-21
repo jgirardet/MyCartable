@@ -4,6 +4,7 @@ from pathlib import Path
 
 from PySide2.QtCore import QUrl
 from PySide2.QtGui import QColor
+from descriptors import cachedproperty
 from package.operations.api import create_operation
 from pony.orm import select, Database, PrimaryKey, Optional, Required, Set, desc, flush
 from package.constantes import ACTIVITES
@@ -318,9 +319,9 @@ def init_models(db: Database):
             return res
 
     class MultiplicationSection(OperationSection):
-        @property
+        @cachedproperty
         def n_chiffres(self):
-            return int((self.rows - 4) / 2)  # toujours pairs
+            return int((self.rows - 4) / 2) or 1
 
         @property
         def line_0(self):
@@ -346,7 +347,8 @@ def init_models(db: Database):
 
         def get_editables(self):
             res = set()
-            if not self.n_chiffres:
+            if self.n_chiffres == 1:
+                # pass
                 start, stop = self.line_res_index
                 res = set(range(start + 1, stop)) | set(range(1, self.columns - 1))
             else:
@@ -357,30 +359,12 @@ def init_models(db: Database):
                     for j in indexes:
                         res.add(k + j)
 
-                # ensuite on faite tout le reste (sans la ligne de la vifgule flottante)
-                if self.virgule:
-                    reste = set(
-                        range(
-                            self.columns * (self.n_chiffres + 2),
-                            self.size - self.columns,
-                        )
-                    )
-                else:
-                    reste = set(range(self.columns * (self.n_chiffres + 2), self.size))
+                # ensuite on faite tout le reste
+                reste = set(range(self.columns * (self.n_chiffres + 2), self.size))
 
                 # on enleve la collone des signe
                 colonne_signe = set(range(0, self.size, self.columns))
                 reste = reste - colonne_signe
-
-                # puis les virgules s'il y en a
-                if self.virgule:
-                    colonne_virgule = set(range(self.virgule, self.size, self.columns))
-                    reste = reste - colonne_virgule
-
-                    # enfin on rajoute la ligne de la virgule flottante
-                    start = self.size - self.columns
-                    last = set(range(start + 1, start + self.virgule + 1))
-                    reste = reste | last
 
                 res = res | reste
 

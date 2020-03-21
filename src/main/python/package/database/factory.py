@@ -239,7 +239,7 @@ def f_multiplicationSection(string=None, created=None, page=None, position=0, td
         else random.choice(
             [
                 "3*2",
-                "12*3",
+                "25,1*1,48",
                 "8*12",
                 "87*76",
                 "3458*827",

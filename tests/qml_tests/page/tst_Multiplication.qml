@@ -34,7 +34,13 @@ Item {
       return _.range(18).includes(index) ||  _.range(48,54).includes(index) ? true : false
       }
       function isMiddleLine(index) {
-      return _.range(36, 48).includes(index) ? true : false
+      return _.range(18, 48).includes(index) ? true : false
+      }
+      function isMembreLine(index) {
+      return _.range(18, 30).includes(index) ? true : false
+      }
+      function isLine1(index) {
+      return _.range(18, 24).includes(index) ? true : false
       }
       function readOnly(index) {
       var r = [35, 16, 34, 15, 33, 32, 41, 40, 10, 39, 9, 38, 37, 47, 46, 45, 4, 44, 3, 43, 59, 52, 58, 51, 57, 50, 56, 49, 55]

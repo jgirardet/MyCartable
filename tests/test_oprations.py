@@ -1,3 +1,4 @@
+import itertools
 from decimal import Decimal
 
 import pytest
@@ -557,6 +558,15 @@ class TestOperationModel:
         for i in range(9, 12):
             assert not ta.isMiddleLine(i)
 
+    def test_isMembreLine(self, ta):
+        ta("9+8")
+        for i in range(3, 9):
+            assert ta.isMembreLine(i)
+        for i in range(0, 3):
+            assert not ta.isMembreLine(i)
+        for i in range(9, 12):
+            assert not ta.isMembreLine(i)
+
 
 class TestAdditionModel:
     @pytest.mark.parametrize(
@@ -935,6 +945,22 @@ class TestMultiplicationModel:
         non_compris = non_compris - compris
         for i in non_compris:
             assert not tm.isResultLine(i), f" {i} should return False"
+
+    def test_is_membre_line(self, tm):
+        tm("23*77")
+        print(tm.params)
+        for i in range(10, 20):
+            assert tm.isMembreLine(i), f" {i} should return True"
+        for i in itertools.chain.from_iterable((range(0, 10), range(20, 41))):
+            assert not tm.isMembreLine(i), f" {i} should return False"
+
+    def test_is_line1(self, tm):
+        tm("23*77")
+        print(tm.params)
+        for i in range(15, 20):
+            assert tm.isLine1(i), f" {i} should return True"
+        for i in itertools.chain.from_iterable((range(0, 15), range(20, 41))):
+            assert not tm.isLine1(i), f" {i} should return False"
 
     @pytest.mark.parametrize(
         "numbers, compris",

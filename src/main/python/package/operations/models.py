@@ -131,6 +131,10 @@ class OperationModel(QAbstractListModel):
         return not self.isResultLine(index) and not self.isRetenueLine(index)
 
     @Slot(int, result=bool)
+    def isMembreLine(self, index):
+        return self.isMiddleLine(index)
+
+    @Slot(int, result=bool)
     def isResultLine(self, index):
         return self.is_result_line(index)
 
@@ -421,6 +425,13 @@ class MultiplicationModel(OperationModel):
                 res = position + self.columns
 
         return res
+
+    def isMembreLine(self, index):
+        return self.i_line_0.start <= index < self.i_line_1.stop
+
+    @Slot(int, result=bool)
+    def isLine1(self, index):
+        return self.i_line_1.start <= index < self.i_line_1.stop
 
     def is_result_line(self, index):
         if self.virgule:

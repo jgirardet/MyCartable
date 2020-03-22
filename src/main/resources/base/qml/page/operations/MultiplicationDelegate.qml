@@ -17,16 +17,15 @@ Rectangle {
     anchors.fill: parent
     color: model.isRetenueLine(index) ? "red" : model.isLine1(index) ? "green" : model.isMembreLine(index) ? "blue" : "black"
     horizontalAlignment: TextInput.AlignHCenter
-//    verticalAlignment: model.isResultLine(index) ? TextInput.AlignVCenter : model.isRetenueLine(index) ? TextInput.AlignBottom : TextInput.AlignTop
-    verticalAlignment: model.isResultLine(index) ? TextInput.AlignBottom : model.isResultLine(index+model.columns) ? TextInput.AlignTop : TextInput.AlignVCenter
-//      bottomPadding: model.isResultLine(index) ? 0 : 5
+    verticalAlignment: TextInput.AlignVCenter
 
     background: BorderRectangle {
       color: input.parent.color
       borderColor: model.isResultLine(index) || model.isLine1(index-model.columns) ? "black" : input.parent.color
       borderTop: -2
-//      borderBottom: -2
     }
+
+    validator: RegularExpressionValidator { regularExpression: /^\d{1},?$/ }
 
   }
 

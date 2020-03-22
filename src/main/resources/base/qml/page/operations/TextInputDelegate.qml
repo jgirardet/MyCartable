@@ -15,7 +15,6 @@ TextField {
     }
     onTextEdited: {
       edit = text
-      model.autoMoveNext(index)
     }
     onFocusChanged: {
       if (focus && !readOnly) {

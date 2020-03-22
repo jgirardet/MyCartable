@@ -536,14 +536,8 @@ class TestMultiplicationSection:
         assert a.line_0 == ["", "", "3", "4"]
         assert a.line_1 == ["x", "", "1", "2"]
 
-        # res sans virgule
         a._datas = '["", "", "", "", "", "", "", "", "", "", "1", "2", "x", "", "3", "4", "", "", "", "", "", "", "", "", "", "", "", "", "f", "", "", "z"]'
         assert a.line_res == ["f", "", "", "z"]
-
-        # res avec virgule
-        a = f_multiplicationSection(string="1,2*2,4")
-        a._datas = '["", "", "", "", "", "", "", "", "", "", "", "", "1", ",", "2", "x", "", "2", ",", "4", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "f", "", "", "", "z", "", "", "", "", ""]'
-        assert a.line_res == ["f", "", "", "", "z"]
 
     @pytest.mark.parametrize(
         "string, res",
@@ -555,7 +549,7 @@ class TestMultiplicationSection:
                 "22*55",
                 {3, 8, 21, 22, 23, 24, 26, 27, 28, 29, 31, 32, 33, 34, 36, 37, 38, 39},
             ),
-            ("2,2*5,5", {3, 9} | set(range(25, 54)) - set(range(24, 54, 6)),),
+            ("2,2*5,5", {3, 9} | set(range(25, 48)) - set(range(24, 48, 6)),),
             (
                 "325,12*99,153",
                 set(
@@ -563,7 +557,7 @@ class TestMultiplicationSection:
                         range(x, 60, 12) for x in [6, 7, 8, 10]
                     )
                 )
-                | set(range(84, 180)) - set(range(84, 180, 12)),
+                | set(range(84, 168)) - set(range(84, 168, 12)),
             ),
         ],
     )

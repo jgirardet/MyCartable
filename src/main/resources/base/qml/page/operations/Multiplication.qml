@@ -9,7 +9,4 @@ BaseOperation {
       model: root.model
     }
 
-  Component.onCompleted: {
-    currentIndex = count - 1
-  }
 }

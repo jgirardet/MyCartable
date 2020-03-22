@@ -184,8 +184,6 @@ def convert_multiplication(numbers):
 
     if n_chiffres > 1:
         res.append([""] * n_col * (n_chiffres + 1))  # additions + retenue
-    if virgule:
-        res.append([""] * n_col)  # ligne de virgule du résultat
 
     return n_row, n_col, virgule, list(itertools.chain.from_iterable(res))
 

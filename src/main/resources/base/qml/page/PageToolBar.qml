@@ -39,14 +39,34 @@ ToolBar {
 
     ToolBar {
       visible: ddb.currentMatiere == 1
-      ToolButton {
-        id: addAddition
-        icon.source: "qrc:///icons/addAddition"
-        icon.color: "transparent"
-        onClicked: dialogAddAddition.open()
-        enabled: ddb.currentPage
-        ToolTip.visible: hovered
-        ToolTip.text: "Ajouter une addition"
+      RowLayout {
+        ToolButton {
+          id: addAddition
+          icon.source: "qrc:///icons/addAddition"
+          icon.color: "transparent"
+          onClicked: dialogAddAddition.open()
+          enabled: ddb.currentPage
+          ToolTip.visible: hovered
+          ToolTip.text: "Ajouter une addition"
+        }
+        ToolButton {
+          id: addSoustraction
+          icon.source: "qrc:///icons/addSoustraction"
+          icon.color: "transparent"
+          onClicked: dialogAddSoustraction.open()
+          enabled: ddb.currentPage
+          ToolTip.visible: hovered
+          ToolTip.text: "Ajouter une soustraction"
+        }
+        ToolButton {
+          id: addMultiplication
+          icon.source: "qrc:///icons/addMultiplication"
+          icon.color: "red"
+          onClicked: dialogAddMultiplication.open()
+          enabled: ddb.currentPage
+          ToolTip.visible: hovered
+          ToolTip.text: "Ajouter une multiplication"
+        }
       }
     }
 
@@ -70,25 +90,24 @@ ToolBar {
     standardButtons: Dialog.Ok | Dialog.Cancel
     onAccepted: ddb.removePage(ddb.currentPage)
   }
-  Dialog {
+
+  DialogOperation {
     id: dialogAddAddition
-    title: "Entrer l'addition. ex: 123+12"
-    standardButtons: Dialog.Ok | Dialog.Cancel
-    focus: true
-    contentItem: TextField {
-      focus: true
-      background: Rectangle {
-        anchors.fill: parent;
-        color: "white"
-      }
-      onAccepted: dialogAddAddition.accept()
-    }
-    onAccepted: {
-      ddb.addSection(ddb.currentPage, {
-        'string': contentItem.text,
-        "classtype": "AdditionSection"
-      })
-      contentItem.clear()
-    }
+    title: "Entrer l'addition,  ex: 234+6"
+    classType: "AdditionSection"
   }
+
+  DialogOperation {
+    id: dialogAddSoustraction
+    title: "Entrer la soustraction,  ex: 234-6"
+    classType: "SoustractionSection"
+  }
+
+  DialogOperation {
+    id: dialogAddMultiplication
+    title: "Entrer la multiplication,  ex: 234*6"
+    classType: "MultiplicationSection"
+  }
+
+
 }

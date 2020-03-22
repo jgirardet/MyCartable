@@ -52,6 +52,7 @@ Item {
             }
           };
         }
+       function getInitialPosition() {return 11}
         }
    }
   Component {

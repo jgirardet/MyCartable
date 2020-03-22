@@ -101,12 +101,13 @@ class OperationModel(QAbstractListModel):
         return int(self.params["size"])
 
     def setData(self, index, value, role) -> bool:
-
         if index.isValid() and role == Qt.EditRole:
             with db_session:
                 self.proxy.update_datas(index.row(), value)
             self.datas[index.row()] = value
             self.dataChanged.emit(index, index)
+            if "," not in value:
+                self.autoMoveNext(index.row())
             return True
         return False
 
@@ -115,6 +116,14 @@ class OperationModel(QAbstractListModel):
     @Slot(int)
     def autoMoveNext(self, currentIndex):
         self.cursor = self.auto_move_next(currentIndex)
+
+    @Slot(result=int)
+    def getInitialPosition(self):
+        pos = self.get_initial_position()
+        print(pos)
+        a = pos if pos is not None else self.size - 1
+        print(a)
+        return a
 
     @Slot(int, int)
     def moveCursor(self, index, key):
@@ -149,6 +158,9 @@ class OperationModel(QAbstractListModel):
 
     def custom_params_load(self):
         pass
+
+    def get_initial_position(self):
+        return None
 
     def is_result_line(self, index):
         return False
@@ -292,6 +304,9 @@ class MultiplicationModel(OperationModel):
     def custom_params_load(self):
         self.n_chiffres = self.proxy.n_chiffres
 
+    def get_initial_position(self):
+        return self.i_line_1.stop + self.columns
+
     @cachedproperty
     def i_line_0(self):
         start = self.n_chiffres * self.columns
@@ -434,10 +449,7 @@ class MultiplicationModel(OperationModel):
         return self.i_line_1.start <= index < self.i_line_1.stop
 
     def is_result_line(self, index):
-        if self.virgule:
-            return self.size - self.columns * 2 <= index < self.size - self.columns
-        else:
-            return self.size - self.columns <= index < self.size
+        return self.size - self.columns <= index < self.size
 
     def is_retenue_line(self, index):
         """retenu première lignes et  appres addition"""

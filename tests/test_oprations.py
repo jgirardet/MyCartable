@@ -1,9 +1,10 @@
 import itertools
 from decimal import Decimal
+from unittest.mock import patch, call
 
 import pytest
 from PySide2.QtCore import Qt, Signal
-from fixtures import check_super_init
+from fixtures import check_super_init, check_args
 from package.database.factory import (
     f_additionSection,
     f_soustractionSection,
@@ -364,21 +365,11 @@ class TestOperation:
             ),
             (
                 ["1,1", "5"],  #
-                (
-                    4,
-                    4,
-                    1,
-                    [""] * 4 + ["", "1", ",", "1", "x", "", "", "5"] + [""] * 4 * 2,
-                ),
+                (4, 4, 1, [""] * 4 + ["", "1", ",", "1", "x", "", "", "5"] + [""] * 4,),
             ),
             (
                 ["5", "1,1"],  #
-                (
-                    4,
-                    4,
-                    1,
-                    [""] * 4 + ["", "1", ",", "1", "x", "", "", "5"] + [""] * 4 * 2,
-                ),
+                (4, 4, 1, [""] * 4 + ["", "1", ",", "1", "x", "", "", "5"] + [""] * 4,),
             ),
             (
                 ["23,3", "5,1234"],  # 119,37522
@@ -392,7 +383,7 @@ class TestOperation:
                     + ["x"]
                     + [""] * 5
                     + list("23,3")
-                    + [""] * 10 * 6,  # 3lignes + res + retenu+ virgule
+                    + [""] * 10 * 5,  # 3lignes + res + retenu+ virgule
                 ),
             ),
         ],
@@ -512,26 +503,39 @@ class TestOperationModel:
         to.flags(to.index(99, 99)) == Qt.ItemIsDropEnabled
 
     def test_setData(self, to):
-        assert to.setData(to.index(11, 0), 5, Qt.EditRole)  # doit retourner True
+        assert to.setData(to.index(11, 0), "5", Qt.EditRole)  # doit retourner True
         with db_session:
-            assert to.db.Section[1].datas[11] == 5
-            assert to.datas[11] == 5
+            assert to.db.Section[1].datas[11] == "5"
+            assert to.datas[11] == "5"
 
-        assert not to.setData(to.index(99, 0), 5, Qt.EditRole)
+        assert not to.setData(to.index(99, 0), "5", Qt.EditRole)
         assert not to.setData(to.index(11, 0), 8, Qt.DisplayRole)
         with db_session:
-            assert to.db.Section[1].datas[11] == 5  # pas de modif
+            assert to.db.Section[1].datas[11] == "5"  # pas de modif
 
     def test_setData_changerecents(self, to, qtbot):
 
         with qtbot.waitSignal(to.ddb.recentsModelChanged):
-            to.setData(to.index(11, 0), 5, Qt.EditRole)  # doit retourner True
+            to.setData(to.index(11, 0), "5", Qt.EditRole)  # doit retourner True
+
+    def test_setData_automovenext(self, to, qtbot):
+
+        with patch("package.operations.models.OperationModel.autoMoveNext"):
+            to.setData(to.index(11, 0), "5", Qt.EditRole)  # doit retourner True
+            assert to.autoMoveNext.call_args_list == [call(11)]
+            to.setData(to.index(11, 0), "5,", Qt.EditRole)  # doit retourner True
+            assert to.autoMoveNext.call_args_list == [call(11)]  # pas de modif
 
     def test_isIResultline(self, to):
         assert to.isResultLine(99) is False
 
     def test_isRetenueline(self, to):
         assert to.isRetenueLine(99) is False
+
+    def test_getInitialPosition(self, to):
+        check_args(to.getInitialPosition, exp_return_type=int)
+
+        assert to.getInitialPosition() == 11
 
     def test_move_cursor(self, to):
         c = to.cursor
@@ -918,6 +922,10 @@ def tm():
 
 
 class TestMultiplicationModel:
+    def test_getInitialPosition(self, tm):
+        tm("23*77")
+        tm.getInitialPosition() == 29
+
     @pytest.mark.parametrize(
         "numbers, compris",
         [

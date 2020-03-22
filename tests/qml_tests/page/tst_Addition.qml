@@ -14,6 +14,7 @@ Item {
     property int sectionId: 0
       property int columns: 3
       property int cursor: 0
+      property int size: 12
       /* beautify preserve:start */
       property var datas: ["", "", "", "", "", "9", "+", "", "8", "", "", ""]
       /* beautify preserve:end */
@@ -39,18 +40,7 @@ Item {
         _moveCursor =  [index, key]
 
          }
-      function autoMoveNext(index) {
-        switch (index) {
-            case 1: {
-            cursor=10;
-            break;
-            }
-            case 11: {
-            cursor=1;
-            break;
-            }
-          };
-        }
+      function getInitialPosition() { return size-1}
         }
    }
 
@@ -77,20 +67,13 @@ Item {
 
 
 
-    function test_whole_usage_delegate() {
+    function test_edit() {
       // test : automovenext, onfocuschanged
       mouseClick(tested.itemAtIndex(11).textinput)
       compare(tested.currentItem.textinput.focus,true) // si pas fait
       keyClick(Qt.Key_5)
       compare(tested.itemAtIndex(11).textinput.text, "5")
       compare(model.get(11).edit, "5")
-      compare(tested.currentIndex,1)
-      keyClick(Qt.Key_2)
-      compare(tested.itemAtIndex(1).textinput.text, "2")
-      compare(model.get(1).edit, "2")
-      compare(tested.currentIndex,10)
-      keyClick(Qt.Key_3)
-      compare(tested.currentItem.textinput.text, "3") //no automove after last
 
 
     }

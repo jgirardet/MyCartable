@@ -17,6 +17,7 @@ Item {
       property int columns: 17
       property int cursor: 0
       property int sectionId: 0
+      property int size: 40
       /* beautify preserve:start */
       property var datas: ['',  '', '4', '', '', '3', '', '', '2', '', ',' ,'', '5', '', '', '4', '', '-', '', '3', '', '', '9', '', '', '1', '', ',' ,'', '4', '', '', '1', '', '',  '', '' , '', '', '' , '', '', '' , '', ',', '', '',  '', '', '' , '']
       /* beautify preserve:end */
@@ -54,6 +55,7 @@ Item {
        function isRetenueGauche(index) {
        return [4, 7, 11, 14].includes(index)
        }
+       function getInitialPosition() { return size-1}
    }
    }
 
@@ -79,26 +81,15 @@ Item {
      }
 
 
-    function test_whole_usage_delegate() {
+    function test_edit() {
       // test : automovenext, onfocuschanged
-      var auto = [[14, 30], [30, 49], [49, 11], [11, 26], [26, 46], [46, 7], [7, 23], [23, 42], [42, 4], [4, 20], [20, 39], [39, 36]]
 
       mouseClick(tested.itemAtIndex(14).textinput)
       compare(tested.currentItem.textinput.focus,true) // si pas fait
-
-      var i = 0
-      for (var x of auto) {
-        var index = _.sample(_.range(5))
-        var touche = [Qt.Key_0,Qt.Key_1,Qt.Key_2,Qt.Key_3,Qt.Key_4][index]
-        keyClick(touche)
-        compare(tested.itemAtIndex(x[0]).textinput.text, index.toString())
-        compare(model.get(x[0]).edit, index.toString())
-        compare(tested.currentIndex,auto[i][1])
-        i++
-        }
-        keyClick(Qt.Key_3)//no automove after last
-        compare(tested.currentIndex,36) //no automove after last
-      }
+      keyClick(Qt.Key_5)
+      compare(tested.itemAtIndex(14).textinput.text, "5")
+      compare(model.get(14).edit, "5")
+  }
 
     function test_properties() {
       //retenu droite{20, 23, 26, 30}

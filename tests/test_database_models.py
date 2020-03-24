@@ -1,6 +1,7 @@
 import itertools
 import json
 from datetime import datetime, timedelta
+from decimal import Decimal
 
 from PySide2.QtCore import QUrl
 from fixtures import compare, compare_items, ss
@@ -563,8 +564,45 @@ class TestMultiplicationSection:
     )
     def test_get_editables(self, ddb, string, res):
         x = f_multiplicationSection(string=string)
-        print(x.datas, x.columns)
         assert x.get_editables() == res
+
+
+class TestDivisionSection:
+    def test_factory(self, ddb):
+        x = f_divisionSection(string="34/3")
+        assert x.dividende == Decimal(34)
+        assert x.diviseur == Decimal(3)
+        assert x.quotient == ""
+
+    @pytest.mark.parametrize(
+        "string, res",
+        [
+            ("5/4", set(range(84)) - {1}),
+            ("3454367/45", set(range(17 * 27)) - {1, 4, 7, 10, 13, 16, 19}),
+        ],
+    )
+    def test_get_editables(self, string, res):
+        x = f_divisionSection(string=string)
+        assert x.get_editables() == res
+
+    def test_to_dict(self, reset_db):
+        x = f_divisionSection(string="5/4", td=True)
+        x.pop("created")
+        x.pop("modified")
+        assert x == {
+            "classtype": "DivisionSection",
+            "columns": 12,
+            "datas": ["", "5"] + [""] * 82,
+            "dividende": Decimal("5"),
+            "diviseur": Decimal("4"),
+            "id": 1,
+            "page": 1,
+            "position": 1,
+            "quotient": "",
+            "rows": 7,
+            "size": 84,
+            "virgule": 0,
+        }
 
 
 class TestAnnotations:

@@ -9,6 +9,7 @@ from package.database.factory import (
     f_additionSection,
     f_soustractionSection,
     f_multiplicationSection,
+    f_divisionSection,
 )
 from package.database_object import DatabaseObject
 from package.operations.api import (
@@ -18,12 +19,14 @@ from package.operations.api import (
     DecimalLitteral,
     convert_soustraction,
     convert_multiplication,
+    convert_division,
 )
 from package.operations.models import (
     OperationModel,
     AdditionModel,
     SoustractionModel,
     MultiplicationModel,
+    DivisionModel,
 )
 from pony.orm import db_session
 
@@ -160,6 +163,24 @@ class TestDecimal:
     def test_to_string_list_multiplication(self, value, size, res):
         a = DecimalLitteral(value)
         assert a.to_string_list_multiplication(size) == res
+
+    @pytest.mark.parametrize(
+        "value, size, res",
+        [
+            ("1", 3, ["", "1", ""]),
+            ("1", 9, ["", "1", ""] + [""] * 6),
+            ("12", 9, ["", "1", "", "", "2", ""] + [""] * 3),
+            ("1,2", 9, ["", "1,", "", "", "2", ""] + [""] * 3),
+            (
+                "211,2",
+                20,
+                ["", "2", "", "", "1", "", "", "1,", "", "", "2", ""] + [""] * 8,
+            ),
+        ],
+    )
+    def test_to_string_list_division(self, value, size, res):
+        a = DecimalLitteral(value)
+        assert a.to_string_list_division(size) == res
 
 
 class TestOperation:
@@ -392,6 +413,81 @@ class TestOperation:
         assert convert_multiplication(numbers) == res
 
     @pytest.mark.parametrize(
+        "numbers, res",
+        [
+            (
+                ["23", "5"],  # base
+                (
+                    5,
+                    9,
+                    0,
+                    {
+                        "dividende": "23",
+                        "diviseur": "5",
+                        "datas": ["", "2", "", "", "3", ""] + [""] * 39,
+                    },
+                ),
+            ),
+            (
+                ["5", "4"],  # base 1,25
+                (
+                    7,
+                    12,
+                    0,
+                    {
+                        "dividende": "5",
+                        "diviseur": "4",
+                        "datas": ["", "5"] + [""] * 82,
+                    },
+                ),
+            ),
+            (
+                ["24,3", "3"],  # base
+                (
+                    5,
+                    9,
+                    0,
+                    {
+                        "dividende": "24.3",
+                        "diviseur": "3",
+                        "datas": ["", "2", "", "", "4,", "", "", "3", "",] + [""] * 36,
+                    },
+                ),
+            ),
+            (
+                ["10", "3"],  # division infinite
+                (
+                    17,
+                    27,
+                    0,
+                    {
+                        "dividende": "10",
+                        "diviseur": "3",
+                        "datas": ["", "1", "", "", "0", ""] + [""] * 453,
+                    },
+                ),
+            ),
+            (
+                ["3454367", "45"],  # 76763,711111grand nombre et division infinite
+                (
+                    17,
+                    27,
+                    0,
+                    {
+                        "dividende": "3454367",
+                        "diviseur": "45",
+                        "datas": ["", "3", "", "", "4", "", "", "5", "", "", "4", ""]
+                        + ["", "3", "", "", "6", "", "", "7", ""]
+                        + [""] * 438,
+                    },
+                ),
+            ),
+        ],
+    )
+    def test_convert_division(self, numbers, res):
+        assert convert_division(numbers) == res
+
+    @pytest.mark.parametrize(
         "string, res",
         [
             ("1+2", (4, 2, 0, ["", "", "", "1", "+", "2", "", ""])),  # addition
@@ -402,6 +498,19 @@ class TestOperation:
                 (3, 4, 0, ["", "", "2", "", "-", "", "1", "", "", "", "", ""]),
             ),  # soustraction
             ("1*2", (4, 2, 0, ["", "", "", "2", "x", "1", "", ""])),  # mul
+            (
+                "2/1",
+                (
+                    3,
+                    6,
+                    0,
+                    {
+                        "dividende": "2",
+                        "diviseur": "1",
+                        "datas": ["", "2", "", "", "", ""] + [""] * 12,
+                    },
+                ),
+            ),
         ],
     )
     def test_create_operations(self, string, res):
@@ -1202,3 +1311,36 @@ class TestMultiplicationModel:
 
         tm.cursor = 99  # controle pas modif, 0 pourrait être faux
         assert tm.move_cursor(index, Qt.Key_Left) == res
+
+
+@pytest.fixture
+def td():
+    class Dbo:
+        recentsModelChanged = Signal()
+        sectionIdChanged = Signal()
+
+    class Mock(DivisionModel):
+        def __call__(self, string):
+            rows, columns, virgule, datas = create_operation(string)
+            self.params["rows"] = rows
+            self.params["columns"] = columns
+            self.params["virgule"] = virgule
+            self.params["datas"] = datas
+            self.params["size"] = len(self.params["datas"])
+            self._dividende, self._diviseur = [Decimal(x) for x in string.split("/")]
+            self._quotient = ""
+
+    Mock.ddb = Dbo()
+    a = Mock()
+    return a
+
+
+class TestDivisionModel:
+    def test_custom_params_load(self, dao):
+        DivisionModel.ddb = dao
+        a = DivisionModel()
+        b = f_divisionSection()
+        a.sectionId = b.id
+        assert a._dividende == b.dividende
+        assert a._diviseur == b.diviseur
+        assert a._quotient == b.quotient

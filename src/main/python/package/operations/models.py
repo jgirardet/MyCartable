@@ -499,3 +499,10 @@ class MultiplicationModel(OperationModel):
                     break
 
         return new
+
+
+class DivisionModel(OperationModel):
+    def custom_params_load(self):
+        self._dividende = self.proxy.dividende
+        self._diviseur = self.proxy.diviseur
+        self._quotient = self.proxy.quotient

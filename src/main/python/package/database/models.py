@@ -1,5 +1,6 @@
 import json
 from datetime import datetime, timedelta
+from decimal import Decimal
 from pathlib import Path
 
 from PySide2.QtCore import QUrl
@@ -369,6 +370,31 @@ def init_models(db: Database):
                 res = res | reste
 
             return res
+
+    class DivisionSection(OperationSection):
+        dividende = Optional(Decimal)
+        diviseur = Optional(Decimal)
+        quotient = Optional(str, default="")
+
+        def __init__(self, string, **kwargs):
+            super().__init__(string, **kwargs)
+            datas = self.datas
+            print(datas)
+            # pas optimal mais permet de conserver une cohérance avec les autres.
+            # il faudrait shunter le dump pour ne pas recréer les Decimal
+            self.dividende = Decimal(datas["dividende"])
+            self.diviseur = Decimal(datas["diviseur"])
+            self._datas = json.dumps(datas["datas"])
+            self.size = self.columns * self.rows
+
+        @cachedproperty
+        def l_dividende(self):
+            return len(self.dividende.as_tuple().digits)
+
+        def get_editables(self):
+            tout = set(range(self.size))
+            dividende_indexes = set(range(1, self.l_dividende * 3, 3))
+            return tout - dividende_indexes
 
     class Annotation(db.Entity):
         id = PrimaryKey(int, auto=True)

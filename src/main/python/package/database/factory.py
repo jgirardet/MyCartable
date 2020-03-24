@@ -255,6 +255,16 @@ def f_multiplicationSection(string=None, created=None, page=None, position=0, td
     )
 
 
+def f_divisionSection(string=None, created=None, page=None, position=0, td=False):
+    string = (
+        string
+        if string
+        else random.choice(["3/2", "251/14", "251/1,4", "13/6", "3458*82", "345,8*82",])
+    )
+
+    return _operation_section("DivisionSection", string, created, page, position, td)
+
+
 @db_session
 def populate_database(matieres_list=MATIERES, nb_page=100):
     annee = f_annee()

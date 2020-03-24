@@ -2,7 +2,7 @@ import functools
 import itertools
 import operator
 import re
-from decimal import Decimal
+from decimal import Decimal, getcontext
 
 
 def match(string):
@@ -104,6 +104,18 @@ class DecimalLitteral(Decimal):
         len_residuel = size - self.len
         return len_residuel * [""] + list(self.string)
 
+    def to_string_list_division(self, size):
+        temp = []
+        for n, x in enumerate(self.string):
+            if x.isdigit():
+                temp += ["", x, ""]
+            elif x == ",":
+                prev_index = (n - 1) * 3 + 1
+                print(prev_index)
+                temp[prev_index] = temp[prev_index] + ","
+
+        return temp + [""] * (size - len(temp))
+
 
 def convert_addition(numbers):
     addition_list = [DecimalLitteral(x) for x in numbers]
@@ -188,6 +200,32 @@ def convert_multiplication(numbers):
     return n_row, n_col, virgule, list(itertools.chain.from_iterable(res))
 
 
+def convert_division(numbers):
+    work_list = [DecimalLitteral(x) for x in numbers]
+    datas = {}
+    datas["dividende"] = work_list[0].to_eng_string()
+    datas["diviseur"] = work_list[1].to_eng_string()
+
+    context = getcontext()
+    prec = 20
+    context.prec = prec
+    quotient = work_list[0] / work_list[1]
+    len_quotient = len(quotient.as_tuple().digits)
+    if len_quotient == prec:
+        len_quotient = 8  # on fait une longueur max par défault
+
+    n_row = 1 + (len_quotient * 2)
+    n_col = (len_quotient + 1) * 3
+
+    ligne0 = work_list[0].to_string_list_division(n_col)
+    rab = [""] * (n_col * n_row - len(ligne0))
+    datas["datas"] = ligne0 + rab
+
+    virgule = 0
+
+    return n_row, n_col, virgule, datas
+
+
 def create_operation(string):
     # strip space
     string = string.replace(" ", "")
@@ -200,5 +238,7 @@ def create_operation(string):
         return convert_soustraction(numbers)
     elif signe == "*":
         return convert_multiplication(numbers)
+    elif signe == "/":
+        return convert_division(numbers)
     else:
         return None

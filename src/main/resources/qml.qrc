@@ -39,6 +39,8 @@
         <file alias="Soustraction.qml">base/qml/page/operations/Soustraction.qml</file>
         <file alias="MultiplicationDelegate.qml">base/qml/page/operations/MultiplicationDelegate.qml</file>
         <file alias="Multiplication.qml">base/qml/page/operations/Multiplication.qml</file>
+        <file alias="DivisionDelegate.qml">base/qml/page/operations/DivisionDelegate.qml</file>
+        <file alias="Division.qml">base/qml/page/operations/Division.qml</file>
 
     </qresource>
 
@@ -56,6 +58,7 @@
         <file alias="addAddition">../icons/base/operations/addAddition-64.png</file>
         <file alias="addSoustraction">../icons/base/operations/addSoustraction-64.png</file>
         <file alias="addMultiplication">../icons/base/operations/addMultiplication-64.png</file>
+        <file alias="addDivision">../icons/base/operations/addDivision-64.png</file>
     </qresource>
     <qresource prefix="/js">
         <file alias="lodash.js">base/js/lodash.js</file>

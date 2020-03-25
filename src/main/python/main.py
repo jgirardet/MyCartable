@@ -55,6 +55,7 @@ if __name__ == "__main__":
         AdditionModel,
         SoustractionModel,
         MultiplicationModel,
+        DivisionModel,
     )
 
     databaseObject = DatabaseObject(package.database.db)
@@ -64,10 +65,12 @@ if __name__ == "__main__":
     AdditionModel.ddb = databaseObject
     SoustractionModel.ddb = databaseObject
     MultiplicationModel.ddb = databaseObject
+    DivisionModel.ddb = databaseObject
 
     qmlRegisterType(AdditionModel, "Operations", 1, 0, "AdditionModel")
     qmlRegisterType(SoustractionModel, "Operations", 1, 0, "SoustractionModel")
     qmlRegisterType(MultiplicationModel, "Operations", 1, 0, "MultiplicationModel")
+    qmlRegisterType(DivisionModel, "Operations", 1, 0, "DivisionModel")
     engine = main_setup(databaseObject, ui_manager)
     #
     if not engine.rootObjects():

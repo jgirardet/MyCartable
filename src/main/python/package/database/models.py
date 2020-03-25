@@ -372,29 +372,64 @@ def init_models(db: Database):
             return res
 
     class DivisionSection(OperationSection):
-        dividende = Optional(Decimal)
-        diviseur = Optional(Decimal)
+        dividende = Optional(str)
+        # dividende = Optional(Decimal)
+        diviseur = Optional(str)
+        # diviseur = Optional(Decimal, scale=1, precision=8)
         quotient = Optional(str, default="")
 
         def __init__(self, string, **kwargs):
             super().__init__(string, **kwargs)
             datas = self.datas
-            print(datas)
             # pas optimal mais permet de conserver une cohérance avec les autres.
             # il faudrait shunter le dump pour ne pas recréer les Decimal
-            self.dividende = Decimal(datas["dividende"])
-            self.diviseur = Decimal(datas["diviseur"])
+            # self.dividende = Decimal(datas["dividende"])
+            self.dividende = datas["dividende"]
+            # print(datas["diviseur"])
+            # self.diviseur = Decimal(datas["diviseur"])
+            self.diviseur = datas["diviseur"]
+            # print(self.diviseur, self.diviseur.to_eng_string())
             self._datas = json.dumps(datas["datas"])
             self.size = self.columns * self.rows
 
         @cachedproperty
         def l_dividende(self):
-            return len(self.dividende.as_tuple().digits)
+            return len(self.dividende)
+
+        def is_ligne_dividende(self, index):
+            return 0 <= index < self.columns
+
+        def is_ligne_last(self, index):
+            return self.size - self.columns <= index < self.size
 
         def get_editables(self):
-            tout = set(range(self.size))
-            dividende_indexes = set(range(1, self.l_dividende * 3, 3))
-            return tout - dividende_indexes
+            dividende = set(range(0, self.columns, 3))
+            last = set(range(self.size - self.columns + 1, self.size, 3))
+            milieu = set()
+            for i in range(1, self.rows - 1):
+                debut = i * self.columns
+                impair = bool(i & 1)
+                mini_index = 1
+                milieu.update(set(range(debut + mini_index, debut + self.columns, 3)))
+                mini_index = 2 if impair else 0
+                milieu.update(set(range(debut + mini_index, debut + self.columns, 3)))
+
+            return dividende | milieu | last
+
+        def _as_num(self, num):
+            try:
+                res = int(num)
+            except ValueError:
+                res = float(num)
+            return res
+
+        @cachedproperty
+        def diviseur_as_num(self):
+            return self._as_num(self.diviseur)
+
+        @cachedproperty
+        def dividende_as_num(self):
+            return self._as_num(self.dividende)
 
     class Annotation(db.Entity):
         id = PrimaryKey(int, auto=True)

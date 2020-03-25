@@ -259,7 +259,7 @@ def f_divisionSection(string=None, created=None, page=None, position=0, td=False
     string = (
         string
         if string
-        else random.choice(["3/2", "251/14", "251/1,4", "13/6", "3458*82", "345,8*82",])
+        else random.choice(["3/2", "251/14", "251/1,4", "13/6", "3458/82", "345,8/82",])
     )
 
     return _operation_section("DivisionSection", string, created, page, position, td)
@@ -281,5 +281,6 @@ def populate_database(matieres_list=MATIERES, nb_page=100):
                     f_additionSection(page=a.id),
                     f_soustractionSection(page=a.id),
                     f_multiplicationSection(page=a.id),
+                    f_divisionSection(page=a.id),
                 ]
             )

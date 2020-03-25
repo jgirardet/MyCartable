@@ -109,5 +109,4 @@ ToolBar {
     classType: "MultiplicationSection"
   }
 
-
 }

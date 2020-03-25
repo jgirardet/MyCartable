@@ -22,7 +22,6 @@ Rectangle {
     horizontalAlignment: TextInput.AlignHCenter
     verticalAlignment: model.isResultLine(index) ? TextInput.AlignVCenter : model.isRetenueLine(index) ? TextInput.AlignBottom : TextInput.AlignTop
 
-
   }
 
 }

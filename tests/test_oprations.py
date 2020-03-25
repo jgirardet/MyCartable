@@ -4,7 +4,7 @@ from unittest.mock import patch, call
 
 import pytest
 from PySide2.QtCore import Qt, Signal
-from fixtures import check_super_init, check_args
+from fixtures import check_super_init, check_args, check_is_range
 from package.database.factory import (
     f_additionSection,
     f_soustractionSection,
@@ -664,21 +664,11 @@ class TestOperationModel:
 
     def test_isMiddleLinee(self, ta):
         ta("9+8")
-        for i in range(3, 9):
-            assert ta.isMiddleLine(i)
-        for i in range(0, 3):
-            assert not ta.isMiddleLine(i)
-        for i in range(9, 12):
-            assert not ta.isMiddleLine(i)
+        check_is_range(ta, "isMiddleLine", range(3, 9))
 
     def test_isMembreLine(self, ta):
         ta("9+8")
-        for i in range(3, 9):
-            assert ta.isMembreLine(i)
-        for i in range(0, 3):
-            assert not ta.isMembreLine(i)
-        for i in range(9, 12):
-            assert not ta.isMembreLine(i)
+        check_is_range(ta, "isMembreLine", range(3, 9))
 
 
 class TestAdditionModel:
@@ -774,17 +764,11 @@ class TestAdditionModel:
 
     def test_is_result_line(self, ta):
         ta("9+8")
-        for i in range(9, 12):
-            assert ta.isResultLine(i)
-        for i in range(0, 9):
-            assert not ta.isResultLine(i)
+        check_is_range(ta, "isResultLine", range(9, 12))
 
     def test_is_retenue_line(self, ta):
         ta("9+8")
-        for i in range(0, 3):
-            assert ta.isRetenueLine(i)
-        for i in range(3, 12):
-            assert not ta.isRetenueLine(i)
+        check_is_range(ta, "isRetenueLine", range(3))
 
 
 @pytest.fixture
@@ -846,19 +830,13 @@ class TestSoustractionModel:
 
     def test_is_result_line(self, ts):
         ts("34-22")
+        check_is_range(ts, "isResultLine", range(14, 22))
         # 3 * 7
         # ['', '', '3', '', '', '4', '', '-', '', '2', '', '', '2', '', '', '', '', '', '', '', '']
-        for i in range(14, 22):
-            assert ts.isResultLine(i)
-        for i in range(0, 14):
-            assert not ts.isResultLine(i)
 
     def test_is_retenue_line(self, ts):
         ts("34-22")
-        for i in range(0, 7):
-            assert ts.isRetenueLine(i)
-        for i in range(7, 22):
-            assert not ts.isRetenueLine(i)
+        check_is_range(ts, "isRetenueLine", range(0, 7))
 
     @pytest.mark.parametrize(
         "index,key, res",
@@ -1065,19 +1043,11 @@ class TestMultiplicationModel:
 
     def test_is_membre_line(self, tm):
         tm("23*77")
-        print(tm.params)
-        for i in range(10, 20):
-            assert tm.isMembreLine(i), f" {i} should return True"
-        for i in itertools.chain.from_iterable((range(0, 10), range(20, 41))):
-            assert not tm.isMembreLine(i), f" {i} should return False"
+        check_is_range(tm, "isMembreLine", range(10, 20))
 
     def test_is_line1(self, tm):
         tm("23*77")
-        print(tm.params)
-        for i in range(15, 20):
-            assert tm.isLine1(i), f" {i} should return True"
-        for i in itertools.chain.from_iterable((range(0, 15), range(20, 41))):
-            assert not tm.isLine1(i), f" {i} should return False"
+        check_is_range(tm, "isLine1", range(15, 20))
 
     @pytest.mark.parametrize(
         "numbers, compris",
@@ -1090,12 +1060,7 @@ class TestMultiplicationModel:
     )
     def test_is_retenue_line(self, tm, numbers, compris):
         tm(numbers)
-        for i in compris:
-            assert tm.isRetenueLine(i), f" {i} should return True"
-        non_compris = set(range(0, tm.size))
-        non_compris = non_compris - compris
-        for i in non_compris:
-            assert not tm.isRetenueLine(i), f" {i} should return False"
+        check_is_range(tm, "isRetenueLine", compris)
 
     @pytest.mark.parametrize(
         "index,res",
@@ -1326,7 +1291,7 @@ def td():
             self.params["columns"] = columns
             self.params["virgule"] = virgule
             self.params["datas"] = datas
-            self.params["size"] = len(self.params["datas"])
+            self.params["size"] = rows * columns  # len(datas)
             self._dividende, self._diviseur = [Decimal(x) for x in string.split("/")]
             self._quotient = ""
 
@@ -1335,12 +1300,152 @@ def td():
     return a
 
 
+@pytest.fixture
+def divMod(dao):
+    class Temp(DivisionModel):
+        ddb = dao
+
+    return Temp
+
+
 class TestDivisionModel:
-    def test_custom_params_load(self, dao):
-        DivisionModel.ddb = dao
-        a = DivisionModel()
-        b = f_divisionSection()
+    def test_custom_params_load(self, divMod):
+        a = divMod()
+        b = f_divisionSection("345/23,5")
         a.sectionId = b.id
-        assert a._dividende == b.dividende
-        assert a._diviseur == b.diviseur
+        assert a._dividende == 345
+        assert a._diviseur == 23.5
         assert a._quotient == b.quotient
+
+    def test_isDividendeLine(self, td):
+        check_args(td.isDividendeLine, int, bool)
+        td("23/4")  # col = 12, rows = 7
+        check_is_range(td, "isDividendeLine", range(12))
+
+    def test_isMembreLine(self, td):
+        td("23/4")
+        check_is_range(
+            td,
+            "isMembreLine",
+            set(range(12, 24)) | set(range(36, 48)) | set(range(60, 72)),
+        )
+
+    def test_diviseur_dividende(self, divMod):
+
+        a = divMod()
+        a._diviseur = 1
+        assert a.diviseur == 1
+        a._dividende = 2
+        assert a.dividende == 2
+
+    @pytest.mark.parametrize(
+        "index, res",
+        [(0, 99), (3, 99), (6, 99)]
+        + [(10, 0), (11, 99), (13, 3), (14, 99), (16, 6), (17, 99)]
+        + [(18, 0), (19, 10), (21, 3), (22, 13), (24, 6), (25, 16)]
+        + [(28, 19), (29, 11), (31, 22), (32, 14), (34, 25), (35, 17)]
+        + [(37, 28), (40, 31), (43, 34)],
+    )
+    def test_move_cursor_up(self, td, index, res):
+        #     # 'rows': 5, 'columns': 9, '
+        #
+        #     # '*', 'X', '',  '*', 'Y', '', '*', 'Z', '' //8
+        #     # '',  '*', '*', '',  '*', '*', '', '*', '*', // 17
+        #     # '*', '*', '', '*',  '*', '', '*', '*', '', // 26
+        #     # '',  '*', '*', '',  '*', '*', '', '*', '*', // 35
+        #     # '',  '*', '', '',   '*', '',  '', '*', '' , //44
+        td("264/11")
+        td.editables = (
+            {0, 3, 6,}
+            | {10, 11, 13, 14, 16, 17}
+            | {18, 19, 21, 22, 24, 25}
+            | {28, 29, 31, 32, 34, 35}
+            | {37, 40, 43}
+        )
+
+        td.cursor = 99  # controle pas modif, 0 pourrait être faux
+        assert td.move_cursor(index, Qt.Key_Up) == res
+
+    @pytest.mark.parametrize(
+        "index, res",
+        [(0, 18), (3, 21), (6, 24)]
+        + [(10, 19), (11, 29), (13, 22), (14, 32), (16, 25), (17, 35)]
+        + [(18, 99), (19, 28), (21, 99), (22, 31), (24, 99), (25, 34)]
+        + [(28, 37), (29, 99), (31, 40), (32, 99), (34, 43), (35, 99)]
+        + [(37, 99), (40, 99), (43, 99)],
+    )
+    def test_move_cursor_down(self, td, index, res):
+        #     # 'rows': 5, 'columns': 9, '
+        #
+        #     # '*', 'X', '',  '*', 'Y', '', '*', 'Z', '' //8
+        #     # '',  '*', '*', '',  '*', '*', '', '*', '*', // 17
+        #     # '*', '*', '', '*',  '*', '', '*', '*', '', // 26
+        #     # '',  '*', '*', '',  '*', '*', '', '*', '*', // 35
+        #     # '',  '*', '', '',   '*', '',  '', '*', '' , //44
+        td("264/11")
+        td.editables = (
+            {0, 3, 6,}
+            | {10, 11, 13, 14, 16, 17}
+            | {18, 19, 21, 22, 24, 25}
+            | {28, 29, 31, 32, 34, 35}
+            | {37, 40, 43}
+        )
+
+        td.cursor = 99  # controle pas modif, 0 pourrait être faux
+        assert td.move_cursor(index, Qt.Key_Down) == res
+
+    @pytest.mark.parametrize(
+        "index, res",
+        [(0, 99), (3, 0), (6, 3)]
+        + [(10, 6), (11, 10), (13, 11), (14, 13), (16, 14), (17, 16)]
+        + [(18, 17), (19, 18), (21, 19), (22, 21), (24, 22), (25, 24)]
+        + [(28, 25), (29, 28), (31, 29), (32, 31), (34, 32), (35, 34)]
+        + [(37, 35), (40, 37), (43, 40)],
+    )
+    def test_move_cursor_left(self, td, index, res):
+        #     # 'rows': 5, 'columns': 9, '
+        #
+        #     # '*', 'X', '',  '*', 'Y', '', '*', 'Z', '' //8
+        #     # '',  '*', '*', '',  '*', '*', '', '*', '*', // 17
+        #     # '*', '*', '', '*',  '*', '', '*', '*', '', // 26
+        #     # '',  '*', '*', '',  '*', '*', '', '*', '*', // 35
+        #     # '',  '*', '', '',   '*', '',  '', '*', '' , //44
+        td("264/11")
+        td.editables = (
+            {0, 3, 6,}
+            | {10, 11, 13, 14, 16, 17}
+            | {18, 19, 21, 22, 24, 25}
+            | {28, 29, 31, 32, 34, 35}
+            | {37, 40, 43}
+        )
+
+        td.cursor = 99  # controle pas modif, 0 pourrait être faux
+        assert td.move_cursor(index, Qt.Key_Left) == res
+
+    @pytest.mark.parametrize(
+        "index, res",
+        [(0, 3), (3, 6), (6, 10)]
+        + [(10, 11), (11, 13), (13, 14), (14, 16), (16, 17), (17, 18)]
+        + [(18, 19), (19, 21), (21, 22), (22, 24), (24, 25), (25, 28)]
+        + [(28, 29), (29, 31), (31, 32), (32, 34), (34, 35), (35, 37)]
+        + [(37, 40), (40, 43), (43, 99)],
+    )
+    def test_move_cursor_right(self, td, index, res):
+        #     # 'rows': 5, 'columns': 9, '
+        #
+        #     # '*', 'X', '',  '*', 'Y', '', '*', 'Z', '' //8
+        #     # '',  '*', '*', '',  '*', '*', '', '*', '*', // 17
+        #     # '*', '*', '', '*',  '*', '', '*', '*', '', // 26
+        #     # '',  '*', '*', '',  '*', '*', '', '*', '*', // 35
+        #     # '',  '*', '', '',   '*', '',  '', '*', '' , //44
+        td("264/11")
+        td.editables = (
+            {0, 3, 6,}
+            | {10, 11, 13, 14, 16, 17}
+            | {18, 19, 21, 22, 24, 25}
+            | {28, 29, 31, 32, 34, 35}
+            | {37, 40, 43}
+        )
+
+        td.cursor = 99  # controle pas modif, 0 pourrait être faux
+        assert td.move_cursor(index, Qt.Key_Right) == res

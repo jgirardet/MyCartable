@@ -61,7 +61,7 @@ EQUIVALENTS = {
     dict: "QVariantMap",
     list: "QvariantList",
     None: "void",
-    bool: "Boolean",
+    bool: "bool",
 }
 
 
@@ -79,11 +79,21 @@ def check_args(fn, exp_args=[], exp_return_type=None, slot_order=0):
 
     converted_args = [EQUIVALENTS[x] for x in exp_args]
     converted_return_type = EQUIVALENTS[exp_return_type]
-
+    print(return_type, converted_return_type, exp_return_type)
     assert (
         return_type == converted_return_type
     ), f"{return_type} différent de {converted_return_type}"
     assert args == converted_args, f"{args} différent de {converted_args}"
+
+
+def check_is_range(obj, fn, res):
+    res = set(res)
+    for i in res:
+        assert getattr(obj, fn)(i), f" {i} should return True"
+    non_compris = set(range(0, obj.size))
+    non_compris = non_compris - res
+    for i in non_compris:
+        assert not getattr(obj, fn)(i), f" {i} should return False"
 
 
 def is_blockFormat(item):

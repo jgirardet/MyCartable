@@ -6,8 +6,8 @@ BaseOperation {
   cellHeight: 50
 
   delegate: AdditionDelegate {
-      model: root.model
-    }
+    model: root.model
+  }
 
   Component.onCompleted: {
     currentIndex = count - 1

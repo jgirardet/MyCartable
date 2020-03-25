@@ -15,18 +15,14 @@ Rectangle {
   TextInputDelegate {
     id: input
     anchors.fill: parent
-    color: model.isRetenueLine(index) ? "red" : model.isLine1(index) ? "green" : model.isMembreLine(index) ? "blue" : "black"
+    color: "black"
     horizontalAlignment: TextInput.AlignHCenter
     verticalAlignment: TextInput.AlignVCenter
 
     background: BorderRectangle {
-      color: input.parent.color
-      borderColor: model.isResultLine(index) || model.isLine1(index - model.columns) ? "black" : input.parent.color
+      color: root.color
+      borderColor: model.isMembreLine(index + model.columns)  ? "black" : input.parent.color
       borderTop: -2
-    }
-
-    validator: RegularExpressionValidator {
-      regularExpression: /^\d{1},?$/
     }
 
   }

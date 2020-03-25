@@ -120,16 +120,15 @@ class OperationModel(QAbstractListModel):
     @Slot(result=int)
     def getInitialPosition(self):
         pos = self.get_initial_position()
-        print(pos)
         a = pos if pos is not None else self.size - 1
-        print(a)
         return a
 
     @Slot(int, int)
     def moveCursor(self, index, key):
         res = self.move_cursor(index, key)
+        print(res)
         if res != index:
-            self.cursor = self.move_cursor(index, key)
+            self.cursor = res
 
     @Slot(int, result=bool)
     def readOnly(self, value):
@@ -503,6 +502,70 @@ class MultiplicationModel(OperationModel):
 
 class DivisionModel(OperationModel):
     def custom_params_load(self):
-        self._dividende = self.proxy.dividende
-        self._diviseur = self.proxy.diviseur
+        self._dividende = self.proxy.dividende_as_num
+        self._diviseur = self.proxy.diviseur_as_num
         self._quotient = self.proxy.quotient
+
+    @Slot(int, result=bool)
+    def isDividendeLine(self, index):
+        return index in range(self.columns)
+
+    @Slot(int, result=bool)
+    def isMembreLine(self, index):
+        return bool(int(index / self.columns) & 1)
+
+    memberChanged = Signal()
+
+    @Property(int, notify=memberChanged)
+    def diviseur(self):
+        return self._diviseur
+
+    @Property(int, notify=memberChanged)
+    def dividende(self):
+        return self._dividende
+
+    @cachedproperty
+    def dividende_indexes(self):
+        return set(range(1, self.columns, 3))
+
+    quotientChanged = Signal()
+
+    @Property(str, notify=quotientChanged)
+    def quotient(self):
+        with db_session:
+            return self.proxy.quotient
+
+    @quotient.setter
+    def quotient_set(self, value: int):
+        with db_session:
+            if value != self.proxy.quotient:
+                self.proxy.quotient = value
+        self.quotientChanged.emit()
+
+    def move_cursor(self, index, key):
+        temp = index
+        if key == Qt.Key_Up:
+            while temp >= self.columns:
+                temp -= self.columns
+                if temp in self.editables:
+                    return temp
+                elif temp in self.dividende_indexes:
+                    return temp - 1
+        elif key == Qt.Key_Down:
+            while temp < self.size:
+                print("size", self.size)
+                temp += self.columns
+                print("temp ", temp)
+                if temp in self.editables:
+                    return temp
+        elif key == Qt.Key_Right:
+            while temp < self.size:
+                temp += 1
+                if temp in self.editables:
+                    return temp
+        elif key == Qt.Key_Left:
+            while temp > 0:
+                temp -= 1
+                if temp in self.editables:
+                    return temp
+        return self.cursor

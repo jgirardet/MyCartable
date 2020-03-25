@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 
 from PySide2.QtCore import QUrl
-from fixtures import compare, compare_items, ss
+from fixtures import compare, compare_items, ss, check_is_range
 from package.database.factory import *
 import pytest
 from pony.orm import flush, exists, commit, Database
@@ -570,20 +570,39 @@ class TestMultiplicationSection:
 class TestDivisionSection:
     def test_factory(self, ddb):
         x = f_divisionSection(string="34/3")
-        assert x.dividende == Decimal(34)
-        assert x.diviseur == Decimal(3)
-        assert x.quotient == ""
+        assert x.dividende == "34"
+        assert x.diviseur == "3"
+
+    def test_is_ligne_dividende(self):
+        tm = f_divisionSection("264/11")
+        check_is_range(tm, "is_ligne_dividende", range(9))
+
+    def test_is_ligne_last(self):
+        tm = f_divisionSection("264/11")
+        check_is_range(tm, "is_ligne_last", range(36, 45))
 
     @pytest.mark.parametrize(
         "string, res",
         [
-            ("5/4", set(range(84)) - {1}),
-            ("3454367/45", set(range(17 * 27)) - {1, 4, 7, 10, 13, 16, 19}),
+            # ("5/4", set(range(84)) - {1}),
+            (
+                "264/11",
+                {0, 3, 6, 10, 11, 13, 14, 16, 17, 18, 19, 22, 21, 25, 24}
+                | {28, 29, 31, 32, 34, 35, 37, 40, 43},
+            ),
         ],
     )
     def test_get_editables(self, string, res):
         x = f_divisionSection(string=string)
         assert x.get_editables() == res
+
+    #     # 'rows': 5, 'columns': 9, '
+    #
+    #     # '*', 'X', '',  '*', 'Y', '', '*', 'Z', '' //8
+    #     # '',  '*', '*', '',  '*', '*', '', '*', '*', // 17
+    #     # '*', '*', '', '*',  '*', '', '*', '*', '', // 26
+    #     # '',  '*', '*', '',  '*', '*', '', '*', '*', // 35
+    #     # '',  '*', '', '',   '*', '',  '', '*', '' , //44
 
     def test_to_dict(self, reset_db):
         x = f_divisionSection(string="5/4", td=True)
@@ -593,8 +612,8 @@ class TestDivisionSection:
             "classtype": "DivisionSection",
             "columns": 12,
             "datas": ["", "5"] + [""] * 82,
-            "dividende": Decimal("5"),
-            "diviseur": Decimal("4"),
+            "dividende": "5",
+            "diviseur": "4",
             "id": 1,
             "page": 1,
             "position": 1,
@@ -603,6 +622,15 @@ class TestDivisionSection:
             "size": 84,
             "virgule": 0,
         }
+
+    def test_as_num(self):
+        x = f_divisionSection(string="5/4")
+        assert x.diviseur_as_num == 4
+        assert x.dividende_as_num == 5
+
+        x = f_divisionSection(string="5,333333/4,1")
+        assert x.diviseur_as_num == 4.1
+        assert x.dividende_as_num == 5.333333
 
 
 class TestAnnotations:

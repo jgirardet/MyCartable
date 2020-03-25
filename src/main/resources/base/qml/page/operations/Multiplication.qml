@@ -6,7 +6,7 @@ BaseOperation {
   cellHeight: 50
 
   delegate: MultiplicationDelegate {
-      model: root.model
-    }
+    model: root.model
+  }
 
 }

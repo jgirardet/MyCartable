@@ -111,7 +111,6 @@ class DecimalLitteral(Decimal):
                 temp += ["", x, ""]
             elif x == ",":
                 prev_index = (n - 1) * 3 + 1
-                print(prev_index)
                 temp[prev_index] = temp[prev_index] + ","
 
         return temp + [""] * (size - len(temp))

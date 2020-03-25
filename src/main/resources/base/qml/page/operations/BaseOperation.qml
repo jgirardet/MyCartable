@@ -19,7 +19,6 @@ GridView {
     value: model.cursor
   }
 
-
   Component.onCompleted: {
     currentIndex = root.model.getInitialPosition()
   }

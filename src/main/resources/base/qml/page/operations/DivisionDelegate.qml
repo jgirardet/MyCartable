@@ -6,7 +6,7 @@ Rectangle {
   id: root
   property alias model: input.model
   property alias textinput: input
-
+  property TextInput quotient
   property GridView grid: GridView.view
   height: grid.cellHeight
   width: grid.cellWidth
@@ -14,6 +14,7 @@ Rectangle {
   color: "white"
   TextInputDelegate {
     id: input
+
     anchors.fill: parent
     color: "black"
     horizontalAlignment: TextInput.AlignHCenter
@@ -23,6 +24,14 @@ Rectangle {
       color: root.color
       borderColor: model.isMembreLine(index + model.columns)  ? "black" : input.parent.color
       borderTop: -2
+    }
+
+    function moreKeys(event) {
+      if (event.key == Qt.Key_Return) {
+          print(event.key, Qt.Key_Return)
+          print(root.quotient)
+          root.quotient.forceActiveFocus()
+      }
     }
 
   }

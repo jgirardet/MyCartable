@@ -11,9 +11,9 @@ RowLayout {
     id: corps
     cellWidth: 30
     cellHeight: 30
-
     delegate: DivisionDelegate {
       model: corps.model
+      quotient: quotientField
     }
   }
   Rectangle {
@@ -38,8 +38,10 @@ RowLayout {
       color: "black"
     }
     TextField {
+      id: quotientField
       text: corps.model.quotient
       onTextEdited : {corps.model.quotient=text}
+      onEditingFinished: {corps.forceActiveFocus()}
     }
     Item {
         Layout.fillHeight: true

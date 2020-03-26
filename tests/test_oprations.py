@@ -1470,7 +1470,8 @@ class TestDivisionModel:
         [(3, 11), (6, 14), (21, 29), (24, 32)]  # retenue gauche
         + [(11, 22), (14, 25), (29, 40), (32, 43)]  # retenue droite
         + [(10, 22), (13, 10), (16, 13), (28, 43), (31, 28), (34, 31),]  # chiffre imprs
-        + [(19, 19), (22, 19), (25, 22), (37, 37), (40, 37), (43, 40),],  # chiff pairs
+        + [(19, 19), (22, 19), (25, 22), (37, 43
+                                          98 sat), (40, 37), (43, 40),],  # chiff pairs
     )
     def test_automove_next(self, td, index, res):
         #     # 'rows': 5, 'columns': 9, '

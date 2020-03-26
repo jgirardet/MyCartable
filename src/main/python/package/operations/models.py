@@ -126,7 +126,6 @@ class OperationModel(QAbstractListModel):
     @Slot(int, int)
     def moveCursor(self, index, key):
         res = self.move_cursor(index, key)
-        print(res)
         if res != index:
             self.cursor = res
 
@@ -549,13 +548,11 @@ class DivisionModel(OperationModel):
                 temp -= self.columns
                 if temp in self.editables:
                     return temp
-                elif temp in self.dividende_indexes:
+                elif temp in self.dividende_indexes and temp != 1:
                     return temp - 1
         elif key == Qt.Key_Down:
             while temp < self.size:
-                print("size", self.size)
                 temp += self.columns
-                print("temp ", temp)
                 if temp in self.editables:
                     return temp
         elif key == Qt.Key_Right:
@@ -569,3 +566,66 @@ class DivisionModel(OperationModel):
                 if temp in self.editables:
                     return temp
         return self.cursor
+
+    @cachedproperty
+    def retenue_gauche(self):
+        res = set()
+        for i in range(self.rows - 2):  # pas de rentenu gauche pour la derniere ligne
+            if bool(i & 1):  # on saute les lignes impaires
+                continue
+            debut = i * self.columns
+            res.update(set(range(debut + 3, debut + self.columns, 3)))
+        return res
+
+    @cachedproperty
+    def retenue_droite(self):
+        res = set()
+        for i in range(1, self.rows - 1):
+            if not bool(i & 1):  # on saute les lignes paires
+                continue
+            debut = i * self.columns + 2
+            res.update(set(range(debut, debut + self.columns - 3, 3)))
+        return res
+
+    @cachedproperty
+    def regular_chiffre(self):
+        res = set()
+        for i in range(1, self.rows):
+            debut = i * self.columns + 1
+            res.update(set(range(debut, debut + self.columns, 3)))
+        return res
+
+    @staticmethod
+    def _get_last_index_filled(liste):
+        if not isinstance(liste, list):
+            liste = list(liste)
+        for n, i in enumerate(liste[::-1]):
+            if i:
+                return len(liste) - (n + 1)
+        return len(liste) - 1
+
+    def auto_move_next(self, position):
+        res = position
+
+        if res in self.retenue_gauche:  # va à la retenue droit du bas
+            res = res + self.columns - 1
+        elif res in self.retenue_droite:  # va au chiffre d'avant du bas
+            res = res + self.columns + 2
+        elif res in self.regular_chiffre:
+            row = int(position / self.columns)
+            if bool(row & 1):  # impair : on va faire le chiffre de gauche
+                marge_basse = row * self.columns
+                temp = res - 3
+                if temp >= marge_basse:
+                    res = temp
+                else:
+                    # on va à la ligne, aligné sous plus grand index
+                    ligne = slice(marge_basse, marge_basse + self.columns)
+                    new_index = self._get_last_index_filled(self.datas[ligne])
+                    res = marge_basse + self.columns + new_index
+            else:  # va aussi au chiffre de gauche mais calcul différent
+                if position % self.columns >= 4:  # on shunt la premiere colone
+                    # res -= 2 * self.columns + 1
+                    res -= 3
+
+        return res

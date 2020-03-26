@@ -385,10 +385,7 @@ def init_models(db: Database):
             # il faudrait shunter le dump pour ne pas recréer les Decimal
             # self.dividende = Decimal(datas["dividende"])
             self.dividende = datas["dividende"]
-            # print(datas["diviseur"])
-            # self.diviseur = Decimal(datas["diviseur"])
             self.diviseur = datas["diviseur"]
-            # print(self.diviseur, self.diviseur.to_eng_string())
             self._datas = json.dumps(datas["datas"])
             self.size = self.columns * self.rows
 
@@ -403,16 +400,21 @@ def init_models(db: Database):
             return self.size - self.columns <= index < self.size
 
         def get_editables(self):
-            dividende = set(range(0, self.columns, 3))
+            dividende = set(range(3, self.columns, 3))
             last = set(range(self.size - self.columns + 1, self.size, 3))
             milieu = set()
             for i in range(1, self.rows - 1):
                 debut = i * self.columns
                 impair = bool(i & 1)
                 mini_index = 1
+                # rangée des chiffres
                 milieu.update(set(range(debut + mini_index, debut + self.columns, 3)))
-                mini_index = 2 if impair else 0
-                milieu.update(set(range(debut + mini_index, debut + self.columns, 3)))
+                mini_index = 2 if impair else 3  # rien dans la premiere colone
+                skip_end = 3 if impair else 0
+                # rangée des retenues
+                milieu.update(
+                    set(range(debut + mini_index, debut + self.columns - skip_end, 3))
+                )
 
             return dividende | milieu | last
 

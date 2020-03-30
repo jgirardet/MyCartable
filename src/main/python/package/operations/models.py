@@ -505,6 +505,21 @@ class DivisionModel(OperationModel):
         self._diviseur = self.proxy.diviseur_as_num
         self._quotient = self.proxy.quotient
 
+    @Slot(result=int)
+    def getPosByQuotient(self):
+        len_q = len(self.quotient.replace(",", ""))
+        len_diviseur = len(str(self.diviseur).replace(",", ""))
+        if not len_q:
+            self.cursor = self.columns + 1 + ((len_diviseur - 1) * 3)
+        else:
+            row = (len_q * 2) - 1
+            self.cursor = row * self.columns + 1 + (len_q + len_diviseur - 2) * 3
+
+    @Slot()
+    def goToResultLine(self):
+        debut = int(self.cursor / self.columns) * self.columns
+        self.cursor = self.go_to_end_line_result(debut)
+
     @Slot(int, result=bool)
     def isDividendeLine(self, index):
         return index in range(self.columns)
@@ -626,18 +641,21 @@ class DivisionModel(OperationModel):
         elif res in self.regular_chiffre:
             row = int(position / self.columns)
             if bool(row & 1):  # impair : on va faire le chiffre de gauche
-                marge_basse = row * self.columns
+                debut_ligne = row * self.columns
                 temp = res - 3
-                if temp >= marge_basse:
+                if temp >= debut_ligne:
                     res = temp
                 else:
                     # on va à la ligne, aligné sous plus grand index
-                    ligne = slice(marge_basse, marge_basse + self.columns)
-                    new_index = self._get_last_index_filled(self.datas[ligne])
-                    res = marge_basse + self.columns + new_index
+                    res = self.go_to_end_line_result(debut_ligne)
             else:  # va aussi au chiffre de gauche mais calcul différent
                 if position % self.columns >= 4:  # on shunt la premiere colone
                     # res -= 2 * self.columns + 1
                     res -= 3
 
         return res
+
+    def go_to_end_line_result(self, debut_ligne):
+        ligne = slice(debut_ligne, debut_ligne + self.columns)
+        new_index = self._get_last_index_filled(self.datas[ligne])
+        return debut_ligne + self.columns + new_index

@@ -36,6 +36,7 @@ TestCase {
         params=backupParams //restore deafaut params if modified
     }
 
+
     function createObj(nom, rabParams, parentItem) {
        var kwargs =   {
         'ddb': ddb,
@@ -72,5 +73,7 @@ TestCase {
     menu.x = bx
     menu.y = by
   }
+
+
 
   }

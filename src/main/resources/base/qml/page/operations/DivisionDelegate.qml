@@ -17,23 +17,30 @@ Rectangle {
 
     anchors.fill: parent
     color: model.isRetenue(index) ? "red" : "black"
-    horizontalAlignment: model.isRetenueGauche(index) ? TextInput.AlignRight :
-                        model.isRetenueDroite(index) ? TextInput.AlignLeft:
-                        TextInput.AlignHCenter
+    horizontalAlignment: model.isRetenueGauche(index) ? TextInput.AlignRight : model.isRetenueDroite(index) ? TextInput.AlignLeft : TextInput.AlignHCenter
     verticalAlignment: TextInput.AlignVCenter
 
     background: BorderRectangle {
       color: root.color
-      borderColor: model.isMembreLine(index + model.columns)  ? "black" : input.parent.color
+      borderColor: model.isMembreLine(index + model.columns) ? "black" : input.parent.color
       borderTop: -2
     }
 
     function moreKeys(event) {
+      var accepted = true
       if (event.key == Qt.Key_Return) {
-          print(event.key, Qt.Key_Return)
-          print(root.quotient)
-          root.quotient.forceActiveFocus()
+        root.quotient.forceActiveFocus()
       }
+      else if (event.key == Qt.Key_Plus) {
+        print('plusssssssssssss')
+      }
+      else if (event.key == Qt.Key_Equal) {
+        model.goToResultLine()
+      }
+      else {
+        accepted=false
+      }
+      event.accepted = accepted
     }
 
   }

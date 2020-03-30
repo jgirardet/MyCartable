@@ -1303,17 +1303,19 @@ def divMod(dao):
     class Temp(DivisionModel):
         ddb = dao
 
-    return Temp
+        def __call__(self, string):
+            self.f_entry = f_divisionSection(string=string)
+            self.sectionId = self.f_entry.id
+
+    return Temp()
 
 
 class TestDivisionModel:
     def test_custom_params_load(self, divMod):
-        a = divMod()
-        b = f_divisionSection("345/23,5")
-        a.sectionId = b.id
-        assert a._dividende == 345
-        assert a._diviseur == 23.5
-        assert a._quotient == b.quotient
+        divMod("345/23,5")
+        assert divMod._dividende == 345
+        assert divMod._diviseur == 23.5
+        assert divMod._quotient == divMod.f_entry.quotient
 
     def test_isDividendeLine(self, td):
         check_args(td.isDividendeLine, int, bool)
@@ -1348,11 +1350,10 @@ class TestDivisionModel:
         )
 
     def test_diviseur_dividende(self, divMod):
-        a = divMod()
-        a._diviseur = 1
-        assert a.diviseur == 1
-        a._dividende = 2
-        assert a.dividende == 2
+        divMod._diviseur = 1
+        assert divMod.diviseur == 1
+        divMod._dividende = 2
+        assert divMod.dividende == 2
 
     @pytest.mark.parametrize(
         "index, res",
@@ -1502,7 +1503,6 @@ class TestDivisionModel:
             | {28, 29, 31, 32, 34, 35}
             | {37, 40, 43}
         )
-        print(td.editables)
         td.params["datas"][13] = 5  # besoni d'une value pour move à la ligne
         td.params["datas"][34] = 1  # besoni d'une value pour move à la ligne
 
@@ -1513,3 +1513,23 @@ class TestDivisionModel:
         assert td._get_last_index_filled(["", "3", "5", "", "", "", ""]) == 2
         assert td._get_last_index_filled(["1", "", "", "", "", "", ""]) == 0
         assert td._get_last_index_filled(["", "", "", "", "", "", ""]) == 6
+
+    def test_goToResultLine(self, td):
+        td("264/11")
+        td.params["datas"][16] = 9
+        td.cursor = 13
+        td.goToResultLine()
+        assert td.cursor == 25
+        td.params["datas"][34] = 9
+        td.cursor = 31
+        td.goToResultLine()
+        assert td.cursor == 43
+
+    @pytest.mark.parametrize("quotient, pos", [("", 13), ("1", 13), ("11", 34),])
+    def test_getPosByQuotient(self, divMod, quotient, pos):
+        check_args(divMod.getPosByQuotient, None, int)
+        divMod("264/11")
+        divMod.cursor = 99
+        divMod.quotient = quotient
+        divMod.getPosByQuotient()
+        assert divMod.cursor == pos

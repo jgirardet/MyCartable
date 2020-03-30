@@ -24,6 +24,7 @@ Item {
       property string quotient: ""
 
       /* beautify preserve:start */
+      property var corps
       property var datas: ['', '2', '', '', '6', '', '', '4', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']
       /* beautify preserve:end */
       Component.onCompleted: {
@@ -60,6 +61,14 @@ Item {
       return r.includes(index) ? false : true
       }
       function getInitialPosition() { return size-1}
+      function goToResultLine() {
+        print("go", corps.currentIndex)
+        if (corps.currentIndex == 13) {
+          corps.currentIndex = 25
+        } else if (currentIndex == 31) {
+          corps.currentIndex = 43
+        }
+      }
 
 
 
@@ -89,6 +98,7 @@ Item {
     function initPost() {
       quotient = findChild(tested, "quotientField")
       corps = findChild(tested, "corps")
+      model.corps = corps
     }
 
     function test_the_mock_model() {
@@ -107,21 +117,9 @@ Item {
         compare(corps.focus, false)
         compare(quotient.focus, true)
      }
-//
-//    function test_edit() {
-//
-//      mouseClick(tested.itemAtIndex(52).textinput)
-//      compare(tested.currentItem.textinput.focus,true) // si pas fait)
-//      keyClick(Qt.Key_5)
-//      compare(tested.itemAtIndex(52).textinput.text, "5")
-//      compare(model.get(52).edit, "5")
-//      keyClick(Qt.Key_Comma)
-//      compare(tested.itemAtIndex(52).textinput.text, "5,")
-//      compare(model.get(52).edit, "5,")
-//   }
-//
-//
-        function test_properties() {
+
+
+     function test_properties() {
 //        //1,10 (text) et 11 retenu droit,  21 : retenue gauche
           compare(corps.itemAtIndex(1).textinput.color,"#000000") //black
           compare(corps.itemAtIndex(10).textinput.color,"#000000") //black
@@ -139,30 +137,55 @@ Item {
       compare(corps.itemAtIndex(21).textinput.verticalAlignment,TextInput.AlignVCenter)
 //
       }
+
+      function test_regex_validator_data() {
+        return [
+            {inp: "", res: true},
+            {inp: "1", res: true},
+            {inp: "12", res: true},
+            {inp: "1123443", res: true},
+            {inp: "1,", res: true},
+            {inp: "1,0", res: true},
+            {inp: "1,13245", res: true},
+            ]
+      }
+
+      function test_regex_validator(data) {
+        var exp = quotient.validator.regularExpression
+        compare(Boolean(data.inp.match(exp)), data.res)
+
+      }
+
       function test_validator() {
-      var elem = quotient
-      mouseClick(elem)
+      mouseClick(quotient)
       keyClick(Qt.Key_A)
-      compare(elem.text, "")
+      compare(quotient.text, "")
       keyClick(Qt.Key_5)
-      compare(elem.text, "5")
+      compare(quotient.text, "5")
       keyClick(Qt.Key_Comma)
-      compare(elem.text, "5,")
+      compare(quotient.text, "5,")
       keyClick(Qt.Key_Backspace)
-      compare(elem.text, "5")
+      compare(quotient.text, "5")
       keyClick(Qt.Key_Backspace)
-      compare(elem.text, "")
+      compare(quotient.text, "")
       keyClick(Qt.Key_Comma)
-      compare(elem.text, "")
+      compare(quotient.text, "")
       keyClick(Qt.Key_A)
-      compare(elem.text, "")
+      compare(quotient.text, "")
       keyClick(Qt.Key_6)
-      compare(elem.text, "6")
+      compare(quotient.text, "6")
       keyClick(Qt.Key_6)
-      compare(elem.text, "6")
+      compare(quotient.text, "66")
 
     }
-//
+
+
+   function test_goToLine() {
+    mouseClick(corps.itemAtIndex(13))
+    keyClick(Qt.Key_Equal)
+    compare(corps.currentIndex, 25)
+   }
+
 
   }
 

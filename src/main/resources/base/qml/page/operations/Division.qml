@@ -4,7 +4,7 @@ import QtQuick.Layouts 1.14
 
 RowLayout {
   id: root
-  property  alias model: corps.model
+  property alias model: corps.model
   property alias sectionId: corps.sectionId
   property alias position: corps.position
   BaseOperation {
@@ -21,7 +21,7 @@ RowLayout {
     height: corps.height
     width: 5
     color: "black"
-//    anchors.margins: 0
+    //    anchors.margins: 0
   }
   ColumnLayout {
     height: corps.height
@@ -31,7 +31,9 @@ RowLayout {
       Layout.preferredHeight: corps.cellHeight
       Layout.preferredWidth: 100
       text: corps.model.diviseur
-      background: Rectangle {color: "white"}
+      background: Rectangle {
+        color: "white"
+      }
     }
     Rectangle {
       Layout.preferredHeight: 5
@@ -42,14 +44,19 @@ RowLayout {
       id: quotientField
       objectName: "quotientField"
       text: corps.model.quotient
-      onTextEdited : {corps.model.quotient=text}
-      onEditingFinished: {corps.forceActiveFocus()}
+      onTextEdited: {
+        corps.model.quotient = text
+      }
+      onEditingFinished: {
+        corps.model.getPosByQuotient()
+        corps.forceActiveFocus()
+      }
       validator: RegularExpressionValidator {
-         regularExpression: /^\d{1},?$/
-        }
+        regularExpression: /^(\d+,?(\d+)?)?$/
+      }
     }
     Item {
-        Layout.fillHeight: true
+      Layout.fillHeight: true
     }
   }
 }

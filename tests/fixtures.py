@@ -68,7 +68,7 @@ EQUIVALENTS = {
 def check_args(fn, exp_args=[], exp_return_type=None, slot_order=0):
 
     if not isinstance(exp_args, (tuple, list)):
-        exp_args = [exp_args]
+        exp_args = [exp_args] if exp_args is not None else None
 
     name = fn.__name__
     return_type, reste = fn._slots[slot_order].split()
@@ -77,9 +77,11 @@ def check_args(fn, exp_args=[], exp_return_type=None, slot_order=0):
     if args == [""]:
         args = []
 
-    converted_args = [EQUIVALENTS[x] for x in exp_args]
+    if exp_args:
+        converted_args = [EQUIVALENTS[x] for x in exp_args]
+    else:
+        converted_args = []
     converted_return_type = EQUIVALENTS[exp_return_type]
-    print(return_type, converted_return_type, exp_return_type)
     assert (
         return_type == converted_return_type
     ), f"{return_type} différent de {converted_return_type}"

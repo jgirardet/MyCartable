@@ -584,13 +584,11 @@ class TestOperationModel:
         assert op.virgule == 0
 
     def test_cursor(self, to, qtbot):
-
         with qtbot.waitSignal(to.cursorChanged):
             to.cursor = 1
         assert to.cursor == 1
 
     def test_cursor_no_update_and_no_emit_if_unchanged(self, to, qtbot):
-
         to.cursor = 1
         with qtbot.assertNotEmitted(to.cursorChanged):
             to.cursor = 1
@@ -623,12 +621,10 @@ class TestOperationModel:
             assert to.db.Section[1].datas[11] == "5"  # pas de modif
 
     def test_setData_changerecents(self, to, qtbot):
-
         with qtbot.waitSignal(to.ddb.recentsModelChanged):
             to.setData(to.index(11, 0), "5", Qt.EditRole)  # doit retourner True
 
     def test_setData_automovenext(self, to, qtbot):
-
         with patch("package.operations.models.OperationModel.autoMoveNext"):
             to.setData(to.index(11, 0), "5", Qt.EditRole)  # doit retourner True
             assert to.autoMoveNext.call_args_list == [call(11)]
@@ -1332,8 +1328,26 @@ class TestDivisionModel:
             set(range(12, 24)) | set(range(36, 48)) | set(range(60, 72)),
         )
 
-    def test_diviseur_dividende(self, divMod):
+    def test_isRetenue(self, td):
+        #     # 'rows': 5, 'columns': 9, '
+        #
+        #     # '', 'X', '',  '*', 'Y', '', '*', 'Z', '' //8
+        #     # '',  '*', '*', '',  '*', '*', '', '*', '', // 17
+        #     # '', '*', '', '*',  '*', '', '*', '*', '', // 26
+        #     # '',  '*', '*', '',  '*', '*', '', '*', '', // 35
+        #     # '',  '*', '', '',   '*', '',  '', '*', '' , //44
+        td("264/11")
+        check_is_range(
+            td, "isRetenue", {11, 3, 6, 14, 21, 24, 29, 32},
+        )
+        check_is_range(
+            td, "isRetenueGauche", {3, 6, 21, 24},
+        )
+        check_is_range(
+            td, "isRetenueDroite", {11, 14, 29, 32},
+        )
 
+    def test_diviseur_dividende(self, divMod):
         a = divMod()
         a._diviseur = 1
         assert a.diviseur == 1
@@ -1488,6 +1502,7 @@ class TestDivisionModel:
             | {28, 29, 31, 32, 34, 35}
             | {37, 40, 43}
         )
+        print(td.editables)
         td.params["datas"][13] = 5  # besoni d'une value pour move à la ligne
         td.params["datas"][34] = 1  # besoni d'une value pour move à la ligne
 

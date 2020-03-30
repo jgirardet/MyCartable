@@ -16,8 +16,10 @@ Rectangle {
     id: input
 
     anchors.fill: parent
-    color: "black"
-    horizontalAlignment: TextInput.AlignHCenter
+    color: model.isRetenue(index) ? "red" : "black"
+    horizontalAlignment: model.isRetenueGauche(index) ? TextInput.AlignRight :
+                        model.isRetenueDroite(index) ? TextInput.AlignLeft:
+                        TextInput.AlignHCenter
     verticalAlignment: TextInput.AlignVCenter
 
     background: BorderRectangle {

@@ -9,6 +9,7 @@ RowLayout {
   property alias position: corps.position
   BaseOperation {
     id: corps
+    objectName: "corps"
     cellWidth: 30
     cellHeight: 30
     delegate: DivisionDelegate {
@@ -39,9 +40,13 @@ RowLayout {
     }
     TextField {
       id: quotientField
+      objectName: "quotientField"
       text: corps.model.quotient
       onTextEdited : {corps.model.quotient=text}
       onEditingFinished: {corps.forceActiveFocus()}
+      validator: RegularExpressionValidator {
+         regularExpression: /^\d{1},?$/
+        }
     }
     Item {
         Layout.fillHeight: true

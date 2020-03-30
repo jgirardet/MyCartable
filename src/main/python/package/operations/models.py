@@ -513,19 +513,27 @@ class DivisionModel(OperationModel):
     def isMembreLine(self, index):
         return bool(int(index / self.columns) & 1)
 
+    @Slot(int, result=bool)
+    def isRetenue(self, index):
+        return index in self.retenue_gauche or index in self.retenue_droite
+
+    @Slot(int, result=bool)
+    def isRetenueDroite(self, index):
+        return index in self.retenue_droite
+
+    @Slot(int, result=bool)
+    def isRetenueGauche(self, index):
+        return index in self.retenue_gauche
+
     memberChanged = Signal()
 
     @Property(int, notify=memberChanged)
     def diviseur(self):
         return self._diviseur
 
-    @Property(int, notify=memberChanged)
+    @Property(float, notify=memberChanged)
     def dividende(self):
         return self._dividende
-
-    @cachedproperty
-    def dividende_indexes(self):
-        return set(range(1, self.columns, 3))
 
     quotientChanged = Signal()
 
@@ -540,6 +548,10 @@ class DivisionModel(OperationModel):
             if value != self.proxy.quotient:
                 self.proxy.quotient = value
         self.quotientChanged.emit()
+
+    @cachedproperty
+    def dividende_indexes(self):
+        return set(range(1, self.columns, 3))
 
     def move_cursor(self, index, key):
         temp = index

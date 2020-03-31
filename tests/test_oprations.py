@@ -1525,6 +1525,13 @@ class TestDivisionModel:
         td.goToResultLine()
         assert td.cursor == 43
 
+    def test_goToabaisseLine(self, td):
+        td("264/11")
+        td.params["datas"][22] = 1
+        td.cursor = 19
+        td.goToAbaisseLine()
+        assert td.cursor == 25
+
     @pytest.mark.parametrize("quotient, pos", [("", 13), ("1", 13), ("11", 34),])
     def test_getPosByQuotient(self, divMod, quotient, pos):
         check_args(divMod.getPosByQuotient, None, int)

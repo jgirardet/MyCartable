@@ -516,6 +516,15 @@ class DivisionModel(OperationModel):
             self.cursor = row * self.columns + 1 + (len_q + len_diviseur - 2) * 3
 
     @Slot()
+    def goToAbaisseLine(self):
+        debut = int(self.cursor / self.columns) * self.columns
+        self.cursor = (
+            debut
+            + self._get_last_index_filled(self.datas[debut : debut + self.columns])
+            + 3
+        )
+
+    @Slot()
     def goToResultLine(self):
         debut = int(self.cursor / self.columns) * self.columns
         self.cursor = self.go_to_end_line_result(debut)
@@ -624,6 +633,8 @@ class DivisionModel(OperationModel):
 
     @staticmethod
     def _get_last_index_filled(liste):
+        # retourne les dernier index rempli
+        # accepte une ligne de data
         if not isinstance(liste, list):
             liste = list(liste)
         for n, i in enumerate(liste[::-1]):

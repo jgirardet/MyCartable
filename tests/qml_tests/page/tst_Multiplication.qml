@@ -84,10 +84,8 @@ Item {
       mouseClick(tested.itemAtIndex(52).textinput)
       compare(tested.currentItem.textinput.focus,true) // si pas fait)
       keyClick(Qt.Key_5)
-      compare(tested.itemAtIndex(52).textinput.text, "5")
       compare(model.get(52).edit, "5")
       keyClick(Qt.Key_Comma)
-      compare(tested.itemAtIndex(52).textinput.text, "5,")
       compare(model.get(52).edit, "5,")
    }
 
@@ -109,32 +107,7 @@ Item {
       compare(tested.itemAtIndex(52).textinput.verticalAlignment,TextInput.AlignVCenter)
       compare(tested.itemAtIndex(56).textinput.verticalAlignment,TextInput.AlignVCenter)
 //
-      //validator
       }
-      function test_validator() {
-      var elem = tested.itemAtIndex(52).textinput
-      mouseClick(elem)
-      keyClick(Qt.Key_A)
-      compare(elem.text, "")
-      keyClick(Qt.Key_5)
-      compare(elem.text, "5")
-      keyClick(Qt.Key_Comma)
-      compare(elem.text, "5,")
-      keyClick(Qt.Key_Backspace)
-      compare(elem.text, "5")
-      keyClick(Qt.Key_Backspace)
-      compare(elem.text, "")
-      keyClick(Qt.Key_Comma)
-      compare(elem.text, "")
-      keyClick(Qt.Key_A)
-      compare(elem.text, "")
-      keyClick(Qt.Key_6)
-      compare(elem.text, "6")
-      keyClick(Qt.Key_6)
-      compare(elem.text, "6")
-
-    }
-//
 
   }
 

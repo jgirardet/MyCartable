@@ -27,21 +27,23 @@ Rectangle {
     }
 
     function moreKeys(event) {
-      var accepted = true
       if (event.key == Qt.Key_Return) {
         root.quotient.forceActiveFocus()
+        event.accepted = true
+
       }
       else if (event.key == Qt.Key_Plus) {
-        print('plusssssssssssss')
+        model.goToAbaisseLine()
+        event.accepted = true
       }
       else if (event.key == Qt.Key_Equal) {
         model.goToResultLine()
+        event.accepted = true
+
       }
-      else {
-        accepted=false
-      }
-      event.accepted = accepted
+
     }
+
 
   }
 

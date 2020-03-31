@@ -17,7 +17,7 @@ Dialog {
   onAccepted: {
     ddb.addSection(ddb.currentPage, {
       'string': contentItem.text,
-      "classtype": "AdditionSection"
+      "classtype": classType
     })
     contentItem.clear()
   }

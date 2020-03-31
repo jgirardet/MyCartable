@@ -61,14 +61,6 @@ Item {
       return r.includes(index) ? false : true
       }
       function getInitialPosition() { return size-1}
-      function goToResultLine() {
-        print("go", corps.currentIndex)
-        if (corps.currentIndex == 13) {
-          corps.currentIndex = 25
-        } else if (currentIndex == 31) {
-          corps.currentIndex = 43
-        }
-      }
 
 
 
@@ -77,6 +69,17 @@ Item {
         _moveCursor =  [index, key]
 
          }
+
+      function goToResultLine() {
+        print("go", corps.currentIndex)
+        if (corps.currentIndex == 13) {
+          corps.currentIndex = 25
+        } else if (currentIndex == 31) {
+          corps.currentIndex = 43
+        }
+      }
+      function getPosByQuotient() {return 13}
+      function goToAbaisseLine() {corps.currentIndex = 25}
    }
    }
 
@@ -104,18 +107,6 @@ Item {
     function test_the_mock_model() {
       compare(model.count, model.size)
       compare(tested.model,  model)
-     }
-
-     function test_focus_from_operation_to_quotient_and_back() {
-        quotient.forceActiveFocus()
-        compare(corps.focus, false)
-        compare(quotient.focus, true)
-        keyClick(Qt.Key_Return)
-        compare(corps.focus, true)
-        compare(quotient.focus, false)
-        keyClick(Qt.Key_Return)
-        compare(corps.focus, false)
-        compare(quotient.focus, true)
      }
 
 
@@ -156,35 +147,31 @@ Item {
 
       }
 
-      function test_validator() {
-      mouseClick(quotient)
-      keyClick(Qt.Key_A)
-      compare(quotient.text, "")
-      keyClick(Qt.Key_5)
-      compare(quotient.text, "5")
-      keyClick(Qt.Key_Comma)
-      compare(quotient.text, "5,")
-      keyClick(Qt.Key_Backspace)
-      compare(quotient.text, "5")
-      keyClick(Qt.Key_Backspace)
-      compare(quotient.text, "")
-      keyClick(Qt.Key_Comma)
-      compare(quotient.text, "")
-      keyClick(Qt.Key_A)
-      compare(quotient.text, "")
-      keyClick(Qt.Key_6)
-      compare(quotient.text, "6")
-      keyClick(Qt.Key_6)
-      compare(quotient.text, "66")
+      function test_morekeys() {
+
+      //focus quotient ou corps quand Entrée pressé
+      quotient.forceActiveFocus()
+      compare(corps.focus, false)
+      compare(quotient.focus, true)
+      keyClick(Qt.Key_Return)
+      compare(corps.focus, true)
+      compare(quotient.focus, false)
+      keyClick(Qt.Key_Return)
+      compare(corps.focus, false)
+      compare(quotient.focus, true)
+
+      // got to line result
+      mouseClick(corps.itemAtIndex(13))
+      keyClick(Qt.Key_Equal)
+      compare(corps.currentIndex, 25)
+
+      // got to line : chiffre abaisse
+      mouseClick(corps.itemAtIndex(13))
+      keyClick(Qt.Key_Plus)
+      compare(corps.currentIndex, 25)
 
     }
 
-
-   function test_goToLine() {
-    mouseClick(corps.itemAtIndex(13))
-    keyClick(Qt.Key_Equal)
-    compare(corps.currentIndex, 25)
-   }
 
 
   }

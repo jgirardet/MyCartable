@@ -22,16 +22,15 @@ TextField {
   }
   Keys.onPressed: {
     var isMove = [Qt.Key_Up, Qt.Key_Left, Qt.Key_Down, Qt.Key_Right].includes(event.key)
+    var numPressed = [Qt.Key_0, Qt.Key_1, Qt.Key_2, Qt.Key_3, Qt.Key_4, Qt.Key_5, Qt.Key_6, Qt.Key_7, Qt.Key_8, Qt.Key_9].includes(event.key)
+    var delPressed = [Qt.Key_Backspace, Qt.Key_Delete].includes(event.key)
+
     if (isMove) {
       model.moveCursor(index, event.key)
       event.accepted = true
     }
 
-    var numPressed = [Qt.Key_0, Qt.Key_1, Qt.Key_2, Qt.Key_3, Qt.Key_4, Qt.Key_5, Qt.Key_6, Qt.Key_7, Qt.Key_8, Qt.Key_9].includes(event.key)
-    if (numPressed) {
-      selectAll()
-//      print(event.text, input.text)
-//      input.clear()
+    else if (numPressed) {
       print(event.text, input.text)
       edit = event.text
       print(event.text, input.text)
@@ -39,9 +38,14 @@ TextField {
       print(event.text, input.text)
     }
 
+    else if (delPressed) {
+      edit = ""
+      event.accepted = true
+    }
 
+    else {
     moreKeys(event)
-
+     }
   }
 
   function moreKeys(event) {}

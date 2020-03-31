@@ -222,6 +222,7 @@ def init_models(db: Database):
         virgule = Required(int)
 
         def __init__(self, string, **kwargs):
+            print("calass init operation")
             rows, columns, virgule, datas = create_operation(string)
             size = len(datas)
             super().__init__(
@@ -379,8 +380,10 @@ def init_models(db: Database):
         quotient = Optional(str, default="")
 
         def __init__(self, string, **kwargs):
+            print("class init")
             super().__init__(string, **kwargs)
             datas = self.datas
+            print("dans model", datas)
             # pas optimal mais permet de conserver une cohérance avec les autres.
             # il faudrait shunter le dump pour ne pas recréer les Decimal
             # self.dividende = Decimal(datas["dividende"])

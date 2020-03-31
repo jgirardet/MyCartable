@@ -29,6 +29,15 @@ Rectangle {
       regularExpression: /^\d{1},?$/
     }
 
+    function moreKeys(event) {
+
+      if (event.key == Qt.Key_Comma) {
+        edit = edit + event.text
+        event.accepted = true
+      }
+
+    }
+
   }
 
 }

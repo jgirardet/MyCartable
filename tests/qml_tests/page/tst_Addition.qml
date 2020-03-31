@@ -1,6 +1,8 @@
 import QtQuick 2.14
 import ".."
 
+// baseoperation testé ici car addition très simple
+
 Item {
   width: 200
   height: 200
@@ -65,6 +67,61 @@ Item {
       compare(tested.model,  model)
       }
 
+        function test_init() {
+      compare(tested.keyNavigationEnabled, false)
+      compare(tested.width, 150)
+      compare(tested.height, 200)
+    }
+        function test_cursor_binding() {
+       model.cursor = 11
+       compare(tested.currentIndex, 11)
+    }
+
+    function test_on_currentItemchanged() {
+      tested.currentIndex = 1
+      tested.currentIndex = 6
+      compare(tested.currentItem.textinput.focus,true)
+  }
+//
+    function test_keys_and_validator() {
+      var elem = tested.itemAtIndex(11).textinput
+      var mod = model.get(11)
+      mouseClick(elem)
+      compare(mod.edit, "")
+
+      //1 entier
+      keyClick(Qt.Key_5)
+      compare(mod.edit, "5")
+
+      ///del et backspace
+      keyClick(Qt.Key_Backspace)
+      compare(mod.edit, "")
+      keyClick(Qt.Key_5)
+      compare(mod.edit, "5")
+      keyClick(Qt.Key_Delete)
+      compare(mod.edit, "")
+
+      // validator refuse alphabet
+      keyClick(Qt.Key_A)
+      compare(mod.edit, "")
+
+      //valiadator n'ademet qu'un chiffre
+      keyClick(Qt.Key_5)
+      compare(mod.edit, "5")
+      keyClick(Qt.Key_5)
+      compare(mod.edit, "5")
+
+    }
+
+
+     function test_move_with_arrows() {
+    // on controle juste le call car fonction non refaite
+      mouseClick(tested.itemAtIndex(11).textinput)
+      keyClick(Qt.Key_Right)
+      compare(model._moveCursor, [11, Qt.Key_Right])
+      tested.destroy()
+
+    }
 
 
     function test_edit() {
@@ -72,10 +129,7 @@ Item {
       mouseClick(tested.itemAtIndex(11).textinput)
       compare(tested.currentItem.textinput.focus,true) // si pas fait
       keyClick(Qt.Key_5)
-      compare(tested.itemAtIndex(11).textinput.text, "5")
       compare(model.get(11).edit, "5")
-
-
     }
 
     function test_properties() {
@@ -104,23 +158,6 @@ Item {
     }
 
 
-
-    function test_validator() {
-      mouseClick(tested.itemAtIndex(11).textinput)
-      keyClick(Qt.Key_A)
-      compare(tested.currentItem.textinput.text, "")
-      keyClick(Qt.Key_1)
-      compare(tested.itemAtIndex(11).textinput.text, "1")
-    }
-
-    function test_move_with_arrows() {
-    // on controle juste le call car fonction non refaite
-      mouseClick(tested.itemAtIndex(11).textinput)
-      keyClick(Qt.Key_Right)
-      compare(model._moveCursor, [11, Qt.Key_Right])
-      tested.destroy()
-
-    }
 
   }
 

@@ -251,6 +251,9 @@ class TestSectionMixin:
             (1, {"classtype": "ImageSection"}, 0, False),
             (1, {"classtype": "AdditionSection", "string": "3+4"}, 1, True),
             (1, {"string": "3+4"}, 0, False),
+            (1, {"classtype": "MultiplicationSection", "string": "4*3"}, 1, True),
+            (1, {"classtype": "SoustractionSection", "string": "4-3"}, 1, True),
+            (1, {"classtype": "DivisionSection", "string": "4/3"}, 1, True),
         ],
     )
     def test_addSection(self, dao, ddbn, qtbot, page, content, res, signal_emitted):

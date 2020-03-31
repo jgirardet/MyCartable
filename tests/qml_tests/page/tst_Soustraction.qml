@@ -87,7 +87,6 @@ Item {
       mouseClick(tested.itemAtIndex(14).textinput)
       compare(tested.currentItem.textinput.focus,true) // si pas fait
       keyClick(Qt.Key_5)
-      compare(tested.itemAtIndex(14).textinput.text, "5")
       compare(model.get(14).edit, "5")
   }
 

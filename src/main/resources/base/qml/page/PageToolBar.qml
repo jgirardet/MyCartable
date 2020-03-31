@@ -67,6 +67,15 @@ ToolBar {
           ToolTip.visible: hovered
           ToolTip.text: "Ajouter une multiplication"
         }
+        ToolButton {
+          id: addDivision
+          icon.source: "qrc:///icons/addDivision"
+          icon.color: "red"
+          onClicked: dialogAddDivision.open()
+          enabled: ddb.currentPage
+          ToolTip.visible: hovered
+          ToolTip.text: "Ajouter une multiplication"
+        }
       }
     }
 
@@ -107,6 +116,12 @@ ToolBar {
     id: dialogAddMultiplication
     title: "Entrer la multiplication,  ex: 234*6"
     classType: "MultiplicationSection"
+  }
+
+  DialogOperation {
+    id: dialogAddDivision
+    title: "Entrer la division,  ex: 234/6"
+    classType: "DivisionSection"
   }
 
 }

@@ -15,7 +15,7 @@ GridView {
   }
 
   Binding on currentIndex {
-    when: model.cursorChanged
+    when: model.sectionIdChanged
     value: model.cursor
   }
 

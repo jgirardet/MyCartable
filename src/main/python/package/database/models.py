@@ -400,7 +400,7 @@ def init_models(db: Database):
             return self.size - self.columns <= index < self.size
 
         def get_editables(self):
-            dividende = set(range(3, self.columns, 3))
+            # dividende = set(range(3, self.columns, 3)) # retenues du haut
             last = set(range(self.size - self.columns + 1, self.size, 3))
             milieu = set()
             for i in range(1, self.rows - 1):
@@ -411,12 +411,12 @@ def init_models(db: Database):
                 milieu.update(set(range(debut + mini_index, debut + self.columns, 3)))
                 mini_index = 2 if impair else 3  # rien dans la premiere colone
                 skip_end = 3 if impair else 0
-                # rangée des retenues
-                milieu.update(
-                    set(range(debut + mini_index, debut + self.columns - skip_end, 3))
-                )
+                # # rangée des retenues
+                # milieu.update(
+                #     set(range(debut + mini_index, debut + self.columns - skip_end, 3))
+                # )
 
-            return dividende | milieu | last
+            return milieu | last
 
         def _as_num(self, num):
             try:

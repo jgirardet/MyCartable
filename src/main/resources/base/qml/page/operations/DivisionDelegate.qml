@@ -31,24 +31,20 @@ Rectangle {
         root.quotient.forceActiveFocus()
         event.accepted = true
 
-      }
-      else if (event.key == Qt.Key_Plus) {
+      } else if (event.key == Qt.Key_Plus) {
         model.goToAbaisseLine()
         event.accepted = true
-      }
-      else if (event.key == Qt.Key_Minus) {
+      } else if (event.key == Qt.Key_Minus) {
         model.goToResultLine()
         event.accepted = true
 
-      }
-      else if (event.key == Qt.Key_Asterisk) {
+      } else if (event.key == Qt.Key_Asterisk) {
         model.addRetenues()
         event.accepted = true
 
       }
 
     }
-
 
   }
 

@@ -47,9 +47,9 @@ RowLayout {
       onTextEdited: {
         corps.model.quotient = text
       }
-      onEditingFinished: {
+
+      Keys.onReturnPressed: {
         corps.model.getPosByQuotient()
-        corps.forceActiveFocus()
       }
       validator: RegularExpressionValidator {
         regularExpression: /^(\d+,?(\d+)?)?$/

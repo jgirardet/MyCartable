@@ -78,7 +78,7 @@ Item {
           corps.currentIndex = 43
         }
       }
-      function getPosByQuotient() {return 13}
+      function getPosByQuotient() {cursor =  13}
       function goToAbaisseLine() {corps.currentIndex = 25}
       property var _addRetenues: ""
       function addRetenues() {_addRetenues="added"}
@@ -156,7 +156,7 @@ Item {
       compare(corps.focus, false)
       compare(quotient.focus, true)
       keyClick(Qt.Key_Return)
-      compare(corps.focus, true)
+      compare(corps.itemAtIndex(13).textinput.focus, true)
       compare(quotient.focus, false)
       keyClick(Qt.Key_Return)
       compare(corps.focus, false)

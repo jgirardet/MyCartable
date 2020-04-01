@@ -504,25 +504,25 @@ class DivisionModel(OperationModel):
         self._dividende = self.proxy.dividende_as_num
         self._diviseur = self.proxy.diviseur_as_num
         self._quotient = self.proxy.quotient
+        self.cursor = 10
 
     @Slot()
     def addRetenues(self):
-        r1 = self.cursor - (self.columns * 2) - 1
-        r2 = self.cursor - self.columns - 2
-        index = self.index(self.cursor)
-        res = "" if self.datas[r1] == "1" else "1"
-        self.setData(self.index(r1), res, Qt.EditRole)
-        self.setData(self.index(r2), res, Qt.EditRole)
+        if not self.isMembreLine(self.cursor):
+            r1 = self.cursor - (self.columns * 2) - 1
+            r2 = self.cursor - self.columns - 2
+            res = "" if self.datas[r1] == "1" else "1"
+            self.setData(self.index(r1), res, Qt.EditRole)
+            self.setData(self.index(r2), res, Qt.EditRole)
 
     @Slot(result=int)
     def getPosByQuotient(self):
         len_q = len(self.quotient.replace(",", ""))
         len_diviseur = len(str(self.diviseur).replace(",", ""))
-        if not len_q:
-            self.cursor = self.columns + 1 + ((len_diviseur - 1) * 3)
+        if not len_q or len_q == 1:
+            self.cursor = self.columns + 1 + (len_diviseur * 3)
         else:
-            row = (len_q * 2) - 1
-            self.cursor = row * self.columns + 1 + (len_q + len_diviseur - 2) * 3
+            self.cursor = self.cursor + self.columns + 3
 
     @Slot()
     def goToAbaisseLine(self):

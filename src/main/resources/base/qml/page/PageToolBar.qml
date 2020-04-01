@@ -74,7 +74,7 @@ ToolBar {
           onClicked: dialogAddDivision.open()
           enabled: ddb.currentPage
           ToolTip.visible: hovered
-          ToolTip.text: "Ajouter une multiplication"
+          ToolTip.text: "Ajouter une division"
         }
       }
     }

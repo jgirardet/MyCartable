@@ -1525,6 +1525,17 @@ class TestDivisionModel:
         assert divMod.datas[r1] == ""
         assert divMod.datas[r2] == ""
 
+    @pytest.mark.parametrize("cur, r1, r2", [(31, 12, 20)])
+    def test_addRetenuesMemebreline(self, divMod, cur, r1, r2):
+        divMod("264/11")
+        divMod.cursor = cur
+        assert divMod.datas[r1] == ""
+        assert divMod.datas[r2] == ""
+        # add
+        divMod.addRetenues()
+        assert divMod.datas[r1] == ""
+        assert divMod.datas[r2] == ""
+
     def test_get_last_index_filled(self, td):
         assert td._get_last_index_filled(["", "3", "5", "", "", "4", ""]) == 5
         assert td._get_last_index_filled(["", "3", "5", "", "", "", ""]) == 2
@@ -1549,11 +1560,20 @@ class TestDivisionModel:
         td.goToAbaisseLine()
         assert td.cursor == 25
 
-    @pytest.mark.parametrize("quotient, pos", [("", 13), ("1", 13), ("11", 34),])
-    def test_getPosByQuotient(self, divMod, quotient, pos):
+    @pytest.mark.parametrize(
+        "string, quotient, pos, res",
+        [
+            ("264/11", "", 99, 16),
+            ("264/11", "1", 99, 16),
+            ("264/1", "", 99, 16),
+            ("264/1", "1", 99, 16),
+            ("264/11", "11", 19, 31),
+        ],
+    )
+    def test_getPosByQuotient(self, divMod, string, quotient, pos, res):
         check_args(divMod.getPosByQuotient, None, int)
         divMod("264/11")
-        divMod.cursor = 99
+        divMod.cursor = pos
         divMod.quotient = quotient
         divMod.getPosByQuotient()
-        assert divMod.cursor == pos
+        assert divMod.cursor == res

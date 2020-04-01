@@ -12,9 +12,6 @@ TextField {
   validator: IntValidator {
     bottom: 0;top: 9;
   }
-//  onTextChanged: {
-//    edit = text
-//  }
   onFocusChanged: {
     if (focus && !readOnly) {
       parent.GridView.view.currentIndex = index
@@ -28,24 +25,15 @@ TextField {
     if (isMove) {
       model.moveCursor(index, event.key)
       event.accepted = true
-    }
-
-    else if (numPressed) {
-      print(event.text, input.text)
+    } else if (numPressed) {
       edit = event.text
-      print(event.text, input.text)
       event.accepted = true
-      print(event.text, input.text)
-    }
-
-    else if (delPressed) {
+    } else if (delPressed) {
       edit = ""
       event.accepted = true
+    } else {
+      moreKeys(event)
     }
-
-    else {
-    moreKeys(event)
-     }
   }
 
   function moreKeys(event) {}

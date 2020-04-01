@@ -505,6 +505,15 @@ class DivisionModel(OperationModel):
         self._diviseur = self.proxy.diviseur_as_num
         self._quotient = self.proxy.quotient
 
+    @Slot()
+    def addRetenues(self):
+        r1 = self.cursor - (self.columns * 2) - 1
+        r2 = self.cursor - self.columns - 2
+        index = self.index(self.cursor)
+        res = "" if self.datas[r1] == "1" else "1"
+        self.setData(self.index(r1), res, Qt.EditRole)
+        self.setData(self.index(r2), res, Qt.EditRole)
+
     @Slot(result=int)
     def getPosByQuotient(self):
         len_q = len(self.quotient.replace(",", ""))

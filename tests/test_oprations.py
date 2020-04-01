@@ -1508,6 +1508,23 @@ class TestDivisionModel:
 
         assert td.auto_move_next(index) == res
 
+    @pytest.mark.parametrize(
+        "cur, r1, r2", [(22, 3, 11), (25, 6, 14), (40, 21, 29), (43, 24, 32)]
+    )
+    def test_addRetenues(self, divMod, cur, r1, r2):
+        divMod("264/11")
+        divMod.cursor = cur
+        assert divMod.datas[r1] == ""
+        assert divMod.datas[r2] == ""
+        # add
+        divMod.addRetenues()
+        assert divMod.datas[r1] == "1"
+        assert divMod.datas[r2] == "1"
+        # remove
+        divMod.addRetenues()
+        assert divMod.datas[r1] == ""
+        assert divMod.datas[r2] == ""
+
     def test_get_last_index_filled(self, td):
         assert td._get_last_index_filled(["", "3", "5", "", "", "4", ""]) == 5
         assert td._get_last_index_filled(["", "3", "5", "", "", "", ""]) == 2

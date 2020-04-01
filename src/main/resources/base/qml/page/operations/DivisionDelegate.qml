@@ -36,8 +36,13 @@ Rectangle {
         model.goToAbaisseLine()
         event.accepted = true
       }
-      else if (event.key == Qt.Key_Equal) {
+      else if (event.key == Qt.Key_Minus) {
         model.goToResultLine()
+        event.accepted = true
+
+      }
+      else if (event.key == Qt.Key_Asterisk) {
+        model.addRetenues()
         event.accepted = true
 
       }

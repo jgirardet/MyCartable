@@ -80,6 +80,8 @@ Item {
       }
       function getPosByQuotient() {return 13}
       function goToAbaisseLine() {corps.currentIndex = 25}
+      property var _addRetenues: ""
+      function addRetenues() {_addRetenues="added"}
    }
    }
 
@@ -162,13 +164,17 @@ Item {
 
       // got to line result
       mouseClick(corps.itemAtIndex(13))
-      keyClick(Qt.Key_Equal)
+      keyClick(Qt.Key_Minus)
       compare(corps.currentIndex, 25)
 
       // got to line : chiffre abaisse
       mouseClick(corps.itemAtIndex(13))
       keyClick(Qt.Key_Plus)
       compare(corps.currentIndex, 25)
+
+      // addRetenue
+      keyClick(Qt.Key_Asterisk)
+      compare(model._addRetenues, "added")
 
     }
 

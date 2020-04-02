@@ -3,6 +3,7 @@ import QtQuick.Controls 2.14
 Dialog {
   id: root
   property string classType
+  implicitWidth: 300
   title: "Entrer l'operation"
   standardButtons: Dialog.Ok | Dialog.Cancel
   focus: true

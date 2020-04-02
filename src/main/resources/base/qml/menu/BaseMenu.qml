@@ -13,7 +13,6 @@ Menu {
   id: root
   /* beautify preserve:start */
   property var target
-  parent: target
   /* beautify preserve:end */
 
   function ouvre(newTarget) {
@@ -24,7 +23,6 @@ Menu {
   }
 
   function ferme() {
-    //    target = null
     root.visible = false
   }
 

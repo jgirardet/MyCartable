@@ -4,18 +4,19 @@ ifndef VIRTUAL_ENV
 export VIRTUAL_ENV=.venv
 endif
 
+PYTHON_VERSION=3.6
 PYTHON_BIN=$(VIRTUAL_ENV)/bin
-SITE_PACKAGE = $(VIRTUAL_ENV)/lib/python3.7/site-packages
+SITE_PACKAGE = $(VIRTUAL_ENV)/lib/python$(PYTHON_VERSION)/site-packages
 export PATH := $(PYTHON_BIN):$(PATH)
 
-QT_VERSION=5.14.1
+QT_VERSION=5.14.2
 QT_BIN = $(VIRTUAL_ENV)/$(QT_VERSION)/gcc_64/bin
 export PATH := $(QT_BIN):$(PATH)
 
 all: dev test
 
 install:
-	python3.7 -m venv .venv
+	python$(PYTHON_VERSION) -m venv .venv
 	pip install -U pip
 	pip install -r requirements/base.txt
 
@@ -38,6 +39,9 @@ dev: install install_qt devtools
 freeze:
 	fbs clean
 	fbs freeze
+
+build:
+	python scripts/build_executable.py
 
 run_binary: build
 	target/MyCartable/MyCartable

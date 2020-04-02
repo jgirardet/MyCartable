@@ -460,3 +460,11 @@ class TestDatabaseObject:
     def test_updateRecentsAndActivites(self, dao, qtbot):
         with qtbot.waitSignals([dao.recentsModelChanged, dao.pagesParSectionChanged]):
             dao.updateRecentsAndActivites.emit()
+
+    #
+    # def test_currentMatereChanged(self, dao):
+    #     m = f_matiere()
+    #     a = f_page()
+    #     dao.currentPage = 1
+    #     dao.currentMatiere = m.id
+    #     assert dao.currentPage == 0

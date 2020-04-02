@@ -4,7 +4,7 @@ ifndef VIRTUAL_ENV
 export VIRTUAL_ENV=.venv
 endif
 
-PYTHON_VERSION=3.6
+PYTHON_VERSION=3.7
 PYTHON_BIN=$(VIRTUAL_ENV)/bin
 SITE_PACKAGE = $(VIRTUAL_ENV)/lib/python$(PYTHON_VERSION)/site-packages
 export PATH := $(PYTHON_BIN):$(PATH)

@@ -157,7 +157,7 @@ FocusScope {
     }
 
     onPositionChanged: {
-      if (containsMouse) {
+      if (containsMouse && temp_rec) {
         temp_rec = root.updateZone(mouse, temp_rec)
       }
     }

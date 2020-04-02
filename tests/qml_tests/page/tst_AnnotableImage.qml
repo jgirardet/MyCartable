@@ -78,6 +78,12 @@ Item {
       compare(rec.relativeHeight, 0)
     }
 
+    function test_update_not_triggered_if_no_temp_rec() {
+    //lerreur s'affiche dans les warn si'l elle existe
+      mousePress(tested, 100, 100, Qt.LeftButton)
+      mouseMove(tested, 50, 50)
+    }
+
     function test_store_zone() {
       ddb._addAnnotation = ddb.sp.addAnnotation.Stabylo
       mousePress(tested, 50, 50, Qt.RightButton)

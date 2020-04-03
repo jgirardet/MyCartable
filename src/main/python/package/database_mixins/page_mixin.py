@@ -1,6 +1,6 @@
 from functools import partial
 
-from PySide2.QtCore import Slot, Signal, Property, QObject, QTimer
+from PySide2.QtCore import Slot, Signal, Property, QObject, QTimer, QSettings
 from package.constantes import TITRE_TIMER_DELAY
 from package.utils import create_singleshot
 from pony.orm import db_session, make_proxy

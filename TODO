@@ -32,6 +32,13 @@ clique droit pour remove : text, image
 ajouter copier coller : fonction et menu
 paragragph à menu text( + ANnotation ?)
 
-# Enc ours
-bug de monter vers retenu
-bug getpostbyquotient
+# a faire pour mettre en place les années:
+- app:
+  - setting année en cours
+  - variable année en cours
+  - chargement du setting
+- ddb:
+  - toute requete limité au 15 aout inclusif d'avant
+
+- toolba:
+  - changement année

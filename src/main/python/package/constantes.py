@@ -41,6 +41,7 @@ LAYOUT_SIZES = {
 TITRE_TIMER_DELAY = 500
 
 APPNAME = "MyCartable"
+ORGNAME = "Cacahuete Coding"
 
 QStandardPaths.setTestModeEnabled(True)
 

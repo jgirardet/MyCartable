@@ -39,7 +39,7 @@ class DatabaseObject(QObject, *MIXINS):
 
     def setup_connections(self):
 
-        self.currentMatiereChanged.connect(self.pagesParSectionChanged)
+        self.matiereReset.connect(self.onMatiereReset)
         self.currentPageChanged.connect(self.onCurrentPageChanged)
         self.currentTitreSetted.connect(self.updateRecentsAndActivites)
 
@@ -58,6 +58,12 @@ class DatabaseObject(QObject, *MIXINS):
         else:
             self.pageModel.slotReset(page["id"])
             self.currentMatiere = page["matiere"]
+
+    def onMatiereReset(self):
+        # self.pagesParSectionChanged.emit()
+        # self.onCurrentPageChanged({})
+        # self.onCurrentPageChanged(0)
+        self.currentPage = 0
 
     def onNewPageCreated(self, item: dict):
         self.currentPage = item["id"]

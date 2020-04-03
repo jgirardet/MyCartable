@@ -11,6 +11,7 @@ class MatiereMixin:
     currentMatiereChanged = Signal()
     matiereListNomChanged = Signal()
     setCurrentMatiereFromIndexSignal = Signal(int)
+    matiereReset = Signal()
 
     def __init__(self):
         self._currentMatiere = 0
@@ -35,6 +36,7 @@ class MatiereMixin:
         LOG.debug(
             f"current matiere set with index  {value } to: {self._currentMatiere}"
         )
+        self.matiereReset.emit()
 
     @Slot(int, result=int)
     def getMatiereIndexFromId(self, matiere_id):

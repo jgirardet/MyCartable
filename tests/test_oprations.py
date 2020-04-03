@@ -569,7 +569,7 @@ class TestOperationModel:
         OperationModel.ddb = DatabaseObject(ddbr)
         op = OperationModel()
         op.sectionId = 1
-        assert op.sectionId is None
+        assert op.sectionId is None, "should not be set if not in databse"
 
         td = f_additionSection(string="9+8", td=True)
 
@@ -1305,7 +1305,9 @@ def divMod(dao):
 
         def __call__(self, string):
             self.f_entry = f_divisionSection(string=string)
+            print(self.f_entry)
             self.sectionId = self.f_entry.id
+            print(self.sectionId)
 
     return Temp()
 

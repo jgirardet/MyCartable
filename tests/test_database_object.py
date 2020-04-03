@@ -43,6 +43,11 @@ class TestPageMixin:
             c.currentPage = 2
         assert c.currentPage == b.id
 
+        # set currentpage do nothing if same id
+        with qtbot.assertNotEmitted(c.currentPageChanged):
+            c.currentPage = 2
+        assert c.currentPage == b.id
+
     def test_current_entry(self, ddbr):
         a = f_page()
         d = DatabaseObject(ddbr)
@@ -148,7 +153,8 @@ class TestMatiereMixin:
         assert a.currentMatiere == 2
 
         # from index
-        a.setCurrentMatiereFromIndex(2)
+        with qtbot.waitSignal(a.matiereReset):
+            a.setCurrentMatiereFromIndex(2)
         assert a.currentMatiere == 3
 
         # get index from id
@@ -461,10 +467,9 @@ class TestDatabaseObject:
         with qtbot.waitSignals([dao.recentsModelChanged, dao.pagesParSectionChanged]):
             dao.updateRecentsAndActivites.emit()
 
-    #
-    # def test_currentMatereChanged(self, dao):
-    #     m = f_matiere()
-    #     a = f_page()
-    #     dao.currentPage = 1
-    #     dao.currentMatiere = m.id
-    #     assert dao.currentPage == 0
+    def test_currentMaterieResed(self, dao, qtbot):
+        m = f_matiere()
+        a = f_page()
+        dao.currentPage = 1
+        dao.matiereReset.emit()
+        assert dao.currentPage == 0

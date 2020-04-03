@@ -107,8 +107,12 @@ class PageModel(QAbstractListModel):
 
     @lastPosition.setter
     def lastPosition_set(self, value: int):
+        print("sertter1")
         self._lastPosition = value
+        print("sertter2")
         self.lastPositionChanged.emit()
+        print("sertter3")
         with db_session:
             if self._page:
                 self._page.lastPosition = value
+        print("sertter4")

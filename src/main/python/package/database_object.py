@@ -1,4 +1,5 @@
-from PySide2.QtCore import QObject, Slot, Signal, Property
+import logging
+from PySide2.QtCore import QObject, Signal
 from package.database_mixins.activite_mixin import ActiviteMixin
 from package.database_mixins.image_section_mixin import ImageSectionMixin
 from package.database_mixins.layout_mixin import LayoutMixin
@@ -6,9 +7,8 @@ from package.database_mixins.matiere_mixin import MatiereMixin
 from package.database_mixins.page_mixin import PageMixin
 from package.database_mixins.recents_mixin import RecentsMixin
 from package.database_mixins.section_mixin import SectionMixin
-import logging
+from package.database_mixins.settings_mixin import SettingsMixin
 
-from package.page.text_section import DocumentEditor
 
 LOG = logging.getLogger(__name__)
 
@@ -20,6 +20,7 @@ MIXINS = [
     RecentsMixin,
     SectionMixin,
     ImageSectionMixin,
+    SettingsMixin,
 ]
 
 
@@ -27,7 +28,7 @@ class DatabaseObject(QObject, *MIXINS):
 
     updateRecentsAndActivites = Signal()
 
-    def __init__(self, db):
+    def __init__(self, db, debug=True):
         super().__init__()
         self.db = db
         self.models = {}
@@ -35,6 +36,8 @@ class DatabaseObject(QObject, *MIXINS):
         for mixin in MIXINS:
             mixin.__init__(self)
 
+        if not debug:
+            self.setup_settings()
         self.setup_connections()
 
     def setup_connections(self):

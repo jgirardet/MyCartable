@@ -401,7 +401,35 @@ class TestImageSectionMixin:
             assert not ddbn.Annotation.exists(id=b.id)
 
 
+class TestSettingsMixin:
+    def test_determine_annee(self, dao):
+        # assert False
+        assert dao._determine_annee(day=datetime(2016, 3, 3)) == 2015
+        assert dao._determine_annee(day=datetime(2016, 9, 3)) == 2016
+        assert dao._determine_annee(day=datetime(2016, 1, 1)) == 2015
+        assert dao._determine_annee(day=datetime(2016, 8, 15)) == 2016
+        assert dao._determine_annee(day=datetime(2016, 8, 14)) == 2015
+
+    def test_get_annee_active(self, dao):
+        dao.settings.setValue("General/annee_active", 2030)
+        assert dao.get_annee_active() == 2030
+        dao.settings.clear()
+        assert dao.get_annee_active() == dao._determine_annee()
+
+    def test_setup_settings(self, dao):
+        dao.settings.clear()
+        dao.setup_settings()
+        assert isinstance(dao.annee_active, int)
+
+
 class TestDatabaseObject:
+    def test_init_settings(self, ddbr):
+        # settings pas inité en mode debug (default
+        assert not hasattr(DatabaseObject(ddbr), "annee_active")
+
+        # settings inités en non debug
+        assert isinstance(DatabaseObject(ddbr, debug=False).annee_active, int)
+
     def test_RecentsItem_Clicked(self, ddbr, qtbot):
         rec1 = f_page(created=datetime.now(), td=True)
         d = DatabaseObject(ddbr)

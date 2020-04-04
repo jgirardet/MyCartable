@@ -49,7 +49,7 @@ def create_singleton_instance():
     from package.database_object import DatabaseObject
     from package.ui_manager import UiManager
 
-    databaseObject = DatabaseObject(package.database.db)
+    databaseObject = DatabaseObject(package.database.db, debug=False)
     ui_manager = UiManager()
     return databaseObject, ui_manager
 
@@ -82,6 +82,7 @@ def create_app():
     appctxt = ApplicationContext()
     appctxt.app.setApplicationName(APPNAME)
     appctxt.app.setOrganizationName(ORGNAME)
+    appctxt.app.setOrganizationDomain("bla.com")
     return appctxt
 
 

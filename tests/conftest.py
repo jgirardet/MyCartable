@@ -2,6 +2,7 @@ import pytest
 import sys
 from pathlib import Path
 
+from PySide2.QtCore import QSettings
 from PySide2.QtGui import QTextDocument
 from mimesis import Generic
 from pony.orm import db_session, delete
@@ -96,10 +97,12 @@ def tmpfilename(request, tmp_path, gen):
 
 
 @pytest.fixture()
-def dao(ddbr):
+def dao(ddbr, tmpfilename):
     from package.database_object import DatabaseObject
 
-    return DatabaseObject(ddbr)
+    obj = DatabaseObject(ddbr)
+    obj.settings = QSettings(str(tmpfilename.absolute()))
+    return obj
 
 
 import time

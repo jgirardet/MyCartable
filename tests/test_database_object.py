@@ -12,75 +12,74 @@ from pony.orm import exists, make_proxy
 
 
 class TestPageMixin:
-    def test_init(self, ddbr):
-        a = DatabaseObject(ddbr)
-        assert a._currentPage == 0
-        assert a._currentTitre == ""
-        assert a._currentEntry == None
-        assert a.timer_titre.isSingleShot()
+    def test_init(self, dao):
+        assert dao._currentPage == 0
+        assert dao._currentTitre == ""
+        assert dao._currentEntry == None
+        assert dao.timer_titre.isSingleShot()
 
-    def test_newPage(self, ddbr, qtbot):
-        a = DatabaseObject(ddbr)
+    def test_newPage(self, dao, qtbot):
         f = f_page()  # pour avoir plusieurs dans le resultats
-        with qtbot.wait_signal(a.newPageCreated, timeout=100):
-            r = a.newPage(f.activite.id)
+        with qtbot.wait_signal(dao.newPageCreated, timeout=100):
+            r = dao.newPage(f.activite.id)
 
-    def test_currentPage(self, ddbr, qtbot):
+    def test_currentPage(self, dao, qtbot):
         a = f_page()
         b = f_page()
-        c = DatabaseObject(ddbr)
-        assert c.currentPage == 0
+        assert dao.currentPage == 0
 
         # setCurrentPage
-        c.currentPage = 1
-        assert c.currentPage == a.id
-        with qtbot.wait_signal(c.currentPageChanged, timeout=100):
-            c.currentPage = 2
-        assert c.currentPage == c.currentPage
+        dao.currentPage = 1
+        assert dao.currentPage == a.id
+        with qtbot.wait_signal(dao.currentPageChanged, timeout=100):
+            dao.currentPage = 2
+        assert dao.currentPage == dao.currentPage
 
         # set currentpage do nothing if same id
-        with qtbot.assertNotEmitted(c.currentPageChanged):
-            c.currentPage = 2
-        assert c.currentPage == b.id
+        with qtbot.assertNotEmitted(dao.currentPageChanged):
+            dao.currentPage = 2
+        assert dao.currentPage == b.id
 
         # set currentpage do nothing if same id
-        with qtbot.assertNotEmitted(c.currentPageChanged):
-            c.currentPage = 2
-        assert c.currentPage == b.id
+        with qtbot.assertNotEmitted(dao.currentPageChanged):
+            dao.currentPage = 2
+        assert dao.currentPage == b.id
 
-    def test_current_entry(self, ddbr):
+    def test_current_entry(self, dao):
         a = f_page()
-        d = DatabaseObject(ddbr)
-        d.currentPage = 1
+        dao.currentPage = 1
         with db_session:
-            assert d._currentEntry.titre == a.titre == d._currentTitre == d.currentTitre
+            assert (
+                dao._currentEntry.titre
+                == a.titre
+                == dao._currentTitre
+                == dao.currentTitre
+            )
 
-    def test_CurrentTitreSet(self, ddbr):
+    def test_CurrentTitreSet(self, dao):
         b_page(2)
-        d = DatabaseObject(ddbr)
 
         # case no current page
-        d.currentTitre = "omk"
-        assert d._currentTitre == ""
-        d.currentPage = 1
-        with patch.object(d.timer_titre, "start") as m:
-            d.currentTitre = "mokmk"
-            assert d.currentTitre == "mokmk"
+        dao.currentTitre = "omk"
+        assert dao._currentTitre == ""
+        dao.currentPage = 1
+        with patch.object(dao.timer_titre, "start") as m:
+            dao.currentTitre = "mokmk"
+            assert dao.currentTitre == "mokmk"
             assert m.call_args_list == [call(500)]
 
             # do not call storage if same value
-            d.currentTitre = "mokmk"
+            dao.currentTitre = "mokmk"
             assert m.call_args_list == [call(500)]
 
-    def test_UnderscoreCurrentTitreSet(self, ddbr, qtbot):
+    def test_UnderscoreCurrentTitreSet(self, dao, qtbot):
         f_page()
-        d = DatabaseObject(ddbr)
-        d.currentPage = 1
-        d.TITRE_TIMER_DELAY = 0
-        with qtbot.wait_signal(d.currentTitreChanged):
-            d.currentTitre = "aaa"
+        dao.currentPage = 1
+        dao.TITRE_TIMER_DELAY = 0
+        with qtbot.wait_signal(dao.currentTitreChanged):
+            dao.currentTitre = "aaa"
         with db_session:
-            assert ddbr.Page[1].titre == "aaa"
+            assert dao.db.Page[1].titre == "aaa"
 
     def test_setCurrentTitre(self, dao, qtbot):
         f_page()
@@ -129,51 +128,50 @@ class TestPageMixin:
 
 class TestMatiereMixin:
     def create_matiere(self):
-        f_matiere("un")
-        f_matiere("deux")
-        f_matiere("trois")
-        f_matiere("quatre")
+        f_matiere("un", annee=2019)
+        f_matiere("deux", annee=2019)
+        f_matiere("trois", annee=2019)
+        f_matiere("quatre", annee=2019)
 
-    def test_init(self, ddb):
-        a = DatabaseObject(ddb)
-        assert a._currentMatiere == 0
-        assert isinstance(a.m_d, MatieresDispatcher)
+    def test_init(self, dao):
 
-    def test_currentMatiere(self, ddbr, qtbot):
+        assert dao._currentMatiere == 0
+
+    def test_currentMatiere(self, dao, qtbot):
         self.create_matiere()
-        a = DatabaseObject(ddbr)
-        assert a.currentMatiere == 0
+        dao.init_matieres()
+        assert dao.currentMatiere == 0
 
         # from int
-        with qtbot.waitSignal(a.currentMatiereChanged, timeout=100):
-            a.currentMatiere = 2
-        a.currentMatiere = 2  # same
-        assert a.currentMatiere == 2
-        a.currentMatiere = "fez"  # not in do nothing
-        assert a.currentMatiere == 2
+        with qtbot.waitSignal(dao.currentMatiereChanged, timeout=100):
+            dao.currentMatiere = 2
+        dao.currentMatiere = 2  # same
+        assert dao.currentMatiere == 2
+        dao.currentMatiere = "fez"  # not in do nothing
+        assert dao.currentMatiere == 2
 
         # from index
-        with qtbot.waitSignal(a.matiereReset):
-            a.setCurrentMatiereFromIndex(2)
-        assert a.currentMatiere == 3
+        with qtbot.waitSignal(dao.matiereReset):
+            dao.setCurrentMatiereFromIndex(2)
+        assert dao.currentMatiere == 3
 
         # get index from id
-        assert a.getMatiereIndexFromId(3) == 2
-        assert a.getMatiereIndexFromId(99999) is None
+        assert dao.getMatiereIndexFromId(3) == 2
+        assert dao.getMatiereIndexFromId(99999) is None
 
-    def test_matiereList(self, ddbr):
+    def test_matiereList(self, dao):
         self.create_matiere()
+        dao.init_matieres()
 
         # listnom
-        a = DatabaseObject(ddbr)
-        assert a.matieresListNom == ("un", "deux", "trois", "quatre")
+        assert dao.matieresListNom == ("un", "deux", "trois", "quatre")
 
         # refresh
-        f_matiere("cinq")
-        a.matieresListRefresh()
-        assert a.matieresListNom == ("un", "deux", "trois", "quatre", "cinq")
+        f_matiere("cinq", annee=2019)
+        dao.matieresListRefresh()
+        assert dao.matieresListNom == ("un", "deux", "trois", "quatre", "cinq")
 
-    def test_pagesParSection(self, ddbr, dao):
+    def test_pagesParSection(self, dao):
         assert dao.pagesParSection == []
         f_matiere()
         p = f_page(td=True, activite=3)
@@ -338,11 +336,10 @@ class TestImageSectionMixin:
             },
         ],
     )
-    def test_addAnnotation(self, ddbr, content):
-        d = DatabaseObject(ddbr)
+    def test_addAnnotation(self, dao, content):
         s = f_imageSection()
 
-        res = d.addAnnotation(content)
+        res = dao.addAnnotation(content)
 
         with db_session:
             item = s.annotations.select()[:][0].to_dict()
@@ -423,12 +420,17 @@ class TestSettingsMixin:
 
 
 class TestDatabaseObject:
-    def test_init_settings(self, ddbr):
+    def test_init_settings(self, ddbr, dao):
         # settings pas inité en mode debug (default
-        assert not hasattr(DatabaseObject(ddbr), "annee_active")
+        assert DatabaseObject(ddbr).annee_active is None
 
         # settings inités en non debug
-        assert isinstance(DatabaseObject(ddbr, debug=False).annee_active, int)
+        with patch.object(DatabaseObject, "setup_settings") as m:
+            DatabaseObject(ddbr, debug=False)
+            assert m.call_args_list == [call()]
+
+        # init matiere dsi annee_active
+        assert isinstance(dao.m_d, MatieresDispatcher)
 
     def test_RecentsItem_Clicked(self, ddbr, qtbot):
         rec1 = f_page(created=datetime.now(), td=True)

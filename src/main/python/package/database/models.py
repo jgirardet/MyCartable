@@ -13,19 +13,18 @@ from package.constantes import ACTIVITES
 
 def init_models(db: Database):
     class Annee(db.Entity):
-        id = PrimaryKey(int, auto=True)
+        id = PrimaryKey(int)
         niveau = Optional(str)
-        matiere = Set("Matiere")
+        matieres = Set("Matiere")
+
+        def get_matieres(self):
+            return self.matieres.select()
 
     class Matiere(db.Entity):
         id = PrimaryKey(int, auto=True)
         nom = Required(str)
         annee = Required(Annee)
         activites = Set("Activite")
-
-        @classmethod
-        def noms(self):
-            return [p.nom for p in Matiere.select()]
 
         @property
         def activites_list(self):
@@ -59,30 +58,6 @@ def init_models(db: Database):
         matiere = Required(Matiere)
         pages = Set("Page")
 
-        @classmethod
-        def pages_by_matiere_and_famille(cls, matiere_id, famille):
-            if not matiere_id:
-                return []
-            elif isinstance(matiere_id, str):
-                matiere = select(
-                    p for p in Matiere if p.nom == matiere_id
-                )  # pragma: no cover_all
-                if matiere:
-                    matiere = matiere.first()
-                else:
-                    return []
-            else:
-                matiere = db.Matiere.get(id=matiere_id)
-                if not matiere:
-                    return []
-            activite = Activite.get(matiere=matiere.id, famille=famille)
-
-            if activite:
-                return [
-                    p.to_dict() for p in activite.pages.order_by(desc(Page.created))
-                ]
-            return []
-
     class Page(db.Entity):
         id = PrimaryKey(int, auto=True)
         created = Required(datetime, default=datetime.utcnow)
@@ -95,7 +70,6 @@ def init_models(db: Database):
         def before_insert(self):
             self.modified = self.created
 
-        #
         def before_update(self):
             self.modified = datetime.utcnow()
 
@@ -131,15 +105,6 @@ def init_models(db: Database):
         @property
         def content_dict(self):
             return [p.to_dict() for p in self.content]
-
-        # @classmethod
-        # def page_par_section(cls, matiere_id):
-        #     query = select(
-        #         p for p in cls if p.activite.matiere.id == matiere_id
-        #     ).order_by(desc(Page.modified))
-        #     res = []
-        #     for ac in
-        #     return query
 
     class Section(db.Entity):
         id = PrimaryKey(int, auto=True)

@@ -100,7 +100,10 @@ def tmpfilename(request, tmp_path, gen):
 def dao(ddbr, tmpfilename):
     from package.database_object import DatabaseObject
 
+    with db_session:
+        annee = ddbr.Annee(id=2019)
     obj = DatabaseObject(ddbr)
+    obj.init_matieres(annee=2019)
     obj.settings = QSettings(str(tmpfilename.absolute()))
     return obj
 

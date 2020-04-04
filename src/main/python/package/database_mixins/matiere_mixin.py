@@ -15,9 +15,13 @@ class MatiereMixin:
 
     def __init__(self):
         self._currentMatiere = 0
-        self.m_d = MatieresDispatcher(self.db)
         self.setCurrentMatiereFromIndexSignal.connect(self.setCurrentMatiereFromIndex)
         self.currentMatiereChanged.connect(self.pagesParSectionChanged)
+
+    def init_matieres(self, annee=None):
+        if annee:
+            self.annee_active = annee
+        self.m_d = MatieresDispatcher(self.db, self.annee_active)
 
     @Property(int, notify=currentMatiereChanged)
     def currentMatiere(self):
@@ -52,7 +56,7 @@ class MatiereMixin:
 
     @Slot()
     def matieresListRefresh(self):
-        self.m_d = MatieresDispatcher(self.db)
+        self.init_matieres(annee=self.annee_active)
         self.matiereListNomChanged.emit()
 
     pagesParSectionChanged = Signal()
@@ -73,10 +77,12 @@ class MatiereMixin:
 
 
 class MatieresDispatcher:
-    def __init__(self, db):
+    def __init__(self, db, annee_active):
         self.db = db
         with db_session:
-            self.query = self.db.Matiere.select().order_by(self.db.Matiere.id)
+            annee = self.db.Annee[annee_active]
+            self.query = annee.get_matieres()
+            # self.query = self.db.Matiere.select().order_by(self.db.Matiere.id)
             self.nom_id = self._build_nom_id()
             self.id_nom = self._build_id_nom()
             self.id_index = self._build_id_index()

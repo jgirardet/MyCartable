@@ -38,6 +38,10 @@ class DatabaseObject(QObject, *MIXINS):
 
         if not debug:
             self.setup_settings()
+
+        if self.annee_active:
+            self.init_matieres()
+
         self.setup_connections()
 
     def setup_connections(self):

@@ -1,19 +1,28 @@
 import itertools
-import json
-from datetime import datetime, timedelta
-from decimal import Decimal
 
 from PySide2.QtCore import QUrl
-from fixtures import compare, compare_items, ss, check_is_range
+from fixtures import compare, compare_items, check_is_range
 from package.database.factory import *
 import pytest
-from pony.orm import flush, exists, commit, Database
+from pony.orm import flush, Database
 
 
 def test_creation_all(ddb):
     an = f_annee()
     a = f_matiere(annee=an)
     f_section()
+
+
+class TestAnnee:
+    def test_get_matieres(self, ddb):
+        an = f_annee(id=2017)
+        assert an.get_matieres()[:] == []
+        a = f_matiere(nom="a", annee=2017)
+        b = f_matiere(nom="b", annee=2017)
+        c = f_matiere(nom="c", annee=2015)
+        d = f_matiere(nom="d", annee=2017)
+        f = f_matiere(nom="e", annee=2016)
+        assert an.get_matieres()[:] == [a, b, d]
 
 
 class TestPage:
@@ -76,7 +85,7 @@ class TestPage:
         b = ddb.Page.new_page(activite=1, titre="bla")
         assert ddb.Page.get(id=b["id"], titre="bla", activite=1)
 
-    def test_content(selfself, ddbr):
+    def test_content(self, ddbr):
         a = f_page()
         sections = b_section(10, page=a.id)
         others = b_section(10)
@@ -91,23 +100,14 @@ class TestPage:
 
 
 class TestMatiere:
-    def test_noms(self, ddb):
-        assert ddb.Matiere.select()[:] == []
-        f_matiere(nom="a")
-        f_matiere(nom="b")
-        f_matiere(nom="c")
-        f_matiere(nom="d")
-        f_matiere(nom="e")
-        assert ddb.Matiere.noms() == ["a", "b", "c", "d", "e"]
-
     def test_to_dict(self, ddb):
         f_matiere().to_dict()  # forcer une creation d'id
-        a = f_matiere(nom="Géo")
+        a = f_matiere(nom="Géo", annee=2019)
         pages = [b_page(3, matiere=2) for x in a.activites]
         assert a.to_dict() == {
             "id": 2,
             "nom": "Géo",
-            "annee": 2,
+            "annee": 2019,
             "activites": [4, 5, 6],
         }
 
@@ -234,51 +234,6 @@ class TestMatiere:
                     ],
                 },
             ]
-
-
-class TestActivite:
-    def test_pages_by_matiere_and_famille(self, ddb):
-        m = f_matiere("bla")
-        m.to_dict()
-
-        # matiere param is 0
-        assert ddb.Activite.pages_by_matiere_and_famille(0, 0) == []
-
-        # No matiere exist:
-
-        pages = ddb.Activite.pages_by_matiere_and_famille(99, 0)
-        assert pages == []
-
-        # matiere exist but no activite
-        flush()
-        pages = ddb.Activite.pages_by_matiere_and_famille(m.id, 99)
-        assert pages == []
-
-        # MAtiere existe resuslt empty
-        pages = ddb.Activite.pages_by_matiere_and_famille(m.id, 0)
-        assert pages == []
-
-        # setup
-        controle = []
-        controle = [
-            f_page(activite=m.activites.select()[:][0]).to_dict() for i in range(5)
-        ]
-
-        # sema matiere different section
-        f_page(activite=m.activites.select()[:][1]).to_dict()
-        # different matiere
-        f_page()
-
-        # with numerique id
-        pages = ddb.Activite.pages_by_matiere_and_famille(m.id, 0)
-        assert compare(pages, controle)
-
-        # with str id
-        pages = ddb.Activite.pages_by_matiere_and_famille("bla", 0)
-        assert compare(pages, controle)
-        # with str id matiere unknown
-        pages = ddb.Activite.pages_by_matiere_and_famille("ble", 0)
-        assert compare(pages, [])
 
 
 class TestSection:

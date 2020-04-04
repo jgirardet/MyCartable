@@ -25,16 +25,22 @@ def f_datetime(start=None, end=None):
             return res
 
 
-def f_annee(niveau=None):
-    niveau = niveau or "cm1"
+def f_annee(id=2019, td=False):
+    id = id or random.randint(2018, 2020)
+    if isinstance(id, db.Annee):
+        id = id.id
     with db_session:
-        return db.Annee(niveau=niveau)
+        if db.Annee.exists(id=id):
+            an = db.Annee[id]
+        else:
+            an = db.Annee(id=id)
+        return an.to_dict() if td else an
 
 
 def f_matiere(nom=None, annee=None):
     nom = nom or random.choice(["Français", "Math", "Anglais", "Histoire"])
     with db_session:
-        annee = annee or f_annee()
+        annee = f_annee(annee)
         return db.Matiere(annee=annee, nom=nom)
 
 
@@ -267,7 +273,7 @@ def f_divisionSection(string=None, created=None, page=None, position=0, td=False
 
 @db_session
 def populate_database(matieres_list=MATIERES, nb_page=100):
-    annee = f_annee()
+    annee = f_annee(id=2019)
     matieres = [f_matiere(x, annee) for x in matieres_list]
 
     activites = db.Activite.select()[:]

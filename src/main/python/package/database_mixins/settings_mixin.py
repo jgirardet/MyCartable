@@ -9,6 +9,7 @@ from pony.orm import db_session
 class SettingsMixin:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.annee_active = None
         self.settings = QSettings()
 
     def setup_settings(self):

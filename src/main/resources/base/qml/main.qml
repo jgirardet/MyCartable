@@ -15,6 +15,7 @@ ApplicationWindow {
   header: MainMenuBar {
     id: mainMenuBar
   }
+  title: "MyCartable: année " + ddb.anneeActive + "/" + (ddb.anneeActive +1)
   onClosing: {
     baseItem.destroy() // elmine presque tous les messages d'erreur
   }

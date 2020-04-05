@@ -1,5 +1,6 @@
 import logging
 from PySide2.QtCore import QObject, Signal
+from PySide2.QtWidgets import QApplication
 from package.database_mixins.activite_mixin import ActiviteMixin
 from package.database_mixins.image_section_mixin import ImageSectionMixin
 from package.database_mixins.layout_mixin import LayoutMixin
@@ -84,3 +85,4 @@ class DatabaseObject(QObject, *MIXINS):
         self.init_matieres(value)
         self.recentsModelChanged.emit()
         self.matieresListNomChanged.emit()
+        self.anneeActiveChanged.emit()

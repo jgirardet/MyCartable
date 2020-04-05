@@ -430,6 +430,9 @@ class TestSettingsMixin:
             {"id": 2019, "niveau": "cm2019"},  # 2019 setté dans la fixture dao
         ]
 
+    def test_anneActive(self, dao):
+        assert dao.anneeActive == 2019
+
 
 class TestDatabaseObject:
     def test_init_settings(self, ddbr, dao):
@@ -527,10 +530,11 @@ class TestDatabaseObject:
         assert len(dao.recentsModel) == 1
 
         # test
-        dao.changeAnnee.emit(2020)
-        assert dao.annee_active == 2020
-        assert dao.currentPage == 0
-        assert dao.currentMatiere == 0
-        assert dao.m_d.annee.id == 2020
-        assert len(dao.recentsModel) == 0
-        assert len(dao.matieresListNom) == 0
+        with qtbot.waitSignal(dao.anneeActiveChanged):
+            dao.changeAnnee.emit(2020)
+            assert dao.annee_active == 2020
+            assert dao.currentPage == 0
+            assert dao.currentMatiere == 0
+            assert dao.m_d.annee.id == 2020
+            assert len(dao.recentsModel) == 0
+            assert len(dao.matieresListNom) == 0

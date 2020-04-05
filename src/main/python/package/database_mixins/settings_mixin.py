@@ -18,6 +18,12 @@ class SettingsMixin:
     def setup_settings(self):
         self.annee_active = self.get_annee_active()
 
+    anneeActiveChanged = Signal()
+
+    @Property(int, notify=anneeActiveChanged)
+    def anneeActive(self):
+        return self.annee_active
+
     def get_annee_active(self):
         annee = self.settings.value("General/annee_active")
         if annee:

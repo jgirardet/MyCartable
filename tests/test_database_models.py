@@ -43,26 +43,27 @@ class TestPage:
 
     def test_recents(self, ddb):
 
-        for i in range(100):
-            f_page()
-        # flush()
+        m2019 = f_matiere(annee=2019)
+        m2018 = f_matiere(annee=2018)
+        for i in range(50):
+            f_page(matiere=m2018.id)
+            f_page(matiere=m2019.id)
 
         # test query
         assert db.Page.select().count() == 100
-        recents = db.Page._query_recents(db.Page)[:]
+        recents = db.Page._query_recents(db.Page, 2019)[:]
         assert all(x.modified > datetime.utcnow() - timedelta(days=30) for x in recents)
+        assert all(x.activite.matiere.annee.id == 2019 for x in recents)
         old = recents[0]
         for i in recents[1:]:
             assert old.modified > i.modified
             old = i
 
         # formatted result
-        # m = f_matiere()
-        # ac = f_activite(matiere=m)
-        a = f_page(created=datetime.utcnow())
+        a = f_page(created=datetime.utcnow(), matiere=m2019.id)
         res = a.to_dict()
         res["matiere"] = a.activite.matiere.id
-        first_dict = db.Page.recents()[0]
+        first_dict = db.Page.recents(2019)[0]
         assert first_dict == res
 
     def test_to_dict(self, ddb):

@@ -9,7 +9,7 @@ LOG = logging.getLogger(__name__)
 
 class MatiereMixin:
     currentMatiereChanged = Signal()
-    matiereListNomChanged = Signal()
+    matieresListNomChanged = Signal()
     setCurrentMatiereFromIndexSignal = Signal(int)
     matiereReset = Signal()
 
@@ -50,14 +50,14 @@ class MatiereMixin:
             LOG.debug("matiere index non trouvé ou currentMatiere non settée")
 
     # matieresList
-    @Property("QVariantList", notify=matiereListNomChanged)
+    @Property("QVariantList", notify=matieresListNomChanged)
     def matieresListNom(self):
         return self.m_d.matieres_list_nom
 
     @Slot()
     def matieresListRefresh(self):
         self.init_matieres(annee=self.annee_active)
-        self.matiereListNomChanged.emit()
+        self.matieresListNomChanged.emit()
 
     pagesParSectionChanged = Signal()
 
@@ -80,8 +80,8 @@ class MatieresDispatcher:
     def __init__(self, db, annee_active):
         self.db = db
         with db_session:
-            annee = self.db.Annee[annee_active]
-            self.query = annee.get_matieres()
+            self.annee = self.db.Annee[annee_active]
+            self.query = self.annee.get_matieres()
             # self.query = self.db.Matiere.select().order_by(self.db.Matiere.id)
             self.nom_id = self._build_nom_id()
             self.id_nom = self._build_id_nom()

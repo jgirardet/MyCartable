@@ -82,17 +82,20 @@ def init_models(db: Database):
             dico["modified"] = self.created.isoformat()
             return dico
 
-        def _query_recents(self):
+        def _query_recents(self, annee):
             query = select(
-                p for p in Page if p.modified > datetime.utcnow() - timedelta(days=30)
+                p
+                for p in Page
+                if p.modified > datetime.utcnow() - timedelta(days=30)
+                and p.activite.matiere.annee.id == annee
             ).order_by(
                 desc(Page.modified)
             )  # pragma: no cover_all
             return query
 
         @classmethod
-        def recents(cls):
-            return [p.to_dict() for p in cls._query_recents(cls)]
+        def recents(cls, annee):
+            return [p.to_dict() for p in cls._query_recents(cls, annee)]
 
         @staticmethod
         def new_page(activite, titre=""):

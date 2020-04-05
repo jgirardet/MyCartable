@@ -418,6 +418,18 @@ class TestSettingsMixin:
         dao.setup_settings()
         assert isinstance(dao.annee_active, int)
 
+    def test_getMenuesAnnees(self, dao):
+        check_args(dao.getMenuAnnees, None, list)
+        for i in range(4):
+            f_annee(2016 - (i * i))  # pour tester l'ordre
+        assert dao.getMenuAnnees() == [
+            {"id": 2007, "niveau": "cm2007"},
+            {"id": 2012, "niveau": "cm2012"},
+            {"id": 2015, "niveau": "cm2015"},
+            {"id": 2016, "niveau": "cm2016"},
+            {"id": 2019, "niveau": "cm2019"},  # 2019 setté dans la fixture dao
+        ]
+
 
 class TestDatabaseObject:
     def test_init_settings(self, ddbr, dao):
@@ -497,9 +509,28 @@ class TestDatabaseObject:
         with qtbot.waitSignals([dao.recentsModelChanged, dao.pagesParSectionChanged]):
             dao.updateRecentsAndActivites.emit()
 
-    def test_currentMaterieResed(self, dao, qtbot):
+    def test_currentMaterieResed(self, dao):
         m = f_matiere()
         a = f_page()
         dao.currentPage = 1
         dao.matiereReset.emit()
         assert dao.currentPage == 0
+
+    def test_changeAnnee(self, dao, qtbot):
+        # setup
+        assert dao.annee_active == 2019
+        f_annee(2020)
+        m = f_matiere(annee=2019)
+        p = f_page(matiere=m.id, created=datetime.now())
+        dao.currentPage = 1
+        assert dao.currentMatiere == m.id
+        assert len(dao.recentsModel) == 1
+
+        # test
+        dao.changeAnnee.emit(2020)
+        assert dao.annee_active == 2020
+        assert dao.currentPage == 0
+        assert dao.currentMatiere == 0
+        assert dao.m_d.annee.id == 2020
+        assert len(dao.recentsModel) == 0
+        assert len(dao.matieresListNom) == 0

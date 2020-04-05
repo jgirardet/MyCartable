@@ -12,10 +12,10 @@ MAT = ["Math", "Français", "Histoire", "Anglais"]
 class CreateJs:
     def __init__(self):
         self.new = {}
-        self.populate()
         from package.database_object import DatabaseObject
 
         self.dao = DatabaseObject(package.database.db)
+        self.populate()
 
     def populate(self):
         from package.database.factory import (
@@ -29,8 +29,9 @@ class CreateJs:
             f_annotationText,
         )
 
-        self.annee = f_annee(niveau="ce1")
+        self.annee = f_annee(id="2019")
         self.matieres = [f_matiere(x, self.annee.id) for x in MAT]
+        self.dao.init_matieres(annee=2019)
         math = self.matieres[0]
         with db_session:
             self.activites = math.activites.select()[:]

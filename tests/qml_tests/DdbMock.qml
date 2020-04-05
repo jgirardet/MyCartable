@@ -29,6 +29,10 @@ Item {
     _addSection  =[page, content]
   }
 
+  function changeAnnee(value) {
+    _changeAnnee  = value
+  }
+
   function deleteAnnotation(id) {
     _deleteAnnotation = id
   }
@@ -39,6 +43,10 @@ Item {
 
   function getMatiereIndexFromId(id) {
     return _getMatiereIndexFromId
+  }
+
+  function getMenuAnnees(i) {
+    return _getMenuAnnees
   }
 
   function loadSection(sec) {
@@ -72,9 +80,11 @@ Item {
   /* beautify preserve:start */
   property int _addAnnotation: 0
   property var _addSection
+  property var _changeAnnee
   property var _deleteAnnotation
   property int _getLayoutSizes: 100
   property int _getMatiereIndexFromId: 1
+  property var _getMenuAnnees: [{"id":2018, "niveau": "ce2"},{"id":2019, "niveau": "cm1"},]
   property var _loadAnnotations: []
   property var _loadSection: {}
   property var _newPage

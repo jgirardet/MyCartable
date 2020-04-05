@@ -59,7 +59,7 @@ EQUIVALENTS = {
     str: "QString",
     int: "int",
     dict: "QVariantMap",
-    list: "QvariantList",
+    list: "QVariantList",
     None: "void",
     bool: "bool",
 }

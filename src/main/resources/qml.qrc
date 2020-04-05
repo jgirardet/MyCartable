@@ -50,6 +50,8 @@
     </qresource>
     <qresource prefix="/qml/divers">
         <file alias="BorderRectangle.qml">base/qml/divers/BorderRectangle.qml</file>
+        <file alias="MainMenuBar.qml">base/qml/divers/MainMenuBar.qml</file>
+        <file alias="ValueButton.qml">base/qml/divers/ValueButton.qml</file>
     </qresource>
     <qresource prefix="/icons">
         <file alias="newImageSection">../icons/base/svg/mbri-image-gallery.svg</file>

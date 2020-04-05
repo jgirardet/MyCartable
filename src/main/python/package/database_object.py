@@ -58,6 +58,8 @@ class DatabaseObject(QObject, *MIXINS):
         self.updateRecentsAndActivites.connect(self.pagesParSectionChanged)
         self.updateRecentsAndActivites.connect(self.recentsModelChanged)
 
+        self.changeAnnee.connect(self.onChangeAnnee)
+
     def onCurrentPageChanged(self, page):
         if not page:
             self.pageModel.slotReset(0)
@@ -67,9 +69,6 @@ class DatabaseObject(QObject, *MIXINS):
             self.currentMatiere = page["matiere"]
 
     def onMatiereReset(self):
-        # self.pagesParSectionChanged.emit()
-        # self.onCurrentPageChanged({})
-        # self.onCurrentPageChanged(0)
         self.currentPage = 0
 
     def onNewPageCreated(self, item: dict):
@@ -78,3 +77,10 @@ class DatabaseObject(QObject, *MIXINS):
     def onRecentsItemClicked(self, id, matiere):
         self.currentPage = id
         self.currentMatiere = matiere
+
+    def onChangeAnnee(self, value: int):
+        self.currentPage = 0
+        self.currentMatiere = 0
+        self.init_matieres(value)
+        self.recentsModelChanged.emit()
+        self.matieresListNomChanged.emit()

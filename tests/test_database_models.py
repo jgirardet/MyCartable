@@ -4,6 +4,7 @@ from PySide2.QtCore import QUrl
 from fixtures import compare, compare_items, check_is_range
 from package.database.factory import *
 import pytest
+from package.exceptions import MyCartableOperationError
 from pony.orm import flush, Database
 
 
@@ -346,6 +347,11 @@ class TestOperationSection:
         assert a.datas == ["", "", "", "1", "+", "2", "", ""]
         assert a.rows == 4
         assert a.columns == 2
+
+    def test_error_in_init(self, ddb):
+        with pytest.raises(MyCartableOperationError) as err:
+            ddb.OperationSection(string="1(2")
+        assert str(err.value) == "1(2 est une entrée invalide"
 
     def test_datas(self, ddb):
         f_page()

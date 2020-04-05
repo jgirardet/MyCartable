@@ -1,7 +1,6 @@
 # Bug:
     - fialedialog ne prend pas en compte le folder de départ
     - create operation if worng input
-    - undefined virgule multiplication et 12*8
 
 
 # QML:

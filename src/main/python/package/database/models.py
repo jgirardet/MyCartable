@@ -6,6 +6,7 @@ from pathlib import Path
 from PySide2.QtCore import QUrl
 from PySide2.QtGui import QColor
 from descriptors import cachedproperty
+from package.exceptions import MyCartableOperationError
 from package.operations.api import create_operation
 from pony.orm import select, Database, PrimaryKey, Optional, Required, Set, desc, flush
 from package.constantes import ACTIVITES
@@ -190,7 +191,11 @@ def init_models(db: Database):
         virgule = Required(int)
 
         def __init__(self, string, **kwargs):
-            rows, columns, virgule, datas = create_operation(string)
+            try:
+                rows, columns, virgule, datas = create_operation(string)
+            except TypeError:
+                raise MyCartableOperationError(f"{string} est une entrée invalide")
+
             size = len(datas)
             super().__init__(
                 rows=rows,
@@ -198,7 +203,7 @@ def init_models(db: Database):
                 _datas=json.dumps(datas),
                 size=size,
                 virgule=virgule,
-                **kwargs
+                **kwargs,
             )
 
         @property

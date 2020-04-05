@@ -3,6 +3,7 @@ from pathlib import Path
 
 from PySide2.QtCore import Slot, QUrl, Signal
 from package.constantes import FILES
+from package.exceptions import MyCartableOperationError
 from pony.orm import db_session
 import logging
 from datetime import datetime
@@ -32,7 +33,11 @@ class SectionMixin:
                 return 0
 
         with db_session:
-            item = getattr(self.db, classtype)(page=page_id, **content)
+            try:
+                item = getattr(self.db, classtype)(page=page_id, **content)
+            except MyCartableOperationError as err:
+                LOG.error(err)
+                return 0
         self.sectionAdded.emit(item.position)
         return item.id
 

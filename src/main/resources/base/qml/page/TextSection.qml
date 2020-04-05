@@ -10,7 +10,7 @@ TextArea {
 
   selectByMouse: true
   wrapMode: TextEdit.Wrap
-  width: base.width
+  width: base ? base.width : 0
 
   onFocusChanged: focus ? uiManager.menuTarget = doc : null
 
@@ -18,10 +18,6 @@ TextArea {
     anchors.fill: area
     acceptedButtons: Qt.LeftButton | Qt.RightButton
 
-    //    hoverEnabled: true
-    //    onEntered:{
-    //        area.forceActiveFocus()
-    //    }
     onPressed: {
 
       if (pressedButtons == Qt.LeftButton) {

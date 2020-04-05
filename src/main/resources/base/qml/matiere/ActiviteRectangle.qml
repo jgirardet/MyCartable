@@ -49,11 +49,9 @@ Rectangle {
       width: ListView.view.width
       height: _listView.commonHeight
       onClicked: {
-        print("clicked")
         ddb.currentPage = modelData.id
 
       }
-      //      Component.onCompleted:print(modelData['id'])
     }
   }
 }

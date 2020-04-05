@@ -85,6 +85,7 @@ Item {
       compare(tested.currentItem.textinput.focus,true) // si pas fait)
       keyClick(Qt.Key_5)
       compare(model.get(52).edit, "5")
+      compare(tested.currentItem.textinput.focus,true) // si pas fait)
       keyClick(Qt.Key_Comma)
       compare(model.get(52).edit, "5,")
    }
@@ -92,10 +93,10 @@ Item {
 
         function test_properties() {
 
-          compare(tested.itemAtIndex(4).textinput.color,"#ff0000") //Red
-          compare(tested.itemAtIndex(20).textinput.color,"#008000") //green
-          compare(tested.itemAtIndex(52).textinput.color,"#ff0000") //Red
-          compare(tested.itemAtIndex(56).textinput.color,"#000000") //black
+      compare(tested.itemAtIndex(4).textinput.color,"#ff0000") //Red
+      compare(tested.itemAtIndex(20).textinput.color,"#008000") //green
+      compare(tested.itemAtIndex(52).textinput.color,"#ff0000") //Red
+      compare(tested.itemAtIndex(56).textinput.color,"#000000") //black
 
       compare(tested.itemAtIndex(4).textinput.horizontalAlignment,TextInput.AlignHCenter)
       compare(tested.itemAtIndex(20).textinput.horizontalAlignment,TextInput.AlignHCenter)

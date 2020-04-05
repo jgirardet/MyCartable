@@ -81,6 +81,9 @@ Item {
       tested.currentIndex = 1
       tested.currentIndex = 6
       compare(tested.currentItem.textinput.focus,true)
+
+      //test no focus if input no exists, erreur dans les waringing du test
+      tested.currentIndex = 999
   }
 //
     function test_keys_and_validator() {

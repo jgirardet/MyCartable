@@ -132,7 +132,7 @@ FocusScope {
     //    fillMode: Image.PreserveAspectFit
     fillMode: Image.PreserveAspectCrop
     source: root.imagePath
-    sourceSize.width: base.width
+    sourceSize.width: base ? base.width : 0
     //    onStatusChanged: if (image.status == Image.Ready)  {root.imageLoaded()}
 
   }

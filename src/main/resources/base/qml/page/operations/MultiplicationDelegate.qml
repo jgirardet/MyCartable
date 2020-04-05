@@ -32,7 +32,7 @@ Rectangle {
     function moreKeys(event) {
 
       if (event.key == Qt.Key_Comma) {
-        edit = edit + event.text
+        edit = display + event.text
         event.accepted = true
       }
 

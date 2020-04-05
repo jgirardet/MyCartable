@@ -51,6 +51,7 @@ def create_singleton_instance():
 
     databaseObject = DatabaseObject(package.database.db, debug=False)
     ui_manager = UiManager()
+    databaseObject.ui = ui_manager
     return databaseObject, ui_manager
 
 

@@ -51,6 +51,7 @@
     <qresource prefix="/qml/divers">
         <file alias="BorderRectangle.qml">base/qml/divers/BorderRectangle.qml</file>
         <file alias="MainMenuBar.qml">base/qml/divers/MainMenuBar.qml</file>
+        <file alias="Toast.qml">base/qml/divers/Toast.qml</file>
         <file alias="ValueButton.qml">base/qml/divers/ValueButton.qml</file>
     </qresource>
     <qresource prefix="/icons">

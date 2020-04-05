@@ -15,7 +15,7 @@ ApplicationWindow {
   header: MainMenuBar {
     id: mainMenuBar
   }
-  title: "MyCartable: année " + ddb.anneeActive + "/" + (ddb.anneeActive +1)
+  title: "MyCartable: année " + ddb.anneeActive + "/" + (ddb.anneeActive + 1)
   onClosing: {
     baseItem.destroy() // elmine presque tous les messages d'erreur
   }
@@ -49,6 +49,18 @@ ApplicationWindow {
         Layout.maximumWidth: ddb.getLayoutSizes("maximumSideWidth")
         Layout.minimumWidth: ddb.getLayoutSizes("minimumSideWidth")
       }
+    }
+
+    Toast {
+      id: toast
+    }
+
+  function showToast(message) {
+      toast.msg = message
+      toast.open()
+  }
+  Component.onCompleted: {
+      uiManager.sendToast.connect(showToast)
     }
   }
 }

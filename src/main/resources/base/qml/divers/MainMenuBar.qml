@@ -28,13 +28,11 @@ MenuBar {
         }
         text: "mon année de " + modelData.niveau + " en " + modelData.id + "/" + (modelData.id + 1)
         value: modelData.id
-    }
+      }
 
     }
-
 
     standardButtons: Dialog.Cancel
   }
 
-
-    }
+}

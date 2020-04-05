@@ -11,9 +11,9 @@ GridView {
   cellHeight: 50
   keyNavigationEnabled: false
   onCurrentItemChanged: {
-    if (currentItem){
+    if (currentItem) {
       currentItem.textinput.forceActiveFocus()
-      }
+    }
   }
 
   Binding on currentIndex {

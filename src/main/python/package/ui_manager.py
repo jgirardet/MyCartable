@@ -1,4 +1,4 @@
-from PySide2.QtCore import QObject, Property, Signal
+from PySide2.QtCore import QObject, Property, Signal, Slot
 
 
 class UiManager(QObject):
@@ -10,6 +10,7 @@ class UiManager(QObject):
     def __init__(self):
         super().__init__()
         self._menuTarget = None
+        self._toast = None
 
     @Property(QObject, notify=menuFlottantTextChanged)
     def menuFlottantText(self):
@@ -38,3 +39,29 @@ class UiManager(QObject):
         if value != self._menuTarget:
             self._menuTarget = value
             self.menuTargetChanged.emit()
+
+    toastChanged = Signal()
+
+    # @Property(QObject, notify=toastChanged)
+    # def toast(self):
+    #     return self._toast
+    #
+    # @toast.setter
+    # def toast_set(self, value: int):
+    #     self._toast = value
+    #     self.toastChanged.emit()
+
+    # # @Slot(str, QObject)
+    # @Slot(str)
+    # def sendToast(self, msg):
+    #     # print(window)
+    #     # toast = self.toast.createWithInitialProperties(
+    #     # {"msg": "par lar", "parent": window}
+    #     # {"msg": "par lar"}
+    #     # )
+    #     print(self.toast)
+    #     self.toast.msg = "aaaaaaaaaaaa"
+    #     # print(toast)
+    #     self.toast.open()
+
+    sendToast = Signal(str)

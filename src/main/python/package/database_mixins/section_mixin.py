@@ -37,6 +37,7 @@ class SectionMixin:
                 item = getattr(self.db, classtype)(page=page_id, **content)
             except MyCartableOperationError as err:
                 LOG.error(err)
+                self.ui.sendToast.emit(str(err))
                 return 0
         self.sectionAdded.emit(item.position)
         return item.id

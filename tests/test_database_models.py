@@ -591,112 +591,113 @@ class TestDivisionSection:
         assert x.dividende_as_num == 5.333333
 
 
-class TestAnnotations:
-    def test_factory_stabylo(self, ddbr):
-        a = f_stabylo()
-        isinstance(a, db.Stabylo)
-        a = f_stabylo(0.30, 0.40, 0.50, 0.60, td=True)
-        assert list(a.values()) == [2, 0.3, 0.4, 2, None, "Stabylo", 0.5, 0.6]
+#
+# class TestAnnotations:
+#     def test_factory_stabylo(self, ddbr):
+#         a = f_stabylo()
+#         isinstance(a, db.Stabylo)
+#         a = f_stabylo(0.30, 0.40, 0.50, 0.60, td=True)
+#         assert list(a.values()) == [2, 0.3, 0.4, 2, None, "Stabylo", 0.5, 0.6]
+#
+#     def test_factory_annotationtext(self, ddbr):
+#         a = f_annotationText()
+#         isinstance(a, db.AnnotationText)
+#         a = f_annotationText(0.30, 0.40, "coucou", td=True)
+#         assert list(a.values()) == [
+#             2,
+#             0.3,
+#             0.4,
+#             2,
+#             None,
+#             "AnnotationText",
+#             "coucou",
+#             False,
+#         ]
+#
+#     def test_create_annotation_accept_qcolor(self, ddbr):
+#         s = f_section()
+#         with db_session:
+#             item = ddbr.Stabylo(
+#                 relativeX=0.5,
+#                 relativeY=0.5,
+#                 relativeWidth=0.5,
+#                 relativeHeight=0.5,
+#                 section=s.id,
+#                 color=QColor("red"),
+#             )
+#             assert item.color == QColor("red").rgba()
+#
+#             # test with simple wrga int
+#             item = ddbr.Stabylo(
+#                 relativeX=0.5,
+#                 relativeY=0.5,
+#                 relativeWidth=0.5,
+#                 relativeHeight=0.5,
+#                 section=s.id,
+#                 color=QColor("red").rgba(),
+#             )
+#             assert item.color == QColor("red").rgba()
+#
+#     def test_annotatation_to_dict(self, ddbr):
+#         a = f_stabylo(td=True, color="red")
+#         assert isinstance(a["color"], QColor)
+#         assert a["color"] == QColor("red")
+#
+#         # None case
+#         a = f_stabylo(td=True, color=None)
+#         assert a["color"] is None
+#
+#     def test_annotatationText_to_dict(self, ddbr):
+#         a = f_annotationText(td=True, color="red", underline=True)
+#         assert isinstance(a["color"], QColor)
+#         assert a["color"] == QColor("red")
+#         assert a["underline"] == True
+#
+#         # None case
+#         a = f_stabylo(td=True, color=None)
+#         assert a["color"] is None
+#
+#     def test_add_modify_section_and_page_modified_attribute(self, ddbr):
+#         p = f_page()
+#         before_p = p.modified
+#         s = f_section(page=p.id, created=datetime.utcnow())
+#         before = s.modified
+#
+#         a = f_annotationText(section=s.id)
+#
+#         with db_session:
+#             n = ddbr.Section[s.id]
+#             after = n.modified
+#             after_p = n.page.modified
+#
+#         assert before < after
+#         assert before_p < after_p
+#
+#     def test_delete_modify_section_and_page_modified_attribute(self, ddbr):
+#         p = f_page()
+#         s = f_section(page=p.id, created=datetime.utcnow())
+#         a = f_annotationText(section=s.id)
+#
+#         with db_session:
+#             n = ddbr.Section[s.id]
+#             before = n.modified
+#             before_p = n.page.modified
+#
+#         with db_session:
+#             ddbr.Annotation[a.id].delete()
+#
+#         with db_session:
+#             n = ddbr.Section[s.id]
+#             after = n.modified
+#             after_p = n.page.modified
+#
+#         assert before < after
+#         assert before_p < after_p
 
-    def test_factory_annotationtext(self, ddbr):
-        a = f_annotationText()
-        isinstance(a, db.AnnotationText)
-        a = f_annotationText(0.30, 0.40, "coucou", td=True)
-        assert list(a.values()) == [
-            2,
-            0.3,
-            0.4,
-            2,
-            None,
-            "AnnotationText",
-            "coucou",
-            False,
-        ]
-
-    def test_create_annotation_accept_qcolor(self, ddbr):
-        s = f_section()
-        with db_session:
-            item = ddbr.Stabylo(
-                relativeX=0.5,
-                relativeY=0.5,
-                relativeWidth=0.5,
-                relativeHeight=0.5,
-                section=s.id,
-                color=QColor("red"),
-            )
-            assert item.color == QColor("red").rgba()
-
-            # test with simple wrga int
-            item = ddbr.Stabylo(
-                relativeX=0.5,
-                relativeY=0.5,
-                relativeWidth=0.5,
-                relativeHeight=0.5,
-                section=s.id,
-                color=QColor("red").rgba(),
-            )
-            assert item.color == QColor("red").rgba()
-
-    def test_annotatation_to_dict(self, ddbr):
-        a = f_stabylo(td=True, color="red")
-        assert isinstance(a["color"], QColor)
-        assert a["color"] == QColor("red")
-
-        # None case
-        a = f_stabylo(td=True, color=None)
-        assert a["color"] is None
-
-    def test_annotatationText_to_dict(self, ddbr):
-        a = f_annotationText(td=True, color="red", underline=True)
-        assert isinstance(a["color"], QColor)
-        assert a["color"] == QColor("red")
-        assert a["underline"] == True
-
-        # None case
-        a = f_stabylo(td=True, color=None)
-        assert a["color"] is None
-
-    def test_add_modify_section_and_page_modified_attribute(self, ddbr):
-        p = f_page()
-        before_p = p.modified
-        s = f_section(page=p.id, created=datetime.utcnow())
-        before = s.modified
-
-        a = f_annotationText(section=s.id)
-
-        with db_session:
-            n = ddbr.Section[s.id]
-            after = n.modified
-            after_p = n.page.modified
-
-        assert before < after
-        assert before_p < after_p
-
-    def test_delete_modify_section_and_page_modified_attribute(self, ddbr):
-        p = f_page()
-        s = f_section(page=p.id, created=datetime.utcnow())
-        a = f_annotationText(section=s.id)
-
-        with db_session:
-            n = ddbr.Section[s.id]
-            before = n.modified
-            before_p = n.page.modified
-
-        with db_session:
-            ddbr.Annotation[a.id].delete()
-
-        with db_session:
-            n = ddbr.Section[s.id]
-            after = n.modified
-            after_p = n.page.modified
-
-        assert before < after
-        assert before_p < after_p
-
-    # def test_delete_not_fail_if_section_deleted(self, ddbr):
-    #     a = f_annotationText()
-    #     with db_session:
-    #         s = ddbr.Section[1]
-    #         a = ddbr.Annotation[1]
-    #         s.delete()
-    #         a.delete()
+# def test_delete_not_fail_if_section_deleted(self, ddbr):
+#     a = f_annotationText()
+#     with db_session:
+#         s = ddbr.Section[1]
+#         a = ddbr.Annotation[1]
+#         s.delete()
+#         a.delete()

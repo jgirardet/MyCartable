@@ -20,7 +20,7 @@ install:
 	pip install -U pip
 	pip install -r requirements/base.txt
 
-install_liux_ci:
+install_linux_ci:
 	pip install -U pip
 	pip install -r requirements/base.txt
 	aqt install $(QT_VERSION) linux desktop

@@ -5,7 +5,6 @@ from pathlib import Path
 from PySide2.QtCore import QSettings
 from PySide2.QtGui import QTextDocument
 from mimesis import Generic
-from package.ui_manager import UiManager
 from pony.orm import db_session, delete
 import subprocess
 
@@ -99,6 +98,8 @@ def tmpfilename(request, tmp_path, gen):
 
 @pytest.fixture()
 def uim():
+    from package.ui_manager import UiManager
+
     return UiManager()
 
 

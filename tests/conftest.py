@@ -5,6 +5,7 @@ from pathlib import Path
 from PySide2.QtCore import QSettings
 from PySide2.QtGui import QTextDocument
 from mimesis import Generic
+from package.ui_manager import UiManager
 from pony.orm import db_session, delete
 import subprocess
 
@@ -97,12 +98,18 @@ def tmpfilename(request, tmp_path, gen):
 
 
 @pytest.fixture()
-def dao(ddbr, tmpfilename):
+def uim():
+    return UiManager()
+
+
+@pytest.fixture()
+def dao(ddbr, tmpfilename, uim):
     from package.database_object import DatabaseObject
 
     with db_session:
         annee = ddbr.Annee(id=2019, niveau="cm2019")
     obj = DatabaseObject(ddbr)
+    obj.ui = uim
     obj.init_matieres(annee=2019)
     obj.settings = QSettings(str(tmpfilename.absolute()))
     return obj

@@ -38,3 +38,7 @@ bug opération :
   - zéro automatique pour la soustraction décimale
   - masquer zéro
   - ajouter + dans les multipliaxion
+
+
+modif d'opération en cours:
+test_init dans TEstPageMixin

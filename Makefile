@@ -20,6 +20,10 @@ install:
 	pip install -U pip
 	pip install -r requirements/base.txt
 
+install_liux_ci:
+	pip install -U pip
+	pip install -r requirements/base.txt
+	aqt install $(QT_VERSION) linux desktop
 qrc:
 	pyside2-rcc src/main/resources/qml.qrc -o src/main/python/qrc.py
 

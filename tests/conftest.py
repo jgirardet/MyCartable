@@ -113,7 +113,11 @@ def dao(ddbr, tmpfilename, uim):
     obj.ui = uim
     obj.init_matieres(annee=2019)
     obj.settings = QSettings(str(tmpfilename.absolute()))
-    return obj
+
+    yield obj
+
+    del obj.timer_titre
+    del obj.timer_titre_setted
 
 
 import time

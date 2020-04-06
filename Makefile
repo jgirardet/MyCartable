@@ -15,6 +15,9 @@ export PATH := $(QT_BIN):$(PATH)
 
 all: dev test
 
+qk_commit:
+	git add
+
 install:
 	python$(PYTHON_VERSION) -m venv .venv
 	pip install -U pip

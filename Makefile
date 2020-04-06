@@ -9,7 +9,7 @@ PYTHON_BIN=$(VIRTUAL_ENV)/bin
 SITE_PACKAGE = $(VIRTUAL_ENV)/lib/python$(PYTHON_VERSION)/site-packages
 export PATH := $(PYTHON_BIN):$(PATH)
 
-QT_VERSION=5.14.2
+QT_VERSION=5.14.1
 QT_BIN = $(VIRTUAL_ENV)/$(QT_VERSION)/gcc_64/bin
 export PATH := $(QT_BIN):$(PATH)
 

@@ -1,9 +1,9 @@
 # base
-fbs==0.8.6
+# fbs==0.8.5
 pony==0.7.11
 PySide2==5.14.1
 dickens==1.0.1
-
+PyInstaller==3.6
 # dev
 aqtinstall
 black

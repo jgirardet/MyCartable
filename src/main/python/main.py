@@ -1,9 +1,24 @@
 import os
 
-from fbs_runtime.application_context.PySide2 import ApplicationContext
+# from fbs_runtime.application_context.PySide2 import ApplicationContext
+from pathlib import Path
+
+from PySide2.QtWidgets import QApplication
 import sys
 from PySide2.QtQml import QQmlApplicationEngine, qmlRegisterType
 from PySide2.QtCore import QUrl, QLocale, QStandardPaths, QSettings
+
+import sys
+
+if getattr(sys, "frozen", False):
+    # we are running in a bundle
+    frozen = "ever so"
+    bundle_dir = sys._MEIPASS
+else:
+    # we are running in a normal Python environment
+    bundle_dir = os.path.dirname(os.path.abspath(__file__))
+print(bundle_dir)
+sys.path.append(bundle_dir)
 
 import package.database
 from package.constantes import APPNAME, ORGNAME
@@ -80,11 +95,16 @@ def setup_qml(ddb, ui_manager):
 
 
 def create_app():
-    appctxt = ApplicationContext()
-    appctxt.app.setApplicationName(APPNAME)
-    appctxt.app.setOrganizationName(ORGNAME)
-    appctxt.app.setOrganizationDomain("bla.com")
-    return appctxt
+    # appctxt = QApplication([])
+    # appctxt.app.setApplicationName(APPNAME)
+    # appctxt.app.setOrganizationName(ORGNAME)
+    # appctxt.app.setOrganizationDomain("bla.com")
+    # return appctxt
+    app = QApplication([])
+    app.setApplicationName(APPNAME)
+    app.setOrganizationName(ORGNAME)
+    app.setOrganizationDomain("bla.com")
+    return app
 
 
 def main():
@@ -104,7 +124,8 @@ def main():
     engine = setup_qml(databaseObject, ui_manager)
 
     # run the app
-    sys.exit(appctxt.app.exec_())
+    sys.exit(appctxt.exec_())
+    # sys.exit(appctxt.app.exec_())
 
 
 if __name__ == "__main__":

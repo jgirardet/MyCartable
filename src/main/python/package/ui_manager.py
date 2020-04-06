@@ -40,7 +40,7 @@ class UiManager(QObject):
             self._menuTarget = value
             self.menuTargetChanged.emit()
 
-    toastChanged = Signal()
+    # toastChanged = Signal()
 
     # @Property(QObject, notify=toastChanged)
     # def toast(self):

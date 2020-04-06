@@ -13,8 +13,6 @@ Popup {
     implicitHeight: 60
     color: popup.bgcolor
   }
-//  y: (rootWindow.height - 60)
-  modal: true
   focus: true
   closePolicy: Popup.CloseOnPressOutside
   Text {

@@ -693,10 +693,10 @@ class TestAnnotations:
         assert before < after
         assert before_p < after_p
 
-    def test_delete_not_fail_if_section_deleted(self, ddbr):
-        a = f_annotationText()
-        with db_session:
-            s = ddbr.Section[1]
-            a = ddbr.Annotation[1]
-            s.delete()
-            a.delete()
+    # def test_delete_not_fail_if_section_deleted(self, ddbr):
+    #     a = f_annotationText()
+    #     with db_session:
+    #         s = ddbr.Section[1]
+    #         a = ddbr.Annotation[1]
+    #         s.delete()
+    #         a.delete()

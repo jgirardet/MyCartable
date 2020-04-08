@@ -76,9 +76,9 @@ jobs:
       run: |
           pip install -U pip
           pip install -r requirements/base.txt
-    - name: Tests python on ${{matrix.os}}
-      run: |
-          python -m pytest -vvv -s
+#    - name: Tests python on ${{matrix.os}}
+#      run: |
+#          python -m pytest -vvv -s
     - name: Install Qt on ${{ matrix.os }}
       uses: jurplel/install-qt-action@v2
       with:
@@ -87,13 +87,31 @@ jobs:
         target: 'desktop'
     - name: Tests QML on ${{ matrix.os }}
       run: |
-        set QMAKESPEC=win32-msvc
-        python tests/qml_tests/create-js-data.py
+        CALL "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
+        SET _ROOT=${{ github.workspace }}\Qt\5.14.1
+        ECHO ${{ github.workspace }}
+        ECHO _ROOT
+        SET PATH=%_ROOT%\qtbase\bin;%_ROOT%\gnuwin32\bin;%PATH%
+        REM Uncomment the below line when using a git checkout of the source repository
+        REM SET PATH=%_ROOT%\qtrepotools\bin;%PATH%
         qmake -o target/qml_tests/Makefile tests/qml_tests/qml_tests.pro -spec win32-msvc CONFIG+=debug CONFIG+=qml_debug
         make -C target/qml_tests
         ./target/qml_tests/qml_tests
+#    - name: Tests QML on ${{ matrix.os }}
+#      run: |
+#        CALL "C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\VC\Auxiliary\Build\vcvarsall.bat" <arch>
+#        SET _ROOT=C:\Qt\Qt-5
+#        SET PATH=%_ROOT%\qtbase\bin;%_ROOT%\gnuwin32\bin;%PATH%
+#        REM Uncomment the below line when using a git checkout of the source repository
+#        REM SET PATH=%_ROOT%\qtrepotools\bin;%PATH%
+#        SET _ROOT=
+#        qmake -o target/qml_tests/Makefile tests/qml_tests/qml_tests.pro -spec win32-msvc CONFIG+=debug CONFIG+=qml_debug
+#        make -C target/qml_tests
+#        ./target/qml_tests/qml_tests
 #    - name: Coverage
 #      run: |
+#        python tests/qml_tests/create-js-data.py A REMETTRE
+#        set QMAKESPEC=win32-msvc
 #        qmake -o target/qml_tests/Makefile tests/qml_tests/qml_tests.pro CONFIG+=debug CONFIG+=qml_debug
 #        rm -rf .pytest_cache
 #              coverage run --rcfile=.coveragerc -m pytest

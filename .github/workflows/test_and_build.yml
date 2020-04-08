@@ -88,7 +88,8 @@ jobs:
     - name: Tests QML on ${{ matrix.os }}
       run: |
         CALL "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
-        SET _ROOT=${{ Qt5_Dir }}
+        ECHO Qt5_Dir
+        SET _ROOT=Qt5_Dir
         ECHO _ROOT
 #        ECHO ${{ github.workspace }}
 #        ECHO _ROOT

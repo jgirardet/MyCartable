@@ -89,6 +89,9 @@ jobs:
       run: |
         "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
         echo $env:Path
+        $env:path+=";d:\a\MyCartable\Qt\5.14.1\msvc2017_64\bin"
+        echo $env:Path
+        qmake -o target/qml_tests/Makefile tests/qml_tests/qml_tests.pro -spec win32-msvc CONFIG+=debug
 #        "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat" && qmake -o target/qml_tests/Makefile tests/qml_tests/qml_tests.pro CONFIG+=debug CONFIG+=qml_debug
 #        "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat" && qmake -o target/qml_tests/Makefile tests/qml_tests/qml_tests.pro -spec win32-msvc CONFIG+=debug CONFIG+=qml_debug
 #        "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" && qmake -o target/qml_tests/Makefile tests/qml_tests/qml_tests.pro -spec win32-msvc CONFIG+=debug CONFIG+=qml_debug

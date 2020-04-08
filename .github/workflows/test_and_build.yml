@@ -87,10 +87,14 @@ jobs:
         target: 'desktop'
     - name: Tests QML on ${{ matrix.os }}
       run: |
-        CALL "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
-        ECHO Qt5_Dir
-        SET _ROOT=Qt5_Dir
-        ECHO _ROOT
+        $env:Path+=";d:\a\MyCartable\Qt\5.14.1\msvc2017_64\bin"
+        qmake -o target/qml_tests/Makefile tests/qml_tests/qml_tests.pro -spec win32-msvc CONFIG+=debug CONFIG+=qml_debug
+#        d:\a\MyCartable\Qt\5.14.1\msvc2017_64\bin
+#      run: |
+#        CALL "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
+#        ECHO Qt5_Dir
+#        SET _ROOT=Qt5_Dir
+#        ECHO _ROOT
 #        ECHO ${{ github.workspace }}
 #        ECHO _ROOT
 #        SET PATH=%_ROOT%\qtbase\bin;%_ROOT%\gnuwin32\bin;%PATH%

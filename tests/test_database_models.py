@@ -1,5 +1,5 @@
 import itertools
-
+import time
 from PySide2.QtCore import QUrl
 from fixtures import compare, compare_items, check_is_range
 from package.database.factory import *
@@ -29,8 +29,11 @@ class TestAnnee:
 class TestPage:
     def test_modified(self, ddb):
         avant = datetime.utcnow()
+        time.sleep(1 / 1000)
         s = f_page(created=datetime.utcnow())
         s.to_dict()  # flush
+
+        time.sleep(1 / 1000)
         apres = datetime.utcnow()
         assert s.created == s.modified
         assert avant < s.created < apres
@@ -281,6 +284,7 @@ class TestSection:
 
         # inflence l date de modif de page
         page_modified = a.modified
+        time.sleep(1 / 1000)
         f_section(page=a.id, created=datetime.utcnow())
         assert page_modified < a.modified
 

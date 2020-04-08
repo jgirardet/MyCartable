@@ -40,10 +40,10 @@ class TestProperties:
             doc.document = o
         assert doc._document == doc.document == d
 
-    def test_sectionId(self, reset_db, doc, check_simple_property):
-        assert doc.sectionId == 0
-        f_textSection()
-        check_simple_property("sectionId", 1)
+    # def test_sectionId(self, reset_db, doc, check_simple_property):
+    #     assert doc.sectionId == 0
+    #     f_textSection()
+    #     check_simple_property("sectionId", 1)
 
     def test_update_proxy_triggered_on_section_id_changed(self, doc, reset_db):
         a = f_textSection()

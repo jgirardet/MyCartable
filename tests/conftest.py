@@ -136,18 +136,19 @@ def doc():
     return d
 
 
-@pytest.fixture()
-def check_simple_property(doc, qtbot):
-    def check_simple_property(
-        name, value,
-    ):
-        """ test simplement le getter, le setter, les paramtres du setter et le signal"""
-        check_params_cb = None if value is None else lambda x: x == value
-        assert hasattr(doc, f"_{name}")
-        with qtbot.waitSignal(
-            getattr(doc, f"{name}Changed"), check_params_cb=check_params_cb
-        ):
-            setattr(doc, name, value)
-            assert getattr(doc, f"_{name}") == getattr(doc, name) == value
-
-    return check_simple_property
+#
+# @pytest.fixture()
+# def check_simple_property(doc, qtbot):
+#     def check_simple_property(
+#         name, value,
+#     ):
+#         """ test simplement le getter, le setter, les paramtres du setter et le signal"""
+#         check_params_cb = None if value is None else lambda x: x == value
+#         assert hasattr(doc, f"_{name}")
+#         with qtbot.waitSignal(
+#             getattr(doc, f"{name}Changed"), check_params_cb=check_params_cb
+#         ):
+#             setattr(doc, name, value)
+#             assert getattr(doc, f"_{name}") == getattr(doc, name) == value
+#
+#     return check_simple_property

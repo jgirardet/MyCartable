@@ -1,3 +1,4 @@
+import time
 from itertools import zip_longest
 from operator import itemgetter, attrgetter
 from unittest.mock import patch, MagicMock

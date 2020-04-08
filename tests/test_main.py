@@ -1,3 +1,2 @@
-def test_un(dao):
-    print(dao)
+def test_un(qtbot):
     assert True

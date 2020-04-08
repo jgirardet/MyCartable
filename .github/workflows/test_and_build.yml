@@ -87,6 +87,7 @@ jobs:
         target: 'desktop'
     - name: Tests QML on ${{ matrix.os }}
       run: |
+        dir "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\"
         "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
         echo $env:Path
         $env:path+=";d:\a\MyCartable\Qt\5.14.1\msvc2017_64\bin"

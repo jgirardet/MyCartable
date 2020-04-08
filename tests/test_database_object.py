@@ -139,10 +139,12 @@ class TestMatiereMixin:
         assert dao._currentMatiere == 0
 
     def test_currentMatiere(self, dao, qtbot):
+        print("debut current matierer")
         self.create_matiere()
         dao.init_matieres()
         assert dao.currentMatiere == 0
 
+        print("debut current matierer")
         # from int
         with qtbot.waitSignal(dao.currentMatiereChanged, timeout=100):
             dao.currentMatiere = 2
@@ -150,6 +152,7 @@ class TestMatiereMixin:
         assert dao.currentMatiere == 2
         dao.currentMatiere = "fez"  # not in do nothing
         assert dao.currentMatiere == 2
+        print("debut current matierer")
 
         # from index
         with qtbot.waitSignal(dao.matiereReset):
@@ -159,6 +162,7 @@ class TestMatiereMixin:
         # get index from id
         assert dao.getMatiereIndexFromId(3) == 2
         assert dao.getMatiereIndexFromId(99999) is None
+        print("debut current matierer")
 
     def test_matiereList(self, dao):
         self.create_matiere()

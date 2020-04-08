@@ -39,11 +39,11 @@ jobs:
       run: |
         python -m pytest -vvv -s
     - name: Install Qt
-          uses: jurplel/install-qt-action@v2
-          with:
-            version: '5.14.1'
-            host: 'linux'
-            target: 'desktop'
+      uses: jurplel/install-qt-action@v2
+      with:
+        version: '5.14.1'
+        host: 'linux'
+        target: 'desktop'
     - name: Tests QML
       run: |
         python tests/qml_tests/create-js-data.py

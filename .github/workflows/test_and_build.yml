@@ -87,8 +87,8 @@ jobs:
         target: 'desktop'
     - name: Tests QML on ${{ matrix.os }}
       run: |
-          dir "d:\a\MyCartable\Qt\5.14.1\msvc2017_64\bin"
-          "d:\a\MyCartable\Qt\5.14.1\mingw73_64\bin\qmake.exe" tests\qml_tests\qml_tests.pro -spec win32-g++ "CONFIG+=debug" "CONFIG+=qml_debug"
+          "d:\a\MyCartable\Qt\5.14.1\msvc2017_64\bin\qmake.exe" tests\qml_tests\qml_tests.pro -spec win32-g++ "CONFIG+=debug" "CONFIG+=qml_debug"
+#          dir "d:\a\MyCartable\Qt\5.14.1\msvc2017_64\bin"
 #        dir "d:\a\MyCartable\Qt\5.14.1\msvc2017_64\"
 #        "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" amd64
 #        $env:path+=";d:\a\MyCartable\Qt\5.14.1\msvc2017_64\bin"

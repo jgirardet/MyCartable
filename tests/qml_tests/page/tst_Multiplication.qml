@@ -85,6 +85,7 @@ Item {
       compare(tested.currentItem.textinput.focus,true) // si pas fait)
       keyClick(Qt.Key_5)
       compare(model.get(52).edit, "5")
+      model.get(52).display = "5" //manually update display
       compare(tested.currentItem.textinput.focus,true) // si pas fait)
       keyClick(Qt.Key_Comma)
       compare(model.get(52).edit, "5,")

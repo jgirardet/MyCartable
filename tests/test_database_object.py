@@ -10,121 +10,120 @@ from unittest.mock import patch, call
 
 from pony.orm import exists, make_proxy
 
-#
-# class TestPageMixin:
-#     # def test_init(self, dao):
-#     #     assert dao._currentPage == 0
-#     #     assert dao._currentTitre == ""
-#     #     assert dao._currentEntry == None
-#     # assert dao.timer_titre.isSingleShot()
-#
-#     def test_newPage(self, dao, qtbot):
-#         f = f_page()  # pour avoir plusieurs dans le resultats
-#         with qtbot.wait_signal(dao.newPageCreated, timeout=100):
-#             r = dao.newPage(f.activite.id)
-#
-#     def test_currentPage(self, dao, qtbot):
-#         a = f_page()
-#         b = f_page()
-#         assert dao.currentPage == 0
-#
-#         # setCurrentPage
-#         dao.currentPage = 1
-#         assert dao.currentPage == a.id
-#         with qtbot.wait_signal(dao.currentPageChanged, timeout=100):
-#             dao.currentPage = 2
-#         assert dao.currentPage == dao.currentPage
-#
-#         # set currentpage do nothing if same id
-#         with qtbot.assertNotEmitted(dao.currentPageChanged):
-#             dao.currentPage = 2
-#         assert dao.currentPage == b.id
-#
-#         # set currentpage do nothing if same id
-#         with qtbot.assertNotEmitted(dao.currentPageChanged):
-#             dao.currentPage = 2
-#         assert dao.currentPage == b.id
-#
-#     def test_current_entry(self, dao):
-#         a = f_page()
-#         dao.currentPage = 1
-#         with db_session:
-#             assert (
-#                 dao._currentEntry.titre
-#                 == a.titre
-#                 == dao._currentTitre
-#                 == dao.currentTitre
-#             )
-#
-#     def test_CurrentTitreSet(self, dao):
-#         b_page(2)
-#
-#         # case no current page
-#         dao.currentTitre = "omk"
-#         assert dao._currentTitre == ""
-#         dao.currentPage = 1
-#         with patch.object(dao.timer_titre, "start") as m:
-#             dao.currentTitre = "mokmk"
-#             assert dao.currentTitre == "mokmk"
-#             assert m.call_args_list == [call(500)]
-#
-#             # do not call storage if same value
-#             dao.currentTitre = "mokmk"
-#             assert m.call_args_list == [call(500)]
-#
-#     def test_UnderscoreCurrentTitreSet(self, dao, qtbot):
-#         f_page()
-#         dao.currentPage = 1
-#         dao.TITRE_TIMER_DELAY = 0
-#         with qtbot.wait_signal(dao.currentTitreChanged):
-#             dao.currentTitre = "aaa"
-#         with db_session:
-#             assert dao.db.Page[1].titre == "aaa"
-#
-#     def test_setCurrentTitre(self, dao, qtbot):
-#         f_page()
-#         dao.currentPage = 1
-#         dao.TITRE_TIMER_DELAY = 0
-#         with qtbot.assertNotEmitted(dao.currentTitreChanged):
-#             dao.setCurrentTitre("blabla")
-#         assert dao.currentTitre == "blabla"
-#
-#         with qtbot.waitSignal(dao.currentTitreSetted):
-#             dao.setCurrentTitre("ble")
-#
-#         # no curerntPage
-#         dao.currentPage = 0
-#         with qtbot.assertNotEmitted(dao.currentTitreSetted):
-#             dao.setCurrentTitre("blabla")
-#
-#     def test_on_pagechanged_reset_model(self, dao):
-#         p1 = f_page()
-#         f_section(page=p1.id)
-#         dao.currentPage = p1.id
-#         assert len(dao.pageModel._datas) == 1
-#
-#     def test_removePAge(self, dao, qtbot):
-#         f_page()
-#         dao.removePage(1)
-#         with db_session:
-#             assert not dao.db.Page.get(id=1)
-#         assert dao.currentPage == 0
-#
-#     def test_removePAge_no_item_in_db(self, dao, qtbot):
-#         dao.removePage(99)
-#         assert dao.currentPage == 0
-#
-#     def test_removePAge_blanck_if_currentItem(self, dao):
-#         f_page()
-#         dao.currentPage = 1
-#         dao.removePage(1)
-#         assert dao.currentPage == 0
-#
-#     def test_allow_currentPAge_can_be_0(self, dao):
-#         f_page()
-#         dao.currentPage = 1
-#         dao.currentPage = 0
-#
+
+class TestPageMixin:
+    # def test_init(self, dao):
+    #     assert dao._currentPage == 0
+    #     assert dao._currentTitre == ""
+    #     assert dao._currentEntry == None
+    # assert dao.timer_titre.isSingleShot()
+
+    def test_newPage(self, dao, qtbot):
+        f = f_page()  # pour avoir plusieurs dans le resultats
+        with qtbot.wait_signal(dao.newPageCreated, timeout=100):
+            r = dao.newPage(f.activite.id)
+
+    def test_currentPage(self, dao, qtbot):
+        a = f_page()
+        b = f_page()
+        assert dao.currentPage == 0
+
+        # setCurrentPage
+        dao.currentPage = 1
+        assert dao.currentPage == a.id
+        with qtbot.wait_signal(dao.currentPageChanged, timeout=100):
+            dao.currentPage = 2
+        assert dao.currentPage == dao.currentPage
+
+        # set currentpage do nothing if same id
+        with qtbot.assertNotEmitted(dao.currentPageChanged):
+            dao.currentPage = 2
+        assert dao.currentPage == b.id
+
+        # set currentpage do nothing if same id
+        with qtbot.assertNotEmitted(dao.currentPageChanged):
+            dao.currentPage = 2
+        assert dao.currentPage == b.id
+
+    def test_current_entry(self, dao):
+        a = f_page()
+        dao.currentPage = 1
+        with db_session:
+            assert (
+                dao._currentEntry.titre
+                == a.titre
+                == dao._currentTitre
+                == dao.currentTitre
+            )
+
+    def test_CurrentTitreSet(self, dao):
+        b_page(2)
+
+        # case no current page
+        dao.currentTitre = "omk"
+        assert dao._currentTitre == ""
+        dao.currentPage = 1
+        with patch.object(dao.timer_titre, "start") as m:
+            dao.currentTitre = "mokmk"
+            assert dao.currentTitre == "mokmk"
+            assert m.call_args_list == [call(500)]
+
+            # do not call storage if same value
+            dao.currentTitre = "mokmk"
+            assert m.call_args_list == [call(500)]
+
+    def test_UnderscoreCurrentTitreSet(self, dao, qtbot):
+        f_page()
+        dao.currentPage = 1
+        dao.TITRE_TIMER_DELAY = 0
+        with qtbot.wait_signal(dao.currentTitreChanged):
+            dao.currentTitre = "aaa"
+        with db_session:
+            assert dao.db.Page[1].titre == "aaa"
+
+    def test_setCurrentTitre(self, dao, qtbot):
+        f_page()
+        dao.currentPage = 1
+        dao.TITRE_TIMER_DELAY = 0
+        with qtbot.assertNotEmitted(dao.currentTitreChanged):
+            dao.setCurrentTitre("blabla")
+        assert dao.currentTitre == "blabla"
+
+        with qtbot.waitSignal(dao.currentTitreSetted):
+            dao.setCurrentTitre("ble")
+
+        # no curerntPage
+        dao.currentPage = 0
+        with qtbot.assertNotEmitted(dao.currentTitreSetted):
+            dao.setCurrentTitre("blabla")
+
+    def test_on_pagechanged_reset_model(self, dao):
+        p1 = f_page()
+        f_section(page=p1.id)
+        dao.currentPage = p1.id
+        assert len(dao.pageModel._datas) == 1
+
+    def test_removePAge(self, dao, qtbot):
+        f_page()
+        dao.removePage(1)
+        with db_session:
+            assert not dao.db.Page.get(id=1)
+        assert dao.currentPage == 0
+
+    def test_removePAge_no_item_in_db(self, dao, qtbot):
+        dao.removePage(99)
+        assert dao.currentPage == 0
+
+    def test_removePAge_blanck_if_currentItem(self, dao):
+        f_page()
+        dao.currentPage = 1
+        dao.removePage(1)
+        assert dao.currentPage == 0
+
+    def test_allow_currentPAge_can_be_0(self, dao):
+        f_page()
+        dao.currentPage = 1
+        dao.currentPage = 0
 
 
 class TestMatiereMixin:

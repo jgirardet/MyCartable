@@ -73,8 +73,8 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Tests
-        run: |
+    - name: Tests python ${{matrix.os}}
+      run: |
           python -m pytest -vvv -s
     - name: Install Qt
       uses: jurplel/install-qt-action@v2

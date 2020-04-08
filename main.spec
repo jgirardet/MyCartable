@@ -7,7 +7,7 @@ a = Analysis(['src/main/python/main.py'],
              pathex=['src/main/python'],
              binaries=[],
              datas=[
-              (".venv/lib/python3.7/site-packages/mimesis/data", "mimesis/data"),
+              ("data", "mimesis/data"),
               ],
              hiddenimports=["pony.orm.dbproviders","pony.orm.dbproviders.sqlite"],
              hookspath=[],

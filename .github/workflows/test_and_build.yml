@@ -52,30 +52,56 @@ jobs:
         coverage report
     - name: build
       run: |
-        pyinstaller main.spec
+        pyinstaller main.spec -F --clean -y
 #        poetry run  python scripted/build_executable.py
     - name: upload linux binary in artifact
       uses: actions/upload-artifact@v1
       with:
-        path: dist/MyCartable/main
+        path: dist/MyCartable
         name: MyCartable
-#
-#  Windows:
-#    runs-on: ${{ matrix.os }}
-#    strategy:
-#      matrix:
-#        os: [windows-latest]
-#        python: [3.7']
-#    env:
-#      KIVY_GL_BACKEND: 'angle_sdl2'
-#
-#    steps:
-#    - name: get repo
-#      uses: actions/checkout@v1
-#    - name: Set up Python
-#      uses: actions/setup-python@v1
-#      with:
-#        python-version: 3.7
+
+  Windows:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest]
+        python: [3.7]
+    steps:
+    - name: get repo
+      uses: actions/checkout@v1
+    - name: Set up Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Tests
+        run: |
+          python -m pytest -vvv -s
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v2
+      with:
+        version: '5.14.1'
+        host: 'windows'
+        target: 'desktop'
+    - name: Tests QML
+      run: |
+        python tests/qml_tests/create-js-data.py
+        qmake -o target/qml_tests/Makefile tests/qml_tests/qml_tests.pro -spec linux-g++ CONFIG+=debug CONFIG+=qml_debug
+        make -C target/qml_tests
+        ./target/qml_tests/qml_tests
+#    - name: Coverage
+#      run: |
+#        rm -rf .pytest_cache
+#              coverage run --rcfile=.coveragerc -m pytest
+#              coverage report
+    - name: build
+      run: |
+        pyinstaller main.spec -F --clean -y
+    #        poetry run  python scripted/build_executable.py
+    - name: upload windows binary in artifact
+      uses: actions/upload-artifact@v1
+      with:
+        path: dist/MyCartable.exe
+        name: MyCartable.exe
 #    - name: Install poetry
 #      run: |
 #        python -m pip install poetry

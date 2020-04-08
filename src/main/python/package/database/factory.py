@@ -284,7 +284,7 @@ def populate_database(matieres_list=MATIERES, nb_page=100):
         for x in range(random.randint(0, 14)):
             random.choice(
                 [
-                    f_imageSection(page=a.id),
+                    # f_imageSection(page=a.id),
                     f_textSection(page=a.id),
                     f_additionSection(page=a.id),
                     f_soustractionSection(page=a.id),

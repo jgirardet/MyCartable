@@ -88,6 +88,38 @@ jobs:
     - name: Tests QML on ${{ matrix.os }}
       run: |
           "d:\a\MyCartable\Qt\5.14.1\msvc2017_64\bin\qmake.exe" tests\qml_tests\qml_tests.pro -spec win32-g++ "CONFIG+=debug" "CONFIG+=qml_debug"
+#
+  Windows2:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest,windows-2019]
+        python: [3.7]
+    steps:
+    - name: get repo  on ${{ matrix.os }}
+      uses: actions/checkout@v1
+    - name: Set up Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+#    - name: setup ${{matrix.os}}
+#      run: |
+#          pip install -U pip
+#          pip install -r requirements/base.txt
+#    - name: Tests python on ${{matrix.os}}
+#      run: |
+#          python -m pytest -vvv -s
+    - name: Install Qt on ${{ matrix.os }}
+      uses: jurplel/install-qt-action@v2
+      with:
+        version: '5.14.1'
+        host: 'windows'
+        target: 'desktop'
+        arch: 'win64_mingw73'
+    - name: Tests QML on ${{ matrix.os }}
+      run: |
+        echo $env:path
+        qmake tests\qml_tests\qml_tests.pro -spec win32-g++ "CONFIG+=debug" "CONFIG+=qml_debug"
 #          dir "d:\a\MyCartable\Qt\5.14.1\msvc2017_64\bin"
 #        dir "d:\a\MyCartable\Qt\5.14.1\msvc2017_64\"
 #        "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" amd64

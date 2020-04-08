@@ -2,7 +2,7 @@ import sys
 
 import pytest
 from PySide2.QtCore import QUrl
-from fixtures import compare, ss, check_args
+from fixtures import compare, ss, check_args, wait
 from package import constantes
 from package.database_mixins.matiere_mixin import MatieresDispatcher
 from package.database_mixins.page_mixin import PageMixin
@@ -352,7 +352,7 @@ class TestImageSectionMixin:
     )
     def test_addAnnotation(self, dao, content):
         s = f_imageSection()
-
+        wait()
         res = dao.addAnnotation(content)
 
         with db_session:

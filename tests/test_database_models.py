@@ -2,15 +2,11 @@ import itertools
 import sys
 import time
 from PySide2.QtCore import QUrl
-from fixtures import compare, compare_items, check_is_range
+from fixtures import compare, compare_items, check_is_range, wait
 from package.database.factory import *
 import pytest
 from package.exceptions import MyCartableOperationError
 from pony.orm import flush, Database
-
-
-def wait():
-    time.sleep(1 / 10000)
 
 
 def test_creation_all(ddb):

@@ -106,3 +106,7 @@ def is_blockFormat(item):
     template = f' margin-top:{format["topMargin"]}px; margin-bottom:{format["bottomMargin"]}px; margin-left:{format["leftMargin"]}px; margin-right:{format["rightMargin"]}px; -qt-block-indent:{format["indent"]}; text-indent:0px;'
 
     return block_style == template
+
+
+def wait():
+    time.sleep(1 / 10000)

@@ -3,7 +3,8 @@ import sys
 from pathlib import Path
 
 from PySide2.QtCore import QSettings
-from PySide2.QtGui import QTextDocument
+
+# from PySide2.QtGui import QTextDocument
 from mimesis import Generic
 from pony.orm import db_session, delete
 import subprocess
@@ -127,13 +128,13 @@ def duree_test():
     print(f"d={int((time.time()-debut)*1000)} ms")
 
 
-@pytest.fixture()
-def doc():
-    from package.page.text_section import DocumentEditor
-
-    d = DocumentEditor()
-    d._document = QTextDocument()
-    return d
+# @pytest.fixture()
+# def doc():
+#     from package.page.text_section import DocumentEditor
+#
+#     d = DocumentEditor()
+#     d._document = QTextDocument()
+#     return d
 
 
 #

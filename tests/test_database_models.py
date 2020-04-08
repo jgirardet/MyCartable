@@ -284,7 +284,7 @@ class TestSection:
 
         # inflence l date de modif de page
         page_modified = a.modified
-        time.sleep(1 / 1000)
+        time.sleep(1 / 10000)
         f_section(page=a.id, created=datetime.utcnow())
         assert page_modified < a.modified
 
@@ -298,7 +298,9 @@ class TestSection:
 
     def test_before_insert(self, ddbr):
         avant = datetime.utcnow()
+        time.sleep(1 / 1000)
         s = f_section(created=datetime.utcnow())
+        time.sleep(1 / 1000)
         apres = datetime.utcnow()
         assert avant < s.created < apres
         assert s.created == s.modified
@@ -313,6 +315,7 @@ class TestSection:
 
         with db_session:
             now = ddbr.Page[p.id].modified
+            time.sleep(1 / 1000)
             ddbr.Section[s2.id].delete()
 
         with db_session:

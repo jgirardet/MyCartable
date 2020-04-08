@@ -88,12 +88,12 @@ jobs:
     - name: Tests QML on ${{ matrix.os }}
       run: |
         python tests/qml_tests/create-js-data.py
-        qmake -o target/qml_tests/Makefile tests/qml_tests/qml_tests.pro CONFIG+=debug CONFIG+=qml_debug
+        qmake -o target/qml_tests/Makefile tests/qml_tests/qml_tests.pro -spec win32-msvc CONFIG+=debug CONFIG+=qml_debug
         make -C target/qml_tests
         ./target/qml_tests/qml_tests
 #    - name: Coverage
 #      run: |
-#        qmake -o target/qml_tests/Makefile tests/qml_tests/qml_tests.pro -spec win3222-msvc CONFIG+=debug CONFIG+=qml_debug
+#        qmake -o target/qml_tests/Makefile tests/qml_tests/qml_tests.pro CONFIG+=debug CONFIG+=qml_debug
 #        rm -rf .pytest_cache
 #              coverage run --rcfile=.coveragerc -m pytest
 #              coverage report

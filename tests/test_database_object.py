@@ -1,3 +1,5 @@
+import sys
+
 import pytest
 from PySide2.QtCore import QUrl
 from fixtures import compare, ss, check_args
@@ -236,7 +238,7 @@ class TestSectionMixin:
     @pytest.mark.parametrize(
         "page, content, res, signal_emitted",
         [
-            (
+            pytest.param(
                 1,
                 {
                     "path": "tests/resources/tst_AnnotableImage.png",
@@ -244,8 +246,9 @@ class TestSectionMixin:
                 },
                 1,
                 True,
+                marks=pytest.mark.skipif(sys.platform == "win32", reason="to be fixed"),
             ),
-            (
+            pytest.param(
                 1,
                 {
                     "path": QUrl("tests/resources/tst_AnnotableImage.png"),
@@ -253,6 +256,7 @@ class TestSectionMixin:
                 },
                 1,
                 True,
+                marks=pytest.mark.skipif(sys.platform == "win32", reason="to be fixed"),
             ),
             (1, {"path": "/my/path", "classtype": "ImageSection"}, 0, False),
             (1, {"classtype": "TextSection"}, 1, False),

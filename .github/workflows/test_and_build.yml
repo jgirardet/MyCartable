@@ -87,6 +87,7 @@ jobs:
         target: 'desktop'
     - name: Tests QML on ${{ matrix.os }}
       run: |
+        set QMAKESPEC=win32-msvc
         python tests/qml_tests/create-js-data.py
         qmake -o target/qml_tests/Makefile tests/qml_tests/qml_tests.pro -spec win32-msvc CONFIG+=debug CONFIG+=qml_debug
         make -C target/qml_tests

@@ -121,6 +121,8 @@ jobs:
         echo $env:path
         qmake tests\qml_tests\qml_tests.pro -spec win32-g++ "CONFIG+=debug" "CONFIG+=qml_debug"  -o target/qml_tests/Makefile
         mingw32-make.exe -j4 -C target/qml_tests
+        dir target\qml_tests
+        dir target\qml_tests\debug
         target\qml_tests\debug\qml_tests.exe
 #        target\qml_tests\qml_tests
 #          dir "d:\a\MyCartable\Qt\5.14.1\msvc2017_64\bin"

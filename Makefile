@@ -26,7 +26,8 @@ install:
 install_linux_ci:
 	pip install -U pip
 	pip install -r requirements/base.txt
-	aqt install $(QT_VERSION) linux desktop
+#	aqt install $(QT_VERSION) linux desktop --outputdir qt
+#	export PATH := qt/$(QT_VERSION)/gcc_64/bin:$(PATH)
 qrc:
 	pyside2-rcc src/main/resources/qml.qrc -o src/main/python/qrc.py
 

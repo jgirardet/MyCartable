@@ -73,6 +73,10 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: ${{ matrix.python-version }}
+    - name: setup ${{matrix.os}}
+      run: |
+          pip install -U pip
+          pip install -r requirements/base.txt
     - name: Tests python ${{matrix.os}}
       run: |
           python -m pytest -vvv -s

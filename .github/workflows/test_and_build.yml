@@ -93,7 +93,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest,windows-2019]
+        os: [windows-2019]
         python: [3.7]
     steps:
     - name: get repo  on ${{ matrix.os }}
@@ -123,7 +123,7 @@ jobs:
         mingw32-make.exe -j4 -C target/qml_tests
         dir target\qml_tests
         dir target\qml_tests\debug
-        target\qml_tests\debug\qml_tests.exe
+        target\qml_tests\qml_tests.exe
 #        target\qml_tests\qml_tests
 #          dir "d:\a\MyCartable\Qt\5.14.1\msvc2017_64\bin"
 #        dir "d:\a\MyCartable\Qt\5.14.1\msvc2017_64\"

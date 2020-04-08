@@ -90,6 +90,7 @@ jobs:
         $env:Path+=";d:\a\MyCartable\Qt\5.14.1\win64_msvc2017_64\bin"
         echo $env:Path
         echo $env:Qt5_Dir
+        qmake
         qmake -o target/qml_tests/Makefile tests/qml_tests/qml_tests.pro -spec win32-msvc CONFIG+=debug CONFIG+=qml_debug
 #        d:\a\MyCartable\Qt\5.14.1\msvc2017_64\bin
 #      run: |

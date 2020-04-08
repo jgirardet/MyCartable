@@ -27,14 +27,14 @@ jobs:
     - name: setup linux
       if: runner.os == 'Linux'
       run: |
+        sudo apt install libxkbcommon-x11-0
+        make install_linux_ci
+        /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -screen 0 1920x1200x24 -ac +extension GLX
 #         sudo rm -f /etc/apt/sources.list.d/dotnetdev.list /etc/apt/sources.list.d/microsoft-prod.list
 #        sudo apt update
 #        sudo apt install -y language-pack-fr pulseaudio libmtdev1
 #        sudo apt install -y xvfb herbstluftwm
 #        sleep 3
-        sudo apt install libxkbcommon-x11-0
-        make install_linux_ci
-        /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -screen 0 1920x1200x24 -ac +extension GLX
     - name: Tests
       run: |
         python -m pytest -vvv -s

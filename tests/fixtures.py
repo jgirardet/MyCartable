@@ -110,4 +110,4 @@ def is_blockFormat(item):
 
 
 def wait():
-    time.sleep(1 / 10000)
+    time.sleep(1 / 1000)

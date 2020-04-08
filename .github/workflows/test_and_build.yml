@@ -119,9 +119,10 @@ jobs:
     - name: Tests QML on ${{ matrix.os }}
       run: |
         echo $env:path
-        qmake tests\qml_tests\qml_tests.pro -spec win32-g++ "CONFIG+=debug" "CONFIG+=qml_debug"
-        mingw32-make.exe -C target/qml_tests
-        target\qml_tests\qml_tests
+        qmake tests\qml_tests\qml_tests.pro -spec win32-g++ "CONFIG+=debug" "CONFIG+=qml_debug"  -o target/qml_tests/Makefile
+        mingw32-make.exe -j4 -C target/qml_tests
+        target\qml_tests\debug\qml_tests.exe
+#        target\qml_tests\qml_tests
 #          dir "d:\a\MyCartable\Qt\5.14.1\msvc2017_64\bin"
 #        dir "d:\a\MyCartable\Qt\5.14.1\msvc2017_64\"
 #        "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" amd64

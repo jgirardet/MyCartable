@@ -361,10 +361,10 @@ class TestImageSectionMixin:
             assert item.pop("section") == s.id
             assert item == content
 
-            # check modified ok
-            item = s.annotations.select()[:][0]
-            section = db.Section[s.id]
-            assert item.section.page.modified > section.modified
+            # # check modified ok
+            # item = s.annotations.select()[:][0]
+            # section = db.Section[s.id]
+            # assert item.section.page.modified > section.modified
 
     def test_loadAnnotations(self, dao):
         s = f_imageSection()

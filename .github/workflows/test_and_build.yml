@@ -14,7 +14,7 @@ jobs:
     strategy:
       matrix:
         os : [ubuntu-latest]
-        python: [3.7']
+        python: [3.7]
     env:
       DISPLAY: ':99.0'
     steps:
@@ -23,38 +23,37 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v1
       with:
-        python-version: 3.7
-    - name: setup linux
-      if: runner.os == 'Linux'
+        python-version: ${{ matrix.python-version }}
+    - name: setup ${{ matrix.os }}
       run: |
         sudo apt install libxkbcommon-x11-0
         make install_linux_ci
         /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -screen 0 1920x1200x24 -ac +extension GLX
-    - name: Tests
+    - name: Tests python on ${{ matrix.os }}
       run: |
         python -m pytest -vvv -s
-    - name: Install Qt
+    - name: Install Qt on ${{ matrix.os }}
       uses: jurplel/install-qt-action@v2
       with:
         version: '5.14.1'
         host: 'linux'
         target: 'desktop'
-    - name: Tests QML
+    - name: Tests QML on ${{ matrix.os }}
       run: |
         python tests/qml_tests/create-js-data.py
         qmake -o target/qml_tests/Makefile tests/qml_tests/qml_tests.pro -spec linux-g++ CONFIG+=debug CONFIG+=qml_debug
         make -C target/qml_tests
         ./target/qml_tests/qml_tests
-    - name: Coverage
+    - name: Coverage on ${{ matrix.os }}
       run: |
         rm -rf .pytest_cache
         coverage run --rcfile=.coveragerc -m pytest
         coverage report
-    - name: build
+    - name: build on ${{ matrix.os }}
       run: |
         pyinstaller main.spec -F --clean -y
 #        poetry run  python scripted/build_executable.py
-    - name: upload linux binary in artifact
+    - name: upload  on ${{ matrix.os }} binary in artifact
       uses: actions/upload-artifact@v1
       with:
         path: dist/MyCartable
@@ -67,7 +66,7 @@ jobs:
         os: [windows-latest]
         python: [3.7]
     steps:
-    - name: get repo
+    - name: get repo  on ${{ matrix.os }}
       uses: actions/checkout@v1
     - name: Set up Python
       uses: actions/setup-python@v1
@@ -77,16 +76,16 @@ jobs:
       run: |
           pip install -U pip
           pip install -r requirements/base.txt
-    - name: Tests python ${{matrix.os}}
+    - name: Tests python on ${{matrix.os}}
       run: |
           python -m pytest -vvv -s
-    - name: Install Qt
+    - name: Install Qt on ${{ matrix.os }}
       uses: jurplel/install-qt-action@v2
       with:
         version: '5.14.1'
         host: 'windows'
         target: 'desktop'
-    - name: Tests QML
+    - name: Tests QML on ${{ matrix.os }}
       run: |
         python tests/qml_tests/create-js-data.py
         qmake -o target/qml_tests/Makefile tests/qml_tests/qml_tests.pro -spec linux-g++ CONFIG+=debug CONFIG+=qml_debug
@@ -97,11 +96,11 @@ jobs:
 #        rm -rf .pytest_cache
 #              coverage run --rcfile=.coveragerc -m pytest
 #              coverage report
-    - name: build
+    - name: build on ${{ matrix.os }}
       run: |
         pyinstaller main.spec -F --clean -y
     #        poetry run  python scripted/build_executable.py
-    - name: upload windows binary in artifact
+    - name: upload  on ${{ matrix.os }} binary in artifact
       uses: actions/upload-artifact@v1
       with:
         path: dist/MyCartable.exe

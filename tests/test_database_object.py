@@ -284,15 +284,7 @@ class TestSectionMixin:
                 1,
                 True,
             ),
-            (
-                1,
-                {
-                    "path": QUrl("tests/resources/tst_AnnotableImage.png"),
-                    "classtype": "ImageSection",
-                },
-                1,
-                True,
-            ),
+            (1, {"path": QUrl("no/existe"), "classtype": "ImageSection",}, 0, False,),
             (1, {"path": "createOne", "classtype": "ImageSection",}, 1, True,),
             (1, {"path": QUrl("createOne"), "classtype": "ImageSection",}, 1, True,),
             (1, {"path": None, "classtype": "ImageSection",}, 0, False,),
@@ -308,7 +300,7 @@ class TestSectionMixin:
             pass
         elif isinstance(content["path"], QUrl):
             if content["path"].toString() == "createOne":
-                content["path"] = QUrl(str(tmpfile))
+                content["path"] = QUrl.fromLocalFile(str(tmpfile))
         elif content["path"] == "createOne":
             content["path"] = str(tmpfile)
 

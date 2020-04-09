@@ -1,3 +1,5 @@
+import shutil
+
 import pytest
 import sys
 from pathlib import Path
@@ -38,7 +40,7 @@ def pytest_sessionstart():
     # remove all FILES
     from package.constantes import FILES
 
-    [f.unlink() for f in FILES.iterdir()]
+    shutil.rmtree(FILES)
 
 
 @pytest.fixture()
@@ -112,7 +114,8 @@ def dao(ddbr, tmpfilename, uim):
         annee = ddbr.Annee(id=2019, niveau="cm2019")
     obj = DatabaseObject(ddbr)
     obj.ui = uim
-    obj.init_matieres(annee=2019)
+    obj.setup_settings(annee=2019)
+    obj.init_matieres()
     obj.settings = QSettings(str(tmpfilename.absolute()))
 
     return obj

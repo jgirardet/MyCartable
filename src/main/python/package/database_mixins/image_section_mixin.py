@@ -1,4 +1,7 @@
+from pathlib import Path
+
 from PySide2.QtCore import Slot
+from package.utils import get_new_filename
 from pony.orm import db_session
 
 
@@ -43,3 +46,6 @@ class ImageSectionMixin:
                 res[dico["type"]] = dico["value"]
 
             item.set(**res)
+
+    def get_new_image_path(self, ext):
+        return Path(str(self.annee_active), get_new_filename(ext)).as_posix()

@@ -82,7 +82,8 @@ class DatabaseObject(QObject, *MIXINS):
     def onChangeAnnee(self, value: int):
         self.currentPage = 0
         self.currentMatiere = 0
-        self.init_matieres(value)
+        self.setup_settings(value)
+        self.init_matieres(annee=value)
         self.recentsModelChanged.emit()
         self.matieresListNomChanged.emit()
         self.anneeActiveChanged.emit()

@@ -19,8 +19,7 @@ class MatiereMixin:
         self.currentMatiereChanged.connect(self.pagesParSectionChanged)
 
     def init_matieres(self, annee=None):
-        if annee:
-            self.annee_active = annee
+        annee = annee or self.annee_active
         self.m_d = MatieresDispatcher(self.db, self.annee_active)
 
     @Property(int, notify=currentMatiereChanged)

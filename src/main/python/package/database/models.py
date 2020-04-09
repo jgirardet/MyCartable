@@ -169,16 +169,13 @@ def init_models(db: Database):
                 n += 1
 
     class ImageSection(Section):
-        path = Optional(str)
+        path = Required(str)
         annotations = Set("Annotation")
 
-        def __init__(self, *args, **kwargs):
-            path = kwargs.pop("path")
-            if isinstance(path, Path):
-                path = str(path)
-            elif isinstance(path, QUrl):
-                path = path.toString()
-            super().__init__(*args, path=path, **kwargs)
+        # def __init__(self, *args, **kwargs):
+        #     # path = kwargs.pop("path")
+        #
+        #     super().__init__(*args, path=path, **kwargs)
 
     class TextSection(Section):
         text = Optional(str)

@@ -329,18 +329,12 @@ class TestSection:
 
 class TestImageSection:
     def test_factory(self):
-        a = f_imageSection(path="/mon/path")
-        assert Path(a.path) == Path("/mon/path")
+        a = f_imageSection(path="mon/path")
+        assert a.path == "mon/path"
 
-    @pytest.mark.skipif(sys.platform == "win32", reason="win")
     def test_to_dict(self):
-        a = f_imageSection(path="/mon/path", td=True)
-        assert a["path"] == "/mon/path"
-
-    @pytest.mark.skipif(sys.platform == "win32", reason="will be fixed")
-    def test_path_accept_qpath_and_Pathlib(self):
-        assert f_imageSection(path=QUrl(__file__)).path == str(Path(__file__))
-        assert f_imageSection(path=Path(__file__)).path == str(Path(__file__))
+        a = f_imageSection(path="mon/path", td=True)
+        assert a["path"] == "mon/path"
 
 
 class TestTextSection:

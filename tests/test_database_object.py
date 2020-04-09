@@ -238,7 +238,7 @@ class TestSectionMixin:
     @pytest.mark.parametrize(
         "page, content, res, signal_emitted",
         [
-            pytest.param(
+            (
                 1,
                 {
                     "path": "tests/resources/tst_AnnotableImage.png",
@@ -246,9 +246,8 @@ class TestSectionMixin:
                 },
                 1,
                 True,
-                marks=pytest.mark.skipif(sys.platform == "win32", reason="to be fixed"),
             ),
-            pytest.param(
+            (
                 1,
                 {
                     "path": QUrl("tests/resources/tst_AnnotableImage.png"),
@@ -256,9 +255,8 @@ class TestSectionMixin:
                 },
                 1,
                 True,
-                marks=pytest.mark.skipif(sys.platform == "win32", reason="to be fixed"),
             ),
-            (1, {"path": "/my/path", "classtype": "ImageSection"}, 0, False),
+            (1, {"path": "my/path", "classtype": "ImageSection"}, 0, False),
             (1, {"classtype": "TextSection"}, 1, False),
             (1, {"classtype": "ImageSection"}, 0, False),
             (1, {"classtype": "AdditionSection", "string": "3+4"}, 1, True),
@@ -289,7 +287,7 @@ class TestSectionMixin:
             assert item.page.id == 1
             for i in content.keys():
                 if i == "path":
-                    assert content[i] != getattr(item, i)
+                    assert content[i] == getattr(item, i)
                     assert (FILES / item.path).exists()
                 elif i == "string":
                     item.datas == create_operation(content["string"])
@@ -318,6 +316,13 @@ class TestSectionMixin:
 
 
 class TestImageSectionMixin:
+    @pytest.mark.freeze_time("2344-9-21 7:48:5")
+    def test_new_image_path(self, dao):
+        dao.annee_active = 2019
+        assert dao.get_new_image_path(".jpg") == "2019/2344-09-21-07-48-05.jpg"
+        dao.annee_active = 2018
+        assert dao.get_new_image_path(".gif") == "2018/2344-09-21-07-48-05.gif"
+
     @pytest.mark.parametrize(
         "content",
         [
@@ -360,11 +365,6 @@ class TestImageSectionMixin:
             assert item.pop("id") == res
             assert item.pop("section") == s.id
             assert item == content
-
-            # # check modified ok
-            # item = s.annotations.select()[:][0]
-            # section = db.Section[s.id]
-            # assert item.section.page.modified > section.modified
 
     def test_loadAnnotations(self, dao):
         s = f_imageSection()

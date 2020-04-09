@@ -2,7 +2,7 @@ from datetime import datetime
 from pathlib import Path
 
 from PySide2.QtCore import Property, Signal, Slot, QSettings
-from package.constantes import ORGNAME
+from package.constantes import ORGNAME, FILES
 from pony.orm import db_session
 
 
@@ -15,8 +15,9 @@ class SettingsMixin:
         self.annee_active = None
         self.settings = QSettings()
 
-    def setup_settings(self):
-        self.annee_active = self.get_annee_active()
+    def setup_settings(self, annee=None):
+        self.annee_active = annee or self.get_annee_active()
+        self.files = FILES
 
     anneeActiveChanged = Signal()
 

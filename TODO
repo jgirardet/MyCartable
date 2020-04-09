@@ -40,10 +40,6 @@ bug opération :
   - ajouter + dans les multipliaxion
 
 
-A FAIre:
-  changer path de image : dans db doit être le meme sous linux que sou windows
-
-
 modif d'opération en cours:
 test_init dans TEstPageMixin
  test_delete_not_fail_if_section_deleted
@@ -52,3 +48,4 @@ test_init dans TEstPageMixin
   model list
   test basedb
   test_sectionId
+  block tst_annotableimage

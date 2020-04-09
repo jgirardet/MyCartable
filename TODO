@@ -35,7 +35,6 @@ encours : tester toast
 
 bug opération :
   - retenu automatique pour soustraction
-  - zéro automatique pour la soustraction décimale
   - masquer zéro
   - ajouter + dans les multipliaxion
   - liimiter retenu de division si zone de retenu connu

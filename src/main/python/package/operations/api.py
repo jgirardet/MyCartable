@@ -93,7 +93,8 @@ class DecimalLitteral(Decimal):
                     virg_passee = True
 
             apres = [","] if self.is_int() else []
-            apres = apres + [""] * (apres_virgule - deja_apres_virg) * 3
+            apres = apres + ["", "0", ""] * (apres_virgule - deja_apres_virg)
+            # apres = apres + [""] * (apres_virgule - deja_apres_virg) * 3
             corps = corps + apres
             avant = []
             if (len(corps) + 1) < size:  # le + 1 c pour le signe
@@ -159,7 +160,6 @@ def convert_soustraction(numbers):
     res.append(work_list[0].to_string_list_soustraction(n_col, 0, n_apres_virgule))
     res.append(work_list[1].to_string_list_soustraction(n_col, 1, n_apres_virgule))
     last = [""] * n_col
-    print(virgule, "vigule")
     if virgule:
         last[virgule] = ","
     res.append(last)

@@ -38,6 +38,8 @@ bug opération :
   - zéro automatique pour la soustraction décimale
   - masquer zéro
   - ajouter + dans les multipliaxion
+  - liimiter retenu de division si zone de retenu connu
+  - surbrillance multiplication
 
 
 modif d'opération en cours:

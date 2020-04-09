@@ -24,6 +24,9 @@ class SectionMixin:
             if not "path" in content:
                 return 0
             path = content.pop("path")
+            print(path, isinstance(path, QUrl))
+            if isinstance(path, QUrl):
+                print(path.path())
             path = (
                 Path(path.path()) if isinstance(path, QUrl) else Path(path).absolute()
             )

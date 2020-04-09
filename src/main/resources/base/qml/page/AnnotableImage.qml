@@ -20,6 +20,7 @@ FocusScope {
 
   Component.onCompleted: {
     var content = ddb.loadSection(sectionId)
+    print(content.path)
     img.source = 'file://' + content.path
     initZones()
   }
@@ -129,7 +130,6 @@ FocusScope {
 
     property QtObject mouseArea: mouseArea
     asynchronous: true
-    //    fillMode: Image.PreserveAspectFit
     fillMode: Image.PreserveAspectCrop
     source: root.imagePath
     sourceSize.width: base ? base.width : 0

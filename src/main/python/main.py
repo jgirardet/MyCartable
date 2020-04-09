@@ -17,7 +17,7 @@ if getattr(sys, "frozen", False):
 else:
     # we are running in a normal Python environment
     bundle_dir = os.path.dirname(os.path.abspath(__file__))
-print(bundle_dir)
+
 sys.path.append(bundle_dir)
 
 import package.database

@@ -2,22 +2,13 @@
 #     assert [
 #         {
 #             "id": 1,
-#             "nom": "Letons",
+#             "nom": "Leçons",
 #             "famille": 0,
 #             "matiere": 1,
 #             "pages": [
 #                 {
-#                     "id": 1,
-#                     "titre": "letitre 0 0",
-#                     "activite": 1,
-#                     "lastPosition": None,
-#                     "matiere": 1,
-#                     "matiereNom": "Math",
-#                     "famille": 0,
-#                 },
-#                 {
-#                     "id": 4,
-#                     "titre": "letitre 0 1",
+#                     "id": 10,
+#                     "titre": "letitre 0 3",
 #                     "activite": 1,
 #                     "lastPosition": None,
 #                     "matiere": 1,
@@ -34,8 +25,17 @@
 #                     "famille": 0,
 #                 },
 #                 {
-#                     "id": 10,
-#                     "titre": "letitre 0 3",
+#                     "id": 4,
+#                     "titre": "letitre 0 1",
+#                     "activite": 1,
+#                     "lastPosition": None,
+#                     "matiere": 1,
+#                     "matiereNom": "Math",
+#                     "famille": 0,
+#                 },
+#                 {
+#                     "id": 1,
+#                     "titre": "letitre 0 0",
 #                     "activite": 1,
 #                     "lastPosition": None,
 #                     "matiere": 1,
@@ -51,17 +51,8 @@
 #             "matiere": 1,
 #             "pages": [
 #                 {
-#                     "id": 2,
-#                     "titre": "letitre 1 0",
-#                     "activite": 2,
-#                     "lastPosition": None,
-#                     "matiere": 1,
-#                     "matiereNom": "Math",
-#                     "famille": 1,
-#                 },
-#                 {
-#                     "id": 5,
-#                     "titre": "letitre 1 1",
+#                     "id": 11,
+#                     "titre": "letitre 1 3",
 #                     "activite": 2,
 #                     "lastPosition": None,
 #                     "matiere": 1,
@@ -78,8 +69,17 @@
 #                     "famille": 1,
 #                 },
 #                 {
-#                     "id": 11,
-#                     "titre": "letitre 1 3",
+#                     "id": 5,
+#                     "titre": "letitre 1 1",
+#                     "activite": 2,
+#                     "lastPosition": None,
+#                     "matiere": 1,
+#                     "matiereNom": "Math",
+#                     "famille": 1,
+#                 },
+#                 {
+#                     "id": 2,
+#                     "titre": "letitre 1 0",
 #                     "activite": 2,
 #                     "lastPosition": None,
 #                     "matiere": 1,
@@ -104,8 +104,8 @@
 #                     "famille": 2,
 #                 },
 #                 {
-#                     "id": 3,
-#                     "titre": "letitre 2 0",
+#                     "id": 9,
+#                     "titre": "letitre 2 2",
 #                     "activite": 3,
 #                     "lastPosition": None,
 #                     "matiere": 1,
@@ -122,8 +122,8 @@
 #                     "famille": 2,
 #                 },
 #                 {
-#                     "id": 9,
-#                     "titre": "letitre 2 2",
+#                     "id": 3,
+#                     "titre": "letitre 2 0",
 #                     "activite": 3,
 #                     "lastPosition": None,
 #                     "matiere": 1,
@@ -135,7 +135,7 @@
 #     ] == [
 #         {
 #             "id": 1,
-#             "nom": "Leçons",
+#             "nom": "Le�ons",
 #             "famille": 0,
 #             "matiere": 1,
 #             "pages": [

@@ -44,7 +44,7 @@ def init_models(db: Database):
                 entry = x.to_dict()
                 entry["pages"] = [
                     y.to_dict()
-                    for y in select(p for p in x.pages).order_by(desc(Page.id))
+                    for y in select(p for p in x.pages).order_by(desc(Page.created))
                 ]
                 res.append(entry)
             return res

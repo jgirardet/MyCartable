@@ -1,4 +1,5 @@
 import sys
+import time
 from datetime import datetime
 from operator import itemgetter
 from pathlib import Path
@@ -36,15 +37,18 @@ class CreateJs:
         math = self.matieres[0]
         with db_session:
             self.activites = math.activites.select()[:]
-        self.pages = [
-            f_page(
-                activite=p.id,
-                titre=f"letitre {p.famille} {i}",
-                created=datetime.utcnow(),
-            )
-            for i in range(4)
-            for p in self.activites
-        ]
+        self.pages = []
+
+        for i in range(4):
+            for p in self.activites:
+                self.pages.append(
+                    f_page(
+                        activite=p.id,
+                        titre=f"letitre {p.famille} {i}",
+                        created=datetime.utcnow(),
+                    )
+                )
+                time.sleep(1 / 1000)  # le temps passe moins vite sur windows
 
         self.la_page = self.pages[0]
         self.image_sections = [f_imageSection(page=self.la_page.id) for i in range(4)]
@@ -218,15 +222,6 @@ class CreateJs:
                 "matiere": 1,
                 "pages": [
                     {
-                        "id": 1,
-                        "titre": "letitre 0 0",
-                        "activite": 1,
-                        "lastPosition": None,
-                        "matiere": 1,
-                        "matiereNom": "Math",
-                        "famille": 0,
-                    },
-                    {
                         "id": 10,
                         "titre": "letitre 0 3",
                         "activite": 1,
@@ -247,6 +242,15 @@ class CreateJs:
                     {
                         "id": 4,
                         "titre": "letitre 0 1",
+                        "activite": 1,
+                        "lastPosition": None,
+                        "matiere": 1,
+                        "matiereNom": "Math",
+                        "famille": 0,
+                    },
+                    {
+                        "id": 1,
+                        "titre": "letitre 0 0",
                         "activite": 1,
                         "lastPosition": None,
                         "matiere": 1,

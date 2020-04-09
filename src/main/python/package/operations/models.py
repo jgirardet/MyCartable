@@ -511,6 +511,9 @@ class DivisionModel(OperationModel):
         if not self.isMembreLine(self.cursor):
             r1 = self.cursor - (self.columns * 2) - 1
             r2 = self.cursor - self.columns - 2
+            if r1 not in self.retenue_gauche or r2 not in self.retenue_droite:
+                return
+
             res = "" if self.datas[r1] == "1" else "1"
             self.setData(self.index(r1), res, Qt.EditRole)
             self.setData(self.index(r2), res, Qt.EditRole)

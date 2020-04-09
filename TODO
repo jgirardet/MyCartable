@@ -36,7 +36,6 @@ encours : tester toast
 bug opération :
   - retenu automatique pour soustraction
   - masquer zéro
-  - liimiter retenu de division si zone de retenu connu
   - surbrillance multiplication
 
 bug affichage:

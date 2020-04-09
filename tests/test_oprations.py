@@ -1555,6 +1555,17 @@ class TestDivisionModel:
         assert divMod.datas[r1] == ""
         assert divMod.datas[r2] == ""
 
+    @pytest.mark.parametrize("cur, r1, r2", [(19, 0, 8), (19, 0, 8)])
+    def test_addRetenuesOuIlneDoitPasYenAvoir(self, divMod, cur, r1, r2):
+        divMod("264/11")
+        divMod.cursor = cur
+        assert divMod.datas[r1] == ""
+        assert divMod.datas[r2] == ""
+        # add
+        divMod.addRetenues()
+        assert divMod.datas[r1] == ""
+        assert divMod.datas[r2] == ""
+
     def test_get_last_index_filled(self, td):
         assert td._get_last_index_filled(["", "3", "5", "", "", "4", ""]) == 5
         assert td._get_last_index_filled(["", "3", "5", "", "", "", ""]) == 2

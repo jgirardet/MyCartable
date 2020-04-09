@@ -238,6 +238,43 @@ class TestSectionMixin:
     @pytest.mark.parametrize(
         "page, content, res, signal_emitted",
         [
+            (1, {"classtype": "TextSection"}, 1, False),
+            (1, {"classtype": "ImageSection"}, 0, False),
+            (1, {"classtype": "AdditionSection", "string": "3+4"}, 1, True),
+            (
+                1,
+                {"classtype": "AdditionSection", "string": "3(4"},
+                0,
+                False,
+            ),  # string invalide
+            (1, {"string": "3+4"}, 0, False),
+            (1, {"classtype": "MultiplicationSection", "string": "4*3"}, 1, True),
+            (1, {"classtype": "SoustractionSection", "string": "4-3"}, 1, True),
+            (1, {"classtype": "DivisionSection", "string": "4/3"}, 1, True),
+        ],
+    )
+    def test_addSection(self, dao, ddbn, qtbot, page, content, res, signal_emitted):
+        f_page()
+        if signal_emitted:
+            with qtbot.waitSignal(dao.sectionAdded):
+                a = dao.addSection(page, content)
+        else:
+            a = dao.addSection(page, content)
+        assert a == res
+        if res == 0:
+            return
+        with db_session:
+            item = ddbn.Section[1]
+            assert item.page.id == 1
+            for i in content.keys():
+                if i == "string":
+                    item.datas == create_operation(content["string"])
+                else:
+                    assert content[i] == getattr(item, i)
+
+    @pytest.mark.parametrize(
+        "page, content, res, signal_emitted",
+        [
             (
                 1,
                 {
@@ -256,24 +293,25 @@ class TestSectionMixin:
                 1,
                 True,
             ),
+            (1, {"path": "createOne", "classtype": "ImageSection",}, 1, True,),
+            (1, {"path": QUrl("createOne"), "classtype": "ImageSection",}, 1, True,),
+            (1, {"path": None, "classtype": "ImageSection",}, 0, False,),
             (1, {"path": "my/path", "classtype": "ImageSection"}, 0, False),
-            (1, {"classtype": "TextSection"}, 1, False),
-            (1, {"classtype": "ImageSection"}, 0, False),
-            (1, {"classtype": "AdditionSection", "string": "3+4"}, 1, True),
-            (
-                1,
-                {"classtype": "AdditionSection", "string": "3(4"},
-                0,
-                False,
-            ),  # string invalide
-            (1, {"string": "3+4"}, 0, False),
-            (1, {"classtype": "MultiplicationSection", "string": "4*3"}, 1, True),
-            (1, {"classtype": "SoustractionSection", "string": "4-3"}, 1, True),
-            (1, {"classtype": "DivisionSection", "string": "4/3"}, 1, True),
         ],
     )
-    def test_addSection(self, dao, ddbn, qtbot, page, content, res, signal_emitted):
+    def test_addSectionFile(
+        self, dao, ddbn, qtbot, page, content, res, signal_emitted, tmpfile
+    ):
         f_page()
+        print(content)
+        if "path" not in content:
+            pass
+        elif isinstance(content["path"], QUrl):
+            if content["path"].toString() == "createOne":
+                content["path"] = QUrl(str(tmpfile))
+        elif content["path"] == "createOne":
+            content["path"] = str(tmpfile)
+
         if signal_emitted:
             with qtbot.waitSignal(dao.sectionAdded):
                 a = dao.addSection(page, content)

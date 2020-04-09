@@ -21,7 +21,7 @@ class SectionMixin:
             return 0
 
         elif classtype == "ImageSection":
-            if not "path" in content:
+            if not "path" in content or not content["path"]:
                 return 0
             path = content.pop("path")
             print(path, isinstance(path, QUrl))

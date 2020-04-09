@@ -94,7 +94,6 @@ class DecimalLitteral(Decimal):
 
             apres = [","] if self.is_int() else []
             apres = apres + ["", "0", ""] * (apres_virgule - deja_apres_virg)
-            # apres = apres + [""] * (apres_virgule - deja_apres_virg) * 3
             corps = corps + apres
             avant = []
             if (len(corps) + 1) < size:  # le + 1 c pour le signe
@@ -192,10 +191,13 @@ def convert_multiplication(numbers):
     membre2 = ligne1.to_string_list_multiplication(n_col)
     membre2[0] = "x"
     res.append(membre2)
-    res.append([""] * n_col)  # ligne resultat
+    res.append([""] * n_col)  # ligne resultat/ou permiere de l'addition
 
     if n_chiffres > 1:
-        res.append([""] * n_col * (n_chiffres + 1))  # additions + retenue
+        res.append(
+            (["+"] + [""] * (n_col - 1)) * n_chiffres
+        )  # ligne d'addition avec + (dont retenu)
+        res.append([""] * n_col)  # resultat (sans le plus)
 
     return n_row, n_col, virgule, list(itertools.chain.from_iterable(res))
 

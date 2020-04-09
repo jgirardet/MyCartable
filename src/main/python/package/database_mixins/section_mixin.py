@@ -63,6 +63,7 @@ class SectionMixin:
                 res = section.to_dict(with_collections=True)
                 if res["classtype"] == "ImageSection":
                     res["path"] = str(FILES / res["path"])
+                    LOG.debug("loading Section: %s", res)
 
         return res
 

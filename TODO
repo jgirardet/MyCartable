@@ -36,7 +36,6 @@ encours : tester toast
 bug opération :
   - retenu automatique pour soustraction
   - masquer zéro
-  - ajouter + dans les multipliaxion
   - liimiter retenu de division si zone de retenu connu
   - surbrillance multiplication
 
@@ -50,3 +49,6 @@ test_init dans TEstPageMixin
   test basedb
   test_sectionId
   block tst_annotableimage
+
+
+limiter CI release à tag

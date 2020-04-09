@@ -5,6 +5,7 @@ from operator import itemgetter
 from pathlib import Path
 import json
 
+from PySide2.QtCore import QUrl
 from pony.orm import db_session
 
 MAT = ["Math", "Français", "Histoire", "Anglais"]
@@ -52,6 +53,8 @@ class CreateJs:
 
         self.la_page = self.pages[0]
         self.image_sections = [f_imageSection(page=self.la_page.id) for i in range(4)]
+        for i in self.image_sections:
+            print(i.to_dict())
         self.la_image_section = self.image_sections[0]
         self.la_annotationText = f_annotationText(
             0.1, 0.2, "un annotation", section=self.la_image_section.id
@@ -367,11 +370,15 @@ class CreateJs:
 
         self.check_fixtures()
 
+        def default_json(obj):
+            if isinstance(obj, QUrl):
+                return obj.toLocalFile()
+
         # write
         a = root / Path("tests/qml_tests/echantillon.js")
         a.write_text("var samples = ")
         with a.open("at") as f:
-            json.dump(self.new, f, indent=2)
+            json.dump(self.new, f, indent=2, default=default_json)
 
 
 if __name__ == "__main__":

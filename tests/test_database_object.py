@@ -208,11 +208,11 @@ class TestLayoutMixin:
 
 class TestSectionMixin:
     def test_loadsection_image(self, dao):
-        s = f_imageSection()
+        s = f_imageSection(path="bla/ble.jpg")
         b_stabylo(5, section=s.id)
         res = dao.loadSection(s.id)
         assert res["id"] == 1
-        assert res["path"] == str(FILES / s.path)
+        assert res["path"] == QUrl.fromLocalFile(str(FILES / "bla/ble.jpg"))
         assert len(res["annotations"]) == 5
 
     def test_loadsection_image_false(self, dao):

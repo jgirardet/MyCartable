@@ -31,7 +31,6 @@ ajouter copier coller : fonction et menu
 paragragph à menu text( + ANnotation ?)
 
 
-encours : tester toast
 
 bug opération :
   - retenu automatique pour soustraction
@@ -54,3 +53,7 @@ test_init dans TEstPageMixin
 
 
 limiter CI release à tag
+tester toast ?
+
+
+encours : voir create js avec le serializable

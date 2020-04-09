@@ -24,18 +24,11 @@ class SectionMixin:
             if not "path" in content or not content["path"]:
                 return 0
             path = content.pop("path")
-            if isinstance(path, QUrl):
-                print(path, "Qurl simple")
-                print(path.toLocalFile(), "to local file")
-                print(Path(path.toLocalFile()), "Path to local file")
             path = (
                 Path(path.toLocalFile())
                 if isinstance(path, QUrl)
                 else Path(path).absolute()
             )
-            print(path)
-            print(str(path))
-            print(path.resolve())
             if path.is_file():
                 content["path"] = str(self.get_new_image_path(path.suffix))
                 new_file = self.files / content["path"]
@@ -62,7 +55,7 @@ class SectionMixin:
             if section:
                 res = section.to_dict(with_collections=True)
                 if res["classtype"] == "ImageSection":
-                    res["path"] = str(FILES / res["path"])
+                    res["path"] = QUrl.fromLocalFile(str(FILES / res["path"]))
                     LOG.debug("loading Section: %s", res)
 
         return res

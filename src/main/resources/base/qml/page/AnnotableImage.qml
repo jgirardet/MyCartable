@@ -21,7 +21,8 @@ FocusScope {
   Component.onCompleted: {
     var content = ddb.loadSection(sectionId)
     print(content.path)
-    img.source = 'file://' + content.path
+//    img.source = url(content.path)
+    img.source = 'file:///' + content.path
     initZones()
   }
 

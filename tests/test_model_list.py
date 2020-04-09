@@ -56,7 +56,6 @@ class TestPAgeModel:
 
         d = f_section(page=p.id, position=2)
         pm.insertRows(d.position, 1, QModelIndex())
-        print(pm._datas)
 
         # décallage comme prévu
         assert pm._datas[0]["id"] == 1

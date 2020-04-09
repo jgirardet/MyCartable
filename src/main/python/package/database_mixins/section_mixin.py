@@ -27,6 +27,9 @@ class SectionMixin:
             path = (
                 Path(path.path()) if isinstance(path, QUrl) else Path(path).absolute()
             )
+            print(path)
+            print(str(path))
+            print(path.resolve())
             if path.is_file():
                 content["path"] = str(self.get_new_image_path(path.suffix))
                 new_file = self.files / content["path"]

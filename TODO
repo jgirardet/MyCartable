@@ -39,6 +39,9 @@ bug opération :
   - liimiter retenu de division si zone de retenu connu
   - surbrillance multiplication
 
+bug affichage:
+ - pas de scroll quand on ajoute un truc, on y va directement
+
 
 modif d'opération en cours:
 test_init dans TEstPageMixin

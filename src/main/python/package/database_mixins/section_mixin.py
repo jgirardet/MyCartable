@@ -28,7 +28,9 @@ class SectionMixin:
             if isinstance(path, QUrl):
                 print(path.path())
             path = (
-                Path(path.path()) if isinstance(path, QUrl) else Path(path).absolute()
+                Path(path.toString())
+                if isinstance(path, QUrl)
+                else Path(path).absolute()
             )
             print(path)
             print(str(path))

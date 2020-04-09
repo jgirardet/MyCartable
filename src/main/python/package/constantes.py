@@ -48,10 +48,11 @@ QStandardPaths.setTestModeEnabled(True)
 ROOT_DATA = (
     Path(QStandardPaths.writableLocation(QStandardPaths.AppDataLocation)) / APPNAME
 )
+print("ROOT DATA")
 if not ROOT_DATA.is_dir():
     ROOT_DATA.mkdir(parents=True)
 
 FILES = ROOT_DATA / "files"
-
+print(FILES)
 if not FILES.is_dir():
     FILES.mkdir(parents=True)

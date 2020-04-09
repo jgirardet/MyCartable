@@ -32,7 +32,7 @@ qrc:
 	pyside2-rcc src/main/resources/qml.qrc -o src/main/python/qrc.py
 
 run: qrc
-	fbs run
+	python src/main/python/main.py
 
 devtools:
 	pip install -U ipython # pdbpp autoflake toml markdown
@@ -49,7 +49,7 @@ freeze:
 	fbs freeze
 
 build:
-	python scripts/build_executable.py
+	pyinstaller  main.spec -F --clean -y
 
 run_binary: build
 	target/MyCartable/MyCartable

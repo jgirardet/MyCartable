@@ -31,7 +31,8 @@ class CreateJs:
 
         self.annee = f_annee(id="2019")
         self.matieres = [f_matiere(x, self.annee.id) for x in MAT]
-        self.dao.init_matieres(annee=2019)
+        self.dao.setup_settings(annee=2019)
+        self.dao.init_matieres()
         math = self.matieres[0]
         with db_session:
             self.activites = math.activites.select()[:]

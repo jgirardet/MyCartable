@@ -159,6 +159,7 @@ def convert_soustraction(numbers):
     res.append(work_list[0].to_string_list_soustraction(n_col, 0, n_apres_virgule))
     res.append(work_list[1].to_string_list_soustraction(n_col, 1, n_apres_virgule))
     last = [""] * n_col
+    print(virgule, "vigule")
     if virgule:
         last[virgule] = ","
     res.append(last)

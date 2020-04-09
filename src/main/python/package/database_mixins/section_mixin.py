@@ -24,11 +24,12 @@ class SectionMixin:
             if not "path" in content or not content["path"]:
                 return 0
             path = content.pop("path")
-            print(path, isinstance(path, QUrl))
             if isinstance(path, QUrl):
-                print(path.path())
+                print(path, "Qurl simple")
+                print(path.toLocalFile(), "to local file")
+                print(Path(path.toLocalFile()), "Path to local file")
             path = (
-                Path(path.toString())
+                Path(path.toLocalFile())
                 if isinstance(path, QUrl)
                 else Path(path).absolute()
             )

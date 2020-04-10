@@ -125,6 +125,11 @@ Item {
       tested.destroy()
 
     }
+    function test_focus_is_highlighted() {
+      var it = tested.itemAtIndex(1).textinput
+      it.focus = true
+      compare(Qt.colorEqual(it.background.color,"yellow"), true)
+    }
 
 
     function test_edit() {

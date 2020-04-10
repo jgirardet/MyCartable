@@ -20,11 +20,17 @@ Rectangle {
     horizontalAlignment: model.isRetenueGauche(index) ? TextInput.AlignRight : model.isRetenueDroite(index) ? TextInput.AlignLeft : TextInput.AlignHCenter
     verticalAlignment: TextInput.AlignVCenter
 
+
+
+
     background: BorderRectangle {
-      color: root.color
+      color: input.focus ? "yellow" : root.color
       borderColor: model.isMembreLine(index + model.columns) ? "black" : input.parent.color
       borderTop: -2
     }
+    padding:0
+
+
 
     function moreKeys(event) {
       if (event.key == Qt.Key_Return) {

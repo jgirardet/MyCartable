@@ -12,6 +12,7 @@ TextField {
   validator: IntValidator {
     bottom: 0;top: 9;
   }
+  cursorDelegate: cursorComp
   onFocusChanged: {
     if (focus && !readOnly) {
       parent.GridView.view.currentIndex = index
@@ -39,9 +40,15 @@ TextField {
   function moreKeys(event) {}
 
   background: BorderRectangle {
-    color: input.parent.color
+//    color: input.parent.color
+    color: input.focus ? "yellow" : root.color
     borderColor: model.isResultLine(index) ? "black" : input.parent.color
     borderTop: -2
+  }
+
+  Component {
+    id: cursorComp
+    Item{}
   }
 
 }

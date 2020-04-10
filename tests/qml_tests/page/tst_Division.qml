@@ -148,6 +148,11 @@ Item {
         compare(Boolean(data.inp.match(exp)), data.res)
 
       }
+      function test_focus_is_highlighted() {
+      var it = corps.itemAtIndex(1).textinput
+      it.focus = true
+      compare(Qt.colorEqual(it.background.color,"yellow"), true)
+    }
 
       function test_morekeys() {
 

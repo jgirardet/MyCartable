@@ -7,10 +7,11 @@ RowLayout {
   property alias model: corps.model
   property alias sectionId: corps.sectionId
   property alias position: corps.position
+
   BaseOperation {
     id: corps
     objectName: "corps"
-    cellWidth: 30
+    cellWidth: 10
     cellHeight: 30
     delegate: DivisionDelegate {
       model: corps.model
@@ -21,7 +22,6 @@ RowLayout {
     height: corps.height
     width: 5
     color: "black"
-    //    anchors.margins: 0
   }
   ColumnLayout {
     height: corps.height

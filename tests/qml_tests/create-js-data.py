@@ -53,8 +53,6 @@ class CreateJs:
 
         self.la_page = self.pages[0]
         self.image_sections = [f_imageSection(page=self.la_page.id) for i in range(4)]
-        for i in self.image_sections:
-            print(i.to_dict())
         self.la_image_section = self.image_sections[0]
         self.la_annotationText = f_annotationText(
             0.1, 0.2, "un annotation", section=self.la_image_section.id

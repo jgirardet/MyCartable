@@ -32,7 +32,7 @@ Item {
 
 
     function test_img_load_init() {
-      compare(tested.image.source, Qt.resolvedUrl(ddb.sp.loadSection.path))
+      compare(tested.image.source, "file:///"+ddb.sp.loadSection.path)
     }
 
 

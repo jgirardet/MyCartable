@@ -67,4 +67,8 @@
         <file alias="lodash.js">base/js/lodash.js</file>
 <!--        <file alias="core.js">base/js/core.js</file>-->
     </qresource>
+    <qresource prefix="/tests">
+        <file alias="tst_AnnotableImage.png">../../../tests/resources/tst_AnnotableImage.png</file>
+<!--        <file alias="core.js">base/js/core.js</file>-->
+    </qresource>
 </RCC>

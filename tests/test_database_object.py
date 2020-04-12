@@ -14,11 +14,12 @@ from pony.orm import exists, make_proxy
 
 
 class TestPageMixin:
-    # def test_init(self, dao):
-    #     assert dao._currentPage == 0
-    #     assert dao._currentTitre == ""
-    #     assert dao._currentEntry == None
-    # assert dao.timer_titre.isSingleShot()
+    def test_init(self, dao):
+        assert dao._currentPage == 0
+        assert dao._currentTitre == ""
+        assert dao._currentEntry == None
+
+        assert dao.timer_titre.isSingleShot()
 
     def test_newPage(self, dao, qtbot):
         f = f_page()  # pour avoir plusieurs dans le resultats

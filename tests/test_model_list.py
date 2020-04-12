@@ -1,7 +1,4 @@
 import pytest
-from package.list_models import PageModel
-from datetime import datetime
-from unittest.mock import MagicMock
 
 from PySide2.QtCore import Qt, QModelIndex
 from fixtures import check_super_init, compare, check_begin_end

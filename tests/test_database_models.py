@@ -1,7 +1,4 @@
 import itertools
-import sys
-import time
-from PySide2.QtCore import QUrl
 from fixtures import compare, compare_items, check_is_range, wait
 from package.database.factory import *
 import pytest

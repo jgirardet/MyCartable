@@ -1,6 +1,7 @@
 # Bug:
     - fialedialog ne prend pas en compte le folder de départ
     - create operation if worng input
+    - 23*23
 
 
 # QML:
@@ -35,25 +36,19 @@ paragragph à menu text( + ANnotation ?)
 bug opération :
   - retenu automatique pour soustraction
   - masquer zéro
-  - surbrillance multiplication
 
 bug affichage:
  - pas de scroll quand on ajoute un truc, on y va directement
 
+ bug editable image:
+  - entrée ne fait rien
+  - taille de de la police
+  - déplace zoned de texte avec ctrl + fleche
 
-modif d'opération en cours:
-test_init dans TEstPageMixin
- test_delete_not_fail_if_section_deleted
- testannotation commented
- createsingleshote
-  model list
-  test basedb
-  test_sectionId
-  block tst_annotableimage
+
+
 
 
 limiter CI release à tag
 tester toast ?
 
-
-encours : voir create js avec le serializable

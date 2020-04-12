@@ -22,6 +22,7 @@ GridView {
   }
 
   Component.onCompleted: {
-    currentIndex = root.model.getInitialPosition()
+    currentIndex = model.getInitialPosition()
+    print(currentIndex)
   }
 }

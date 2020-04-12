@@ -56,6 +56,7 @@ Item {
         _moveCursor =  [index, key]
 
          }
+      property var highLight: [-1,-1]
    }
    }
 
@@ -72,11 +73,6 @@ Item {
       params = {"model": model}
     }
 
-    function test_focus_is_highlighted() {
-      var it = tested.itemAtIndex(1).textinput
-      it.focus = true
-      compare(Qt.colorEqual(it.background.color,"yellow"), true)
-    }
 
     function initPost() {
     }
@@ -85,6 +81,21 @@ Item {
       compare(model.count, model.size)
       compare(tested.model,  model)
      }
+
+    function test_focus_is_highlighted() {
+      var it = tested.itemAtIndex(1).textinput
+      it.focus = true
+      compare(Qt.colorEqual(it.background.color,"yellow"), true)
+    }
+
+    function test_font_change_for_parent_highlighted_num() {
+      var it = tested.itemAtIndex(22).textinput
+      compare(it.font.underline,false)
+      compare(it.font.weight,Font.Normal)
+      model.highLight=[22,-1]
+      compare(it.font.underline,true)
+      compare(it.font.weight,Font.Black)
+    }
 
     function test_edit() {
 

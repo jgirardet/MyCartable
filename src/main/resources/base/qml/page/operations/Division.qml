@@ -17,6 +17,7 @@ RowLayout {
       model: corps.model
       quotient: quotientField
     }
+
   }
   Rectangle {
     height: corps.height

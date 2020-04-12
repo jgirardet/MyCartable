@@ -1,3 +1,4 @@
+import functools
 import operator
 
 from PySide2.QtCore import (
@@ -299,152 +300,16 @@ class SoustractionModel(OperationModel):
 
 
 class MultiplicationModel(OperationModel):
+    def __init__(self):
+        super().__init__()
+        self.cursorChanged.connect(self.highLightChanged)
+
+    # methodes overidées
     def custom_params_load(self):
         self.n_chiffres = self.proxy.n_chiffres
 
     def get_initial_position(self):
         return self.i_line_1.stop + self.columns
-
-    @cachedproperty
-    def i_line_0(self):
-        start = self.n_chiffres * self.columns
-        return slice(start, start + self.columns)
-
-    @cachedproperty
-    def i_line_1(self):
-        start = self.i_line_0.stop
-        return slice(start, start + self.columns)
-
-    @cachedproperty
-    def i_line_res(self):
-        if self.virgule:
-            return slice(self.size - self.columns * 2, self.size - self.columns)
-        else:
-            return slice(self.size - self.columns, self.size)
-
-    def is_virgule_index(self, index):
-        return index % self.columns == self.virgule
-
-    @cachedproperty
-    def i_retenue_virgule(self):
-        try:
-            return self.datas[self.i_line_0].index(",")
-        except ValueError:
-            return 0  # virgule ne peut jamais avoir index 0
-
-    @cachedproperty
-    def len_ligne0(self):
-        line1 = self.datas[self.i_line_0]
-        for n, i in enumerate(line1):
-            if i == "":
-                pass
-            elif i.isdigit():
-                self._len_ligne0 = self.columns - n
-                if "," in line1:
-                    self._len_ligne0 -= 1
-                return self._len_ligne0
-
-    def _get_retenue(self, y, x):
-        rev_y = self.n_chiffres - y
-        start = rev_y * self.columns - 1  # en fin de ligne de la bonne ligne de retenu
-        res = start - x - 1  # -1 car la retenu décale d'une colonne
-        new_i_case = res % self.columns
-        if new_i_case <= self.i_retenue_virgule:
-            res -= 1
-        return res
-
-    def _get_middle(self, y, x):
-        start = self.i_line_1.stop + (self.columns * y)
-        new_i_case = self.columns - 1 - y - x
-        res = start + new_i_case
-        return res
-
-    def get_next_line(self, y):
-        bonus = 0
-        # cas où on saute la ligne de la retenue
-        if y == self.n_chiffres - 1:
-            bonus += 1
-        return self.columns * (self.n_chiffres + 2 + y + bonus + 2) - 1
-
-    def _if_middle_line(self, position):
-        i_case = position % self.columns
-        if self.n_chiffres == 1:
-            y = 0
-        else:
-            y = (position - self.i_line_1.stop) // self.columns
-        x = self.columns - i_case - y - 1
-
-        # cas du point de décalge
-        if x < 0:
-            temp = position - 1
-            return temp
-        # cas du l'avant dernier à gauche qui sera toujorus un retour à la ligne
-        elif i_case == 1:
-            return self.get_next_line(y)
-
-        # cas où on va vers la retenu
-        elif x < self.len_ligne0 - 1:  # pas de retenu pour le dernier de line0
-            return self._get_retenue(y, x)
-
-        # cas pré fin de ligne
-        elif x == self.len_ligne0 - 1:
-            return position - 1
-
-        # cas fin de ligne
-        elif x > self.len_ligne0 - 1:
-            return self.get_next_line(y)
-        return None
-
-    def auto_move_next(self, position):
-        """
-        x: index du chiffre ligne0
-        y: index du chiffre ligne1
-        i_case: index de la ligne en cours
-        res: résultat
-        """
-        res = position
-        i_case = position % self.columns
-
-        # ordre result/middle est important pour le cas ouligne1 a 1 chiffre
-
-        if self.isResultLine(position):
-            if self.n_chiffres == 1:  # cas ou mambre 2 a 1 seul chiffre
-                if position - 1 != self.size - self.columns:
-                    temp = self._if_middle_line(position)
-                    if temp is not None:
-                        res = temp
-
-            else:
-                # tant que pas l'avant dernier
-                if i_case > 1:
-                    res = position - self.columns - 1
-
-        elif self.isMiddleLine(position):
-            temp = self._if_middle_line(position)
-            if temp is not None:
-                res = temp
-
-        elif self.isRetenueLine(position):
-            if position < self.columns * self.n_chiffres:  # retenu du haut.
-                y = self.n_chiffres - (position // self.columns) - 1
-                x = (
-                    self.columns - i_case - 1
-                )  # une colonne de retenu correspond toujorus au même x
-                if i_case <= self.i_retenue_virgule:
-                    x -= 1
-                res = self._get_middle(y, x)
-
-            else:  # retenu du bas
-                res = position + self.columns
-
-        return res
-
-    def isMembreLine(self, index):
-        return self.i_line_0.start <= index < self.i_line_1.stop
-
-    @Slot(int, result=bool)
-    def isLine1(self, index):
-        return self.i_line_1.start <= index < self.i_line_1.stop
 
     def is_result_line(self, index):
         return self.size - self.columns <= index < self.size
@@ -498,14 +363,279 @@ class MultiplicationModel(OperationModel):
 
         return new
 
+    def auto_move_next(self, position):
+        """
+        x: index du chiffre ligne0
+        y: index du chiffre ligne1
+        i_case: index de la ligne en cours
+        res: résultat
+        """
+        res = position
+        i_case = position % self.columns
+
+        # ordre result/middle est important pour le cas ouligne1 a 1 chiffre
+
+        if self.isResultLine(position):
+            if self.n_chiffres == 1:  # cas ou mambre 2 a 1 seul chiffre
+                if position - 1 != self.size - self.columns:
+                    temp = self._if_middle_line(position)
+                    if temp is not None:
+                        res = temp
+
+            else:
+                # tant que pas l'avant dernier
+                if i_case > 1:
+                    res = position - self.columns - 1
+
+        elif self.isMiddleLine(position):
+            temp = self._if_middle_line(position)
+            if temp is not None:
+                res = temp
+
+        elif self.isRetenueLine(position):
+            if position < self.columns * self.n_chiffres:  # retenu du haut.
+                y = self.n_chiffres - (position // self.columns) - 1
+                x = (
+                    self.columns - i_case - 1
+                )  # une colonne de retenu correspond toujorus au même x
+                if i_case <= self.i_retenue_virgule:
+                    x -= 1
+                res = self._get_middle(y, x)
+
+            else:  # retenu du bas
+                res = position + self.columns
+
+        return res
+
+    def get_initial_position(self):
+        return self.i_line_1.stop + self.columns - 1
+
+    # move_cursor/automove next
+    def _get_retenue(self, y, x):
+        rev_y = self.n_chiffres - y
+        start = rev_y * self.columns - 1  # en fin de ligne de la bonne ligne de retenu
+        res = start - x - 1  # -1 car la retenu décale d'une colonne
+        new_i_case = res % self.columns
+        if new_i_case <= self.i_retenue_virgule:
+            res -= 1
+        return res
+
+    def _get_middle(self, y, x):
+        start = self.i_line_1.stop + (self.columns * y)
+        new_i_case = self.columns - 1 - y - x
+        res = start + new_i_case
+        return res
+
+    def get_next_line(self, y):
+        bonus = 0
+        # cas où on saute la ligne de la retenue
+        if y == self.n_chiffres - 1:
+            bonus += 1
+        return self.columns * (self.n_chiffres + 2 + y + bonus + 2) - 1
+
+    def _if_middle_line(self, position):
+        i_case = position % self.columns
+        if self.n_chiffres == 1:
+            y = 0
+        else:
+            y = (position - self.i_line_1.stop) // self.columns
+        x = self.columns - i_case - y - 1
+
+        # cas du point de décalge
+        if x < 0:
+            temp = position - 1
+            return temp
+        # cas du l'avant dernier à gauche qui sera toujorus un retour à la ligne
+        elif i_case == 1:
+            return self.get_next_line(y)
+
+        # cas où on va vers la retenu
+        elif x < self.len_ligne0 - 1:  # pas de retenu pour le dernier de line0
+            return self._get_retenue(y, x)
+
+        # cas pré fin de ligne
+        elif x == self.len_ligne0 - 1:
+            return position - 1
+
+        # cas fin de ligne
+        elif x > self.len_ligne0 - 1:
+            return self.get_next_line(y)
+        return None
+
+    # private utils property / methods
+    @cachedproperty
+    def i_line_0(self):
+        start = self.n_chiffres * self.columns
+        return slice(start, start + self.columns)
+
+    @cachedproperty
+    def i_line_1(self):
+        start = self.i_line_0.stop
+        return slice(start, start + self.columns)
+
+    @cachedproperty
+    def editables_index_middle(self):
+        """index d'op sans les retenues"""
+
+        pre_list = (
+            set(
+                range(
+                    self.i_line_1.stop,
+                    self.i_line_1.stop + self.columns * self.n_chiffres,
+                )
+            )
+            if self.n_chiffres > 1
+            else set(range(self.size - self.columns, self.size))
+        )
+        return pre_list & self.editables
+
+    @cachedproperty
+    def i_line_res(self):
+        if self.virgule:
+            return slice(self.size - self.columns * 2, self.size - self.columns)
+        else:
+            return slice(self.size - self.columns, self.size)
+
+    @cachedproperty
+    def i_retenue_virgule(self):
+        try:
+            return self.datas[self.i_line_0].index(",")
+        except ValueError:
+            return 0  # virgule ne peut jamais avoir index 0
+
+    @cachedproperty
+    def len_ligne0(self):
+        line1 = self.datas[self.i_line_0]
+        for n, i in enumerate(line1):
+            if i == "":
+                pass
+            elif i.isdigit():
+                self._len_ligne0 = self.columns - n
+                if "," in line1:
+                    self._len_ligne0 -= 1
+                return self._len_ligne0
+
+    i_line0_vigule = i_retenue_virgule
+
+    @cachedproperty
+    def i_line1_virgule(self):
+        try:
+            return self.datas[self.i_line_1].index(",")
+        except ValueError:
+            return 0  # virgule ne peut jamais avoir index 0
+
+    def is_virgule_index(self, index):
+        return index % self.columns == self.virgule
+
+    def isMembreLine(self, index):
+
+        return self.i_line_0.start <= index < self.i_line_1.stop
+
+    @functools.lru_cache()
+    def getHighlightedForCurrent(self, index):
+        """retour x et y correspondant aux membres à hightlight vu index en oours"""
+        # cas non concernés:
+
+        if index not in self.editables_index_middle:
+            return -1, -1
+
+        i_case = index % self.columns
+        if self.n_chiffres == 1:
+            y = -1
+        else:
+            y = (index - self.i_line_1.stop) // self.columns
+        x = self.columns - i_case - y - 1
+        if x < 0:  # cas des 0 de décalage
+            index_x = -1
+        else:  # reste
+            index_x = self.i_line_0.stop - 1 - x
+
+            if i_case <= self.i_line0_vigule:
+                index_x -= 1
+            # pour les fins de ligne trouver le + dernier de ligne0
+            while not self.datas[index_x].isdigit():
+                index_x += 1
+
+        index_y = self.i_line_1.stop - 1 - y
+        if self.columns - y - 1 <= self.i_line1_virgule:
+            index_y -= 1
+
+        return index_y, index_x
+
+    # slot / Property  en plus
+
+    @Slot(int, result=bool)
+    def isLine1(self, index):
+        return self.i_line_1.start <= index < self.i_line_1.stop
+
+    highLightChanged = Signal()
+
+    @Property("QVariantList", notify=highLightChanged)
+    def highLight(self):
+        return list(self.getHighlightedForCurrent(self.cursor))
+
 
 class DivisionModel(OperationModel):
+
+    # methods overrides
+
     def custom_params_load(self):
         self._dividende = self.proxy.dividende_as_num
         self._diviseur = self.proxy.diviseur_as_num
         self._quotient = self.proxy.quotient
         self.cursor = 10
 
+    def move_cursor(self, index, key):
+        temp = index
+        if key == Qt.Key_Up:
+            while temp >= self.columns:
+                temp -= self.columns
+                if temp in self.editables:
+                    return temp
+                elif temp in self.dividende_indexes and temp != 1:
+                    return temp - 1
+        elif key == Qt.Key_Down:
+            while temp < self.size:
+                temp += self.columns
+                if temp in self.editables:
+                    return temp
+        elif key == Qt.Key_Right:
+            while temp < self.size:
+                temp += 1
+                if temp in self.editables:
+                    return temp
+        elif key == Qt.Key_Left:
+            while temp > 0:
+                temp -= 1
+                if temp in self.editables:
+                    return temp
+        return self.cursor
+
+    def auto_move_next(self, position):
+        res = position
+
+        if res in self.retenue_gauche:  # va à la retenue droit du bas
+            res = res + self.columns - 1
+        elif res in self.retenue_droite:  # va au chiffre d'avant du bas
+            res = res + self.columns + 2
+        elif res in self.regular_chiffre:
+            row = int(position / self.columns)
+            if bool(row & 1):  # impair : on va faire le chiffre de gauche
+                debut_ligne = row * self.columns
+                temp = res - 3
+                if temp >= debut_ligne:
+                    res = temp
+                else:
+                    # on va à la ligne, aligné sous plus grand index
+                    res = self.go_to_end_line_result(debut_ligne)
+            else:  # va aussi au chiffre de gauche mais calcul différent
+                if position % self.columns >= 4:  # on shunt la premiere colone
+                    # res -= 2 * self.columns + 1
+                    res -= 3
+
+        return res
+
+    # Slot en plus
     @Slot()
     def addRetenues(self):
         if not self.isMembreLine(self.cursor):
@@ -561,6 +691,8 @@ class DivisionModel(OperationModel):
     def isRetenueGauche(self, index):
         return index in self.retenue_gauche
 
+    # Property en plus
+
     memberChanged = Signal()
 
     @Property(int, notify=memberChanged)
@@ -585,35 +717,11 @@ class DivisionModel(OperationModel):
                 self.proxy.quotient = value
         self.quotientChanged.emit()
 
+    # private utils property / methods
+
     @cachedproperty
     def dividende_indexes(self):
         return set(range(1, self.columns, 3))
-
-    def move_cursor(self, index, key):
-        temp = index
-        if key == Qt.Key_Up:
-            while temp >= self.columns:
-                temp -= self.columns
-                if temp in self.editables:
-                    return temp
-                elif temp in self.dividende_indexes and temp != 1:
-                    return temp - 1
-        elif key == Qt.Key_Down:
-            while temp < self.size:
-                temp += self.columns
-                if temp in self.editables:
-                    return temp
-        elif key == Qt.Key_Right:
-            while temp < self.size:
-                temp += 1
-                if temp in self.editables:
-                    return temp
-        elif key == Qt.Key_Left:
-            while temp > 0:
-                temp -= 1
-                if temp in self.editables:
-                    return temp
-        return self.cursor
 
     @cachedproperty
     def retenue_gauche(self):
@@ -653,30 +761,6 @@ class DivisionModel(OperationModel):
             if i:
                 return len(liste) - (n + 1)
         return len(liste) - 1
-
-    def auto_move_next(self, position):
-        res = position
-
-        if res in self.retenue_gauche:  # va à la retenue droit du bas
-            res = res + self.columns - 1
-        elif res in self.retenue_droite:  # va au chiffre d'avant du bas
-            res = res + self.columns + 2
-        elif res in self.regular_chiffre:
-            row = int(position / self.columns)
-            if bool(row & 1):  # impair : on va faire le chiffre de gauche
-                debut_ligne = row * self.columns
-                temp = res - 3
-                if temp >= debut_ligne:
-                    res = temp
-                else:
-                    # on va à la ligne, aligné sous plus grand index
-                    res = self.go_to_end_line_result(debut_ligne)
-            else:  # va aussi au chiffre de gauche mais calcul différent
-                if position % self.columns >= 4:  # on shunt la premiere colone
-                    # res -= 2 * self.columns + 1
-                    res -= 3
-
-        return res
 
     def go_to_end_line_result(self, debut_ligne):
         ligne = slice(debut_ligne, debut_ligne + self.columns)

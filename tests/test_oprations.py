@@ -425,6 +425,23 @@ class TestOperation:
                     + [""] * 10,  # res
                 ),
             ),
+            (
+                ["23", "23"],  # 119,37522
+                (
+                    8,
+                    4,
+                    0,
+                    [""] * 4 * 2
+                    + [""] * 2
+                    + list("23")
+                    + ["x"]
+                    + [""]
+                    + list("23")
+                    + [""] * 4  # permiere
+                    + (["+"] + [""] * 3) * 2  # 21autres + retenues
+                    + [""] * 4,  # res
+                ),
+            ),
         ],
     )
     def test_convert_multiplication(self, numbers, res):

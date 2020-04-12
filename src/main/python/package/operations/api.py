@@ -171,7 +171,12 @@ def convert_multiplication(numbers):
         ligne1 = min(work_list, key=operator.attrgetter("len"))  # membre 2
     else:
         ligne1 = min(work_list)
-    ligne0 = [i for i in work_list if i != ligne1][0]
+
+    if work_list[0] == work_list[1]:
+        ligne0 = work_list[0]
+    else:
+        ligne0 = [i for i in work_list if i != ligne1][0]
+
     n_chiffres = ligne1.l_dec + ligne1.l_int
     virgule = int(any(x.l_dec for x in work_list))
 

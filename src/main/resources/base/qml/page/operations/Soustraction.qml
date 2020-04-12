@@ -9,7 +9,4 @@ BaseOperation {
     model: root.model
   }
 
-  Component.onCompleted: {
-    currentIndex = model.columns - 2
-  }
 }

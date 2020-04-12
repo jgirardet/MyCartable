@@ -28,12 +28,10 @@ paragragph à menu text( + ANnotation ?)
 
 
 
-bug opération :
-  - retenu automatique pour soustraction
-  - masquer zéro
 
 bug affichage:
  - pas de scroll quand on ajoute un truc, on y va directement
+ - ne pas cacher activité quand scroll
 
  bug editable image:
   - entrée ne fait rien

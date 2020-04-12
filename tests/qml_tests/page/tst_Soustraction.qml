@@ -48,7 +48,7 @@ Item {
         cursor=tab[index]
         }
 
-       function isRetenueDroit(index) {
+       function isRetenueDroite(index) {
        return [20, 23, 26, 30].includes(index)
        }
 

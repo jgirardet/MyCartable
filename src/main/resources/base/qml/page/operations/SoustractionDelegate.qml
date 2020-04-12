@@ -16,11 +16,21 @@ Rectangle {
     id: input
     height: parent / 2
 
-    leftPadding: model.isRetenueDroit(index) ? 0 : 5
+    leftPadding: model.isRetenueDroite(index) ? 0 : 5
     rightPadding: model.isRetenueGauche(index) ? 1 : 5
-    color: model.isRetenueGauche(index) || model.isRetenueDroit(index) ? "red" : "black"
-    horizontalAlignment: model.isRetenueDroit(index) ? TextInput.AlignLeft : model.isRetenueGauche(index) ? TextInput.AlignRight : TextInput.AlignHCenter
+    color: model.isRetenueGauche(index) || model.isRetenueDroite(index) ? "red" : "black"
+    horizontalAlignment: model.isRetenueDroite(index) ? TextInput.AlignLeft : model.isRetenueGauche(index) ? TextInput.AlignRight : TextInput.AlignHCenter
     verticalAlignment: TextInput.AlignVCenter
+
+
+    function moreKeys(event) {
+
+      if (event.key == Qt.Key_Asterisk) {
+        model.addRetenues(index)
+        event.accepted = true
+      }
+      }
+
 
   }
 

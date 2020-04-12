@@ -45,6 +45,7 @@ class OperationModel(QAbstractListModel):
         self.params = self.proxy.to_dict()
         self.editables = self.proxy.get_editables()
         self.custom_params_load()
+        self.cursor = self.getInitialPosition()
 
     # Property
 
@@ -101,13 +102,13 @@ class OperationModel(QAbstractListModel):
     def rowCount(self, parent=QModelIndex()) -> int:
         return int(self.params["size"])
 
-    def setData(self, index, value, role) -> bool:
+    def setData(self, index, value, role, move=True) -> bool:
         if index.isValid() and role == Qt.EditRole:
             with db_session:
                 self.proxy.update_datas(index.row(), value)
             self.datas[index.row()] = value
             self.dataChanged.emit(index, index)
-            if "," not in value:
+            if move and "," not in value:
                 self.autoMoveNext(index.row())
             return True
         return False
@@ -118,7 +119,7 @@ class OperationModel(QAbstractListModel):
     def autoMoveNext(self, currentIndex):
         self.cursor = self.auto_move_next(currentIndex)
 
-    @Slot(result=int)
+    # @Slot(result=int)
     def getInitialPosition(self):
         pos = self.get_initial_position()
         a = pos if pos is not None else self.size - 1
@@ -220,39 +221,39 @@ class AdditionModel(OperationModel):
 
 
 class SoustractionModel(OperationModel):
+    def get_initial_position(self):
+        return self.size - 2
+
     def auto_move_next(self, position):
-        if position < self.columns:  # premiere ligne
-            res = position + self.columns - 1
-            if position > self.virgule and res - self.columns <= self.virgule:
-                res -= 1
-
-            return res
-        elif self.columns <= position < self.columns * 2:  # deuxième ligne
-            res = position + self.columns + 2
-            if (
-                position - self.columns <= self.virgule
-                and res - (self.columns * 2) >= self.virgule
-            ):
-                res += 1
-            return res
-
-        elif self.columns * 2 <= position < self.columns * 3:  # troisieme ligne
-            if position - (self.columns * 2) == 5:  # avant dernier aucun autre choix
-                return position - 3
-            elif position - (self.columns * 2) == 2:  # dernier aucun autre choix
-                return position
-            res = position - self.columns * 2 - 4
-            if position - (self.columns * 2) >= self.virgule and res < self.virgule:
-                res -= 1
-            return res
+        factor = 0
+        if (position - 3) % self.columns < self.virgule < position % self.columns:
+            factor = 1
+        return (
+            position - 3 - factor
+            if position - 3 - factor in self.editables
+            else position
+        )
 
     @Slot(int, result=bool)
     def isRetenueGauche(self, index):
-        return index in self.editables and self.isRetenueLine(index)
+        return index in self.retenue_gauche
 
     @Slot(int, result=bool)
-    def isRetenueDroit(self, index):
-        return index in self.editables and self.isMiddleLine(index)
+    def isRetenueDroite(self, index):
+        return index in self.retenue_droite
+
+    @Slot()
+    def addRetenues(self):
+        r1 = self.cursor - (self.columns * 2) - 1
+        r2 = self.cursor - self.columns - 2
+        if self.datas[r2] == ",":
+            r2 -= 1
+        if r1 not in self.retenue_gauche or r2 not in self.retenue_droite:
+            return
+
+        res = "" if self.datas[r1] == "1" else "1"
+        self.setData(self.index(r1), res, Qt.EditRole, move=False)
+        self.setData(self.index(r2), res, Qt.EditRole, move=False)
 
     def is_result_line(self, index):
         return index >= self.columns * 2
@@ -261,25 +262,36 @@ class SoustractionModel(OperationModel):
         """retenu == fistr line"""
         return 0 <= index and index < self.columns
 
+    @cachedproperty
+    def retenue_gauche(self):
+        res = set()
+        i = 4
+        while i < self.columns:
+
+            # si on dépasse la virgule on ajoute 1, 1 seul fois
+            if self.datas[i] == ",":
+                i += 1
+            res.add(i)
+            i += 3
+        return res
+
+    @cachedproperty
+    def retenue_droite(self):
+        res = set()
+        i = 3 + self.columns
+        while i < self.columns * 2 - 1:
+
+            # si on dépasse la virgule on ajoute 1, 1 seul fois
+            if self.datas[i - 2] == ",":
+                i += 1
+            res.add(i)
+            i += 3
+
+        return res
+
     def move_cursor(self, index, key):
         new = self.cursor
-        if key == Qt.Key_Up:
-            if index == self.columns + 3:  # premier 2èmeligne
-                new = min(self.editables)
-            elif self.isMiddleLine(index):
-                new = index - self.columns - 2
-            elif index == self.rowCount() - 2:  # dernier dernière ligne
-                new = self.columns - 3
-            elif self.isResultLine(index):
-                new = index - self.columns + 1
-        elif key == Qt.Key_Down:
-            if index == self.columns - 3:  # dernier premiere ligne
-                new = self.rowCount() - 2
-            elif self.isRetenueLine(index):
-                new = index + self.columns + 2
-            elif self.isMiddleLine(index):
-                new = index + self.columns - 1
-        elif key == Qt.Key_Right:
+        if key == Qt.Key_Right:
             temp = index + 3
             if temp in self.editables:
                 new = temp
@@ -295,7 +307,10 @@ class SoustractionModel(OperationModel):
                 new = temp - 1
             elif self.datas[temp + 1] == ",":
                 new = temp - 1
-
+        elif key == Qt.Key_Up:
+            new = index
+        elif key == Qt.Key_Down:
+            new = index
         return new
 
 

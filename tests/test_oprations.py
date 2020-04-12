@@ -661,10 +661,18 @@ class TestOperationModel:
 
     def test_setData_automovenext(self, to, qtbot):
         with patch("package.operations.models.OperationModel.autoMoveNext"):
-            to.setData(to.index(11, 0), "5", Qt.EditRole)  # doit retourner True
+            assert to.setData(to.index(11, 0), "5", Qt.EditRole)  # doit retourner True
             assert to.autoMoveNext.call_args_list == [call(11)]
-            to.setData(to.index(11, 0), "5,", Qt.EditRole)  # doit retourner True
-            assert to.autoMoveNext.call_args_list == [call(11)]  # pas de modif
+            to.autoMoveNext.call_args_list = []
+
+            assert to.setData(to.index(11, 0), "5,", Qt.EditRole)  # doit retourner True
+            assert to.autoMoveNext.call_args_list == []  # pas de modif
+            to.autoMoveNext.call_args_list = []
+
+            assert to.setData(
+                to.index(11, 0), "5,", Qt.EditRole, move=False
+            )  # doit retourner True
+            assert to.autoMoveNext.call_args_list == []  # pas de modif
 
     def test_isIResultline(self, to):
         assert to.isResultLine(99) is False
@@ -824,39 +832,63 @@ def ts():
 
 class TestSoustractionModel:
     @pytest.mark.parametrize(
-        "index,res", [(7, 16), (16, 28), (28, 4), (4, 13), (13, 25), (25, 22)],
+        "index,res", [(28, 25), (25, 22), (22, 22)],
     )
     def test_automove_next(self, ts, index, res):
         # '',  '', '2', '', '', '5', '', '', '4', '',
         # '-', '', '1', '', '', '4', '', '', '1', '',
         # '',  '', '',  '', '', '',  '', '', '',  '']
         ts("254-141")
+        ts.editables = {28, 25, 22}
         assert ts.auto_move_next(index) == res
 
     @pytest.mark.parametrize(
-        "index,res",
-        [
-            (14, 30),
-            (30, 49),
-            (49, 11),
-            (11, 26),
-            (26, 46),
-            (46, 7),
-            (7, 23),
-            (23, 42),
-            (42, 4),
-            (4, 20),
-            (20, 39),
-            (39, 36),
-            (36, 36),
-        ],
+        "index,res", [(49, 46), (46, 42), (42, 39), (39, 36), (36, 36),],
     )
     def test_automove_next_virgule(self, ts, index, res):
         # '',  '', '4', '', '', '3', '', '', '2', '', ',' ,'', '5', '', '', '4', '', //16
         # '-', '', '3', '', '', '9', '', '', '1', '', ',' ,'', '4', '', '', '1', '', //33
         # '',  '', '' , '', '', '' , '', '', '' , '', ',', '', '',  '', '', '' , ''] //50
         ts("432,54-391,41")
+        ts.editables = {
+            49,
+            46,
+            42,
+            36,
+            39,
+        }
         assert ts.auto_move_next(index) == res
+
+    @pytest.mark.parametrize(
+        "string, res",
+        [
+            ("4-3", set()),
+            ("22-12", {4}),
+            ("254-141", {4, 7}),
+            ("432,54-391,41", {4, 7, 11, 14}),
+        ],
+    )
+    def test_retenue_gaucheand_isRetenueGauche(self, ts, string, res):
+        ts(string)
+        assert ts.retenue_gauche == res
+        assert all(ts.isRetenueGauche(i) for i in res)
+        assert not any(ts.isRetenueGauche(i + 1) for i in res)
+
+    @pytest.mark.parametrize(
+        "string, res",
+        [
+            ("4-3", set()),
+            ("22-12", {10}),
+            ("254-141", {13, 16}),
+            ("432,54-391,41", {20, 23, 26, 30}),
+        ],
+    )
+    def test_retenue_droite_and_isRetenueDroite(self, ts, string, res):
+        ts(string)
+        print(ts.datas)
+        assert ts.retenue_droite == res
+        assert all(ts.isRetenueDroite(i) for i in res)
+        assert not any(ts.isRetenueDroite(i + 1) for i in res)
 
     def test_is_result_line(self, ts):
         ts("34-22")
@@ -871,53 +903,11 @@ class TestSoustractionModel:
     @pytest.mark.parametrize(
         "index,key, res",
         [
-            (4, Qt.Key_Up, 99),
-            (7, Qt.Key_Up, 99),
-            (11, Qt.Key_Up, 99),
-            (14, Qt.Key_Up, 99),
-            (20, Qt.Key_Up, 4),
-            (23, Qt.Key_Up, 4),
-            (26, Qt.Key_Up, 7),
-            (30, Qt.Key_Up, 11),
-            (36, Qt.Key_Up, 20),
-            (39, Qt.Key_Up, 23),
-            (42, Qt.Key_Up, 26),
-            (46, Qt.Key_Up, 30),
-            (49, Qt.Key_Up, 14),
-            (4, Qt.Key_Down, 23),
-            (7, Qt.Key_Down, 26),
-            (11, Qt.Key_Down, 30),
-            (14, Qt.Key_Down, 49),
-            (20, Qt.Key_Down, 36),
-            (23, Qt.Key_Down, 39),
-            (26, Qt.Key_Down, 42),
-            (30, Qt.Key_Down, 46),
-            (36, Qt.Key_Down, 99),
-            (39, Qt.Key_Down, 99),
-            (42, Qt.Key_Down, 99),
-            (46, Qt.Key_Down, 99),
-            (49, Qt.Key_Down, 99),
-            (4, Qt.Key_Right, 7),
-            (7, Qt.Key_Right, 11),
-            (11, Qt.Key_Right, 14),
-            (14, Qt.Key_Right, 99),
-            (20, Qt.Key_Right, 23),
-            (23, Qt.Key_Right, 26),
-            (26, Qt.Key_Right, 30),
-            (30, Qt.Key_Right, 99),
             (36, Qt.Key_Right, 39),
             (39, Qt.Key_Right, 42),
             (42, Qt.Key_Right, 46),
             (46, Qt.Key_Right, 49),
             (49, Qt.Key_Right, 99),
-            (4, Qt.Key_Left, 99),
-            (7, Qt.Key_Left, 4),
-            (11, Qt.Key_Left, 7),
-            (14, Qt.Key_Left, 11),
-            (20, Qt.Key_Left, 99),
-            (23, Qt.Key_Left, 20),
-            (26, Qt.Key_Left, 23),
-            (30, Qt.Key_Left, 26),
             (36, Qt.Key_Left, 99),
             (39, Qt.Key_Left, 36),
             (42, Qt.Key_Left, 39),
@@ -930,60 +920,18 @@ class TestSoustractionModel:
         # '-', '', '3', '*', '', '9', '*', '', '1', '*', ',' ,'', '4', '*', '', '1', '', //33
         # '',  '', '*' , '', '', '*' , '', '', '*' , '', ',', '', '*',  '', '', '*' , ''] //50
         ts("432,54-391,41")
-        ts.editables = {4, 36, 7, 39, 42, 11, 14, 46, 49, 20, 23, 26, 30}
+        ts.editables = {36, 39, 42, 46, 49}
         ts.cursor = 99  # controle pas modif, 0 pourrait être faux
         assert ts.move_cursor(index, key) == res
 
     @pytest.mark.parametrize(
         "index,key, res",
         [
-            (4, Qt.Key_Up, 99),
-            (8, Qt.Key_Up, 99),
-            (11, Qt.Key_Up, 99),
-            (14, Qt.Key_Up, 99),
-            (20, Qt.Key_Up, 4),
-            (23, Qt.Key_Up, 4),
-            (27, Qt.Key_Up, 8),
-            (30, Qt.Key_Up, 11),
-            (36, Qt.Key_Up, 20),
-            (39, Qt.Key_Up, 23),
-            (43, Qt.Key_Up, 27),
-            (46, Qt.Key_Up, 30),
-            (49, Qt.Key_Up, 14),
-            (4, Qt.Key_Down, 23),
-            (8, Qt.Key_Down, 27),
-            (11, Qt.Key_Down, 30),
-            (14, Qt.Key_Down, 49),
-            (20, Qt.Key_Down, 36),
-            (23, Qt.Key_Down, 39),
-            (27, Qt.Key_Down, 43),
-            (30, Qt.Key_Down, 46),
-            (36, Qt.Key_Down, 99),
-            (39, Qt.Key_Down, 99),
-            (43, Qt.Key_Down, 99),
-            (46, Qt.Key_Down, 99),
-            (49, Qt.Key_Down, 99),
-            (4, Qt.Key_Right, 8),
-            (8, Qt.Key_Right, 11),
-            (11, Qt.Key_Right, 14),
-            (14, Qt.Key_Right, 99),
-            (20, Qt.Key_Right, 23),
-            (23, Qt.Key_Right, 27),
-            (27, Qt.Key_Right, 30),
-            (30, Qt.Key_Right, 99),
             (36, Qt.Key_Right, 39),
             (39, Qt.Key_Right, 43),
             (43, Qt.Key_Right, 46),
             (46, Qt.Key_Right, 49),
             (49, Qt.Key_Right, 99),
-            (4, Qt.Key_Left, 99),
-            (8, Qt.Key_Left, 4),
-            (11, Qt.Key_Left, 8),
-            (14, Qt.Key_Left, 11),
-            (20, Qt.Key_Left, 99),
-            (23, Qt.Key_Left, 20),
-            (27, Qt.Key_Left, 23),
-            (30, Qt.Key_Left, 27),
             (36, Qt.Key_Left, 99),
             (39, Qt.Key_Left, 36),
             (43, Qt.Key_Left, 39),
@@ -995,26 +943,78 @@ class TestSoustractionModel:
         # '',  '', '1', '', '*', '2', '', ',',  '*', '',  '', '*', '',  '', '*', '',  '', //16
         # '-', '', '',  '*', '', '3', '*', ',', '', '3', '*', '', '4', '*', '', '5', '',//33
         # '',  '', '*',  '', '', '*',  '', ',', '', '*',  '', '', '*',  '', '', '*',  ''//50
-        # {4, 36, 39, 8, 11, 43, 14, 46, 49, 20, 23, 27, 30}
         ts("12-3,345")
-        ts.editables = {4, 36, 39, 8, 11, 43, 14, 46, 49, 20, 23, 27, 30}
+        ts.editables = {36, 39, 43, 46, 49}
         ts.cursor = 99  # controle pas modif, 0 pourrait être faux
         assert ts.move_cursor(index, key) == res
 
+    @pytest.mark.parametrize("cur, r1, r2", [(28, 7, 16), (25, 4, 13),])
+    def test_addRetenues(self, cur, r1, r2, dao):
+        # '',  '', '2', '', '', '5', '', '', '4', '', //9
+        # '-', '', '1', '', '', '4', '', '', '1', '', //19
+        # '',  '', '',  '', '', '',  '', '', '',  ''] //29
+        class Sous(SoustractionModel):
+            ddb = dao
+
+        tss = f_soustractionSection("254-141")
+        mod = Sous()
+        mod.sectionId = tss.id
+        mod.cursor = cur
+        assert mod.datas[r1] == ""
+        assert mod.datas[r2] == ""
+        # add
+        mod.addRetenues()
+        assert mod.datas[r1] == "1"
+        assert mod.datas[r2] == "1"
+        # remove
+        mod.addRetenues()
+        assert mod.datas[r1] == ""
+        assert mod.datas[r2] == ""
+
     @pytest.mark.parametrize(
-        "cote, ok", [("Gauche", {4, 7, 11, 14}), ("Droit", {20, 23, 26, 30}),]
+        "cur, r1, r2", [(49, 14, 30), (46, 11, 27), (43, 8, 23), (39, 4, 20),]
     )
-    def test_isretenucell(self, ts, cote, ok):
-        ts("432,54-391,41")
-        # '',  '', '4', '', '', '3', '', '', '2', '', ',' ,'', '5', '', '', '4', '', //16
-        # '-', '', '3', '', '', '9', '', '', '1', '', ',' ,'', '4', '', '', '1', '', //33
-        # '',  '', '' , '', '', '' , '', '', '' , '', ',', '', '',  '', '', '' , ''] //50
-        ok = set(ok)
-        pasok = set(range(ts.rowCount()))
-        pasok = pasok - ok
-        for i in range(ts.rowCount()):
-            if getattr(ts, "isRetenue" + cote)(i):
-                assert i in ok and i not in pasok
+    def test_addRetenuesVirgule(self, cur, r1, r2, dao):
+        # ' ', ' ', '1', ' ', '*', '2', ' ', ',', '*', '0', ' ', '*', '0', ' ', '*', '0', ' ', //16
+        # '-', ' ', ' ', '*', ' ', '3', '*', ',', ' ', '3', '*', ' ', '4', '*', ' ', '5', ' ',//33
+        # ' ', ' ', '*', ' ', ' ', '*', ' ', ',', ' ', '*', ' ', ' ', '*', ' ', ' ', '*', ' '//50
+        class Sous(SoustractionModel):
+            ddb = dao
+
+        tss = f_soustractionSection("12-3,345")
+        mod = Sous()
+        mod.sectionId = tss.id
+        mod.cursor = cur
+        assert mod.datas[r1] == ""
+        assert mod.datas[r2] == ""
+        # add
+        mod.addRetenues()
+        assert mod.datas[r1] == "1"
+        assert mod.datas[r2] == "1"
+        # remove
+        mod.addRetenues()
+        assert mod.datas[r1] == ""
+        assert mod.datas[r2] == ""
+
+    @pytest.mark.parametrize("cur, r1, r2", [(36, 1, 17)])
+    def test_addRetenuesNedoitPas(self, cur, r1, r2, dao):
+        class Sous(SoustractionModel):
+            ddb = dao
+
+        tss = f_soustractionSection("12-3,345")
+        mod = Sous()
+        mod.sectionId = tss.id
+        mod.cursor = cur
+        assert mod.datas[r1] == ""
+        assert mod.datas[r2] == "-"
+        # add
+        mod.addRetenues()
+        assert mod.datas[r1] == ""
+        assert mod.datas[r2] == "-"
+
+    def test_initial_position(self, ts):
+        ts("123 - 99")
+        assert ts.getInitialPosition() == 28
 
 
 @pytest.fixture

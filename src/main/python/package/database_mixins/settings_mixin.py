@@ -2,7 +2,7 @@ from datetime import datetime
 from pathlib import Path
 
 from PySide2.QtCore import Property, Signal, Slot, QSettings
-from package.constantes import ORGNAME, FILES
+from package.files_path import FILES
 from pony.orm import db_session
 
 

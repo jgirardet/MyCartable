@@ -5,7 +5,8 @@ import mimesis
 import random
 
 from PySide2.QtGui import QColor
-from package.constantes import ACTIVITES, FILES, MATIERES
+from package.constantes import ACTIVITES, MATIERES
+from package.files_path import FILES
 from package.operations.api import convert_addition, create_operation
 from pony.orm import db_session
 

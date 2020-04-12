@@ -12,7 +12,6 @@ from PySide2.QtCore import (
     QObject,
 )
 from mimesis import typing
-from package.constantes import FILES
 from pony.orm import db_session, ObjectNotFound, make_proxy
 from package.database import db
 import logging

@@ -4,7 +4,7 @@ import pytest
 import sys
 from pathlib import Path
 
-from PySide2.QtCore import QSettings
+from PySide2.QtCore import QSettings, QStandardPaths
 
 from PySide2.QtGui import QTextDocument
 from mimesis import Generic
@@ -38,9 +38,10 @@ def pytest_sessionstart():
     subprocess.run(command, cwd=root, shell=True)
 
     # remove all FILES
-    from package.constantes import FILES
+    QStandardPaths.setTestModeEnabled(True)
+    from package.files_path import ROOT_DATA
 
-    shutil.rmtree(FILES)
+    shutil.rmtree(ROOT_DATA)
 
 
 @pytest.fixture()

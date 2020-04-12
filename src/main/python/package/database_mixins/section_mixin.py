@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from PySide2.QtCore import Slot, QUrl, Signal
-from package.constantes import FILES
+from package.files_path import FILES
 from package.exceptions import MyCartableOperationError
 from pony.orm import db_session
 import logging

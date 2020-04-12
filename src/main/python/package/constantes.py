@@ -1,6 +1,4 @@
 from collections import namedtuple
-from PySide2.QtCore import QStandardPaths
-from pathlib import Path
 
 FamilleActivite = namedtuple("FamilleActivite", "index nom")
 
@@ -42,17 +40,3 @@ TITRE_TIMER_DELAY = 500
 
 APPNAME = "MyCartable"
 ORGNAME = "Cacahuete Coding"
-
-QStandardPaths.setTestModeEnabled(True)
-
-ROOT_DATA = (
-    Path(QStandardPaths.writableLocation(QStandardPaths.AppDataLocation)) / APPNAME
-)
-print("ROOT DATA")
-if not ROOT_DATA.is_dir():
-    ROOT_DATA.mkdir(parents=True)
-
-FILES = ROOT_DATA / "files"
-print(FILES)
-if not FILES.is_dir():
-    FILES.mkdir(parents=True)

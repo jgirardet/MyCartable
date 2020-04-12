@@ -6,7 +6,8 @@ from .models import init_models
 
 
 def ensure_database_directory(loc):
-    loc = Path(loc)
+    if not isinstance(loc, Path):
+        loc = Path(loc)
     if not loc.parent.exists():
         loc.parent.mkdir(parents=True)
     return loc

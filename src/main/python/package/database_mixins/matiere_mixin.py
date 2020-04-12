@@ -2,7 +2,7 @@
 import logging
 
 from PySide2.QtCore import Signal, Property, Slot
-from pony.orm import db_session
+from pony.orm import db_session, ObjectNotFound
 
 LOG = logging.getLogger(__name__)
 
@@ -79,7 +79,10 @@ class MatieresDispatcher:
     def __init__(self, db, annee_active):
         self.db = db
         with db_session:
-            self.annee = self.db.Annee[annee_active]
+            try:
+                self.annee = self.db.Annee[annee_active]
+            except ObjectNotFound:
+                self.annee = self.db.Annee(id=annee_active)
             self.query = self.annee.get_matieres()
             # self.query = self.db.Matiere.select().order_by(self.db.Matiere.id)
             self.nom_id = self._build_nom_id()

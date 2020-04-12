@@ -48,8 +48,8 @@ freeze:
 	fbs clean
 	fbs freeze
 
-build:
-	pyinstaller  main.spec -F --clean -y
+build_dir:
+	pyinstaller  scripts/dir.spec --clean -y && dist/MyCartable/MyCartable
 
 run_binary: build
 	target/MyCartable/MyCartable

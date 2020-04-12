@@ -1,3 +1,5 @@
+from package.constantes import APPNAME, ORGNAME
+from PySide2.QtCore import QUrl, QLocale, QStandardPaths, QSettings, QCoreApplication
 import os
 
 # from fbs_runtime.application_context.PySide2 import ApplicationContext
@@ -6,22 +8,12 @@ from pathlib import Path
 from PySide2.QtWidgets import QApplication
 import sys
 from PySide2.QtQml import QQmlApplicationEngine, qmlRegisterType
-from PySide2.QtCore import QUrl, QLocale, QStandardPaths, QSettings
 
 import sys
 
-if getattr(sys, "frozen", False):
-    # we are running in a bundle
-    frozen = "ever so"
-    bundle_dir = sys._MEIPASS
-else:
-    # we are running in a normal Python environment
-    bundle_dir = os.path.dirname(os.path.abspath(__file__))
-
-sys.path.append(bundle_dir)
+from package import PROD
 
 import package.database
-from package.constantes import APPNAME, ORGNAME
 import logging
 
 
@@ -29,12 +21,27 @@ logging.basicConfig(level=logging.DEBUG)
 LOG = logging.getLogger(__name__)
 
 
-def main_init_database():
+def main_init_database(filename=None):
     # init database first
-    package.database.db = package.database.init_database()
-    from package.database.factory import populate_database
+    settings = QSettings()
+    if PROD:
+        from package.files_path import ROOT_DATA
 
-    populate_database()
+        filename = settings.value("General/ddb_path", ROOT_DATA / "mycartable.ddb")
+        create_db = True
+    else:
+        filename = ":memory:"
+        create_db = False
+
+    package.database.db = package.database.init_database(
+        filename=filename, create_db=create_db
+    )
+
+    if not PROD:
+
+        from package.database.factory import populate_database
+
+        populate_database()
     return package.database.db
 
 
@@ -94,25 +101,25 @@ def setup_qml(ddb, ui_manager):
     return engine
 
 
-def create_app():
-    # appctxt = QApplication([])
-    # appctxt.app.setApplicationName(APPNAME)
-    # appctxt.app.setOrganizationName(ORGNAME)
-    # appctxt.app.setOrganizationDomain("bla.com")
-    # return appctxt
-    app = QApplication([])
-    app.setApplicationName(APPNAME)
-    app.setOrganizationName(ORGNAME)
-    app.setOrganizationDomain("bla.com")
-    return app
+#
+# def create_app():
+#     app = QApplication([])
+#     return app
 
 
-def main():
-    # First instanciate db
-    main_init_database()
+def main(filename=None):
+    if not PROD:
+        QStandardPaths.setTestModeEnabled(True)
+
+    # global settings
+    QCoreApplication.setApplicationName(APPNAME)
+    QCoreApplication.setOrganizationName(ORGNAME)
 
     # create de app
-    appctxt = create_app()
+    app = QApplication([])
+
+    # First instanciate db
+    main_init_database(filename=filename)
 
     # create instance de ce qui sera des singleton dans qml
     databaseObject, ui_manager = create_singleton_instance()
@@ -124,8 +131,7 @@ def main():
     engine = setup_qml(databaseObject, ui_manager)
 
     # run the app
-    sys.exit(appctxt.exec_())
-    # sys.exit(appctxt.app.exec_())
+    sys.exit(app.exec_())
 
 
 if __name__ == "__main__":

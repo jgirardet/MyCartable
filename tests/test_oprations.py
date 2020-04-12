@@ -681,8 +681,6 @@ class TestOperationModel:
         assert to.isRetenueLine(99) is False
 
     def test_getInitialPosition(self, to):
-        check_args(to.getInitialPosition, exp_return_type=int)
-
         assert to.getInitialPosition() == 11
 
     def test_move_cursor(self, to):

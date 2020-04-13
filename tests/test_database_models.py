@@ -744,7 +744,7 @@ class TestTableauSection:
         f_page()
         # normal
         a = ddb.TableauSection(rows=3, columns=4, page=1)
-        assert a.datas == [""] * 3 * 4
+        assert a.datas == [[""] * 4] * 3
 
     def test_error_in_init(self, ddb):
         with pytest.raises(MyCartableTableauError) as err:
@@ -758,7 +758,7 @@ class TestTableauSection:
             "created": item["created"],
             "rows": 3,
             "columns": 4,
-            "datas": [""] * 3 * 4,
+            "datas": [[""] * 4] * 3,
             "id": 1,
             "modified": item["modified"],
             "page": 1,

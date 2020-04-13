@@ -252,4 +252,4 @@ def create_operation(string):
 
 
 def create_tableau(rows, columns):
-    return rows, columns, [""] * rows * columns
+    return rows, columns, [[""] * columns] * rows

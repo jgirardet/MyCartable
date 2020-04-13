@@ -2,6 +2,7 @@ import QtQuick 2.14
 import QtQuick.Controls 2.14
 import "operations"
 import Operations 1.0
+import Tableau 1.0
 
 BasePageListView {
   id: lv
@@ -62,6 +63,17 @@ BasePageListView {
       }
     }
   }
+  Component {
+    id: tableauDelegate
+    Tableau {
+      sectionId: curSectionId
+      position: curPosition
+      base: lv
+      model: TableauModel {
+        sectionId: curSectionId // on laisse tout là pour les tests
+      }
+    }
+  }
   delegate: Component {
     Loader {
       id: load
@@ -86,6 +98,9 @@ BasePageListView {
         }
         case "DivisionSection": {
           return divisionDelegate
+        }
+        case "TableauSection": {
+          return tableauDelegate
         }
       }
 

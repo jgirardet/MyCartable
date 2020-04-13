@@ -53,17 +53,20 @@ def register_new_qml_type(databaseObject):
         DivisionModel,
     )
     from package.page.text_section import DocumentEditor
+    from package.page.tableau_section import TableauModel
 
     qmlRegisterType(DocumentEditor, "DocumentEditor", 1, 0, "DocumentEditor")
     AdditionModel.ddb = databaseObject
     SoustractionModel.ddb = databaseObject
     MultiplicationModel.ddb = databaseObject
     DivisionModel.ddb = databaseObject
+    TableauModel.ddb = databaseObject
 
     qmlRegisterType(AdditionModel, "Operations", 1, 0, "AdditionModel")
     qmlRegisterType(SoustractionModel, "Operations", 1, 0, "SoustractionModel")
     qmlRegisterType(MultiplicationModel, "Operations", 1, 0, "MultiplicationModel")
     qmlRegisterType(DivisionModel, "Operations", 1, 0, "DivisionModel")
+    qmlRegisterType(TableauModel, "Tableau", 1, 0, "TableauModel")
 
 
 def create_singleton_instance():

@@ -20,6 +20,7 @@
         <file alias="StabyloRectangle.qml">base/qml/page/StabyloRectangle.qml</file>
         <file alias="TextSection.qml">base/qml/page/TextSection.qml</file>
         <file alias="PageTitre.qml">base/qml/page/PageTitre.qml</file>
+        <file alias="Tableau.qml">base/qml/page/Tableau.qml</file>
 
     </qresource>
     <qresource prefix="/qml/menu">

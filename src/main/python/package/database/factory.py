@@ -273,6 +273,21 @@ def f_divisionSection(string=None, created=None, page=None, position=0, td=False
     return _operation_section("DivisionSection", string, created, page, position, td)
 
 
+def f_tableauSection(
+    rows=None, columns=None, created=None, page=None, position=0, td=False
+):
+    rows = rows or random.randint(1, 10)
+    columns = columns or random.randint(1, 10)
+    created = created or f_datetime()
+    page = page or f_page(td=True)["id"]
+    with db_session:
+        item = getattr(db, "TableauSection")(
+            rows=rows, columns=columns, created=created, page=page, position=position,
+        )
+        item.flush()
+        return item.to_dict() if td else item
+
+
 @db_session
 def populate_database(matieres_list=MATIERES, nb_page=100):
     annee = f_annee(id=2019, niveau="cm1")

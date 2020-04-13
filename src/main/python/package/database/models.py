@@ -6,8 +6,9 @@ from pathlib import Path
 from PySide2.QtCore import QUrl
 from PySide2.QtGui import QColor
 from descriptors import cachedproperty
-from package.exceptions import MyCartableOperationError
-from package.operations.api import create_operation
+from package.exceptions import MyCartableOperationError, MyCartableTableauError
+from package.operations.api import create_operation, create_tableau
+
 from pony.orm import select, Database, PrimaryKey, Optional, Required, Set, desc, flush
 from package.constantes import ACTIVITES
 
@@ -180,10 +181,28 @@ def init_models(db: Database):
     class TextSection(Section):
         text = Optional(str)
 
-    class OperationSection(Section):
+    class TableDataSection(Section):
         _datas = Required(str)
         rows = Required(int)
         columns = Required(int)
+
+        @property
+        def datas(self):
+            return json.loads(self._datas)
+
+        def to_dict(self, *args, **kwargs):
+            dico = super().to_dict(*args, **kwargs)
+            dico.pop("_datas")
+            dico["datas"] = self.datas
+            return dico
+
+        def update_datas(self, index, value):
+            datas = self.datas
+            datas[index] = value
+            self._datas = json.dumps(datas)
+
+    class OperationSection(TableDataSection):
+
         size = Required(int)
         virgule = Required(int)
 
@@ -202,21 +221,6 @@ def init_models(db: Database):
                 virgule=virgule,
                 **kwargs,
             )
-
-        @property
-        def datas(self):
-            return json.loads(self._datas)
-
-        def to_dict(self, *args, **kwargs):
-            dico = super().to_dict(*args, **kwargs)
-            dico.pop("_datas")
-            dico["datas"] = self.datas
-            return dico
-
-        def update_datas(self, index, value):
-            datas = self.datas
-            datas[index] = value
-            self._datas = json.dumps(datas)
 
     class AdditionSection(OperationSection):
         def get_editables(self):
@@ -414,3 +418,16 @@ def init_models(db: Database):
     class AnnotationText(Annotation):
         text = Optional(str)
         underline = Optional(bool, default=False)
+
+    class TableauSection(TableDataSection):
+        def __init__(self, rows, columns, **kwargs):
+            try:
+                rows, columns, datas = create_tableau(rows, columns)
+            except TypeError:
+                raise MyCartableTableauError(
+                    f"{rows} ou {columns} est une entrée invalide"
+                )
+            print(kwargs)
+            super().__init__(
+                rows=rows, columns=columns, _datas=json.dumps(datas), **kwargs,
+            )

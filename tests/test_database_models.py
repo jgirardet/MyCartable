@@ -2,7 +2,7 @@ import itertools
 from fixtures import compare, compare_items, check_is_range, wait
 from package.database.factory import *
 import pytest
-from package.exceptions import MyCartableOperationError
+from package.exceptions import MyCartableOperationError, MyCartableTableauError
 from pony.orm import flush, Database
 
 
@@ -337,6 +337,40 @@ class TestImageSection:
 class TestTextSection:
     def test_factory(self):
         assert f_textSection(text="bla").text == "bla"
+
+
+class TestTableDataSection:
+    def test_datas(self, ddb):
+        p = f_page()
+        a = ddb.TableDataSection(
+            _datas='["", "", "", "", "", ""]', rows=3, columns=2, page=p.id
+        )
+        assert a.datas == ["", "", "", "", "", ""]
+
+    def test_update_datas(self, ddb):
+        p = f_page()
+        a = ddb.TableDataSection(
+            _datas='["", "", "", "", "", ""]', rows=3, columns=2, page=p.id
+        )
+        a.update_datas(4, "g")
+        assert a.datas == ["", "", "", "", "g", ""]
+
+    def test_to_dict(self, ddb):
+        p = f_page()
+        a = ddb.TableDataSection(
+            _datas='["", "", "", "", "", ""]', rows=3, columns=2, page=p.id
+        )
+        assert a.to_dict() == {
+            "classtype": "TableDataSection",
+            "columns": 2,
+            "created": a.created.isoformat(),
+            "datas": ["", "", "", "", "", ""],
+            "id": 1,
+            "modified": a.modified.isoformat(),
+            "page": 1,
+            "position": 1,
+            "rows": 3,
+        }
 
 
 class TestOperationSection:
@@ -703,3 +737,30 @@ class TestAnnotations:
             a = ddbr.Annotation[1]
             s.delete()
             a.delete()
+
+
+class TestTableauSection:
+    def test_init(self, ddb):
+        f_page()
+        # normal
+        a = ddb.TableauSection(rows=3, columns=4, page=1)
+        assert a.datas == [""] * 3 * 4
+
+    def test_error_in_init(self, ddb):
+        with pytest.raises(MyCartableTableauError) as err:
+            ddb.TableauSection(rows=3, columns="a")
+        assert str(err.value) == "3 ou a est une entrée invalide"
+
+    def test_to_dict(self, reset_db):
+        item = f_tableauSection(rows=3, columns=4, td=True)
+        assert item == {
+            "classtype": "TableauSection",
+            "created": item["created"],
+            "rows": 3,
+            "columns": 4,
+            "datas": [""] * 3 * 4,
+            "id": 1,
+            "modified": item["modified"],
+            "page": 1,
+            "position": 1,
+        }

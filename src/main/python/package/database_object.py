@@ -2,6 +2,7 @@ import logging
 from PySide2.QtCore import QObject, Signal
 from PySide2.QtWidgets import QApplication
 from package.database_mixins.activite_mixin import ActiviteMixin
+from package.database_mixins.dev_mixin import DevMixin
 from package.database_mixins.image_section_mixin import ImageSectionMixin
 from package.database_mixins.layout_mixin import LayoutMixin
 from package.database_mixins.matiere_mixin import MatiereMixin
@@ -22,6 +23,7 @@ MIXINS = [
     SectionMixin,
     ImageSectionMixin,
     SettingsMixin,
+    DevMixin,
 ]
 
 

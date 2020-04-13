@@ -10,6 +10,11 @@ MenuBar {
       onTriggered: changerAnnee.open()
 
     }
+    Action {
+      text: qsTr("&Peupler la base")
+      onTriggered: ddb.peupler()
+
+    }
   }
 
   Dialog {

@@ -6,30 +6,36 @@ Item {
   height: 200
   id: item
 
-
   Item {
-  id:model
-  property string nom: "Evaluations"
-  property ListModel pages: ListModel {
+    id: model
+    property string nom: "Evaluations"
+    property ListModel pages: ListModel {
       id: listmodel
-    Component.onCompleted: {
-      listmodel.append({"modelData":{"titre":"premier", "id":99}})
-    }
+      Component.onCompleted: {
+        listmodel.append({
+          "modelData": {
+            "titre": "premier",
+            "id": 99
+          }
+        })
+      }
     }
   }
 
   CasTest {
     name: "ActiviteRectangle"
     testedNom: "qrc:/qml/matiere/ActiviteRectangle.qml"
-    params: {"model": model}
+    params: {
+      "model": model
+    }
     /* beautify preserve:start */
     property var lv
     /* beautify preserve:end */
 
-    function initPost(){
-        lv = findChild(tested, "_listView")
-        tested.width = item.width //fix le problème deLayout.fillWidth
-        tested.height = item.height //fix le problème deLayout en test
+    function initPost() {
+      lv = findChild(tested, "_listView")
+      tested.width = item.width //fix le problème deLayout.fillWidth
+      tested.height = item.height //fix le problème deLayout en test
     }
 
     function test_header() {
@@ -37,7 +43,7 @@ Item {
     }
 
     function test_header_click() {
-    mouseClick(lv.headerItem, 0, 0 , Qt.RightButton)
+      mouseClick(lv.headerItem, 0, 0, Qt.RightButton)
       compare(ddb._newPage, tested.model.id)
     }
 
@@ -48,13 +54,12 @@ Item {
       compare(lv.currentItem.height, lv.headerItem.height)
     }
 
-
     function test_click_on_item() {
       lv.currentIndex = 0
       lv.forceLayout()
       mouseClick(lv.currentItem)
       compare(ddb.currentPage, 99)
-      }
+    }
 
   }
 }

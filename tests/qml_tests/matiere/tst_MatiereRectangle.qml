@@ -11,11 +11,9 @@ Item {
     testedNom: "qrc:/qml/matiere/MatiereRectangle.qml"
     params: {}
 
-    function initPre() {
-    }
+    function initPre() {}
 
-    function initPost() {
-    }
+    function initPost() {}
 
     function test_matiere_combox() {
       ddb._getMatiereIndexFromId = ddb.sp.getMatiereIndexFromId.id3
@@ -33,9 +31,9 @@ Item {
     }
 
     function test_activite_testedtangle() {
-        ddb.currentPage =1
-        var rep = tested.repeater
-        compare(rep.itemAt(0).model, ddb.pagesParSection[0])
+      ddb.currentPage = 1
+      var rep = tested.repeater
+      compare(rep.itemAt(0).model, ddb.pagesParSection[0])
 
     }
   }

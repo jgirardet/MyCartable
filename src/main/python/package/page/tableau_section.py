@@ -1,4 +1,7 @@
+import json
+
 from PySide2.QtCore import QAbstractTableModel, QModelIndex, Qt, Signal, Property
+from descriptors import cachedproperty
 from package.database import db
 
 from pony.orm import db_session, make_proxy
@@ -29,7 +32,7 @@ class TableauModel(QAbstractTableModel):
             return
         self.params = self.proxy.to_dict()
         self.custom_params_load()
-        # self.cursor = self.getInitialPosition()
+        print(self.params)
 
     def rowCount(self, parent=QModelIndex()) -> int:
         return int(self.params["rows"])
@@ -39,12 +42,30 @@ class TableauModel(QAbstractTableModel):
 
     def data(self, index, role):
         if index.isValid() and role == Qt.DisplayRole:
-            value = self.datas[index.row()][index.column()]
+            value = (
+                self.datas[index.row()][index.column()]
+                + str(index.row())
+                + " "
+                + str(index.column())
+            )
             return value
 
-    @Property("QVariantList", notify=paramsChanged)
+    @property
     def datas(self):
         return self.params["datas"]
+
+    def setData(self, index, value, role) -> bool:
+        if index.isValid() and role == Qt.EditRole:
+            old = self.datas[index.row()][index.column()]
+            if old == value:
+                return False
+
+            with db_session:
+                self.proxy.update_datas(index.row(), index.column(), value)
+            self.datas[index.row()][index.column()] = value
+            self.dataChanged.emit(index, index)
+            return True
+        return False
 
     @Property(int, notify=sectionIdChanged)
     def sectionId(self):
@@ -57,3 +78,42 @@ class TableauModel(QAbstractTableModel):
 
     def custom_params_load(self):
         pass
+
+    # columnsChanged = Signal()
+    #
+    # @Property(int, notify=columnsChanged)
+    # def columns(self):
+    #     return self.columnCount()
+
+    rowsChanged = Signal()
+
+    @Property(int, notify=rowsChanged)
+    def n_rows(self):
+        """créer uniquement pour un problème de conflit avec TableModel """
+        return self.rowCount()
+
+    # @rows.setter
+    # def columns_set(self, value: int):
+    #     self._columns = value
+    #     self.columnsChanged.emit()
+
+    # @Property(int, notify=cursorChanged)
+    # def cursor(self):
+    #     return self._cursor
+    #
+    # @cursor.setter
+    # def cursor_set(self, value: int):
+    #     self._cursor = value
+    #     self.cursorChanged.emit()
+
+    #
+    # numberOfLinesChanged = Signal()
+    #
+    # @Property(int, notify=numberOfLinesChanged)
+    # def numberOfLines(self):
+    #     a = (
+    #         sum(max(x.count("\n") for x in ligne) for ligne in self.datas)
+    #         + self.rowCount()
+    #     )
+    #     print(a, "numberOfLines")
+    #     return a

@@ -22,15 +22,13 @@ Rectangle {
     horizontalAlignment: model.isRetenueDroite(index) ? TextInput.AlignLeft : model.isRetenueGauche(index) ? TextInput.AlignRight : TextInput.AlignHCenter
     verticalAlignment: TextInput.AlignVCenter
 
-
     function moreKeys(event) {
 
       if (event.key == Qt.Key_Asterisk) {
         model.addRetenues(index)
         event.accepted = true
       }
-      }
-
+    }
 
   }
 

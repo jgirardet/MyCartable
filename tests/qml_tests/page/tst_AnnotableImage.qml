@@ -12,29 +12,31 @@ Item {
     params: {}
 
     function initPre() {
-    params = {"sectionId": 1, "base": item} // 767 x 669}
-    }
-    function initPreCreate() {
-    ddb._loadSection = ddb.sp.loadSection
-    }
-    function initPost() {
-    tryCompare(tested.image, "progress", 1.0) // permet le temps de chargement async de l'image
+      params = {
+        "sectionId": 1,
+        "base": item
+      } // 767 x 669}
     }
 
-    function cleanup(){
-        tested.destroy()
+    function initPreCreate() {
+      ddb._loadSection = ddb.sp.loadSection
+    }
+
+    function initPost() {
+      tryCompare(tested.image, "progress", 1.0) // permet le temps de chargement async de l'image
+    }
+
+    function cleanup() {
+      tested.destroy()
     }
 
     function test_init() {
       compare(tested.image.sourceSize.width, item.width)
     }
 
-
-
     function test_img_load_init() {
-      compare(tested.image.source, "file:///"+ddb.sp.loadSection.path)
+      compare(tested.image.source, "file:///" + ddb.sp.loadSection.path)
     }
-
 
     function test_addannotationText() {
       ddb._addAnnotation = ddb.sp.addAnnotation.AnnotationText
@@ -79,7 +81,7 @@ Item {
     }
 
     function test_update_not_triggered_if_no_temp_rec() {
-    //lerreur s'affiche dans les warn si'l elle existe
+      //lerreur s'affiche dans les warn si'l elle existe
       mousePress(tested, 100, 100, Qt.LeftButton)
       mouseMove(tested, 50, 50)
     }
@@ -102,7 +104,10 @@ Item {
       ddb._loadAnnotations = ddb.sp.loadAnnotations
       ddb._loadSection = ddb.sp.loadSection
 
-      var ano = createObj("qrc:/qml/page/AnnotableImage.qml", {"sectionId": 1, "base": item})
+      var ano = createObj("qrc:/qml/page/AnnotableImage.qml", {
+        "sectionId": 1,
+        "base": item
+      })
       compare(ano.annotations.length, 3)
       var item2 = ano.annotations[1]
       compare(item2.relativeX, 0.5)
@@ -112,14 +117,16 @@ Item {
       compare(item2.ddbId, 2)
       compare(item2.color, "#008000")
 
-
     }
 
     function test_load_annotationText_on_completed() {
       tested.destroy()
       ddb._loadAnnotations = ddb.sp.loadAnnotations
       ddb._loadSection = ddb.sp.loadSection
-      var ano = createObj("qrc:/qml/page/AnnotableImage.qml", {"sectionId": 1, "base": item})
+      var ano = createObj("qrc:/qml/page/AnnotableImage.qml", {
+        "sectionId": 1,
+        "base": item
+      })
 
       compare(ano.annotations.length, 3)
       var itemx = ano.annotations[0]
@@ -134,7 +141,10 @@ Item {
       tested.destroy()
       ddb._loadAnnotations = ddb.sp.loadAnnotations
       ddb._loadSection = ddb.sp.loadSection
-      var ano = createObj("qrc:/qml/page/AnnotableImage.qml", {"sectionId": 1, "base": item})
+      var ano = createObj("qrc:/qml/page/AnnotableImage.qml", {
+        "sectionId": 1,
+        "base": item
+      })
 
       compare(ano.annotations.length, 3)
       var obj = ano.annotations[2]
@@ -142,12 +152,11 @@ Item {
       compare(obj.font.underline, true)
     }
 
-
     function test_delete_annotationText() {
       var testedText = createObj("qrc:/qml/page/AnnotationText.qml", {
         "ddbId": 5,
         "referent": tested,
-//        "uiManager": uiManager
+        //        "uiManager": uiManager
       })
       tested.annotations.push(testedText)
 
@@ -164,14 +173,14 @@ Item {
         "ddbId": 5,
         "referent": tested,
         "relativeX": 0.48,
-         "relativeY": 0.10,
-         "relativeHeight": 0.5,
-         "relativeWidth": 0.5
+        "relativeY": 0.10,
+        "relativeHeight": 0.5,
+        "relativeWidth": 0.5
       }, tested)
       tested.annotations.push(restabb)
       waitForRendering(restabb)
       var spy = getSpy(restabb, "deleteRequested")
-      mouseClick(restabb,1 , 1, Qt.MiddleButton)
+      mouseClick(restabb, 1, 1, Qt.MiddleButton)
       spy.wait()
       compare(ddb._deleteAnnotation, 5)
       compare(tested.annotations, [])

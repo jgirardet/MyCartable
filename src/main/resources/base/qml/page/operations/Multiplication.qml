@@ -9,5 +9,4 @@ BaseOperation {
     model: root.model
   }
 
-
 }

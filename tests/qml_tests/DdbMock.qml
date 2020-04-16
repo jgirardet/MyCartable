@@ -2,7 +2,8 @@ import QtQuick 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.12
 import QtTest 1.12
-import "echantillon.js" as Sample
+import "echantillon.js"
+as Sample
 
 Item {
   id: item
@@ -26,11 +27,11 @@ Item {
   }
 
   function addSection(page, content) {
-    _addSection  =[page, content]
+    _addSection = [page, content]
   }
 
   function changeAnnee(value) {
-    _changeAnnee  = value
+    _changeAnnee = value
   }
 
   function deleteAnnotation(id) {
@@ -65,7 +66,6 @@ Item {
     _recentsItemClicked = [itemId, matiere]
   }
 
-
   function setCurrentTitre(value) {
     _setCurrentTitre = value
   }
@@ -95,7 +95,7 @@ Item {
   Component {
     id: compspyc
     SignalSpy {
-     // target: item
+      // target: item
       //signalName: "setCurrentMatiereFromIndexSignal"
     }
   }

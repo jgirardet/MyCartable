@@ -40,7 +40,7 @@ TextField {
   function moreKeys(event) {}
 
   background: BorderRectangle {
-//    color: input.parent.color
+    //    color: input.parent.color
     color: input.focus ? "yellow" : root.color
     borderColor: model.isResultLine(index) ? "black" : input.parent.color
     borderTop: -2
@@ -48,7 +48,7 @@ TextField {
 
   Component {
     id: cursorComp
-    Item{}
+    Item {}
   }
 
 }

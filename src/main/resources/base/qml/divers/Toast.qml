@@ -7,7 +7,6 @@ Popup {
   property color bgcolor: "yellow"
   property color txtcolor: "red"
 
-
   background: Rectangle {
     implicitWidth: 200
     implicitHeight: 60
@@ -21,7 +20,9 @@ Popup {
     font.pointSize: 12
     color: popup.txtcolor
     text: popup.msg
-    onTextChanged: {print(text)}
+    onTextChanged: {
+      print(text)
+    }
   }
   onOpened: popupClose.start()
   Timer {

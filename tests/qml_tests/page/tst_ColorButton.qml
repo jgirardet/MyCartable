@@ -9,7 +9,10 @@ Item {
   CasTest {
     name: "ColorButton"
     testedNom: "qrc:/qml/menu/ColorButton.qml"
-    params: {"color": "red", "type":"color"}
+    params: {
+      "color": "red",
+      "type": "color"
+    }
 
     function test_init() {
       compare(tested.color, "#ff0000")
@@ -18,17 +21,17 @@ Item {
 
     function test_ontriggered() {
       var editor = {
-        res:null,
+        res: null,
         setStyleFromMenu: function(args) {
           this.res = args
         }
       }
-     var menu = createObj("qrc:/qml/menu/BaseMenu.qml")
-     uiManager.menuTarget = editor
-     tested.menu = menu
-     mouseClick(tested)
-     compare(editor.res.type, "color")
-     compare(editor.res.value, "#ff0000")
+      var menu = createObj("qrc:/qml/menu/BaseMenu.qml")
+      uiManager.menuTarget = editor
+      tested.menu = menu
+      mouseClick(tested)
+      compare(editor.res.type, "color")
+      compare(editor.res.value, "#ff0000")
     }
   }
 }

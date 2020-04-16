@@ -4,9 +4,9 @@ import QtQuick.Controls 2.14
 import QtTest 1.14
 
 TestCase {
-    id: testcase
-    when: windowShown
-    /* beautify preserve:start */
+  id: testcase
+  when: windowShown
+  /* beautify preserve:start */
     property var tested
     property var ddb
     property var uiManager
@@ -15,46 +15,48 @@ TestCase {
     property var backupParams
     /* beautify preserve:end */
 
-    function init() {
-      backupParams = params
-      initPre()
-      ddb = createTemporaryObject(Qt.createComponent("DdbMock.qml"), testcase.parent)
-      uiManager = createTemporaryObject(Qt.createComponent("UiManager.qml"), testcase.parent)
-      initPreCreate()
-      tested = createObj(testedNom, params)
-      initPost()
+  function init() {
+    backupParams = params
+    initPre()
+    ddb = createTemporaryObject(Qt.createComponent("DdbMock.qml"), testcase.parent)
+    uiManager = createTemporaryObject(Qt.createComponent("UiManager.qml"), testcase.parent)
+    initPreCreate()
+    tested = createObj(testedNom, params)
+    initPost()
+  }
+
+  function initPre() {}
+
+  function initPreCreate() {}
+
+  function initPost() {}
+
+  function cleanup() {
+    if (tested) {
+      tested.destroy()
     }
+    params = backupParams //restore deafaut params if modified
+  }
 
-    function initPre() {}
-
-    function initPreCreate() {}
-
-    function initPost() {}
-
-    function cleanup() {
-        if (tested){tested.destroy()}
-        params=backupParams //restore deafaut params if modified
+  function createObj(nom, rabParams, parentItem) {
+    var kwargs = {
+      'ddb': ddb,
+      "uiManager": uiManager
     }
-
-
-    function createObj(nom, rabParams, parentItem) {
-       var kwargs =   {
-        'ddb': ddb,
-        "uiManager": uiManager
-      }
-        if (rabParams) {
-          Object.assign(kwargs, rabParams);
-        }
-        var comp = Qt.createComponent(nom)
-        if (comp.status != 1) {print(comp, comp.status, comp.errorString())}
-        var obj = createTemporaryObject(comp, parentItem ? parentItem :testcase.parent, kwargs)
-      return obj
+    if (rabParams) {
+      Object.assign(kwargs, rabParams);
     }
+    var comp = Qt.createComponent(nom)
+    if (comp.status != 1) {
+      print(comp, comp.status, comp.errorString())
+    }
+    var obj = createTemporaryObject(comp, parentItem ? parentItem : testcase.parent, kwargs)
+    return obj
+  }
 
-    Component {
+  Component {
     id: compspyc
-    SignalSpy {
-    }
+    SignalSpy {}
   }
 
   function getSpy(targetObj, signaltxt) {
@@ -74,6 +76,4 @@ TestCase {
     menu.y = by
   }
 
-
-
-  }
+}

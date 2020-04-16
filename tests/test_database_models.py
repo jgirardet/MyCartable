@@ -764,3 +764,8 @@ class TestTableauSection:
             "page": 1,
             "position": 1,
         }
+
+    def test_set_data(self, ddb):
+        tem = f_tableauSection(rows=3, columns=4)
+        tem.update_datas(2, 1, "blabla")
+        assert tem.datas[2][1] == "blabla"

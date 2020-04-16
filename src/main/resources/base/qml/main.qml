@@ -55,11 +55,11 @@ ApplicationWindow {
       id: toast
     }
 
-  function showToast(message) {
+    function showToast(message) {
       toast.msg = message
       toast.open()
-  }
-  Component.onCompleted: {
+    }
+    Component.onCompleted: {
       uiManager.sendToast.connect(showToast)
     }
   }

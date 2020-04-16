@@ -427,7 +427,11 @@ def init_models(db: Database):
                 raise MyCartableTableauError(
                     f"{rows} ou {columns} est une entrée invalide"
                 )
-            print(kwargs)
             super().__init__(
                 rows=rows, columns=columns, _datas=json.dumps(datas), **kwargs,
             )
+
+        def update_datas(self, row, column, value):
+            datas = self.datas
+            datas[row][column] = value
+            self._datas = json.dumps(datas)

@@ -19,10 +19,8 @@ Rectangle {
     horizontalAlignment: TextInput.AlignHCenter
     verticalAlignment: TextInput.AlignVCenter
 
-
-
     background: BorderRectangle {
-      color: input.focus ? "yellow" :root.color
+      color: input.focus ? "yellow" : root.color
       borderColor: model.isResultLine(index) || model.isLine1(index - model.columns) ? "black" : input.parent.color
       borderTop: -2
     }

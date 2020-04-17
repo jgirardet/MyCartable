@@ -27,6 +27,7 @@ TableView {
     width: contentItem.childrenRect.width
     height: contentItem.childrenRect.height
     preventStealing: true
+    acceptedButtons: Qt.LeftButton | Qt.RightButton
     z: 2 // par dessus les delegate
     propagateComposedEvents: true
 
@@ -34,29 +35,26 @@ TableView {
     property var currentSelectedCell
     /* beautify preserve:end */
     pressAndHoldInterval: 300
-//    onPressAndHold: {
-//      print("holgind")
-//      print(pressAndHoldInterval)
-//      if (mouse.button == Qt.LeftButton) {
-//        if (root.selectedCells.length > 0) {
-//          root.unSelectAll()
-//        }
-//      }
-//    }
+
     onPositionChanged: {
       var tempItem = root.contentItem.childAt(mouse.x, mouse.y)
-      if (!containsMouse) {
-        // on ne fait rien en dehors de la zone
-        return
-      } else if (tempItem === currentSelectedCell) {
-        // le même on fait rien
-        return
-      } else if (!tempItem.isTableDelegate) {
-        // doit être une des cell
-        return
 
+      if (!currentSelectedCell && !(mouse.modifiers & Qt.ControlModifier)) {
+      // nouvelle sélection après que clique ait été relaché
+      // gardé si ctrl enfoncé
+        root.unSelectAll()
+      }
+      if (!containsMouse // on ne fait rien en dehors de la zone
+        ||
+        mouse.buttons != Qt.LeftButton // le même on fait rien
+        ||
+        (tempItem === currentSelectedCell) // doit être une des cell
+        ||
+        !tempItem.isTableDelegate) // pas deleguate on prend pas
+      {
+        return
       } else if (tempItem === selectedCells[selectedCells.length - 2]) {
-        // c un recul  on déselect celui en cours et change current
+        // si c un recul  on déselect celui en cours et change current
         root.selectCell(currentSelectedCell)
         currentSelectedCell = tempItem
       } else {
@@ -66,27 +64,32 @@ TableView {
       }
     }
 
-    onReleased: {
-      //show un pop ?
-    }
+    //    onReleased: {
+    //      //show un pop ?
+    //    }
 
-//    onClicked: {
-//      print("onclicked")
-//      if (mouse.button == Qt.LeftButton) {
-//        if (root.selectedCells.length > 0) {
-//          root.unSelectAll()
-//        }
-//        mouse.accepted = false
-//      } else if (mouse.button == Qt.RightButton) {
-//        var cel = root.contentItem.childAt(mouse.x, mouse.y)
-//        if (root.selectedCells.includes(cel)) {
-//          print("show menu")
-//        } else {
-//          root.unSelectAll()
-//          mouse.accepted = false
-//        }
-//      }
-//    }
+    onClicked: {
+      print("onclicked with button", mouse.button)
+
+      if (currentSelectedCell) {
+        print("on fait rien")
+        currentSelectedCell = null
+        mouse.accepted = true
+      } else if (mouse.button == Qt.LeftButton) {
+        if (root.selectedCells.length > 0) {
+          root.unSelectAll()
+        }
+        mouse.accepted = false
+      } else if (mouse.button == Qt.RightButton) {
+        var cel = root.contentItem.childAt(mouse.x, mouse.y)
+        if (root.selectedCells.includes(cel)) {
+          print("show menu")
+        } else {
+          root.unSelectAll()
+          mouse.accepted = false
+        }
+      }
+    }
   }
 
   delegate: Rectangle {
@@ -110,17 +113,13 @@ TableView {
     MouseArea {
       acceptedButtons: Qt.LeftButton | Qt.RightButton
       anchors.fill: parent
-      preventStealing: true
-      //      onClicked: {
-      //                console.log("clicked base")
-      //                mouse.accepted = true
-      //            }
+      //      preventStealing: true
 
       onClicked: {
         print("pressed", mouse.button)
         if (mouse.button == Qt.LeftButton) {
           textinput.forceActiveFocus()
-        } else if (pressedButtons === Qt.RightButton) {
+        } else if (mouse.button === Qt.RightButton) {
           textinput.forceActiveFocus()
           uiManager.menuFlottantText.ouvre(textinput)
         }
@@ -158,7 +157,6 @@ TableView {
       Component.onCompleted: {
         text = display
       }
-
 
       function changeCase(event) {
         var obj
@@ -263,12 +261,18 @@ TableView {
   }
 
   function unSelectAll(obj) {
-    for (var i of root.selectedCells) {
-      i.state = null
+    for (var i of Array(root.contentItem.children.length).keys()) {
+      var ite = root.contentItem.children[i]
+      if (ite.isTableDelegate) {
+      ite.state = null
+      }
     }
+
     root.selectedCells.length = 0
     print("unselectAll", root.selectedCells)
   }
+
+
 
   function getItem(idx) {
 

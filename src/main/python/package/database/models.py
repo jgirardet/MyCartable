@@ -419,19 +419,47 @@ def init_models(db: Database):
         text = Optional(str)
         underline = Optional(bool, default=False)
 
-    class TableauSection(TableDataSection):
-        def __init__(self, rows, columns, **kwargs):
-            try:
-                rows, columns, datas = create_tableau(rows, columns)
-            except TypeError:
-                raise MyCartableTableauError(
-                    f"{rows} ou {columns} est une entrée invalide"
-                )
-            super().__init__(
-                rows=rows, columns=columns, _datas=json.dumps(datas), **kwargs,
-            )
+    class TableauSection(Section):
+        lignes = Required(int, default=0)
+        colonnes = Required(int, default=0)
+        cells = Set("TableauCell")
 
-        def update_datas(self, row, column, value):
-            datas = self.datas
-            datas[row][column] = value
-            self._datas = json.dumps(datas)
+        def after_insert(self):
+            for r in range(self.lignes):
+                for c in range(self.colonnes):
+                    TableauCell(tableau=self, x=r, y=c)
+
+        def to_dict(self, **kwargs):
+            dico = super().to_dict(with_collections=True, **kwargs)
+            return dico
+
+    class TableauCell(db.Entity):
+
+        x = Required(int)
+        y = Required(int)
+        texte = Optional(str)
+        _bgColor = Optional(int, size=32, unsigned=True)
+        tableau = Required(TableauSection)
+        PrimaryKey(tableau, x, y)
+
+        def to_dict(self, *args, **kwargs):
+            dico = super().to_dict(*args, exclude=["_bgColor"], **kwargs)
+            dico["bgColor"] = self.bgColor
+            return dico
+
+        @property
+        def bgColor(self):
+            return QColor(self._bgColor) if self._bgColor else None
+
+        @bgColor.setter
+        def bgColor(self, value):
+            if isinstance(value, QColor):
+                self._bgColor = value.rgba()
+            elif isinstance(value, str):
+                self._bgColor = QColor(value).rgba()
+            elif isinstance(value, int):
+                self._bgColor = value
+
+        def __init__(self, *args, bgColor=None, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.bgColor = bgColor

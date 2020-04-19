@@ -40,6 +40,12 @@ Rectangle {
     } else {
       print(newComp.errorString())
     }
+    var newComp = Qt.createComponent("qrc:/qml/menu/MenuFlottantTableau.qml")
+    if (newComp.status == Component.Ready) {
+      uiManager.menuFlottantTableau = newComp.createObject(base)
+    } else {
+      print(newComp.errorString())
+    }
   }
 
 }

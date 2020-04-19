@@ -743,29 +743,75 @@ class TestTableauSection:
     def test_init(self, ddb):
         f_page()
         # normal
-        a = ddb.TableauSection(rows=3, columns=4, page=1)
-        assert a.datas == [[""] * 4] * 3
+        a = ddb.TableauSection(lignes=3, colonnes=4, page=1)
+        a.flush()
+        assert a.cells.count() == 12
+        # si pas d'erreur c que pq ok
+        print(a.cells.select()[:])
+        assert [ddb.TableauCell[1, x, y] for x in range(3) for y in range(4)]
 
-    def test_error_in_init(self, ddb):
-        with pytest.raises(MyCartableTableauError) as err:
-            ddb.TableauSection(rows=3, columns="a")
-        assert str(err.value) == "3 ou a est une entrée invalide"
+        b = f_tableauSection()
 
-    def test_to_dict(self, reset_db):
-        item = f_tableauSection(rows=3, columns=4, td=True)
+    def test_to_dict(self, ddb):
+        item = f_tableauSection(lignes=3, colonnes=4, td=True)
+
         assert item == {
             "classtype": "TableauSection",
             "created": item["created"],
-            "rows": 3,
-            "columns": 4,
-            "datas": [[""] * 4] * 3,
+            "lignes": 3,
+            "colonnes": 4,
             "id": 1,
             "modified": item["modified"],
             "page": 1,
             "position": 1,
+            "cells": [
+                (1, 0, 0),
+                (1, 0, 1),
+                (1, 0, 2),
+                (1, 0, 3),
+                (1, 1, 0),
+                (1, 1, 1),
+                (1, 1, 2),
+                (1, 1, 3),
+                (1, 2, 0),
+                (1, 2, 1),
+                (1, 2, 2),
+                (1, 2, 3),
+            ],
         }
 
-    def test_set_data(self, ddb):
-        tem = f_tableauSection(rows=3, columns=4)
-        tem.update_datas(2, 1, "blabla")
-        assert tem.datas[2][1] == "blabla"
+
+class TestTableauCell:
+    def test_init(self, ddb):
+        # simple
+        t = f_tableauSection(lignes=0)
+        a = ddb.TableauCell(tableau=t, x=0, y=0)
+        assert a.x == 0
+        assert a.y == 0
+        assert a.bgColor == None
+        assert ddb.TableauCell[a.tableau, 0, 0] == a
+        b = ddb.TableauCell(tableau=t, x=0, y=1, bgColor=QColor("red").rgba())
+        assert b.bgColor == 4294901760
+
+    def test_factory(self, reset_db):
+        t = f_tableauSection(lignes=0, colonnes=0)
+        f_tableauCell(tableau=t.id)
+        f_tableauCell(x=1, tableau=t.id)
+
+    def test_to_dict(self, reset_db):
+        b = f_tableauCell(x=0, bgColor=QColor("red").rgba(), td=True)
+        assert b == {
+            "bgColor": QColor.fromRgbF(1.000000, 0.000000, 0.000000, 1.000000),
+            "tableau": 1,
+            "x": 0,
+            "y": 0,
+            "texte": "",
+        }
+        b = f_tableauCell(td=True, x=1)
+        assert b == {"bgColor": None, "texte": "", "tableau": 2, "x": 1, "y": 0}
+
+    def test_bgColor(self, ddb):
+        a = f_tableauCell()
+        a.bgColor = "red"
+        assert a._bgColor == 4294901760
+        assert a.bgColor == QColor("red")

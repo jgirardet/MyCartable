@@ -1,6 +1,7 @@
 # Bug:
     - fialedialog ne prend pas en compte le folder de départ
     - textsection  et image  : no update recents
+    - tabsection : no update recent
 
 
 

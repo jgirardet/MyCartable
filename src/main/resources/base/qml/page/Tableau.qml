@@ -17,13 +17,17 @@ TableView {
   columnSpacing: 3
   rowSpacing: 1
   property int size: rows * columns
-  property
-  var selectedCells: []
-
+  /* beautify preserve:start */
+  property var selectedCells: []
+  property var mouseArea: bigMouse
+  property var currentSelectedCell
+  /* beautify preserve:end */
   MouseArea {
     id: bigMouse
     x: root.x
     y: root.y
+//    x: root.contentItem.x
+//    y: root.contentItem.y
     width: contentItem.childrenRect.width
     height: contentItem.childrenRect.height
     preventStealing: true
@@ -31,15 +35,12 @@ TableView {
     z: 2 // par dessus les delegate
     propagateComposedEvents: true
 
-    /* beautify preserve:start */
-    property var currentSelectedCell
-    /* beautify preserve:end */
-    pressAndHoldInterval: 300
+
+//    pressAndHoldInterval: 300
 
     onPositionChanged: {
       var tempItem = root.contentItem.childAt(mouse.x, mouse.y)
-
-      if (!currentSelectedCell && !(mouse.modifiers & Qt.ControlModifier)) {
+      if (!root.currentSelectedCell && (mouse.modifiers != Qt.ControlModifier)) {
       // nouvelle sélection après que clique ait été relaché
       // gardé si ctrl enfoncé
         root.unSelectAll()
@@ -48,32 +49,28 @@ TableView {
         ||
         mouse.buttons != Qt.LeftButton // le même on fait rien
         ||
-        (tempItem === currentSelectedCell) // doit être une des cell
+        (tempItem === root.currentSelectedCell) // doit être une des cell
         ||
         !tempItem.isTableDelegate) // pas deleguate on prend pas
       {
         return
       } else if (tempItem === selectedCells[selectedCells.length - 2]) {
         // si c un recul  on déselect celui en cours et change current
-        root.selectCell(currentSelectedCell)
-        currentSelectedCell = tempItem
+        root.selectCell(root.currentSelectedCell)
+        root.currentSelectedCell = tempItem
       } else {
         //cas simple : nouveau = on ajoute.
-        currentSelectedCell = tempItem
-        root.selectCell(currentSelectedCell)
+        root.currentSelectedCell = tempItem
+        root.selectCell(root.currentSelectedCell)
       }
     }
-
-    //    onReleased: {
-    //      //show un pop ?
-    //    }
 
     onClicked: {
       print("onclicked with button", mouse.button)
 
-      if (currentSelectedCell) {
+      if (root.currentSelectedCell) {
         print("on fait rien")
-        currentSelectedCell = null
+        root.currentSelectedCell = null
         mouse.accepted = true
       } else if (mouse.button == Qt.LeftButton) {
         if (root.selectedCells.length > 0) {
@@ -84,6 +81,7 @@ TableView {
         var cel = root.contentItem.childAt(mouse.x, mouse.y)
         if (root.selectedCells.includes(cel)) {
           print("show menu")
+          uiManager.menuFlottantTableau.ouvre(root)
         } else {
           root.unSelectAll()
           mouse.accepted = false
@@ -100,7 +98,7 @@ TableView {
     implicitHeight: textinput.contentHeight + 10
     focus: true
     property bool isTableDelegate: true //juste pour vérifier le type
-
+    color: background ? background : "white"
     states: [
       State {
         name: "selected"
@@ -125,23 +123,12 @@ TableView {
         }
       }
 
-      //      onPressAndHold: {
-      //        rectangle.state = "selected"
-      ////        mouse.accepted=true
-      //      }
-      //
-      //      onEntered: {
-      //        print("entered")
-      //        if (pressed) {
-      //          print("entered and pressed")
-      //          rectangle.state = "selected"
-      //        }
-      //      }
-
-      //      onPositionChanged: {
-      //        print(mouse.x, mouse.y)
-      //      }
-
+    }
+    function setColor(value) {
+      print(background)
+      print(value, typeof value)
+      print(background)
+      background = value
     }
     TextArea {
       padding: 0
@@ -241,6 +228,15 @@ TableView {
     }
   }
 
+  function setStyleFromMenu(data) {
+      if (data["type"] == "cell_color")  {
+        for (var i of selectedCells) {
+          i.setColor(data["value"])
+        }
+//          model.setBgColor()
+      }
+  }
+
   function getRowAndCol(idx) {
     var newRow = (idx / columns) >> 0
     var newCol = idx % columns
@@ -261,10 +257,11 @@ TableView {
   }
 
   function unSelectAll(obj) {
+    // désectionne toutes les cases
     for (var i of Array(root.contentItem.children.length).keys()) {
       var ite = root.contentItem.children[i]
       if (ite.isTableDelegate) {
-      ite.state = null
+      ite.state = ""
       }
     }
 
@@ -272,10 +269,20 @@ TableView {
     print("unselectAll", root.selectedCells)
   }
 
-
+  function getCells() {
+    // liste les cells
+    var res = []
+    for (var i of Array(root.contentItem.children.length).keys()) {
+      var ite = root.contentItem.children[i]
+      if (ite.isTableDelegate) {
+        res.push(ite)
+      }
+    }
+    return res
+  }
 
   function getItem(idx) {
-
+    // retourn une cell par son index
     var [newRow, newCol] = getRowAndCol(idx)
 
     var heights = []
@@ -283,7 +290,6 @@ TableView {
     var first = contentItem.childAt(1, 1)
 
     var current = first
-
     for (var i of Array(root.columns)) {
       widths.push(current.width)
       current = contentItem.childAt(current.x + current.width + root.columnSpacing, current.y)
@@ -302,8 +308,10 @@ TableView {
     for (var i of Array(newRow).keys()) {
       new_y += (heights[i] + rowSpacing)
     }
-    var res = contentItem.childAt(new_x, new_y)
+    var res = root.contentItem.childAt(new_x, new_y)
     return res
 
   }
+
+
 }

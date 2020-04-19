@@ -1,71 +1,100 @@
 import json
 
-from PySide2.QtCore import QAbstractTableModel, QModelIndex, Qt, Signal, Property
+from PySide2.QtCore import (
+    QAbstractTableModel,
+    QModelIndex,
+    Qt,
+    Signal,
+    Property,
+    QByteArray,
+)
 from descriptors import cachedproperty
 from package.database import db
 
-from pony.orm import db_session, make_proxy
+from pony.orm import db_session, make_proxy, ObjectNotFound
+import logging
+
+LOG = logging.getLogger(__name__)
 
 
 class TableauModel(QAbstractTableModel):
-    cursorChanged = Signal()
-    paramsChanged = Signal()
     sectionIdChanged = Signal()
     ddb = None
 
     def __init__(self):
         super().__init__()
-        self._cursor = 0
         self.db = db
-        self.params = {"rows": 0, "columns": 0, "datas": []}
+        # self.params = {"rows": 0, "columns": 0, "datas": []}
         self._sectionId = None
-        self.sectionIdChanged.connect(self.load_params)
-        self.dataChanged.connect(self.ddb.recentsModelChanged)
+        self._rows = 0
+        self._columns = 0
+        self.sectionIdChanged.connect(self.load_proxy)
 
     @db_session
-    def load_params(self):
+    def load_proxy(self):
         # c'est une post init method
         try:
             self.proxy = make_proxy(self.db.Section.get(id=self.sectionId))
-        except AttributeError:
+            self._rows = self.proxy.lignes
+            self._columns = self.proxy.colonnes
+        except AttributeError as err:
+            LOG.debug(err)
             self._sectionId = None
             return
-        self.params = self.proxy.to_dict()
-        self.custom_params_load()
-        print(self.params)
 
     def rowCount(self, parent=QModelIndex()) -> int:
-        return int(self.params["rows"])
+        return self._rows
 
     def columnCount(self, parent=QModelIndex()) -> int:
-        return int(self.params["columns"])
+        return self._columns
 
+    def roleNames(self):
+        default = super().roleNames()
+        print(default)
+        default[Qt.BackgroundRole] = QByteArray(b"background")
+        return default
+
+    @db_session
     def data(self, index, role):
-        if index.isValid() and role == Qt.DisplayRole:
-            value = (
-                self.datas[index.row()][index.column()]
-                + str(index.row())
-                + " "
-                + str(index.column())
-            )
-            return value
+        if not index.isValid():
+            return
+        cell = self.get_cell(index)
+        if not cell:
+            return
+        elif role == Qt.DisplayRole:
+            return cell.texte + str(index.row()) + " " + str(index.column())
 
-    @property
-    def datas(self):
-        return self.params["datas"]
+        elif role == Qt.BackgroundRole:
+            print(cell.bgColor, "cell.bgColor")
+            return cell.bgColor
 
+    @db_session
     def setData(self, index, value, role) -> bool:
-        if index.isValid() and role == Qt.EditRole:
-            old = self.datas[index.row()][index.column()]
-            if old == value:
-                return False
+        print(index, value, role)
+        if not index.isValid():
+            return False
 
-            with db_session:
-                self.proxy.update_datas(index.row(), index.column(), value)
-            self.datas[index.row()][index.column()] = value
+        cell = self.get_cell(index)
+        updated = False
+        if not cell:
+            return False
+
+        old = self.data(index, role)
+        if old == value:
+            return False
+
+        if role == Qt.EditRole:
+            cell.texte = value
+            updated = True
+        elif role == Qt.BackgroundRole:
+            cell.bgColor = value
+            updated = True
+
+        if updated:
             self.dataChanged.emit(index, index)
             return True
-        return False
+        else:
+            return False
 
     @Property(int, notify=sectionIdChanged)
     def sectionId(self):
@@ -76,44 +105,17 @@ class TableauModel(QAbstractTableModel):
         self._sectionId = value
         self.sectionIdChanged.emit()
 
-    def custom_params_load(self):
-        pass
+    n_rowsChanged = Signal()
 
-    # columnsChanged = Signal()
-    #
-    # @Property(int, notify=columnsChanged)
-    # def columns(self):
-    #     return self.columnCount()
-
-    rowsChanged = Signal()
-
-    @Property(int, notify=rowsChanged)
+    @Property(int, notify=n_rowsChanged)
     def n_rows(self):
         """créer uniquement pour un problème de conflit avec TableModel """
         return self.rowCount()
 
-    # @rows.setter
-    # def columns_set(self, value: int):
-    #     self._columns = value
-    #     self.columnsChanged.emit()
-
-    # @Property(int, notify=cursorChanged)
-    # def cursor(self):
-    #     return self._cursor
-    #
-    # @cursor.setter
-    # def cursor_set(self, value: int):
-    #     self._cursor = value
-    #     self.cursorChanged.emit()
-
-    #
-    # numberOfLinesChanged = Signal()
-    #
-    # @Property(int, notify=numberOfLinesChanged)
-    # def numberOfLines(self):
-    #     a = (
-    #         sum(max(x.count("\n") for x in ligne) for ligne in self.datas)
-    #         + self.rowCount()
-    #     )
-    #     print(a, "numberOfLines")
-    #     return a
+    def get_cell(self, index):
+        try:
+            return self.db.TableauCell[self.sectionId, index.row(), index.column()]
+        except ObjectNotFound:
+            LOG.debug(
+                f"TableauCell[{self.sectionId}, {index.row}, {index.column} not found"
+            )

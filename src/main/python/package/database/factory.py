@@ -274,16 +274,35 @@ def f_divisionSection(string=None, created=None, page=None, position=0, td=False
 
 
 def f_tableauSection(
-    rows=None, columns=None, created=None, page=None, position=0, td=False
+    lignes=None,
+    colonnes=None,
+    created=None,
+    page=None,
+    position=0,
+    _datas="[]",
+    td=False,
 ):
-    rows = rows or random.randint(1, 10)
-    columns = columns or random.randint(1, 10)
+    lignes = lignes if lignes is not None else random.randint(0, 10)
+    colonnes = colonnes if colonnes is not None else random.randint(0, 10)
     created = created or f_datetime()
     page = page or f_page(td=True)["id"]
     with db_session:
         item = getattr(db, "TableauSection")(
-            rows=rows, columns=columns, created=created, page=page, position=position,
+            lignes=lignes,
+            colonnes=colonnes,
+            created=created,
+            page=page,
+            position=position,
         )
+        item.flush()
+        return item.to_dict() if td else item
+
+
+def f_tableauCell(x=0, y=0, bgColor=None, tableau=None, td=False):
+    tableau = tableau or f_tableauSection(lignes=0, colonnes=0).id
+
+    with db_session:
+        item = getattr(db, "TableauCell")(x=x, y=y, tableau=tableau, bgColor=bgColor,)
         item.flush()
         return item.to_dict() if td else item
 

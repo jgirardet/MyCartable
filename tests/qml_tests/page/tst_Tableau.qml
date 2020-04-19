@@ -3,8 +3,8 @@ import ".."
 import Qt.labs.qmlmodels 1.0
 
 Item {
-  width: 400
-  height: 400
+  width: 200
+  height: 200
   id: item
 
   Component {
@@ -65,21 +65,52 @@ Item {
 
     function initPost() {
       waitForRendering(tested, 3000)
+
+
+//      waitForItemPolished(tested, 3000)
+
+//      for (var i of Array(tested.contentItem.children.length).keys()) {
+//        var ite = tested.contentItem.children[i]
+//          print(ite.tinput.text)
+////        waitForRendering(ite, 3000)
+////        waitForRendering(ite.tinput, 3000)
+////        while(true) {
+////          if (ite.tinput.text) {
+////            break
+////          }
+//////          wait(1)
+////        }
+//////        waitForItemPolished(tested.contentItem.children[i], 3000)
+//      }
+
     }
 
     function test_init() {
       compare(model.rowCount * model.columnCount, 12)
     }
 
-    function test_getItem() {
-      //test aussi contentY pour le bug d'affichage
-      // test aussi getRowCol
-      for (const i of Array(12).keys()) {
-        var tt = tested.getItem(i)
-        //       print(tt.tinput.text, i)
-        compare(tt.tinput.text, i.toString())
+//    function test_getItem() {
+//      //test aussi contentY pour le bug d'affichage
+//      // test aussi getRowCol
+////      tested.mouseArea.z = 0
+//      for (const i of Array(12).keys()) {
+//        var tt = tested.getItem(i)
+////      print(tt.tinput.text)
+//        //       print(tt.tinput.text, i)
+//        compare(tt.tinput.text, i.toString())
+//      }
+//    }
+
+    function test_getCells() {
+      var cells = tested.getCells()
+      compare(cells.length,12)
+      var j = 0
+      for (var i of cells) {
+        compare(i.tinput.text, j.toString())
+        j+=1
       }
     }
+
 
     function test_some_properties() {
       compare(tested.interactive, false)
@@ -88,6 +119,13 @@ Item {
       compare(tested.size, 12)
       var total_height = 0
       compare(tested.visibleArea.heightRatio, 1)
+    }
+
+    function test_selected_state() {
+      var un  = tested.getItem(1)
+      compare(Qt.colorEqual(un.color, "white"), true)
+      un.state = "selected"
+      compare(Qt.colorEqual(un.color, "lightsteelblue"), true)
     }
 
     function test_delegate_edit_text() {
@@ -200,6 +238,84 @@ Item {
       compare(Qt.colorEqual(tx.color, "red"), true)
       compare(tx.font.underline, true)
     }
+
+    function test_select() {
+      function selected(liste) {
+        var res = []
+        for (var i of liste) {
+          res.push(tested.getItem(i))
+        }
+        return res
+      }
+
+      var un = tested.getItem(1)
+      var zero = tested.getItem(0)
+
+       // simple vertical
+      mouseDrag(tested.getItem(1), un.width/2, un.height/2, 0,un.height*3 )
+      compare(tested.selectedCells,selected([1,4,7,10]))
+      for (var i of tested.selectedCells) {
+        compare(i.state, "selected")
+      }
+      // unselect all called quand click simple
+      mouseClick(un)
+      compare(tested.selectedCells, [])
+      for (var i of tested.getCells()) {
+        compare(i.state, "")
+      }
+
+      // new select invalid l'ancien
+       mouseDrag(tested.getItem(1), un.width/2, un.height/2, 0,un.height*3 )
+       mouseDrag(tested.getItem(0), un.width/2, un.height/2, 0,un.height*3 )
+       compare(tested.selectedCells, selected([0, 3, 6, 9]))
+       for (var i of tested.selectedCells) {
+        compare(i.state, "selected")
+      }
+
+        //  test fail : cf : https://bugreports.qt.io/browse/QTBUG-83637
+//      tested.unSelectAll()
+//      // new select aec ctrl  n'invalid l'ancien
+//       mouseDrag(tested.getItem(1), un.width/2, un.height/2, 0,un.height*3 )
+//       mouseDrag(zero, zero.width/2, zero.height/2, 0,zero.height*1, Qt.LeftButton,  Qt.ControlModifier , -1)
+//       compare(tested.selectedCells, selected([1,4,7,10, 0, 3, 6, 9]))
+//       for (var i of tested.selectedCells) {
+//        compare(i.state, "selected")
+//      }
+
+
+      // les cas où il ne se passe rien
+      // à côté
+
+       tested.unSelectAll()
+       mouseDrag(un, un.width, un.height/2, 0,un.height*3 )
+       compare(tested.selectedCells, [])
+      // boutton droit
+      mouseDrag(un, un.width/2, un.height/2, 0,un.height*3, Qt.RightButton )
+      compare(tested.selectedCells, [])
+      // on se déplace dans un élément déjà currentSelectedCell
+      tested.currentSelectedCell = un
+      mouseDrag(un, un.width/2, un.height/2, 0,1, Qt.RightButton )
+      compare(tested.selectedCells, [])
+      // uniquement isTableDelegate pas testé
+
+
+      // marche arrière
+      //ENLEVAGE TEMPORAIRe
+//      tested.unSelectAll()
+//      mousePress(un)
+//      mouseMove(un, un.width/2, un.height/2)
+//      mouseMove(zero, zero.width/2, zero.height/2)
+//      compare(tested.selectedCells, [un, zero])
+//      mouseMove(un, un.width/2, un.height/2)
+//      compare(tested.selectedCells, [un])
+//      mouseRelease(un) // au cas où
+
+
+
+      }
+
+
+
 
     //    function test_menu_style_cellules() {
     //        var rec = tested.getItem(1)

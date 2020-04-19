@@ -27,6 +27,7 @@
         <file alias="BaseMenu.qml">base/qml/menu/BaseMenu.qml</file>
         <file alias="MenuFlottantText.qml">base/qml/menu/MenuFlottantText.qml</file>
         <file alias="MenuFlottantStabylo.qml">base/qml/menu/MenuFlottantStabylo.qml</file>
+        <file alias="MenuFlottantTableau.qml">base/qml/menu/MenuFlottantTableau.qml</file>
 <!--        <file alias="MenuFlottantAnnotationText.qml">base/qml/menu/MenuFlottantAnnotationText.qml</file>-->
         <file alias="ColorButton.qml">base/qml/menu/ColorButton.qml</file>
 

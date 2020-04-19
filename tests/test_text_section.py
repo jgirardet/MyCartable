@@ -187,7 +187,8 @@ class TestProperties:
 
     def test_update_proxy_do_not_change_modified(self, doc, reset_db):
 
-        a = f_textSection()
+        a = f_textSection(text=f"<html><body>bla</body></html>")
+        # updaté si pas html
         doc._updateProxy(a.id)
         with db_session:
             assert a.modified == doc._proxy.modified

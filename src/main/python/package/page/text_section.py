@@ -164,16 +164,17 @@ class DocumentEditor(QObject):
             if item:
                 self._proxy = make_proxy(item)
 
-                # load content
+                # set primitive style
                 self._document.setDefaultStyleSheet(
                     "body { font-size: 16pt; color: black; }"
                 )
+                # on convertit en html si plain text
                 if not bool(BeautifulSoup(item.text, "html.parser").find()):
                     item.text = f"<html><body>{item.text}</body></html>"
+
+                # load content
                 self._document.setHtml(item.text)
                 self._update_block_format()
-
-                # set primitive style
 
                 # set connection later to avoid save on first load
                 self._document.contentsChanged.connect(self.onDocumenContentsChanged)

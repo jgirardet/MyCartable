@@ -173,13 +173,8 @@ def init_models(db: Database):
         path = Required(str)
         annotations = Set("Annotation")
 
-        # def __init__(self, *args, **kwargs):
-        #     # path = kwargs.pop("path")
-        #
-        #     super().__init__(*args, path=path, **kwargs)
-
     class TextSection(Section):
-        text = Optional(str)
+        text = Optional(str, default="")
 
     class TableDataSection(Section):
         _datas = Required(str)

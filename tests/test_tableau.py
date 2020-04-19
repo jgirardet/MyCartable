@@ -16,35 +16,35 @@ def test_create_tableau():
     assert id(d[0]) != id(d[1])
 
 
-@pytest.fixture
-def tt():
-    class Dbo:
-        recentsModelChanged = Signal()
-        sectionIdChanged = Signal()
-
-    class MockTableau(TableauModel):
-        def __call__(self, rows, columns):
-            rows, columns, datas = create_tableau(rows, columns)
-            self.params["rows"] = rows
-            self.params["columns"] = columns
-            self.params["datas"] = datas
-
-    MockTableau.ddb = Dbo()
-    a = MockTableau()
-    return a
-
-
-@pytest.fixture
-def tt_db(dao):
-    class TempTableau(TableauModel):
-        ddb = dao
-
-        def __call__(self, rows, columns):
-            self.f_entry = f_tableauSection(rows, columns)
-            self.sectionId = self.f_entry.id
-
-    return TempTableau()
-
+# @pytest.fixture
+# def tt():
+#     class Dbo:
+#         recentsModelChanged = Signal()
+#         sectionIdChanged = Signal()
+#
+#     class MockTableau(TableauModel):
+#         def __call__(self, rows, columns):
+#             rows, columns, datas = create_tableau(rows, columns)
+#             self.params["rows"] = rows
+#             self.params["columns"] = columns
+#             self.params["datas"] = datas
+#
+#     MockTableau.ddb = Dbo()
+#     a = MockTableau()
+#     return a
+#
+#
+# @pytest.fixture
+# def tt_db(dao):
+#     class TempTableau(TableauModel):
+#         ddb = dao
+#
+#         def __call__(self, rows, columns):
+#             self.f_entry = f_tableauSection(lignes=rows, colonnes=columns)
+#             self.sectionId = self.f_entry.id
+#
+#     return TempTableau()
+# @pytest.f$$$
 
 #
 # class TestTableauModel:
@@ -76,15 +76,15 @@ def tt_db(dao):
 #         with db_session:
 #             assert tt_db.params == tt_db.f_entry.to_dict()
 #         assert tt_db.custom_params_load.call_args_list == [call()]
+
+# def test_numBerOflines(self, tt):
+#     tt(4, 5)
+#     assert tt.numberOfLines == 4
+#     tt.params["datas"][0][1] = "\n \n"
+#     tt.params["datas"][0][2] = "\n \n \n"
+#     tt.params["datas"][1][4] = "\n \n \n \n"
+#     assert tt.numberOfLines == 11
 #
-#     # def test_numBerOflines(self, tt):
-#     #     tt(4, 5)
-#     #     assert tt.numberOfLines == 4
-#     #     tt.params["datas"][0][1] = "\n \n"
-#     #     tt.params["datas"][0][2] = "\n \n \n"
-#     #     tt.params["datas"][1][4] = "\n \n \n \n"
-#     #     assert tt.numberOfLines == 11
-#
-#     def test_setData(self, tt_db):
-#         tt_db(4, 5)
-#         tt_db.setData()
+# def test_setData(self, tt_db):
+#     tt_db(4, 5)
+#     tt_db.setData()

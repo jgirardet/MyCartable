@@ -338,6 +338,11 @@ class TestTextSection:
     def test_factory(self):
         assert f_textSection(text="bla").text == "bla"
 
+    def test_default_is_empty_string(self, ddb):
+        p = f_page()
+        tex = ddb.TextSection(page=p.id)
+        assert tex.text == ""
+
 
 class TestTableDataSection:
     def test_datas(self, ddb):

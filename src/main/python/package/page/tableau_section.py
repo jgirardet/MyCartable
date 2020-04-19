@@ -50,7 +50,7 @@ class TableauModel(QAbstractTableModel):
 
     def roleNames(self):
         default = super().roleNames()
-        print(default)
+        # print(default)
         default[Qt.BackgroundRole] = QByteArray(b"background")
         return default
 
@@ -65,12 +65,12 @@ class TableauModel(QAbstractTableModel):
             return cell.texte + str(index.row()) + " " + str(index.column())
 
         elif role == Qt.BackgroundRole:
-            print(cell.bgColor, "cell.bgColor")
+            # print(cell.bgColor, "cell.bgColor")
             return cell.bgColor
 
     @db_session
     def setData(self, index, value, role) -> bool:
-        print(index, value, role)
+        # print(index, value, role)
         if not index.isValid():
             return False
 

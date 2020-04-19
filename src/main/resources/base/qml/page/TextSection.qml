@@ -65,6 +65,7 @@ TextArea {
       area.cursorPosition = selectionStart
     }
     onSelectionCleared: area.deselect()
+//    onDocumentContentChanged: {area.text}
 
   }
 }

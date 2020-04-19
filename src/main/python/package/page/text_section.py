@@ -8,6 +8,7 @@ from PySide2.QtGui import (
     QBrush,
     QColor,
 )
+from bs4 import BeautifulSoup
 from package.page.blockFormat import P, BlockFormats
 from package.page.charFormat import CharFormats
 from pony.orm import db_session, make_proxy
@@ -164,18 +165,29 @@ class DocumentEditor(QObject):
                 self._proxy = make_proxy(item)
 
                 # load content
+                self._document.setDefaultStyleSheet(
+                    "body { font-size: 16pt; color: black; }"
+                )
+                if not bool(BeautifulSoup(item.text, "html.parser").find()):
+                    item.text = f"<html><body>{item.text}</body></html>"
                 self._document.setHtml(item.text)
                 self._update_block_format()
+
+                # set primitive style
 
                 # set connection later to avoid save on first load
                 self._document.contentsChanged.connect(self.onDocumenContentsChanged)
             else:
                 self._proxy = None
 
+    # documentContentChanged = Signal()
+
     @Slot()
     def onDocumenContentsChanged(self):
         with db_session:
             self._proxy.text = self.document.toHtml()
+        # self.documentChanged.emit()
+        # self.documentContentChanged.emit()
 
     def _update_block_format(self):
         b = self._document.begin()

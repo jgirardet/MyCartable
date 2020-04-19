@@ -7,7 +7,7 @@ from PySide2.QtCore import QUrl
 from PySide2.QtGui import QColor
 from descriptors import cachedproperty
 from package.exceptions import MyCartableOperationError, MyCartableTableauError
-from package.operations.api import create_operation, create_tableau
+from package.operations.api import create_operation
 
 from pony.orm import select, Database, PrimaryKey, Optional, Required, Set, desc, flush
 from package.constantes import ACTIVITES

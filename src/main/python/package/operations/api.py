@@ -249,7 +249,3 @@ def create_operation(string):
         return convert_division(numbers)
     else:
         return None
-
-
-def create_tableau(rows, columns):
-    return rows, columns, [[""] * columns for x in range(rows)]

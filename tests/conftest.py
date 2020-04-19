@@ -52,6 +52,14 @@ def ddbn():
     return db
 
 
+@pytest.fixture(scope="session")
+def session_ddb():
+    """database no reset"""
+    from package.database import db
+
+    return db
+
+
 @pytest.fixture()
 def ddbr(reset_db):
     """database reset db"""

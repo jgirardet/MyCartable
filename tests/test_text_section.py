@@ -166,7 +166,7 @@ class TestProperties:
         else:
             assert backup == doc.document.toHtml()
 
-    def test_update_proxy(self, doc, reset_db):
+    def test_update_proxy(self, doc, ddbr):
         # bad id
         doc.sectionId = 99999
         assert doc._proxy is None

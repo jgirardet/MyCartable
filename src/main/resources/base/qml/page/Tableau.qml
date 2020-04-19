@@ -125,9 +125,9 @@ TableView {
 
     }
     function setColor(value) {
-      print(background)
-      print(value, typeof value)
-      print(background)
+//      print(background)
+//      print(value, typeof value)
+//      print(background)
       background = value
     }
     TextArea {
@@ -253,7 +253,7 @@ TableView {
       selectedCells.pop(obj)
     }
 
-    print("selected cell", root.selectedCells)
+//    print("selected cell", root.selectedCells)
   }
 
   function unSelectAll(obj) {
@@ -266,7 +266,7 @@ TableView {
     }
 
     root.selectedCells.length = 0
-    print("unselectAll", root.selectedCells)
+//    print("unselectAll", root.selectedCells)
   }
 
   function getCells() {

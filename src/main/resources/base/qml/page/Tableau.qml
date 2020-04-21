@@ -266,6 +266,7 @@ TableView {
     }
 
     root.selectedCells.length = 0
+    root.currentSelectedCell =null
 //    print("unselectAll", root.selectedCells)
   }
 

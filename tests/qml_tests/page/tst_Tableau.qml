@@ -279,11 +279,22 @@ Item {
         return res
       }
 
+      function mouseSelect(liste) {
+        mousePress(tested.getItem(liste[0]),0, 0)
+        for (var x of liste) {
+          mouseMove(tested.getItem(x), 1, 1)
+
+        }
+        var [last] = liste.slice(-1)
+        mouseRelease(tested.getItem(last), 1, 1)
+      }
+
       var un = tested.getItem(1)
       var zero = tested.getItem(0)
 
        // simple vertical
-      mouseDrag(tested.getItem(1), un.width/2, un.height/2, 0,un.height*3 )
+//      mouseDrag(tested.getItem(1), un.width/2, un.height/2, 0,un.height*3 )
+      mouseSelect([1,4,7,10])
       compare(tested.selectedCells,selected([1,4,7,10]))
       for (var i of tested.selectedCells) {
         compare(i.state, "selected")
@@ -296,8 +307,11 @@ Item {
       }
 
       // new select invalid l'ancien
-       mouseDrag(tested.getItem(1), un.width/2, un.height/2, 0,un.height*3 )
-       mouseDrag(tested.getItem(0), un.width/2, un.height/2, 0,un.height*3 )
+      mouseSelect([1,4,7,10])
+      mouseSelect([0, 3, 6, 9])
+
+//       mouseDrag(tested.getItem(1), un.width/2, un.height/2, 0,un.height*3 )
+//       mouseDrag(tested.getItem(0), un.width/2, un.height/2, 0,un.height*3 )
        compare(tested.selectedCells, selected([0, 3, 6, 9]))
        for (var i of tested.selectedCells) {
         compare(i.state, "selected")
@@ -318,20 +332,34 @@ Item {
       // à côté
 
        tested.unSelectAll()
-       mouseDrag(un, un.width, un.height/2, 0,un.height*3 )
+//       mouseDrag(un, un.width, un.height/2, 0,un.height*3 )
+       mousePress(un, un.width, un.height/2)
+       mouseMove(un, un.width, un.height/3)
+       mouseRelease(un, un.width, un.height/3)
        compare(tested.selectedCells, [])
+
       // boutton droit
-      mouseDrag(un, un.width/2, un.height/2, 0,un.height*3, Qt.RightButton )
+      mousePress(un, un.width, un.height/2, Qt.RightButton)
+       mouseMove(un, un.width, un.height/3)
+       mouseRelease(un, un.width, un.height/3, Qt.RightButton)
       compare(tested.selectedCells, [])
+//      mouseDrag(un, un.width/2, un.height/2, 0,un.height*3, Qt.RightButton )
+
       // on se déplace dans un élément déjà currentSelectedCell
       tested.currentSelectedCell = un
-      mouseDrag(un, un.width/2, un.height/2, 0,1, Qt.RightButton )
+      mousePress(un, un.width, un.height/2)
+       mouseMove(un, un.width, un.height/3)
+//       mouseRelease(un, un.width, un.height/3, ,Qt.RightButton)
+//      mouseDrag(un, un.width/2, un.height/2, 0,1, Qt.RightButton )
       compare(tested.selectedCells, [])
       // uniquement isTableDelegate pas testé
 
+//      // unSelectAll deselect currentselected
+      tested.currentSelectedCell = un
+      tested.unSelectAll()
+      compare(tested.currentSelectedCell, null)
 
       // marche arrière
-
       tested.unSelectAll()
       mousePress(un)
       mouseMove(un, un.width/2, un.height/2)

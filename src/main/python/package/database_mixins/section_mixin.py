@@ -31,11 +31,6 @@ class SectionMixin:
             )
             if path.is_file():
                 content['path'] = self.store_new_file(path)
-
-                # content["path"] = str(self.get_new_image_path(path.suffix))
-                # new_file = self.files / content["path"]
-                # new_file.parent.mkdir(parents=True, exist_ok=True)
-                # new_file.write_bytes(path.read_bytes())
             else:
                 return 0
 

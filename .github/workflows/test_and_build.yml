@@ -33,7 +33,7 @@ jobs:
         auto-activate-base: false
         activate-environment: MyCartableEnv
     - name: test conda
-    - shell: bash -l {0}
+      shell: bash -l {0}
       run: |
         conda info
     - name: setup ${{ matrix.os }}

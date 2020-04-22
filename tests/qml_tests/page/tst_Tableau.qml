@@ -320,9 +320,13 @@ Item {
         //  test fail : cf : https://bugreports.qt.io/browse/QTBUG-83637
 //      tested.unSelectAll()
 //      // new select aec ctrl  n'invalid l'ancien
-//       mouseDrag(tested.getItem(1), un.width/2, un.height/2, 0,un.height*3 )
-//       mouseDrag(zero, zero.width/2, zero.height/2, 0,zero.height*1, Qt.LeftButton,  Qt.ControlModifier , -1)
-//       compare(tested.selectedCells, selected([1,4,7,10, 0, 3, 6, 9]))
+//       mouseSelect([1,4,7,10])
+////       mouseDrag(tested.getItem(1), un.width/2, un.height/2, 0,un.height*3 )
+//      mousePress(zero, zero.width/2, zero.height/2, Qt.LeftButton,   Qt.ControlModifier)
+//       mouseMove(zero, zero.width/2, zero.height/3, Qt.LeftButton)
+//       mouseRelease(zero, zero.width/2, zero.height/3, Qt.LeftButton,  Qt.ControlModifier)
+////       mouseDrag(zero, zero.width/2, zero.height/2, 0,zero.height*1, Qt.LeftButton,  Qt.ControlModifier , -1)
+//       compare(tested.selectedCells, selected([1,4,7,10, 0]))
 //       for (var i of tested.selectedCells) {
 //        compare(i.state, "selected")
 //      }

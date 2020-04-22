@@ -43,7 +43,7 @@ jobs:
 #        make install_linux_ci
     - name: Tests python on ${{ matrix.os }}
       run: |
-        conda info
+      shell: bash -l {0}
         pytest -s
 #        make test
     - name: Install Qt on ${{ matrix.os }}
@@ -53,18 +53,21 @@ jobs:
         host: 'linux'
         target: 'desktop'
     - name: Tests QML on ${{ matrix.os }}
+      shell: bash -l {0}
       run: |
         python tests/qml_tests/create-js-data.py
         qmake -o target/qml_tests/Makefile tests/qml_tests/qml_tests.pro -spec linux-g++ CONFIG+=debug CONFIG+=qml_debug
         make -C target/qml_tests
         ./target/qml_tests/qml_tests
     - name: Coverage on ${{ matrix.os }}
+      shell: bash -l {0}
       run: |
         rm -rf .pytest_cache
         make cov
     - name: build on ${{ matrix.os }}
       run: |
         make build_dir
+      shell: bash -l {0}
 #        poetry run  python scripted/build_executable.py
     - name: upload  on ${{ matrix.os }} binary in artifact
       uses: actions/upload-artifact@v1

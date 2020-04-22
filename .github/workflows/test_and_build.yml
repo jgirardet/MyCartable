@@ -38,6 +38,7 @@ jobs:
 #        make install_linux_ci
     - name: Tests python on ${{ matrix.os }}
       run: |
+        conda info
         pytest -s
 #        make test
     - name: Install Qt on ${{ matrix.os }}

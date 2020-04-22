@@ -5,6 +5,7 @@ channels:
 dependencies:
   - poppler=0.87
   - python=3.7
+  - pip
   - pip:
     - aqtinstall==0.8
     - beautifulsoup4==4.9.0
@@ -21,5 +22,4 @@ dependencies:
     - pytest==5.3.2
     - pytest-freezegun==0.4.1
     - pytest-qt==3.3.0
-#prefix: /home/jimmy/miniconda3/envs/MyCartableEnv
 

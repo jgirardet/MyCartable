@@ -24,14 +24,21 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: ${{ matrix.python }}
+    - uses: goanpeca/setup-miniconda@v1
+        with:
+          activate-environment: MyCartableEnv
+          python-version: ${{ matrix.python }}
+          environment-file: MyCartableEnv.yml
+          auto-activate-base: false
     - name: setup ${{ matrix.os }}
       run: |
         sudo apt install libxkbcommon-x11-0
-        make install_linux_ci
+#        make install_linux_ci
         /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -screen 0 1920x1200x24 -ac +extension GLX
     - name: Tests python on ${{ matrix.os }}
       run: |
-        make test
+        pytest -s
+#        make test
     - name: Install Qt on ${{ matrix.os }}
       uses: jurplel/install-qt-action@v2
       with:

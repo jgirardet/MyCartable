@@ -120,6 +120,7 @@ jobs:
 
     - name: build on ${{ matrix.os }}
       run: |
+      shell: bash -l {0}
         pyinstaller scripts/dir.spec -y --clean
 
 #    #        poetry run  python scripted/build_executable.py

@@ -3,7 +3,8 @@ from pathlib import Path
 from PySide2.QtCore import Slot
 from package.utils import get_new_filename
 from pony.orm import db_session
-
+from pdf2image import convert_from_path
+import tempfile
 
 class ImageSectionMixin:
     @Slot("QVariantMap", result=int)
@@ -49,3 +50,15 @@ class ImageSectionMixin:
 
     def get_new_image_path(self, ext):
         return Path(str(self.annee_active), get_new_filename(ext)).as_posix()
+
+
+    def import_pdf(filepath: Path):
+        with tempfile.TemporaryDirectory() as temp_path:
+            res = convert_from_path(filepath, output_folder=temp_path)
+
+    def store_new_file(self, filepath):
+        res_path = str(self.get_new_image_path(filepath.suffix))
+        new_file = self.files / res_path
+        new_file.parent.mkdir(parents=True, exist_ok=True)
+        new_file.write_bytes(filepath.read_bytes())
+        return  res_path

@@ -161,13 +161,11 @@ pip-selfcheck.json
 # End of https://www.gitignore.io/api/python,virtualenv,sublimetext
 /src/main/python/qrc.py
 /_qmlview_resource_.rcc
-/targets/qml_tests/
+/targets/
 /tests/qml_tests/echantillon.js
 /aqtinstall.log
 
 /tests/qml_tests/qml_tests.pro.user
-!/scripts/build_executable.py
-!/scripts/dir.spec
-!/scripts/mainbak.spec
-!/scripts/onefile.spec
-!/scripts/
+
+/5.14.1/
+

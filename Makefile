@@ -37,7 +37,7 @@ install_linux_ci: install
 #	pip install -U pip
 #	pip install -r requirements/base.txt
 #	aqt install $(QT_VERSION) linux desktop --outputdir qt
-	export PATH := $(QT_VERSION)/gcc_64/bin:$(PATH)
+#	export PATH := $(QT_VERSION)/gcc_64/bin:$(PATH)
 
 qrc:
 	conda run -n $(VIRTUAL_ENV) pyside2-rcc src/main/resources/qml.qrc -o src/main/python/qrc.py

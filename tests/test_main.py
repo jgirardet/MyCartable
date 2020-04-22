@@ -11,3 +11,4 @@ def test_pdf():
         res = convert_from_path(pdf, output_folder=path)
         for x in res:
             assert Path(x.filename).is_file()
+            x.close() # needed on windows

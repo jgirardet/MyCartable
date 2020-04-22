@@ -97,15 +97,15 @@ jobs:
         auto-activate-base: false
         activate-environment: MyCartableEnv
     - name: test conda
-      shell: powershell -l {0}
+      shell: bash -l {0}
       run: |
         conda info
     - name: setup env in ${{matrix.os}} with python ${{matrix.os}}
-      shell: powershell -l {0}
+      shell: bash -l {0}
       run: |
           conda env create -f MyCartableEnv.yml
     - name: Tests python on ${{matrix.os}}
-      shell: powershell -l {0}
+      shell: bash -l {0}
       run: |
           python -m pytest -s
     - name: Install Qt on ${{ matrix.os }}

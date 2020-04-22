@@ -27,10 +27,13 @@ jobs:
     - name: setup conda env
       uses: goanpeca/setup-miniconda@v1
       with:
-        activate-environment: MyCartableEnv
+        miniconda-version: 'latest'
         python-version: ${{ matrix.python }}
         environment-file: MyCartableEnv.yml
         auto-activate-base: false
+        activate-environment: MyCartableEnv
+      run: |
+        conda info
     - name: setup ${{ matrix.os }}
       run: |
         sudo apt install libxkbcommon-x11-0

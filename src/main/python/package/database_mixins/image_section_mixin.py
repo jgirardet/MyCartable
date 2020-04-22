@@ -52,9 +52,10 @@ class ImageSectionMixin:
         return Path(str(self.annee_active), get_new_filename(ext)).as_posix()
 
 
-    def import_pdf(filepath: Path):
+    def import_pdf(self, filepath: Path):
         with tempfile.TemporaryDirectory() as temp_path:
             res = convert_from_path(filepath, output_folder=temp_path)
+            print(res)
 
     def store_new_file(self, filepath):
         res_path = str(self.get_new_image_path(filepath.suffix))

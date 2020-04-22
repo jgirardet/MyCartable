@@ -40,10 +40,10 @@ install_linux_ci: install
 #	export PATH := $(QT_VERSION)/gcc_64/bin:$(PATH)
 
 qrc:
-	conda run -n $(VIRTUAL_ENV) pyside2-rcc src/main/resources/qml.qrc -o src/main/python/qrc.py
+	pyside2-rcc src/main/resources/qml.qrc -o src/main/python/qrc.py
 
 run: qrc
-	conda run -n $(VIRTUAL_ENV) python src/main/python/main.py
+	python src/main/python/main.py
 
 
 dev: install install_qt
@@ -54,7 +54,7 @@ freeze:
 	fbs freeze
 
 build_dir:
-	conda run -n $(VIRTUAL_ENV) pyinstaller  scripts/dir.spec --clean -y
+	pyinstaller  scripts/dir.spec --clean -y
 
 run_dir: build_dir
 	dist/MyCartable/MyCartable

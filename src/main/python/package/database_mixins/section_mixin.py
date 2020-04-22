@@ -20,6 +20,7 @@ class SectionMixin:
         if not classtype:
             return 0
 
+
         elif classtype == "ImageSection":
             if not "path" in content or not content["path"]:
                 return 0
@@ -30,6 +31,9 @@ class SectionMixin:
                 else Path(path).absolute()
             )
             if path.is_file():
+                if path.suffix == ".pdf":
+                    self.import_pdf(path)
+                    return
                 content['path'] = self.store_new_file(path)
             else:
                 return 0

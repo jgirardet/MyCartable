@@ -119,9 +119,9 @@ jobs:
           target\qml_tests\qml_tests.exe
 
     - name: build on ${{ matrix.os }}
-      shell: powershell
-      run: |
-          pyinstaller scripts/dir.spec -y --clean
+      shell: cmd /C CALL {0}
+      run: >-
+        conda info && pyinstaller scripts/dir.spec -y --clean
 
 #    #        poetry run  python scripted/build_executable.py
     - name: upload  on ${{ matrix.os }} binary in artifact

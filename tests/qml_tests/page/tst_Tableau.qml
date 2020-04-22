@@ -23,54 +23,50 @@ Item {
         display: "deux";edit: "editDeux";background: "bgDeux"
       }
       rows: [
-//      [
-      {
-                zero: "0",
-                un: "1",
-                deux: "2" ,
-                editZero: "",
-                editUn: "",
-                editDeux: "",
-                bgZero: "red",
-                bgUn: "blue",
-                bgDeux: "green"
-              },
-      {
-                zero: "3",
-                un: "4",
-                deux: "5" ,
-                editZero: "",
-                editUn: "",
-                editDeux: "",
-                bgZero: null,
-                bgUn: null,
-                bgDeux: "green"
-              },
-      {
-                zero: "6",
-                un: "7",
-                deux: "8" ,
-                editZero: "",
-                editUn: "",
-                editDeux: "",
-                bgZero: null,
-                bgUn: null,
-                bgDeux: "green"
-              },
-      {
-                zero: "9",
-                un: "10",
-                deux: "11" ,
-                editZero: "",
-                editUn: "",
-                editDeux: "",
-                bgZero: "red",
-                bgUn: "blue",
-                bgDeux: "green"
-              },
+        //      [
+        {
+          zero: "0",
+          un: "1",
+          deux: "2",
+          editZero: "",
+          editUn: "",
+          editDeux: "",
+          bgZero: "red",
+          bgUn: "blue",
+          bgDeux: "green"
+        }, {
+          zero: "3",
+          un: "4",
+          deux: "5",
+          editZero: "",
+          editUn: "",
+          editDeux: "",
+          bgZero: null,
+          bgUn: null,
+          bgDeux: "green"
+        }, {
+          zero: "6",
+          un: "7",
+          deux: "8",
+          editZero: "",
+          editUn: "",
+          editDeux: "",
+          bgZero: null,
+          bgUn: null,
+          bgDeux: "green"
+        }, {
+          zero: "9",
+          un: "10",
+          deux: "11",
+          editZero: "",
+          editUn: "",
+          editDeux: "",
+          bgZero: "red",
+          bgUn: "blue",
+          bgDeux: "green"
+        },
 
       ]
-
 
     }
   }
@@ -96,50 +92,48 @@ Item {
     function initPost() {
       waitForRendering(tested, 3000)
 
+      //      waitForItemPolished(tested, 3000)
 
-//      waitForItemPolished(tested, 3000)
-
-//      for (var i of Array(tested.contentItem.children.length).keys()) {
-//        var ite = tested.contentItem.children[i]
-//          print(ite.tinput.text)
-////        waitForRendering(ite, 3000)
-////        waitForRendering(ite.tinput, 3000)
-////        while(true) {
-////          if (ite.tinput.text) {
-////            break
-////          }
-//////          wait(1)
-////        }
-//////        waitForItemPolished(tested.contentItem.children[i], 3000)
-//      }
+      //      for (var i of Array(tested.contentItem.children.length).keys()) {
+      //        var ite = tested.contentItem.children[i]
+      //          print(ite.tinput.text)
+      ////        waitForRendering(ite, 3000)
+      ////        waitForRendering(ite.tinput, 3000)
+      ////        while(true) {
+      ////          if (ite.tinput.text) {
+      ////            break
+      ////          }
+      //////          wait(1)
+      ////        }
+      //////        waitForItemPolished(tested.contentItem.children[i], 3000)
+      //      }
 
     }
 
-
-//
+    //
     function test_init() {
       compare(model.rowCount * model.columnCount, 12)
     }
 
-//    function test_getItem() {
-//      //test aussi contentY pour le bug d'affichage
-//      // test aussi getRowCol
-////      tested.mouseArea.z = 0
-//      for (const i of Array(12).keys()) {
-//        var tt = tested.getItem(i)
-////      print(tt.tinput.text)
-//        //       print(tt.tinput.text, i)
-//        compare(tt.tinput.text, i.toString())
-//      }
-//    }
-//
+    //    function test_getItem() {
+    //      //test aussi contentY pour le bug d'affichage
+    //      // test aussi getRowCol
+    ////      tested.mouseArea.z = 0
+    //      for (const i of Array(12).keys()) {
+    //        var tt = tested.getItem(i)
+    ////      print(tt.tinput.text)
+    //        //       print(tt.tinput.text, i)
+    //        compare(tt.tinput.text, i.toString())
+    //      }
+    //    }
+    //
     function test_getCells() {
       var cells = tested.getCells()
-      compare(cells.length,12)
+      compare(cells.length, 12)
       var j = 0
       for (var i of cells) {
         compare(i.tinput.text, j.toString())
-        j+=1
+        j += 1
       }
     }
 
@@ -153,7 +147,7 @@ Item {
     }
 
     function test_selected_state() {
-      var un  = tested.getItem(1)
+      var un = tested.getItem(1)
       compare(Qt.colorEqual(un.color, "blue"), true)
       un.state = "selected"
       compare(Qt.colorEqual(un.color, "lightsteelblue"), true)
@@ -280,7 +274,7 @@ Item {
       }
 
       function mouseSelect(liste) {
-        mousePress(tested.getItem(liste[0]),0, 0)
+        mousePress(tested.getItem(liste[0]), 0, 0)
         for (var x of liste) {
           mouseMove(tested.getItem(x), 1, 1)
 
@@ -292,10 +286,10 @@ Item {
       var un = tested.getItem(1)
       var zero = tested.getItem(0)
 
-       // simple vertical
-//      mouseDrag(tested.getItem(1), un.width/2, un.height/2, 0,un.height*3 )
-      mouseSelect([1,4,7,10])
-      compare(tested.selectedCells,selected([1,4,7,10]))
+      // simple vertical
+      //      mouseDrag(tested.getItem(1), un.width/2, un.height/2, 0,un.height*3 )
+      mouseSelect([1, 4, 7, 10])
+      compare(tested.selectedCells, selected([1, 4, 7, 10]))
       for (var i of tested.selectedCells) {
         compare(i.state, "selected")
       }
@@ -307,58 +301,57 @@ Item {
       }
 
       // new select invalid l'ancien
-      mouseSelect([1,4,7,10])
+      mouseSelect([1, 4, 7, 10])
       mouseSelect([0, 3, 6, 9])
 
-//       mouseDrag(tested.getItem(1), un.width/2, un.height/2, 0,un.height*3 )
-//       mouseDrag(tested.getItem(0), un.width/2, un.height/2, 0,un.height*3 )
-       compare(tested.selectedCells, selected([0, 3, 6, 9]))
-       for (var i of tested.selectedCells) {
+      //       mouseDrag(tested.getItem(1), un.width/2, un.height/2, 0,un.height*3 )
+      //       mouseDrag(tested.getItem(0), un.width/2, un.height/2, 0,un.height*3 )
+      compare(tested.selectedCells, selected([0, 3, 6, 9]))
+      for (var i of tested.selectedCells) {
         compare(i.state, "selected")
       }
 
-        //  test fail : cf : https://bugreports.qt.io/browse/QTBUG-83637
-//      tested.unSelectAll()
-//      // new select aec ctrl  n'invalid l'ancien
-//       mouseSelect([1,4,7,10])
-////       mouseDrag(tested.getItem(1), un.width/2, un.height/2, 0,un.height*3 )
-//      mousePress(zero, zero.width/2, zero.height/2, Qt.LeftButton,   Qt.ControlModifier)
-//       mouseMove(zero, zero.width/2, zero.height/3, Qt.LeftButton)
-//       mouseRelease(zero, zero.width/2, zero.height/3, Qt.LeftButton,  Qt.ControlModifier)
-////       mouseDrag(zero, zero.width/2, zero.height/2, 0,zero.height*1, Qt.LeftButton,  Qt.ControlModifier , -1)
-//       compare(tested.selectedCells, selected([1,4,7,10, 0]))
-//       for (var i of tested.selectedCells) {
-//        compare(i.state, "selected")
-//      }
-
+      //  test fail : cf : https://bugreports.qt.io/browse/QTBUG-83637
+      //      tested.unSelectAll()
+      //      // new select aec ctrl  n'invalid l'ancien
+      //       mouseSelect([1,4,7,10])
+      ////       mouseDrag(tested.getItem(1), un.width/2, un.height/2, 0,un.height*3 )
+      //      mousePress(zero, zero.width/2, zero.height/2, Qt.LeftButton,   Qt.ControlModifier)
+      //       mouseMove(zero, zero.width/2, zero.height/3, Qt.LeftButton)
+      //       mouseRelease(zero, zero.width/2, zero.height/3, Qt.LeftButton,  Qt.ControlModifier)
+      ////       mouseDrag(zero, zero.width/2, zero.height/2, 0,zero.height*1, Qt.LeftButton,  Qt.ControlModifier , -1)
+      //       compare(tested.selectedCells, selected([1,4,7,10, 0]))
+      //       for (var i of tested.selectedCells) {
+      //        compare(i.state, "selected")
+      //      }
 
       // les cas où il ne se passe rien
       // à côté
 
-       tested.unSelectAll()
-//       mouseDrag(un, un.width, un.height/2, 0,un.height*3 )
-       mousePress(un, un.width, un.height/2)
-       mouseMove(un, un.width, un.height/3)
-       mouseRelease(un, un.width, un.height/3)
-       compare(tested.selectedCells, [])
+      tested.unSelectAll()
+      //       mouseDrag(un, un.width, un.height/2, 0,un.height*3 )
+      mousePress(un, un.width, un.height / 2)
+      mouseMove(un, un.width, un.height / 3)
+      mouseRelease(un, un.width, un.height / 3)
+      compare(tested.selectedCells, [])
 
       // boutton droit
-      mousePress(un, un.width, un.height/2, Qt.RightButton)
-       mouseMove(un, un.width, un.height/3)
-       mouseRelease(un, un.width, un.height/3, Qt.RightButton)
+      mousePress(un, un.width, un.height / 2, Qt.RightButton)
+      mouseMove(un, un.width, un.height / 3)
+      mouseRelease(un, un.width, un.height / 3, Qt.RightButton)
       compare(tested.selectedCells, [])
-//      mouseDrag(un, un.width/2, un.height/2, 0,un.height*3, Qt.RightButton )
+      //      mouseDrag(un, un.width/2, un.height/2, 0,un.height*3, Qt.RightButton )
 
       // on se déplace dans un élément déjà currentSelectedCell
       tested.currentSelectedCell = un
-      mousePress(un, un.width, un.height/2)
-       mouseMove(un, un.width, un.height/3)
-//       mouseRelease(un, un.width, un.height/3, ,Qt.RightButton)
-//      mouseDrag(un, un.width/2, un.height/2, 0,1, Qt.RightButton )
+      mousePress(un, un.width, un.height / 2)
+      mouseMove(un, un.width, un.height / 3)
+      //       mouseRelease(un, un.width, un.height/3, ,Qt.RightButton)
+      //      mouseDrag(un, un.width/2, un.height/2, 0,1, Qt.RightButton )
       compare(tested.selectedCells, [])
       // uniquement isTableDelegate pas testé
 
-//      // unSelectAll deselect currentselected
+      //      // unSelectAll deselect currentselected
       tested.currentSelectedCell = un
       tested.unSelectAll()
       compare(tested.currentSelectedCell, null)
@@ -366,16 +359,13 @@ Item {
       // marche arrière
       tested.unSelectAll()
       mousePress(un)
-      mouseMove(un, un.width/2, un.height/2)
-      mouseMove(zero, zero.width/2, zero.height/2)
+      mouseMove(un, un.width / 2, un.height / 2)
+      mouseMove(zero, zero.width / 2, zero.height / 2)
       compare(tested.selectedCells, [un, zero])
-      mouseMove(un, un.width/2, un.height/2)
+      mouseMove(un, un.width / 2, un.height / 2)
       compare(tested.selectedCells, [un])
       mouseRelease(un) // au cas où
-      }
-
-
-
+    }
 
     //    function test_menu_style_cellules() {
     //        var rec = tested.getItem(1)

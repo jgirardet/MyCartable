@@ -26,8 +26,8 @@ TableView {
     id: bigMouse
     x: root.x
     y: root.y
-//    x: root.contentItem.x
-//    y: root.contentItem.y
+    //    x: root.contentItem.x
+    //    y: root.contentItem.y
     width: contentItem.childrenRect.width
     height: contentItem.childrenRect.height
     preventStealing: true
@@ -35,14 +35,13 @@ TableView {
     z: 2 // par dessus les delegate
     propagateComposedEvents: true
 
-
-//    pressAndHoldInterval: 300
+    //    pressAndHoldInterval: 300
 
     onPositionChanged: {
       var tempItem = root.contentItem.childAt(mouse.x, mouse.y)
       if (!root.currentSelectedCell && (mouse.modifiers != Qt.ControlModifier)) {
-      // nouvelle sélection après que clique ait été relaché
-      // gardé si ctrl enfoncé
+        // nouvelle sélection après que clique ait été relaché
+        // gardé si ctrl enfoncé
         root.unSelectAll()
       }
       if (!containsMouse // on ne fait rien en dehors de la zone
@@ -124,10 +123,11 @@ TableView {
       }
 
     }
+
     function setColor(value) {
-//      print(background)
-//      print(value, typeof value)
-//      print(background)
+      //      print(background)
+      //      print(value, typeof value)
+      //      print(background)
       background = value
     }
     TextArea {
@@ -229,12 +229,12 @@ TableView {
   }
 
   function setStyleFromMenu(data) {
-      if (data["type"] == "cell_color")  {
-        for (var i of selectedCells) {
-          i.setColor(data["value"])
-        }
-//          model.setBgColor()
+    if (data["type"] == "cell_color") {
+      for (var i of selectedCells) {
+        i.setColor(data["value"])
       }
+      //          model.setBgColor()
+    }
   }
 
   function getRowAndCol(idx) {
@@ -253,7 +253,7 @@ TableView {
       selectedCells.pop(obj)
     }
 
-//    print("selected cell", root.selectedCells)
+    //    print("selected cell", root.selectedCells)
   }
 
   function unSelectAll(obj) {
@@ -261,13 +261,13 @@ TableView {
     for (var i of Array(root.contentItem.children.length).keys()) {
       var ite = root.contentItem.children[i]
       if (ite.isTableDelegate) {
-      ite.state = ""
+        ite.state = ""
       }
     }
 
     root.selectedCells.length = 0
-    root.currentSelectedCell =null
-//    print("unselectAll", root.selectedCells)
+    root.currentSelectedCell = null
+    //    print("unselectAll", root.selectedCells)
   }
 
   function getCells() {
@@ -313,6 +313,5 @@ TableView {
     return res
 
   }
-
 
 }

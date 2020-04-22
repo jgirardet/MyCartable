@@ -19,8 +19,8 @@ Item {
     when: windowShown
 
     function test_click() {
-      mouseClick(item, item.width / 2,item.height / 2, Qt.LeftButton, Qt.ControlModifier,  -1)
-      mouseDrag(item, item.width / 2,  item.height / 2,1, 1, Qt.LeftButton, Qt.ControlModifier,  -1)
+      mouseClick(item, item.width / 2, item.height / 2, Qt.LeftButton, Qt.ControlModifier, -1)
+      mouseDrag(item, item.width / 2, item.height / 2, 1, 1, Qt.LeftButton, Qt.ControlModifier, -1)
     }
   }
 }

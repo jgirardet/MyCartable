@@ -5,43 +5,42 @@ import QtQuick.Layouts 1.12
 BaseMenu {
   id: root
 
-
   MenuItem {
-    ColumnLayout{
-    anchors.fill: parent
-    Text {
-      Layout.alignment: Qt.AlignHCenter
-      text: "couleur d'arrière plan"
-    }
-    RowLayout {
-      Layout.fillWidth: true
-      Layout.fillHeight: true
-      spacing: 0
-      ColorButton {
-        type: "cell_color"
-        color: Qt.lighter("red")
-        shortcut: "Ctrl+r"
-        menu: root
+    ColumnLayout {
+      anchors.fill: parent
+      Text {
+        Layout.alignment: Qt.AlignHCenter
+        text: "couleur d'arrière plan"
       }
-      ColorButton {
-        type: "cell_color"
-        color: Qt.lighter("blue")
-        shortcut: "Ctrl+b"
-        menu: root
+      RowLayout {
+        Layout.fillWidth: true
+        Layout.fillHeight: true
+        spacing: 0
+        ColorButton {
+          type: "cell_color"
+          color: Qt.lighter("red")
+          shortcut: "Ctrl+r"
+          menu: root
+        }
+        ColorButton {
+          type: "cell_color"
+          color: Qt.lighter("blue")
+          shortcut: "Ctrl+b"
+          menu: root
+        }
+        ColorButton {
+          type: "cell_color"
+          color: Qt.lighter("green")
+          shortcut: "Ctrl+g"
+          menu: root
+        }
+        ColorButton {
+          type: "cell_color"
+          color: Qt.lighter("grey")
+          shortcut: "Ctrl+n"
+          menu: root
+        }
       }
-      ColorButton {
-        type: "cell_color"
-        color: Qt.lighter("green")
-        shortcut: "Ctrl+g"
-        menu: root
-      }
-      ColorButton {
-        type: "cell_color"
-        color: Qt.lighter("grey")
-        shortcut: "Ctrl+n"
-        menu: root
-      }
-    }
     }
   }
   MenuSeparator {

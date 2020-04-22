@@ -97,9 +97,9 @@ jobs:
         auto-activate-base: false
         activate-environment: MyCartableEnv
     - name: test conda
-        shell: powershell -l {0}
-        run: |
-          conda info
+      shell: powershell -l {0}
+      run: |
+        conda info
     - name: setup env in ${{matrix.os}} with python ${{matrix.os}}
       shell: powershell -l {0}
       run: |

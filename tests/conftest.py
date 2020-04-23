@@ -164,3 +164,12 @@ def check_simple_property(doc, qtbot):
             assert getattr(doc, f"_{name}") == getattr(doc, name) == value
 
     return check_simple_property
+
+
+@pytest.fixture()
+def pdf_2pages():
+    return Path(__file__).parent / "resources" / "2pages.pdf"
+
+@pytest.fixture()
+def png_annot():
+    return Path(__file__).parent / "resources" / "tst_AnnotableImage.png"

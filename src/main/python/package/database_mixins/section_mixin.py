@@ -1,6 +1,8 @@
+import tempfile
 from pathlib import Path
 
 from PySide2.QtCore import Slot, QUrl, Signal
+from package.convert import run_convert_pdf
 from package.files_path import FILES
 from package.exceptions import MyCartableOperationError
 from pony.orm import db_session
@@ -8,6 +10,7 @@ import logging
 
 
 LOG = logging.getLogger(__name__)
+
 
 class SectionMixin:
 
@@ -20,7 +23,6 @@ class SectionMixin:
         if not classtype:
             return 0
 
-
         elif classtype == "ImageSection":
             if not "path" in content or not content["path"]:
                 return 0
@@ -32,9 +34,9 @@ class SectionMixin:
             )
             if path.is_file():
                 if path.suffix == ".pdf":
-                    self.import_pdf(path)
+                    self.addSectionPDF(page_id, path)
                     return
-                content['path'] = self.store_new_file(path)
+                content["path"] = self.store_new_file(path)
             else:
                 return 0
 
@@ -46,6 +48,27 @@ class SectionMixin:
                 self.ui.sendToast.emit(str(err))
                 return 0
         self.sectionAdded.emit(item.position)
+        return item.id
+
+    # @Slot(int, "QVariantMap", result=int)
+    def addSectionPDF(self, page_id, path):
+
+        with tempfile.TemporaryDirectory() as temp_path:
+            res = run_convert_pdf(path, temp_path)
+            for page  in res:
+
+                content = {"classtype": "ImageSection" }
+                print(page)
+                content["path"] = self.store_new_file(page)
+                print(content["path"])
+                try:
+                    with db_session:
+                        item = self.db.ImageSection(page=page_id, **content)
+                except MyCartableOperationError as err:
+                    LOG.error(err)
+                    self.ui.sendToast.emit(str(err))
+                    return 0
+                self.sectionAdded.emit(item.position)
         return item.id
 
     @Slot(int, result="QVariantMap")

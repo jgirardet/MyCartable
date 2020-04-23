@@ -1,9 +1,7 @@
 name: MyCartableEnv
 channels:
-  - conda-forge
   - defaults
 dependencies:
-  - poppler=0.87
   - python=3.7
   - pip
   - pip:
@@ -15,7 +13,6 @@ dependencies:
     - freezegun==0.3.15
     - jsbeautifier==1.11.0
     - mimesis==3.3.0
-    - pdf2image==1.12.1
     - pony==0.7.11
     - pyinstaller==3.6
     - pyside2==5.14.1

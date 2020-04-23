@@ -1,4 +1,5 @@
 import sys
+import uuid
 
 import pytest
 from PySide2.QtCore import QUrl
@@ -279,7 +280,7 @@ class TestSectionMixin:
             (
                 1,
                 {
-                    "path": "tests/resources/tst_AnnotableImage.png",
+                    "path": "png_annot",
                     "classtype": "ImageSection",
                 },
                 1,
@@ -293,12 +294,13 @@ class TestSectionMixin:
         ],
     )
     def test_addSectionFile(
-        self, dao, ddbn, qtbot, page, content, res, signal_emitted, tmpfile
+        self, png_annot, dao, ddbn, qtbot, page, content, res, signal_emitted, tmpfile
     ):
         f_page()
-        print(content)
         if "path" not in content:
             pass
+        if content['path'] == "png_annot":
+            content['path'] = str(png_annot)
         elif isinstance(content["path"], QUrl):
             if content["path"].toString() == "createOne":
                 content["path"] = QUrl.fromLocalFile(str(tmpfile))
@@ -349,10 +351,11 @@ class TestSectionMixin:
 class TestImageSectionMixin:
     @pytest.mark.freeze_time("2344-9-21 7:48:5")
     def test_new_image_path(self, dao):
-        dao.annee_active = 2019
-        assert dao.get_new_image_path(".jpg") == "2019/2344-09-21-07-48-05.jpg"
-        dao.annee_active = 2018
-        assert dao.get_new_image_path(".gif") == "2018/2344-09-21-07-48-05.gif"
+        with patch('package.utils.uuid.uuid4', new=lambda :uuid.UUID('d9ca35e1-0b4b-4d42-9f0d-aa07f5dbf1a5')):
+            dao.annee_active = 2019
+            assert dao.get_new_image_path(".jpg") == "2019/2344-09-21-07-48-05-d9ca3.jpg"
+            dao.annee_active = 2018
+            assert dao.get_new_image_path(".gif") == "2018/2344-09-21-07-48-05-d9ca3.gif"
 
     @pytest.mark.parametrize(
         "content",

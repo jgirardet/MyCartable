@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime
 
 from PySide2.QtCore import QTimer
@@ -14,4 +15,4 @@ def create_singleshot(fn):
 
 def get_new_filename(ext):
     """relative path"""
-    return datetime.utcnow().strftime("%Y-%m-%d-%H-%M-%S") + ext
+    return datetime.utcnow().strftime("%Y-%m-%d-%H-%M-%S")+ "-"+uuid.uuid4().hex[0:5] + ext

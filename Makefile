@@ -60,7 +60,7 @@ run_dir: build_dir
 	dist/MyCartable/MyCartable
 
 test:
-	conda run -n $(VIRTUAL_ENV) pytest -s
+	conda pytest -s
 
 qml_tests:
 	./target/qml_tests/qml_tests

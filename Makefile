@@ -56,12 +56,16 @@ freeze:
 
 build_dir:
 	pyinstaller  scripts/dir.spec --clean -y
+	python scripts/test_build_dir.py
 
 run_dir: build_dir
 	dist/MyCartable/MyCartable
 
 test:
-	conda pytest -s
+	pytest -s
+
+test_dist:
+	pytest scripts/
 
 qml_tests:
 	make -C target/qml_tests

@@ -277,15 +277,7 @@ class TestSectionMixin:
     @pytest.mark.parametrize(
         "page, content, res, signal_emitted",
         [
-            (
-                1,
-                {
-                    "path": "png_annot",
-                    "classtype": "ImageSection",
-                },
-                1,
-                True,
-            ),
+            (1, {"path": "png_annot", "classtype": "ImageSection",}, 1, True,),
             (1, {"path": QUrl("no/existe"), "classtype": "ImageSection",}, 0, False,),
             (1, {"path": "createOne", "classtype": "ImageSection",}, 1, True,),
             (1, {"path": QUrl("createOne"), "classtype": "ImageSection",}, 1, True,),
@@ -299,8 +291,8 @@ class TestSectionMixin:
         f_page()
         if "path" not in content:
             pass
-        if content['path'] == "png_annot":
-            content['path'] = str(png_annot)
+        if content["path"] == "png_annot":
+            content["path"] = str(png_annot)
         elif isinstance(content["path"], QUrl):
             if content["path"].toString() == "createOne":
                 content["path"] = QUrl.fromLocalFile(str(tmpfile))
@@ -351,11 +343,18 @@ class TestSectionMixin:
 class TestImageSectionMixin:
     @pytest.mark.freeze_time("2344-9-21 7:48:5")
     def test_new_image_path(self, dao):
-        with patch('package.utils.uuid.uuid4', new=lambda :uuid.UUID('d9ca35e1-0b4b-4d42-9f0d-aa07f5dbf1a5')):
+        with patch(
+            "package.utils.uuid.uuid4",
+            new=lambda: uuid.UUID("d9ca35e1-0b4b-4d42-9f0d-aa07f5dbf1a5"),
+        ):
             dao.annee_active = 2019
-            assert dao.get_new_image_path(".jpg") == "2019/2344-09-21-07-48-05-d9ca3.jpg"
+            assert (
+                dao.get_new_image_path(".jpg") == "2019/2344-09-21-07-48-05-d9ca3.jpg"
+            )
             dao.annee_active = 2018
-            assert dao.get_new_image_path(".gif") == "2018/2344-09-21-07-48-05-d9ca3.gif"
+            assert (
+                dao.get_new_image_path(".gif") == "2018/2344-09-21-07-48-05-d9ca3.gif"
+            )
 
     @pytest.mark.parametrize(
         "content",

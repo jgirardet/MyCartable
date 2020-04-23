@@ -55,9 +55,9 @@ class SectionMixin:
 
         with tempfile.TemporaryDirectory() as temp_path:
             res = run_convert_pdf(path, temp_path)
-            for page  in res:
+            for page in res:
 
-                content = {"classtype": "ImageSection" }
+                content = {"classtype": "ImageSection"}
                 print(page)
                 content["path"] = self.store_new_file(page)
                 print(content["path"])

@@ -271,7 +271,7 @@ TableView {
   }
 
   function getCells() {
-    // liste les cells
+    // liste les cellss
     var res = []
     for (var i of Array(root.contentItem.children.length).keys()) {
       var ite = root.contentItem.children[i]

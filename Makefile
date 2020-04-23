@@ -64,18 +64,18 @@ test:
 	conda pytest -s
 
 qml_tests:
+	make -C target/qml_tests
 	./target/qml_tests/qml_tests
 
 setup_qml_tests:
 	rm -rf target/qml_tests
 	python tests/qml_tests/create-js-data.py
 	qmake -o target/qml_tests/Makefile tests/qml_tests/qml_tests.pro -spec linux-g++ CONFIG+=debug CONFIG+=qml_debug
-	make -C target/qml_tests
 
 reset_qml_tests: setup_qml_tests qml_tests
 
 black:
-	conda run -n $(VIRTUAL_ENV) black src/ tests/
+	black src/ tests/
 
 cov:
 	rm -rf .pytest_cache

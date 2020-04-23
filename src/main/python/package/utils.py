@@ -15,4 +15,9 @@ def create_singleshot(fn):
 
 def get_new_filename(ext):
     """relative path"""
-    return datetime.utcnow().strftime("%Y-%m-%d-%H-%M-%S")+ "-"+uuid.uuid4().hex[0:5] + ext
+    return (
+        datetime.utcnow().strftime("%Y-%m-%d-%H-%M-%S")
+        + "-"
+        + uuid.uuid4().hex[0:5]
+        + ext
+    )

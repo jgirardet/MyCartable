@@ -52,9 +52,6 @@ class ImageSectionMixin:
     def get_new_image_path(self, ext):
         return Path(str(self.annee_active), get_new_filename(ext)).as_posix()
 
-
-
-
     def store_new_file(self, filepath):
         res_path = str(self.get_new_image_path(filepath.suffix))
         new_file = self.files / res_path

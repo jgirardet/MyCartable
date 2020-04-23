@@ -3,6 +3,10 @@ from subprocess import run, CalledProcessError
 
 from pathlib import Path
 import sys
+import logging
+
+
+LOG = logging.getLogger(__name__)
 
 
 def get_binary_root():
@@ -30,27 +34,22 @@ def get_binary_path(name):
 
 def get_command_line_pdftopng(pdf, png_root, resolution):
     cmd = [
-        str(get_binary_path("pdftopng")),
+        get_binary_path("pdftopng"),
         "-r",
-        str(resolution),
+        resolution,
         pdf,
         png_root,
     ]
-    return cmd
+    return [str(i) for i in cmd]
 
 
-def collect_files(root: Path, pref="", ext:str=""):
-    print(root)
-    print(list(root.glob("*/*")))
-    res = sorted(root.glob(f'{pref}*{ext}'), key=lambda p: p.name)
-
+def collect_files(root: Path, pref="", ext: str = ""):
+    res = sorted(root.glob(f"{pref}*{ext}"), key=lambda p: p.name)
     return res
 
 
-
-
-def run_convert_pdf(pdf, png_root, prefix = "xxx" ,resolution=200, timeout=30 ):
-    root =  Path(png_root)
+def run_convert_pdf(pdf, png_root, prefix="xxx", resolution=200, timeout=30):
+    root = Path(png_root)
     if not root.is_dir():
         root.mkdir(parents=True)
 
@@ -61,10 +60,10 @@ def run_convert_pdf(pdf, png_root, prefix = "xxx" ,resolution=200, timeout=30 ):
     try:
         run(cmd, timeout=timeout, check=True, capture_output=True)
     except CalledProcessError as err:
-        print(err.stderr)
+        LOG.error(err.stderr)
         return []
     except TimeoutError as err:
-        print(err.stderr)
+        LOG.error(err.stderr)
         return []
 
     files = collect_files(root, pref=prefix, ext=".png")

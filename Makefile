@@ -28,7 +28,8 @@ install:
 
 
 install_qt:
-	conda run -n $(VIRTUAL_ENV) aqt install $(QT_VERSION) linux desktop
+	rm -rf $(QT_VERSION)
+	aqt install $(QT_VERSION) linux desktop
 #	aqt install $(QT_VERSION) linux desktop --outputdir $(VIRTUAL_ENV)
 
 
@@ -67,7 +68,7 @@ qml_tests:
 
 setup_qml_tests:
 	rm -rf target/qml_tests
-	conda run -n $(VIRTUAL_ENV) python tests/qml_tests/create-js-data.py
+	python tests/qml_tests/create-js-data.py
 	qmake -o target/qml_tests/Makefile tests/qml_tests/qml_tests.pro -spec linux-g++ CONFIG+=debug CONFIG+=qml_debug
 	make -C target/qml_tests
 

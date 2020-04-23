@@ -4,7 +4,6 @@ from PySide2.QtCore import Slot
 from package.convert import run_convert_pdf
 from package.utils import get_new_filename
 from pony.orm import db_session
-from pdf2image import convert_from_path
 import tempfile
 
 

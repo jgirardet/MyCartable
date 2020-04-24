@@ -38,20 +38,21 @@ jobs:
         /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -screen 0 1920x1200x24 -ac +extension GLX
     - name: Tests python on ${{ matrix.os }}
       run: python run.py test_python
-    - name: Install Qt on ${{ matrix.os }}
+    - name: Install Qt on Linux
+      if: runner.os == 'Linux'
       uses: jurplel/install-qt-action@v2
       with:
         version: '5.14.1'
-        host: {{runner.os}}
+        host: 'linux'
+        target: 'desktop'
+    - name: Install Qt on Windows
+      if: runner.os == 'Windows'
+      uses: jurplel/install-qt-action@v2
+      with:
+        version: '5.14.1'
+        host: 'windows'
         target: 'desktop'
         arch: 'win64_mingw73'
-#    - name: Install Qt on ${{ matrix.os }}
-#      if: runner.os == 'Windows'
-#      uses: jurplel/install-qt-action@v2
-#      with:
-#        version: '5.14.1'
-#        host: 'windows'
-#        target: 'desktop'
     - name: Tests QML on ${{ matrix.os }}
       run: python run.py test_qml_reset
 

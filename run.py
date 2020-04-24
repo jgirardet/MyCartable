@@ -24,16 +24,16 @@ def get_env():
     return env
 
 def get_shell():
-    return os.environ['SHELL']
+    return os.environ.get('SHELL', None)
 
-def runCommand(command, cwd = str(ROOT)):
+def runCommand(command, cwd = str(ROOT), sleep_time=0.2):
     print(f"##### running: {command} #####")
     env = get_env()
     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,  executable=get_shell(), cwd=cwd, env=env)
     while process.poll() is None:
         for line in process.stdout:
             print(line.strip(b'\n').decode())
-        time.sleep(0.2)
+        time.sleep(sleep_time)
     if process.returncode == 0:
         print(f"##### finished: {command}  ==>>  OK  with return code {process.returncode} #####")
     else:

@@ -123,8 +123,7 @@ if __name__ == '__main__':
     com = ""
     commands = build_commands()
     com = sys.argv[-1]
-    try:
-        commands[com]()
-    except KeyError:
+    if com not in commands:
         print(f"commandes possible : {list(commands.keys())}")
         sys.exit(1)
+    commands[com]()

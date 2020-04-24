@@ -12,6 +12,7 @@ dependencies:
   - pytest=5
   - pytest-freezegun
   - pytest-qt=3
+  - coverage
 
   - pip:
       - aqtinstall==0.8

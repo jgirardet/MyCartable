@@ -9,11 +9,12 @@ import sys
 import time
 from pathlib import Path
 
-
+PACKAGE = "MyCartable"
+PACKAGE_ENV = "MyCartableEnv"
 QT_VERSION="5.14.1"
 ROOT = Path(__file__).parent
 QT_PATH= ROOT / QT_VERSION
-DIST = ROOT / "dist" / "MyCartable"
+DIST = ROOT / "dist" / PACKAGE
 QMLTESTS = ROOT / "build" / "qml_tests"
 
 
@@ -26,9 +27,11 @@ def get_env():
 def get_shell():
     return os.environ.get('SHELL', None)
 
-def runCommand(command, cwd = str(ROOT), sleep_time=0.2):
+def runCommand(command, cwd = str(ROOT), sleep_time=0.2, force_env=True):
     print(f"##### running: {command} #####")
     env = get_env()
+    if os.environ.get('CONDA_DEFAULT_ENV',None) != PACKAGE_ENV and force_env:
+        command = f"conda run -n {PACKAGE_ENV} " + command
     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,  executable=get_shell(), cwd=cwd, env=env)
     while process.poll() is None:
         for line in process.stdout:
@@ -61,13 +64,13 @@ def cmd_build_binary_as_dir():
     cmd_test_binary_as_dir()
 
 def cmd_install():
-    runCommand("conda env create -f MyCartableEnv.yml")
+    runCommand(f"conda env create -f {PACKAGE_ENV}.yml")
 
 def cmd_install_qt():
     if QT_PATH.exists():
         shutil.rmtree(QT_PATH)
     QT_PATH.mkdir(parents=True)
-    runCommand(f"aqt install {QT_VERSION} linux desktop")
+    runCommand(f"aqt install {QT_VERSION} linux desktop", force_env=False)
 
 
 def cmd_make_qrc():
@@ -81,7 +84,7 @@ def cmd_runCommand():
 
 
 def cmd_run_dist():
-    executable = "MyCartable"
+    executable = PACKAGE
     if sys.platform == "win32":
         executable   = executable + ".exe"
     runCommand(str(DIST/executable))

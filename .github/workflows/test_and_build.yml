@@ -31,7 +31,7 @@ jobs:
     - name: Setup CondaEnv
       run: |
         python run.py install
-    - name: setup ${{ matrix.os }} linux os only
+    - name: Linux custom installs
       if: runner.os == 'Linux'
       run: |
         sudo apt install libxkbcommon-x11-0
@@ -39,20 +39,19 @@ jobs:
     - name: Tests python on ${{ matrix.os }}
       run: python run.py test_python
     - name: Install Qt on ${{ matrix.os }}
-      if: runner.os == 'Linux'
       uses: jurplel/install-qt-action@v2
       with:
         version: '5.14.1'
-        host: 'linux'
-        target: 'desktop'
-    - name: Install Qt on ${{ matrix.os }}
-      if: runner.os == 'Windows'
-      uses: jurplel/install-qt-action@v2
-      with:
-        version: '5.14.1'
-        host: 'windows'
+        host: runner.os
         target: 'desktop'
         arch: 'win64_mingw73'
+#    - name: Install Qt on ${{ matrix.os }}
+#      if: runner.os == 'Windows'
+#      uses: jurplel/install-qt-action@v2
+#      with:
+#        version: '5.14.1'
+#        host: 'windows'
+#        target: 'desktop'
     - name: Tests QML on ${{ matrix.os }}
       run: python run.py test_qml_reset
 
@@ -63,17 +62,11 @@ jobs:
       run: |
         python run.py build_binary_as_dir
     - name: upload  on ${{ matrix.os }} binary in artifact
-      if: runner.os == 'Linux'
       uses: actions/upload-artifact@v1
       with:
         path: dist/MyCartable
-        name: MyCartable-Linux64
-    - name: upload  on ${{ matrix.os }} binary in artifact
-      if: runner.os == 'Windows'
-      uses: actions/upload-artifact@v1
-      with:
-        path: dist/MyCartable
-        name: MyCartable-Linux64
+        name: MyCartable-{{os.runner}}64
+
 #
 #  Windows:
 #    runs-on: ${{ matrix.os }}

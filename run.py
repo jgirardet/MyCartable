@@ -123,8 +123,6 @@ def build_commands():
 
 
 if __name__ == '__main__':
-    print(os.environ['CONDA_PREFIX'])
-
     com = ""
     commands = build_commands()
     com = sys.argv[-1]

@@ -50,7 +50,6 @@ class SectionMixin:
         self.sectionAdded.emit(item.position)
         return item.id
 
-    # @Slot(int, "QVariantMap", result=int)
     def addSectionPDF(self, page_id, path):
 
         with tempfile.TemporaryDirectory() as temp_path:
@@ -58,9 +57,7 @@ class SectionMixin:
             for page in res:
 
                 content = {"classtype": "ImageSection"}
-                print(page)
                 content["path"] = self.store_new_file(page)
-                print(content["path"])
                 try:
                     with db_session:
                         item = self.db.ImageSection(page=page_id, **content)

@@ -24,6 +24,10 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: ${{ matrix.python }}
+    - name: install conda
+      uses: goanpeca/setup-miniconda@v1
+      with:
+        auto-update-conda: true
     - name: Setup CondaEnv
       run: |
         python run.py install

@@ -53,6 +53,7 @@ def cmd_cov():
     runCommand('coverage run --rcfile=.coveragerc -m pytest')
     runCommand('coverage report')
 
+
 def cmd_cov_html():
     cmd_cov()
     runCommand("coverage html")
@@ -64,13 +65,13 @@ def cmd_build_binary_as_dir():
     cmd_test_binary_as_dir()
 
 def cmd_install():
-    runCommand(f"conda env create -f {PACKAGE_ENV}.yml")
+    runCommand(f"conda env create -f {PACKAGE_ENV}.yml", force_env=False)
 
 def cmd_install_qt():
     if QT_PATH.exists():
         shutil.rmtree(QT_PATH)
     QT_PATH.mkdir(parents=True)
-    runCommand(f"aqt install {QT_VERSION} linux desktop", force_env=False)
+    runCommand(f"aqt install {QT_VERSION} linux desktop")
 
 
 def cmd_make_qrc():

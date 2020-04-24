@@ -24,9 +24,9 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: ${{ matrix.python }}
-    - name: Get conda info version
+    - name: Setup CondaEnv
       run: |
-        conda info
+        python run.py install
     - name: setup ${{ matrix.os }} linux os only
       if: runner.os == 'Linux'
       run: |

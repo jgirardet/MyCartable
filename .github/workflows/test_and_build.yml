@@ -44,8 +44,8 @@ jobs:
     - name: Tests python on ${{ matrix.os }}
       run: |
       shell: bash -l {0}
-        pytest -s
-#        make test
+        python run.py test_python
+      #        make test
     - name: Install Qt on ${{ matrix.os }}
       uses: jurplel/install-qt-action@v2
       with:
@@ -55,20 +55,16 @@ jobs:
     - name: Tests QML on ${{ matrix.os }}
       shell: bash -l {0}
       run: |
-        python tests/qml_tests/create-js-data.py
-        qmake -o target/qml_tests/Makefile tests/qml_tests/qml_tests.pro -spec linux-g++ CONFIG+=debug CONFIG+=qml_debug
-        make -C target/qml_tests
-        ./target/qml_tests/qml_tests
+        python run.py test_qml_reset
+
     - name: Coverage on ${{ matrix.os }}
       shell: bash -l {0}
       run: |
-        rm -rf .pytest_cache
-        make cov
+        python run.py cov
     - name: build on ${{ matrix.os }}
       run: |
-        make build_dir
+        python run.py build_binary_as_dir
       shell: bash -l {0}
-#        poetry run  python scripted/build_executable.py
     - name: upload  on ${{ matrix.os }} binary in artifact
       uses: actions/upload-artifact@v1
       with:
@@ -103,7 +99,7 @@ jobs:
     - name: Tests python on ${{matrix.os}}
       shell: bash -l {0}
       run: |
-          python -m pytest -s
+          python run.py test_python
     - name: Install Qt on ${{ matrix.os }}
       uses: jurplel/install-qt-action@v2
       with:

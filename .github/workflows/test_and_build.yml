@@ -97,7 +97,7 @@ jobs:
       run: |
         conda info
     - name: Tests python on ${{matrix.os}}
-      shell: bash -l {0}
+      shell: cmd /C CALL {0}
       run: |
           python run.py test_python
     - name: Install Qt on ${{ matrix.os }}

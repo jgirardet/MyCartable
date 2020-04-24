@@ -26,7 +26,7 @@ def get_env():
 def get_shell():
     return os.environ['SHELL']
 
-def run(command, cwd = str(ROOT)):
+def runCommand(command, cwd = str(ROOT)):
     print(f"##### running: {command} #####")
     env = get_env()
     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,  executable=get_shell(), cwd=cwd, env=env)
@@ -41,71 +41,71 @@ def run(command, cwd = str(ROOT)):
         sys.exit(process.returncode)
 
 def cmd_black():
-    run("python -m black")
+    runCommand("python -m black")
 
 def cmd_cov():
     pytest_cache = ROOT / ".pytest_cache"
     if pytest_cache.exists():
         shutil.rmtree(pytest_cache)
-    run('coverage run --rcfile=.coveragerc -m pytest')
-    run('coverage report')
+    runCommand('coverage run --rcfile=.coveragerc -m pytest')
+    runCommand('coverage report')
 
 def cmd_cov_html():
     cmd_cov()
-    run("coverage html")
+    runCommand("coverage html")
     html = ROOT / "htmlcov" / "index.html"
-    run(f'firefox {html} &')
+    runCommand(f'firefox {html} &')
 
 def cmd_build_binary_as_dir():
-    run("pyinstaller  scripts/dir.spec --clean -y")
+    runCommand("pyinstaller  scripts/dir.spec --clean -y")
     cmd_test_binary_as_dir()
 
 def cmd_install():
-    run("conda env create -f MyCartableEnv.yml")
+    runCommand("conda env create -f MyCartableEnv.yml")
 
 def cmd_install_qt():
     if QT_PATH.exists():
         shutil.rmtree(QT_PATH)
     QT_PATH.mkdir(parents=True)
-    run(f"aqt install {QT_VERSION} linux desktop")
+    runCommand(f"aqt install {QT_VERSION} linux desktop")
 
 
 def cmd_make_qrc():
     input = Path("src/main/resources/qml.qrc")
     output = Path("src/main/python/qrc.py")
-    run(f"pyside2-rcc {input} -o {output}")
+    runCommand(f"pyside2-rcc {input} -o {output}")
 
 
-def cmd_run():
-    run(f"python src/main/python/main.py")
+def cmd_runCommand():
+    runCommand(f"python src/main/python/main.py")
 
 
 def cmd_run_dist():
     executable = "MyCartable"
     if sys.platform == "win32":
         executable   = executable + ".exe"
-    run(str(DIST/executable))
+    runCommand(str(DIST/executable))
 
 def cmd_setup_qml():
     if QMLTESTS.exists():
         shutil.rmtree(QMLTESTS)
-    run("python tests/qml_tests/create-js-data.py")
+    runCommand("python tests/qml_tests/create-js-data.py")
     if sys.platform == "linux":
-        run(f"qmake -o {QMLTESTS}/Makefile tests/qml_tests/qml_tests.pro -spec linux-g++ CONFIG+=debug CONFIG+=qml_debug")
+        runCommand(f"qmake -o {QMLTESTS}/Makefile tests/qml_tests/qml_tests.pro -spec linux-g++ CONFIG+=debug CONFIG+=qml_debug")
 
 
 def cmd_test_binary_as_dir():
-    run("python scripts/test_build_dir.py")
+    runCommand("python scripts/test_build_dir.py")
 
 def cmd_test_python():
-    run("python -m pytest -s")
+    runCommand("python -m pytest -s")
 
 def cmd_test_qml():
     qml_tests = "qml_tests"
 
     if sys.platform == "linux":
-        run("make -C build/qml_tests")
-    run(str(QMLTESTS / qml_tests))
+        runCommand("make -C build/qml_tests")
+    runCommand(str(QMLTESTS / qml_tests))
 
 def cmd_test_qml_reset():
     cmd_setup_qml()
@@ -120,9 +120,11 @@ def build_commands():
 
 
 if __name__ == '__main__':
+    com = ""
     commands = build_commands()
     com = sys.argv[-1]
     try:
         commands[com]()
     except KeyError:
         print(f"commandes possible : {list(commands.keys())}")
+        sys.exit(1)

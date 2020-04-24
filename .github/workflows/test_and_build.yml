@@ -42,7 +42,7 @@ jobs:
       uses: jurplel/install-qt-action@v2
       with:
         version: '5.14.1'
-        host: runner.os
+        host: {{runner.os}}
         target: 'desktop'
         arch: 'win64_mingw73'
 #    - name: Install Qt on ${{ matrix.os }}

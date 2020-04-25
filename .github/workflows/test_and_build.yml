@@ -54,14 +54,14 @@ jobs:
         target: 'desktop'
         arch: 'win64_mingw73'
     - name: Tests QML on ${{ matrix.os }}
-      run: python run.py test_qml_reset
+      run: python3 run.py test_qml_reset
 
     - name: Coverage on ${{ matrix.os }}
       run: |
-        python run.py cov
+        python3 run.py cov
     - name: build on ${{ matrix.os }}
       run: |
-        python run.py build_binary_as_dir
+        python3 run.py build_binary_as_dir
     - name: upload  on ${{ matrix.os }} binary in artifact
       uses: actions/upload-artifact@v1
       with:

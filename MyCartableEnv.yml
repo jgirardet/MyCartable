@@ -13,6 +13,7 @@ dependencies:
   - pytest-freezegun
   - pytest-qt=3
   - coverage
+  - pywin32
 
   - pip:
       - aqtinstall==0.8

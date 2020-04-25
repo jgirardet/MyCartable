@@ -44,10 +44,7 @@ def test_run_exec_in_dir():
     except subprocess.TimeoutExpired:
         assert proc.poll() is None
         print("execution sans probleme après 10 secondes")
-        # proc.terminate()
-        # proc.kill()
-        os.kill(proc.pid, signal.SIGTERM)
-        assert True
+        proc.terminate()
     else:
         print("Le programme s'est interomput prematurement")
         try:

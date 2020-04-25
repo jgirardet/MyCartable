@@ -81,6 +81,9 @@ def cmd_cov_html():
 
 
 def cmd_build_binary_as_dir():
+    pyinstaller = "pyinstaller"
+    if sys.platform == "win32":
+        pyinstaller = pyinstaller + ".exe"
     runCommand("pyinstaller  scripts/dir.spec --clean -y")
     cmd_test_binary_as_dir()
 

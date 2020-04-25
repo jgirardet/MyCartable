@@ -16,12 +16,14 @@ exe = dist / filename
 
 
 def test_binary_included():
+    print("test_binary_included()")
     dist_binary = dist / "binary"
     for x, y in zip(dist_binary.glob("**/*"), binary.glob("**/*")):
         assert x.relative_to(dist) == y.relative_to(root)
 
 
 def test_run_exec_in_dir():
+    print("test_run_exec")
     STARTUPINFO = None
     if platform.system == "Windows":
         STARTUPINFO = subprocess.STARTUPINFO()
@@ -33,7 +35,7 @@ def test_run_exec_in_dir():
         stderr=subprocess.STDOUT,
         startupinfo=STARTUPINFO,
     )
-
+    print("process lancé")
     try:
         proc.wait(timeout=10)
     except subprocess.TimeoutExpired:

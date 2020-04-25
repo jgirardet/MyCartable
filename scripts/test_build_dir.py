@@ -1,3 +1,5 @@
+import os
+import signal
 from pathlib import Path
 
 # import pytest
@@ -34,6 +36,7 @@ def test_run_exec_in_dir():
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         startupinfo=STARTUPINFO,
+        universal_newlines=True,
     )
     print("process is launched")
     try:
@@ -41,8 +44,9 @@ def test_run_exec_in_dir():
     except subprocess.TimeoutExpired:
         assert proc.poll() is None
         print("execution sans probleme après 10 secondes")
-        proc.terminate()
-        proc.kill()
+        # proc.terminate()
+        # proc.kill()
+        os.kill(proc.pid, signal.SIGTERM)
         assert True
     else:
         print("Le programme s'est interomput prematurement")
@@ -50,12 +54,12 @@ def test_run_exec_in_dir():
             out, err = proc.communicate(timeout=5)
         except subprocess.TimeoutExpired:
             print("Le programme est bloque")
-            print(proc.stdout.read().decode())
-            print(proc.stderr.read().decode())
+            print(proc.stdout.read())
+            print(proc.stderr.read())
             # on quite
         else:
             print("Message d'erreur")
-            print(out.decode())
+            print(out)
         raise Exception("Echec du programme")
 
 

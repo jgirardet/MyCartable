@@ -44,11 +44,11 @@ def runCommand(
         executable=get_shell(),
         cwd=cwd,
         env=env,
+        universal_newlines=True,
     )
     while process.poll() is None:
         for line in process.stdout:
             print(line)
-            # print(line.strip(b"\n").decode())
         time.sleep(sleep_time)
     if process.returncode == 0:
         print(

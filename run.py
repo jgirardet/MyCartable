@@ -127,7 +127,7 @@ def cmd_setup_qml():
 
 
 def cmd_test_binary_as_dir():
-    runCommand("python scripts/test_build_dir.py")
+    runCommand("python scripts/test_build_dir.py", force_env=False)
 
 
 def cmd_test_python():

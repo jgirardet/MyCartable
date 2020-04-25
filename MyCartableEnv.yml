@@ -21,4 +21,5 @@ dependencies:
       - pyside2==5.14.1
       - dickens==1.0.1
       - jsbeautifier==1.11
+      - pywin32; sys_platform == 'win32'
 

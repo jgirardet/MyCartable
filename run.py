@@ -47,7 +47,8 @@ def runCommand(
     )
     while process.poll() is None:
         for line in process.stdout:
-            print(line.strip(b"\n").decode())
+            print(line)
+            # print(line.strip(b"\n").decode())
         time.sleep(sleep_time)
     if process.returncode == 0:
         print(

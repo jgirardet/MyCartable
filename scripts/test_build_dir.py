@@ -35,20 +35,21 @@ def test_run_exec_in_dir():
         stderr=subprocess.STDOUT,
         startupinfo=STARTUPINFO,
     )
-    print("process lancé")
+    print("process is launched")
     try:
         proc.wait(timeout=10)
     except subprocess.TimeoutExpired:
         assert proc.poll() is None
-        print("execution sans problème après 10 secondes")
+        print("execution sans probleme après 10 secondes")
+        proc.terminate()
         proc.kill()
         assert True
     else:
-        print("Le programme s'est intéromput plus tôt")
+        print("Le programme s'est interomput prematurement")
         try:
             out, err = proc.communicate(timeout=5)
         except subprocess.TimeoutExpired:
-            print("Le programme est bloqué")
+            print("Le programme est bloque")
             print(proc.stdout.read().decode())
             print(proc.stderr.read().decode())
             # on quite

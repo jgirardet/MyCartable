@@ -1,6 +1,6 @@
 from pathlib import Path
 
-import pytest
+# import pytest
 import sys
 import subprocess
 import platform
@@ -41,7 +41,6 @@ def test_run_exec_in_dir():
         print("execution sans problème après 10 secondes")
         proc.kill()
         assert True
-
     else:
         print("Le programme s'est intéromput plus tôt")
         try:
@@ -54,8 +53,9 @@ def test_run_exec_in_dir():
         else:
             print("Message d'erreur")
             print(out.decode())
-        sys.exit(-1)
+        raise Exception("Echec du programme")
 
 
 if __name__ == "__main__":
-    pytest.main([str(Path(__file__).parent)])
+    test_binary_included()
+    test_run_exec_in_dir()

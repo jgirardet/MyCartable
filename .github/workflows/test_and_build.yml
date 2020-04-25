@@ -63,7 +63,7 @@ jobs:
       run: |
         python run.py build_binary_as_dir
     - name: test run on windows CMD
-      if: runner.os == "Windows"
+      if: runner.os == 'Windows'
       shell: cmd
       run: python run.py test_binary_as_dir
     - name: upload  on ${{ matrix.os }} binary in artifact

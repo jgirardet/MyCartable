@@ -85,6 +85,7 @@ def cmd_build_binary_as_dir():
     pyinstaller = "pyinstaller"
     if sys.platform == "win32":
         pyinstaller = pyinstaller + ".exe"
+        runCommand("conda install pywin32")
     runCommand("pyinstaller  scripts/dir.spec --clean -y")
     cmd_test_binary_as_dir()
 

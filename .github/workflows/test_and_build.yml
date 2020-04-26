@@ -26,7 +26,8 @@ jobs:
         python-version: ${{ matrix.python }}
     - name: install dependencies
       run: |
-        python run.py install
+        python3 -m venv .venv
+        python3 run.py install
 
     - name: Linux custom installs
       if: runner.os == 'Linux'

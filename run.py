@@ -72,6 +72,11 @@ def runCommand(command, cwd=str(ROOT), sleep_time=0.2, with_env=True):
 def cmd_black():
     runCommand("python -m black")
 
+def cmd_build_binary_as_dir():
+    pyinstaller = "pyinstaller"
+    runCommand("pyinstaller  scripts/dir.spec --clean -y")
+    cmd_test_binary_as_dir()
+
 
 def cmd_cov():
     pytest_cache = ROOT / ".pytest_cache"
@@ -88,13 +93,15 @@ def cmd_cov_html():
     runCommand(f"firefox {html} &")
 
 
-def cmd_build_binary_as_dir():
-    pyinstaller = "pyinstaller"
-    runCommand("pyinstaller  scripts/dir.spec --clean -y")
-    cmd_test_binary_as_dir()
-
+def cmd_create_env():
+    if sys.platform == "linux":
+        python = "python3"
+    elif sys.platform == "win32":
+        python = "python.exe"
+    runCommand(f"{python} -m venv .venv", with_env=False)
 
 def cmd_install():
+    cmd_create_env()
     runCommand(f"python -m pip install -U pip")
     runCommand(f"pip install -r requirements.txt")
 

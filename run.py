@@ -40,9 +40,9 @@ def cmd_rien():
     runCommand("pip -V")
 
 
-def runCommand(command, cwd=str(ROOT), sleep_time=0.2):
+def runCommand(command, cwd=str(ROOT), sleep_time=0.2, with_env=True):
     print(f"##### running: {command} #####")
-    env = get_env()
+    env = get_env() if with_env else None
     process = subprocess.Popen(
         command,
         shell=True,
@@ -95,8 +95,13 @@ def cmd_build_binary_as_dir():
 
 
 def cmd_install():
+    cmd_create_env()
     runCommand(f"python -m pip install -U pip")
     runCommand(f"pip install -r requirements.txt")
+
+
+def cmd_create_env():
+    runCommand(f"python3 -m venv .venv", with_env=False)
 
 
 def cmd_install_qt():
@@ -132,7 +137,7 @@ def cmd_setup_qml():
 
 
 def cmd_test_binary_as_dir():
-    runCommand("python scripts/test_build_dir.py", force_env=False)
+    runCommand("python scripts/test_build_dir.py", get_env=False)
 
 
 def cmd_test_python():

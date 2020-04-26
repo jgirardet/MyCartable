@@ -42,6 +42,7 @@ def cmd_rien():
 def runCommand(command, cwd=str(ROOT), sleep_time=0.2, with_env=True):
     print(f"##### running: {command} #####")
     env = get_env() if with_env else None
+    print(env)
     process = subprocess.Popen(
         command,
         # shell=True,

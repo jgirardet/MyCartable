@@ -122,7 +122,7 @@ def cmd_create_env():
     runCommand(f"{python} -m venv .venv", with_env=False)
 
 def cmd_install():
-    cmd_create_env()
+    # cmd_create_env()
     runCommand(f"python -m pip install -U pip")
     runCommand(f"pip install -r requirements.txt")
     if sys.platform == "linux" and not os.environ.get("CI", False):

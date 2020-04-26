@@ -10,7 +10,6 @@ import time
 from pathlib import Path
 
 
-VIRTUAL_ENV = ".venv"
 PYTHON_VERSION = 3.7
 # PYTHON_BIN=$(VIRTUAL_ENV)/bin
 # SITE_PACKAGE = $(VIRTUAL_ENV)/lib/python$(PYTHON_VERSION)/site-packages
@@ -18,6 +17,7 @@ PACKAGE = "MyCartable"
 PACKAGE_ENV = "MyCartableEnv"
 QT_VERSION = "5.14.1"
 ROOT = Path(__file__).parent
+VIRTUAL_ENV = ROOT / ".venv"
 QT_PATH = ROOT / QT_VERSION
 DIST = ROOT / "dist" / PACKAGE
 QMLTESTS = ROOT / "build" / "qml_tests"
@@ -73,7 +73,7 @@ def cmd_cov():
     pytest_cache = ROOT / ".pytest_cache"
     if pytest_cache.exists():
         shutil.rmtree(pytest_cache)
-    runCommand("coverage run --rcfile=.coveragerc -m pytest")
+    runCommand("coverage run --rcfile=.coveragerc -m pytest tests")
     runCommand("coverage report")
 
 

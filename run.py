@@ -113,10 +113,12 @@ def cmd_cov_html():
 
 
 def cmd_create_env():
-    if sys.platform == "linux":
+    if sys.platform == "linux" and not os.environ.get("CI", False):
         python = "python3"
-    elif sys.platform == "win32":
+    else:
         python = "python"
+    # elif sys.platform == "win32":
+    #     python = "python"
     runCommand(f"{python} -m venv .venv", with_env=False)
 
 def cmd_install():

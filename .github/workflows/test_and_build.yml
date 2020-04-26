@@ -14,7 +14,7 @@ jobs:
     strategy:
       matrix:
         os : [ubuntu-latest, ubuntu-18.04, windows-2019, windows-latest]
-        python: [3.6, 3.7]
+        python: [3.7]
     env:
       DISPLAY: ':99.0'
     steps:
@@ -26,8 +26,8 @@ jobs:
         python-version: ${{ matrix.python }}
     - name: install dependencies
       run: |
-        echo ${{env.virtual_env}}
         python run.py install
+
     - name: Linux custom installs
       if: runner.os == 'Linux'
       run: |

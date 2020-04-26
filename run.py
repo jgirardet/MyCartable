@@ -123,10 +123,8 @@ def cmd_setup_qml():
     if QMLTESTS.exists():
         shutil.rmtree(QMLTESTS)
     runCommand("python tests/qml_tests/create-js-data.py")
-    if sys.platform == "linux":
-        runCommand(
-            f"qmake -o {QMLTESTS}/Makefile tests/qml_tests/qml_tests.pro -spec linux-g++ CONFIG+=debug CONFIG+=qml_debug"
-        )
+    com = f"qmake -o {QMLTESTS}/Makefile tests/qml_tests/qml_tests.pro -spec {sys.platform}-g++ CONFIG+=debug CONFIG+=qml_debug"
+    runCommand(com)
 
 
 def cmd_test_binary_as_dir():
@@ -134,14 +132,16 @@ def cmd_test_binary_as_dir():
 
 
 def cmd_test_python():
-    runCommand("python -m pytest -s")
+    runCommand("python -m pytest -s tests", sleep_time=0.001)
 
 
 def cmd_test_qml():
     qml_tests = "qml_tests"
-
     if sys.platform == "linux":
-        runCommand("make -C build/qml_tests")
+        make = "make"
+    elif sys.platform == "win32":
+        make = "mingw32-make.exe"
+    runCommand(f"{make} -C build/qml_tests")
     runCommand(str(QMLTESTS / qml_tests))
 
 
@@ -159,6 +159,7 @@ def build_commands():
 
 
 if __name__ == "__main__":
+    print(os.environ.get("VIRTUAL_ENV", "NOTTINH"))
     com = ""
     commands = build_commands()
     com = sys.argv[-1]

@@ -5,13 +5,13 @@ pyinstaller==3.6
 
 #dev
 coverage
-beautifulsoup4==4.9
+beautifulsoup4
 black
-freezegun==0.3
-pytest==5
+freezegun
+pytest
 pytest-freezegun
-pytest-qt==3
+pytest-qt
 aqtinstall==0.8
-mimesis==3.3.0
+mimesis
 jsbeautifier==1.11
 

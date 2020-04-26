@@ -16,7 +16,7 @@ PYTHON_VERSION = 3.7
 PACKAGE = "MyCartable"
 PACKAGE_ENV = "MyCartableEnv"
 QT_VERSION = "5.14.1"
-ROOT = Path(__file__).parent
+ROOT = Path(__file__).parent.resolve()
 VIRTUAL_ENV = ROOT / ".venv"
 QT_PATH = ROOT / QT_VERSION
 DIST = ROOT / "dist" / PACKAGE
@@ -25,8 +25,10 @@ QMLTESTS = ROOT / "build" / "qml_tests"
 
 def get_env():
     env = os.environ
+    path = env["PATH"]
     if sys.platform == "linux":
-        env["PATH"] = str(QT_PATH / "gcc_64" / "bin") + ":" + env["PATH"]
+        new = f"{VIRTUAL_ENV / 'bin'}:{QT_PATH / 'gcc_64' / 'bin'}:"
+    env["PATH"] = new + path
     return env
 
 
@@ -34,9 +36,11 @@ def get_shell():
     return os.environ.get("SHELL", None)
 
 
-def runCommand(
-    command, cwd=str(ROOT), sleep_time=0.2, force_env=True,
-):
+def cmd_rien():
+    runCommand("pip -V")
+
+
+def runCommand(command, cwd=str(ROOT), sleep_time=0.2):
     print(f"##### running: {command} #####")
     env = get_env()
     process = subprocess.Popen(
@@ -159,7 +163,6 @@ def build_commands():
 
 
 if __name__ == "__main__":
-    print(os.environ.get("VIRTUAL_ENV", "NOTTINH"))
     com = ""
     commands = build_commands()
     com = sys.argv[-1]

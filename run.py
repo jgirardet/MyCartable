@@ -95,13 +95,8 @@ def cmd_build_binary_as_dir():
 
 
 def cmd_install():
-    cmd_create_env()
     runCommand(f"python -m pip install -U pip")
     runCommand(f"pip install -r requirements.txt")
-
-
-def cmd_create_env():
-    runCommand(f"python3 -m venv .venv", with_env=False)
 
 
 def cmd_install_qt():

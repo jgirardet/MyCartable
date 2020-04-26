@@ -26,9 +26,6 @@ jobs:
         python-version: ${{ matrix.python }}
     - name: install dependencies
       run: |
-        python -m venv .venv
-        python -V
-        python -m pip -V
         python run.py install
 
     - name: Linux custom installs

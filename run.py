@@ -47,7 +47,7 @@ def runCommand(command, cwd=str(ROOT), sleep_time=0.2, with_env=True):
     shell = True if sys.platform == "linux" else False
     process = subprocess.Popen(
         command,
-        # shell=True,
+        shell=shell,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         executable=get_shell(),
@@ -116,7 +116,7 @@ def cmd_cov_html():
 
 
 def cmd_create_env():
-    if sys.platform == "linux" and not os.environ.get("CI", False):
+    if sys.platform == "linux":
         python = "python3"
     else:
         python = "python"

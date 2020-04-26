@@ -26,7 +26,7 @@ jobs:
         python-version: ${{ matrix.python }}
     - name: install dependencies
       run: |
-        python3 -V
+        python -V
         python3 run.py install
 
     - name: Linux custom installs

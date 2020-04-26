@@ -10,16 +10,13 @@ import time
 from pathlib import Path
 
 
-PYTHON_VERSION = 3.7
-# PYTHON_BIN=$(VIRTUAL_ENV)/bin
-# SITE_PACKAGE = $(VIRTUAL_ENV)/lib/python$(PYTHON_VERSION)/site-packages
 PACKAGE = "MyCartable"
-PACKAGE_ENV = "MyCartableEnv"
 QT_VERSION = "5.14.1"
 ROOT = Path(__file__).parent.resolve()
 VIRTUAL_ENV = ROOT / ".venv"
 QT_PATH = ROOT / QT_VERSION
 DIST = ROOT / "dist" / PACKAGE
+BUILD = ROOT / "build"
 QMLTESTS = ROOT / "build" / "qml_tests"
 
 
@@ -81,6 +78,26 @@ def cmd_build_binary_as_dir():
     cmd_test_binary_as_dir()
 
 
+def cmd_clean():
+    to_remove = [
+        ROOT / ".pytest_cache",
+        QT_PATH,
+        ROOT / "htmlcov",
+        VIRTUAL_ENV,
+        BUILD,
+        ROOT / "dist",
+        DIST,
+        ROOT / "aqtinstall.log",
+
+    ]
+    for  p in to_remove:
+        if p.is_dir():
+            shutil.rmtree(p)
+        elif p.is_file():
+            p.unlink()
+
+
+
 def cmd_cov():
     pytest_cache = ROOT / ".pytest_cache"
     if pytest_cache.exists():
@@ -107,6 +124,8 @@ def cmd_install():
     cmd_create_env()
     runCommand(f"python -m pip install -U pip")
     runCommand(f"pip install -r requirements.txt")
+    if sys.platform == "linux" and not os.environ.get("CI", False):
+        cmd_install_qt()
 
 
 def cmd_install_qt():

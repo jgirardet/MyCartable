@@ -9,6 +9,11 @@ import sys
 import time
 from pathlib import Path
 
+
+VIRTUAL_ENV = ".venv"
+PYTHON_VERSION = 3.7
+# PYTHON_BIN=$(VIRTUAL_ENV)/bin
+# SITE_PACKAGE = $(VIRTUAL_ENV)/lib/python$(PYTHON_VERSION)/site-packages
 PACKAGE = "MyCartable"
 PACKAGE_ENV = "MyCartableEnv"
 QT_VERSION = "5.14.1"
@@ -34,8 +39,6 @@ def runCommand(
 ):
     print(f"##### running: {command} #####")
     env = get_env()
-    if os.environ.get("CONDA_DEFAULT_ENV", None) != PACKAGE_ENV and force_env:
-        command = f"conda run -n {PACKAGE_ENV} " + command
     process = subprocess.Popen(
         command,
         shell=True,
@@ -83,15 +86,13 @@ def cmd_cov_html():
 
 def cmd_build_binary_as_dir():
     pyinstaller = "pyinstaller"
-    if sys.platform == "win32":
-        pyinstaller = pyinstaller + ".exe"
-        runCommand("conda install pywin32")
     runCommand("pyinstaller  scripts/dir.spec --clean -y")
     cmd_test_binary_as_dir()
 
 
 def cmd_install():
-    runCommand(f"conda env create -f {PACKAGE_ENV}.yml", force_env=False)
+    runCommand(f"python -m pip install -U pip")
+    runCommand(f"pip install -r requirements.txt")
 
 
 def cmd_install_qt():

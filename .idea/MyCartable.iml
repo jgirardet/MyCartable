@@ -7,7 +7,7 @@
       <excludeFolder url="file://$MODULE_DIR$/htmlcov" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.7 (MyCartableEnv)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.7 (MyCartable)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PackageRequirementsSettings">

@@ -1,0 +1,17 @@
+pyside2==5.14.1
+pony==0.7.11
+dickens==1.0.1
+pyinstaller==3.6
+
+#dev
+coverage
+beautifulsoup4==4.9
+black
+freezegun==0.3
+pytest==5
+pytest-freezegun
+pytest-qt==3
+aqtinstall==0.8
+mimesis==3.3.0
+jsbeautifier==1.11
+

@@ -45,7 +45,7 @@ def runCommand(command, cwd=str(ROOT), sleep_time=0.2, with_env=True):
     env = get_env() if with_env else None
     process = subprocess.Popen(
         command,
-        shell=True,
+        # shell=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         executable=get_shell(),
@@ -117,7 +117,7 @@ def cmd_create_env():
     if sys.platform == "linux":
         python = "python3"
     elif sys.platform == "win32":
-        python = "python.exe"
+        python = "python"
     runCommand(f"{python} -m venv .venv", with_env=False)
 
 def cmd_install():

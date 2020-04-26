@@ -44,6 +44,7 @@ def runCommand(command, cwd=str(ROOT), sleep_time=0.2, with_env=True):
     env = get_env() if with_env else None
     print(env)
     print(command)
+    shell = True if sys.platform == "linux" else False
     process = subprocess.Popen(
         command,
         # shell=True,

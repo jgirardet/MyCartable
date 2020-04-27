@@ -19,13 +19,15 @@ ApplicationWindow {
   onClosing: {
     baseItem.destroy() // elmine presque tous les messages d'erreur
   }
-  Item {
+  Rectangle {
     id: baseItem
     objectName: "baseItem"
     height: root.height - mainMenuBar.height
     width: root.width
+    color: ddb.colorFond
     RowLayout {
       anchors.fill: parent
+      spacing: 10
       RecentsRectangle {
         id: _recentsRectangle
         Layout.fillWidth: true

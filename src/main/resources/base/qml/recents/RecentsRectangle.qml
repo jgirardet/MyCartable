@@ -3,7 +3,8 @@ import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.12
 Rectangle {
   id: base
-  color: "orange"
+//  color: Qt.rgba(130/255, 134/255, 138/255 , 1)
+  color: ddb.colorFond
   property alias listview: recentsListView
   Column {
     id: recentsColumn
@@ -23,4 +24,7 @@ Rectangle {
       onItemClicked: ddb.recentsItemClicked(id, matiere)
     }
   }
+//  Component.onCompleted: {
+//    print("colorde recetns",base.color )
+//  }
 }

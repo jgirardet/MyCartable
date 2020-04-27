@@ -4,13 +4,13 @@ import QtQuick.Layouts 1.14
 import "qrc:/qml/menu"
 Rectangle {
   id: base
-  color: "steelblue"
+  color: Qt.rgba(98 / 255, 105 / 255, 123 / 255, 1)
   ColumnLayout {
     anchors.fill: parent
     spacing: 5
     PageToolBar {
       id: pageToolBar
-      width: parent.width
+      Layout.fillWidth: true
       height: ddb.getLayoutSizes("preferredHeaderHeight")
     }
     PageTitre {

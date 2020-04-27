@@ -11,7 +11,10 @@ BasePageListView {
     TextSection {
       sectionId: curSectionId
       base: lv
+      position: curPosition
+
     }
+
   }
 
   Component {
@@ -79,6 +82,7 @@ BasePageListView {
       id: load
       property int curSectionId: page.id
       property int curPosition: index
+
 
       sourceComponent: switch (page.classtype) {
         case "ImageSection": {

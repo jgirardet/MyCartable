@@ -6,8 +6,15 @@ import QtQuick.Dialogs 1.3 as Dialogs13
 
 ToolBar {
   id: root
+  background: Rectangle {
+  anchors.fill: parent
 
+  }
   RowLayout {
+    anchors.fill: parent
+    spacing: 0
+    id: rowLayout
+
     ToolButton {
       id: newImageSection
       icon.source: "qrc:///icons/newImageSection"
@@ -15,6 +22,7 @@ ToolBar {
       enabled: ddb.currentPage
       ToolTip.visible: hovered
       ToolTip.text: "Ajouter une image"
+      icon.color: "transparent"
     }
 
     ToolButton {
@@ -26,6 +34,7 @@ ToolBar {
       enabled: ddb.currentPage
       ToolTip.visible: hovered
       ToolTip.text: "Ajouter du texte"
+      icon.color: "transparent"
     }
 
     ToolButton {
@@ -35,6 +44,7 @@ ToolBar {
       enabled: ddb.currentPage
       ToolTip.visible: hovered
       ToolTip.text: "Supprimer la page"
+      icon.color: "transparent"
     }
 
     ToolBar {
@@ -51,8 +61,8 @@ ToolBar {
         }
         ToolButton {
           id: addSoustraction
-          icon.source: "qrc:///icons/addSoustraction"
           icon.color: "transparent"
+          icon.source: "qrc:///icons/addSoustraction"
           onClicked: dialogAddSoustraction.open()
           enabled: ddb.currentPage
           ToolTip.visible: hovered
@@ -60,8 +70,8 @@ ToolBar {
         }
         ToolButton {
           id: addMultiplication
+          icon.color: "transparent"
           icon.source: "qrc:///icons/addMultiplication"
-          icon.color: "red"
           onClicked: dialogAddMultiplication.open()
           enabled: ddb.currentPage
           ToolTip.visible: hovered
@@ -69,8 +79,8 @@ ToolBar {
         }
         ToolButton {
           id: addDivision
+          icon.color: "transparent"
           icon.source: "qrc:///icons/addDivision"
-          icon.color: "red"
           onClicked: dialogAddDivision.open()
           enabled: ddb.currentPage
           ToolTip.visible: hovered
@@ -79,6 +89,14 @@ ToolBar {
       }
     }
 
+    Rectangle {
+      Layout.fillWidth: true
+      Layout.fillHeight: true
+//      height:
+      color: "black"
+    }
+
+//  }
   }
   Dialogs13.FileDialog {
     id: newImageSectionFileDialog

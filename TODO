@@ -49,3 +49,13 @@ bug affichage:
 limiter CI release à tag
 tester toast ?
 
+
+à REFAIRE plus propere:
+  _ les fonts
+  _ faire oucleur par matiere comme mydevoirs
+  _ refactor color
+  _ cadre rouge autour des icons
+
+
+à tester :
+  - qml : change index pour chaque delegate  quan dclique +/- focus

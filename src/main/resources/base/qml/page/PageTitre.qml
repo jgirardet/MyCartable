@@ -13,6 +13,15 @@ TextField {
   readOnly: ddb.currentPage == 0 ? true : false
   Layout.fillWidth: true
   Layout.preferredHeight: 50
+  font.weight: Font.Bold
+  font.capitalization: Font.AllUppercase
+  color: "white"
+  horizontalAlignment: TextInput.AlignHCenter
+  verticalAlignment: TextInput.AlignVCenter
+  background: Rectangle {
+    color: ddb.colorMainMenuBar
+
+  }
 
   onTextChanged: {
     ddb.setCurrentTitre(text)

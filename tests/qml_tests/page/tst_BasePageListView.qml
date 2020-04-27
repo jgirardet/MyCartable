@@ -64,19 +64,19 @@ Item {
 
     function initPost() {}
 
-    function test_init() {
-      compare(tested.clip, true)
-      compare(tested.highlightMoveDuration, -1)
-      compare(tested.boundsBehavior, Flickable.DragOverBounds)
-
-      compare(tested.currentIndex, 0)
-    }
-
-    function test_currentindex_bind_last_position() {
-      compare(tested.currentIndex, 0)
-      listmodel.lastPosition = 4
-      compare(tested.currentIndex, 4)
-    }
+//    function test_init() {
+//      compare(tested.clip, true)
+//      compare(tested.highlightMoveDuration, -1)
+//      compare(tested.boundsBehavior, Flickable.DragOverBounds)
+//
+//      compare(tested.currentIndex, 0)
+//    }
+//
+//    function test_currentindex_bind_last_position() {
+//      compare(tested.currentIndex, 0)
+//      listmodel.lastPosition = 4
+//      compare(tested.currentIndex, 4)
+//    }
 
   }
 }

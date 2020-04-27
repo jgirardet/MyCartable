@@ -1,5 +1,6 @@
+from PySide2.QtGui import QFont, QFontDatabase
 from package.constantes import APPNAME, ORGNAME
-from PySide2.QtCore import QUrl, QLocale, QStandardPaths, QSettings, QCoreApplication
+from PySide2.QtCore import QUrl, QLocale, QStandardPaths, QSettings, QCoreApplication, QFile
 import os
 
 # from fbs_runtime.application_context.PySide2 import ApplicationContext
@@ -82,7 +83,7 @@ def create_singleton_instance():
 
 def setup_qml(ddb, ui_manager):
     # import ressources
-    import qrc
+    # import qrc
 
     # # set env : why ???
     # os.environ["QT_STYLE_OVERRIDE"] = ""
@@ -121,6 +122,8 @@ def main(filename=None):
     # create de app
     app = QApplication([])
 
+
+
     # First instanciate db
     main_init_database(filename=filename)
 
@@ -131,7 +134,16 @@ def main(filename=None):
     register_new_qml_type(databaseObject)
 
     # setup le qml et retourne l'engine
+    import qrc
     engine = setup_qml(databaseObject, ui_manager)
+    a = QFontDatabase.addApplicationFont(str(Path(__file__).parents[1] / "fonts" / "Verdana.ttf"))
+    b = QFontDatabase.addApplicationFont(":/fonts/Waker.ttf")
+    print("loading fonts  :  ", a, b)
+    font = QFont('Waker', 12, QFont.Normal)
+    font = QFont('Verdana', 12, QFont.Normal)
+    # font = QFont('Verdana', 12, QFont.Normal)
+    app.setFont(font)
+
 
     # run the app
     sys.exit(app.exec_())

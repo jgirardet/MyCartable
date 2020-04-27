@@ -57,17 +57,20 @@
         <file alias="ValueButton.qml">base/qml/divers/ValueButton.qml</file>
     </qresource>
     <qresource prefix="/icons">
-        <file alias="newImageSection">../icons/base/svg/mbri-image-gallery.svg</file>
-        <file alias="newTextSection">../icons/base/svg/mbri-edit2.svg</file>
-        <file alias="removePage">../icons/base/svg/mbri-trash.svg</file>
-        <file alias="addAddition">../icons/base/operations/addAddition-64.png</file>
-        <file alias="addSoustraction">../icons/base/operations/addSoustraction-64.png</file>
-        <file alias="addMultiplication">../icons/base/operations/addMultiplication-64.png</file>
-        <file alias="addDivision">../icons/base/operations/addDivision-64.png</file>
+        <file alias="newImageSection">../icons/base/divers/png/002-photo-1.png</file>
+        <file alias="newTextSection">../icons/base/divers/png/003-edit.png</file>
+        <file alias="removePage">../icons/base/divers/png/006-trash-bin.png</file>
+        <file alias="addAddition">../icons/base/pack/png/plus.png</file>
+        <file alias="addSoustraction">../icons/base/pack/png/minus.png</file>
+        <file alias="addMultiplication">../icons/base/pack/png/multiply.png</file>
+        <file alias="addDivision">../icons/base/pack/png/division.png</file>
+    </qresource>
+    <qresource prefix="/fonts">
+        <file alias="Verdana.ttf">../fonts/Verdana.ttf</file>
+        <file alias="Waker.ttf">../fonts/Waker.ttf</file>
     </qresource>
     <qresource prefix="/js">
         <file alias="lodash.js">base/js/lodash.js</file>
-<!--        <file alias="core.js">base/js/core.js</file>-->
     </qresource>
     <qresource prefix="/tests">
         <file alias="tst_AnnotableImage.png">../../../tests/resources/tst_AnnotableImage.png</file>

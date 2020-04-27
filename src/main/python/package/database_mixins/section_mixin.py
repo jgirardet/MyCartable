@@ -77,8 +77,7 @@ class SectionMixin:
                 res = section.to_dict(with_collections=True)
                 if res["classtype"] == "ImageSection":
                     res["path"] = QUrl.fromLocalFile(str(FILES / res["path"]))
-                    LOG.debug("loading Section: %s", res)
-
+                    # LOG.debug("loading Section: %s", res)
         return res
 
     @Slot(int, int)

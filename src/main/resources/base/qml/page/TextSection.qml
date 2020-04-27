@@ -7,19 +7,30 @@ TextArea {
   id: area
   property QtObject base
   property int sectionId
+  property int position
 
   selectByMouse: true
   wrapMode: TextEdit.Wrap
   width: base ? base.width : 0
 
-  onFocusChanged: focus ? uiManager.menuTarget = doc : null
+  focus: ListView.isCurrentItem
+
+
+  onFocusChanged: {
+
+    if (focus) {
+//      print("jjjjjjjj", ListView.isCurrentItem)
+      uiManager.menuTarget = doc
+//      base.currentIndex = position
+    }
+    }
 
   MouseArea {
     anchors.fill: area
     acceptedButtons: Qt.LeftButton | Qt.RightButton
 
     onPressed: {
-
+      base.currentIndex = position
       if (pressedButtons == Qt.LeftButton) {
         uiManager.menuTarget = doc
         mouse.accepted = false
@@ -36,6 +47,7 @@ TextArea {
   }
 
   Component.onCompleted: {
+//    base.currentIndex = position
     forceActiveFocus()
   }
 

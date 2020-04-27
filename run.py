@@ -20,6 +20,8 @@ BUILD = ROOT / "build"
 QMLTESTS = ROOT / "build" / "qml_tests"
 
 
+currentProccess = None
+
 def get_env():
     env = os.environ
     path = env["PATH"]
@@ -40,6 +42,7 @@ def cmd_rien():
 
 
 def runCommand(command, cwd=str(ROOT), sleep_time=0.2, with_env=True):
+    global currentProccess
     print(f"##### running: {command} #####")
     env = get_env() if with_env else None
     print(env)
@@ -55,6 +58,7 @@ def runCommand(command, cwd=str(ROOT), sleep_time=0.2, with_env=True):
         env=env,
         universal_newlines=True,
     )
+    currentProccess = process
     while process.poll() is None:
         for line in process.stdout:
             print(line)
@@ -63,6 +67,7 @@ def runCommand(command, cwd=str(ROOT), sleep_time=0.2, with_env=True):
         print(
             f"##### finished: {command}  ==>>  OK  with return code {process.returncode} #####"
         )
+        currentProccess = None
         return True
     else:
         print(
@@ -145,7 +150,8 @@ def cmd_make_qrc():
     runCommand(f"pyside2-rcc {input} -o {output}")
 
 
-def cmd_runCommand():
+def cmd_run():
+    cmd_make_qrc()
     runCommand(f"python src/main/python/main.py")
 
 
@@ -195,11 +201,17 @@ def build_commands():
     return res
 
 
+
+
 if __name__ == "__main__":
-    com = ""
-    commands = build_commands()
-    com = sys.argv[-1]
-    if com not in commands:
-        print(f"commandes possible : {list(commands.keys())}")
-        sys.exit(1)
-    commands[com]()
+    try:
+        com = ""
+        commands = build_commands()
+        com = sys.argv[-1]
+        if com not in commands:
+            print(f"commandes possible : {list(commands.keys())}")
+            sys.exit(1)
+        commands[com]()
+    except KeyboardInterrupt:
+        currentProccess.terminate()
+        sys.exit(0)

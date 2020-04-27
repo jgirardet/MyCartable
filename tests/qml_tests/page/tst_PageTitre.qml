@@ -11,11 +11,12 @@ Item {
     testedNom: "qrc:/qml/page/PageTitre.qml"
     params: {}
 
-    //    function initPre() {
-    //    }
-    //
-    //    function initPost() {
-    //    }
+//    function initPreCreate() {
+//    ddb = ddbData
+//    }
+
+    function initPost() {
+    }
 
     function test_init() {
       ddb.currentTitre = "le titre"

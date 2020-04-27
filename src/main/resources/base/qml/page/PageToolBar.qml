@@ -7,7 +7,7 @@ import QtQuick.Dialogs 1.3 as Dialogs13
 ToolBar {
   id: root
   background: Rectangle {
-  anchors.fill: parent
+    anchors.fill: parent
 
   }
   RowLayout {
@@ -48,7 +48,7 @@ ToolBar {
     }
 
     ToolBar {
-      visible: ddb.currentMatiere == 1
+//      visible: ddb.currentMatiere == 1
       RowLayout {
         ToolButton {
           id: addAddition
@@ -92,11 +92,11 @@ ToolBar {
     Rectangle {
       Layout.fillWidth: true
       Layout.fillHeight: true
-//      height:
+      //      height:
       color: "black"
     }
 
-//  }
+    //  }
   }
   Dialogs13.FileDialog {
     id: newImageSectionFileDialog

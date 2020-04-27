@@ -50,8 +50,8 @@ class MatiereMixin:
 
     # matieresList
     @Property("QVariantList", notify=matieresListNomChanged)
-    def matieresListNom(self):
-        return self.m_d.matieres_list_nom
+    def matieresList(self):
+        return self.m_d.matieres_list
 
     @Slot()
     def matieresListRefresh(self):
@@ -74,6 +74,21 @@ class MatiereMixin:
     #     self._pagesParSection = value
     #     self.pagesParSectionChanged.emit()
 
+    CurrentMatiereItemChanged = Signal()
+
+    @Property("QVariantMap", notify=CurrentMatiereItemChanged)
+    def currentMatiereItem(self):
+        with db_session:
+            mat = self.db.Matiere[self.currentMatiere]
+            print(mat.to_dict())
+            return mat.to_dict()
+    #
+    # @CurrentMatiereColor.setter
+    # def CurrentMatiereColor_set(self, value: int):
+    #     self._CurrentMatiereColor = value
+    #     self.CurrentMatiereColorChanged.emit()
+    #
+
 
 class MatieresDispatcher:
     def __init__(self, db, annee_active):
@@ -88,8 +103,9 @@ class MatieresDispatcher:
             self.nom_id = self._build_nom_id()
             self.id_nom = self._build_id_nom()
             self.id_index = self._build_id_index()
-        self.matieres_list_nom = self._build_matieres_list_nom()
+            self.matieres_list = self._build_matieres_list()
         self.matieres_list_id = self._build_matieres_list_id()
+        self.matieres_list_nom = self._build_matieres_list_nom()
 
     def _build_nom_id(self):
         return {p.nom: p.id for p in self.query}
@@ -102,6 +118,9 @@ class MatieresDispatcher:
 
     def _build_matieres_list_nom(self):
         return tuple(self.nom_id.keys())
+
+    def _build_matieres_list(self):
+        return [p.to_dict() for p in self.query]
 
     def _build_matieres_list_id(self):
         return tuple(self.nom_id.values())

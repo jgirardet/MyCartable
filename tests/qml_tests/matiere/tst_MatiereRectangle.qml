@@ -10,27 +10,41 @@ Item {
     name: "MatiereRectangle"
     testedNom: "qrc:/qml/matiere/MatiereRectangle.qml"
     params: {}
+    property QtObject combo
 
-    function initPre() {}
-
-    function initPost() {}
-
-    function test_matiere_combox() {
-      ddb._getMatiereIndexFromId = ddb.sp.getMatiereIndexFromId.id3
-      var cb = findChild(tested, "_comboBoxSelectMatiere")
-      compare(cb.currentIndex, 2)
-      compare(cb.currentText, "Histoire")
+    function initPreCreate() {
+      ddb = ddbData
     }
 
+    function initPost() {
+      combo = findChild(tested, "combo")
+    }
+
+   function test_matiere_combox() {
+    ddb._getMatiereIndexFromId = 1
+    compare(combo.currentIndex, 1)
+    compare(combo.contentItem.text, "Mathematiques")
+  }
+
     function test_matiere_combo_click() {
-      var cb = findChild(tested, "_comboBoxSelectMatiere")
       var spt = getSpy(ddb, "setCurrentMatiereFromIndexSignal")
       compare(spt.count, 0)
-      cb.activated(3)
+      combo.activated(3)
       compare(spt.count, 2) // called twice... why ???
     }
 
-    function test_activite_testedtangle() {
+
+
+    function test_comno_property_when_matiere_set() {
+      ddb._getMatiereIndexFromId = 1
+      compare(combo.contentItem.text, "Mathematiques")
+      compare(Qt.colorEqual(combo.contentItem.color, "yellow"), true)
+      compare(Qt.colorEqual(combo.background.color, "black"), true)
+      compare(combo.popup.contentItem.children[0].children[0].contentItem.text, "Lecture")
+      compare(Qt.colorEqual(combo.popup.contentItem.children[0].children[0].contentItem.color,"red"), true)
+    }
+
+    function test_activite_rectangle() {
       ddb.currentPage = 1
       var rep = tested.repeater
       compare(rep.itemAt(0).model, ddb.pagesParSection[0])

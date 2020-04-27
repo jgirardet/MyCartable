@@ -53,6 +53,7 @@ def test_command_line_pdftopng():
     res = get_command_line_pdftopng(Path("bla.pdf"), Path("root"), resolution=111)
     assert all(isinstance(x, str) for x in res)
 
+
 def test_collect_files_no_prefix(tmp_path):
 
     # standard

@@ -77,7 +77,7 @@ def runCommand(command, cwd=str(ROOT), sleep_time=0.2, with_env=True):
 
 
 def cmd_black():
-    runCommand("python -m black")
+    runCommand("python -m black src tests")
 
 def cmd_build_binary_as_dir():
     pyinstaller = "pyinstaller"
@@ -143,6 +143,10 @@ def cmd_install_qt():
     QT_PATH.mkdir(parents=True)
     runCommand(f"aqt install {QT_VERSION} linux desktop")
 
+
+def cmd_js_style():
+    runCommand("find src -name '*.qml' | xargs js-beautify --indent-size 2 -m 2")
+    runCommand("find tests -name '*.qml' | xargs js-beautify --indent-size 2 -m 2")
 
 def cmd_make_qrc():
     input = Path("src/main/resources/qml.qrc")

@@ -13,6 +13,7 @@ TestCase {
     property var testedNom
     property var params
     property var backupParams
+    property var ddbData
     /* beautify preserve:end */
 
   function init() {
@@ -20,6 +21,8 @@ TestCase {
     initPre()
     ddb = createTemporaryObject(Qt.createComponent("DdbMock.qml"), testcase.parent)
     uiManager = createTemporaryObject(Qt.createComponent("UiManager.qml"), testcase.parent)
+    ddbData = createTemporaryObject(Qt.createComponent("DdbData.qml"), testcase.parent)
+
     initPreCreate()
     tested = createObj(testedNom, params)
     initPost()

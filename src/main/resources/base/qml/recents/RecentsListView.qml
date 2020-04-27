@@ -13,6 +13,12 @@ ListView {
     height: 40
     radius: 10
     text: modelData.titre
+    background: Rectangle {
+      id: back
+      color: modelData.matiereBgColor ? modelData.matiereBgColor : "white"
+      anchors.fill: parent
+      radius: 10
+    }
     width: ListView.view.width
     onClicked: ListView.view.itemClicked(modelData.id, modelData.matiere)
   }

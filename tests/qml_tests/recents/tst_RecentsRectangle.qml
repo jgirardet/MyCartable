@@ -19,5 +19,11 @@ Item {
       mouseClick(tested.listview)
       compare(ddb._recentsItemClicked, [1, 1])
     }
+    //    function test_color() {
+    ////      mouseClick(tested.listview)
+    ////      ddb.recentsModel[0].matiereBgColor = "red"
+    //      var un = tested.listview.itemAtIndex(0)
+    //      compare(un.background.color, "red")
+    //    }
   }
 }

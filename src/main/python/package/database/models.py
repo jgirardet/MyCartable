@@ -13,6 +13,42 @@ from pony.orm import select, Database, PrimaryKey, Optional, Required, Set, desc
 from package.constantes import ACTIVITES
 
 
+class ColorMixin:
+    @staticmethod
+    def color_getter(value):
+        return QColor(value) if value else None
+
+    @staticmethod
+    def color_setter(value):
+        try:
+            if isinstance(value, QColor):
+                return value.rgba()
+            elif isinstance(value, str):
+                return QColor(value).rgba()
+            elif isinstance(value, int):
+                return value
+            elif isinstance(value, tuple):
+                return QColor(*value).rgba()
+        except TypeError:
+            return None
+
+    def fgColor_get(self):
+        return self.color_getter(self._fgColor)
+
+    def fgColor_set(self, value):
+        res = self.color_setter(value)
+        if res:
+            self._fgColor = self.color_setter(value)
+
+    def bgColor_get(self):
+        return self.color_getter(self._bgColor)
+
+    def bgColor_set(self, value):
+        res = self.color_setter(value)
+        if res:
+            self._bgColor = self.color_setter(value)
+
+
 def init_models(db: Database):
     class Annee(db.Entity):
         id = PrimaryKey(int)
@@ -22,11 +58,28 @@ def init_models(db: Database):
         def get_matieres(self):
             return self.matieres.select()
 
-    class Matiere(db.Entity):
+    class GroupeMatiere(db.Entity):
+        id = PrimaryKey(int, auto=True)
+        nom = Required(str)
+        matieres = Set("Matiere")
+
+    class Matiere(db.Entity, ColorMixin):
         id = PrimaryKey(int, auto=True)
         nom = Required(str)
         annee = Required(Annee)
         activites = Set("Activite")
+        groupe = Required("GroupeMatiere")
+        _fgColor = Required(int, size=32, unsigned=True, default=4278190080)
+        fgColor = property(ColorMixin.fgColor_get, ColorMixin.fgColor_set)
+        _bgColor = Optional(int, size=32, unsigned=True, default=4294967295)
+        bgColor = property(ColorMixin.bgColor_get, ColorMixin.bgColor_set)
+
+        def __init__(self, bgColor=None, fgColor=None, **kwargs):
+            if bgColor:
+                kwargs["_bgColor"] = ColorMixin.color_setter(bgColor)
+            if fgColor:
+                kwargs["_fgColor"] =ColorMixin.color_setter(fgColor)
+            super().__init__(**kwargs)
 
         @property
         def activites_list(self):
@@ -37,7 +90,12 @@ def init_models(db: Database):
                 Activite(nom=ac.nom, famille=ac.index, matiere=self)
 
         def to_dict(self, *args, **kwargs):
-            return super().to_dict(*args, with_collections=True, **kwargs)
+            res = super().to_dict(
+                *args, with_collections=True, exclude=["_fgColor", "_bgColor"], **kwargs
+            )
+            res["fgColor"] = self.fgColor
+            res["bgColor"] = self.bgColor
+            return res
 
         def pages_par_section(self):
             res = []
@@ -79,6 +137,8 @@ def init_models(db: Database):
             dico = super().to_dict(*args, **kwargs)
             dico["matiere"] = self.activite.matiere.id
             dico["matiereNom"] = self.activite.matiere.nom
+            dico["matiereFgColor"] = self.activite.matiere.fgColor
+            dico["matiereBgColor"] = self.activite.matiere.bgColor
             dico["famille"] = self.activite.famille
             dico["created"] = self.created.isoformat()
             dico["modified"] = self.created.isoformat()

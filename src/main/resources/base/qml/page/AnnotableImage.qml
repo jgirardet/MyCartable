@@ -18,7 +18,6 @@ FocusScope {
   height: img.height
   width: img.width
 
-
   Component.onCompleted: {
     var content = ddb.loadSection(sectionId)
     var path = content.path.toString()
@@ -130,7 +129,7 @@ FocusScope {
     id: img
 
     property QtObject mouseArea: mouseArea
-//    asynchronous: true // asynchronous fail le scrolling on add
+    //    asynchronous: true // asynchronous fail le scrolling on add
     fillMode: Image.PreserveAspectCrop
     source: root.imagePath
     sourceSize.width: base ? base.width : 0
@@ -147,7 +146,7 @@ FocusScope {
     acceptedButtons: Qt.LeftButton | Qt.RightButton
 
     onPressed: {
-//      root.base.currentIndex = position
+      //      root.base.currentIndex = position
       if (pressedButtons === Qt.RightButton) {
         temp_rec = root.createZone(mouse)
       } else if (pressedButtons === Qt.LeftButton) {

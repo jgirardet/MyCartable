@@ -19,12 +19,44 @@ Rectangle {
       Layout.maximumHeight: Layout.preferredHeight
       Layout.fillWidth: true
       MatiereComboBox {
-        id: _comboBoxSelectMatiere
-        objectName: "_comboBoxSelectMatiere"
-        model: ddb.matieresListNom
+        anchors.fill: parent
+        textRole: "nom"
+        valueRole: "id"
+        id: combo
+        objectName: "combo"
+        model: ddb.matieresList
         currentIndex: ddb.getMatiereIndexFromId(ddb.currentMatiere)
         onActivated: ddb.setCurrentMatiereFromIndexSignal(index)
         Component.onCompleted: activated.connect(ddb.setCurrentMatiereFromIndexSignal)
+
+        contentItem: Text {
+          text: combo.displayText
+          color: combo.currentValue ? combo.model[combo.currentIndex].fgColor : "white"
+          verticalAlignment: Text.AlignVCenter
+          horizontalAlignment: Text.AlignHCenter
+        }
+
+        background: Rectangle {
+          color: combo.currentValue ? combo.model[combo.currentIndex].bgColor : "white"
+        }
+
+        delegate: Button {
+          highlighted: combo.highlightedIndex === index
+          width: combo.width
+          contentItem: Text {
+            id: delegateContent
+            text: modelData.nom
+            color: modelData.fgColor
+            verticalAlignment: Text.AlignVCenter
+            horizontalAlignment: Text.AlignHCenter
+          }
+          background: Rectangle {
+            color: modelData.bgColor
+          }
+        }
+
+
+
       }
     }
 

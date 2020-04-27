@@ -8,8 +8,6 @@ ACTIVITES = [
     FamilleActivite(2, "Evaluations"),
 ]
 
-MATIERES = ["Math", "Français", "Histoire", "Anglais"]
-
 pageColumnWidthRatio = 2 / 3
 
 preferredCentralWidth = 750

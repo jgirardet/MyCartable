@@ -79,6 +79,8 @@ class TestPage:
             "activite": p.activite.id,
             "matiere": p.activite.matiere.id,
             "matiereNom": p.activite.matiere.nom,
+            "matiereBgColor": p.activite.matiere.bgColor,
+            "matiereFgColor": p.activite.matiere.fgColor,
             "famille": p.activite.famille,
             "lastPosition": p.lastPosition,
         }
@@ -102,24 +104,72 @@ class TestPage:
                 prev = i
 
 
+class TestGroupeMatiere:
+    def test_factory(self, ddbr):
+        a = f_groupeMatiere(nom="bla")
+        b = f_groupeMatiere(nom="bla")
+        assert a.id == b.id
+        c = f_groupeMatiere()
+        assert c != b
+
+
 class TestMatiere:
     def test_to_dict(self, ddb):
         f_matiere().to_dict()  # forcer une creation d'id
-        a = f_matiere(nom="Géo", annee=2019)
+        a = f_matiere(nom="Géo", annee=2019, _fgColor=4294967295, _bgColor=4294901760)
         pages = [b_page(3, matiere=2) for x in a.activites]
         assert a.to_dict() == {
             "id": 2,
             "nom": "Géo",
             "annee": 2019,
             "activites": [4, 5, 6],
+            "groupe": 2,
+            "fgColor": QColor("white"),
+            "bgColor": QColor("red"),
         }
+
+    def test_init(self, ddb):
+        gp = f_groupeMatiere()
+        an = f_annee()
+        a = ddb.Matiere(
+            nom="bla",
+            annee=an.id,
+            groupe=gp.id,
+            _fgColor=4294967295,
+            _bgColor=4294901760,
+        )
+        b = ddb.Matiere(nom="bla", annee=an.id, groupe=gp.id)
+
+        # default value
+        assert b._fgColor == QColor("black").rgba()
+        assert b._bgColor == QColor("white").rgba()
+
+        # from QColor
+        c = ddb.Matiere(nom="bla", annee=an.id, groupe=gp.id, bgColor=QColor("red"))
+        assert c._bgColor == 4294901760
+        d = ddb.Matiere(nom="bla", annee=an.id, groupe=gp.id, fgColor=QColor("blue"))
+        assert d._fgColor == 4278190335
+
+        # property
+        c.bgColor = QColor("blue")
+        assert c._bgColor == 4278190335
+        assert c.bgColor == QColor("blue")
+        c.fgColor = QColor("red")
+        assert c._fgColor == 4294901760
+        assert c.fgColor == QColor("red")
+
+        # Qcolorsetter
+        c.bgColor = "blue"
+        assert c._bgColor == 4278190335
+        c.bgColor = (123, 3, 134)
+        assert QColor(c._bgColor) == QColor(123, 3, 134)
 
     def test_activite_auto_create_after_insert(self, ddb):
         a = f_matiere()
         len(a.activites) == ddb.Activite.ACTIVITES
 
     def test_page_par_section(self, ddbr):
-        f_matiere(nom="Math")
+        f_matiere(nom="Math", _bgColor=4294967295, _fgColor=4294901760)
         pages = [
             {
                 "created": "2019-03-14T17:35:58.111997",
@@ -180,6 +230,8 @@ class TestMatiere:
                             "matiereNom": "Math",
                             "modified": "2019-09-16T03:57:38.860509",
                             "titre": "grand-père monde cœur reposer rappeler",
+                            "matiereBgColor": QColor("white"),
+                            "matiereFgColor": QColor("red"),
                         },
                         {
                             "activite": 1,
@@ -191,6 +243,8 @@ class TestMatiere:
                             "matiereNom": "Math",
                             "modified": "2019-08-17T21:33:55.644158",
                             "titre": "oreille blague soleil poursuivre riche",
+                            "matiereBgColor": QColor("white"),
+                            "matiereFgColor": QColor("red"),
                         },
                         {
                             "activite": 1,
@@ -202,6 +256,8 @@ class TestMatiere:
                             "matiereNom": "Math",
                             "modified": "2019-03-14T17:35:58.111997",
                             "titre": "quoi amener défendre charger seulement",
+                            "matiereBgColor": QColor("white"),
+                            "matiereFgColor": QColor("red"),
                         },
                     ],
                 },
@@ -222,6 +278,8 @@ class TestMatiere:
                             "matiereNom": "Math",
                             "modified": "2020-02-18T22:25:14.288186",
                             "titre": "enfer cette simple ensemble rendre",
+                            "matiereBgColor": QColor("white"),
+                            "matiereFgColor": QColor("red"),
                         },
                         {
                             "activite": 3,
@@ -233,6 +291,8 @@ class TestMatiere:
                             "matiereNom": "Math",
                             "modified": "2019-10-30T10:54:18.834326",
                             "titre": "sujet grandir emporter monter rencontrer",
+                            "matiereBgColor": QColor("white"),
+                            "matiereFgColor": QColor("red"),
                         },
                     ],
                 },

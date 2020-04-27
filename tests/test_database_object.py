@@ -132,22 +132,29 @@ class TestPageMixin:
 
 class TestMatiereMixin:
     def create_matiere(self):
-        f_matiere("un", annee=2019)
-        f_matiere("deux", annee=2019)
-        f_matiere("trois", annee=2019)
-        f_matiere("quatre", annee=2019)
+        gp = f_groupeMatiere()
+        f_matiere(
+            "un", annee=2019, _fgColor=4294967295, _bgColor=4294901760, groupe=gp.id
+        )
+        f_matiere(
+            "deux", annee=2019, _fgColor=4294967295, _bgColor=4294901760, groupe=gp.id
+        )
+        f_matiere(
+            "trois", annee=2019, _fgColor=4294967295, _bgColor=4294901760, groupe=gp.id
+        )
+        f_matiere(
+            "quatre", annee=2019, _fgColor=4294967295, _bgColor=4294901760, groupe=gp.id
+        )
 
     def test_init(self, dao):
 
         assert dao._currentMatiere == 0
 
     def test_currentMatiere(self, dao, qtbot):
-        print("debut current matierer")
         self.create_matiere()
         dao.init_matieres()
         assert dao.currentMatiere == 0
 
-        print("debut current matierer")
         # from int
         with qtbot.waitSignal(dao.currentMatiereChanged, timeout=100):
             dao.currentMatiere = 2
@@ -155,7 +162,6 @@ class TestMatiereMixin:
         assert dao.currentMatiere == 2
         dao.currentMatiere = "fez"  # not in do nothing
         assert dao.currentMatiere == 2
-        print("debut current matierer")
 
         # from index
         with qtbot.waitSignal(dao.matiereReset):
@@ -165,19 +171,73 @@ class TestMatiereMixin:
         # get index from id
         assert dao.getMatiereIndexFromId(3) == 2
         assert dao.getMatiereIndexFromId(99999) is None
-        print("debut current matierer")
+
+
+    def test_currentMatiereItem(self, dao):
+        m = f_matiere(td=True)
+        dao.currentMatiere = m["id"]
+        assert dao.currentMatiereItem == m
 
     def test_matiereList(self, dao):
         self.create_matiere()
         dao.init_matieres()
 
         # listnom
-        assert dao.matieresListNom == ("un", "deux", "trois", "quatre")
+        reslist = [
+            {
+                "activites": [1, 2, 3],
+                "annee": 2019,
+                "bgColor": QColor("red"),
+                "fgColor": QColor("white"),
+                "id": 1,
+                "groupe": 1,
+                "nom": "un",
+            },
+            {
+                "activites": [4, 5, 6],
+                "annee": 2019,
+                "bgColor": QColor("red"),
+                "fgColor": QColor("white"),
+                "groupe": 1,
+                "id": 2,
+                "nom": "deux",
+            },
+            {
+                "activites": [7, 8, 9],
+                "annee": 2019,
+                "bgColor": QColor("red"),
+                "fgColor": QColor("white"),
+                "groupe": 1,
+                "id": 3,
+                "nom": "trois",
+            },
+            {
+                "activites": [10, 11, 12],
+                "annee": 2019,
+                "bgColor": QColor("red"),
+                "fgColor": QColor("white"),
+                "groupe": 1,
+                "id": 4,
+                "nom": "quatre",
+            },
+        ]
+        assert dao.matieresList == reslist
 
         # refresh
-        f_matiere("cinq", annee=2019)
+        f_matiere("cinq", annee=2019, _fgColor=4294967295, _bgColor=4294901760)
         dao.matieresListRefresh()
-        assert dao.matieresListNom == ("un", "deux", "trois", "quatre", "cinq")
+        reslist.append(
+            {
+                "activites": [13, 14, 15],
+                "annee": 2019,
+                "bgColor": QColor("red"),
+                "fgColor": QColor("white"),
+                "groupe": 2,
+                "id": 5,
+                "nom": "cinq",
+            }
+        )
+        assert dao.matieresList == reslist
 
     def test_pagesParSection(self, dao):
         assert dao.pagesParSection == []
@@ -584,4 +644,4 @@ class TestDatabaseObject:
             assert dao.currentMatiere == 0
             assert dao.m_d.annee.id == 2020
             assert len(dao.recentsModel) == 0
-            assert len(dao.matieresListNom) == 0
+            assert len(dao.matieresList) == 0

@@ -15,11 +15,11 @@ TextField {
   Layout.preferredHeight: 50
   font.weight: Font.Bold
   font.capitalization: Font.AllUppercase
-  color: "white"
+  color: ddb.currentMatiere ?  ddb.currentMatiereItem.fgColor  : "white"
   horizontalAlignment: TextInput.AlignHCenter
   verticalAlignment: TextInput.AlignVCenter
   background: Rectangle {
-    color: ddb.colorMainMenuBar
+    color: ddb.currentMatiere ?  ddb.currentMatiereItem.bgColor  : ddb.colorMainMenuBar
 
   }
 

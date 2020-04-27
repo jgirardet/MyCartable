@@ -5,10 +5,11 @@ import mimesis
 import random
 
 from PySide2.QtGui import QColor
-from package.constantes import ACTIVITES, MATIERES
+from package.constantes import ACTIVITES
+from package.default_matiere import MATIERE_GROUPE, MATIERES
 from package.files_path import FILES
 from package.operations.api import convert_addition, create_operation
-from pony.orm import db_session
+from pony.orm import db_session, flush
 
 gen = mimesis.Generic("fr")
 
@@ -39,11 +40,45 @@ def f_annee(id=2019, niveau=None, td=False):
         return an.to_dict() if td else an
 
 
-def f_matiere(nom=None, annee=None):
+def f_groupeMatiere(nom=None):
+    noms = random.choice(["Français", "Math", "Anglais", "Histoire"])
+    with db_session:
+        if isinstance(nom, int):
+            return db.GroupeMatiere.get(id=nom)
+        elif isinstance(nom, str):
+            item = db.GroupeMatiere.get(nom=nom)
+            if item:
+                return item
+            else:
+                return db.GroupeMatiere(nom=nom)
+        else:
+            return db.GroupeMatiere(nom=noms)
+
+
+def f_matiere(nom=None, annee=None, groupe=None, _bgColor=None, _fgColor=None, td=False):
     nom = nom or random.choice(["Français", "Math", "Anglais", "Histoire"])
+    color_codes = [
+        4294967295,
+        4294901760,
+        4278190335,
+        4278222848,
+        4294944000,
+        4294951115,
+    ]
+    _fgColor = _fgColor or random.choice(color_codes)
+    _bgColor = _bgColor or random.choice(color_codes)
+    groupe = groupe or f_groupeMatiere()
+    flush()
+    if isinstance(groupe, db.GroupeMatiere):
+        groupe = groupe.id
+    # white, red, blue, green, orange, pink
     with db_session:
         annee = f_annee(annee)
-        return db.Matiere(annee=annee, nom=nom)
+        item =  db.Matiere(
+            annee=annee, nom=nom, groupe=groupe, _fgColor=_fgColor, _bgColor=_bgColor
+        )
+
+        return item.to_dict() if td else item
 
 
 #
@@ -311,7 +346,9 @@ def f_tableauCell(x=0, y=0, bgColor=None, tableau=None, td=False):
 def populate_database(matieres_list=MATIERES, nb_page=100):
     annee = f_annee(id=2019, niveau="cm1")
     f_annee(id=2018, niveau="ce2")
-    matieres = [f_matiere(x, annee) for x in matieres_list]
+    [db.GroupeMatiere(**x) for x in MATIERE_GROUPE]
+    flush()
+    matieres = [db.Matiere(**x, annee=annee.id) for x in matieres_list]
 
     activites = db.Activite.select()[:]
     for i in range(nb_page):

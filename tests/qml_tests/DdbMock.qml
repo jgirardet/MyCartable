@@ -17,6 +17,7 @@ Item {
   property var pagesParSection: sp.pagesParSection
   property var recentsModel: Sample.samples.recentsModel
   property var setCurrentMatiereFromIndex
+  property var colorFond: "red"
   /* beautify preserve:end */
 
   signal setCurrentMatiereFromIndexSignal(int index)

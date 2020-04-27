@@ -15,15 +15,14 @@ TextArea {
 
   focus: ListView.isCurrentItem
 
-
   onFocusChanged: {
 
     if (focus) {
-//      print("jjjjjjjj", ListView.isCurrentItem)
+      //      print("jjjjjjjj", ListView.isCurrentItem)
       uiManager.menuTarget = doc
-//      base.currentIndex = position
+      //      base.currentIndex = position
     }
-    }
+  }
 
   MouseArea {
     anchors.fill: area
@@ -47,7 +46,7 @@ TextArea {
   }
 
   Component.onCompleted: {
-//    base.currentIndex = position
+    //    base.currentIndex = position
     forceActiveFocus()
   }
 

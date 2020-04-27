@@ -20,7 +20,7 @@ Rectangle {
     model: base.model.pages
     header: Rectangle {
       height: _listView.commonHeight
-      color: "blue"
+      color: ddb.currentMatiereItem.bgColor
       width: ListView.view.width
       property MouseArea mousearea: headerMouseArea
       property Label label: headerLabel

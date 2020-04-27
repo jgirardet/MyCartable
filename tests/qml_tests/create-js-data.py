@@ -32,7 +32,7 @@ class CreateJs:
         )
 
         self.annee = f_annee(id="2019")
-        self.matieres = [f_matiere(x, self.annee.id) for x in MAT]
+        self.matieres = [f_matiere(x, self.annee.id,) for x in MAT]
         self.dao.setup_settings(annee=2019)
         self.dao.init_matieres()
         math = self.matieres[0]
@@ -69,21 +69,21 @@ class CreateJs:
             underline=True,
         )
 
-    def matiere(self):
-
-        self.new["getMatiereIndexFromId"] = {
-            "id" + str(k): getattr(self.dao, "getMatiereIndexFromId")(k)
-            for k in range(1, len(MAT))
-        }
-
-        self.new["currentMatiere"] = []
-        for i in range(1, len(self.dao.matieresListNom) + 1):
-            setattr(self.dao, "currentMatiere", i)
-            self.new["currentMatiere"].append(getattr(self.dao, "currentMatiere"))
-
-        self.new["matieresListNom"] = getattr(self.dao, "matieresListNom")
-        self.dao.currentMatiere = 1
-        self.new["pagesParSection"] = self.dao.pagesParSection
+    # def matiere(self):
+    #
+    #     self.new["getMatiereIndexFromId"] = {
+    #         "id" + str(k): getattr(self.dao, "getMatiereIndexFromId")(k)
+    #         for k in range(1, len(MAT))
+    #     }
+    #
+    #     self.new["currentMatiere"] = []
+    #     for i in range(1, len(self.dao.matieresListNom) + 1):
+    #         setattr(self.dao, "currentMatiere", i)
+    #         self.new["currentMatiere"].append(getattr(self.dao, "currentMatiere"))
+    #
+    #     self.new["matieresListNom"] = getattr(self.dao, "matieresListNom")
+    #     self.dao.currentMatiere = 1
+    #     self.new["pagesParSection"] = self.dao.pagesParSection
 
     def activite(self):
 
@@ -148,15 +148,7 @@ class CreateJs:
         self.new["recentsModel"] = self.dao.recentsModel
 
     def check_fixtures(self):
-        assert (
-            len(self.new["getMatiereIndexFromId"]) == 3
-        ), f"{len(self.new['getMatiereIndexFromId'])} != { 3}"
-        assert (
-            len(self.new["currentMatiere"]) == 4
-        ), f"{len(self.new['currentMatiere'])} != { 4}"
-        assert (
-            len(self.new["matieresListNom"]) == 4
-        ), f"{len(self.new['matieresListNom'])} != { 4}"
+
         assert (
             len(self.new["currentPage"]) == 12
         ), f"{len(self.new['currentPage'])} != {12}"
@@ -210,145 +202,7 @@ class CreateJs:
         ), f"{len(self.new['recentsModel'])} != {12}"
         assert self.new["addSection"] == 5, self.new["addSection"]
 
-        copyPageParSection = self.new["pagesParSection"]
-        for x in copyPageParSection:
-            for p in x["pages"]:
-                p.pop("modified")
-                p.pop("created")
-        assert copyPageParSection == [
-            {
-                "id": 1,
-                "nom": "Leçons",
-                "famille": 0,
-                "matiere": 1,
-                "pages": [
-                    {
-                        "id": 10,
-                        "titre": "letitre 0 3",
-                        "activite": 1,
-                        "lastPosition": None,
-                        "matiere": 1,
-                        "matiereNom": "Math",
-                        "famille": 0,
-                    },
-                    {
-                        "id": 7,
-                        "titre": "letitre 0 2",
-                        "activite": 1,
-                        "lastPosition": None,
-                        "matiere": 1,
-                        "matiereNom": "Math",
-                        "famille": 0,
-                    },
-                    {
-                        "id": 4,
-                        "titre": "letitre 0 1",
-                        "activite": 1,
-                        "lastPosition": None,
-                        "matiere": 1,
-                        "matiereNom": "Math",
-                        "famille": 0,
-                    },
-                    {
-                        "id": 1,
-                        "titre": "letitre 0 0",
-                        "activite": 1,
-                        "lastPosition": None,
-                        "matiere": 1,
-                        "matiereNom": "Math",
-                        "famille": 0,
-                    },
-                ],
-            },
-            {
-                "id": 2,
-                "nom": "Exercices",
-                "famille": 1,
-                "matiere": 1,
-                "pages": [
-                    {
-                        "id": 11,
-                        "titre": "letitre 1 3",
-                        "activite": 2,
-                        "lastPosition": None,
-                        "matiere": 1,
-                        "matiereNom": "Math",
-                        "famille": 1,
-                    },
-                    {
-                        "id": 8,
-                        "titre": "letitre 1 2",
-                        "activite": 2,
-                        "lastPosition": None,
-                        "matiere": 1,
-                        "matiereNom": "Math",
-                        "famille": 1,
-                    },
-                    {
-                        "id": 5,
-                        "titre": "letitre 1 1",
-                        "activite": 2,
-                        "lastPosition": None,
-                        "matiere": 1,
-                        "matiereNom": "Math",
-                        "famille": 1,
-                    },
-                    {
-                        "id": 2,
-                        "titre": "letitre 1 0",
-                        "activite": 2,
-                        "lastPosition": None,
-                        "matiere": 1,
-                        "matiereNom": "Math",
-                        "famille": 1,
-                    },
-                ],
-            },
-            {
-                "id": 3,
-                "nom": "Evaluations",
-                "famille": 2,
-                "matiere": 1,
-                "pages": [
-                    {
-                        "id": 12,
-                        "titre": "letitre 2 3",
-                        "activite": 3,
-                        "lastPosition": None,
-                        "matiere": 1,
-                        "matiereNom": "Math",
-                        "famille": 2,
-                    },
-                    {
-                        "id": 9,
-                        "titre": "letitre 2 2",
-                        "activite": 3,
-                        "lastPosition": None,
-                        "matiere": 1,
-                        "matiereNom": "Math",
-                        "famille": 2,
-                    },
-                    {
-                        "id": 6,
-                        "titre": "letitre 2 1",
-                        "activite": 3,
-                        "lastPosition": None,
-                        "matiere": 1,
-                        "matiereNom": "Math",
-                        "famille": 2,
-                    },
-                    {
-                        "id": 3,
-                        "titre": "letitre 2 0",
-                        "activite": 3,
-                        "lastPosition": None,
-                        "matiere": 1,
-                        "matiereNom": "Math",
-                        "famille": 2,
-                    },
-                ],
-            },
-        ], self.new["pagesParSection"]
+
 
     def write_fixtures(self):
         # init
@@ -357,7 +211,6 @@ class CreateJs:
 
         # create samples
         for x in [
-            self.matiere,
             self.activite,
             self.page,
             self.section,

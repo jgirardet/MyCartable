@@ -15,16 +15,11 @@ class LayoutMixin:
 
     @Property("QColor", notify=ColorChanged)
     def colorFond(self):
-        return colors['fond']
-
+        return colors["fond"]
 
     @Property("QColor", notify=ColorChanged)
     def colorMainMenuBar(self):
-        return colors['mainMenuBar']
+        return colors["mainMenuBar"]
 
 
-
-colors = {
-    "fond": QColor(130, 134, 138),
-    "mainMenuBar": QColor(83,93,105)
-}
+colors = {"fond": QColor(130, 134, 138), "mainMenuBar": QColor(83, 93, 105)}

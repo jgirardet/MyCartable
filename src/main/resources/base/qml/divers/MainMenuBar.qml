@@ -4,10 +4,9 @@ import QtQuick.Controls 2.14
 MenuBar {
   id: mainMenuBar
   background: Rectangle {
-  anchors.fill: parent
+    anchors.fill: parent
     color: ddb.colorMainMenuBar
-      }
-
+  }
 
   Menu {
     title: qsTr("&Fichier")

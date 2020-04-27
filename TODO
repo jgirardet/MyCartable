@@ -55,7 +55,12 @@ tester toast ?
   _ faire oucleur par matiere comme mydevoirs
   _ refactor color
   _ cadre rouge autour des icons
+  _ taille écriture des titres
+  _ arrondir les angles
+  _ arrondir les opérations
 
 
 à tester :
   - qml : change index pour chaque delegate  quan dclique +/- focus
+  -qml : color recents
+  - combo box matiere +++

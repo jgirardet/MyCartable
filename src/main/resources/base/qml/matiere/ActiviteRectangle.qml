@@ -1,33 +1,30 @@
-import QtQuick 2.12
-import QtQuick.Controls 2.12
-import QtQuick.Layouts 1.12
-Rectangle {
-  id: base
-
+import QtQuick 2.14
+import QtQuick.Controls 2.14
+import QtQuick.Layouts 1.14
+Rectangle{
+   id: base
   /* beautify preserve:start */
+  color: "transparent"
   property var model
+  height: lv.height + header.height + 10
   /* beautify preserve:end */
-  Layout.preferredHeight: ddb.getLayoutSizes("preferredActiviteHeight")
-  Layout.minimumHeight: ddb.getLayoutSizes("minimumActiviteHeight")
-  Layout.maximumHeight: Layout.preferredHeight
-  Layout.fillWidth: true
-  ListView {
-    id: _listView
-    objectName: "_listView"
-    anchors.fill: parent
-    clip: true
-    property int commonHeight: 30
-    model: base.model.pages
-    header: Rectangle {
-      height: _listView.commonHeight
+  Column {
+//    anchors.fill: parent
+  spacing: 5
+  Rectangle {
+      id: header
+      height: 30
       color: ddb.currentMatiereItem.bgColor
-      width: ListView.view.width
+      radius: 10
+      width: base.width
       property MouseArea mousearea: headerMouseArea
       property Label label: headerLabel
       Label {
         id: headerLabel
         text: base.model.nom
+//        text: "modelData.nom"
         anchors.centerIn: parent
+        Component.onCompleted: {print(base.model.nom)}
       }
       MouseArea {
         id: headerMouseArea
@@ -41,17 +38,38 @@ Rectangle {
         }
       }
     }
-    headerPositioning: ListView.OverlayHeader
+
+  ListView {
+    id: lv
+    objectName: "lv"
+//    anchors.fill: parent
+    property int commonHeight: 30
+    model: base.model.pages
+    spacing: 3
+     width: base.width
+     height: lv.contentItem.childrenRect.height
+//    headerPositioning: ListView.OverlayHeader
     delegate: Button {
       id: but
-      //      objectName: "buttonDelegate"
-      text: modelData.titre
       width: ListView.view.width
-      height: _listView.commonHeight
+      height: lv.commonHeight
+      contentItem: Label {
+        text: modelData.titre
+        color: ddb.currentMatiereItem.bgColor
+        verticalAlignment: Text.AlignVCenter
+         }
       onClicked: {
         ddb.currentPage = modelData.id
 
       }
+      background: Rectangle {
+        anchors.fill: parent
+        radius: 10
+//        color:  ddb.currentMatiereItem.bgColor
+        color: "#cdd0d3"
+        border.color: ddb.currentMatiereItem.bgColor
+      }
     }
+  }
   }
 }

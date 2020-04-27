@@ -4,9 +4,6 @@ import QtQuick.Layouts 1.12
 Rectangle {
   id: base
   color: ddb.colorFond
-  /* beautify preserve:start */
-  property var repeater: _repeater
-  /* beautify preserve:end */
   ColumnLayout {
     id: activitesColumn
     anchors.fill: parent
@@ -17,6 +14,7 @@ Rectangle {
       Layout.preferredHeight: ddb.getLayoutSizes("preferredHeaderHeight")
       Layout.minimumHeight: Layout.preferredHeight
       Layout.maximumHeight: Layout.preferredHeight
+
       Layout.fillWidth: true
       MatiereComboBox {
         anchors.fill: parent
@@ -60,14 +58,27 @@ Rectangle {
       }
     }
 
-    Repeater {
-      id: _repeater
+    ListView {
+      id: lvActivite
       objectName: "repeater"
       model: ddb.pagesParSection
-      ActiviteRectangle {
+      Layout.fillHeight: true
+      Layout.fillWidth: true
+      spacing: 15
+      clip: true
+//      Layout.preferredWidth: 50
+//      Layout.preferredHeight: 500
+      delegate:
+        ActiviteRectangle {
         model: modelData
-
+        width: lvActivite.width
       }
+//      delegate: Button {
+//      height: 50
+//      width: 100
+//      text: modelData.nom
+//
+//    }
 
     }
   }

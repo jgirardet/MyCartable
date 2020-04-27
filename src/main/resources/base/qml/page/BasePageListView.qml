@@ -9,8 +9,6 @@ ListView {
   //  currentIndex: model.lastPosition
   focus: true
 
-  //  highlightMoveDuration: -1
-  //  highlightMoveVelocity: 200 * count
   boundsBehavior: Flickable.DragOverBounds
   onCurrentIndexChanged: {
     print("currentindex changed :", currentIndex)

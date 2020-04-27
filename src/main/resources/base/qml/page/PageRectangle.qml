@@ -7,23 +7,42 @@ Rectangle {
   color: Qt.rgba(98 / 255, 105 / 255, 123 / 255, 1)
   ColumnLayout {
     anchors.fill: parent
-    spacing: 5
+    spacing: 10
     PageToolBar {
       id: pageToolBar
       Layout.fillWidth: true
       height: ddb.getLayoutSizes("preferredHeaderHeight")
     }
-    PageTitre {
-      id: titre
-      page: pagelistview
-    }
 
-    PageListView {
-      id: pagelistview
-      Layout.fillWidth: true
-      Layout.fillHeight: true
-      model: ddb.pageModel
+    Rectangle {
+        Layout.preferredWidth: parent.width -20
+        Layout.preferredHeight: 50
+        Layout.alignment: Qt.AlignHCenter
+        color: "transparent"
+
+      PageTitre {
+        id: titre
+        anchors.fill: parent
+        page: pagelistview
+      }
     }
+    Rectangle {
+        Layout.fillWidth: true
+        Layout.fillHeight: true
+        color: "transparent"
+        radius: 10
+      PageListView {
+        anchors.fill: parent
+        id: pagelistview
+        model: ddb.pageModel
+      }
+    }
+//    PageListView {
+//      id: pagelistview
+//      Layout.fillWidth: true
+//      Layout.fillHeight: true
+//      model: ddb.pageModel
+//    }
 
   }
 

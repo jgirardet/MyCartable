@@ -11,8 +11,8 @@ TextField {
   text: ddb.currentPage ? ddb.currentTitre : ""
   id: root
   readOnly: ddb.currentPage == 0 ? true : false
-  Layout.fillWidth: true
-  Layout.preferredHeight: 50
+//  Layout.preferredWidth: parent.width
+//  Layout.preferredHeight: 50
   font.weight: Font.Bold
   font.capitalization: Font.AllUppercase
   color: ddb.currentMatiere ?  ddb.currentMatiereItem.fgColor  : "white"
@@ -20,6 +20,7 @@ TextField {
   verticalAlignment: TextInput.AlignVCenter
   background: Rectangle {
     color: ddb.currentMatiere ?  ddb.currentMatiereItem.bgColor  : ddb.colorMainMenuBar
+    radius: 10
 
   }
 

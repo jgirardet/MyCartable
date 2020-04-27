@@ -8,6 +8,8 @@ ToolBar {
   id: root
   background: Rectangle {
     anchors.fill: parent
+    radius: 10
+//    color: "transparent"
 
   }
   RowLayout {
@@ -93,7 +95,8 @@ ToolBar {
       Layout.fillWidth: true
       Layout.fillHeight: true
       //      height:
-      color: "black"
+      color: "transparent"
+      radius: 10
     }
 
     //  }

@@ -20,11 +20,11 @@ Item {
       combo = findChild(tested, "combo")
     }
 
-   function test_matiere_combox() {
-    ddb._getMatiereIndexFromId = 1
-    compare(combo.currentIndex, 1)
-    compare(combo.contentItem.text, "Mathematiques")
-  }
+    function test_matiere_combox() {
+      ddb._getMatiereIndexFromId = 1
+      compare(combo.currentIndex, 1)
+      compare(combo.contentItem.text, "Mathematiques")
+    }
 
     function test_matiere_combo_click() {
       var spt = getSpy(ddb, "setCurrentMatiereFromIndexSignal")
@@ -33,15 +33,13 @@ Item {
       compare(spt.count, 2) // called twice... why ???
     }
 
-
-
     function test_comno_property_when_matiere_set() {
       ddb._getMatiereIndexFromId = 1
       compare(combo.contentItem.text, "Mathematiques")
       compare(Qt.colorEqual(combo.contentItem.color, "yellow"), true)
       compare(Qt.colorEqual(combo.background.color, "black"), true)
       compare(combo.popup.contentItem.children[0].children[0].contentItem.text, "Lecture")
-      compare(Qt.colorEqual(combo.popup.contentItem.children[0].children[0].contentItem.color,"red"), true)
+      compare(Qt.colorEqual(combo.popup.contentItem.children[0].children[0].contentItem.color, "red"), true)
     }
 
     function test_activite_rectangle() {

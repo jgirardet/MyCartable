@@ -35,8 +35,14 @@ Item {
       }
     }
 
+    function initPreCreate() {
+      ddb = ddbData
+
+    }
+
     function initPost() {
       ref.annotations.push(tested)
+      ddb = ddbData
     }
 
     function test_AnotXY() {

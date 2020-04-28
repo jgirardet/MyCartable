@@ -10,13 +10,13 @@ import tempfile
 class ImageSectionMixin:
     @Slot("QVariantMap", result=int)
     def addAnnotation(self, content):
+        print(content)
         item_id = 0
         with db_session:
             section = int(content.pop("section"))
             item = getattr(self.db, content["classtype"])(**content, section=section)
 
         item_id = item.id
-
         return item_id
 
     @Slot(int)
@@ -29,7 +29,8 @@ class ImageSectionMixin:
 
         with db_session:
             obj = self.db.ImageSection[section]
-            return [p.to_dict() for p in obj.annotations]
+            res = [p.to_dict() for p in obj.annotations]
+            return res
 
     @Slot(int, "QVariantMap")
     def updateAnnotation(self, annotation_id, dico):

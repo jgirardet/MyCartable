@@ -11,15 +11,15 @@ TextField {
   text: ddb.currentPage ? ddb.currentTitre : ""
   id: root
   readOnly: ddb.currentPage == 0 ? true : false
-//  Layout.preferredWidth: parent.width
-//  Layout.preferredHeight: 50
+  //  Layout.preferredWidth: parent.width
+  //  Layout.preferredHeight: 50
   font.weight: Font.Bold
   font.capitalization: Font.AllUppercase
-  color: ddb.currentMatiere ?  ddb.currentMatiereItem.fgColor  : "white"
+  color: ddb.currentMatiere ? ddb.currentMatiereItem.fgColor : "white"
   horizontalAlignment: TextInput.AlignHCenter
   verticalAlignment: TextInput.AlignVCenter
   background: Rectangle {
-    color: ddb.currentMatiere ?  ddb.currentMatiereItem.bgColor  : ddb.colorMainMenuBar
+    color: ddb.currentMatiere ? ddb.currentMatiereItem.bgColor : ddb.colorMainMenuBar
     radius: 10
 
   }

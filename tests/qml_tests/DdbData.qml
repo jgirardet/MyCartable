@@ -1,6 +1,10 @@
 import QtQuick 2.14
+import QtTest 1.12
+
+///* beautify preserve:start */
 
 Item {
+
 
   // Matiere MIXIN
   property int  currentMatiere: 0
@@ -52,4 +56,60 @@ Item {
 
   property int currentPage
 
+  // IMAGE
+
+  function addAnnotation(content) {
+    _addAnnotation=content
+    return 99
+  }
+  property var _addAnnotation
+
+  function deleteAnnotation(sectionid) {
+    _deleteAnnotation=sectionid
+  }
+  property var _deleteAnnotation
+
+  function loadAnnotations(section) {
+    return _loadAnnotations
+  }
+  property var _loadAnnotations: [
+  {'id': 7, 'relativeX': 0.16367713004484305, 'relativeY': 0.6580976863753213, 'section': 3796, 'color': "red", 'classtype': 'AnnotationText', 'text': "un annotation", 'underline': false},
+  {'id': 6, 'relativeX': 0.531390134529148, 'relativeY': 0.531390134529148, 'section': 3796, 'color': "blue", 'classtype': 'Stabylo', 'relativeWidth': 0.226457399103139, 'relativeHeight': 0.07969151670951156},
+  {'id': 5, 'relativeX': 0.30269058295964124, 'relativeY': 0.38303341902313626, 'section': 3796, 'color': "green", 'classtype': 'AnnotationText', 'text': 'fzefzefzef', 'underline': true},
+  {'id': 4, 'relativeX': 0.16367713004484305, 'relativeY': 0.18508997429305912, 'section': 3796, 'color': null, 'classtype': 'Stabylo', 'relativeWidth': 0.09417040358744394, 'relativeHeight': 0.05912596401028278}
+  ]
+
+
+  function updateAnnotation(anotid, dico) {
+    _updateAnnotation = [anotid, dico]
+    }
+  property var _updateAnnotation
+
+
+  // SECTION
+
+  function addSection(sectionid, content) {
+    _addSection = (sectionid, content)
+    return sectionid + 1
+    }
+  property var _addSection
+
+
+  function loadSection(sectionid) {
+    _loadSection = sectionid
+    return {'id': 3796, 'created': '2019-04-19T22:44:14.176013', 'modified': '2019-04-19T22:44:14.176013', 'page': 88, 'position': 9, 'classtype': 'ImageSection', 'path': 'qrc:/tests/tst_AnnotableImage.png', 'annotations': [4,5,6,7]}
+
+    }
+  property var _loadSection
+
+  function removeSection(sectoinid, index) {
+    _removeSection = [sectoinid, index]
+    }
+  property var _removeSection
+
 }
+
+
+
+
+///* beautify preserve:end */

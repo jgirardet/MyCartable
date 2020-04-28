@@ -15,10 +15,10 @@ Rectangle {
     }
 
     Rectangle {
-        Layout.preferredWidth: parent.width -20
-        Layout.preferredHeight: 50
-        Layout.alignment: Qt.AlignHCenter
-        color: "transparent"
+      Layout.preferredWidth: parent.width - 20
+      Layout.preferredHeight: 50
+      Layout.alignment: Qt.AlignHCenter
+      color: "transparent"
 
       PageTitre {
         id: titre
@@ -27,22 +27,22 @@ Rectangle {
       }
     }
     Rectangle {
-        Layout.fillWidth: true
-        Layout.fillHeight: true
-        color: "transparent"
-        radius: 10
+      Layout.fillWidth: true
+      Layout.fillHeight: true
+      color: "transparent"
+      radius: 10
       PageListView {
         anchors.fill: parent
         id: pagelistview
         model: ddb.pageModel
       }
     }
-//    PageListView {
-//      id: pagelistview
-//      Layout.fillWidth: true
-//      Layout.fillHeight: true
-//      model: ddb.pageModel
-//    }
+    //    PageListView {
+    //      id: pagelistview
+    //      Layout.fillWidth: true
+    //      Layout.fillHeight: true
+    //      model: ddb.pageModel
+    //    }
 
   }
 

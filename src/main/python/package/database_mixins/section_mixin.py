@@ -78,6 +78,7 @@ class SectionMixin:
                 if res["classtype"] == "ImageSection":
                     res["path"] = QUrl.fromLocalFile(str(FILES / res["path"]))
                     # LOG.debug("loading Section: %s", res)
+        print(res)
         return res
 
     @Slot(int, int)

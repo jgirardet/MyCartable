@@ -21,5 +21,4 @@ GridView {
     value: model.cursor
   }
 
-
 }

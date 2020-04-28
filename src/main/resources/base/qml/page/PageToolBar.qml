@@ -9,7 +9,7 @@ ToolBar {
   background: Rectangle {
     anchors.fill: parent
     radius: 10
-//    color: "transparent"
+    //    color: "transparent"
 
   }
   RowLayout {
@@ -50,7 +50,7 @@ ToolBar {
     }
 
     ToolBar {
-//      visible: ddb.currentMatiere == 1
+      //      visible: ddb.currentMatiere == 1
       RowLayout {
         ToolButton {
           id: addAddition

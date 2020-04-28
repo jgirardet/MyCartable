@@ -25,40 +25,6 @@ ListView {
   Component.onCompleted: {
     model.rowsInserted.connect(onItemAdded)
   }
-  //  ListView.s: {
-  //    print("on adde")
-  //  }
-  //  onCurrentIndexChanged: Transition {
-  //        NumberAnimation { properties: "x,y"; duration: 400; easing.type: Easing.OutBounce }
-  //    }
-  //    print("currentIndex", currentIndex, model.lastPosition)
-  //    if (currentIndex != model.lastPosition) {
-  //    print("on bosse")
-  //        model.lastPosition=currentIndex
-  //        positionViewAtIndex(currentIndex, ListView.Beginning)
-  //
-  //    }
-  //    print("current currentIndexChanged", currentIndex)
-  //  }
-  //  onMovementEnded: {
-  //    print(currentIndex)
-  //  }
-  //  Binding on currentIndex {
-  //      when: model.modelReset
-  //      value: model.lastPosition
-  //    if (currentIndex != model.lastPosition) {
-  //      model.lastPosition=currentIndex
-  //      print("on currentindex changed", currentIndex)
-  //    }
-  //    }
-  //   move: Transition {
-  //        NumberAnimation { property: "opacity"; from: 0; to: 1.0; duration: 400 }
-  //        NumberAnimation { property: "scale"; from: 0; to: 1.0; duration: 400 }
-  //    }
-
-  //    displaced: Transition {
-  //        NumberAnimation { properties: "x,y"; duration: 400; easing.type: Easing.OutBounce }
-  //    }
 
   Connections {
     target: model

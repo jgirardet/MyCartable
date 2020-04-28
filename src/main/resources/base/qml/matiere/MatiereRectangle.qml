@@ -14,6 +14,7 @@ Rectangle {
       Layout.preferredHeight: ddb.getLayoutSizes("preferredHeaderHeight")
       Layout.minimumHeight: Layout.preferredHeight
       Layout.maximumHeight: Layout.preferredHeight
+      color: "transparent"
 
       Layout.fillWidth: true
       MatiereComboBox {
@@ -36,6 +37,7 @@ Rectangle {
 
         background: Rectangle {
           color: combo.currentValue ? combo.model[combo.currentIndex].bgColor : "white"
+          radius: 10
         }
 
         delegate: Button {
@@ -53,8 +55,6 @@ Rectangle {
           }
         }
 
-
-
       }
     }
 
@@ -66,19 +66,18 @@ Rectangle {
       Layout.fillWidth: true
       spacing: 15
       clip: true
-//      Layout.preferredWidth: 50
-//      Layout.preferredHeight: 500
-      delegate:
-        ActiviteRectangle {
+      //      Layout.preferredWidth: 50
+      //      Layout.preferredHeight: 500
+      delegate: ActiviteRectangle {
         model: modelData
         width: lvActivite.width
       }
-//      delegate: Button {
-//      height: 50
-//      width: 100
-//      text: modelData.nom
-//
-//    }
+      //      delegate: Button {
+      //      height: 50
+      //      width: 100
+      //      text: modelData.nom
+      //
+      //    }
 
     }
   }

@@ -10,14 +10,14 @@ Rectangle {
     id: recentsColumn
     anchors.fill: parent
     spacing: 5
-//    RoundButton {
-//      id: recentsHeader
-//      objectName: "recentsHeader"
-//      height: ddb.getLayoutSizes("preferredHeaderHeight")
-//      width: parent.width
-//      text: "Récents"
-//      radius: 10
-//    }
+    //    RoundButton {
+    //      id: recentsHeader
+    //      objectName: "recentsHeader"
+    //      height: ddb.getLayoutSizes("preferredHeaderHeight")
+    //      width: parent.width
+    //      text: "Récents"
+    //      radius: 10
+    //    }
     RecentsListView {
       id: recentsListView
       model: ddb.recentsModel

@@ -21,7 +21,7 @@ FocusScope {
   Component.onCompleted: {
     var content = ddb.loadSection(sectionId)
     var path = content.path.toString()
-    img.source = path.startsWith("file:///") ? content.path : "file:///" + path
+    img.source = path.startsWith("file:///") || path.startsWith("qrc:") ? content.path : "file:///" + path
     initZones()
   }
 

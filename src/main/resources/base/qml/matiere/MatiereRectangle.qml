@@ -66,18 +66,10 @@ Rectangle {
       Layout.fillWidth: true
       spacing: 15
       clip: true
-      //      Layout.preferredWidth: 50
-      //      Layout.preferredHeight: 500
       delegate: ActiviteRectangle {
         model: modelData
         width: lvActivite.width
       }
-      //      delegate: Button {
-      //      height: 50
-      //      width: 100
-      //      text: modelData.nom
-      //
-      //    }
 
     }
   }

@@ -65,10 +65,8 @@ TableView {
     }
 
     onClicked: {
-      print("onclicked with button", mouse.button)
 
       if (root.currentSelectedCell) {
-        print("on fait rien")
         root.currentSelectedCell = null
         mouse.accepted = true
       } else if (mouse.button == Qt.LeftButton) {
@@ -79,7 +77,6 @@ TableView {
       } else if (mouse.button == Qt.RightButton) {
         var cel = root.contentItem.childAt(mouse.x, mouse.y)
         if (root.selectedCells.includes(cel)) {
-          print("show menu")
           uiManager.menuFlottantTableau.ouvre(root)
         } else {
           root.unSelectAll()
@@ -113,7 +110,6 @@ TableView {
       //      preventStealing: true
 
       onClicked: {
-        print("pressed", mouse.button)
         if (mouse.button == Qt.LeftButton) {
           textinput.forceActiveFocus()
         } else if (mouse.button === Qt.RightButton) {
@@ -125,9 +121,6 @@ TableView {
     }
 
     function setColor(value) {
-      //      print(background)
-      //      print(value, typeof value)
-      //      print(background)
       background = value
     }
     TextArea {
@@ -221,9 +214,7 @@ TableView {
         }
       }
 
-      function moreKeys(event) {
-        //        print("morekeys")
-      }
+      function moreKeys(event) {}
 
     }
   }

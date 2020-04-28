@@ -21,7 +21,7 @@ Item {
   }
 
   CasTest {
-    name: "Stabylo Rectangle"
+    name: "StabyloRectangle"
     testedNom: "qrc:/qml/page/StabyloRectangle.qml"
     /* beautify preserve:start */
     property var ref
@@ -33,10 +33,6 @@ Item {
         "relativeX": 0.48,
         "relativeY": 0.10
       }
-    }
-
-    function initPreCreate() {
-      ddb = ddbData
     }
 
     function initPost() {
@@ -82,7 +78,7 @@ Item {
     }
 
     function test_tested_destroy() {
-      var spy = ddb.getSpy(tested, "deleteRequested")
+      var spy = getSpy(tested, "deleteRequested")
       mouseClick(tested, 0, 0, Qt.MiddleButton)
       spy.wait()
     }

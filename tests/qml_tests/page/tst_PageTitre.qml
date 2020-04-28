@@ -39,7 +39,7 @@ Item {
       compare(ddb._setCurrentTitre, "a")
     }
 
-    function test_add_sectionText_on_enter_no_other_section() {
+    function test_add_sectionText_on_enter_but_no_other_section() {
       tested.page = {
         model: {
           rowCount: function() {

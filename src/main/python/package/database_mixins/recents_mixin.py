@@ -9,4 +9,6 @@ class RecentsMixin:
     @Property("QVariantList", notify=recentsModelChanged)
     def recentsModel(self):
         with db_session:
-            return self.db.Page.recents(self.annee_active)
+            res =  self.db.Page.recents(self.annee_active)
+            # print(res)
+            return res

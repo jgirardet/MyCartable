@@ -12,10 +12,6 @@ Item {
     params: {}
     property QtObject combo
 
-    function initPreCreate() {
-      ddb = ddbData
-    }
-
     function initPost() {
       combo = findChild(tested, "combo")
     }
@@ -44,8 +40,8 @@ Item {
 
     function test_activite_rectangle() {
       ddb.currentPage = 1
-      var rep = tested.repeater
-      compare(rep.itemAt(0).model, ddb.pagesParSection[0])
+      var rep = findChild(tested, "repeater")
+      compare(rep.contentItem.children[0].model, ddb.pagesParSection[0])
 
     }
   }

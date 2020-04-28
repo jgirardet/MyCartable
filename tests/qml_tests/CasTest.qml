@@ -19,9 +19,9 @@ TestCase {
   function init() {
     backupParams = params
     initPre()
-    ddb = createTemporaryObject(Qt.createComponent("DdbMock.qml"), testcase.parent)
+    //    ddb = createTemporaryObject(Qt.createComponent("DdbMock.qml"), testcase.parent)
     uiManager = createTemporaryObject(Qt.createComponent("UiManager.qml"), testcase.parent)
-    ddbData = createTemporaryObject(Qt.createComponent("DdbData.qml"), testcase.parent)
+    ddb = createTemporaryObject(Qt.createComponent("DdbData.qml"), testcase.parent)
 
     initPreCreate()
     tested = createObj(testedNom, params)
@@ -67,6 +67,17 @@ TestCase {
       "target": targetObj,
       "signalName": signaltxt
     })
+  }
+
+  function signalChecker(obj, signaltxt, command, calledArgs = []) {
+    var spy = getSpy(obj, signaltxt)
+    eval(command)
+    spy.wait()
+    var i = 0
+    for (var j of calledArgs) {
+      compare(spy.signalArguments[0][i], j)
+      i += 1
+    }
   }
 
   function menuClick(menu, x, y) {

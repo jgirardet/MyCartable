@@ -37,12 +37,8 @@ TextField {
       }
     }
   }
-
-  Connections {
-    target: ddb
-    onNewPageCreated: {
-      forceActiveFocus()
-    }
+  Component.onCompleted: {
+    ddb.newPageCreated.connect(forceActiveFocus)
   }
 
 }

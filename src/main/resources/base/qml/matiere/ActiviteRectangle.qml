@@ -4,30 +4,32 @@ import QtQuick.Layouts 1.14
 Rectangle {
   id: base
   /* beautify preserve:start */
-  color: "transparent"
   property var model
-  height: lv.height + header.height + 10
   /* beautify preserve:end */
+  color: "transparent"
+  height: lv.height + header.height + 10
+
   Column {
     //    anchors.fill: parent
     spacing: 5
+
     Rectangle {
       id: header
+      objectName: "header"
       height: 30
       color: ddb.currentMatiereItem.bgColor
       radius: 10
       width: base.width
       property MouseArea mousearea: headerMouseArea
       property Label label: headerLabel
+
       Label {
         id: headerLabel
         text: base.model.nom
         //        text: "modelData.nom"
         anchors.centerIn: parent
-        Component.onCompleted: {
-          print(base.model.nom)
-        }
       }
+
       MouseArea {
         id: headerMouseArea
         acceptedButtons: Qt.RightButton
@@ -35,7 +37,6 @@ Rectangle {
         onPressed: {
           if (mouse.buttons == Qt.RightButton) {
             ddb.newPage(model.id)
-
           }
         }
       }

@@ -78,7 +78,7 @@ def init_models(db: Database):
             if bgColor:
                 kwargs["_bgColor"] = ColorMixin.color_setter(bgColor)
             if fgColor:
-                kwargs["_fgColor"] =ColorMixin.color_setter(fgColor)
+                kwargs["_fgColor"] = ColorMixin.color_setter(fgColor)
             super().__init__(**kwargs)
 
         @property

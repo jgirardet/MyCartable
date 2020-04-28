@@ -12,12 +12,11 @@ Item {
     params: {}
 
     function test_init() {
-      compare(ddb.sp.recentsModel, tested.listview.model)
+      compare(ddb.recentsModel, tested.listview.model)
     }
 
     function test_item_click() {
-      mouseClick(tested.listview)
-      compare(ddb._recentsItemClicked, [1, 1])
+      signalChecker(ddb, "recentsItemClicked", "mouseClick(tested.listview)", [23, 13])
     }
     //    function test_color() {
     ////      mouseClick(tested.listview)

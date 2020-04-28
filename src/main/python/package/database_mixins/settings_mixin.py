@@ -37,9 +37,10 @@ class SettingsMixin:
     @Slot(result="QVariantList")
     def getMenuAnnees(self):
         with db_session:
-            return [
+            res = [
                 x.to_dict() for x in self.db.Annee.select().order_by(self.db.Annee.id)
             ]
+            return res
 
     @staticmethod
     def _determine_annee(day=None):

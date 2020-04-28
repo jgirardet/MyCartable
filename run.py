@@ -7,6 +7,7 @@ import subprocess
 import os
 import sys
 import time
+from itertools import chain
 from pathlib import Path
 
 
@@ -21,6 +22,7 @@ QMLTESTS = ROOT / "build" / "qml_tests"
 
 
 currentProccess = None
+
 
 def get_env():
     env = os.environ
@@ -79,6 +81,7 @@ def runCommand(command, cwd=str(ROOT), sleep_time=0.2, with_env=True):
 def cmd_black():
     runCommand("python -m black src tests")
 
+
 def cmd_build_binary_as_dir():
     pyinstaller = "pyinstaller"
     runCommand("pyinstaller  scripts/dir.spec --clean -y")
@@ -95,14 +98,12 @@ def cmd_clean():
         ROOT / "dist",
         DIST,
         ROOT / "aqtinstall.log",
-
     ]
-    for  p in to_remove:
+    for p in to_remove:
         if p.is_dir():
             shutil.rmtree(p)
         elif p.is_file():
             p.unlink()
-
 
 
 def cmd_cov():
@@ -129,6 +130,7 @@ def cmd_create_env():
     #     python = "python"
     runCommand(f"{python} -m venv .venv", with_env=False)
 
+
 def cmd_install():
     # cmd_create_env()
     runCommand(f"python -m pip install -U pip")
@@ -145,8 +147,19 @@ def cmd_install_qt():
 
 
 def cmd_js_style():
-    runCommand("find src -name '*.qml' | xargs js-beautify --indent-size 2 -m 2")
-    runCommand("find tests -name '*.qml' | xargs js-beautify --indent-size 2 -m 2")
+    import jsbeautifier
+
+    opts = jsbeautifier.default_options()
+    opts.max_preserve_newlines = 2
+    opts.indent_size = 2
+    qmldir = ROOT / "src" / "main" / "resources"
+    qml_tests = ROOT / "tests" / "qml_tests"
+    dirs = (qmldir, qml_tests)
+
+    for d in dirs:
+        for f in d.rglob("*.qml"):
+            f.write_text(jsbeautifier.beautify_file(f, opts))
+
 
 def cmd_make_qrc():
     input = Path("src/main/resources/qml.qrc")
@@ -169,7 +182,6 @@ def cmd_run_dist():
 def cmd_setup_qml():
     if QMLTESTS.exists():
         shutil.rmtree(QMLTESTS)
-    runCommand("python tests/qml_tests/create-js-data.py")
     com = f"qmake -o {QMLTESTS}/Makefile tests/qml_tests/qml_tests.pro -spec {sys.platform}-g++ CONFIG+=debug CONFIG+=qml_debug"
     runCommand(com)
 
@@ -203,8 +215,6 @@ def build_commands():
         if callable(j) and i.startswith("cmd_"):
             res[i[4:]] = j
     return res
-
-
 
 
 if __name__ == "__main__":

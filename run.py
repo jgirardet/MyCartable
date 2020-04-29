@@ -12,6 +12,7 @@ from pathlib import Path
 PACKAGE = "MyCartable"
 QT_VERSION = "5.14.1"
 ROOT = Path(__file__).parent.resolve()
+SRC = ROOT / "src"
 VIRTUAL_ENV = ROOT / ".venv"
 QT_PATH = ROOT / QT_VERSION
 DIST = ROOT / "dist" / PACKAGE
@@ -45,8 +46,6 @@ def runCommand(command, cwd=str(ROOT), sleep_time=0.2, with_env=True):
     global currentProccess
     print(f"##### running: {command} #####")
     env = get_env() if with_env else None
-    print(env)
-    print(command)
     shell = True if sys.platform == "linux" else False
     process = subprocess.Popen(
         command,
@@ -61,7 +60,7 @@ def runCommand(command, cwd=str(ROOT), sleep_time=0.2, with_env=True):
     currentProccess = process
     while process.poll() is None:
         for line in process.stdout:
-            print(line)
+            print(line, end= "")
         time.sleep(sleep_time)
     if process.returncode == 0:
         print(
@@ -97,16 +96,20 @@ def cmd_build_binary_as_dir():
 
 def cmd_clean():
     to_remove = [
-        ROOT / ".pytest_cache",
+        *ROOT.rglob(".pytest_cache"),
+        *ROOT.rglob("__pycache__"),
         QT_PATH,
         ROOT / "htmlcov",
-        VIRTUAL_ENV,
+        # VIRTUAL_ENV,
         BUILD,
         ROOT / "dist",
         DIST,
         ROOT / "aqtinstall.log",
+        ".coverage"
     ]
     for p in to_remove:
+        if isinstance(p, str):
+            p = ROOT / p
         if p.is_dir():
             shutil.rmtree(p)
         elif p.is_file():
@@ -139,12 +142,14 @@ def cmd_create_env():
 
 
 def cmd_install():
-    # cmd_create_env()
     runCommand(f"python -m pip install -U pip")
     runCommand(f"pip install -r requirements.txt")
-    if sys.platform == "linux" and not os.environ.get("CI", False):
-        cmd_install_qt()
 
+
+def cmd_install_dev():
+    cmd_create_env()
+    cmd_install()
+    cmd_install_qt()
 
 def cmd_install_qt():
     if QT_PATH.exists():
@@ -174,14 +179,14 @@ def cmd_js_style(*args):
 
 
 def cmd_make_qrc():
-    input = Path("src/main/resources/qml.qrc")
-    output = Path("src/main/python/qrc.py")
+    input = SRC / "qml.qrc"
+    output = SRC / "python" / "qrc.py"
     runCommand(f"pyside2-rcc {input} -o {output}")
 
 
 def cmd_run():
     cmd_make_qrc()
-    runCommand(f"python src/main/python/main.py")
+    runCommand(f"python src/python/main.py")
 
 
 def cmd_run_dist():
@@ -203,7 +208,8 @@ def cmd_test_binary_as_dir():
 
 
 def cmd_test_python():
-    runCommand("python -m pytest -s tests", sleep_time=0.001)
+    test_path = ROOT /"tests" /"python"
+    runCommand(f"python -m pytest -s {test_path}", sleep_time=0.001)
 
 
 def cmd_test_qml(*args):

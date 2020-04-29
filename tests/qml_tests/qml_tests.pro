@@ -6,4 +6,4 @@ SOURCES += \
     main.cpp
 
 RESOURCES += \
-    ../../src/main/resources/qml.qrc
+    ../../src/qml.qrc

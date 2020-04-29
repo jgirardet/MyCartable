@@ -3,10 +3,10 @@
 block_cipher = None
 
 
-a = Analysis(['../src/main/python/main.py'],
-             pathex=['src/main/python'],
+a = Analysis(['../src/python/main.py'],
+             pathex=['src/python'],
              binaries=[],
-             datas=[('../data', 'mimesis/data'),('../binary', 'binary'),('../src/main/fonts','fonts'),('../src/main/icons','icons')],
+             datas=[('../src/data', 'data'),('../src/data/mimesis', 'mimesis')],
              hiddenimports=["pony.orm.dbproviders","pony.orm.dbproviders.sqlite"],
              hookspath=[],
              runtime_hooks=[],

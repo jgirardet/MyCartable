@@ -12,9 +12,8 @@ import platform
 
 root = Path(__file__).parents[1].resolve()
 sys.path = [str(root)] + sys.path
-binary = root / "binary"
+data = root / "src" / "data"
 dist = root / "dist" / "MyCartable"
-main_path = root / "src" / "main"
 filename = "MyCartable" if sys.platform == "linux" else "MyCartable.exe"
 exe = dist / filename
 
@@ -25,7 +24,7 @@ exe = dist / filename
 #     for x, y in zip(dist_binary.glob("**/*"), binary.glob("**/*")):
 #         assert x.relative_to(dist) == y.relative_to(root)
 
-DATA_DIR_INCLUDED = [binary, main_path / "fonts", main_path / "icons"]
+DATA_DIR_INCLUDED = [data]
 
 
 def test_data_one_dir_included(path: Path):

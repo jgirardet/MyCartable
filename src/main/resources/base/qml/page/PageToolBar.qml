@@ -10,7 +10,7 @@ ToolBar {
     //    radius: 10
     color: ddb.colorPageToolBar
   }
-  visible: dbb.currentPage
+  visible: ddb.currentPage
 
   RowLayout {
     anchors.fill: parent

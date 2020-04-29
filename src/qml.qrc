@@ -1,0 +1,80 @@
+<RCC>
+
+    <qresource prefix="/qml">
+        <file alias="main.qml">qml/main.qml</file>
+    </qresource>
+    <qresource prefix="/qml/matiere">
+        <file alias="MatiereComboBox.qml">qml/matiere/MatiereComboBox.qml</file>
+        <file alias="MatiereRectangle.qml">qml/matiere/MatiereRectangle.qml</file>
+        <file alias="ActiviteRectangle.qml">qml/matiere/ActiviteRectangle.qml</file>
+    </qresource>
+
+    <qresource prefix="/qml/page">
+        <file alias="PageToolBar.qml">qml/page/PageToolBar.qml</file>
+        <file alias="PageToolBarToolButton.qml">qml/page/PageToolBarToolButton.qml</file>
+        <file alias="DialogOperation.qml">qml/page/DialogOperation.qml</file>
+        <file alias="PageListView.qml">qml/page/PageListView.qml</file>
+        <file alias="BasePageListView.qml">qml/page/BasePageListView.qml</file>
+        <file alias="PageRectangle.qml">qml/page/PageRectangle.qml</file>
+        <file alias="AnnotableImage.qml">qml/page/AnnotableImage.qml</file>
+        <file alias="AnnotationText.qml">qml/page/AnnotationText.qml</file>
+        <file alias="StabyloRectangle.qml">qml/page/StabyloRectangle.qml</file>
+        <file alias="TextSection.qml">qml/page/TextSection.qml</file>
+        <file alias="PageTitre.qml">qml/page/PageTitre.qml</file>
+        <file alias="Tableau.qml">qml/page/Tableau.qml</file>
+
+    </qresource>
+    <qresource prefix="/qml/menu">
+        <file alias="BaseMenu.qml">qml/menu/BaseMenu.qml</file>
+        <file alias="MenuFlottantText.qml">qml/menu/MenuFlottantText.qml</file>
+        <file alias="MenuFlottantStabylo.qml">qml/menu/MenuFlottantStabylo.qml</file>
+        <file alias="MenuFlottantTableau.qml">qml/menu/MenuFlottantTableau.qml</file>
+<!--        <file alias="MenuFlottantAnnotationText.qml">qml/menu/MenuFlottantAnnotationText.qml</file>-->
+        <file alias="ColorButton.qml">qml/menu/ColorButton.qml</file>
+
+    </qresource>
+    <qresource prefix="/qml/page/operations">
+        <file alias="BaseOperation.qml">qml/page/operations/BaseOperation.qml</file>
+        <file alias="TextInputDelegate.qml">qml/page/operations/TextInputDelegate.qml</file>
+        <file alias="AdditionDelegate.qml">qml/page/operations/AdditionDelegate.qml</file>
+        <file alias="Addition.qml">qml/page/operations/Addition.qml</file>
+        <file alias="SoustractionDelegate.qml">qml/page/operations/SoustractionDelegate.qml</file>
+        <file alias="Soustraction.qml">qml/page/operations/Soustraction.qml</file>
+        <file alias="MultiplicationDelegate.qml">qml/page/operations/MultiplicationDelegate.qml</file>
+        <file alias="Multiplication.qml">qml/page/operations/Multiplication.qml</file>
+        <file alias="DivisionDelegate.qml">qml/page/operations/DivisionDelegate.qml</file>
+        <file alias="Division.qml">qml/page/operations/Division.qml</file>
+
+    </qresource>
+
+    <qresource prefix="/qml/recents">
+        <file alias="RecentsListView.qml">qml/recents/RecentsListView.qml</file>
+        <file alias="RecentsRectangle.qml">qml/recents/RecentsRectangle.qml</file>
+    </qresource>
+    <qresource prefix="/qml/divers">
+        <file alias="BorderRectangle.qml">qml/divers/BorderRectangle.qml</file>
+        <file alias="MainMenuBar.qml">qml/divers/MainMenuBar.qml</file>
+        <file alias="Toast.qml">qml/divers/Toast.qml</file>
+        <file alias="ValueButton.qml">qml/divers/ValueButton.qml</file>
+    </qresource>
+    <qresource prefix="/icons">
+        <file alias="newImageSection">data/icons/base/divers/png/002-photo-1.png</file>
+        <file alias="newTextSection">data/icons/base/divers/png/003-edit.png</file>
+        <file alias="removePage">data/icons/base/divers/png/006-trash-bin.png</file>
+        <file alias="addAddition">data/icons/base/pack/png/plus.png</file>
+        <file alias="addSoustraction">data/icons/base/pack/png/minus.png</file>
+        <file alias="addMultiplication">data/icons/base/pack/png/multiply.png</file>
+        <file alias="addDivision">data/icons/base/pack/png/division.png</file>
+    </qresource>
+    <qresource prefix="/fonts">
+        <file alias="Verdana.ttf">data/fonts/Verdana.ttf</file>
+        <file alias="Waker.ttf">data/fonts/Waker.ttf</file>
+    </qresource>
+    <qresource prefix="/js">
+        <file alias="lodash.js">data/js/lodash.js</file>
+    </qresource>
+    <qresource prefix="/tests">
+        <file alias="tst_AnnotableImage.png">../tests/resources/tst_AnnotableImage.png</file>
+<!--        <file alias="core.js">js/core.js</file>-->
+    </qresource>
+</RCC>

@@ -13,6 +13,7 @@ ListView {
     height: 40
     radius: 10
     text: modelData.titre
+    highlighted: hovered
     background: Rectangle {
       id: back
       color: modelData.matiereBgColor ? modelData.matiereBgColor : "white"
@@ -22,4 +23,5 @@ ListView {
     width: ListView.view.width
     onClicked: ListView.view.itemClicked(modelData.id, modelData.matiere)
   }
+  // TODO: tester tout ça
 }

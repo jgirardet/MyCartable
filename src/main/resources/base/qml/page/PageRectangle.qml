@@ -8,12 +8,16 @@ Rectangle {
   ColumnLayout {
     anchors.fill: parent
     spacing: 10
+
+    //    Rectangle {
+    //      radius: 10
     PageToolBar {
-      id: pageToolBar
       Layout.fillWidth: true
       height: ddb.getLayoutSizes("preferredHeaderHeight")
+      id: pageToolBar
+      //      anchors.fill: parent
     }
-
+    //    }
     Rectangle {
       Layout.preferredWidth: parent.width - 20
       Layout.preferredHeight: 50

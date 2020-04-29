@@ -56,9 +56,10 @@ Rectangle {
         id: but
         width: ListView.view.width
         height: lv.commonHeight
+        highlighted: hovered
         contentItem: Label {
           text: modelData.titre
-          color: ddb.currentMatiereItem.bgColor
+          color: highlighted ? ddb.currentMatiereItem.bgColor : ddb.currentMatiereItem.fgColor
           verticalAlignment: Text.AlignVCenter
         }
         onClicked: {
@@ -70,7 +71,7 @@ Rectangle {
           radius: 10
           //        color:  ddb.currentMatiereItem.bgColor
           color: "#cdd0d3"
-          border.color: ddb.currentMatiereItem.bgColor
+          border.color: highlighted ? ddb.currentMatiereItem.fgColor : ddb.currentMatiereItem.bgColor
         }
       }
     }

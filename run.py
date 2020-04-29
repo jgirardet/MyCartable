@@ -1,5 +1,4 @@
-#!/usr/bin/python3
-
+import argparse
 import shutil
 import subprocess
 
@@ -7,7 +6,6 @@ import subprocess
 import os
 import sys
 import time
-from itertools import chain
 from pathlib import Path
 
 
@@ -78,8 +76,16 @@ def runCommand(command, cwd=str(ROOT), sleep_time=0.2, with_env=True):
         return sys.exit(process.returncode)
 
 
-def cmd_black():
-    runCommand("python -m black src tests")
+def cmd_black(*args):
+    import black
+
+    if args:
+        editedfile = Path(args[0])
+        black.format_file_in_place(
+            editedfile, fast=True, mode=black.FileMode(), write_back=black.WriteBack(1)
+        )
+    else:
+        runCommand("python -m black src tests")
 
 
 def cmd_build_binary_as_dir():
@@ -146,19 +152,24 @@ def cmd_install_qt():
     runCommand(f"aqt install {QT_VERSION} linux desktop")
 
 
-def cmd_js_style():
+def cmd_js_style(*args):
     import jsbeautifier
 
     opts = jsbeautifier.default_options()
     opts.max_preserve_newlines = 2
     opts.indent_size = 2
-    qmldir = ROOT / "src" / "main" / "resources"
-    qml_tests = ROOT / "tests" / "qml_tests"
-    dirs = (qmldir, qml_tests)
+    if args:
+        editedfile = Path(args[0])
+        editedfile.write_text(jsbeautifier.beautify_file(editedfile, opts))
 
-    for d in dirs:
-        for f in d.rglob("*.qml"):
-            f.write_text(jsbeautifier.beautify_file(f, opts))
+    else:
+        qmldir = ROOT / "src" / "main" / "resources"
+        qml_tests = ROOT / "tests" / "qml_tests"
+        dirs = (qmldir, qml_tests)
+
+        for d in dirs:
+            for f in d.rglob("*.qml"):
+                f.write_text(jsbeautifier.beautify_file(f, opts))
 
 
 def cmd_make_qrc():
@@ -194,19 +205,27 @@ def cmd_test_python():
     runCommand("python -m pytest -s tests", sleep_time=0.001)
 
 
-def cmd_test_qml():
+def cmd_test_qml(*args):
     qml_tests = "qml_tests"
     if sys.platform == "linux":
         make = "make"
     elif sys.platform == "win32":
         make = "mingw32-make.exe"
     runCommand(f"{make} -C build/qml_tests")
-    runCommand(str(QMLTESTS / qml_tests))
+    command_line = str(QMLTESTS / qml_tests)
+
+    if args:
+        testCase, testname = args
+        testCase = testCase.lstrip("tst_")
+        if not testname.startswith("test_"):
+            testname = "test_" + testname
+        command_line = f"{command_line} {testCase}::{testname}"
+    runCommand(command_line)
 
 
-def cmd_test_qml_reset():
+def cmd_test_qml_reset(*args):
     cmd_setup_qml()
-    cmd_test_qml()
+    cmd_test_qml(*args)
 
 
 def build_commands():
@@ -218,14 +237,29 @@ def build_commands():
 
 
 if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("command")
+    parser.add_argument("args", nargs="*")
+    # parser.add_argument(
+    #     "--sum",
+    #     dest="accumulate",
+    #     action="store_const",
+    #     const=sum,
+    #     default=max,
+    #     help="sum the integers (default: find the max)",
+    # )
+
+    args = parser.parse_args()
+    com = args.command
+    arguments = args.args
+    print(arguments)
     try:
-        com = ""
         commands = build_commands()
-        com = sys.argv[-1]
         if com not in commands:
             print(f"commandes possible : {list(commands.keys())}")
             sys.exit(1)
-        commands[com]()
+        commands[com](*arguments)
     except KeyboardInterrupt:
         currentProccess.terminate()
         sys.exit(0)

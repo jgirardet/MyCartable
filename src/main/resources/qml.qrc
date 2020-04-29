@@ -11,6 +11,7 @@
 
     <qresource prefix="/qml/page">
         <file alias="PageToolBar.qml">base/qml/page/PageToolBar.qml</file>
+        <file alias="PageToolBarToolButton.qml">base/qml/page/PageToolBarToolButton.qml</file>
         <file alias="DialogOperation.qml">base/qml/page/DialogOperation.qml</file>
         <file alias="PageListView.qml">base/qml/page/PageListView.qml</file>
         <file alias="BasePageListView.qml">base/qml/page/BasePageListView.qml</file>
@@ -62,7 +63,8 @@
         <file alias="removePage">../icons/base/divers/png/006-trash-bin.png</file>
         <file alias="addAddition">../icons/base/pack/png/plus.png</file>
         <file alias="addSoustraction">../icons/base/pack/png/minus.png</file>
-        <file alias="addMultiplication">../icons/base/pack/png/multiply.png</file>
+        <file alias="addMultiplication">../icons/base/divers/png/007-multiply.png</file>
+<!--        <file alias="addMultiplication">../icons/base/pack/png/multiply.png</file>-->
         <file alias="addDivision">../icons/base/pack/png/division.png</file>
     </qresource>
     <qresource prefix="/fonts">

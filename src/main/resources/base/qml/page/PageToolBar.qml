@@ -7,100 +7,82 @@ import QtQuick.Dialogs 1.3 as Dialogs13
 ToolBar {
   id: root
   background: Rectangle {
-    anchors.fill: parent
-    radius: 10
-    //    color: "transparent"
-
+    //    radius: 10
+    color: ddb.colorPageToolBar
   }
+  visible: dbb.currentPage
+
   RowLayout {
     anchors.fill: parent
     spacing: 0
     id: rowLayout
 
-    ToolButton {
-      id: newImageSection
-      icon.source: "qrc:///icons/newImageSection"
-      onClicked: newImageSectionFileDialog.open()
-      enabled: ddb.currentPage
-      ToolTip.visible: hovered
-      ToolTip.text: "Ajouter une image"
-      icon.color: "transparent"
-    }
+    ToolBar {
+      RowLayout {
+        spacing: 0
+        PageToolBarToolButton {
+          id: newImageSection
+          icon.source: "qrc:///icons/newImageSection"
+          onClicked: newImageSectionFileDialog.open()
+          ToolTip.text: "Ajouter une image"
+        }
 
-    ToolButton {
-      id: newTextSection
-      icon.source: "qrc:///icons/newTextSection"
-      onClicked: ddb.addSection(ddb.currentPage, {
-        "classtype": "TextSection"
-      })
-      enabled: ddb.currentPage
-      ToolTip.visible: hovered
-      ToolTip.text: "Ajouter du texte"
-      icon.color: "transparent"
-    }
+        PageToolBarToolButton {
+          id: newTextSection
+          icon.source: "qrc:///icons/newTextSection"
+          onClicked: ddb.addSection(ddb.currentPage, {
+            "classtype": "TextSection"
+          })
+          ToolTip.text: "Ajouter du texte"
+        }
 
-    ToolButton {
-      id: removePage
-      icon.source: "qrc:///icons/removePage"
-      onClicked: dialogRemovePage.open()
-      enabled: ddb.currentPage
-      ToolTip.visible: hovered
-      ToolTip.text: "Supprimer la page"
-      icon.color: "transparent"
+        PageToolBarToolButton {
+          id: removePage
+          icon.source: "qrc:///icons/removePage"
+          onClicked: dialogRemovePage.open()
+          ToolTip.text: "Supprimer la page"
+        }
+      }
     }
 
     ToolBar {
-      //      visible: ddb.currentMatiere == 1
+      //  TODO:    visible: ddb.currentMatiere == 1
       RowLayout {
-        ToolButton {
+        spacing: 0
+        PageToolBarToolButton {
           id: addAddition
           icon.source: "qrc:///icons/addAddition"
-          icon.color: "transparent"
           onClicked: dialogAddAddition.open()
-          enabled: ddb.currentPage
-          ToolTip.visible: hovered
           ToolTip.text: "Ajouter une addition"
         }
-        ToolButton {
+        PageToolBarToolButton {
           id: addSoustraction
-          icon.color: "transparent"
           icon.source: "qrc:///icons/addSoustraction"
           onClicked: dialogAddSoustraction.open()
-          enabled: ddb.currentPage
-          ToolTip.visible: hovered
           ToolTip.text: "Ajouter une soustraction"
         }
-        ToolButton {
+        PageToolBarToolButton {
           id: addMultiplication
-          icon.color: "transparent"
           icon.source: "qrc:///icons/addMultiplication"
           onClicked: dialogAddMultiplication.open()
-          enabled: ddb.currentPage
-          ToolTip.visible: hovered
           ToolTip.text: "Ajouter une multiplication"
         }
-        ToolButton {
+        PageToolBarToolButton {
           id: addDivision
-          icon.color: "transparent"
           icon.source: "qrc:///icons/addDivision"
           onClicked: dialogAddDivision.open()
-          enabled: ddb.currentPage
-          ToolTip.visible: hovered
           ToolTip.text: "Ajouter une division"
         }
       }
     }
 
-    Rectangle {
+    Item {
       Layout.fillWidth: true
       Layout.fillHeight: true
-      //      height:
-      color: "transparent"
-      radius: 10
     }
 
-    //  }
   }
+
   Dialogs13.FileDialog {
     id: newImageSectionFileDialog
     title: "Choisir une image à importer"
@@ -114,6 +96,7 @@ ToolBar {
 
     }
   }
+
   Dialog {
     id: dialogRemovePage
     title: "Supprimer la page ?"

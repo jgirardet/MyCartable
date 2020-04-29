@@ -120,7 +120,8 @@ def cmd_cov():
     pytest_cache = ROOT / ".pytest_cache"
     if pytest_cache.exists():
         shutil.rmtree(pytest_cache)
-    runCommand("coverage run --rcfile=.coveragerc -m pytest tests")
+    test_path = ROOT / "tests" / "python"
+    runCommand(f"coverage run --rcfile=.coveragerc -m pytest {test_path}")
     runCommand("coverage report")
 
 

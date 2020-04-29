@@ -1,8 +1,7 @@
 [run]
   branch = True
 source =
-	package
-	main.py
+	src/python
 omit =
   */__init__.py,
   */factory.py

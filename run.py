@@ -89,6 +89,7 @@ def cmd_black(*args):
 
 
 def cmd_build_binary_as_dir():
+    cmd_make_qrc()
     pyinstaller = "pyinstaller"
     runCommand("pyinstaller  scripts/dir.spec --clean -y")
     cmd_test_binary_as_dir()

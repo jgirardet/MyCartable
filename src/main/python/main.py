@@ -90,7 +90,7 @@ def create_singleton_instance():
 
 def setup_qml(ddb, ui_manager):
     # import ressources
-    # import qrc
+    import qrc
 
     # # set env : why ???
     # os.environ["QT_STYLE_OVERRIDE"] = ""
@@ -139,15 +139,14 @@ def main(filename=None):
     register_new_qml_type(databaseObject)
 
     # setup le qml et retourne l'engine
-    import qrc
+    # import qrc
 
     engine = setup_qml(databaseObject, ui_manager)
     a = QFontDatabase.addApplicationFont(
         str(Path(__file__).parents[1] / "fonts" / "Verdana.ttf")
     )
-    b = QFontDatabase.addApplicationFont(":/fonts/Waker.ttf")
-    print("loading fonts  :  ", a, b)
-    font = QFont("Waker", 12, QFont.Normal)
+    # b = QFontDatabase.addApplicationFont(":/fonts/Waker.ttf")
+    # font = QFont("Waker", 12, QFont.Normal)
     font = QFont("Verdana", 12, QFont.Normal)
     # font = QFont('Verdana', 12, QFont.Normal)
     app.setFont(font)

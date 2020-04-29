@@ -3,6 +3,8 @@ import QtQuick.Controls 2.14
 import DocumentEditor 1.0
 import "qrc:/qml/menu"
 
+// TODO: interlignes doubles
+
 TextArea {
   id: area
   property QtObject base

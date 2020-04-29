@@ -133,6 +133,7 @@ FocusScope {
     fillMode: Image.PreserveAspectCrop
     source: root.imagePath
     sourceSize.width: base ? base.width : 0
+    // TODO: faire des trais.
 
   }
   MouseArea {

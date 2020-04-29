@@ -23,7 +23,7 @@ def pytest_sessionstart():
 
     # modify python path
     root = Path(__file__).parents[2]
-    print("EEEEEEEEEEEEEEE",root)
+    print("EEEEEEEEEEEEEEE", root)
     python_dir = root / "src" / "python"
     sys.path.append(str(python_dir))
     sys.path.append(str(Path(__file__).parent))
@@ -31,6 +31,7 @@ def pytest_sessionstart():
     # Init database
     import package.database
     from package import ROOT
+
     package.database.db = package.database.init_database()
 
     # run qrc update
@@ -171,6 +172,7 @@ def check_simple_property(doc, qtbot):
 @pytest.fixture()
 def png_annot(resources):
     return resources / "tst_AnnotableImage.png"
+
 
 @pytest.fixture()
 def resources():

@@ -81,6 +81,7 @@ class MatiereMixin:
         with db_session:
             mat = self.db.Matiere[self.currentMatiere]
             return mat.to_dict()
+
     #
     # @CurrentMatiereColor.setter
     # def CurrentMatiereColor_set(self, value: int):

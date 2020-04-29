@@ -18,5 +18,3 @@ if sys.platform == "linux":
     BINARY = DATA / "binary" / "linux"
 elif sys.platform == "win32":
     BINARY = DATA / "binary" / "windows"
-
-

@@ -10,7 +10,6 @@ from package import DATA, BINARY
 LOG = logging.getLogger(__name__)
 
 
-
 def get_binary_path(name):
     name = name + ".exe" if sys.platform == "win32" else name
     exec_path = BINARY / name

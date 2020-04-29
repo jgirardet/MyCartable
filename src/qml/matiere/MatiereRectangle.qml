@@ -25,33 +25,48 @@ Rectangle {
         objectName: "combo"
         model: ddb.matieresList
         currentIndex: ddb.getMatiereIndexFromId(ddb.currentMatiere)
-        onActivated: ddb.setCurrentMatiereFromIndexSignal(index)
-        Component.onCompleted: activated.connect(ddb.setCurrentMatiereFromIndexSignal)
+        onActivated: {
+          ddb.setCurrentMatiereFromIndexSignal(index)
+          print(highlightedIndex)
+        }
+        Component.onCompleted: {
+          activated.connect(ddb.setCurrentMatiereFromIndexSignal)
+        }
+
+        popup.background:
+          Rectangle {
+            color: "transparent"
+          }
 
         contentItem: Text {
           text: combo.displayText
           color: combo.currentValue ? combo.model[combo.currentIndex].fgColor : "white"
+          font.pointSize: 14
           verticalAlignment: Text.AlignVCenter
           horizontalAlignment: Text.AlignHCenter
         }
 
         background: Rectangle {
           color: combo.currentValue ? combo.model[combo.currentIndex].bgColor : "white"
-          radius: 10
+          radius: 15
         }
-
+        //        highlightedIndex:
         delegate: Button {
-          highlighted: combo.highlightedIndex === index
+          highlighted: combo ? combo.highlightedIndex === index : false
           width: combo.width
           contentItem: Text {
             id: delegateContent
             text: modelData.nom
             color: modelData.fgColor
+            font.bold: highlighted ? true : false
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
           }
           background: Rectangle {
             color: modelData.bgColor
+            radius: 10
+            border.width: highlighted ? 3 : 1
+            border.color: Qt.darker(modelData.bgColor, 3)
           }
         }
 

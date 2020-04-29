@@ -59,7 +59,7 @@ Rectangle {
         highlighted: hovered
         contentItem: Label {
           text: modelData.titre
-          color: highlighted ? ddb.currentMatiereItem.bgColor : ddb.currentMatiereItem.fgColor
+          color: ddb.currentMatiereItem.fgColor
           verticalAlignment: Text.AlignVCenter
         }
         onClicked: {
@@ -71,7 +71,8 @@ Rectangle {
           radius: 10
           //        color:  ddb.currentMatiereItem.bgColor
           color: "#cdd0d3"
-          border.color: highlighted ? ddb.currentMatiereItem.fgColor : ddb.currentMatiereItem.bgColor
+          border.width: highlighted ? 3 : 1
+          border.color: modelData ? Qt.darker(modelData.bgColor, 3) : "white"
         }
       }
     }

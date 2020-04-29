@@ -11,20 +11,11 @@ from package.convert import (
 import sys
 
 
-
-
-
 def test_get_binary_path():
     if sys.platform == "linux":
-        assert (
-            get_binary_path("bla")
-            == BINARY / "bla"
-        )
+        assert get_binary_path("bla") == BINARY / "bla"
     elif sys.platform == "win32":
-        assert (
-            get_binary_path("bla")
-            == BINARY /  "bla.exe"
-        )
+        assert get_binary_path("bla") == BINARY / "bla.exe"
 
 
 def test_command_line_pdftopng():

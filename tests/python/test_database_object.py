@@ -172,7 +172,6 @@ class TestMatiereMixin:
         assert dao.getMatiereIndexFromId(3) == 2
         assert dao.getMatiereIndexFromId(99999) is None
 
-
     def test_currentMatiereItem(self, dao):
         m = f_matiere(td=True)
         dao.currentMatiere = m["id"]

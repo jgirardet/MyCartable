@@ -55,7 +55,9 @@ def f_groupeMatiere(nom=None):
             return db.GroupeMatiere(nom=noms)
 
 
-def f_matiere(nom=None, annee=None, groupe=None, _bgColor=None, _fgColor=None, td=False):
+def f_matiere(
+    nom=None, annee=None, groupe=None, _bgColor=None, _fgColor=None, td=False
+):
     nom = nom or random.choice(["Français", "Math", "Anglais", "Histoire"])
     color_codes = [
         4294967295,
@@ -74,7 +76,7 @@ def f_matiere(nom=None, annee=None, groupe=None, _bgColor=None, _fgColor=None, t
     # white, red, blue, green, orange, pink
     with db_session:
         annee = f_annee(annee)
-        item =  db.Matiere(
+        item = db.Matiere(
             annee=annee, nom=nom, groupe=groupe, _fgColor=_fgColor, _bgColor=_bgColor
         )
 

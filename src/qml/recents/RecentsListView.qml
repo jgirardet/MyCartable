@@ -18,6 +18,7 @@ ListView {
     }
     property int textInitialPosition
     property int trajet: moving_text.contentWidth - recentButton.width + 10
+    property int dureeMove: trajet > 0 ? trajet * 20 : 0
     contentItem: Text {
       id: moving_text
       text: modelData.titre
@@ -29,7 +30,7 @@ ListView {
         from: textInitialPosition
         to: -trajet
         loops: 1 // Animation.Infinite
-        duration: 3000
+        duration: dureeMove
         running: false
         onFinished: {
           //          restart()
@@ -41,7 +42,7 @@ ListView {
         from: moving_text.x
         to: textInitialPosition
         loops: 1 // Animation.Infinite
-        duration: 3000
+        duration: dureeMove
         running: false
         onFinished: {
           pauseTimer.restart()

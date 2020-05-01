@@ -34,7 +34,3 @@ def test_init_bind_file_and_parent_dir_does_not_exists(tmp_path):
     file = tmp_path / "some" / "sub" / "sub" / "dir" / "some_file"
     init_bind(ddb, filename=file, create_db=True)
 
-
-def test_init_database(tmpfilename):
-    d = init_database(filename=tmpfilename, create_db=True)
-    assert "Page" in d.entities

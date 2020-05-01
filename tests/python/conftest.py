@@ -12,7 +12,7 @@ from pony.orm import db_session, delete
 import subprocess
 
 generic_mimesis = Generic("fr")
-
+# import package.database
 
 @pytest.fixture(scope="function")
 def gen(request):
@@ -28,11 +28,15 @@ def pytest_sessionstart():
     sys.path.append(str(Path(__file__).parent))
 
     # Init database
-    import package.database
+    # from main import main_init_database
     from package import ROOT
-
-    package.database.db = package.database.init_database()
-
+    import package.database
+    # import package
+    # from package.database.base_db import init_database
+    # package.database.db = package.database.init_database()
+    package.database.init_database()
+    # package.database.db = init_database()
+    # print("dans conftest", package.database.db.entities)
     # run qrc update
     orig = root / "src" / "qml.qrc"
     dest = python_dir / "qrc.py"
@@ -49,8 +53,11 @@ def pytest_sessionstart():
 @pytest.fixture()
 def ddbn():
     """database no reset"""
+    # import package.database
+    # package.database.db = package.database.init_database()
+    # return package.database.db
     from package.database import db
-
+    print("ddbne",db.entities)
     return db
 
 

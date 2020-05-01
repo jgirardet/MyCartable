@@ -8,7 +8,6 @@ from PySide2.QtCore import (
     Property,
     QByteArray,
 )
-from descriptors import cachedproperty
 from package.database import db
 
 from pony.orm import db_session, make_proxy, ObjectNotFound

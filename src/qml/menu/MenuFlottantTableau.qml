@@ -50,6 +50,48 @@ BaseMenu {
       color: "#21be2b"
     }
   }
+  Text {
+    Layout.alignment: Qt.AlignHCenter
+    text: "couleur du texte"
+  }
+
+  MenuItem {
+    RowLayout {
+      anchors.fill: parent
+      spacing: 0
+      ColorButton {
+        type: "color"
+        color: "red"
+        shortcut: "Ctrl+r"
+        menu: root
+      }
+      ColorButton {
+        type: "color"
+        color: "blue"
+        shortcut: "Ctrl+b"
+        menu: root
+      }
+      ColorButton {
+        type: "color"
+        color: "green"
+        shortcut: "Ctrl+g"
+        menu: root
+      }
+      ColorButton {
+        type: "color"
+        color: "black"
+        shortcut: "Ctrl+n"
+        menu: root
+      }
+    }
+  }
+  MenuSeparator {
+    contentItem: Rectangle {
+      implicitWidth: 200
+      implicitHeight: 1
+      color: "#21be2b"
+    }
+  }
   MenuItem {
     RowLayout {
       anchors.fill: parent

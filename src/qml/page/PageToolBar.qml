@@ -37,6 +37,16 @@ ToolBar {
         }
 
         PageToolBarToolButton {
+          id: newTableauSection
+          icon.source: "qrc:///icons/newTableauSection"
+          onClicked: dialogNewTableau.open()
+          //          onClicked: ddb.addSection(ddb.currentPage, {
+          //            "classtype": "TextSection"
+          //          })
+          ToolTip.text: "Ajouter un tableau"
+        }
+
+        PageToolBarToolButton {
           id: removePage
           icon.source: "qrc:///icons/removePage"
           onClicked: dialogRemovePage.open()
@@ -95,6 +105,44 @@ ToolBar {
       })
 
     }
+  }
+
+  Dialog {
+    id: dialogNewTableau
+    title: "Ajouter un tableau"
+    contentItem: Column {
+      Text {
+        id: textColumn
+        text: "nombre de colonnes : " + colonneSlider.value
+      }
+      Slider {
+        id: colonneSlider
+        wheelEnabled: true
+        stepSize: 1
+        to: 20
+        value: 0
+
+      }
+      Text {
+        id: textLignes
+        text: "nombre de lignes: " + lignesSlider.value
+      }
+      Slider {
+        id: lignesSlider
+        wheelEnabled: true
+        stepSize: 1
+        to: 20
+        value: 0
+
+      }
+    }
+
+    standardButtons: Dialog.Ok | Dialog.Cancel
+    onAccepted: ddb.addSection(ddb.currentPage, {
+      'lignes': ~~lignesSlider.value,
+      'colonnes': ~~colonneSlider.value,
+      "classtype": "TableauSection"
+    })
   }
 
   Dialog {

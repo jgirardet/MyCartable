@@ -74,7 +74,7 @@ class SectionMixin:
         with db_session:
             section = self.db.Section.get(id=section_id)
             if section:
-                res = section.to_dict(with_collections=True)
+                res = section.to_dict()
                 if res["classtype"] == "ImageSection":
                     res["path"] = QUrl.fromLocalFile(str(FILES / res["path"]))
                     # LOG.debug("loading Section: %s", res)

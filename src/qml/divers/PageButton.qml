@@ -8,7 +8,7 @@ RoundButton {
   /* beautify preserve:start */
   property var model
   property var borderDefaultWidth: 1
-  property var borderActivatedWidth: 4
+  property var borderActivatedWidth: 3
   /* beautify preserve:end */
   radius: 10
   contentItem: MovingText {

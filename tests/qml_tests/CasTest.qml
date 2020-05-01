@@ -79,14 +79,22 @@ TestCase {
     }
   }
 
-  function menuClick(menu, x, y) {
+  function menuClick(menu, x, y, ref = parent) {
     var bx = x
     var by = y
     menu.x = 0
     menu.y = 0
-    mouseClick(testcase.parent, x, y)
+    mouseClick(ref, x, y)
     menu.x = bx
     menu.y = by
+  }
+
+  function menuGetItem(menu, index, positions) {
+    var itm = menu.contentItem.itemAtIndex(index)
+    for (var i of positions) {
+      itm = itm.children[i]
+    }
+    return itm
   }
 
 }

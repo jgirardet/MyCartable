@@ -233,6 +233,9 @@ def init_models(db: Database):
         path = Required(str)
         annotations = Set("Annotation")
 
+        def to_dict(self, **kwargs):
+            return super().to_dict(with_collections=True)
+
     class TextSection(Section):
         text = Optional(str, default="")
 

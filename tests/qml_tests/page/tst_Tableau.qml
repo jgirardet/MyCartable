@@ -367,29 +367,72 @@ Item {
       mouseRelease(un) // au cas où
     }
 
-    //    function test_menu_style_cellules() {
-    //        var rec = tested.getItem(1)
-    ////        var tx = tested.getItem(1).tinput
-    //
-    //        //click droit ur text
-    //        compare(uiManager.menuTarget, undefined)
-    //        mouseClick(tx, 1,1,Qt.RightButton)
-    //        compare(tx.focus, true)
-    //        compare(uiManager.menuTarget, tx) //target is tx
-    //        menuClick(uiManager.menuFlottantText, 1, 30)
-    //        compare(Qt.colorEqual(tx.color, "red"), true)
-    //
-    //        // sur rec
-    //        mouseClick(rec, 1,1,Qt.RightButton)
-    //        compare(uiManager.menuTarget, tx) //target is tx
-    //        menuClick(uiManager.menuFlottantText, 1, 30)
-    //        compare(Qt.colorEqual(tx.color, "red"), true)
-    //
-    //        //underline
-    //        mouseClick(tx, 1,1,Qt.RightButton)
-    //        menuClick(uiManager.menuFlottantText, 1, 60)
-    //        compare(Qt.colorEqual(tx.color, "red"), true)
-    //        compare(tx.font.underline, true)
-    //    }
+    function test_menu_style_cellules() {
+      var rec = tested.getItem(1)
+      var tx = tested.getItem(1).tinput
+
+      //click droit ur text
+      compare(uiManager.menuTarget, undefined)
+      mouseClick(tx, 1, 1, Qt.RightButton)
+      compare(tx.focus, true)
+      compare(uiManager.menuTarget, tx) //target is tx
+      menuClick(uiManager.menuFlottantText, 1, 30)
+      compare(Qt.colorEqual(tx.color, "red"), true)
+
+      // sur rec
+      mouseClick(rec, 1, 1, Qt.RightButton)
+      compare(uiManager.menuTarget, tx) //target is tx
+      menuClick(uiManager.menuFlottantText, 1, 30)
+      compare(Qt.colorEqual(tx.color, "red"), true)
+
+      //underline
+      mouseClick(tx, 1, 1, Qt.RightButton)
+      menuClick(uiManager.menuFlottantText, 1, 60)
+      compare(Qt.colorEqual(tx.color, "red"), true)
+      compare(tx.font.underline, true)
+    }
+
+    function test_style_from_selected() {
+      var un = tested.getItem(1)
+      var deux = tested.getItem(2)
+
+      function select_un_et_deux_and_show_menu() {
+        mousePress(un, 1, 1, Qt.LeftButton)
+        mouseMove(un, 1, 1)
+        mouseMove(deux, 1, 1)
+        mouseRelease(un, 1, 1)
+        mouseClick(un, 1, 1, Qt.RightButton)
+      }
+
+      // change bg color
+      select_un_et_deux_and_show_menu()
+      var red = menuGetItem(uiManager.menuFlottantTableau, 0, [0, 1, 0])
+      mouseClick(red)
+      // fail if not unselected when click
+      compare(un.color, red.color)
+      compare(deux.color, red.color)
+
+      // change font color
+      select_un_et_deux_and_show_menu()
+      var bluefont = menuGetItem(uiManager.menuFlottantTableau, 3, [0, 1])
+      mouseClick(bluefont)
+      // fail if not unselected when click
+      verify(Qt.colorEqual(bluefont.color, "blue"))
+      compare(un.tinput.color, bluefont.color)
+      compare(deux.tinput.color, bluefont.color)
+
+      // change font color and underline
+      select_un_et_deux_and_show_menu()
+      var greenUnderLine = menuGetItem(uiManager.menuFlottantTableau, 5, [0, 2])
+      mouseClick(greenUnderLine)
+      // fail if not unselected when click
+      verify(Qt.colorEqual(greenUnderLine.color, "green"))
+      verify(Qt.colorEqual(greenUnderLine.color, "green"))
+      compare(un.tinput.color, greenUnderLine.color)
+      compare(deux.tinput.color, greenUnderLine.color)
+      verify(un.tinput.font.underline)
+      verify(deux.tinput.font.underline)
+    }
+
   }
 }

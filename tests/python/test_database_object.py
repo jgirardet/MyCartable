@@ -296,6 +296,28 @@ class TestSectionMixin:
             "virgule": 0,
         }
 
+    def test_load_section_tableau(self, dao):
+        a = f_tableauSection(lignes=3, colonnes=3)
+        assert dao.loadSection(1) == {
+            'cells': [(1, 0, 0),
+                   (1, 0, 1),
+                   (1, 0, 2),
+                   (1, 1, 0),
+                   (1, 1, 1),
+                   (1, 1, 2),
+                   (1, 2, 0),
+                   (1, 2, 1),
+                   (1, 2, 2)],
+         'classtype': 'TableauSection',
+            "created": a.created.isoformat(),
+            'colonnes': 3,
+         'id': 1,
+         'lignes': 3,
+            "modified": a.modified.isoformat(),
+            "page": 1,
+            "position": 1,
+        }
+
     @pytest.mark.parametrize(
         "page, content, res, signal_emitted",
         [
@@ -312,6 +334,7 @@ class TestSectionMixin:
             (1, {"classtype": "MultiplicationSection", "string": "4*3"}, 1, True),
             (1, {"classtype": "SoustractionSection", "string": "4-3"}, 1, True),
             (1, {"classtype": "DivisionSection", "string": "4/3"}, 1, True),
+            (1, {"classtype": "TableauSection", "lignes": 3, "colonnes":2}, 1, True),
         ],
     )
     def test_addSection(self, dao, ddbn, qtbot, page, content, res, signal_emitted):

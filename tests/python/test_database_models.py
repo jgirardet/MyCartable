@@ -392,6 +392,8 @@ class TestImageSection:
     def test_to_dict(self):
         a = f_imageSection(path="mon/path", td=True)
         assert a["path"] == "mon/path"
+        assert a["annotations"] == []
+
 
 
 class TestTextSection:

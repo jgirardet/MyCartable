@@ -26,8 +26,6 @@ TableView {
     id: bigMouse
     x: root.x
     y: root.y
-    //    x: root.contentItem.x
-    //    y: root.contentItem.y
     width: contentItem.childrenRect.width
     height: contentItem.childrenRect.height
     preventStealing: true
@@ -206,6 +204,7 @@ TableView {
       }
 
       function setStyleFromMenu(data) {
+        // pour tinput
         if (data['type'] == "color") {
           color = data['value']
         } else if (data['type'] == "underline") {
@@ -220,12 +219,22 @@ TableView {
   }
 
   function setStyleFromMenu(data) {
+    // pour rectangle
     if (data["type"] == "cell_color") {
       for (var i of selectedCells) {
         i.setColor(data["value"])
       }
-      //          model.setBgColor()
+    } else if (data['type'] == "color") {
+      for (var i of selectedCells) {
+        i.tinput.color = data["value"]
+      }
+    } else if (data['type'] == "underline") {
+      for (var i of selectedCells) {
+        i.tinput.color = data["value"]
+        i.tinput.font.underline = true
+      }
     }
+    unSelectAll()
   }
 
   function getRowAndCol(idx) {

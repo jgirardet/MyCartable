@@ -33,15 +33,18 @@
     - coverage python
     - taille police titre : change la taille si dépasse
     - arrondir les opérations
+    - mettre locale en français sous windows
     
     
 ## reporté
+    - roucourcis clavier pour les couleurs et soulignés
     - migration / mise à jour
     - synchronisation
     - mettre souligner (selon bugfix ou autre fonctionnlité)
     - refait tous les checkargs
     - systeme de choix de font
     - imprimer/exporter par section
-    - envoins par télégrame
+    - envoi par télégrame
+    - intégration mydevoirs
     
 

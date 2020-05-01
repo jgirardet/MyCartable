@@ -872,7 +872,7 @@ class TestTableauCell:
             "x": 0,
             "y": 0,
             "texte": "",
-            "underline": False
+            "underline": False,
         }
         b = f_tableauCell(td=True, x=1)
         assert b == {
@@ -882,8 +882,7 @@ class TestTableauCell:
             "tableau": 2,
             "x": 1,
             "y": 0,
-            "underline": False
-
+            "underline": False,
         }
 
     def test_bgColor(self, ddb):

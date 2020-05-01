@@ -33,4 +33,3 @@ def test_init_bind_file_and_parent_dir_does_not_exists(tmp_path):
     ddb = Database()
     file = tmp_path / "some" / "sub" / "sub" / "dir" / "some_file"
     init_bind(ddb, filename=file, create_db=True)
-

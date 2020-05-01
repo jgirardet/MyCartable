@@ -2,9 +2,12 @@ from pathlib import Path
 
 from pony.orm import Database, db_session
 
+
 def init_models():
     from package.database.models import db
+
     return db
+
 
 def ensure_database_directory(loc):
     if not isinstance(loc, Path):
@@ -23,6 +26,7 @@ def init_bind(db, provider="sqlite", filename=":memory:", create_db=False, **kwa
 
 def init_database(**kwargs):
     import package.database
+
     package.database.db = init_models()
     # db =
     init_bind(package.database.db, **kwargs)

@@ -14,6 +14,7 @@ import subprocess
 generic_mimesis = Generic("fr")
 # import package.database
 
+
 @pytest.fixture(scope="function")
 def gen(request):
     return generic_mimesis
@@ -31,6 +32,7 @@ def pytest_sessionstart():
     # from main import main_init_database
     from package import ROOT
     import package.database
+
     # import package
     # from package.database.base_db import init_database
     # package.database.db = package.database.init_database()
@@ -57,7 +59,8 @@ def ddbn():
     # package.database.db = package.database.init_database()
     # return package.database.db
     from package.database import db
-    print("ddbne",db.entities)
+
+    print("ddbne", db.entities)
     return db
 
 

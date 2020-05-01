@@ -120,7 +120,8 @@ ToolBar {
         wheelEnabled: true
         stepSize: 1
         to: 20
-        value: 0
+        from: 1
+        value: 1
 
       }
       Text {
@@ -132,7 +133,8 @@ ToolBar {
         wheelEnabled: true
         stepSize: 1
         to: 20
-        value: 0
+        from: 1
+        value: 1
 
       }
     }

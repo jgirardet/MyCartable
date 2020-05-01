@@ -41,7 +41,6 @@ def test_data_one_dir_included(path: Path):
 
 def test_data_dir_included():
     for p in DATA_DIR_INCLUDED:
-        print(p)
         test_data_one_dir_included(p)
 
 

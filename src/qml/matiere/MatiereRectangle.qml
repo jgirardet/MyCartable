@@ -28,7 +28,6 @@ Rectangle {
         currentIndex: ddb.getMatiereIndexFromId(ddb.currentMatiere)
         onActivated: {
           ddb.setCurrentMatiereFromIndexSignal(index)
-          print(highlightedIndex)
         }
         Component.onCompleted: {
           activated.connect(ddb.setCurrentMatiereFromIndexSignal)

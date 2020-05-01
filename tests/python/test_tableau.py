@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock, call
 
 import pytest
-from PySide2.QtCore import Signal, QModelIndex, Qt
+from PySide2.QtCore import Signal, QModelIndex, Qt, QByteArray
 from PySide2.QtGui import QColor
 from package.database.factory import f_tableauSection
 
@@ -64,6 +64,19 @@ class TestTableauModel:
     def test_ne_rows(self, tt34):
         assert tt34.n_rows == tt34._rows
 
+    def test_roleNames(self, tt):
+        assert tt.roleNames() == {
+            0: QByteArray(b"display"),
+            1: QByteArray(b"decoration"),
+            2: QByteArray(b"edit"),
+            3: QByteArray(b"toolTip"),
+            4: QByteArray(b"statusTip"),
+            5: QByteArray(b"whatsThis"),
+            Qt.ItemDataRole.BackgroundRole: QByteArray(b"background"),
+            Qt.ItemDataRole.ForegroundRole: QByteArray(b"foreground"),
+            tt.UnderlineRole: QByteArray(b"underline"),
+        }
+
     def test_data_and_set_datas(self, tt34, ddbr, qtbot):
 
         # "standant display edit"
@@ -71,10 +84,20 @@ class TestTableauModel:
         tt34.setData(tt34.index(0, 0), "aze", Qt.EditRole)
         assert tt34.data(tt34.index(0, 0), Qt.DisplayRole) == "aze"
 
-        # "standant background  edit"
-        assert tt34.data(tt34.index(0, 0), Qt.BackgroundRole) == None
+        # "standant background  get set"
+        assert tt34.data(tt34.index(0, 0), Qt.BackgroundRole) == "white"
         tt34.setData(tt34.index(0, 0), QColor("red"), Qt.BackgroundRole)
         assert tt34.data(tt34.index(0, 0), Qt.BackgroundRole) == QColor("red")
+
+        # "standant foregroud  get set"
+        assert tt34.data(tt34.index(0, 0), Qt.ForegroundRole) == "black"
+        tt34.setData(tt34.index(0, 0), QColor("red"), Qt.ForegroundRole)
+        assert tt34.data(tt34.index(0, 0), Qt.ForegroundRole) == QColor("red")
+
+        # "standant unerline  get set"
+        assert tt34.data(tt34.index(0, 0), tt34.UnderlineRole) == False
+        tt34.setData(tt34.index(0, 0), True, tt34.UnderlineRole)
+        assert tt34.data(tt34.index(0, 0), tt34.UnderlineRole) == True
 
         # "invalid index"
         assert tt34.data(tt34.index(99, 00), Qt.DisplayRole) == None

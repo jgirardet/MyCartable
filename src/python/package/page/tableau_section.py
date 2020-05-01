@@ -20,6 +20,8 @@ class TableauModel(QAbstractTableModel):
     sectionIdChanged = Signal()
     ddb = None
 
+    UnderlineRole = Qt.UserRole + 1
+
     def __init__(self):
         super().__init__()
         self.db = db
@@ -50,6 +52,8 @@ class TableauModel(QAbstractTableModel):
     def roleNames(self):
         default = super().roleNames()
         default[Qt.BackgroundRole] = QByteArray(b"background")
+        default[Qt.ForegroundRole] = QByteArray(b"foreground")
+        default[self.UnderlineRole] = QByteArray(b"underline")
         return default
 
     @db_session
@@ -64,6 +68,10 @@ class TableauModel(QAbstractTableModel):
 
         elif role == Qt.BackgroundRole:
             return cell.bgColor
+        elif role == Qt.ForegroundRole:
+            return cell.fgColor
+        elif role == self.UnderlineRole:
+            return cell.underline
 
     @db_session
     def setData(self, index, value, role) -> bool:
@@ -84,6 +92,12 @@ class TableauModel(QAbstractTableModel):
             updated = True
         elif role == Qt.BackgroundRole:
             cell.bgColor = value
+            updated = True
+        elif role == Qt.ForegroundRole:
+            cell.fgColor = value
+            updated = True
+        elif role == self.UnderlineRole:
+            cell.underline = value
             updated = True
 
         if updated:

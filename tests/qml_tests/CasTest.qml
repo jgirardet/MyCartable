@@ -41,10 +41,11 @@ TestCase {
   }
 
   function createObj(nom, rabParams, parentItem) {
-    var kwargs = {
-      'ddb': ddb,
-      "uiManager": uiManager
-    }
+    //    var kwargs = {
+    //      'ddb': ddb,
+    //      "uiManager": uiManager
+    //    }
+    var kwargs = {}
     if (rabParams) {
       Object.assign(kwargs, rabParams);
     }
@@ -53,6 +54,7 @@ TestCase {
       print(comp, comp.status, comp.errorString())
     }
     var obj = createTemporaryObject(comp, parentItem ? parentItem : testcase.parent, kwargs)
+
     return obj
   }
 

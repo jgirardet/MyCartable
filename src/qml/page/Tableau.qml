@@ -118,12 +118,21 @@ TableView {
 
     }
 
-    function setColor(value) {
+    function setBackgroundColor(value) {
       background = value
+    }
+
+    function setForegroundColor(value) {
+      foreground = value
+    }
+
+    function setUnderline(value) {
+      underline = value
     }
     TextArea {
       padding: 0
-
+      color: foreground
+      font.underline: underline ? underline : false
       focus: true
       id: textinput
       onTextChanged: {
@@ -206,10 +215,11 @@ TableView {
       function setStyleFromMenu(data) {
         // pour tinput
         if (data['type'] == "color") {
-          color = data['value']
+          foreground = data['value']
+          underline = false
         } else if (data['type'] == "underline") {
-          color = data['value']
-          font.underline = true
+          foreground = data['value']
+          underline = true
         }
       }
 
@@ -222,16 +232,17 @@ TableView {
     // pour rectangle
     if (data["type"] == "cell_color") {
       for (var i of selectedCells) {
-        i.setColor(data["value"])
+        i.setBackgroundColor(data["value"])
       }
     } else if (data['type'] == "color") {
       for (var i of selectedCells) {
-        i.tinput.color = data["value"]
+        i.setForegroundColor(data["value"])
+        i.setUnderline(false)
       }
     } else if (data['type'] == "underline") {
       for (var i of selectedCells) {
-        i.tinput.color = data["value"]
-        i.tinput.font.underline = true
+        i.setForegroundColor(data["value"])
+        i.setUnderline(true)
       }
     }
     unSelectAll()

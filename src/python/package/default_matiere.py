@@ -30,11 +30,27 @@ SATURATION_BASE = 40
 VALUE_BASE = 220
 
 MATIERE_GROUPE_BASE = [
-    {"nom": "Mathématiques", "id": 2, "bgColor": (300, SATURATION_BASE, VALUE_BASE)},  # fushia
-    {"nom": "Français", "id": 3, "bgColor": (190, SATURATION_BASE, VALUE_BASE)},  # bleu foncé
-    {"nom": "Histoire-Géo", "id": 4, "bgColor": (60, SATURATION_BASE, VALUE_BASE)},  # jaune
+    {
+        "nom": "Mathématiques",
+        "id": 2,
+        "bgColor": (300, SATURATION_BASE, VALUE_BASE),
+    },  # fushia
+    {
+        "nom": "Français",
+        "id": 3,
+        "bgColor": (190, SATURATION_BASE, VALUE_BASE),
+    },  # bleu foncé
+    {
+        "nom": "Histoire-Géo",
+        "id": 4,
+        "bgColor": (60, SATURATION_BASE, VALUE_BASE),
+    },  # jaune
     {"nom": "Langues", "id": 5, "bgColor": (0, SATURATION_BASE, VALUE_BASE)},  # Rouge
-    {"nom": "Sciences", "id": 6, "bgColor": (30, SATURATION_BASE, VALUE_BASE)},  # orange
+    {
+        "nom": "Sciences",
+        "id": 6,
+        "bgColor": (30, SATURATION_BASE, VALUE_BASE),
+    },  # orange
     {"nom": "Arts", "id": 7, "bgColor": (270, SATURATION_BASE, VALUE_BASE)},  # violet
     {"nom": "Divers", "id": 1, "bgColor": (110, SATURATION_BASE, VALUE_BASE)},  # vert
 ]
@@ -49,6 +65,7 @@ def build_matiere_groupe():
 
 
 MATIERE_GROUPE = build_matiere_groupe()
+
 
 def get_color_by_group(groupe):
     matieres = {x["nom"]: x for x in MATIERES_BASE if x["groupe"] == groupe["id"]}
@@ -67,7 +84,6 @@ def build_grouped_color():
 def build_matiere():
     res = []
     matieres_groupe = build_grouped_color()
-    print(matieres_groupe)
     for m in MATIERES_BASE:
         group_id = m["groupe"]
         if group_id in matieres_groupe:

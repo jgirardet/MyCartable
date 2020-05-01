@@ -395,7 +395,6 @@ class TestImageSection:
         assert a["annotations"] == []
 
 
-
 class TestTextSection:
     def test_factory(self):
         assert f_textSection(text="bla").text == "bla"
@@ -814,7 +813,6 @@ class TestTableauSection:
         a.flush()
         assert a.cells.count() == 12
         # si pas d'erreur c que pq ok
-        print(a.cells.select()[:])
         assert [ddb.TableauCell[1, x, y] for x in range(3) for y in range(4)]
 
         b = f_tableauSection()
@@ -855,7 +853,7 @@ class TestTableauCell:
         a = ddb.TableauCell(tableau=t, x=0, y=0)
         assert a.x == 0
         assert a.y == 0
-        assert a.bgColor == None
+        assert a.bgColor == 4294967295
         assert ddb.TableauCell[a.tableau, 0, 0] == a
         b = ddb.TableauCell(tableau=t, x=0, y=1, bgColor=QColor("red").rgba())
         assert b.bgColor == 4294901760
@@ -868,14 +866,25 @@ class TestTableauCell:
     def test_to_dict(self, reset_db):
         b = f_tableauCell(x=0, bgColor=QColor("red").rgba(), td=True)
         assert b == {
-            "bgColor": QColor.fromRgbF(1.000000, 0.000000, 0.000000, 1.000000),
+            "bgColor": "red",
+            "fgColor": "black",
             "tableau": 1,
             "x": 0,
             "y": 0,
             "texte": "",
+            "underline": False
         }
         b = f_tableauCell(td=True, x=1)
-        assert b == {"bgColor": None, "texte": "", "tableau": 2, "x": 1, "y": 0}
+        assert b == {
+            "bgColor": "white",
+            "fgColor": "black",
+            "texte": "",
+            "tableau": 2,
+            "x": 1,
+            "y": 0,
+            "underline": False
+
+        }
 
     def test_bgColor(self, ddb):
         a = f_tableauCell()

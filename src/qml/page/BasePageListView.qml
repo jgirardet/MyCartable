@@ -18,7 +18,6 @@ ListView {
   }
 
   function onItemAdded(modelIndex, row, col) {
-    //    print()
     positionViewAtIndex(row, ListView.Contain)
     currentIndex = row
   }
@@ -29,12 +28,8 @@ ListView {
   Connections {
     target: model
     function onModelReset() {
-      print("on bosse")
-      print("model lastposition on resest", model.lastPosition)
       if (currentIndex != model.lastPosition) {
         currentIndex = model.lastPosition
-        print("on set on resest ", currentIndex)
-        //        lv.positionViewAtIndex(model.lastPosition, ListView.Beginning)
       }
     }
   }

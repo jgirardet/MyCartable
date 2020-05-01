@@ -81,7 +81,6 @@ Item {
       }
 
       function goToResultLine() {
-        print("go", corps.currentIndex)
         if (corps.currentIndex == 13) {
           corps.currentIndex = 25
         } else if (currentIndex == 31) {

@@ -2,6 +2,7 @@
 
 ## Beta
     - changer taille de police
+        - creer fontstyle model
         - menu
         - menu contextuel
         - annotableimage

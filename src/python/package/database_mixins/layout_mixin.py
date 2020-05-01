@@ -39,6 +39,4 @@ colors = {
 }
 
 
-fonts = {
-    "main": "Verdana"
-}
+fonts = {"main": "Verdana"}

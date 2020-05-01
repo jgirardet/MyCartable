@@ -883,7 +883,6 @@ class TestSoustractionModel:
     )
     def test_retenue_droite_and_isRetenueDroite(self, ts, string, res):
         ts(string)
-        print(ts.datas)
         assert ts.retenue_droite == res
         assert all(ts.isRetenueDroite(i) for i in res)
         assert not any(ts.isRetenueDroite(i + 1) for i in res)
@@ -1450,9 +1449,7 @@ def divMod(dao):
 
         def __call__(self, string):
             self.f_entry = f_divisionSection(string=string)
-            print(self.f_entry)
             self.sectionId = self.f_entry.id
-            print(self.sectionId)
 
     return Temp()
 

@@ -13,14 +13,14 @@ Item {
 
       property int n_rows: rowCount
 
-      TableModelColumn {
-        display: "zero";edit: "editZero";background: "bgZero"
+      CustomTableModelColumn {
+        display: "zero";edit: "editZero";background: "bgZero";foreground: "fgZero";underline: "uZero"
       }
-      TableModelColumn {
-        display: "un";edit: "editUn";background: "bgUn"
+      CustomTableModelColumn {
+        display: "un";edit: "editUn";background: "bgUn";foreground: "fgUn";underline: "uUn"
       }
-      TableModelColumn {
-        display: "deux";edit: "editDeux";background: "bgDeux"
+      CustomTableModelColumn {
+        display: "deux";edit: "editDeux";background: "bgDeux";foreground: "fgDeux";underline: "uDeux"
       }
       rows: [
         //      [
@@ -33,7 +33,14 @@ Item {
           editDeux: "",
           bgZero: "red",
           bgUn: "blue",
-          bgDeux: "green"
+          bgDeux: "green",
+          fgZero: "black",
+          fgUn: "orange",
+          fgDeux: "orange",
+          uZero: true,
+          uUn: false,
+          uDeux: false
+
         }, {
           zero: "3",
           un: "4",
@@ -43,7 +50,12 @@ Item {
           editDeux: "",
           bgZero: null,
           bgUn: null,
-          bgDeux: "green"
+          bgDeux: "green",
+          fgZero: "black",
+          fgUn: "orange",
+          fgDeux: "orange",
+          uZero: true,
+          uUn: false,
         }, {
           zero: "6",
           un: "7",
@@ -53,7 +65,12 @@ Item {
           editDeux: "",
           bgZero: null,
           bgUn: null,
-          bgDeux: "green"
+          bgDeux: "green",
+          fgZero: "black",
+          fgUn: "orange",
+          fgDeux: "orange",
+          uZero: true,
+          uUn: false,
         }, {
           zero: "9",
           un: "10",
@@ -63,7 +80,12 @@ Item {
           editDeux: "",
           bgZero: "red",
           bgUn: "blue",
-          bgDeux: "green"
+          bgDeux: "green",
+          fgZero: "black",
+          fgUn: "orange",
+          fgDeux: "orange",
+          uZero: true,
+          uUn: false,
         },
 
       ]
@@ -77,6 +99,8 @@ Item {
     params: {}
     /* beautify preserve:start */
     property var model
+    property var underline: false
+    property var base: item
     /* beautify preserve:end */
 
     function initPre() {
@@ -91,42 +115,13 @@ Item {
 
     function initPost() {
       waitForRendering(tested, 3000)
-
-      //      waitForItemPolished(tested, 3000)
-
-      //      for (var i of Array(tested.contentItem.children.length).keys()) {
-      //        var ite = tested.contentItem.children[i]
-      //          print(ite.tinput.text)
-      ////        waitForRendering(ite, 3000)
-      ////        waitForRendering(ite.tinput, 3000)
-      ////        while(true) {
-      ////          if (ite.tinput.text) {
-      ////            break
-      ////          }
-      //////          wait(1)
-      ////        }
-      //////        waitForItemPolished(tested.contentItem.children[i], 3000)
-      //      }
-
     }
 
-    //
     function test_init() {
+      var un = tested.getItem(1)
       compare(model.rowCount * model.columnCount, 12)
     }
 
-    //    function test_getItem() {
-    //      //test aussi contentY pour le bug d'affichage
-    //      // test aussi getRowCol
-    ////      tested.mouseArea.z = 0
-    //      for (const i of Array(12).keys()) {
-    //        var tt = tested.getItem(i)
-    ////      print(tt.tinput.text)
-    //        //       print(tt.tinput.text, i)
-    //        compare(tt.tinput.text, i.toString())
-    //      }
-    //    }
-    //
     function test_getCells() {
       var cells = tested.getCells()
       compare(cells.length, 12)
@@ -432,6 +427,7 @@ Item {
       compare(deux.tinput.color, greenUnderLine.color)
       verify(un.tinput.font.underline)
       verify(deux.tinput.font.underline)
+      //TODO: fix tests quand on peut mettre underline en role
     }
 
   }

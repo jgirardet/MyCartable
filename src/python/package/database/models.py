@@ -491,32 +491,24 @@ def init_models(db: Database):
             dico = super().to_dict(with_collections=True, **kwargs)
             return dico
 
-    class TableauCell(db.Entity):
+    class TableauCell(db.Entity, ColorMixin):
 
         x = Required(int)
         y = Required(int)
         texte = Optional(str)
-        _bgColor = Optional(int, size=32, unsigned=True)
+        _fgColor = Required(int, size=32, unsigned=True, default=4278190080)
+        fgColor = property(ColorMixin.fgColor_get, ColorMixin.fgColor_set)
+        _bgColor = Optional(int, size=32, unsigned=True, default=4294967295)
+        bgColor = property(ColorMixin.bgColor_get, ColorMixin.bgColor_set)
         tableau = Required(TableauSection)
         PrimaryKey(tableau, x, y)
+        underline = Required(bool, default=False)
 
         def to_dict(self, *args, **kwargs):
-            dico = super().to_dict(*args, exclude=["_bgColor"], **kwargs)
+            dico = super().to_dict(*args, exclude=["_bgColor", "_fgColor"], **kwargs)
             dico["bgColor"] = self.bgColor
+            dico["fgColor"] = self.fgColor
             return dico
-
-        @property
-        def bgColor(self):
-            return QColor(self._bgColor) if self._bgColor else None
-
-        @bgColor.setter
-        def bgColor(self, value):
-            if isinstance(value, QColor):
-                self._bgColor = value.rgba()
-            elif isinstance(value, str):
-                self._bgColor = QColor(value).rgba()
-            elif isinstance(value, int):
-                self._bgColor = value
 
         def __init__(self, *args, bgColor=None, **kwargs):
             super().__init__(*args, **kwargs)

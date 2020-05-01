@@ -54,13 +54,13 @@ Item {
     function test_start_animation_and_stop() {
       tested.text = "azeraezrtrerter"
       verify(tested.truncated == true)
-      var x = tested.x
+      var oldX = tested.x
       tested.move = true
       waitForRendering(tested)
       verify(moveTextLeft.running == true)
       tested.move = false
       tryCompare(moveTextLeft, "running", false)
-      tryCompare(tested, "x", x)
+      tryCompare(tested, "x", oldX, 10000)
       tryCompare(tested, "textInitialPosition", 0)
     }
 

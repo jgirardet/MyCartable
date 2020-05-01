@@ -29,7 +29,7 @@ def get_env():
     if sys.platform == "linux":
         new = f"{VIRTUAL_ENV / 'bin'}:{QT_PATH / 'gcc_64' / 'bin'}:"
     elif sys.platform == "win32":
-        new = f"{VIRTUAL_ENV / 'bin'};"
+        new = f"{VIRTUAL_ENV / 'Scripts'};"
     env["PATH"] = new + path
     return env
 

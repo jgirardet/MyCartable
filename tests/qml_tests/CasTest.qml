@@ -19,7 +19,6 @@ TestCase {
   function init() {
     backupParams = params
     initPre()
-    //    ddb = createTemporaryObject(Qt.createComponent("DdbMock.qml"), testcase.parent)
     uiManager = createTemporaryObject(Qt.createComponent("UiManager.qml"), testcase.parent)
     ddb = createTemporaryObject(Qt.createComponent("DdbData.qml"), testcase.parent)
 

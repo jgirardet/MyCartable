@@ -75,7 +75,7 @@ def runCommand(command, cwd=str(ROOT), sleep_time=0.2, with_env=True):
         return sys.exit(process.returncode)
 
 
-def cmd_black(*args):
+def cmd_black(*args, **kwargs):
     import black
 
     if args:
@@ -87,14 +87,14 @@ def cmd_black(*args):
         runCommand("python -m black src tests")
 
 
-def cmd_build_binary_as_dir():
+def cmd_build_binary_as_dir(*args, **kwargs):
     cmd_make_qrc()
     pyinstaller = "pyinstaller"
     runCommand("pyinstaller  scripts/dir.spec --clean -y")
     cmd_test_binary_as_dir()
 
 
-def cmd_clean():
+def cmd_clean(*args, **kwargs):
     to_remove = [
         *ROOT.rglob(".pytest_cache"),
         *ROOT.rglob("__pycache__"),
@@ -116,7 +116,7 @@ def cmd_clean():
             p.unlink()
 
 
-def cmd_cov():
+def cmd_cov(*args, **kwargs):
     pytest_cache = ROOT / ".pytest_cache"
     if pytest_cache.exists():
         shutil.rmtree(pytest_cache)
@@ -125,14 +125,14 @@ def cmd_cov():
     runCommand("coverage report")
 
 
-def cmd_cov_html():
+def cmd_cov_html(*args, **kwargs):
     cmd_cov()
     runCommand("coverage html")
     html = ROOT / "htmlcov" / "index.html"
     runCommand(f"firefox {html} &")
 
 
-def cmd_create_env():
+def cmd_create_env(*args, **kwargs):
     if sys.platform == "linux":
         python = "python3"
     else:
@@ -142,24 +142,24 @@ def cmd_create_env():
     runCommand(f"{python} -m venv .venv", with_env=False)
 
 
-def cmd_install():
+def cmd_install(*args, **kwargs):
     runCommand(f"python -m pip install -U pip")
     runCommand(f"pip install -r requirements.txt")
 
 
-def cmd_install_dev():
+def cmd_install_dev(*args, **kwargs):
     cmd_create_env()
     cmd_install()
     cmd_install_qt()
 
-def cmd_install_qt():
+def cmd_install_qt(*args, **kwargs):
     if QT_PATH.exists():
         shutil.rmtree(QT_PATH)
     QT_PATH.mkdir(parents=True)
     runCommand(f"aqt install {QT_VERSION} linux desktop")
 
 
-def cmd_js_style(*args):
+def cmd_js_style(*args, **kwargs):
     import jsbeautifier
 
     opts = jsbeautifier.default_options()
@@ -179,41 +179,41 @@ def cmd_js_style(*args):
                 f.write_text(jsbeautifier.beautify_file(f, opts))
 
 
-def cmd_make_qrc():
+def cmd_make_qrc(*args, **kwargs):
     input = SRC / "qml.qrc"
     output = SRC / "python" / "qrc.py"
     runCommand(f"pyside2-rcc {input} -o {output}")
 
 
-def cmd_run():
+def cmd_run(*args, **kwargs):
     cmd_make_qrc()
     runCommand(f"python src/python/main.py")
 
 
-def cmd_run_dist():
+def cmd_run_dist(*args, **kwargs):
     executable = PACKAGE
     if sys.platform == "win32":
         executable = executable + ".exe"
     runCommand(str(DIST / executable))
 
 
-def cmd_setup_qml():
+def cmd_setup_qml(*args, **kwargs):
     if QMLTESTS.exists():
         shutil.rmtree(QMLTESTS)
     com = f"qmake -o {QMLTESTS}/Makefile tests/qml_tests/qml_tests.pro -spec {sys.platform}-g++ CONFIG+=debug CONFIG+=qml_debug"
     runCommand(com)
 
 
-def cmd_test_binary_as_dir():
+def cmd_test_binary_as_dir(*args, **kwargs):
     runCommand("python scripts/test_build_dir.py", with_env=False)
 
 
-def cmd_test_python():
+def cmd_test_python(*args, **kwargs):
     test_path = ROOT /"tests" /"python"
     runCommand(f"python -m pytest -s {test_path}", sleep_time=0.001)
 
 
-def cmd_test_qml(*args):
+def cmd_test_qml(*args, **kwargs):
     qml_tests = "qml_tests"
     if sys.platform == "linux":
         make = "make"
@@ -222,21 +222,29 @@ def cmd_test_qml(*args):
     runCommand(f"{make} -C build/qml_tests")
     command_line = str(QMLTESTS / qml_tests)
 
-    if args:
+    filedir = kwargs.get("input", None)
+    if filedir:
+        command_line = f"{command_line} -input {filedir}"
+
+    elif args:
         testCase, testname = args
-        testCase = testCase.lstrip("tst_")
-        if not testname.startswith("test_"):
-            testname = "test_" + testname
-        command_line = f"{command_line} {testCase}::{testname}"
+        if testCase == "-input":
+            command_line = f"{command_line} {testCase} {testname}"
+        else:
+            testCase = testCase.lstrip("tst_")
+
+            if not testname.startswith("test_"):
+                testname = "test_" + testname
+            command_line = f"{command_line} {testCase}::{testname}"
     runCommand(command_line)
 
 
-def cmd_test_qml_reset(*args):
+def cmd_test_qml_reset(*args, **kwargs):
     cmd_setup_qml()
-    cmd_test_qml(*args)
+    cmd_test_qml(*args, **kwargs)
 
 
-def build_commands():
+def build_commands(*args, **kwargs):
     res = {}
     for i, j in globals().items():
         if callable(j) and i.startswith("cmd_"):
@@ -249,25 +257,17 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("command")
     parser.add_argument("args", nargs="*")
-    # parser.add_argument(
-    #     "--sum",
-    #     dest="accumulate",
-    #     action="store_const",
-    #     const=sum,
-    #     default=max,
-    #     help="sum the integers (default: find the max)",
-    # )
+    parser.add_argument("-input", nargs="?")
 
     args = parser.parse_args()
     com = args.command
     arguments = args.args
-    print(arguments)
     try:
         commands = build_commands()
         if com not in commands:
             print(f"commandes possible : {list(commands.keys())}")
             sys.exit(1)
-        commands[com](*arguments)
+        commands[com](*arguments, input=args.input)
     except KeyboardInterrupt:
         currentProccess.terminate()
         sys.exit(0)

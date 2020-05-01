@@ -25,9 +25,20 @@ class LayoutMixin:
     def colorPageToolBar(self):
         return colors["pageToolBar"]
 
+    fontChanged = Signal()
+
+    @Property(str, notify=ColorChanged)
+    def fontMain(self):
+        return fonts["main"]
+
 
 colors = {
     "fond": QColor(130, 134, 138),
     "mainMenuBar": QColor(83, 93, 105),
     "pageToolBar": QColor(197, 197, 197),
+}
+
+
+fonts = {
+    "main": "Verdana"
 }

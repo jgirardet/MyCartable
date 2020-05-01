@@ -4,9 +4,10 @@
         <file alias="main.qml">qml/main.qml</file>
     </qresource>
     <qresource prefix="/qml/matiere">
-        <file alias="MatiereComboBox.qml">qml/matiere/MatiereComboBox.qml</file>
         <file alias="MatiereRectangle.qml">qml/matiere/MatiereRectangle.qml</file>
         <file alias="ActiviteRectangle.qml">qml/matiere/ActiviteRectangle.qml</file>
+        <file alias="RecentsRectangle.qml">qml/matiere/RecentsRectangle.qml</file>
+
     </qresource>
 
     <qresource prefix="/qml/page">
@@ -47,15 +48,13 @@
 
     </qresource>
 
-    <qresource prefix="/qml/recents">
-        <file alias="RecentsListView.qml">qml/recents/RecentsListView.qml</file>
-        <file alias="RecentsRectangle.qml">qml/recents/RecentsRectangle.qml</file>
-    </qresource>
     <qresource prefix="/qml/divers">
         <file alias="BorderRectangle.qml">qml/divers/BorderRectangle.qml</file>
         <file alias="MainMenuBar.qml">qml/divers/MainMenuBar.qml</file>
         <file alias="Toast.qml">qml/divers/Toast.qml</file>
         <file alias="ValueButton.qml">qml/divers/ValueButton.qml</file>
+        <file alias="MovingText.qml">qml/divers/MovingText.qml</file>
+        <file alias="PageButton.qml">qml/divers/PageButton.qml</file>
     </qresource>
     <qresource prefix="/icons">
         <file alias="newImageSection">data/icons/base/divers/png/002-photo-1.png</file>

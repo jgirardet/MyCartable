@@ -1,6 +1,6 @@
-import QtQuick 2.12
-import QtQuick.Controls 2.12
-import QtQuick.Layouts 1.12
+import QtQuick 2.14
+import QtQuick.Controls 2.14
+import QtQuick.Layouts 1.14
 Rectangle {
   id: base
   color: ddb.colorFond
@@ -17,7 +17,8 @@ Rectangle {
       color: "transparent"
 
       Layout.fillWidth: true
-      MatiereComboBox {
+      ComboBox {
+        width: parent.width
         anchors.fill: parent
         textRole: "nom"
         valueRole: "id"
@@ -33,10 +34,9 @@ Rectangle {
           activated.connect(ddb.setCurrentMatiereFromIndexSignal)
         }
 
-        popup.background:
-          Rectangle {
-            color: "transparent"
-          }
+        popup.background: Rectangle {
+          color: "transparent"
+        }
 
         contentItem: Text {
           text: combo.displayText

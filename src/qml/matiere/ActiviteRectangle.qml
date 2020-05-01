@@ -72,7 +72,7 @@ Rectangle {
           //        color:  ddb.currentMatiereItem.bgColor
           color: "#cdd0d3"
           border.width: highlighted ? 3 : 1
-          border.color: modelData ? Qt.darker(modelData.bgColor, 3) : "white"
+          //          border.color: modelData ? Qt.darker(modelData.bgColor, 3) : "white"
         }
       }
     }

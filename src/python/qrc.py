@@ -6,7 +6,7 @@
 from PySide2 import QtCore
 
 qt_resource_data = b"\
-\x00\x00\x07\x16\
+\x00\x00\x07\x05\
 i\
 mport QtQuick 2.\
 14\x0aimport QtQuic\
@@ -16,112 +16,111 @@ indow 2.14\x0aimpor\
 t QtQuick.Layout\
 s 1.14\x0aimport \x22m\
 atiere\x22\x0aimport \x22\
-recents\x22\x0aimport \
-\x22page\x22\x0aimport \x22d\
-ivers\x22\x0a\x0aApplicat\
-ionWindow {\x0a  id\
-: root\x0a  width: \
-800\x0a  height: 60\
-0\x0a  visible: tru\
-e\x0a  header: Main\
-MenuBar {\x0a    id\
-: mainMenuBar\x0a  \
-}\x0a  title: \x22MyCa\
-rtable: ann\xc3\xa9e \x22\
- + ddb.anneeActi\
-ve + \x22/\x22 + (ddb.\
-anneeActive + 1)\
-\x0a  onClosing: {\x0a\
-    baseItem.des\
-troy() // elmine\
- presque tous le\
-s messages d'err\
-eur\x0a  }\x0a  Rectan\
-gle {\x0a    id: ba\
-seItem\x0a    objec\
-tName: \x22baseItem\
-\x22\x0a    height: ro\
-ot.height - main\
-MenuBar.height\x0a \
-   width: root.w\
-idth\x0a    color: \
-ddb.colorFond\x0a  \
-  RowLayout {\x0a  \
-    anchors.fill\
-: parent\x0a      s\
-pacing: 10\x0a     \
- RecentsRectangl\
-e {\x0a        id: \
-_recentsRectangl\
-e\x0a        Layout\
-.fillWidth: true\
+page\x22\x0aimport \x22di\
+vers\x22\x0a\x0aApplicati\
+onWindow {\x0a  id:\
+ root\x0a  width: 8\
+00\x0a  height: 600\
+\x0a  visible: true\
+\x0a  header: MainM\
+enuBar {\x0a    id:\
+ mainMenuBar\x0a  }\
+\x0a  title: \x22MyCar\
+table: ann\xc3\xa9e \x22 \
++ ddb.anneeActiv\
+e + \x22/\x22 + (ddb.a\
+nneeActive + 1)\x0a\
+  onClosing: {\x0a \
+   baseItem.dest\
+roy() // elmine \
+presque tous les\
+ messages d'erre\
+ur\x0a  }\x0a  Rectang\
+le {\x0a    id: bas\
+eItem\x0a    object\
+Name: \x22baseItem\x22\
+\x0a    height: roo\
+t.height - mainM\
+enuBar.height\x0a  \
+  width: root.wi\
+dth\x0a    color: d\
+db.colorFond\x0a   \
+ RowLayout {\x0a   \
+   anchors.fill:\
+ parent\x0a      sp\
+acing: 10\x0a      \
+RecentsRectangle\
+ {\x0a        id: _\
+recentsRectangle\
 \x0a        Layout.\
-fillHeight: true\
-\x0a        Layout.\
-preferredWidth: \
+fillWidth: true\x0a\
+        Layout.f\
+illHeight: true\x0a\
+        Layout.p\
+referredWidth: d\
+db.getLayoutSize\
+s(\x22preferredSide\
+Width\x22)\x0a        \
+Layout.maximumWi\
+dth: ddb.getLayo\
+utSizes(\x22maximum\
+SideWidth\x22)\x0a    \
+    Layout.minim\
+umWidth: ddb.get\
+LayoutSizes(\x22min\
+imumSideWidth\x22)\x0a\
+      }\x0a      Pa\
+geRectangle {\x0a  \
+      id: _pageR\
+ectangle\x0a       \
+ Layout.fillWidt\
+h: true\x0a        \
+Layout.fillHeigh\
+t: true\x0a        \
+Layout.preferred\
+Width: ddb.getLa\
+youtSizes(\x22prefe\
+rredCentralWidth\
+\x22)\x0a        Layou\
+t.minimumWidth: \
 ddb.getLayoutSiz\
-es(\x22preferredSid\
-eWidth\x22)\x0a       \
- Layout.maximumW\
-idth: ddb.getLay\
-outSizes(\x22maximu\
-mSideWidth\x22)\x0a   \
-     Layout.mini\
-mumWidth: ddb.ge\
-tLayoutSizes(\x22mi\
-nimumSideWidth\x22)\
-\x0a      }\x0a      P\
-ageRectangle {\x0a \
-       id: _page\
-Rectangle\x0a      \
-  Layout.fillWid\
-th: true\x0a       \
- Layout.fillHeig\
-ht: true\x0a       \
- Layout.preferre\
-dWidth: ddb.getL\
-ayoutSizes(\x22pref\
-erredCentralWidt\
+es(\x22minimumCentr\
+alWidth\x22)\x0a      \
+}\x0a      MatiereR\
+ectangle {\x0a     \
+   id: _matiereR\
+ectangle\x0a       \
+ Layout.fillWidt\
+h: true\x0a        \
+Layout.fillHeigh\
+t: true\x0a        \
+Layout.preferred\
+Width: ddb.getLa\
+youtSizes(\x22prefe\
+rredSideWidth\x22)\x0a\
+        Layout.m\
+aximumWidth: ddb\
+.getLayoutSizes(\
+\x22maximumSideWidt\
 h\x22)\x0a        Layo\
 ut.minimumWidth:\
  ddb.getLayoutSi\
-zes(\x22minimumCent\
-ralWidth\x22)\x0a     \
- }\x0a      Matiere\
-Rectangle {\x0a    \
-    id: _matiere\
-Rectangle\x0a      \
-  Layout.fillWid\
-th: true\x0a       \
- Layout.fillHeig\
-ht: true\x0a       \
- Layout.preferre\
-dWidth: ddb.getL\
-ayoutSizes(\x22pref\
-erredSideWidth\x22)\
-\x0a        Layout.\
-maximumWidth: dd\
-b.getLayoutSizes\
-(\x22maximumSideWid\
-th\x22)\x0a        Lay\
-out.minimumWidth\
-: ddb.getLayoutS\
-izes(\x22minimumSid\
-eWidth\x22)\x0a      }\
-\x0a    }\x0a\x0a    Toas\
-t {\x0a      id: to\
-ast\x0a    }\x0a\x0a    f\
-unction showToas\
-t(message) {\x0a   \
-   toast.msg = m\
-essage\x0a      toa\
-st.open()\x0a    }\x0a\
-    Component.on\
-Completed: {\x0a   \
-   uiManager.sen\
-dToast.connect(s\
-howToast)\x0a    }\x0a\
-  }\x0a}\
+zes(\x22minimumSide\
+Width\x22)\x0a      }\x0a\
+    }\x0a\x0a    Toast\
+ {\x0a      id: toa\
+st\x0a    }\x0a\x0a    fu\
+nction showToast\
+(message) {\x0a    \
+  toast.msg = me\
+ssage\x0a      toas\
+t.open()\x0a    }\x0a \
+   Component.onC\
+ompleted: {\x0a    \
+  uiManager.send\
+Toast.connect(sh\
+owToast)\x0a    }\x0a \
+ }\x0a}\
 \x00\x00\x02*\
 i\
 mport QtQuick 2.\
@@ -269,6 +268,119 @@ M{\x1c\xfe\xc5'\xdb\xc5\x8eR;S!iep\
 j|+\xee6_\x85\x9f\x92\xcc\xdd\xb0\x0be\xf4\xa7\
 (\x9d\x0bv\xb1\xd4\xdfd\xf95]\x84|\xde\x09c\
 ~\x02\xd3\xdd\xc0d\xf6\x091\xae\xd46\
+\x00\x00\x06\xe1\
+i\
+mport QtQuick 2.\
+14\x0aimport QtQuic\
+k.Controls 2.14\x0a\
+\x0aText {\x0a  id: ro\
+ot\x0a  property in\
+t vitesse: 20 //\
+ en px/ms\x0a  prop\
+erty int pauseOn\
+Left: 500\x0a  prop\
+erty int pauseOn\
+Right: 700\x0a  pro\
+perty bool move:\
+ false\x0a  propert\
+y int dureeMove:\
+ trajet > 0 ? tr\
+ajet * vitesse :\
+ 0\x0a  property in\
+t textInitialPos\
+ition\x0a  property\
+ int elideBackup\
+\x0a  property int \
+referentiel: par\
+ent.width\x0a  prop\
+erty int trajet:\
+ contentWidth - \
+referentiel + 10\
+\x0a\x0a  font.family:\
+ ddb.fontMain\x0a  \
+elide: Text.Elid\
+eRight\x0a\x0a  onMove\
+Changed: {\x0a    i\
+f (!truncated &&\
+ !textInitialPos\
+ition) {\x0a      r\
+eturn\x0a    }\x0a    \
+if (move) {\x0a    \
+  if (textInitia\
+lPosition == 0 &\
+& x != 0) {\x0a    \
+    textInitialP\
+osition = x\x0a    \
+  }\x0a      root.e\
+lideBackup = roo\
+t.elide\x0a      ro\
+ot.elide = Text.\
+ElideNone\x0a      \
+pauseTimerRight.\
+restart()\x0a    } \
+else {\x0a      eli\
+de = elideBackup\
+\x0a      moveTextL\
+eft.stop()\x0a     \
+ moveTextRight.s\
+top()\x0a      paus\
+eTimerRight.stop\
+()\x0a      pauseTi\
+merLeft.stop()\x0a \
+     x = textIni\
+tialPosition\x0a   \
+   textInitialPo\
+sition = 0\x0a    }\
+\x0a  }\x0a\x0a  NumberAn\
+imation on x {\x0a \
+   id: moveTextL\
+eft\x0a    objectNa\
+me: \x22moveTextLef\
+t\x22\x0a    from: tex\
+tInitialPosition\
+\x0a    to: -trajet\
+\x0a    loops: 1\x0a  \
+  duration: dure\
+eMove\x0a    runnin\
+g: false\x0a    onF\
+inished: {\x0a     \
+ pauseTimerLeft.\
+restart()\x0a    }\x0a\
+  }\x0a\x0a  NumberAni\
+mation on x {\x0a  \
+  id: moveTextRi\
+ght\x0a    objectNa\
+me: \x22moveTextRig\
+ht\x22\x0a    from: ro\
+ot.x\x0a    to: tex\
+tInitialPosition\
+\x0a    loops: 1\x0a  \
+  duration: dure\
+eMove\x0a    runnin\
+g: false\x0a    onF\
+inished: {\x0a     \
+ pauseTimerRight\
+.restart()\x0a\x0a    \
+}\x0a  }\x0a  Timer {\x0a\
+    id: pauseTim\
+erRight\x0a    inte\
+rval: pauseOnRig\
+ht\x0a    running: \
+false\x0a    repeat\
+: false\x0a    onTr\
+iggered: {\x0a     \
+ moveTextLeft.re\
+start()\x0a    }\x0a  \
+}\x0a  Timer {\x0a    \
+id: pauseTimerLe\
+ft\x0a    interval:\
+ pauseOnLeft\x0a   \
+ running: false\x0a\
+    repeat: fals\
+e\x0a    onTriggere\
+d: moveTextRight\
+.restart()\x0a  }\x0a}\
+\
 \x00\x00\x02\xa1\
 i\
 mport QtQuick 2.\
@@ -387,6 +499,42 @@ ta.id\x0a      }\x0a\x0a \
    }\x0a\x0a    standa\
 rdButtons: Dialo\
 g.Cancel\x0a  }\x0a\x0a}\
+\x00\x00\x02\x1a\
+i\
+mport QtQuick 2.\
+14\x0aimport QtQuic\
+k.Controls 2.14\x0a\
+\x0a// on l'attend \
+dans un listview\
+ avec modelData\x0a\
+\x0aRoundButton {\x0a \
+ id: root\x0a  /* b\
+eautify preserve\
+:start */\x0a  prop\
+erty var model\x0a \
+ /* beautify pre\
+serve:end */\x0a  r\
+adius: 10\x0a  cont\
+entItem: MovingT\
+ext {\x0a    move: \
+hovered\x0a    text\
+: model ? model.\
+titre : null\x0a  }\
+\x0a  background: R\
+ectangle {\x0a    i\
+d: back\x0a    colo\
+r: model && mode\
+l.matiereBgColor\
+ ? model.matiere\
+BgColor : \x22white\
+\x22\x0a    anchors.fi\
+ll: parent\x0a    r\
+adius: 10\x0a    bo\
+rder.width: hove\
+red ? 3 : 1\x0a  }\x0a\
+  onClicked: ddb\
+.currentPage = m\
+odel.id\x0a}\
 \x00\x00\x01\xbf\
 i\
 mport QtQuick 2.\
@@ -417,13 +565,38 @@ derItem\x0a    z: -\
 1\x0a    anchors {\x0a\
       fill: pare\
 nt\x0a    }\x0a  }\x0a}\
-\x00\x00\x09\xd6\
+\x00\x00\x01b\
 i\
 mport QtQuick 2.\
-12\x0aimport QtQuic\
-k.Controls 2.12\x0a\
+14\x0aimport QtQuic\
+k.Controls 2.14\x0a\
+import \x22../diver\
+s\x22\x0a\x0aRectangle {\x0a\
+  id: base\x0a  col\
+or: ddb.colorFon\
+d\x0a  ListView {\x0a \
+   id: root\x0a    \
+model: ddb.recen\
+tsModel\x0a    anch\
+ors.fill: parent\
+\x0a    spacing: 5\x0a\
+    clip: true\x0a \
+   delegate: Pag\
+eButton {\x0a      \
+height: contentI\
+tem.contentHeigh\
+t + 20\x0a      wid\
+th: root.width\x0a \
+     model: mode\
+lData\x0a    }\x0a  }\x0a\
+}\
+\x00\x00\x09\xdd\
+i\
+mport QtQuick 2.\
+14\x0aimport QtQuic\
+k.Controls 2.14\x0a\
 import QtQuick.L\
-ayouts 1.12\x0aRect\
+ayouts 1.14\x0aRect\
 angle {\x0a  id: ba\
 se\x0a  color: ddb.\
 colorFond\x0a  Colu\
@@ -451,133 +624,133 @@ ight\x0a      color\
 : \x22transparent\x22\x0a\
 \x0a      Layout.fi\
 llWidth: true\x0a  \
-    MatiereCombo\
-Box {\x0a        an\
-chors.fill: pare\
-nt\x0a        textR\
-ole: \x22nom\x22\x0a     \
-   valueRole: \x22i\
-d\x22\x0a        id: c\
-ombo\x0a        obj\
-ectName: \x22combo\x22\
-\x0a        model: \
-ddb.matieresList\
-\x0a        current\
-Index: ddb.getMa\
-tiereIndexFromId\
-(ddb.currentMati\
-ere)\x0a        onA\
-ctivated: {\x0a    \
-      ddb.setCur\
-rentMatiereFromI\
-ndexSignal(index\
-)\x0a          prin\
-t(highlightedInd\
-ex)\x0a        }\x0a  \
-      Component.\
-onCompleted: {\x0a \
-         activat\
-ed.connect(ddb.s\
+    ComboBox {\x0a \
+       width: pa\
+rent.width\x0a     \
+   anchors.fill:\
+ parent\x0a        \
+textRole: \x22nom\x22\x0a\
+        valueRol\
+e: \x22id\x22\x0a        \
+id: combo\x0a      \
+  objectName: \x22c\
+ombo\x22\x0a        mo\
+del: ddb.matiere\
+sList\x0a        cu\
+rrentIndex: ddb.\
+getMatiereIndexF\
+romId(ddb.curren\
+tMatiere)\x0a      \
+  onActivated: {\
+\x0a          ddb.s\
 etCurrentMatiere\
-FromIndexSignal)\
-\x0a        }\x0a\x0a    \
-    popup.backgr\
-ound:\x0a          \
-Rectangle {\x0a    \
-        color: \x22\
-transparent\x22\x0a   \
-       }\x0a\x0a      \
-  contentItem: T\
-ext {\x0a          \
-text: combo.disp\
-layText\x0a        \
-  color: combo.c\
-urrentValue ? co\
-mbo.model[combo.\
-currentIndex].fg\
-Color : \x22white\x22\x0a\
-          font.p\
-ointSize: 14\x0a   \
-       verticalA\
-lignment: Text.A\
-lignVCenter\x0a    \
-      horizontal\
-Alignment: Text.\
-AlignHCenter\x0a   \
-     }\x0a\x0a        \
-background: Rect\
-angle {\x0a        \
-  color: combo.c\
-urrentValue ? co\
-mbo.model[combo.\
-currentIndex].bg\
-Color : \x22white\x22\x0a\
-          radius\
-: 15\x0a        }\x0a \
-       //       \
- highlightedInde\
-x:\x0a        deleg\
-ate: Button {\x0a  \
+FromIndexSignal(\
+index)\x0a         \
+ print(highlight\
+edIndex)\x0a       \
+ }\x0a        Compo\
+nent.onCompleted\
+: {\x0a          ac\
+tivated.connect(\
+ddb.setCurrentMa\
+tiereFromIndexSi\
+gnal)\x0a        }\x0a\
+\x0a        popup.b\
+ackground: Recta\
+ngle {\x0a         \
+ color: \x22transpa\
+rent\x22\x0a        }\x0a\
+\x0a        content\
+Item: Text {\x0a   \
+       text: com\
+bo.displayText\x0a \
+         color: \
+combo.currentVal\
+ue ? combo.model\
+[combo.currentIn\
+dex].fgColor : \x22\
+white\x22\x0a         \
+ font.pointSize:\
+ 14\x0a          ve\
+rticalAlignment:\
+ Text.AlignVCent\
+er\x0a          hor\
+izontalAlignment\
+: Text.AlignHCen\
+ter\x0a        }\x0a\x0a \
+       backgroun\
+d: Rectangle {\x0a \
+         color: \
+combo.currentVal\
+ue ? combo.model\
+[combo.currentIn\
+dex].bgColor : \x22\
+white\x22\x0a         \
+ radius: 15\x0a    \
+    }\x0a        //\
         highligh\
-ted: combo ? com\
-bo.highlightedIn\
-dex === index : \
-false\x0a          \
-width: combo.wid\
-th\x0a          con\
-tentItem: Text {\
-\x0a            id:\
- delegateContent\
-\x0a            tex\
-t: modelData.nom\
+tedIndex:\x0a      \
+  delegate: Butt\
+on {\x0a          h\
+ighlighted: comb\
+o ? combo.highli\
+ghtedIndex === i\
+ndex : false\x0a   \
+       width: co\
+mbo.width\x0a      \
+    contentItem:\
+ Text {\x0a        \
+    id: delegate\
+Content\x0a        \
+    text: modelD\
+ata.nom\x0a        \
+    color: model\
+Data.fgColor\x0a   \
+         font.bo\
+ld: highlighted \
+? true : false\x0a \
+           verti\
+calAlignment: Te\
+xt.AlignVCenter\x0a\
+            hori\
+zontalAlignment:\
+ Text.AlignHCent\
+er\x0a          }\x0a \
+         backgro\
+und: Rectangle {\
 \x0a            col\
-or: modelData.fg\
+or: modelData.bg\
 Color\x0a          \
-  font.bold: hig\
-hlighted ? true \
-: false\x0a        \
-    verticalAlig\
-nment: Text.Alig\
-nVCenter\x0a       \
-     horizontalA\
-lignment: Text.A\
-lignHCenter\x0a    \
-      }\x0a        \
-  background: Re\
-ctangle {\x0a      \
-      color: mod\
-elData.bgColor\x0a \
-           radiu\
-s: 10\x0a          \
-  border.width: \
-highlighted ? 3 \
-: 1\x0a            \
-border.color: Qt\
-.darker(modelDat\
-a.bgColor, 3)\x0a  \
-        }\x0a      \
-  }\x0a\x0a      }\x0a   \
- }\x0a\x0a    ListView\
- {\x0a      id: lvA\
-ctivite\x0a      ob\
-jectName: \x22repea\
-ter\x22\x0a      model\
-: ddb.pagesParSe\
-ction\x0a      Layo\
-ut.fillHeight: t\
-rue\x0a      Layout\
-.fillWidth: true\
-\x0a      spacing: \
-15\x0a      clip: t\
-rue\x0a      delega\
-te: ActiviteRect\
-angle {\x0a        \
-model: modelData\
-\x0a        width: \
-lvActivite.width\
-\x0a      }\x0a\x0a    }\x0a\
-  }\x0a}\
-\x00\x00\x07\xa5\
+  radius: 10\x0a   \
+         border.\
+width: highlight\
+ed ? 3 : 1\x0a     \
+       border.co\
+lor: Qt.darker(m\
+odelData.bgColor\
+, 3)\x0a          }\
+\x0a        }\x0a\x0a    \
+  }\x0a    }\x0a\x0a    L\
+istView {\x0a      \
+id: lvActivite\x0a \
+     objectName:\
+ \x22repeater\x22\x0a    \
+  model: ddb.pag\
+esParSection\x0a   \
+   Layout.fillHe\
+ight: true\x0a     \
+ Layout.fillWidt\
+h: true\x0a      sp\
+acing: 15\x0a      \
+clip: true\x0a     \
+ delegate: Activ\
+iteRectangle {\x0a \
+       model: mo\
+delData\x0a        \
+width: lvActivit\
+e.width\x0a      }\x0a\
+\x0a    }\x0a  }\x0a}\
+\x00\x00\x07\xb1\
 i\
 mport QtQuick 2.\
 14\x0aimport QtQuic\
@@ -695,217 +868,14 @@ r: \x22#cdd0d3\x22\x0a   \
        border.wi\
 dth: highlighted\
  ? 3 : 1\x0a       \
-   border.color:\
- modelData ? Qt.\
-darker(modelData\
-.bgColor, 3) : \x22\
-white\x22\x0a        }\
-\x0a      }\x0a    }\x0a \
- }\x0a}\
-\x00\x00\x00S\
-i\
-mport QtQuick 2.\
-12\x0aimport QtQuic\
-k.Controls 2.12\x0a\
-ComboBox {\x0a  wid\
-th: parent.width\
-\x0a}\
-\x00\x00\x02\xb3\
-i\
-mport QtQuick 2.\
-12\x0aimport QtQuic\
-k.Controls 2.12\x0a\
-import QtQuick.L\
-ayouts 1.12\x0aRect\
-angle {\x0a  id: ba\
-se\x0a  //  color: \
-Qt.rgba(130/255,\
- 134/255, 138/25\
-5 , 1)\x0a  color: \
-ddb.colorFond\x0a  \
-property alias l\
-istview: recents\
-ListView\x0a  Colum\
-n {\x0a    id: rece\
-ntsColumn\x0a    an\
-chors.fill: pare\
-nt\x0a    spacing: \
-5\x0a    //    Roun\
-dButton {\x0a    //\
-      id: recent\
-sHeader\x0a    //  \
-    objectName: \
-\x22recentsHeader\x22\x0a\
-    //      heig\
-ht: ddb.getLayou\
-tSizes(\x22preferre\
-dHeaderHeight\x22)\x0a\
-    //      widt\
-h: parent.width\x0a\
-    //      text\
-: \x22R\xc3\xa9cents\x22\x0a   \
- //      radius:\
- 10\x0a    //    }\x0a\
-    RecentsListV\
-iew {\x0a      id: \
-recentsListView\x0a\
-      model: ddb\
-.recentsModel\x0a  \
-    onItemClicke\
-d: ddb.recentsIt\
-emClicked(id, ma\
-tiere)\x0a    }\x0a  }\
-\x0a}\
-\x00\x00\x09@\
-i\
-mport QtQuick 2.\
-12\x0aimport QtQuic\
-k.Controls 2.12\x0a\
-ListView {\x0a  id:\
- root\x0a  signal i\
-temClicked(int i\
-d, int matiere)\x0a\
-  headerPosition\
-ing: ListView.Ov\
-erlayHeader\x0a  sp\
-acing: 5\x0a  heigh\
-t: parent.height\
-\x0a  width: parent\
-.width\x0a  clip: t\
-rue\x0a  delegate: \
-RoundButton {\x0a  \
-  id: recentButt\
-on\x0a    objectNam\
-e: \x22recentButton\
-\x22\x0a    height: co\
-ntentItem.conten\
-tHeight + 20\x0a   \
- radius: 10\x0a    \
-Component.onComp\
-leted: {\x0a      t\
-extInitialPositi\
-on = moving_text\
-.x\x0a    }\x0a    pro\
-perty int textIn\
-itialPosition\x0a  \
-  property int t\
-rajet: moving_te\
-xt.contentWidth \
-- recentButton.w\
-idth + 10\x0a    pr\
-operty int duree\
-Move: trajet > 0\
- ? trajet * 20 :\
- 0\x0a    contentIt\
-em: Text {\x0a     \
- id: moving_text\
-\x0a      text: mod\
-elData.titre\x0a   \
-   font.family: \
-\x22Verdana\x22\x0a      \
-elide: Text.Elid\
-eRight\x0a\x0a      Nu\
-mberAnimation on\
- x {\x0a        id:\
- moveTextLeft\x0a  \
-      from: text\
-InitialPosition\x0a\
-        to: -tra\
-jet\x0a        loop\
-s: 1 // Animatio\
-n.Infinite\x0a     \
-   duration: dur\
-eeMove\x0a        r\
-unning: false\x0a  \
-      onFinished\
-: {\x0a          //\
-          restar\
-t()\x0a          mo\
-veTextRight.rest\
-art()\x0a        }\x0a\
-      }\x0a      Nu\
-mberAnimation on\
- x {\x0a        id:\
- moveTextRight\x0a \
-       from: mov\
-ing_text.x\x0a     \
-   to: textIniti\
-alPosition\x0a     \
-   loops: 1 // A\
-nimation.Infinit\
-e\x0a        durati\
-on: dureeMove\x0a  \
-      running: f\
-alse\x0a        onF\
-inished: {\x0a     \
-     pauseTimer.\
-restart()\x0a\x0a     \
-   }\x0a      }\x0a   \
-   Timer {\x0a     \
-   id: pauseTime\
-r\x0a        interv\
-al: 1000\x0a       \
- running: false\x0a\
-        repeat: \
-false\x0a        on\
-Triggered: moveT\
-extLeft.restart(\
-)\x0a      }\x0a    }\x0a\
-    onHighlighte\
-dChanged: {\x0a    \
-  if (highlighte\
-d) {\x0a        mov\
-ing_text.elide =\
- Text.ElideNone\x0a\
-        moveText\
-Left.restart()\x0a \
-       //       \
- textInitialPosi\
-tion = moving_te\
-xt.x + leftPaddi\
-ng\x0a      } else \
-{\x0a        moving\
-_text.elide = Te\
-xt.ElideRight\x0a  \
-      moveTextLe\
-ft.stop()\x0a      \
-  moveTextRight.\
-stop()\x0a        m\
-oving_text.x = t\
-extInitialPositi\
-on\x0a      }\x0a    }\
-\x0a    highlighted\
-: hovered\x0a    ba\
-ckground: Rectan\
-gle {\x0a      id: \
-back\x0a      color\
-: modelData.mati\
-ereBgColor ? mod\
-elData.matiereBg\
-Color : \x22white\x22\x0a\
-      anchors.fi\
-ll: parent\x0a     \
- radius: 10\x0a    \
-  border.width: \
-highlighted ? 3 \
-: 1\x0a      //    \
-  border.color: \
-modelData == nul\
-l ? \x22white\x22 : hi\
-ghlighted ? Qt.d\
-arker(modelData.\
-bgColor, 3) : Qt\
-.lighter(modelDa\
-ta.bgColor, 10)\x0a\
-    }\x0a    width:\
- ListView.view.w\
-idth\x0a    onClick\
-ed: ListView.vie\
-w.itemClicked(mo\
-delData.id, mode\
-lData.matiere)\x0a \
- }\x0a  // TODO: te\
-ster tout \xc3\xa7a\x0a}\
+   //          b\
+order.color: mod\
+elData ? Qt.dark\
+er(modelData.bgC\
+olor, 3) : \x22whit\
+e\x22\x0a        }\x0a   \
+   }\x0a    }\x0a  }\x0a}\
+\
 \x00\x00\x07:\
 i\
 mport QtQuick 2.\
@@ -27253,10 +27223,6 @@ qt_resource_name = b"\
 \x00p\
 \x00a\x00g\x00e\
 \x00\x07\
-\x08\xb9\xc5S\
-\x00r\
-\x00e\x00c\x00e\x00n\x00t\x00s\
-\x00\x07\
 \x03\x8a\xfce\
 \x00m\
 \x00a\x00t\x00i\x00e\x00r\x00e\
@@ -27295,6 +27261,10 @@ qt_resource_name = b"\
 \x00M\
 \x00e\x00n\x00u\x00F\x00l\x00o\x00t\x00t\x00a\x00n\x00t\x00T\x00a\x00b\x00l\x00e\
 \x00a\x00u\x00.\x00q\x00m\x00l\
+\x00\x0e\
+\x01W\xdc|\
+\x00M\
+\x00o\x00v\x00i\x00n\x00g\x00T\x00e\x00x\x00t\x00.\x00q\x00m\x00l\
 \x00\x09\
 \x08\xa7\xe2\x9c\
 \x00T\
@@ -27307,11 +27277,20 @@ qt_resource_name = b"\
 \x08\xe3\x15\x1c\
 \x00M\
 \x00a\x00i\x00n\x00M\x00e\x00n\x00u\x00B\x00a\x00r\x00.\x00q\x00m\x00l\
+\x00\x0e\
+\x05\x12|\xdc\
+\x00P\
+\x00a\x00g\x00e\x00B\x00u\x00t\x00t\x00o\x00n\x00.\x00q\x00m\x00l\
 \x00\x13\
 \x0b\x00W\x1c\
 \x00B\
 \x00o\x00r\x00d\x00e\x00r\x00R\x00e\x00c\x00t\x00a\x00n\x00g\x00l\x00e\x00.\x00q\
 \x00m\x00l\
+\x00\x14\
+\x05$F\xdc\
+\x00R\
+\x00e\x00c\x00e\x00n\x00t\x00s\x00R\x00e\x00c\x00t\x00a\x00n\x00g\x00l\x00e\x00.\
+\x00q\x00m\x00l\
 \x00\x14\
 \x01\xee\x1c<\
 \x00M\
@@ -27322,21 +27301,6 @@ qt_resource_name = b"\
 \x00A\
 \x00c\x00t\x00i\x00v\x00i\x00t\x00e\x00R\x00e\x00c\x00t\x00a\x00n\x00g\x00l\x00e\
 \x00.\x00q\x00m\x00l\
-\x00\x13\
-\x04\x0c\xd6\xfc\
-\x00M\
-\x00a\x00t\x00i\x00e\x00r\x00e\x00C\x00o\x00m\x00b\x00o\x00B\x00o\x00x\x00.\x00q\
-\x00m\x00l\
-\x00\x14\
-\x05$F\xdc\
-\x00R\
-\x00e\x00c\x00e\x00n\x00t\x00s\x00R\x00e\x00c\x00t\x00a\x00n\x00g\x00l\x00e\x00.\
-\x00q\x00m\x00l\
-\x00\x13\
-\x0dP\x13\x9c\
-\x00R\
-\x00e\x00c\x00e\x00n\x00t\x00s\x00L\x00i\x00s\x00t\x00V\x00i\x00e\x00w\x00.\x00q\
-\x00m\x00l\
 \x00\x0f\
 \x03\x93J\x5c\
 \x00T\
@@ -27494,9 +27458,9 @@ qt_resource_name = b"\
 qt_resource_struct = b"\
 \x00\x00\x00\x00\x00\x02\x00\x00\x00\x05\x00\x00\x00\x01\
 \x00\x00\x00\x00\x00\x00\x00\x00\
-\x00\x00\x00\x00\x00\x02\x00\x00\x00\x01\x00\x00\x00;\
+\x00\x00\x00\x00\x00\x02\x00\x00\x00\x01\x00\x00\x00:\
 \x00\x00\x00\x00\x00\x00\x00\x00\
-\x00\x00\x00:\x00\x02\x00\x00\x00\x06\x00\x00\x00\x10\
+\x00\x00\x00:\x00\x02\x00\x00\x00\x05\x00\x00\x00\x10\
 \x00\x00\x00\x00\x00\x00\x00\x00\
 \x00\x00\x00\x1a\x00\x02\x00\x00\x00\x02\x00\x00\x00\x0e\
 \x00\x00\x00\x00\x00\x00\x00\x00\
@@ -27504,113 +27468,111 @@ qt_resource_struct = b"\
 \x00\x00\x00\x00\x00\x00\x00\x00\
 \x00\x00\x00*\x00\x02\x00\x00\x00\x01\x00\x00\x00\x06\
 \x00\x00\x00\x00\x00\x00\x00\x00\
-\x00\x00\x06\xaa\x00\x00\x00\x00\x00\x01\x00\x00\x9b6\
+\x00\x00\x06\x82\x00\x00\x00\x00\x00\x01\x00\x00\x99O\
 \x00\x00\x01p\x1c\x22\xb3\x0d\
-\x00\x00\x074\x00\x00\x00\x00\x00\x01\x00\x04[R\
+\x00\x00\x07\x0c\x00\x00\x00\x00\x00\x01\x00\x04Yk\
 \x00\x00\x01X#\xe5\xda@\
-\x00\x00\x07x\x00\x00\x00\x00\x00\x01\x00\x04\xc5\x97\
+\x00\x00\x07P\x00\x00\x00\x00\x00\x01\x00\x04\xc3\xb0\
 \x00\x00\x01q\xb7\xecQ\x10\
-\x00\x00\x07\x10\x00\x00\x00\x00\x00\x01\x00\x04P\xca\
+\x00\x00\x06\xe8\x00\x00\x00\x00\x00\x01\x00\x04N\xe3\
 \x00\x00\x01q\xb7\xecQ\x10\
-\x00\x00\x07P\x00\x00\x00\x00\x00\x01\x00\x04\x97W\
+\x00\x00\x07(\x00\x00\x00\x00\x00\x01\x00\x04\x95p\
 \x00\x00\x01X#\xe5\xda@\
-\x00\x00\x07\xda\x00\x00\x00\x00\x00\x01\x00\x05 \xa2\
+\x00\x00\x07\xb2\x00\x00\x00\x00\x00\x01\x00\x05\x1e\xbb\
 \x00\x00\x01q\xb7\xecQ\x10\
-\x00\x00\x07\xbe\x00\x00\x00\x00\x00\x01\x00\x04\xf3\xf7\
+\x00\x00\x07\x96\x00\x00\x00\x00\x00\x01\x00\x04\xf2\x10\
 \x00\x00\x01X#\xe5\xda@\
-\x00\x00\x07\x9a\x00\x00\x00\x00\x00\x01\x00\x04\xca\xaa\
+\x00\x00\x07r\x00\x00\x00\x00\x00\x01\x00\x04\xc8\xc3\
 \x00\x00\x01X#\xe5\xda@\
-\x00\x00\x06\xf8\x00\x00\x00\x00\x00\x01\x00\x03Y\xc2\
+\x00\x00\x06\xd0\x00\x00\x00\x00\x00\x01\x00\x03W\xdb\
 \x00\x00\x01739r\xc0\
-\x00\x00\x06\xdc\x00\x00\x00\x00\x00\x01\x00\x01nX\
+\x00\x00\x06\xb4\x00\x00\x00\x00\x00\x01\x00\x01lq\
 \x00\x00\x01q\xb7\xe7\xa1;\
-\x00\x00\x00\x8e\x00\x02\x00\x00\x00\x05\x00\x00\x006\
+\x00\x00\x00z\x00\x02\x00\x00\x00\x05\x00\x00\x005\
 \x00\x00\x00\x00\x00\x00\x00\x00\
-\x00\x00\x00F\x00\x02\x00\x00\x00\x0d\x00\x00\x00\x1f\
+\x00\x00\x00F\x00\x02\x00\x00\x00\x0d\x00\x00\x00\x1e\
 \x00\x00\x00\x00\x00\x00\x00\x00\
-\x00\x00\x00h\x00\x02\x00\x00\x00\x03\x00\x00\x00\x1c\
+\x00\x00\x00T\x00\x02\x00\x00\x00\x03\x00\x00\x00\x1b\
 \x00\x00\x00\x00\x00\x00\x00\x00\
-\x00\x00\x00|\x00\x02\x00\x00\x00\x04\x00\x00\x00\x18\
+\x00\x00\x00h\x00\x02\x00\x00\x00\x06\x00\x00\x00\x15\
 \x00\x00\x00\x00\x00\x00\x00\x00\
-\x00\x00\x00\x9c\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\
-\x00\x00\x01q\xc2\xb3\xb2!\
-\x00\x00\x00T\x00\x02\x00\x00\x00\x02\x00\x00\x00\x16\
-\x00\x00\x00\x00\x00\x00\x00\x00\
-\x00\x00\x02\xa0\x00\x00\x00\x00\x00\x01\x00\x00*G\
-\x00\x00\x01q\xc2\xb3\xb2\xb1\
-\x00\x00\x02\xce\x00\x00\x00\x00\x00\x01\x00\x00,\xfe\
-\x00\x00\x01q\xc7\xdd\xa5\xa5\
-\x00\x00\x01\x8a\x00\x00\x00\x00\x00\x01\x00\x00\x0f\xae\
+\x00\x00\x00\x88\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\
+\x00\x00\x01q\xcds\xaad\
+\x00\x00\x01v\x00\x00\x00\x00\x00\x01\x00\x00\x0f\x9d\
+\x00\x00\x01q\xcdi\x22\x14\
+\x00\x00\x01\xf8\x00\x00\x00\x00\x00\x01\x00\x00\x1d~\
+\x00\x00\x01q\xcd\x84\x12e\
+\x00\x00\x01\x98\x00\x00\x00\x00\x00\x01\x00\x00\x16\x82\
 \x00\x00\x01q\xc2\xb3\xb2\xcd\
-\x00\x00\x01\xc6\x00\x00\x00\x00\x00\x01\x00\x00\x12\xe6\
+\x00\x00\x01\xd4\x00\x00\x00\x00\x00\x01\x00\x00\x19\xba\
 \x00\x00\x01q\xc2\xb3\xb2\xcd\
-\x00\x00\x01\xea\x00\x00\x00\x00\x00\x01\x00\x00\x16\xaa\
+\x00\x00\x02\x1a\x00\x00\x00\x00\x00\x01\x00\x00\x1f\x9c\
 \x00\x00\x01q\xc2\xb3\xb2\xc9\
-\x00\x00\x01\xa2\x00\x00\x00\x00\x00\x01\x00\x00\x12S\
+\x00\x00\x01\xb0\x00\x00\x00\x00\x00\x01\x00\x00\x19'\
 \x00\x00\x01q\xc2\xb3\xb2\xd1\
-\x00\x00\x02\x16\x00\x00\x00\x00\x00\x01\x00\x00\x18m\
-\x00\x00\x01q\xc7~c<\
-\x00\x00\x02D\x00\x00\x00\x00\x00\x01\x00\x00\x22G\
-\x00\x00\x01q\xc7\x92\xec\x99\
-\x00\x00\x02t\x00\x00\x00\x00\x00\x01\x00\x00)\xf0\
-\x00\x00\x01q\xc2\xb3\xb2)\
-\x00\x00\x02\xfa\x00\x00\x00\x00\x00\x01\x00\x006B\
+\x00\x00\x02t\x00\x00\x00\x00\x00\x01\x00\x00\x22\xc5\
+\x00\x00\x01q\xcds8\xab\
+\x00\x00\x02\xa2\x00\x00\x00\x00\x00\x01\x00\x00,\xa6\
+\x00\x00\x01q\xcc\x96p\x7f\
+\x00\x00\x02F\x00\x00\x00\x00\x00\x01\x00\x00!_\
+\x00\x00\x01q\xcd|,\xc1\
+\x00\x00\x02\xd2\x00\x00\x00\x00\x00\x01\x00\x004[\
 \x00\x00\x01q\xc4\xb5\xe5-\
-\x00\x00\x03\xe4\x00\x01\x00\x00\x00\x01\x00\x00Iv\
+\x00\x00\x03\xbc\x00\x01\x00\x00\x00\x01\x00\x00G\x8f\
 \x00\x00\x01q\xc3MKW\
-\x00\x00\x03\x9c\x00\x00\x00\x00\x00\x01\x00\x00E\x16\
+\x00\x00\x03t\x00\x00\x00\x00\x00\x01\x00\x00C/\
 \x00\x00\x01q\xc2\xb3\xb2=\
-\x00\x00\x03\x1e\x00\x00\x00\x00\x00\x01\x00\x00=\x80\
+\x00\x00\x02\xf6\x00\x00\x00\x00\x00\x01\x00\x00;\x99\
 \x00\x00\x01q\xc2\xb3\xb2\x85\
-\x00\x00\x03\xca\x00\x02\x00\x00\x00\x0a\x00\x00\x00,\
+\x00\x00\x03\xa2\x00\x02\x00\x00\x00\x0a\x00\x00\x00+\
 \x00\x00\x00\x00\x00\x00\x00\x00\
-\x00\x00\x04\x5c\x00\x00\x00\x00\x00\x01\x00\x00VD\
+\x00\x00\x044\x00\x00\x00\x00\x00\x01\x00\x00T]\
 \x00\x00\x01q\xc2\xb3\xb21\
-\x00\x00\x04\x8a\x00\x00\x00\x00\x00\x01\x00\x00Z\x19\
+\x00\x00\x04b\x00\x00\x00\x00\x00\x01\x00\x00X2\
 \x00\x00\x01q\xc4\xb5\xe59\
-\x00\x00\x04\xde\x00\x01\x00\x00\x00\x01\x00\x00s\xe6\
+\x00\x00\x04\xb6\x00\x01\x00\x00\x00\x01\x00\x00q\xff\
 \x00\x00\x01q\xc2\xb3\xb2i\
-\x00\x00\x040\x00\x00\x00\x00\x00\x01\x00\x00T8\
+\x00\x00\x04\x08\x00\x00\x00\x00\x00\x01\x00\x00RQ\
 \x00\x00\x01q\xc2\xb3\xb2M\
-\x00\x00\x03v\x00\x01\x00\x00\x00\x01\x00\x00C'\
+\x00\x00\x03N\x00\x01\x00\x00\x00\x01\x00\x00A@\
 \x00\x00\x01q\xc2\xb3\xb2q\
-\x00\x00\x03>\x00\x00\x00\x00\x00\x01\x00\x00A\xa6\
+\x00\x00\x03\x16\x00\x00\x00\x00\x00\x01\x00\x00?\xbf\
 \x00\x00\x01q\xc3@\x9d\xa2\
-\x00\x00\x04\x08\x00\x00\x00\x00\x00\x01\x00\x00L\xcd\
+\x00\x00\x03\xe0\x00\x00\x00\x00\x00\x01\x00\x00J\xe6\
 \x00\x00\x01q\xc33\xa0i\
-\x00\x00\x04\xb4\x00\x00\x00\x00\x00\x01\x00\x00n\x14\
+\x00\x00\x04\x8c\x00\x00\x00\x00\x00\x01\x00\x00l-\
 \x00\x00\x01q\xc2\xb3\xb2\x89\
-\x00\x00\x05\x8c\x00\x00\x00\x00\x00\x01\x00\x00\x85\x15\
+\x00\x00\x05d\x00\x00\x00\x00\x00\x01\x00\x00\x83.\
 \x00\x00\x01q\xc2\xb3\xb2\xad\
-\x00\x00\x04\xfa\x00\x00\x00\x00\x00\x01\x00\x00}5\
+\x00\x00\x04\xd2\x00\x00\x00\x00\x00\x01\x00\x00{N\
 \x00\x00\x01q\xc2\xb3\xb2\x95\
-\x00\x00\x05\xf2\x00\x00\x00\x00\x00\x01\x00\x00\x8d\xdd\
+\x00\x00\x05\xca\x00\x00\x00\x00\x00\x01\x00\x00\x8b\xf6\
 \x00\x00\x01q\xc2\xb3\xb2\xa9\
-\x00\x00\x05^\x00\x00\x00\x00\x00\x01\x00\x00\x82V\
+\x00\x00\x056\x00\x00\x00\x00\x00\x01\x00\x00\x80o\
 \x00\x00\x01q\xc2\xb3\xb2\x8d\
-\x00\x00\x054\x00\x00\x00\x00\x00\x01\x00\x00\x81\xbf\
+\x00\x00\x05\x0c\x00\x00\x00\x00\x00\x01\x00\x00\x7f\xd8\
 \x00\x00\x01q\xc2\xb3\xb2\xad\
-\x00\x00\x05\xc2\x00\x00\x00\x00\x00\x01\x00\x00\x88\x96\
+\x00\x00\x05\x9a\x00\x00\x00\x00\x00\x01\x00\x00\x86\xaf\
 \x00\x00\x01q\xc2\xb3\xb2\xa5\
-\x00\x00\x06\x1a\x00\x00\x00\x00\x00\x01\x00\x00\x8f\xa4\
+\x00\x00\x05\xf2\x00\x00\x00\x00\x00\x01\x00\x00\x8d\xbd\
 \x00\x00\x01q\xc2\xb3\xb2\x91\
-\x00\x00\x068\x00\x00\x00\x00\x00\x01\x00\x00\x90q\
+\x00\x00\x06\x10\x00\x00\x00\x00\x00\x01\x00\x00\x8e\x8a\
 \x00\x00\x01q\xc2\xb3\xb2\x99\
-\x00\x00\x06\x84\x00\x00\x00\x00\x00\x01\x00\x00\x9a\xa1\
+\x00\x00\x06\x5c\x00\x00\x00\x00\x00\x01\x00\x00\x98\xba\
 \x00\x00\x01q\xc2\xb3\xb2\xa5\
-\x00\x00\x06V\x00\x00\x00\x00\x00\x01\x00\x00\x95q\
+\x00\x00\x06.\x00\x00\x00\x00\x00\x01\x00\x00\x93\x8a\
 \x00\x00\x01q\xc2\xb3\xb2\x9d\
-\x00\x00\x01\x22\x00\x01\x00\x00\x00\x01\x00\x00\x0d\x1a\
+\x00\x00\x01\x0e\x00\x01\x00\x00\x00\x01\x00\x00\x0d\x09\
 \x00\x00\x01q\xc2\xb3\xb2\xb5\
-\x00\x00\x00\xb2\x00\x00\x00\x00\x00\x01\x00\x00\x07\x1a\
+\x00\x00\x00\x9e\x00\x00\x00\x00\x00\x01\x00\x00\x07\x09\
 \x00\x00\x01q\xc2\xb3\xb2\xc1\
-\x00\x00\x01V\x00\x01\x00\x00\x00\x01\x00\x00\x0d\xed\
+\x00\x00\x01B\x00\x01\x00\x00\x00\x01\x00\x00\x0d\xdc\
 \x00\x00\x01q\xc2\xb3\xb2\xc5\
-\x00\x00\x00\xd0\x00\x01\x00\x00\x00\x01\x00\x00\x09H\
+\x00\x00\x00\xbc\x00\x01\x00\x00\x00\x01\x00\x00\x097\
 \x00\x00\x01q\xc2\xb3\xb2\xbd\
-\x00\x00\x00\xfe\x00\x00\x00\x00\x00\x01\x00\x00\x0a\x9c\
+\x00\x00\x00\xea\x00\x00\x00\x00\x00\x01\x00\x00\x0a\x8b\
 \x00\x00\x01q\xc2\xb3\xb2\xb9\
-\x00\x00\x07\xf4\x00\x01\x00\x00\x00\x01\x00\x05%n\
+\x00\x00\x07\xcc\x00\x01\x00\x00\x00\x01\x00\x05#\x87\
 \x00\x00\x01p\xd4p\xde<\
 "
 

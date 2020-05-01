@@ -191,6 +191,7 @@ Item {
   property color colorFond: Qt.rgba(130, 134, 138, 1)
   property color colorMainMenuBar: Qt.rgba(83 / 255, 93 / 255, 105 / 255, 1)
   property color colorPageToolBar: Qt.rgba(197 / 255, 197 / 255, 197 / 255, 1)
+  property string fontMain: "Verdana"
 
   // PAGE
 

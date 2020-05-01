@@ -27,6 +27,9 @@ ApplicationWindow {
     RowLayout {
       anchors.fill: parent
       spacing: 10
+      Rectangle { // margin left
+        Layout.fillHeight: true
+      }
       RecentsRectangle {
         id: _recentsRectangle
         Layout.fillWidth: true
@@ -49,6 +52,9 @@ ApplicationWindow {
         Layout.preferredWidth: ddb.getLayoutSizes("preferredSideWidth")
         Layout.maximumWidth: ddb.getLayoutSizes("maximumSideWidth")
         Layout.minimumWidth: ddb.getLayoutSizes("minimumSideWidth")
+      }
+      Rectangle { // margin left
+        Layout.fillHeight: true
       }
     }
 

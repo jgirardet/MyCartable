@@ -60,7 +60,7 @@ Item {
       verify(moveTextLeft.running == true)
       tested.move = false
       tryCompare(moveTextLeft, "running", false)
-      tryCompare(tested, "x", oldX, 10000)
+      tryCompare(tested, "x", oldX, 10000) // timeout pour la CI
       tryCompare(tested, "textInitialPosition", 0)
     }
 

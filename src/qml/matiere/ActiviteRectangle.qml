@@ -1,6 +1,9 @@
 import QtQuick 2.14
 import QtQuick.Controls 2.14
 import QtQuick.Layouts 1.14
+
+import "qrc:/qml/divers"
+
 Rectangle {
   id: base
   /* beautify preserve:start */
@@ -51,28 +54,14 @@ Rectangle {
       spacing: 3
       width: base.width
       height: lv.contentItem.childrenRect.height
-      //    headerPositioning: ListView.OverlayHeader
-      delegate: Button {
+      delegate: PageButton {
         id: but
         width: ListView.view.width
         height: lv.commonHeight
-        highlighted: hovered
-        contentItem: Label {
-          text: modelData.titre
-          color: ddb.currentMatiereItem.fgColor
-          verticalAlignment: Text.AlignVCenter
-        }
-        onClicked: {
-          ddb.currentPage = modelData.id
-
-        }
-        background: Rectangle {
-          anchors.fill: parent
-          radius: 10
-          //        color:  ddb.currentMatiereItem.bgColor
-          color: "#cdd0d3"
-          border.width: highlighted ? 3 : 1
-          //          border.color: modelData ? Qt.darker(modelData.bgColor, 3) : "white"
+        model: modelData
+        borderDefaultWidth: 0
+        Component.onCompleted: {
+          background.color = "#cdd0d3"
         }
       }
     }

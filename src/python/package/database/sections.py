@@ -297,17 +297,16 @@ class Annotation(db.Entity):
     relativeX = Required(float)
     relativeY = Required(float)
     section = Required(ImageSection)
-    color = Optional(int, size=32, unsigned=True)
+    style = Optional(db.Style, default=db.Style, cascade_delete=True)
 
-    def __init__(self, *args, **kwargs):
-        color = kwargs.pop("color", None)
-        if color and isinstance(color, QColor):
-            color = color.rgba()
-        super().__init__(*args, color=color, **kwargs)
+    def __init__(self, **kwargs):
+        if "style" in kwargs and isinstance(kwargs["style"], dict):
+            kwargs["style"] = db.Style(**kwargs["style"])
+        super().__init__(**kwargs)
 
     def to_dict(self, *args, **kwargs):
         dico = super().to_dict(*args, **kwargs)
-        dico["color"] = QColor(dico["color"]) if dico["color"] else None
+        dico["style"] = self.style.to_dict()
         return dico
 
     def before_insert(self):
@@ -325,7 +324,6 @@ class Stabylo(Annotation):
 
 class AnnotationText(Annotation):
     text = Optional(str)
-    underline = Optional(bool, default=False)
 
 
 class TableauSection(Section):

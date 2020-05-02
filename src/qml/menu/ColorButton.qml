@@ -8,7 +8,7 @@ Button {
   /* beautify preserve:start */
   property color color
   property var menu
-  property var type
+  property var style
   /* beautify preserve:end */
 
   Layout.fillHeight: true
@@ -25,8 +25,7 @@ Button {
     id: action
     onTriggered: {
       uiManager.menuTarget.setStyleFromMenu({
-        "type": root.type,
-        "value": root.color
+        "style": style
       })
       menu.ferme()
     }

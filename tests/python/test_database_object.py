@@ -1,3 +1,4 @@
+import logging
 import sys
 import uuid
 
@@ -10,7 +11,7 @@ from package.database_mixins.page_mixin import PageMixin
 from package.database_object import DatabaseObject
 from package.database.factory import *
 from unittest.mock import patch, call
-
+from package.files_path import FILES
 from pony.orm import exists, make_proxy
 
 
@@ -266,6 +267,36 @@ class TestLayoutMixin:
             == constantes.preferredCentralWidth
         )
 
+    def test_setStyle(self, dao: DatabaseObject, caplog):
+        check_args(dao.setStyle, (int, dict), bool)
+        a = f_style()
+
+        # normal
+        r = dao.setStyle(a.id, {"underline": True, "bgColor": "red"})
+        assert r
+        with db_session:
+            item = dao.db.Style[a.id]
+            assert item.bgColor == "red"
+            assert item.underline == True
+
+        # bad params
+        r = dao.setStyle(a.id, {"badparam": True})
+        assert "Unknown attribute 'badparam'" in caplog.records[0].msg
+        assert caplog.records[0].levelname == "ERROR"
+        caplog.clear()
+
+        # style does not exists
+        with db_session:
+            b = dao.db.Style[a.id]
+            b.delete()
+
+        r = dao.setStyle(a.id, {"underline": True})
+        assert (
+            caplog.records[0].msg
+            == "Echec de la mise à jour du style : ObjectNotFound  Style[1]"
+        )
+        assert caplog.records[0].levelname == "ERROR"
+
 
 class TestSectionMixin:
     def test_loadsection_image(self, dao):
@@ -450,7 +481,6 @@ class TestImageSectionMixin:
                 "relativeY": 0.4,
                 "relativeWidth": 0.5,
                 "relativeHeight": 0.6,
-                "color": 123123123,
             },
             {
                 "classtype": "Stabylo",
@@ -459,7 +489,7 @@ class TestImageSectionMixin:
                 "relativeY": 0.4,
                 "relativeWidth": 0.5,
                 "relativeHeight": 0.6,
-                "color": QColor(123123123),
+                "style": {"bgColor": "red"},
             },
             {
                 "classtype": "AnnotationText",
@@ -467,20 +497,29 @@ class TestImageSectionMixin:
                 "relativeX": 0.3,
                 "relativeY": 0.4,
                 "text": "",
-                "color": 123123123,
-                "underline": None,
+                # "underline": None,
             },
         ],
     )
     def test_addAnnotation(self, dao, content):
         s = f_imageSection()
         wait()
-        res = dao.addAnnotation(content)
+        c_style = {}
+        if "style" in content:
+            c_style = dict(content["style"])
+
+        item = dao.addAnnotation(content)
 
         with db_session:
             item = s.annotations.select()[:][0].to_dict()
-            assert item.pop("id") == res
+            assert item.pop("id")
             assert item.pop("section") == s.id
+            style = item.pop("style")
+            if c_style:
+                c_style = content.pop("style")
+                for k, v in c_style.items():
+                    assert style[k] == v
+
             assert item == content
 
     def test_loadAnnotations(self, dao):
@@ -489,31 +528,36 @@ class TestImageSectionMixin:
         res = dao.loadAnnotations(s.id)
         assert len(res) == 5
 
-    def test_udate_annotations_args(self, dao):
-        check_args(dao.updateAnnotation, (int, dict))
+    def test_update_annotations_args(self, dao):
+        check_args(dao.updateAnnotation, (int, dict), bool)
 
     @pytest.mark.parametrize(
-        "key,value,res",
+        "genre, content",
         [
-            ("text", "bla", None),
-            ("color", QColor(123123123), None),
-            ("underline", QColor("red"), True),
+            ("AnnotationText", {"text": "bla"}),
+            ("AnnotationText", {"style": {"underline": True}}),
+            (
+                "AnnotationText",
+                {"style": {"fgColor": QColor("red")}, "text": "oiuouoi"},
+            ),
+            ("Stabylo", {"relativeWidth": 0.3, "style": {"strikeout": True}}),
         ],
     )
-    def test_updateAnnotationText(self, dao, ddbn, key, value, res):
+    def test_updateAnnotation(self, dao, ddbn, genre, content):
 
-        a = f_annotationText()
-        dao.updateAnnotation(a.id, {"type": key, "value": value})
+        from package.database import factory
+
+        fn = "f_" + genre[0].lower() + genre[1:]
+        a = getattr(factory, fn)()
+        dao.updateAnnotation(a.id, content)
         with db_session:
-            assert getattr(ddbn.Annotation[a.id], key) == res or value
-
-    @pytest.mark.parametrize("key,value", [("color", QColor(123123123))])
-    def test_updateAnnotationStabylo(self, dao, ddbn, key, value):
-
-        a = f_stabylo()
-        dao.updateAnnotation(a.id, {"type": key, "value": value})
-        with db_session:
-            assert getattr(ddbn.Annotation[a.id], key) == value
+            item = ddbn.Annotation[a.id]
+            for k, v in content.items():
+                if k == "style":
+                    for i, j in v.items():
+                        assert getattr(item.style, i) == j
+                else:
+                    assert getattr(item, k) == v
 
     def test_deleteAnnotation(self, dao, ddbn):
         check_args(dao.deleteAnnotation, int)

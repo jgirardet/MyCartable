@@ -9,26 +9,34 @@ BaseMenu {
       anchors.fill: parent
       spacing: 0
       ColorButton {
-        type: "color"
         color: "red"
+        style: {
+          "fgColor": color
+        }
         shortcut: "Ctrl+r"
         menu: root
       }
       ColorButton {
-        type: "color"
         color: "blue"
+        style: {
+          "fgColor": color
+        }
         shortcut: "Ctrl+b"
         menu: root
       }
       ColorButton {
-        type: "color"
         color: "green"
+        style: {
+          "fgColor": color
+        }
         shortcut: "Ctrl+g"
         menu: root
       }
       ColorButton {
-        type: "color"
         color: "black"
+        style: {
+          "fgColor": color
+        }
         shortcut: "Ctrl+n"
         menu: root
       }
@@ -46,30 +54,42 @@ BaseMenu {
       anchors.fill: parent
       spacing: 0
       ColorButton {
-        type: "underline"
         color: "red"
+        style: {
+          "fgColor": color,
+          "underline": "true"
+        }
         shortcut: "Alt+r"
         menu: root
         text: "S"
       }
       ColorButton {
-        type: "underline"
         color: "blue"
+        style: {
+          "fgColor": color,
+          "underline": "true"
+        }
         shortcut: "Alt+b"
         menu: root
         text: "S"
       }
       ColorButton {
-        type: "underline"
         color: "green"
+        style: {
+          "fgColor": color,
+          "underline": "true"
+        }
         shortcut: "Alt+g"
         menu: root
         text: "S"
 
       }
       ColorButton {
-        type: "underline"
         color: "black"
+        style: {
+          "fgColor": color,
+          "underline": "true"
+        }
         shortcut: "Alt+n"
         menu: root
         text: "S"

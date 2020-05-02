@@ -4,7 +4,7 @@ from PySide2.QtGui import QColor
 class ColorMixin:
     @staticmethod
     def color_getter(value):
-        return QColor(value) if value else None
+        return QColor.fromRgba(value)
 
     @staticmethod
     def color_setter(value):

@@ -5,15 +5,13 @@ import mimesis
 import random
 
 from PySide2.QtGui import QColor
-from package.constantes import ACTIVITES
 from package.default_matiere import MATIERE_GROUPE, MATIERES
-from package.files_path import FILES
-from package.operations.api import convert_addition, create_operation
 from pony.orm import db_session, flush
 
 gen = mimesis.Generic("fr")
 
 from package.database import db
+from package.database.models import *
 
 
 def f_datetime(start=None, end=None):
@@ -185,23 +183,23 @@ def f_stabylo(
     relativeHeight=None,
     td=False,
     section=None,
-    color=None,
+    style=None,
 ):
     relativeX = relativeX or random.randint(0, 100) / 100
     relativeY = relativeY or random.randint(0, 100) / 100
     relativeWidth = relativeWidth or random.randint(0, 100) / 100
     relativeHeight = relativeHeight or random.randint(0, 100) / 100
     section = section or f_section().id
-    color = QColor(color).rgba() if color else None
-
     with db_session:
+        style = style or db.Style()
+        flush()
         item = db.Stabylo(
             relativeX=relativeX,
             relativeY=relativeY,
             relativeWidth=relativeWidth,
             relativeHeight=relativeHeight,
             section=section,
-            color=color,
+            style=style if isinstance(style, (int, dict)) else style.id,
         )
         return item.to_dict() if td else item
 
@@ -211,28 +209,21 @@ def b_stabylo(n, *args, **kwargs):
 
 
 def f_annotationText(
-    relativeX=None,
-    relativeY=None,
-    text=None,
-    td=False,
-    section=None,
-    color=None,
-    underline=False,
+    relativeX=None, relativeY=None, text=None, td=False, section=None, style=None,
 ):
     relativeX = relativeX or random.randint(0, 100) / 100
     relativeY = relativeY or random.randint(0, 100) / 100
     text = text or " ".join(gen.text.words(2))
     section = section or f_section().id
-    color = QColor(color).rgba() if color else None
-
     with db_session:
+        style = style or db.Style()
+        flush()
         item = db.AnnotationText(
             relativeX=relativeX,
             relativeY=relativeY,
             text=text,
             section=section,
-            color=color,
-            underline=underline,
+            style=style.id if isinstance(style, int) else style,
         )
         return item.to_dict() if td else item
 
@@ -341,6 +332,30 @@ def f_tableauCell(x=0, y=0, bgColor=None, tableau=None, td=False):
     with db_session:
         item = getattr(db, "TableauCell")(x=x, y=y, tableau=tableau, bgColor=bgColor,)
         item.flush()
+        return item.to_dict() if td else item
+
+
+def f_style(
+    fgColor=None,
+    bgColor=None,
+    family="",
+    underline=False,
+    pointSize=None,
+    strikeout=False,
+    weight=None,
+    td=False,
+):
+
+    with db_session:
+        item = Style(
+            fgColor=fgColor,
+            bgColor=bgColor,
+            family=family,
+            underline=underline,
+            pointSize=pointSize,
+            strikeout=strikeout,
+            weight=weight,
+        )
         return item.to_dict() if td else item
 
 

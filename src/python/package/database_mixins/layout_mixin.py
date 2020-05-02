@@ -1,7 +1,11 @@
 from PySide2.QtCore import Property, Signal, Slot
 from PySide2.QtGui import QColor
 from package.constantes import LAYOUT_SIZES
-from pony.orm import db_session
+from pony.orm import db_session, ObjectNotFound
+
+import logging
+
+LOG = logging.getLogger(__name__)
 
 
 class LayoutMixin:
@@ -10,6 +14,22 @@ class LayoutMixin:
     @Slot(str, result=float)
     def getLayoutSizes(self, nom):
         return LAYOUT_SIZES[nom]
+
+    @Slot(int, "QVariantMap", result=bool)
+    def setStyle(self, styleId, content):
+        with db_session:
+            try:
+                item = self.db.Style[styleId]
+                item.set(**content)
+            except ObjectNotFound as err:
+                LOG.error(
+                    f"Echec de la mise à jour du style : {type(err).__name__}  {err}"
+                )
+                return
+            except TypeError as err:
+                LOG.error(f"Echec de la mise à jour du style : {err}")
+                return
+            return True
 
     ColorChanged = Signal()
 

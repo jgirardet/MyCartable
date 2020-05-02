@@ -8,15 +8,13 @@ import tempfile
 
 
 class ImageSectionMixin:
-    @Slot("QVariantMap", result=int)
+    @Slot("QVariantMap", result="QVariantList")
     def addAnnotation(self, content):
-        item_id = 0
         with db_session:
             section = int(content.pop("section"))
             item = getattr(self.db, content["classtype"])(**content, section=section)
-
-        item_id = item.id
-        return item_id
+            print("add", [item.to_dict(), item.to_dict()["style"]])
+            return [item.to_dict(), item.to_dict()["style"]]
 
     @Slot(int)
     def deleteAnnotation(self, annotation_id):
@@ -29,25 +27,19 @@ class ImageSectionMixin:
         with db_session:
             obj = self.db.ImageSection[section]
             res = [p.to_dict() for p in obj.annotations]
+            print(res)
             return res
 
-    @Slot(int, "QVariantMap")
+    @Slot(int, "QVariantMap", result=bool)
     def updateAnnotation(self, annotation_id, dico):
         with db_session:
             item = self.db.Annotation[annotation_id]
-            res = {}
-            if dico["type"] == "color":
-                res["color"] = dico["value"].rgba()
-                if item.classtype == "AnnotationText":
-                    res["underline"] = False
-
-            elif dico["type"] == "underline":
-                res["color"] = dico["value"].rgba()
-                res["underline"] = True
-            else:
-                res[dico["type"]] = dico["value"]
-
-            item.set(**res)
+            print(dico)
+            if "style" in dico:
+                style = dico.pop("style")
+                item.style.set(**style)
+            item.set(**dico)
+        return True
 
     def get_new_image_path(self, ext):
         return Path(str(self.annee_active), get_new_filename(ext)).as_posix()

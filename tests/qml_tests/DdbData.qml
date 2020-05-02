@@ -5,6 +5,10 @@ import QtTest 1.12
 
 Item {
 
+  Component.onCompleted: {
+    //    print("##############  DDBDATA NON A JOURS##########")
+  }
+
   // Matiere MIXIN
   property int currentMatiere: 0
 
@@ -271,7 +275,27 @@ Item {
 
   function addAnnotation(content) {
     _addAnnotation = content
-    return 99
+    return {
+      'id': 1,
+      'relativeX': 0.3,
+      'relativeY': 0.4,
+      'section': 1,
+      'style': {
+        'id': 1,
+        'family': '',
+        'underline': False,
+        'pointSize': None,
+        'strikeout': False,
+        'weight': None,
+        'annotation': 1,
+        'bgColor': 'transparent',
+        'fgColor': "black"
+      },
+      'classtype': 'Stabylo',
+      'relativeWidth': 0.5,
+      'relativeHeight': 0.6
+    }
+
   }
   property
   var _addAnnotation
@@ -291,41 +315,83 @@ Item {
     'relativeX': 0.16367713004484305,
     'relativeY': 0.6580976863753213,
     'section': 3796,
-    'color': "red",
     'classtype': 'AnnotationText',
     'text': "un annotation",
-    'underline': false
+    'style': {
+      'id': 1,
+      'family': '',
+      'underline': false,
+      'pointSize': null,
+      'strikeout': false,
+      'weight': null,
+      'annotation': 1,
+      'bgColor': "transparent",
+      'fgColor': "red"
+    }
   }, {
     'id': 6,
     'relativeX': 0.531390134529148,
     'relativeY': 0.531390134529148,
     'section': 3796,
-    'color': "blue",
     'classtype': 'Stabylo',
     'relativeWidth': 0.226457399103139,
-    'relativeHeight': 0.07969151670951156
+    'relativeHeight': 0.07969151670951156,
+    'style': {
+      'id': 12,
+      'family': '',
+      'underline': false,
+      'pointSize': null,
+      'strikeout': false,
+      'weight': null,
+      'annotation': 1,
+      'bgColor': "blue",
+      'fgColor': "black"
+    }
+
   }, {
     'id': 5,
     'relativeX': 0.30269058295964124,
     'relativeY': 0.38303341902313626,
     'section': 3796,
-    'color': "green",
     'classtype': 'AnnotationText',
     'text': 'fzefzefzef',
-    'underline': true
+    'style': {
+      'id': 44,
+      'family': '',
+      'underline': true,
+      'pointSize': null,
+      'strikeout': false,
+      'weight': null,
+      'annotation': 1,
+      'bgColor': "transparent",
+      'fgColor': "green"
+    }
+
   }, {
     'id': 4,
     'relativeX': 0.16367713004484305,
     'relativeY': 0.18508997429305912,
     'section': 3796,
-    'color': null,
     'classtype': 'Stabylo',
     'relativeWidth': 0.09417040358744394,
-    'relativeHeight': 0.05912596401028278
+    'relativeHeight': 0.05912596401028278,
+    'style': {
+      'id': 5,
+      'family': '',
+      'underline': false,
+      'pointSize': null,
+      'strikeout': false,
+      'weight': null,
+      'annotation': 1,
+      'bgColor': "transparent",
+      'fgColor': "black"
+    }
   }]
 
   function updateAnnotation(anotid, dico) {
+    retValue = _updateAnnotation
     _updateAnnotation = [anotid, dico]
+    return retValue
   }
   property
   var _updateAnnotation

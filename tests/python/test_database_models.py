@@ -1,4 +1,6 @@
 import itertools
+
+from PySide2.QtGui import QFont
 from fixtures import compare, compare_items, check_is_range, wait
 from package.database.factory import *
 import pytest
@@ -693,11 +695,35 @@ class TestDivisionSection:
 
 
 class TestAnnotations:
+    def test_init(self):
+        # with dict
+        a = f_stabylo(style={"bgColor": "red"}, td=True)
+        assert a["style"]["bgColor"] == "red"
+
     def test_factory_stabylo(self, ddbr):
         a = f_stabylo()
         isinstance(a, db.Stabylo)
         a = f_stabylo(0.30, 0.40, 0.50, 0.60, td=True)
-        assert list(a.values()) == [2, 0.3, 0.4, 2, None, "Stabylo", 0.5, 0.6]
+        assert list(a.values()) == [
+            2,
+            0.3,
+            0.4,
+            2,
+            {
+                "bgColor": QColor("transparent"),
+                "fgColor": QColor("black"),
+                "annotation": 2,
+                "family": "",
+                "id": 2,
+                "pointSize": None,
+                "strikeout": False,
+                "underline": False,
+                "weight": None,
+            },
+            "Stabylo",
+            0.5,
+            0.6,
+        ]
 
     def test_factory_annotationtext(self, ddbr):
         a = f_annotationText()
@@ -708,13 +734,22 @@ class TestAnnotations:
             0.3,
             0.4,
             2,
-            None,
+            {
+                "bgColor": QColor("transparent"),
+                "fgColor": QColor("black"),
+                "annotation": 2,
+                "family": "",
+                "id": 2,
+                "pointSize": None,
+                "strikeout": False,
+                "underline": False,
+                "weight": None,
+            },
             "AnnotationText",
             "coucou",
-            False,
         ]
 
-    def test_create_annotation_accept_qcolor(self, ddbr):
+    def test_create_annotation_accept_style(self, ddbr):
         s = f_section()
         with db_session:
             item = ddbr.Stabylo(
@@ -723,39 +758,44 @@ class TestAnnotations:
                 relativeWidth=0.5,
                 relativeHeight=0.5,
                 section=s.id,
-                color=QColor("red"),
+                style=db.Style(fgColor="red"),
             )
-            assert item.color == QColor("red").rgba()
+            assert item.style.fgColor == QColor("red")
 
-            # test with simple wrga int
-            item = ddbr.Stabylo(
-                relativeX=0.5,
-                relativeY=0.5,
-                relativeWidth=0.5,
-                relativeHeight=0.5,
-                section=s.id,
-                color=QColor("red").rgba(),
-            )
-            assert item.color == QColor("red").rgba()
-
-    def test_annotatation_to_dict(self, ddbr):
-        a = f_stabylo(td=True, color="red")
-        assert isinstance(a["color"], QColor)
-        assert a["color"] == QColor("red")
+    def test_annotation_to_dict(self, ddbr):
+        s = f_style(fgColor="red")
+        print(s._fgColor, QColor.fromRgba(s._fgColor))
+        a = f_stabylo(td=True, style=s.id)
+        assert a["style"]["fgColor"] == QColor("red")
 
         # None case
-        a = f_stabylo(td=True, color=None)
-        assert a["color"] is None
-
-    def test_annotatationText_to_dict(self, ddbr):
-        a = f_annotationText(td=True, color="red", underline=True)
-        assert isinstance(a["color"], QColor)
-        assert a["color"] == QColor("red")
-        assert a["underline"] == True
-
-        # None case
-        a = f_stabylo(td=True, color=None)
-        assert a["color"] is None
+        a = f_stabylo(
+            relativeHeight=0.33,
+            relativeWidth=0.5,
+            relativeX=0.8,
+            relativeY=0.67,
+            td=True,
+        )
+        assert a == {
+            "classtype": "Stabylo",
+            "id": 2,
+            "relativeHeight": 0.33,
+            "relativeWidth": 0.5,
+            "relativeX": 0.8,
+            "relativeY": 0.67,
+            "section": 2,
+            "style": {
+                "annotation": 2,
+                "bgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 0.000000),
+                "family": "",
+                "fgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 1.000000),
+                "id": 2,
+                "pointSize": None,
+                "strikeout": False,
+                "underline": False,
+                "weight": None,
+            },
+        }
 
     def test_add_modify_section_and_page_modified_attribute(self, ddbr):
         p = f_page()
@@ -890,3 +930,40 @@ class TestTableauCell:
         a.bgColor = "red"
         assert a._bgColor == 4294901760
         assert a.bgColor == QColor("red")
+
+
+class TestStyle:
+    def test_init(self, ddb):
+        # set tout
+        item = Style(
+            fgColor="red",
+            bgColor="blue",
+            family="Verdana",
+            underline=True,
+            pointSize=1.5,
+            strikeout=True,
+            weight=QFont.DemiBold,
+        )
+        assert item.fgColor == QColor("red")
+        assert item.bgColor == QColor("blue")
+        # uniquement par défault
+        item = Style()
+        assert item.fgColor == QColor("black")
+        assert item.bgColor == QColor("transparent")
+        assert item.family == ""
+        assert item.underline == False
+        assert item.pointSize == None
+        assert item.strikeout == False
+        assert item.weight == None
+
+    def test_factory(self):
+        item = f_style()
+
+    def test_set(self, ddb):
+        item = ddb.Style()
+        item.set(**{"underline": True})
+        assert item.underline
+        item.set(**{"bgColor": "red"})
+        assert item._bgColor == QColor("red").rgba()
+        item.set(**{"fgColor": "red"})
+        assert item._fgColor == QColor("red").rgba()

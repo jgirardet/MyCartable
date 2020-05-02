@@ -32,15 +32,19 @@ FocusScope {
       "relativeY": mouseEvent.y / img.implicitHeight,
       "referent": root
     })
-    var newId = ddb.addAnnotation({
+    var [newDdbObj, stylObj] = ddb.addAnnotation({
       "relativeX": newObject.relativeX,
       "relativeY": newObject.relativeY,
       "section": parseInt(root.sectionId),
       "classtype": "AnnotationText",
       "text": ""
     })
-    if (newId) {
-      newObject.ddbId = newId
+    if (newDdbObj) {
+      newObject.ddbId = newDdbObj.id
+      for (var x in stylObj) {
+        print(x, stylObj[x])
+      }
+      newObject.objStyle = stylObj
       annotations.push(newObject)
       newObject.forceActiveFocus()
       return newObject
@@ -71,7 +75,7 @@ FocusScope {
         "relativeY": z.relativeY,
         "referent": root,
         "ddbId": z.id,
-        "color": z.color,
+        "style": z.style,
       }
       let newObject
       switch (z.classtype) {

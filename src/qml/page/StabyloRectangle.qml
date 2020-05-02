@@ -10,6 +10,9 @@ Rectangle {
   property real relativeWidth: 0
   property real relativeHeight: 0
   property int ddbId: 0
+  /* beautify preserve:start */
+  property var style
+  /* beautify preserve:end */
 
   signal deleteRequested(QtObject anotObj)
 
@@ -18,7 +21,7 @@ Rectangle {
   x: relativeX * referent.width
   y: relativeY * referent.height
 
-  color: Qt.rgba(0.5, 0.4, 0.2)
+  color: style.bgColor
   opacity: 0.2
 
   MouseArea {

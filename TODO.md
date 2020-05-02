@@ -2,19 +2,14 @@
 
 ## Beta
     - changer taille de police
-        - menu
-        - menu contextuel
-        - zone text
-        - tableau
+        - zone text [A refaire avec style zone text]
+    - mise en page zone de text
     - reverifier tous les update recents
-    - finir les tableaux
     - traits sur image
-    - mini module de dessin (image blanche)
     - rotation image  
     - supprimer section
     - insérer entre section
     - déplacer section
-    - mise en page zone de text
     - Bug : entrer ajoute une ligne annotation text
     - scrollbar pour la page
     - tester changment de size font dans section_text
@@ -24,6 +19,7 @@
 
     
 ## 1.0
+    - mini module de dessin (image blanche)
     - fialedialog ne prend pas en compte le folder de départ
     - route attente chargement pour pdf
     - rogner l'image

@@ -232,21 +232,22 @@ eFromMenu({\x0a    \
 le\x0a      })\x0a    \
   menu.ferme()\x0a \
    }\x0a  }\x0a}\
-\x00\x00\x00\xcf\
+\x00\x00\x00\xdd\
 \x00\
-\x00\x02\xe3x\x9c\xb5\x90\xc1\x0a\xc20\x0c\x86\xef}\x8a\
-\xb0\x07\x18nx\xdaQO\x82\x1e\xe6\x1b\xd4\x1a]\xb1\
-kf\x9a\x22C\xf6\xeen:&\x82\xe0A\x96CI\
-\xbe\x9f|\x84\xda\xba!\x16(\xa5\x8c\xd6\x5c O\xb3\
-\xa5\xb2\x1f,]\x93\x17&\x17\xbe\x86[\xddR\x94\x00\
-Y\x9a\xe5J\xadt\xc0\x1d\xfa\x08w\x05`\x8f\x050\
-\x91\xf4\xed\xc06\x82\xf5\x93\x03\xec\xe9\xf6\xda\x1bg\x00\
-\xedME\x1c\xd2\x93u\xae\x80F3z\x19\xa3\xd0h\
-c\xfd\xb9\x80\xc5\x08\xd6\xe4\x88WQ\x84\xfc\xb4\x0f \
-m\x83\x05$f\x08\x93\x89>\xc7\x1e3\x1e\xdf\xb0\xee\
-\xaf\x99N\x1b\xaa\xfb\xc3|p\x11gR\xebk\xd43\
-\xa9\xcf\x8c\xe8gr\x9bJ\xb30\xc60\xd7\xbf\xb4\xe8\
-\x1c\xdd~\xca\x87\xb7S\xaa{\x00\xf4\xb0\xc6 \
+\x00\x03\xa3x\x9c\xc5\x90A\x8a\xc30\x0cE\xf7>\x85\
+\xc8\x01\xc2\xa4\xcc\xca\xcbvUh\x17\xed\x0d\x5cW\x93\
+\x9aq\xacT\x96\x09a\xc8\xdd\x9b\xa4\xc1t`\xa0\xab\
+!\x1bI~\xff\x8b/\xec\x9a\x96X\xe0$\xa7\xe4\xec\
+7l\xca\xeaS\xb9_\xac\xdcQ\x10&\x1f\xff\x14\x0f\
+\xa6\xa7$\x11\xaa\xb2\xda(\xb55\x11\x8f\x18\x12\xfc(\
+\x00w\xd5\xc0D2\x8e\x13\xdb\x0b63\x078S\xf7\
+\xdc[\xde\x00&\xd8\x1bq,\xbf\x9c\xf7\x1aZ\xc3\x18\
+d\x91bk\xac\x0b\xb5\x86\x8f\x05\xec\xc8\x13o\x93\x08\
+\x85\xbc?\xda\xa4\xf7\xa8_\x00@q\xa9go\xa1\xc1\
+N=KC\x9ef\xae\xa1`\xbc\x16\x196\xe3\xb5\xf9\
+\xf4W\xff\x7f$_|\xc2\x95\xa2\xcd=\x99\x95\xa2k\
+F\x0c+e\xdb\x9baaLq\xad\x7f\xef\xd1{\xea\
+\xde\x86OuPjx\x00|\x22\xefN\
 \x00\x00\x01\xf8\
 \x00\
 \x00\x09\xccx\x9c\xcd\x95\xc1\x8e\xd30\x10\x86\xefy\x8a\
@@ -1110,43 +1111,68 @@ r\x1b\x82q\x90\x85`\xfc\xbd\xc3/\x89\x12\x0c\x07\xfe\
 \xa3\x8c\x1b\xb36\xc5\x1a\xa7\xc6(\xefH\xa6\xa5\x98\xbb\
 S:\xca\x99L\x8c\xe4\x8e\xb4G`|S\x12Gs\
 \xc8\x15\xddS\xab\x0f\xb3<\xd0\x05\
-\x00\x00\x04\xa6\
+\x00\x00\x06>\
 i\
 mport QtQuick 2.\
-12\x0aimport QtQuic\
-k.Controls 2.12\x0a\
+14\x0aimport QtQuic\
+k.Controls 2.14\x0a\
 import \x22qrc:/qml\
 /menu\x22\x0a\x0aRectangl\
-e {\x0a  id: contro\
-l\x0a  property QtO\
-bject referent\x0a \
- property real r\
-elativeX\x0a  prope\
-rty real relativ\
-eY\x0a  property re\
-al relativeWidth\
-: 0\x0a  property r\
-eal relativeHeig\
-ht: 0\x0a  property\
- int ddbId: 0\x0a  \
-/* beautify pres\
-erve:start */\x0a  \
-property var sty\
-le\x0a  /* beautify\
- preserve:end */\
-\x0a\x0a  signal delet\
-eRequested(QtObj\
-ect anotObj)\x0a\x0a  \
-height: relative\
-Height * referen\
-t.height\x0a  width\
-: relativeWidth \
-* referent.width\
-\x0a  x: relativeX \
-* referent.width\
-\x0a  y: relativeY \
-* referent.heigh\
-t\x0a\x0a  color: styl\
+e {\x0a  id: root\x0a \
+ property QtObje\
+ct referent\x0a  /*\
+ beautify preser\
+ve:start */\x0a  pr\
+operty var model\
+\x0a  property var \
+objStyle\x0a  /* be\
+autify preserve:\
+end */\x0a\x0a  proper\
+ty real relative\
+X: model.relativ\
+eX\x0a  property re\
+al relativeY: mo\
+del.relativeY\x0a  \
+property real re\
+lativeWidth: mod\
+el.relativeWidth\
+\x0a  property real\
+ relativeHeight:\
+ model.relativeH\
+eight\x0a  property\
+ int ddbId: mode\
+l.id\x0a\x0a  signal d\
+eleteRequested(Q\
+tObject anotObj)\
+\x0a  property bool\
+ pushed: false /\
+/ qand ajout\xc3\xa9 d\
+ans annotations\x0a\
+\x0a  Binding {\x0a   \
+ when: pushed\x0a  \
+  target: root\x0a \
+   property: 're\
+lativeWidth'\x0a   \
+ value: root.mod\
+el.relativeWidth\
+\x0a  }\x0a  Binding {\
+\x0a    when: pushe\
+d\x0a    target: ro\
+ot\x0a    property:\
+ 'relativeHeight\
+'\x0a    value: roo\
+t.model.relative\
+Height\x0a  }\x0a  hei\
+ght: relativeHei\
+ght * referent.h\
+eight\x0a  width: r\
+elativeWidth * r\
+eferent.width\x0a  \
+x: relativeX * r\
+eferent.width\x0a  \
+y: relativeY * r\
+eferent.height\x0a\x0a\
+  color: objStyl\
 e.bgColor\x0a  opac\
 ity: 0.2\x0a\x0a  Mous\
 eArea {\x0a    obje\
@@ -1161,32 +1187,32 @@ on\x0a    onPressed\
 use.button === Q\
 t.MiddleButton) \
 {\x0a        delete\
-Requested(contro\
-l) // tested in \
-tst_annotableima\
-ge\x0a      } else \
-if (mouse.button\
- === Qt.RightBut\
-ton) {\x0a        u\
-iManager.menuFlo\
-ttantStabylo.ouv\
-re(control)\x0a    \
-    mouse.accept\
-ed = true\x0a      \
-}\x0a    }\x0a\x0a  }\x0a  C\
-omponent.onCompl\
-eted: deleteRequ\
-ested.connect(re\
-ferent.deleteAnn\
-otation)\x0a\x0a  func\
-tion setStyleFro\
-mMenu(data) {\x0a  \
-  ddb.updateAnno\
-tation(control.d\
-dbId, data)\x0a    \
-control[data.typ\
-e] = data.value\x0a\
-  }\x0a}\
+Requested(root) \
+// tested in tst\
+_annotableimage\x0a\
+      } else if \
+(mouse.button ==\
+= Qt.RightButton\
+) {\x0a        uiMa\
+nager.menuFlotta\
+ntStabylo.ouvre(\
+root)\x0a        mo\
+use.accepted = t\
+rue\x0a      }\x0a    \
+}\x0a  }\x0a  Componen\
+t.onCompleted: d\
+eleteRequested.c\
+onnect(referent.\
+deleteAnnotation\
+)\x0a\x0a  function se\
+tStyleFromMenu(d\
+ata) {\x0a    var r\
+es = ddb.setStyl\
+e(objStyle.id, d\
+ata[\x22style\x22])\x0a  \
+  if (res) {\x0a   \
+   objStyle = re\
+s\x0a    }\x0a  }\x0a}\
 \x00\x00\x04*\
 \x00\
 \x00\x11ix\x9c\xbdW\xddn\xdb6\x14\xbe\xd7S\x10\
@@ -1461,7 +1487,7 @@ rrentIndex = mod\
 el.lastPosition\x0a\
       }\x0a    }\x0a  \
 }\x0a\x0a}\
-\x00\x00\x14x\
+\x00\x00\x14\x1a\
 i\
 mport QtQuick 2.\
 14\x0aimport QtQuic\
@@ -1517,404 +1543,422 @@ h : \x22file:///\x22 +\
 nes()\x0a  }\x0a\x0a  fun\
 ction addAnnotat\
 ion(mouseEvent) \
-{\x0a\x0a    let newOb\
-ject = annotatio\
-nText.createObje\
-ct(root, {\x0a     \
- \x22relativeX\x22: mo\
-useEvent.x / img\
-.implicitWidth,\x0a\
+{\x0a    var [newDd\
+bObj, stylObj] =\
+ ddb.addAnnotati\
+on({\x0a      \x22rela\
+tiveX\x22: mouseEve\
+nt.x / img.impli\
+citWidth, //newO\
+bject.relativeX,\
+\x0a      \x22relative\
+Y\x22: mouseEvent.y\
+ / img.implicitH\
+eight, //newObje\
+ct.relativeY,\x0a  \
+    \x22section\x22: p\
+arseInt(root.sec\
+tionId),\x0a      \x22\
+classtype\x22: \x22Ann\
+otationText\x22,\x0a  \
+    \x22text\x22: \x22\x22\x0a \
+   })\x0a    if (ne\
+wDdbObj) {\x0a     \
+ var newObject =\
+ annotationText.\
+createObject(roo\
+t, {\x0a        \x22mo\
+del\x22: newDdbObj,\
+\x0a        \x22objSty\
+le\x22: stylObj,\x0a  \
+      \x22referent\x22\
+: root\x0a      })\x0a\
+      newObject.\
+ddbId = newDdbOb\
+j.id\x0a      newOb\
+ject.objStyle = \
+stylObj\x0a      an\
+notations.push(n\
+ewObject)\x0a      \
+newObject.forceA\
+ctiveFocus()\x0a   \
+   return newObj\
+ect\x0a    }\x0a\x0a  }\x0a\x0a\
+  function creat\
+eZone(mouseEvent\
+) {\x0a    var rela\
+tiveX = mouseEve\
+nt.x / img.impli\
+citWidth\x0a    var\
+ relativeY = mou\
+seEvent.y / img.\
+implicitHeight\x0a \
+   var [newDdbOb\
+j, stylObj] = dd\
+b.addAnnotation(\
+{\x0a      \x22relativ\
+eX\x22: relativeX,\x0a\
       \x22relativeY\
-\x22: mouseEvent.y \
-/ img.implicitHe\
-ight,\x0a      \x22ref\
-erent\x22: root\x0a   \
- })\x0a    var [new\
-DdbObj, stylObj]\
- = ddb.addAnnota\
-tion({\x0a      \x22re\
-lativeX\x22: newObj\
-ect.relativeX,\x0a \
-     \x22relativeY\x22\
-: newObject.rela\
-tiveY,\x0a      \x22se\
-ction\x22: parseInt\
-(root.sectionId)\
-,\x0a      \x22classty\
-pe\x22: \x22Annotation\
-Text\x22,\x0a      \x22te\
-xt\x22: \x22\x22\x0a    })\x0a \
-   if (newDdbObj\
-) {\x0a      newObj\
-ect.ddbId = newD\
-dbObj.id\x0a      f\
-or (var x in sty\
-lObj) {\x0a        \
-print(x, stylObj\
-[x])\x0a      }\x0a   \
-   newObject.obj\
-Style = stylObj\x0a\
-      annotation\
-s.push(newObject\
-)\x0a      newObjec\
-t.forceActiveFoc\
-us()\x0a      retur\
-n newObject\x0a    \
-}\x0a\x0a  }\x0a\x0a  functi\
-on createZone(mo\
-useEvent) {\x0a    \
-var new_rec = st\
-abyloRectangle.c\
-reateObject(root\
-, {\x0a      \x22relat\
-iveX\x22: mouseEven\
-t.x / img.implic\
-itWidth,\x0a      \x22\
-relativeY\x22: mous\
-eEvent.y / img.i\
-mplicitHeight,\x0a \
-     \x22referent\x22:\
- root\x0a    })\x0a   \
- return new_rec\x0a\
-  }\x0a\x0a  function \
-deleteAnnotation\
-(anotObj) {\x0a    \
-ddb.deleteAnnota\
-tion(anotObj.ddb\
-Id)\x0a    let objI\
-ndex = annotatio\
-ns.indexOf(anotO\
-bj)\x0a    annotati\
-ons.splice(objIn\
-dex, 1)\x0a    anot\
-Obj.destroy()\x0a  \
-}\x0a\x0a  function in\
-itZones(annots) \
-{\x0a    for (var z\
- of ddb.loadAnno\
-tations(sectionI\
-d)) {\x0a      var \
-initDict = {\x0a   \
-     \x22relativeX\x22\
-: z.relativeX,\x0a \
-       \x22relative\
-Y\x22: z.relativeY,\
-\x0a        \x22refere\
-nt\x22: root,\x0a     \
-   \x22ddbId\x22: z.id\
-,\x0a        \x22style\
-\x22: z.style,\x0a    \
-  }\x0a      let ne\
-wObject\x0a      sw\
-itch (z.classtyp\
-e) {\x0a\x0a        ca\
+\x22: relativeY,\x0a  \
+    \x22relativeWid\
+th\x22: 0,\x0a      \x22r\
+elativeHeight\x22: \
+0,\x0a      \x22sectio\
+n\x22: parseInt(roo\
+t.sectionId),\x0a  \
+    \x22classtype\x22:\
+ \x22Stabylo\x22,\x0a    \
+  \x22style\x22: {\x0a   \
+     \x22bgColor\x22: \
+\x22red\x22\x0a      }\x0a  \
+  })\x0a    var new\
+_rec = stabyloRe\
+ctangle.createOb\
+ject(root, {\x0a   \
+   \x22model\x22: newD\
+dbObj,\x0a      \x22ob\
+jStyle\x22: stylObj\
+,\x0a      \x22referen\
+t\x22: root\x0a    })\x0a\
+    return new_r\
+ec\x0a  }\x0a\x0a  functi\
+on deleteAnnotat\
+ion(anotObj) {\x0a \
+   ddb.deleteAnn\
+otation(anotObj.\
+ddbId)\x0a    let o\
+bjIndex = annota\
+tions.indexOf(an\
+otObj)\x0a    annot\
+ations.splice(ob\
+jIndex, 1)\x0a    a\
+notObj.destroy()\
+\x0a  }\x0a\x0a  function\
+ initZones(annot\
+s) {\x0a    for (va\
+r z of ddb.loadA\
+nnotations(secti\
+onId)) {\x0a      v\
+ar initDict = {\x0a\
+        \x22referen\
+t\x22: root,\x0a      \
+  \x22model\x22: z[0],\
+\x0a        'objSty\
+le': z[1]\x0a      \
+}\x0a      var newO\
+bject\x0a      swit\
+ch (z[0].classty\
+pe) {\x0a        ca\
 se \x22Stabylo\x22: {\x0a\
           newObj\
 ect = stabyloRec\
 tangle.createObj\
-ect(root,\x0a      \
-      initDict,\x0a\
-          )\x0a    \
-      newObject.\
-relativeWidth = \
-z.relativeWidth\x0a\
-          newObj\
-ect.relativeHeig\
-ht = z.relativeH\
-eight\x0a          \
-break;\x0a        }\
-\x0a        case \x22A\
-nnotationText\x22: \
-{\x0a          newO\
-bject = annotati\
-onText.createObj\
 ect(root, initDi\
-ct)\x0a          ne\
-wObject.text = z\
-.text\x0a          \
-newObject.font.u\
-nderline = z.und\
-erline\x0a         \
- break;\x0a        \
-}\x0a      }\x0a      \
-if (newObject !=\
- undefined) {\x0a  \
-      root.annot\
-ations.push(newO\
-bject)\x0a      }\x0a \
-   }\x0a  }\x0a\x0a  func\
-tion storeZone(r\
-ec) {\x0a    if (re\
-c.relativeWidth \
-> 0 && rec.relat\
-iveHeight > 0) {\
-\x0a      var newId\
- = ddb.addAnnota\
-tion({\x0a        \x22\
-relativeX\x22: rec.\
-relativeX,\x0a     \
-   \x22relativeY\x22: \
-rec.relativeY,\x0a \
+ct)\x0a          br\
+eak;\x0a        }\x0a \
+       case \x22Ann\
+otationText\x22: {\x0a\
+          newObj\
+ect = annotation\
+Text.createObjec\
+t(root, initDict\
+)\x0a          brea\
+k;\x0a        }\x0a   \
+   }\x0a      if (n\
+ewObject != unde\
+fined) {\x0a       \
+ root.annotation\
+s.push(newObject\
+)\x0a      }\x0a    }\x0a\
+  }\x0a\x0a  function \
+storeZone(rec) {\
+\x0a    if (rec.rel\
+ativeWidth > 0 &\
+& rec.relativeHe\
+ight > 0) {\x0a    \
+  rec.model = dd\
+b.updateAnnotati\
+on(rec.model.id,\
+ {\x0a        \x22rela\
+tiveWidth\x22: rec.\
+relativeWidth,\x0a \
        \x22relative\
-Width\x22: rec.rela\
-tiveWidth,\x0a     \
-   \x22relativeHeig\
-ht\x22: rec.relativ\
-eHeight,\x0a       \
- \x22section\x22: pars\
-eInt(root.sectio\
-nId),\x0a        \x22c\
-lasstype\x22: \x22Stab\
-ylo\x22,\x0a        \x22c\
-olor\x22: rec.color\
-\x0a      })\x0a      \
-if (newId) {\x0a   \
-     rec.ddbId =\
- newId\x0a        a\
-nnotations.push(\
-rec)\x0a        ret\
-urn true\x0a      }\
-\x0a    }\x0a    retur\
-n false\x0a  }\x0a\x0a  f\
-unction updateZo\
-ne(mouseEvent, r\
-ec) {\x0a    const \
-new_rel_height =\
- (mouseEvent.y -\
- rec.y) / img.he\
-ight\x0a    const n\
-ew_rel_width = (\
-mouseEvent.x - r\
-ec.x) / img.impl\
-icitWidth\x0a    re\
-c.relativeHeight\
- = new_rel_heigh\
-t >= 0 ? new_rel\
-_height : 0\x0a    \
-rec.relativeWidt\
-h = new_rel_widt\
-h >= 0 ? new_rel\
-_width : 0\x0a    r\
-eturn rec\x0a  }\x0a\x0a \
- Image {\x0a    id:\
- img\x0a\x0a    proper\
-ty QtObject mous\
-eArea: mouseArea\
-\x0a    //    async\
-hronous: true //\
- asynchronous fa\
-il le scrolling \
-on add\x0a    fillM\
-ode: Image.Prese\
-rveAspectCrop\x0a  \
-  source: root.i\
-magePath\x0a    sou\
-rceSize.width: b\
-ase ? base.width\
- : 0\x0a    // TODO\
-: faire des trai\
-s.\x0a\x0a  }\x0a  MouseA\
-rea {\x0a    id: mo\
-useArea\x0a    obje\
-ctName: \x22mouseAr\
-ea\x22\x0a    anchors.\
-fill: root\x0a    /\
-* beautify prese\
-rve:start */\x0a   \
- property var te\
-mp_rec: null\x0a   \
+Height\x22: rec.rel\
+ativeHeight,\x0a   \
+   })\x0a      anno\
+tations.push(rec\
+)\x0a      rec.push\
+ed = true\x0a      \
+return true\x0a    \
+} else {\x0a      d\
+db.deleteAnnotat\
+ion(rec.model.id\
+)\x0a      rec = nu\
+ll\x0a    }\x0a    ret\
+urn false\x0a  }\x0a\x0a \
+ function update\
+Zone(mouseEvent,\
+ rec) {\x0a    cons\
+t new_rel_height\
+ = (mouseEvent.y\
+ - rec.y) / img.\
+height\x0a    const\
+ new_rel_width =\
+ (mouseEvent.x -\
+ rec.x) / img.im\
+plicitWidth\x0a    \
+rec.relativeHeig\
+ht = new_rel_hei\
+ght >= 0 ? new_r\
+el_height : 0\x0a  \
+  rec.relativeWi\
+dth = new_rel_wi\
+dth >= 0 ? new_r\
+el_width : 0\x0a   \
+ return rec\x0a  }\x0a\
+\x0a  Image {\x0a    i\
+d: img\x0a\x0a    prop\
+erty QtObject mo\
+useArea: mouseAr\
+ea\x0a    //    asy\
+nchronous: true \
+// asynchronous \
+fail le scrollin\
+g on add\x0a    fil\
+lMode: Image.Pre\
+serveAspectCrop\x0a\
+    source: root\
+.imagePath\x0a    s\
+ourceSize.width:\
+ base ? base.wid\
+th : 0\x0a    // TO\
+DO: faire des tr\
+ais.\x0a\x0a  }\x0a  Mous\
+eArea {\x0a    id: \
+mouseArea\x0a    ob\
+jectName: \x22mouse\
+Area\x22\x0a    anchor\
+s.fill: root\x0a   \
  /* beautify pre\
-serve:end */\x0a   \
- preventStealing\
-: true\x0a    accep\
-tedButtons: Qt.L\
-eftButton | Qt.R\
-ightButton\x0a\x0a    \
-onPressed: {\x0a   \
-   //      root.\
-base.currentInde\
-x = position\x0a   \
-   if (pressedBu\
-ttons === Qt.Rig\
-htButton) {\x0a    \
-    temp_rec = r\
-oot.createZone(m\
-ouse)\x0a      } el\
-se if (pressedBu\
-ttons === Qt.Lef\
-tButton) {\x0a     \
-   root.focus = \
-true\x0a        roo\
-t.addAnnotation(\
-mouse)\x0a        m\
-ouse.accepted = \
-true\x0a      }\x0a   \
- }\x0a\x0a    onPositi\
-onChanged: {\x0a   \
-   if (containsM\
-ouse && temp_rec\
-) {\x0a        temp\
-_rec = root.upda\
-teZone(mouse, te\
-mp_rec)\x0a      }\x0a\
-    }\x0a\x0a    onRel\
-eased: {\x0a      i\
-f (mouse.button \
-== Qt.RightButto\
-n) {\x0a        tem\
-p_rec = root.sto\
-reZone(temp_rec)\
-\x0a        if (!te\
-mp_rec) {\x0a      \
-    //          \
-menuflotant.popu\
-p()\x0a        }\x0a  \
+serve:start */\x0a \
+   property var \
+temp_rec: null\x0a \
+   /* beautify p\
+reserve:end */\x0a \
+   preventSteali\
+ng: true\x0a    acc\
+eptedButtons: Qt\
+.LeftButton | Qt\
+.RightButton\x0a\x0a  \
+  onPressed: {\x0a \
+     //      roo\
+t.base.currentIn\
+dex = position\x0a \
+     if (pressed\
+Buttons === Qt.R\
+ightButton) {\x0a  \
       temp_rec =\
- null\x0a      }\x0a  \
-  }\x0a  }\x0a}\x0a\x0a//  D\
-ialog {\x0a//    id\
-: dialogSupprime\
-r\x0a//    title: \x22\
-Supprimer l'imag\
-e ?\x22\x0a//    stand\
-ardButtons: Dial\
-og.Ok | Dialog.C\
-ancel\x0a//    pare\
-nt: root.editor\x0a\
-//    anchors.ce\
-nterIn: parent\x0a/\
-/\x0a//    onAccept\
-ed: ddb.removeSe\
-ction(root.edito\
-r.sectionId, roo\
-t.editor.positio\
-n)\x0a//    //     \
- onRejected: nul\
-l\x0a//  }\
-\x00\x00\x07\x91\
+ root.createZone\
+(mouse)\x0a      } \
+else if (pressed\
+Buttons === Qt.L\
+eftButton) {\x0a   \
+     root.focus \
+= true\x0a        r\
+oot.addAnnotatio\
+n(mouse)\x0a       \
+ mouse.accepted \
+= true\x0a      }\x0a \
+   }\x0a\x0a    onPosi\
+tionChanged: {\x0a \
+     if (contain\
+sMouse && temp_r\
+ec) {\x0a        te\
+mp_rec = root.up\
+dateZone(mouse, \
+temp_rec)\x0a      \
+}\x0a    }\x0a\x0a    onR\
+eleased: {\x0a     \
+ if (mouse.butto\
+n == Qt.RightBut\
+ton) {\x0a        t\
+emp_rec = root.s\
+toreZone(temp_re\
+c)\x0a        if (!\
+temp_rec) {\x0a    \
+      //        \
+  menuflotant.po\
+pup()\x0a        }\x0a\
+        temp_rec\
+ = null\x0a      }\x0a\
+    }\x0a  }\x0a}\x0a\x0a// \
+ Dialog {\x0a//    \
+id: dialogSuppri\
+mer\x0a//    title:\
+ \x22Supprimer l'im\
+age ?\x22\x0a//    sta\
+ndardButtons: Di\
+alog.Ok | Dialog\
+.Cancel\x0a//    pa\
+rent: root.edito\
+r\x0a//    anchors.\
+centerIn: parent\
+\x0a//\x0a//    onAcce\
+pted: ddb.remove\
+Section(root.edi\
+tor.sectionId, r\
+oot.editor.posit\
+ion)\x0a//    //   \
+   onRejected: n\
+ull\x0a//  }\
+\x00\x00\x09\x1e\
 i\
 mport QtQuick 2.\
 12\x0aimport QtQuic\
 k.Controls 2.12\x0a\
 //import \x22menu\x22\x0a\
 \x0aTextField {\x0a  i\
-d: control\x0a  pro\
-perty QtObject r\
-eferent\x0a  proper\
-ty real relative\
-X\x0a  property rea\
-l relativeY\x0a  pr\
-operty int ddbId\
-\x0a  /* beautify p\
-reserve:start */\
-\x0a  property var \
-objStyle: {\x22fgCo\
-lor\x22: \x22orange\x22}\x0a\
-  /* beautify pr\
-eserve:end */\x0a\x0a \
- signal deleteRe\
-quested(QtObject\
- anotObj)\x0a  //si\
-ze and pos\x0a  hei\
-ght: contentHeig\
-ht\x0a  padding: 0\x0a\
-  width: content\
-Width + 5\x0a  x: r\
-elativeX * refer\
-ent.width\x0a  y: r\
-elativeY * refer\
-ent.height\x0a  col\
-or: objStyle.fgC\
-olor\x0a  //  color\
-: objStyle.fgCol\
-or : \x22black\x22\x0a  f\
-ont.underline: o\
-bjStyle.underlin\
-e\x0a  //  font.und\
-erline: objStyle\
- ? objStyle.unde\
-rline : false\x0a\x0a \
- font.pointSize:\
- 20\x0a\x0a  // other \
-atributes\x0a  back\
-ground: Rectangl\
-e {\x0a    implicit\
-Width: parent.wi\
-dth\x0a    implicit\
-Height: parent.h\
-eight\x0a    color:\
- objStyle ? objS\
-tyle.bgColor : \x22\
-transparent\x22\x0a   \
- border.color: c\
-ontrol.focus ? \x22\
-#21be2b\x22 : \x22tran\
-sparent\x22\x0a  }\x0a  s\
-electByMouse: tr\
-ue\x0a  hoverEnable\
-d: true\x0a\x0a  // sl\
-ots\x0a  onFocusCha\
-nged: {\x0a\x0a    foc\
-us ? cursorPosit\
-ion = text.lengt\
-h : null //  tou\
-jours curseur \xc3\xa0\
- la fin quand fo\
-cus\x0a    if (!foc\
-us && !text) {\x0a \
-     deleteReque\
-sted(control)\x0a  \
-  }\x0a    focus ? \
-uiManager.menuTa\
-rget = control :\
- null\x0a  }\x0a\x0a  onH\
-overedChanged: h\
-overed ? focus =\
- true : null\x0a  o\
-nPressed: {\x0a    \
-if (event.button\
-s === Qt.MiddleB\
-utton) {\x0a      d\
-eleteRequested(c\
-ontrol)\x0a    } el\
-se if (event.but\
-tons === Qt.Righ\
-tButton) {\x0a     \
- uiManager.menuF\
-lottantText.ouvr\
-e(control)\x0a    }\
-\x0a  }\x0a  onTextCha\
-nged: ddb.update\
-Annotation(ddbId\
-, {\x0a    \x22text\x22: \
-text\x0a    //    p\
-rint(objStyle.fg\
-Color)\x0a\x0a  })\x0a\x0a  \
-Component.onComp\
-leted: {\x0a    del\
-eteRequested.con\
-nect(referent.de\
-leteAnnotation)\x0a\
-  }\x0a\x0a  function \
-setStyleFromMenu\
-(data) {\x0a    pri\
-nt(\x22set style\x22)\x0a\
-    var res = dd\
-b.updateAnnotati\
-on(control.ddbId\
-, data)\x0a    prin\
-t(data, res)\x0a   \
- //    if (ddb.u\
-pdateAnnotation(\
-control.ddbId, d\
-ata))\x0a    //    \
-  control.font.u\
-nderline = (data\
-.type == \x22underl\
-ine\x22)\x0a    //    \
-control.color = \
-data.value\x0a  }\x0a}\
-\
+d: root\x0a  /* bea\
+utify preserve:s\
+tart */\x0a  proper\
+ty var model\x0a  p\
+roperty var objS\
+tyle\x0a  /* beauti\
+fy preserve:end \
+*/\x0a  property Qt\
+Object referent\x0a\
+\x0a  property real\
+ relativeX: mode\
+l.relativeX\x0a  pr\
+operty real rela\
+tiveY: model.rel\
+ativeY\x0a  propert\
+y int ddbId: mod\
+el.id\x0a  property\
+ int pointSizeSt\
+ep: 2\x0a\x0a  signal \
+deleteRequested(\
+QtObject anotObj\
+)\x0a\x0a  //size and \
+pos\x0a  height: co\
+ntentHeight\x0a  pa\
+dding: 0\x0a  width\
+: contentWidth +\
+ 5\x0a  x: relative\
+X * referent.wid\
+th\x0a  y: relative\
+Y * referent.hei\
+ght\x0a  color: obj\
+Style ? objStyle\
+.fgColor : \x22oran\
+ge\x22\x0a  font.under\
+line: objStyle.u\
+nderline\x0a  text:\
+ model.text\x0a\x0a  f\
+ont.pointSize: o\
+bjStyle.pointSiz\
+e ? objStyle.poi\
+ntSize : 12.0\x0a  \
+// other atribut\
+es\x0a  background:\
+ Rectangle {\x0a   \
+ implicitWidth: \
+parent.width\x0a   \
+ implicitHeight:\
+ parent.height\x0a \
+   color: objSty\
+le.bgColor\x0a    b\
+order.color: roo\
+t.focus ? \x22#21be\
+2b\x22 : \x22transpare\
+nt\x22\x0a  }\x0a  select\
+ByMouse: true\x0a  \
+hoverEnabled: tr\
+ue\x0a  // slots\x0a  \
+onFocusChanged: \
+{\x0a\x0a    focus ? c\
+ursorPosition = \
+text.length : nu\
+ll //  toujours \
+curseur \xc3\xa0 la fi\
+n quand focus\x0a  \
+  if (!focus && \
+!text) {\x0a      d\
+eleteRequested(r\
+oot)\x0a    }\x0a    f\
+ocus ? uiManager\
+.menuTarget = ro\
+ot : null\x0a  }\x0a  \
+Keys.onPressed: \
+{\x0a    if ((event\
+.key == Qt.Key_P\
+lus) && (event.m\
+odifiers & Qt.Co\
+ntrolModifier)) \
+{\x0a      var res \
+= ddb.setStyle(o\
+bjStyle.id, {\x0a  \
+      \x22pointSize\
+\x22: root.font.poi\
+ntSize + pointSi\
+zeStep\x0a      })\x0a\
+      if (res) {\
+\x0a        root.ob\
+jStyle = res\x0a   \
+   }\x0a      event\
+.accepted = true\
+\x0a    } else if (\
+(event.key == Qt\
+.Key_Minus) && (\
+event.modifiers \
+& Qt.ControlModi\
+fier)) {\x0a      v\
+ar res = ddb.set\
+Style(objStyle.i\
+d, {\x0a        \x22po\
+intSize\x22: root.f\
+ont.pointSize - \
+pointSizeStep\x0a  \
+    })\x0a      if \
+(res) {\x0a        \
+root.objStyle = \
+res\x0a      }\x0a    \
+  event.accepted\
+ = true\x0a    }\x0a  \
+}\x0a  onHoveredCha\
+nged: hovered ? \
+focus = true : n\
+ull\x0a  onPressed:\
+ {\x0a    if (event\
+.buttons === Qt.\
+MiddleButton) {\x0a\
+      deleteRequ\
+ested(root)\x0a    \
+} else if (event\
+.buttons === Qt.\
+RightButton) {\x0a \
+     uiManager.m\
+enuFlottantText.\
+ouvre(root)\x0a    \
+}\x0a  }\x0a  onTextCh\
+anged: ddb.updat\
+eAnnotation(ddbI\
+d, {\x0a    \x22text\x22:\
+ text\x0a  })\x0a\x0a  Co\
+mponent.onComple\
+ted: {\x0a    delet\
+eRequested.conne\
+ct(referent.dele\
+teAnnotation)\x0a  \
+}\x0a\x0a  function se\
+tStyleFromMenu(d\
+ata) {\x0a    var r\
+es = ddb.setStyl\
+e(objStyle.id, d\
+ata[\x22style\x22])\x0a  \
+  if (res) {\x0a   \
+   objStyle = re\
+s\x0a    }\x0a  }\x0a}\
 \x00\x00\x09\x8e\
 \x00\
 \x00!\xc5x\x9c\xcdY\xefr\xdb6\x12\xff\xee\xa7@\
@@ -27566,27 +27610,27 @@ qt_resource_struct = b"\
 \x00\x00\x00\x00\x00\x00\x00\x00\
 \x00\x00\x00*\x00\x02\x00\x00\x00\x01\x00\x00\x00\x06\
 \x00\x00\x00\x00\x00\x00\x00\x00\
-\x00\x00\x06\x82\x00\x00\x00\x00\x00\x01\x00\x00\x9bJ\
+\x00\x00\x06\x82\x00\x00\x00\x00\x00\x01\x00\x00\x9e\x1f\
 \x00\x00\x01p\x1c\x22\xb3\x0d\
-\x00\x00\x07\x0c\x00\x00\x00\x00\x00\x01\x00\x04[f\
+\x00\x00\x07\x0c\x00\x00\x00\x00\x00\x01\x00\x04^;\
 \x00\x00\x01q\xd1\x1aV\x00\
-\x00\x00\x07P\x00\x00\x00\x00\x00\x01\x00\x04\xc5\xab\
+\x00\x00\x07P\x00\x00\x00\x00\x00\x01\x00\x04\xc8\x80\
 \x00\x00\x01q\xd1\x1aU\xf8\
-\x00\x00\x06\xe8\x00\x00\x00\x00\x00\x01\x00\x04P\xde\
+\x00\x00\x06\xe8\x00\x00\x00\x00\x00\x01\x00\x04S\xb3\
 \x00\x00\x01q\xd1\x1aU\xf8\
-\x00\x00\x07(\x00\x00\x00\x00\x00\x01\x00\x04\x97k\
+\x00\x00\x07(\x00\x00\x00\x00\x00\x01\x00\x04\x9a@\
 \x00\x00\x01q\xd1\x1aV\x04\
-\x00\x00\x07\xda\x00\x00\x00\x00\x00\x01\x00\x05$f\
+\x00\x00\x07\xda\x00\x00\x00\x00\x00\x01\x00\x05';\
 \x00\x00\x01q\xd1\x1aU\xf8\
-\x00\x00\x07\x96\x00\x00\x00\x00\x00\x01\x00\x04\xf4\x0b\
+\x00\x00\x07\x96\x00\x00\x00\x00\x00\x01\x00\x04\xf6\xe0\
 \x00\x00\x01q\xd1\x1aU\xfc\
-\x00\x00\x07\xbe\x00\x00\x00\x00\x00\x01\x00\x04\xf7\xbb\
+\x00\x00\x07\xbe\x00\x00\x00\x00\x00\x01\x00\x04\xfa\x90\
 \x00\x00\x01q\xd1\x1aV\x04\
-\x00\x00\x07r\x00\x00\x00\x00\x00\x01\x00\x04\xca\xbe\
+\x00\x00\x07r\x00\x00\x00\x00\x00\x01\x00\x04\xcd\x93\
 \x00\x00\x01q\xd1\x1aV\x04\
-\x00\x00\x06\xd0\x00\x00\x00\x00\x00\x01\x00\x03Y\xd6\
+\x00\x00\x06\xd0\x00\x00\x00\x00\x00\x01\x00\x03\x5c\xab\
 \x00\x00\x01q\xd1\x1aU\xf8\
-\x00\x00\x06\xb4\x00\x00\x00\x00\x00\x01\x00\x01nl\
+\x00\x00\x06\xb4\x00\x00\x00\x00\x00\x01\x00\x01qA\
 \x00\x00\x01q\xd1\x1aU\xf4\
 \x00\x00\x00z\x00\x02\x00\x00\x00\x05\x00\x00\x006\
 \x00\x00\x00\x00\x00\x00\x00\x00\
@@ -27598,81 +27642,81 @@ qt_resource_struct = b"\
 \x00\x00\x00\x00\x00\x00\x00\x00\
 \x00\x00\x00\x88\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\
 \x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x01v\x00\x00\x00\x00\x00\x01\x00\x00\x10b\
+\x00\x00\x01v\x00\x00\x00\x00\x00\x01\x00\x00\x10p\
 \x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x01\xf8\x00\x00\x00\x00\x00\x01\x00\x00\x1eC\
+\x00\x00\x01\xf8\x00\x00\x00\x00\x00\x01\x00\x00\x1eQ\
 \x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x01\x98\x00\x00\x00\x00\x00\x01\x00\x00\x17G\
+\x00\x00\x01\x98\x00\x00\x00\x00\x00\x01\x00\x00\x17U\
 \x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x01\xd4\x00\x00\x00\x00\x00\x01\x00\x00\x1a\x7f\
+\x00\x00\x01\xd4\x00\x00\x00\x00\x00\x01\x00\x00\x1a\x8d\
 \x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x02\x1a\x00\x00\x00\x00\x00\x01\x00\x00 \xd1\
+\x00\x00\x02\x1a\x00\x00\x00\x00\x00\x01\x00\x00 \xdf\
 \x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x01\xb0\x00\x00\x00\x00\x00\x01\x00\x00\x19\xec\
+\x00\x00\x01\xb0\x00\x00\x00\x00\x00\x01\x00\x00\x19\xfa\
 \x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x02t\x00\x00\x00\x00\x00\x01\x00\x00#\xfa\
+\x00\x00\x02t\x00\x00\x00\x00\x00\x01\x00\x00$\x08\
 \x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x02\xa2\x00\x00\x00\x00\x00\x01\x00\x00-\xb9\
+\x00\x00\x02\xa2\x00\x00\x00\x00\x00\x01\x00\x00-\xc7\
 \x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x02F\x00\x00\x00\x00\x00\x01\x00\x00\x22\x94\
+\x00\x00\x02F\x00\x00\x00\x00\x00\x01\x00\x00\x22\xa2\
 \x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x02\xd2\x00\x00\x00\x00\x00\x01\x00\x003\x9a\
+\x00\x00\x02\xd2\x00\x00\x00\x00\x00\x01\x00\x003\xa8\
 \x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x03\xbc\x00\x01\x00\x00\x00\x01\x00\x00G\x18\
+\x00\x00\x03\xbc\x00\x01\x00\x00\x00\x01\x00\x00H\xbe\
 \x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x03t\x00\x00\x00\x00\x00\x01\x00\x00Bn\
-\x00\x00\x01q\xd2\x8a\xf7\xb0\
-\x00\x00\x02\xf6\x00\x00\x00\x00\x00\x01\x00\x00:\xd8\
+\x00\x00\x03t\x00\x00\x00\x00\x00\x01\x00\x00B|\
+\x00\x00\x01q\xd5\x0d\x9a\x11\
+\x00\x00\x02\xf6\x00\x00\x00\x00\x00\x01\x00\x00:\xe6\
 \x00\x00\x01q\xd1\x1aVH\
 \x00\x00\x03\xa2\x00\x02\x00\x00\x00\x0a\x00\x00\x00,\
 \x00\x00\x00\x00\x00\x00\x00\x00\
-\x00\x00\x044\x00\x00\x00\x00\x00\x01\x00\x00T\xbd\
+\x00\x00\x044\x00\x00\x00\x00\x00\x01\x00\x00Vc\
 \x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x04b\x00\x00\x00\x00\x00\x01\x00\x00W\xa6\
-\x00\x00\x01q\xd2\xcc\x11\xaa\
-\x00\x00\x04\xb6\x00\x01\x00\x00\x00\x01\x00\x00s\xb7\
+\x00\x00\x04b\x00\x00\x00\x00\x00\x01\x00\x00YL\
+\x00\x00\x01q\xd5\x08\xf9f\
+\x00\x00\x04\xb6\x00\x01\x00\x00\x00\x01\x00\x00v\x8c\
 \x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x04\x08\x00\x00\x00\x00\x00\x01\x00\x00R\xb1\
+\x00\x00\x04\x08\x00\x00\x00\x00\x00\x01\x00\x00TW\
 \x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x03N\x00\x01\x00\x00\x00\x01\x00\x00@\x7f\
+\x00\x00\x03N\x00\x01\x00\x00\x00\x01\x00\x00@\x8d\
 \x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x03\x16\x00\x00\x00\x00\x00\x01\x00\x00>\xfe\
+\x00\x00\x03\x16\x00\x00\x00\x00\x00\x01\x00\x00?\x0c\
 \x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x03\xe0\x00\x00\x00\x00\x00\x01\x00\x00KF\
+\x00\x00\x03\xe0\x00\x00\x00\x00\x00\x01\x00\x00L\xec\
 \x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x04\x8c\x00\x00\x00\x00\x00\x01\x00\x00l\x22\
-\x00\x00\x01q\xd2\xb8\xa5\xda\
-\x00\x00\x05d\x00\x00\x00\x00\x00\x01\x00\x00\x85)\
+\x00\x00\x04\x8c\x00\x00\x00\x00\x00\x01\x00\x00mj\
+\x00\x00\x01q\xd4\xe1'\xfa\
+\x00\x00\x05d\x00\x00\x00\x00\x00\x01\x00\x00\x87\xfe\
 \x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x04\xd2\x00\x00\x00\x00\x00\x01\x00\x00}I\
+\x00\x00\x04\xd2\x00\x00\x00\x00\x00\x01\x00\x00\x80\x1e\
 \x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x05\xca\x00\x00\x00\x00\x00\x01\x00\x00\x8d\xf1\
+\x00\x00\x05\xca\x00\x00\x00\x00\x00\x01\x00\x00\x90\xc6\
 \x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x056\x00\x00\x00\x00\x00\x01\x00\x00\x82j\
+\x00\x00\x056\x00\x00\x00\x00\x00\x01\x00\x00\x85?\
 \x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x05\x0c\x00\x00\x00\x00\x00\x01\x00\x00\x81\xd3\
+\x00\x00\x05\x0c\x00\x00\x00\x00\x00\x01\x00\x00\x84\xa8\
 \x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x05\x9a\x00\x00\x00\x00\x00\x01\x00\x00\x88\xaa\
+\x00\x00\x05\x9a\x00\x00\x00\x00\x00\x01\x00\x00\x8b\x7f\
 \x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x05\xf2\x00\x00\x00\x00\x00\x01\x00\x00\x8f\xb8\
+\x00\x00\x05\xf2\x00\x00\x00\x00\x00\x01\x00\x00\x92\x8d\
 \x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x06\x10\x00\x00\x00\x00\x00\x01\x00\x00\x90\x85\
+\x00\x00\x06\x10\x00\x00\x00\x00\x00\x01\x00\x00\x93Z\
 \x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x06\x5c\x00\x00\x00\x00\x00\x01\x00\x00\x9a\xb5\
+\x00\x00\x06\x5c\x00\x00\x00\x00\x00\x01\x00\x00\x9d\x8a\
 \x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x06.\x00\x00\x00\x00\x00\x01\x00\x00\x95\x85\
+\x00\x00\x06.\x00\x00\x00\x00\x00\x01\x00\x00\x98Z\
 \x00\x00\x01q\xd1\x1aVH\
 \x00\x00\x01\x0e\x00\x01\x00\x00\x00\x01\x00\x00\x0d\x93\
-\x00\x00\x01q\xd1\x1aVH\
+\x00\x00\x01q\xd5\x0c\xe0\x95\
 \x00\x00\x00\x9e\x00\x00\x00\x00\x00\x01\x00\x00\x07\x9b\
 \x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x01B\x00\x01\x00\x00\x00\x01\x00\x00\x0ef\
+\x00\x00\x01B\x00\x01\x00\x00\x00\x01\x00\x00\x0et\
 \x00\x00\x01q\xd1\x1aVH\
 \x00\x00\x00\xbc\x00\x01\x00\x00\x00\x01\x00\x00\x09\xc9\
 \x00\x00\x01q\xd2~\xde~\
 \x00\x00\x00\xea\x00\x00\x00\x00\x00\x01\x00\x00\x0b4\
 \x00\x00\x01q\xd2\x81\x01\x1f\
-\x00\x00\x07\xf4\x00\x01\x00\x00\x00\x01\x00\x05)2\
+\x00\x00\x07\xf4\x00\x01\x00\x00\x00\x01\x00\x05,\x07\
 \x00\x00\x01q\xd1\x1aV\x10\
 "
 

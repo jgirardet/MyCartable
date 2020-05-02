@@ -9,32 +9,44 @@ BaseMenu {
       anchors.fill: parent
       spacing: 0
       ColorButton {
-        type: "color"
+        style: {
+          "bgColor": color
+        }
         color: "red"
         menu: root
       }
       ColorButton {
-        type: "color"
+        style: {
+          "bgColor": color
+        }
         color: "blue"
         menu: root
       }
       ColorButton {
-        type: "color"
+        style: {
+          "bgColor": color
+        }
         color: "aqua"
         menu: root
       }
       ColorButton {
-        type: "color"
+        style: {
+          "bgColor": color
+        }
         color: "green"
         menu: root
       }
       ColorButton {
-        type: "color"
+        style: {
+          "bgColor": color
+        }
         color: "chartreuse"
         menu: root
       }
       ColorButton {
-        type: "color"
+        style: {
+          "bgColor": color
+        }
         color: "yellow"
         menu: root
       }

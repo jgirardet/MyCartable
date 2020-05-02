@@ -13,8 +13,9 @@ class ImageSectionMixin:
         with db_session:
             section = int(content.pop("section"))
             item = getattr(self.db, content["classtype"])(**content, section=section)
-            print("add", [item.to_dict(), item.to_dict()["style"]])
-            return [item.to_dict(), item.to_dict()["style"]]
+            dico = item.to_dict()
+            style = dico.pop("style")
+            return [dico, style]
 
     @Slot(int)
     def deleteAnnotation(self, annotation_id):
@@ -27,19 +28,23 @@ class ImageSectionMixin:
         with db_session:
             obj = self.db.ImageSection[section]
             res = [p.to_dict() for p in obj.annotations]
-            print(res)
-            return res
+            # print(res)
+            res2 = []
+            for r in res:
+                style = r.pop("style")
+                res2.append([r, style])
+            return res2
 
-    @Slot(int, "QVariantMap", result=bool)
+    @Slot(int, "QVariantMap", result="QVariantMap")
     def updateAnnotation(self, annotation_id, dico):
         with db_session:
             item = self.db.Annotation[annotation_id]
-            print(dico)
             if "style" in dico:
                 style = dico.pop("style")
                 item.style.set(**style)
             item.set(**dico)
-        return True
+            print(item.to_dict(exclude=["style"]))
+            return item.to_dict(exclude=["style"])
 
     def get_new_image_path(self, ext):
         return Path(str(self.annee_active), get_new_filename(ext)).as_posix()

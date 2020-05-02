@@ -268,12 +268,23 @@ class TestLayoutMixin:
         )
 
     def test_setStyle(self, dao: DatabaseObject, caplog):
-        check_args(dao.setStyle, (int, dict), bool)
+        check_args(dao.setStyle, (int, dict), dict)
         a = f_style()
 
         # normal
         r = dao.setStyle(a.id, {"underline": True, "bgColor": "red"})
-        assert r
+        assert r == {
+            "annotation": None,
+            "bgColor": QColor("red"),
+            "family": "",
+            "fgColor": QColor("black"),
+            "id": 1,
+            "pointSize": None,
+            "strikeout": False,
+            "underline": True,
+            "weight": None,
+        }
+
         with db_session:
             item = dao.db.Style[a.id]
             assert item.bgColor == "red"
@@ -529,7 +540,7 @@ class TestImageSectionMixin:
         assert len(res) == 5
 
     def test_update_annotations_args(self, dao):
-        check_args(dao.updateAnnotation, (int, dict), bool)
+        check_args(dao.updateAnnotation, (int, dict), dict)
 
     @pytest.mark.parametrize(
         "genre, content",
@@ -549,15 +560,17 @@ class TestImageSectionMixin:
 
         fn = "f_" + genre[0].lower() + genre[1:]
         a = getattr(factory, fn)()
-        dao.updateAnnotation(a.id, content)
+        res = dao.updateAnnotation(a.id, content)
         with db_session:
             item = ddbn.Annotation[a.id]
+            assert res == item.to_dict(exclude=["style"])
             for k, v in content.items():
                 if k == "style":
                     for i, j in v.items():
                         assert getattr(item.style, i) == j
                 else:
                     assert getattr(item, k) == v
+        assert False
 
     def test_deleteAnnotation(self, dao, ddbn):
         check_args(dao.deleteAnnotation, int)

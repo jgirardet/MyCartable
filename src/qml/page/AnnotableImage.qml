@@ -26,24 +26,20 @@ FocusScope {
   }
 
   function addAnnotation(mouseEvent) {
-
-    let newObject = annotationText.createObject(root, {
-      "relativeX": mouseEvent.x / img.implicitWidth,
-      "relativeY": mouseEvent.y / img.implicitHeight,
-      "referent": root
-    })
     var [newDdbObj, stylObj] = ddb.addAnnotation({
-      "relativeX": newObject.relativeX,
-      "relativeY": newObject.relativeY,
+      "relativeX": mouseEvent.x / img.implicitWidth, //newObject.relativeX,
+      "relativeY": mouseEvent.y / img.implicitHeight, //newObject.relativeY,
       "section": parseInt(root.sectionId),
       "classtype": "AnnotationText",
       "text": ""
     })
     if (newDdbObj) {
+      var newObject = annotationText.createObject(root, {
+        "model": newDdbObj,
+        "objStyle": stylObj,
+        "referent": root
+      })
       newObject.ddbId = newDdbObj.id
-      for (var x in stylObj) {
-        print(x, stylObj[x])
-      }
       newObject.objStyle = stylObj
       annotations.push(newObject)
       newObject.forceActiveFocus()
@@ -53,9 +49,22 @@ FocusScope {
   }
 
   function createZone(mouseEvent) {
+    var relativeX = mouseEvent.x / img.implicitWidth
+    var relativeY = mouseEvent.y / img.implicitHeight
+    var [newDdbObj, stylObj] = ddb.addAnnotation({
+      "relativeX": relativeX,
+      "relativeY": relativeY,
+      "relativeWidth": 0,
+      "relativeHeight": 0,
+      "section": parseInt(root.sectionId),
+      "classtype": "Stabylo",
+      "style": {
+        "bgColor": "red"
+      }
+    })
     var new_rec = stabyloRectangle.createObject(root, {
-      "relativeX": mouseEvent.x / img.implicitWidth,
-      "relativeY": mouseEvent.y / img.implicitHeight,
+      "model": newDdbObj,
+      "objStyle": stylObj,
       "referent": root
     })
     return new_rec
@@ -71,27 +80,18 @@ FocusScope {
   function initZones(annots) {
     for (var z of ddb.loadAnnotations(sectionId)) {
       var initDict = {
-        "relativeX": z.relativeX,
-        "relativeY": z.relativeY,
         "referent": root,
-        "ddbId": z.id,
-        "style": z.style,
+        "model": z[0],
+        'objStyle': z[1]
       }
-      let newObject
-      switch (z.classtype) {
-
+      var newObject
+      switch (z[0].classtype) {
         case "Stabylo": {
-          newObject = stabyloRectangle.createObject(root,
-            initDict,
-          )
-          newObject.relativeWidth = z.relativeWidth
-          newObject.relativeHeight = z.relativeHeight
+          newObject = stabyloRectangle.createObject(root, initDict)
           break;
         }
         case "AnnotationText": {
           newObject = annotationText.createObject(root, initDict)
-          newObject.text = z.text
-          newObject.font.underline = z.underline
           break;
         }
       }
@@ -103,20 +103,16 @@ FocusScope {
 
   function storeZone(rec) {
     if (rec.relativeWidth > 0 && rec.relativeHeight > 0) {
-      var newId = ddb.addAnnotation({
-        "relativeX": rec.relativeX,
-        "relativeY": rec.relativeY,
+      rec.model = ddb.updateAnnotation(rec.model.id, {
         "relativeWidth": rec.relativeWidth,
         "relativeHeight": rec.relativeHeight,
-        "section": parseInt(root.sectionId),
-        "classtype": "Stabylo",
-        "color": rec.color
       })
-      if (newId) {
-        rec.ddbId = newId
-        annotations.push(rec)
-        return true
-      }
+      annotations.push(rec)
+      rec.pushed = true
+      return true
+    } else {
+      ddb.deleteAnnotation(rec.model.id)
+      rec = null
     }
     return false
   }

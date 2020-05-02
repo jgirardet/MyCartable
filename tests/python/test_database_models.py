@@ -797,6 +797,12 @@ class TestAnnotations:
             },
         }
 
+        # test exlude pour "style"
+        a = f_stabylo()
+        with db_session:
+            b = ddbr.Stabylo[a.id].to_dict(exclude=["style"])
+            assert "style" not in b
+
     def test_add_modify_section_and_page_modified_attribute(self, ddbr):
         p = f_page()
         before_p = p.modified

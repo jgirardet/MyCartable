@@ -306,7 +306,8 @@ class Annotation(db.Entity):
 
     def to_dict(self, *args, **kwargs):
         dico = super().to_dict(*args, **kwargs)
-        dico["style"] = self.style.to_dict()
+        if "style" in dico:  # ne pas l'ajouter sur a été exclude
+            dico["style"] = self.style.to_dict()
         return dico
 
     def before_insert(self):

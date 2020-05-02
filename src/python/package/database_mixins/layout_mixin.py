@@ -15,7 +15,7 @@ class LayoutMixin:
     def getLayoutSizes(self, nom):
         return LAYOUT_SIZES[nom]
 
-    @Slot(int, "QVariantMap", result=bool)
+    @Slot(int, "QVariantMap", result="QVariantMap")
     def setStyle(self, styleId, content):
         with db_session:
             try:
@@ -29,7 +29,9 @@ class LayoutMixin:
             except TypeError as err:
                 LOG.error(f"Echec de la mise à jour du style : {err}")
                 return
-            return True
+            res = item.to_dict()
+            print(res)
+            return res
 
     ColorChanged = Signal()
 

@@ -197,6 +197,24 @@ Item {
   property color colorPageToolBar: Qt.rgba(197 / 255, 197 / 255, 197 / 255, 1)
   property string fontMain: "Verdana"
 
+  function setStyle(styleId, content) {
+    res = _setStyle
+    _setStyle = [styleId, content]
+    return res
+  }
+  property
+  var _setStyle: {
+    'id': styleId,
+    'family': '',
+    'underline': True,
+    'pointSize': None,
+    'strikeout': False,
+    'weight': None,
+    'annotation': None,
+    'bgColor': PySide2.QtGui.QColor.fromRgbF(1.000000, 0.000000, 0.000000, 1.000000),
+    'fgColor': PySide2.QtGui.QColor.fromRgbF(0.000000, 0.000000, 0.000000, 1.000000)
+  }
+
   // PAGE
 
   property int currentPage

@@ -2,11 +2,10 @@
 
 ## Beta
     - changer taille de police
-        - creer fontstyle model
         - menu
         - menu contextuel
-        - annotableimage
         - zone text
+        - tableau
     - reverifier tous les update recents
     - finir les tableaux
     - traits sur image

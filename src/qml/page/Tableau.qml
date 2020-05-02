@@ -129,6 +129,15 @@ TableView {
     function setUnderline(value) {
       underline = value
     }
+
+    function setPointSize(key) {
+      if (key == Qt.Key_Plus) {
+        pointSize += 2
+      } else if (key == Qt.Key_Minus) {
+        pointSize -= 2
+      }
+      root.forceLayout()
+    }
     TextArea {
       padding: 0
       color: foreground
@@ -141,6 +150,7 @@ TableView {
           root.forceLayout()
         }
       }
+      font.pointSize: pointSize ? pointSize : 12
       Component.onCompleted: {
         text = display
       }
@@ -191,13 +201,15 @@ TableView {
 
       Keys.onPressed: {
         var isMove = [Qt.Key_Up, Qt.Key_Left, Qt.Key_Down, Qt.Key_Right].includes(event.key)
-
         if ((isMove && (event.modifiers & Qt.ControlModifier)) ||
           (event.key == Qt.Key_Right && cursorPosition == length) ||
           (event.key == Qt.Key_Left && cursorPosition == 0) ||
           (event.key == Qt.Key_Up && isFirstLine()) ||
           (event.key == Qt.Key_Down && isLastLine())) {
           changeCase(event)
+          event.accepted = true
+        } else if (([Qt.Key_Minus, Qt.Key_Plus].includes(event.key)) && (event.modifiers & Qt.ControlModifier)) {
+          rectangle.setPointSize(event.key)
           event.accepted = true
         } else {
           moreKeys(event)
@@ -212,15 +224,26 @@ TableView {
         }
       }
 
+      //      function setStyleFromMenu(data) {
+      //        var res = ddb.setStyle(objStyle.id, data["style"])
+      //        if (res) {
+      //          objStyle = res
+      //        }
+      //      }
+
       function setStyleFromMenu(data) {
         // pour tinput
-        if (data['type'] == "color") {
-          foreground = data['value']
-          underline = false
-        } else if (data['type'] == "underline") {
-          foreground = data['value']
-          underline = true
+        if (!("style" in data)) {
+          return
         }
+        var styleDict = data["style"]
+        if ('fgColor' in styleDict) {
+          foreground = styleDict['fgColor']
+        }
+        if ('underline' in styleDict) {
+          underline = styleDict['underline']
+        }
+
       }
 
       function moreKeys(event) {}
@@ -229,20 +252,26 @@ TableView {
   }
 
   function setStyleFromMenu(data) {
-    // pour rectangle
-    if (data["type"] == "cell_color") {
-      for (var i of selectedCells) {
-        i.setBackgroundColor(data["value"])
+    //     pour rectangle
+    if (!("style" in data)) {
+      return
+    }
+    var styleDict = data["style"]
+    for (var st in styleDict) {
+      if (st == "bgColor") {
+        for (var i of selectedCells) {
+          i.setBackgroundColor(styleDict[st])
+        }
       }
-    } else if (data['type'] == "color") {
-      for (var i of selectedCells) {
-        i.setForegroundColor(data["value"])
-        i.setUnderline(false)
+      if (st == "fgColor") {
+        for (var i of selectedCells) {
+          i.setForegroundColor(styleDict[st])
+        }
       }
-    } else if (data['type'] == "underline") {
-      for (var i of selectedCells) {
-        i.setForegroundColor(data["value"])
-        i.setUnderline(true)
+      if (st == "underline") {
+        for (var i of selectedCells) {
+          i.setUnderline(styleDict[st])
+        }
       }
     }
     unSelectAll()

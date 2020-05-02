@@ -11,7 +11,8 @@ BaseMenu {
       ColorButton {
         color: "red"
         style: {
-          "fgColor": color
+          "fgColor": color,
+          "underline": false
         }
         shortcut: "Ctrl+r"
         menu: root
@@ -19,7 +20,8 @@ BaseMenu {
       ColorButton {
         color: "blue"
         style: {
-          "fgColor": color
+          "fgColor": color,
+          "underline": false
         }
         shortcut: "Ctrl+b"
         menu: root
@@ -27,7 +29,8 @@ BaseMenu {
       ColorButton {
         color: "green"
         style: {
-          "fgColor": color
+          "fgColor": color,
+          "underline": false
         }
         shortcut: "Ctrl+g"
         menu: root
@@ -35,7 +38,8 @@ BaseMenu {
       ColorButton {
         color: "black"
         style: {
-          "fgColor": color
+          "fgColor": color,
+          "underline": false
         }
         shortcut: "Ctrl+n"
         menu: root

@@ -75,6 +75,7 @@ class TestTableauModel:
             Qt.ItemDataRole.BackgroundRole: QByteArray(b"background"),
             Qt.ItemDataRole.ForegroundRole: QByteArray(b"foreground"),
             tt.UnderlineRole: QByteArray(b"underline"),
+            tt.PointSizeRole: QByteArray(b"pointSize"),
         }
 
     def test_data_and_set_datas(self, tt34, ddbr, qtbot):
@@ -98,6 +99,11 @@ class TestTableauModel:
         assert tt34.data(tt34.index(0, 0), tt34.UnderlineRole) == False
         tt34.setData(tt34.index(0, 0), True, tt34.UnderlineRole)
         assert tt34.data(tt34.index(0, 0), tt34.UnderlineRole) == True
+
+        # "standant pointSize  get set"
+        assert tt34.data(tt34.index(0, 0), tt34.PointSizeRole) == 12
+        tt34.setData(tt34.index(0, 0), 22, tt34.PointSizeRole)
+        assert tt34.data(tt34.index(0, 0), tt34.PointSizeRole) == 22
 
         # "invalid index"
         assert tt34.data(tt34.index(99, 00), Qt.DisplayRole) == None

@@ -6,6 +6,6 @@ Item {
       property var menuTarget
       property var menuFlottantText: MenuFlottantText {}
       property var menuFlottantStabylo: MenuFlottantStabylo {}
-//      property var menuFlottantTableau: MenuFlottantTableau {}
+      property var menuFlottantTableau: MenuFlottantTableau {}
       /* beautify preserve:stop */
 }

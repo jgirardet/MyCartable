@@ -8,6 +8,7 @@ from PySide2.QtCore import (
     Property,
     QByteArray,
 )
+from PySide2.QtGui import QColor
 from package.database import db
 
 from pony.orm import db_session, make_proxy, ObjectNotFound
@@ -21,6 +22,7 @@ class TableauModel(QAbstractTableModel):
     ddb = None
 
     UnderlineRole = Qt.UserRole + 1
+    PointSizeRole = Qt.UserRole + 2
 
     def __init__(self):
         super().__init__()
@@ -54,6 +56,7 @@ class TableauModel(QAbstractTableModel):
         default[Qt.BackgroundRole] = QByteArray(b"background")
         default[Qt.ForegroundRole] = QByteArray(b"foreground")
         default[self.UnderlineRole] = QByteArray(b"underline")
+        default[self.PointSizeRole] = QByteArray(b"pointSize")
         return default
 
     @db_session
@@ -67,11 +70,17 @@ class TableauModel(QAbstractTableModel):
             return cell.texte  # + str(index.row()) + " " + str(index.column())
 
         elif role == Qt.BackgroundRole:
-            return cell.bgColor
+            return (
+                QColor("white")
+                if cell.style.bgColor == "transparent"
+                else cell.style.bgColor
+            )
         elif role == Qt.ForegroundRole:
-            return cell.fgColor
+            return cell.style.fgColor
         elif role == self.UnderlineRole:
-            return cell.underline
+            return cell.style.underline
+        elif role == self.PointSizeRole:
+            return cell.style.pointSize if cell.style.pointSize else 12
 
     @db_session
     def setData(self, index, value, role) -> bool:
@@ -91,13 +100,16 @@ class TableauModel(QAbstractTableModel):
             cell.texte = value
             updated = True
         elif role == Qt.BackgroundRole:
-            cell.bgColor = value
+            cell.style.bgColor = value
             updated = True
         elif role == Qt.ForegroundRole:
-            cell.fgColor = value
+            cell.style.fgColor = value
             updated = True
         elif role == self.UnderlineRole:
-            cell.underline = value
+            cell.style.underline = value
+            updated = True
+        elif role == self.PointSizeRole:
+            cell.style.pointSize = value
             updated = True
 
         if updated:

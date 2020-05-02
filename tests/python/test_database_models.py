@@ -764,7 +764,6 @@ class TestAnnotations:
 
     def test_annotation_to_dict(self, ddbr):
         s = f_style(fgColor="red")
-        print(s._fgColor, QColor.fromRgba(s._fgColor))
         a = f_stabylo(td=True, style=s.id)
         assert a["style"]["fgColor"] == QColor("red")
 
@@ -899,10 +898,10 @@ class TestTableauCell:
         a = ddb.TableauCell(tableau=t, x=0, y=0)
         assert a.x == 0
         assert a.y == 0
-        assert a.bgColor == 4294967295
+        assert a.style.bgColor == QColor("transparent")
         assert ddb.TableauCell[a.tableau, 0, 0] == a
-        b = ddb.TableauCell(tableau=t, x=0, y=1, bgColor=QColor("red").rgba())
-        assert b.bgColor == 4294901760
+        b = ddb.TableauCell(tableau=t, x=0, y=1, style={"bgColor": "red"})
+        assert b.style._bgColor == 4294901760
 
     def test_factory(self, reset_db):
         t = f_tableauSection(lignes=0, colonnes=0)
@@ -910,32 +909,25 @@ class TestTableauCell:
         f_tableauCell(x=1, tableau=t.id)
 
     def test_to_dict(self, reset_db):
-        b = f_tableauCell(x=0, bgColor=QColor("red").rgba(), td=True)
+        s = f_style(bgColor="red")
+        b = f_tableauCell(x=2, y=0, style=s.id, td=True)
         assert b == {
-            "bgColor": "red",
-            "fgColor": "black",
             "tableau": 1,
-            "x": 0,
+            "x": 2,
             "y": 0,
             "texte": "",
-            "underline": False,
+            "style": {
+                "bgColor": QColor("red"),
+                "family": "",
+                "fgColor": QColor("black"),
+                "id": 1,
+                "pointSize": None,
+                "strikeout": False,
+                "tableau_cell": (1, 2, 0),
+                "underline": False,
+                "weight": None,
+            },
         }
-        b = f_tableauCell(td=True, x=1)
-        assert b == {
-            "bgColor": "white",
-            "fgColor": "black",
-            "texte": "",
-            "tableau": 2,
-            "x": 1,
-            "y": 0,
-            "underline": False,
-        }
-
-    def test_bgColor(self, ddb):
-        a = f_tableauCell()
-        a.bgColor = "red"
-        assert a._bgColor == 4294901760
-        assert a.bgColor == QColor("red")
 
 
 class TestStyle:

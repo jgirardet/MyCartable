@@ -347,20 +347,18 @@ class TableauCell(db.Entity, ColorMixin):
     x = Required(int)
     y = Required(int)
     texte = Optional(str)
-    _fgColor = Required(int, size=32, unsigned=True, default=4278190080)
-    fgColor = property(ColorMixin.fgColor_get, ColorMixin.fgColor_set)
-    _bgColor = Optional(int, size=32, unsigned=True, default=4294967295)
-    bgColor = property(ColorMixin.bgColor_get, ColorMixin.bgColor_set)
     tableau = Required(TableauSection)
     PrimaryKey(tableau, x, y)
-    underline = Required(bool, default=False)
+    style = Optional(db.Style, default=db.Style, cascade_delete=True)
+
+    def __init__(self, **kwargs):
+
+        if "style" in kwargs and isinstance(kwargs["style"], dict):
+            kwargs["style"] = db.Style(**kwargs["style"])
+        super().__init__(**kwargs)
 
     def to_dict(self, *args, **kwargs):
-        dico = super().to_dict(*args, exclude=["_bgColor", "_fgColor"], **kwargs)
-        dico["bgColor"] = self.bgColor
-        dico["fgColor"] = self.fgColor
+        dico = super().to_dict(*args, **kwargs)
+        if "style" in dico:  # ne pas l'ajouter sur a été exclude
+            dico["style"] = self.style.to_dict()
         return dico
-
-    def __init__(self, *args, bgColor=None, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.bgColor = bgColor

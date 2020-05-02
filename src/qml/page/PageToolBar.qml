@@ -143,7 +143,8 @@ ToolBar {
     onAccepted: ddb.addSection(ddb.currentPage, {
       'lignes': ~~lignesSlider.value,
       'colonnes': ~~colonneSlider.value,
-      "classtype": "TableauSection"
+      "classtype": "TableauSection",
+
     })
   }
 

@@ -274,7 +274,6 @@ class TestLayoutMixin:
         # normal
         r = dao.setStyle(a.id, {"underline": True, "bgColor": "red"})
         assert r == {
-            "annotation": None,
             "bgColor": QColor("red"),
             "family": "",
             "fgColor": QColor("black"),
@@ -520,8 +519,6 @@ class TestImageSectionMixin:
             c_style = dict(content["style"])
 
         item = dao.addAnnotation(content)
-        print(item)
-        assert False
         with db_session:
             item = s.annotations.select()[:][0].to_dict()
             assert item.pop("id")

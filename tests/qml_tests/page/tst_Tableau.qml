@@ -14,13 +14,28 @@ Item {
       property int n_rows: rowCount
 
       CustomTableModelColumn {
-        display: "zero";edit: "editZero";background: "bgZero";foreground: "fgZero";underline: "uZero"
+        display: "zero"
+        edit: "editZero"
+        background: "bgZero"
+        foreground: "fgZero"
+        underline: "uZero"
+        pointSize: "psZero"
       }
       CustomTableModelColumn {
-        display: "un";edit: "editUn";background: "bgUn";foreground: "fgUn";underline: "uUn"
+        display: "un"
+        edit: "editUn"
+        background: "bgUn"
+        foreground: "fgUn"
+        underline: "uUn"
+        pointSize: "psUn"
       }
       CustomTableModelColumn {
-        display: "deux";edit: "editDeux";background: "bgDeux";foreground: "fgDeux";underline: "uDeux"
+        display: "deux"
+        edit: "editDeux"
+        background: "bgDeux"
+        foreground: "fgDeux"
+        underline: "uDeux"
+        pointSize: "psDeux"
       }
       rows: [
         //      [
@@ -39,7 +54,10 @@ Item {
           fgDeux: "orange",
           uZero: true,
           uUn: false,
-          uDeux: false
+          uDeux: false,
+          psZero: 10,
+          psUn: 12,
+          psDeux: 14
 
         }, {
           zero: "3",
@@ -56,6 +74,10 @@ Item {
           fgDeux: "orange",
           uZero: true,
           uUn: false,
+          uDeux: false,
+          psZero: 10,
+          psUn: 12,
+          psDeux: 14
         }, {
           zero: "6",
           un: "7",
@@ -71,6 +93,10 @@ Item {
           fgDeux: "orange",
           uZero: true,
           uUn: false,
+          uDeux: false,
+          psZero: 10,
+          psUn: 12,
+          psDeux: 14
         }, {
           zero: "9",
           un: "10",
@@ -86,6 +112,10 @@ Item {
           fgDeux: "orange",
           uZero: true,
           uUn: false,
+          uDeux: false,
+          psZero: 10,
+          psUn: 12,
+          psDeux: 14
         },
 
       ]
@@ -100,6 +130,7 @@ Item {
     /* beautify preserve:start */
     property var model
     property var underline: false
+    property var pointSize: 12
     property var base: item
     /* beautify preserve:end */
 
@@ -259,6 +290,23 @@ Item {
       compare(tx.font.underline, true)
     }
 
+    function test_text_bigeer_smaller() {
+      var rec = tested.getItem(1)
+      var tx = tested.getItem(1).tinput
+
+      tx.forceActiveFocus()
+      keyPress(Qt.Key_A)
+      keyPress(Qt.Key_A)
+      keyPress(Qt.Key_A)
+      keyPress(Qt.Key_A)
+      compare(tx.font.pointSize, 12)
+      keyClick(Qt.Key_Plus, Qt.ControlModifier)
+      compare(tx.font.pointSize, 14)
+      keyClick(Qt.Key_Minus, Qt.ControlModifier)
+      compare(tx.font.pointSize, 12)
+
+    }
+
     function test_select() {
       function selected(liste) {
         var res = []
@@ -322,13 +370,11 @@ Item {
 
       // les cas où il ne se passe rien
       // à côté
-
       tested.unSelectAll()
-      //       mouseDrag(un, un.width, un.height/2, 0,un.height*3 )
       mousePress(un, un.width, un.height / 2)
       mouseMove(un, un.width, un.height / 3)
       mouseRelease(un, un.width, un.height / 3)
-      compare(tested.selectedCells, [])
+      compare(tested.selectedCells, [un])
 
       // boutton droit
       mousePress(un, un.width, un.height / 2, Qt.RightButton)

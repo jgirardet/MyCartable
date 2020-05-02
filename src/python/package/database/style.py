@@ -16,12 +16,17 @@ class Style(db.Entity, ColorMixin):
     weight = Optional(int)
 
     annotation = Optional("Annotation")
+    tableau_cell = Optional("TableauCell")
 
     def __init__(self, **kwargs):
         super().__init__(**self.adjust_kwargs(**kwargs))
 
     def to_dict(self, **kwargs):
         dico = super().to_dict(exclude=["_bgColor", "_fgColor"], **kwargs)
+        linked_objs = ["annotation", "tableau_cell"]
+        for obj in linked_objs:
+            if not getattr(self, obj):
+                dico.pop(obj)
         dico["bgColor"] = self.bgColor
         dico["fgColor"] = self.fgColor
         return dico

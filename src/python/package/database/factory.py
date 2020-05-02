@@ -326,11 +326,15 @@ def f_tableauSection(
         return item.to_dict() if td else item
 
 
-def f_tableauCell(x=0, y=0, bgColor=None, tableau=None, td=False):
+def f_tableauCell(x=0, y=0, style=None, tableau=None, td=False):
     tableau = tableau or f_tableauSection(lignes=0, colonnes=0).id
 
     with db_session:
-        item = getattr(db, "TableauCell")(x=x, y=y, tableau=tableau, bgColor=bgColor,)
+        style = style or db.Style()
+        flush()
+        item = getattr(db, "TableauCell")(
+            x=x, y=y, tableau=tableau, style=style if isinstance(style, int) else style,
+        )
         item.flush()
         return item.to_dict() if td else item
 

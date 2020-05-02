@@ -2,51 +2,47 @@ import QtQuick 2.14
 
 import ".."
 Item {
-  width: 200
-  height: 200
+  width: 200 // important pout les tests
+  height: 200 //important pour les tests
   id: item
-
-  Component {
-    id: refcomp
-    Item {
-      x: item.x
-      y: item.y
-      width: item.width
-      height: item.height
-      /* beautify preserve:start */
-      property var annotations: []
-      /* beautify preserve:end */
-      function deleteAnnotation(obj) {}
-    }
-  }
+  function deleteAnnotation(obj) {}
 
   CasTest {
     name: "AnnotationText Cas"
     testedNom: "qrc:/qml/page/AnnotationText.qml"
     /* beautify preserve:start */
-    property var ref
+    property var objStyle
+    property var model
     /* beautify preserve:end */
     function initPre() {
-      ref = refcomp.createObject(item)
+
+    }
+
+    function initPreCreate() {
+      model = ddb._loadAnnotations[0][0]
+      objStyle = ddb._loadAnnotations[0][1]
       params = {
-        "referent": ref,
-        "relativeX": 0.48,
-        "relativeY": 0.10
+        "referent": item,
+        "model": model,
+        "objStyle": objStyle
       }
     }
 
     function initPost() {
-      ref.annotations.push(tested)
+      //      ref.annotations.push(tested)
+
     }
+    DdbData {}
 
     function test_AnotXY() {
-      compare(tested.x, 96)
-      compare(tested.y, 20)
+      compare(tested.x, 80)
+      compare(tested.y, 100)
     }
 
     function test_focus() {
       tested.focus = true
       compare(tested.background.border.color, "#21be2b")
+      compare(uiManager.menuTarget, tested)
       tested.focus = false
       compare(tested.background.border.color, "#00000000")
     }
@@ -60,10 +56,9 @@ Item {
       mouseMove(tested, 1, 1)
       compare(tested.focus, true)
       var tested2 = createObj("qrc:/qml/page/AnnotationText.qml", {
-        "referent": ref,
-        "relativeX": 0.8,
-        "relativeY": 0.8,
-        "uiManager": uiManager
+        "referent": item,
+        "model": model,
+        "objStyle": objStyle
       })
       mouseMove(tested2, 1, 1)
       compare(tested.focus, false)
@@ -93,55 +88,31 @@ Item {
       tested.ddbId = 3
       tested.text = "bla"
       compare(ddb._updateAnnotation[0], 3)
-      compare(ddb._updateAnnotation[1].value, "bla")
-      compare(ddb._updateAnnotation[1].type, "text")
+      compare(ddb._updateAnnotation[1], {
+        "text": "bla"
+      })
     }
 
     function test_setStyle_color() {
-      ddb._updateAnnotation = {}
-      tested.color = "blue"
       var data = {
-        'type': 'color',
-        'value': 'red'
+        'style': {
+          'fgColor': 'blue',
+          'bgColor': 'red',
+          'underline': true
+        }
       }
-      tested.setStyleFromMenu(data)
-      compare(tested.color, "#ff0000")
-      compare(ddb._updateAnnotation[0], tested.ddbId)
-      compare(ddb._updateAnnotation[1], data)
-    }
+      verify(!Qt.colorEqual(tested.color, "blue"))
+      verify(!Qt.colorEqual(tested.background.color, "red"))
+      verify(!tested.font.underline)
 
-    function test_setStyle_underline() {
-      ddb._updateAnnotation = {}
-      var data = {
-        'type': 'underline',
-        'value': "red"
-      }
       tested.setStyleFromMenu(data)
-      compare(tested.color, "#ff0000")
-      compare(tested.font.underline, true)
-      compare(ddb._updateAnnotation[0], tested.ddbId)
-      compare(ddb._updateAnnotation[1], data)
-    }
 
-    function test_setStyle_remove_underline() {
-      ddb._updateAnnotation = {}
-      tested.color = "blue"
-      tested.font.underline = true
-      var data = {
-        'type': 'color',
-        'value': "red"
-      }
-      tested.setStyleFromMenu(data)
-      compare(tested.color, "#ff0000")
-      compare(tested.font.underline, false)
-      compare(ddb._updateAnnotation[0], tested.ddbId)
-      compare(ddb._updateAnnotation[1], data)
-    }
+      verify(Qt.colorEqual(tested.color, "blue"))
+      verify(Qt.colorEqual(tested.background.color, "red"))
+      verify(tested.font.underline)
 
-    function test_focus_set_menu_tearget() {
-      compare(uiManager.menuTarget, undefined)
-      tested.focus = true
-      compare(uiManager.menuTarget, tested)
+      compare(ddb._setStyle[0], objStyle.id)
+      compare(ddb._setStyle[1], data['style'])
     }
 
     function test_menu_show() {
@@ -149,14 +120,6 @@ Item {
       mouseClick(tested, 0, 0, Qt.RightButton)
       compare(uiManager.menuFlottantText.opened, true)
       compare(uiManager.menuFlottantText.target, tested)
-    }
-
-    function test_menu_change_color() {
-      compare(tested.color, "#353637")
-      mouseClick(tested, 0, 0, Qt.RightButton)
-      menuClick(uiManager.menuFlottantText, 1, 30)
-      compare(Qt.colorEqual(tested.color, "red"), true)
-
     }
 
   }

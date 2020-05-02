@@ -28,7 +28,6 @@ class ImageSectionMixin:
         with db_session:
             obj = self.db.ImageSection[section]
             res = [p.to_dict() for p in obj.annotations]
-            # print(res)
             res2 = []
             for r in res:
                 style = r.pop("style")
@@ -43,7 +42,6 @@ class ImageSectionMixin:
                 style = dico.pop("style")
                 item.style.set(**style)
             item.set(**dico)
-            print(item.to_dict(exclude=["style"]))
             return item.to_dict(exclude=["style"])
 
     def get_new_image_path(self, ext):

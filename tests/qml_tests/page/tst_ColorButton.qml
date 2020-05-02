@@ -9,14 +9,20 @@ Item {
   CasTest {
     name: "ColorButton"
     testedNom: "qrc:/qml/menu/ColorButton.qml"
+    /* beautify preserve:start */
+    property var style : {
+      "fgColor": "red"
+    }
+    /* beautify preserve:end */
     params: {
       "color": "red",
-      "type": "color"
+      "style": style
+
     }
 
     function test_init() {
       compare(tested.color, "#ff0000")
-      compare(tested.type, "color")
+      compare(tested.style.fgColor, "red")
     }
 
     function test_ontriggered() {
@@ -30,8 +36,13 @@ Item {
       uiManager.menuTarget = editor
       tested.menu = menu
       mouseClick(tested)
-      compare(editor.res.type, "color")
-      compare(editor.res.value, "#ff0000")
+      print(JSON.stringify(editor.res))
+      compare(editor.res, {
+        "style": {
+          'fgColor': "red"
+        }
+      })
+      //      compare(editor.res.value, "#ff0000")
     }
   }
 }

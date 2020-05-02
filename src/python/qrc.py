@@ -1487,7 +1487,7 @@ rrentIndex = mod\
 el.lastPosition\x0a\
       }\x0a    }\x0a  \
 }\x0a\x0a}\
-\x00\x00\x14\x1a\
+\x00\x00\x14V\
 i\
 mport QtQuick 2.\
 14\x0aimport QtQuic\
@@ -1624,193 +1624,197 @@ t\x22: root\x0a    })\x0a\
 ec\x0a  }\x0a\x0a  functi\
 on deleteAnnotat\
 ion(anotObj) {\x0a \
-   ddb.deleteAnn\
-otation(anotObj.\
-ddbId)\x0a    let o\
-bjIndex = annota\
-tions.indexOf(an\
-otObj)\x0a    annot\
-ations.splice(ob\
-jIndex, 1)\x0a    a\
-notObj.destroy()\
-\x0a  }\x0a\x0a  function\
- initZones(annot\
-s) {\x0a    for (va\
-r z of ddb.loadA\
-nnotations(secti\
-onId)) {\x0a      v\
-ar initDict = {\x0a\
-        \x22referen\
-t\x22: root,\x0a      \
-  \x22model\x22: z[0],\
-\x0a        'objSty\
-le': z[1]\x0a      \
-}\x0a      var newO\
-bject\x0a      swit\
-ch (z[0].classty\
-pe) {\x0a        ca\
-se \x22Stabylo\x22: {\x0a\
-          newObj\
-ect = stabyloRec\
-tangle.createObj\
-ect(root, initDi\
-ct)\x0a          br\
-eak;\x0a        }\x0a \
-       case \x22Ann\
-otationText\x22: {\x0a\
-          newObj\
-ect = annotation\
-Text.createObjec\
-t(root, initDict\
-)\x0a          brea\
-k;\x0a        }\x0a   \
-   }\x0a      if (n\
-ewObject != unde\
-fined) {\x0a       \
- root.annotation\
-s.push(newObject\
-)\x0a      }\x0a    }\x0a\
-  }\x0a\x0a  function \
-storeZone(rec) {\
-\x0a    if (rec.rel\
-ativeWidth > 0 &\
-& rec.relativeHe\
-ight > 0) {\x0a    \
-  rec.model = dd\
-b.updateAnnotati\
-on(rec.model.id,\
- {\x0a        \x22rela\
-tiveWidth\x22: rec.\
-relativeWidth,\x0a \
-       \x22relative\
-Height\x22: rec.rel\
-ativeHeight,\x0a   \
-   })\x0a      anno\
-tations.push(rec\
-)\x0a      rec.push\
-ed = true\x0a      \
-return true\x0a    \
-} else {\x0a      d\
-db.deleteAnnotat\
-ion(rec.model.id\
-)\x0a      rec = nu\
-ll\x0a    }\x0a    ret\
-urn false\x0a  }\x0a\x0a \
- function update\
-Zone(mouseEvent,\
- rec) {\x0a    cons\
-t new_rel_height\
- = (mouseEvent.y\
- - rec.y) / img.\
-height\x0a    const\
- new_rel_width =\
- (mouseEvent.x -\
- rec.x) / img.im\
-plicitWidth\x0a    \
-rec.relativeHeig\
-ht = new_rel_hei\
-ght >= 0 ? new_r\
-el_height : 0\x0a  \
-  rec.relativeWi\
-dth = new_rel_wi\
-dth >= 0 ? new_r\
-el_width : 0\x0a   \
- return rec\x0a  }\x0a\
-\x0a  Image {\x0a    i\
-d: img\x0a\x0a    prop\
-erty QtObject mo\
-useArea: mouseAr\
-ea\x0a    //    asy\
-nchronous: true \
-// asynchronous \
-fail le scrollin\
-g on add\x0a    fil\
-lMode: Image.Pre\
-serveAspectCrop\x0a\
-    source: root\
-.imagePath\x0a    s\
-ourceSize.width:\
- base ? base.wid\
-th : 0\x0a    // TO\
-DO: faire des tr\
-ais.\x0a\x0a  }\x0a  Mous\
-eArea {\x0a    id: \
-mouseArea\x0a    ob\
-jectName: \x22mouse\
-Area\x22\x0a    anchor\
-s.fill: root\x0a   \
- /* beautify pre\
-serve:start */\x0a \
-   property var \
-temp_rec: null\x0a \
-   /* beautify p\
-reserve:end */\x0a \
-   preventSteali\
-ng: true\x0a    acc\
-eptedButtons: Qt\
-.LeftButton | Qt\
-.RightButton\x0a\x0a  \
-  onPressed: {\x0a \
-     //      roo\
-t.base.currentIn\
-dex = position\x0a \
-     if (pressed\
-Buttons === Qt.R\
-ightButton) {\x0a  \
-      temp_rec =\
- root.createZone\
-(mouse)\x0a      } \
-else if (pressed\
-Buttons === Qt.L\
-eftButton) {\x0a   \
-     root.focus \
-= true\x0a        r\
-oot.addAnnotatio\
-n(mouse)\x0a       \
- mouse.accepted \
-= true\x0a      }\x0a \
-   }\x0a\x0a    onPosi\
-tionChanged: {\x0a \
-     if (contain\
-sMouse && temp_r\
-ec) {\x0a        te\
-mp_rec = root.up\
-dateZone(mouse, \
-temp_rec)\x0a      \
-}\x0a    }\x0a\x0a    onR\
-eleased: {\x0a     \
- if (mouse.butto\
-n == Qt.RightBut\
-ton) {\x0a        t\
-emp_rec = root.s\
-toreZone(temp_re\
-c)\x0a        if (!\
-temp_rec) {\x0a    \
-      //        \
-  menuflotant.po\
-pup()\x0a        }\x0a\
-        temp_rec\
- = null\x0a      }\x0a\
-    }\x0a  }\x0a}\x0a\x0a// \
- Dialog {\x0a//    \
-id: dialogSuppri\
-mer\x0a//    title:\
- \x22Supprimer l'im\
-age ?\x22\x0a//    sta\
-ndardButtons: Di\
-alog.Ok | Dialog\
-.Cancel\x0a//    pa\
-rent: root.edito\
-r\x0a//    anchors.\
-centerIn: parent\
-\x0a//\x0a//    onAcce\
-pted: ddb.remove\
-Section(root.edi\
-tor.sectionId, r\
-oot.editor.posit\
-ion)\x0a//    //   \
-   onRejected: n\
-ull\x0a//  }\
+   print(\x22destro\
+y\x22)\x0a    ddb.dele\
+teAnnotation(ano\
+tObj.ddbId)\x0a    \
+let objIndex = a\
+nnotations.index\
+Of(anotObj)\x0a    \
+annotations.spli\
+ce(objIndex, 1)\x0a\
+    anotObj.dest\
+roy()\x0a  }\x0a\x0a  fun\
+ction initZones(\
+annots) {\x0a    fo\
+r (var z of ddb.\
+loadAnnotations(\
+sectionId)) {\x0a  \
+    var initDict\
+ = {\x0a        \x22re\
+ferent\x22: root,\x0a \
+       \x22model\x22: \
+z[0],\x0a        'o\
+bjStyle': z[1]\x0a \
+     }\x0a      var\
+ newObject\x0a     \
+ switch (z[0].cl\
+asstype) {\x0a     \
+   case \x22Stabylo\
+\x22: {\x0a          n\
+ewObject = staby\
+loRectangle.crea\
+teObject(root, i\
+nitDict)\x0a       \
+   break;\x0a      \
+  }\x0a        case\
+ \x22AnnotationText\
+\x22: {\x0a          n\
+ewObject = annot\
+ationText.create\
+Object(root, ini\
+tDict)\x0a         \
+ break;\x0a        \
+}\x0a      }\x0a      \
+if (newObject !=\
+ undefined) {\x0a  \
+      root.annot\
+ations.push(newO\
+bject)\x0a      }\x0a \
+   }\x0a  }\x0a\x0a  func\
+tion storeZone(r\
+ec) {\x0a    if (re\
+c.relativeWidth \
+> 0 && rec.relat\
+iveHeight > 0) {\
+\x0a      rec.model\
+ = ddb.updateAnn\
+otation(rec.mode\
+l.id, {\x0a        \
+\x22relativeWidth\x22:\
+ rec.relativeWid\
+th,\x0a        \x22rel\
+ativeHeight\x22: re\
+c.relativeHeight\
+,\x0a      })\x0a     \
+ print(JSON.stri\
+ngify(rec.model)\
+)\x0a      annotati\
+ons.push(rec)\x0a  \
+    rec.pushed =\
+ true\x0a      retu\
+rn true\x0a    } el\
+se {\x0a      ddb.d\
+eleteAnnotation(\
+rec.model.id)\x0a  \
+    rec = null\x0a \
+   }\x0a    return \
+false\x0a  }\x0a\x0a  fun\
+ction updateZone\
+(mouseEvent, rec\
+) {\x0a    const ne\
+w_rel_height = (\
+mouseEvent.y - r\
+ec.y) / img.heig\
+ht\x0a    const new\
+_rel_width = (mo\
+useEvent.x - rec\
+.x) / img.implic\
+itWidth\x0a    rec.\
+relativeHeight =\
+ new_rel_height \
+>= 0 ? new_rel_h\
+eight : 0\x0a    re\
+c.relativeWidth \
+= new_rel_width \
+>= 0 ? new_rel_w\
+idth : 0\x0a    ret\
+urn rec\x0a  }\x0a\x0a  I\
+mage {\x0a    id: i\
+mg\x0a\x0a    property\
+ QtObject mouseA\
+rea: mouseArea\x0a \
+   //    asynchr\
+onous: true // a\
+synchronous fail\
+ le scrolling on\
+ add\x0a    fillMod\
+e: Image.Preserv\
+eAspectCrop\x0a    \
+source: root.ima\
+gePath\x0a    sourc\
+eSize.width: bas\
+e ? base.width :\
+ 0\x0a    // TODO: \
+faire des trais.\
+\x0a\x0a  }\x0a  MouseAre\
+a {\x0a    id: mous\
+eArea\x0a    object\
+Name: \x22mouseArea\
+\x22\x0a    anchors.fi\
+ll: root\x0a    /* \
+beautify preserv\
+e:start */\x0a    p\
+roperty var temp\
+_rec: null\x0a    /\
+* beautify prese\
+rve:end */\x0a    p\
+reventStealing: \
+true\x0a    accepte\
+dButtons: Qt.Lef\
+tButton | Qt.Rig\
+htButton\x0a\x0a    on\
+Pressed: {\x0a     \
+ //      root.ba\
+se.currentIndex \
+= position\x0a     \
+ if (pressedButt\
+ons === Qt.Right\
+Button) {\x0a      \
+  temp_rec = roo\
+t.createZone(mou\
+se)\x0a      } else\
+ if (pressedButt\
+ons === Qt.LeftB\
+utton) {\x0a       \
+ root.focus = tr\
+ue\x0a        root.\
+addAnnotation(mo\
+use)\x0a        mou\
+se.accepted = tr\
+ue\x0a      }\x0a    }\
+\x0a\x0a    onPosition\
+Changed: {\x0a     \
+ if (containsMou\
+se && temp_rec) \
+{\x0a        temp_r\
+ec = root.update\
+Zone(mouse, temp\
+_rec)\x0a      }\x0a  \
+  }\x0a\x0a    onRelea\
+sed: {\x0a      if \
+(mouse.button ==\
+ Qt.RightButton)\
+ {\x0a        temp_\
+rec = root.store\
+Zone(temp_rec)\x0a \
+       if (!temp\
+_rec) {\x0a        \
+  //          me\
+nuflotant.popup(\
+)\x0a        }\x0a    \
+    temp_rec = n\
+ull\x0a      }\x0a    \
+}\x0a  }\x0a}\x0a\x0a//  Dia\
+log {\x0a//    id: \
+dialogSupprimer\x0a\
+//    title: \x22Su\
+pprimer l'image \
+?\x22\x0a//    standar\
+dButtons: Dialog\
+.Ok | Dialog.Can\
+cel\x0a//    parent\
+: root.editor\x0a//\
+    anchors.cent\
+erIn: parent\x0a//\x0a\
+//    onAccepted\
+: ddb.removeSect\
+ion(root.editor.\
+sectionId, root.\
+editor.position)\
+\x0a//    //      o\
+nRejected: null\x0a\
+//  }\
 \x00\x00\x09\x1e\
 i\
 mport QtQuick 2.\
@@ -27610,27 +27614,27 @@ qt_resource_struct = b"\
 \x00\x00\x00\x00\x00\x00\x00\x00\
 \x00\x00\x00*\x00\x02\x00\x00\x00\x01\x00\x00\x00\x06\
 \x00\x00\x00\x00\x00\x00\x00\x00\
-\x00\x00\x06\x82\x00\x00\x00\x00\x00\x01\x00\x00\x9e\x1f\
+\x00\x00\x06\x82\x00\x00\x00\x00\x00\x01\x00\x00\x9e[\
 \x00\x00\x01p\x1c\x22\xb3\x0d\
-\x00\x00\x07\x0c\x00\x00\x00\x00\x00\x01\x00\x04^;\
+\x00\x00\x07\x0c\x00\x00\x00\x00\x00\x01\x00\x04^w\
 \x00\x00\x01q\xd1\x1aV\x00\
-\x00\x00\x07P\x00\x00\x00\x00\x00\x01\x00\x04\xc8\x80\
+\x00\x00\x07P\x00\x00\x00\x00\x00\x01\x00\x04\xc8\xbc\
 \x00\x00\x01q\xd1\x1aU\xf8\
-\x00\x00\x06\xe8\x00\x00\x00\x00\x00\x01\x00\x04S\xb3\
+\x00\x00\x06\xe8\x00\x00\x00\x00\x00\x01\x00\x04S\xef\
 \x00\x00\x01q\xd1\x1aU\xf8\
-\x00\x00\x07(\x00\x00\x00\x00\x00\x01\x00\x04\x9a@\
+\x00\x00\x07(\x00\x00\x00\x00\x00\x01\x00\x04\x9a|\
 \x00\x00\x01q\xd1\x1aV\x04\
-\x00\x00\x07\xda\x00\x00\x00\x00\x00\x01\x00\x05';\
+\x00\x00\x07\xda\x00\x00\x00\x00\x00\x01\x00\x05'w\
 \x00\x00\x01q\xd1\x1aU\xf8\
-\x00\x00\x07\x96\x00\x00\x00\x00\x00\x01\x00\x04\xf6\xe0\
+\x00\x00\x07\x96\x00\x00\x00\x00\x00\x01\x00\x04\xf7\x1c\
 \x00\x00\x01q\xd1\x1aU\xfc\
-\x00\x00\x07\xbe\x00\x00\x00\x00\x00\x01\x00\x04\xfa\x90\
+\x00\x00\x07\xbe\x00\x00\x00\x00\x00\x01\x00\x04\xfa\xcc\
 \x00\x00\x01q\xd1\x1aV\x04\
-\x00\x00\x07r\x00\x00\x00\x00\x00\x01\x00\x04\xcd\x93\
+\x00\x00\x07r\x00\x00\x00\x00\x00\x01\x00\x04\xcd\xcf\
 \x00\x00\x01q\xd1\x1aV\x04\
-\x00\x00\x06\xd0\x00\x00\x00\x00\x00\x01\x00\x03\x5c\xab\
+\x00\x00\x06\xd0\x00\x00\x00\x00\x00\x01\x00\x03\x5c\xe7\
 \x00\x00\x01q\xd1\x1aU\xf8\
-\x00\x00\x06\xb4\x00\x00\x00\x00\x00\x01\x00\x01qA\
+\x00\x00\x06\xb4\x00\x00\x00\x00\x00\x01\x00\x01q}\
 \x00\x00\x01q\xd1\x1aU\xf4\
 \x00\x00\x00z\x00\x02\x00\x00\x00\x05\x00\x00\x006\
 \x00\x00\x00\x00\x00\x00\x00\x00\
@@ -27673,8 +27677,8 @@ qt_resource_struct = b"\
 \x00\x00\x044\x00\x00\x00\x00\x00\x01\x00\x00Vc\
 \x00\x00\x01q\xd1\x1aVH\
 \x00\x00\x04b\x00\x00\x00\x00\x00\x01\x00\x00YL\
-\x00\x00\x01q\xd5\x08\xf9f\
-\x00\x00\x04\xb6\x00\x01\x00\x00\x00\x01\x00\x00v\x8c\
+\x00\x00\x01q\xd6\x13\xa8\xb2\
+\x00\x00\x04\xb6\x00\x01\x00\x00\x00\x01\x00\x00v\xc8\
 \x00\x00\x01q\xd1\x1aVH\
 \x00\x00\x04\x08\x00\x00\x00\x00\x00\x01\x00\x00TW\
 \x00\x00\x01q\xd1\x1aVH\
@@ -27684,27 +27688,27 @@ qt_resource_struct = b"\
 \x00\x00\x01q\xd1\x1aVH\
 \x00\x00\x03\xe0\x00\x00\x00\x00\x00\x01\x00\x00L\xec\
 \x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x04\x8c\x00\x00\x00\x00\x00\x01\x00\x00mj\
-\x00\x00\x01q\xd4\xe1'\xfa\
-\x00\x00\x05d\x00\x00\x00\x00\x00\x01\x00\x00\x87\xfe\
+\x00\x00\x04\x8c\x00\x00\x00\x00\x00\x01\x00\x00m\xa6\
+\x00\x00\x01q\xd5\xabt\x92\
+\x00\x00\x05d\x00\x00\x00\x00\x00\x01\x00\x00\x88:\
 \x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x04\xd2\x00\x00\x00\x00\x00\x01\x00\x00\x80\x1e\
+\x00\x00\x04\xd2\x00\x00\x00\x00\x00\x01\x00\x00\x80Z\
 \x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x05\xca\x00\x00\x00\x00\x00\x01\x00\x00\x90\xc6\
+\x00\x00\x05\xca\x00\x00\x00\x00\x00\x01\x00\x00\x91\x02\
 \x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x056\x00\x00\x00\x00\x00\x01\x00\x00\x85?\
+\x00\x00\x056\x00\x00\x00\x00\x00\x01\x00\x00\x85{\
 \x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x05\x0c\x00\x00\x00\x00\x00\x01\x00\x00\x84\xa8\
+\x00\x00\x05\x0c\x00\x00\x00\x00\x00\x01\x00\x00\x84\xe4\
 \x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x05\x9a\x00\x00\x00\x00\x00\x01\x00\x00\x8b\x7f\
+\x00\x00\x05\x9a\x00\x00\x00\x00\x00\x01\x00\x00\x8b\xbb\
 \x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x05\xf2\x00\x00\x00\x00\x00\x01\x00\x00\x92\x8d\
+\x00\x00\x05\xf2\x00\x00\x00\x00\x00\x01\x00\x00\x92\xc9\
 \x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x06\x10\x00\x00\x00\x00\x00\x01\x00\x00\x93Z\
+\x00\x00\x06\x10\x00\x00\x00\x00\x00\x01\x00\x00\x93\x96\
 \x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x06\x5c\x00\x00\x00\x00\x00\x01\x00\x00\x9d\x8a\
+\x00\x00\x06\x5c\x00\x00\x00\x00\x00\x01\x00\x00\x9d\xc6\
 \x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x06.\x00\x00\x00\x00\x00\x01\x00\x00\x98Z\
+\x00\x00\x06.\x00\x00\x00\x00\x00\x01\x00\x00\x98\x96\
 \x00\x00\x01q\xd1\x1aVH\
 \x00\x00\x01\x0e\x00\x01\x00\x00\x00\x01\x00\x00\x0d\x93\
 \x00\x00\x01q\xd5\x0c\xe0\x95\
@@ -27716,7 +27720,7 @@ qt_resource_struct = b"\
 \x00\x00\x01q\xd2~\xde~\
 \x00\x00\x00\xea\x00\x00\x00\x00\x00\x01\x00\x00\x0b4\
 \x00\x00\x01q\xd2\x81\x01\x1f\
-\x00\x00\x07\xf4\x00\x01\x00\x00\x00\x01\x00\x05,\x07\
+\x00\x00\x07\xf4\x00\x01\x00\x00\x00\x01\x00\x05,C\
 \x00\x00\x01q\xd1\x1aV\x10\
 "
 

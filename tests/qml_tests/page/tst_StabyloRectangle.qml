@@ -5,43 +5,38 @@ Item {
   width: 200
   height: 200
   id: item
-
-  Component {
-    id: refcomp
-    Item {
-      x: item.x
-      y: item.y
-      width: item.width
-      height: item.height
-      /* beautify preserve:start */
-      property var annotations: []
-      /* beautify preserve:end */
-      function deleteAnnotation(obj) {}
-    }
+  function deleteAnnotation(obj) {
+    _deleteAnnotation = obj
   }
+  /* beautify preserve:start */
+  property var _deleteAnnotation
+  /* beautify preserve:end */
 
   CasTest {
     name: "StabyloRectangle"
     testedNom: "qrc:/qml/page/StabyloRectangle.qml"
     /* beautify preserve:start */
-    property var ref
+    property var model
+    property  var objStyle
     /* beautify preserve:end */
-    function initPre() {
-      ref = refcomp.createObject(item)
+
+    function initPreCreate() {
+      model = ddb._loadAnnotations[1][0]
+      objStyle = ddb._loadAnnotations[1][1]
       params = {
-        "referent": ref,
+        "referent": item,
+        "model": model,
+        "objStyle": objStyle,
         "relativeX": 0.48,
         "relativeY": 0.10
       }
     }
 
-    function initPost() {
-      ref.annotations.push(tested)
-    }
+    function initPost() {}
 
     function test_id() {
       compare(tested.relativeX, 0.48)
-      compare(tested.ddbId, 0)
+      compare(tested.ddbId, 6)
     }
 
     function test_AnotXY() {
@@ -49,17 +44,21 @@ Item {
       compare(tested.y, 20)
     }
 
-    function test_setStyle() {
-      ddb._updateAnnotation = {}
-      tested.color = "blue"
+    function test_setStyle_color() {
       var data = {
-        'type': 'color',
-        'value': 'red'
+        'style': {
+          'bgColor': 'purple',
+          'underline': true
+        }
       }
+      verify(!Qt.colorEqual(tested.color, "purple"))
+
       tested.setStyleFromMenu(data)
-      compare(tested.color, "#ff0000")
-      compare(ddb._updateAnnotation[0], tested.ddbId)
-      compare(ddb._updateAnnotation[1], data)
+
+      verify(Qt.colorEqual(tested.color, "purple"))
+
+      compare(ddb._setStyle[0], objStyle.id)
+      compare(ddb._setStyle[1], data['style'])
     }
 
     function test_menu_show() {
@@ -69,18 +68,11 @@ Item {
       compare(uiManager.menuFlottantStabylo.target, tested)
     }
 
-    function test_menu_change_color() {
-      tested.color = "blue"
-      mouseClick(tested, 0, 0, Qt.RightButton)
-      menuClick(uiManager.menuFlottantStabylo, 1, 30)
-      compare(Qt.colorEqual(tested.color, "red"), true)
-
-    }
-
     function test_tested_destroy() {
       var spy = getSpy(tested, "deleteRequested")
       mouseClick(tested, 0, 0, Qt.MiddleButton)
       spy.wait()
+      compare(item._deleteAnnotation, tested)
     }
 
   }

@@ -1,8 +1,7 @@
 import QtQuick 2.14
 import QtTest 1.12
 
-///* beautify preserve:start */
-
+/* beautify preserve:start */
 Item {
 
   Component.onCompleted: {
@@ -198,21 +197,20 @@ Item {
   property string fontMain: "Verdana"
 
   function setStyle(styleId, content) {
-    res = _setStyle
+    var res = Object.assign(_setStyle, content)
     _setStyle = [styleId, content]
     return res
   }
-  property
-  var _setStyle: {
-    'id': styleId,
+  property  var _setStyle: {
+    'id': 2,
     'family': '',
-    'underline': True,
-    'pointSize': None,
-    'strikeout': False,
-    'weight': None,
-    'annotation': None,
-    'bgColor': PySide2.QtGui.QColor.fromRgbF(1.000000, 0.000000, 0.000000, 1.000000),
-    'fgColor': PySide2.QtGui.QColor.fromRgbF(0.000000, 0.000000, 0.000000, 1.000000)
+    'underline': true,
+    'pointSize': null,
+    'strikeout': false,
+    'weight': null,
+    'annotation': null,
+    'bgColor': "red",
+    'fgColor': "yellow"
   }
 
   // PAGE
@@ -292,31 +290,33 @@ Item {
   // IMAGE
 
   function addAnnotation(content) {
+    var backup = _addAnnotation
     _addAnnotation = content
-    return {
+    return backup
+    }
+    property var _addAnnotation :
+    [{
       'id': 1,
       'relativeX': 0.3,
       'relativeY': 0.4,
       'section': 1,
-      'style': {
-        'id': 1,
-        'family': '',
-        'underline': False,
-        'pointSize': None,
-        'strikeout': False,
-        'weight': None,
-        'annotation': 1,
-        'bgColor': 'transparent',
-        'fgColor': "black"
-      },
       'classtype': 'Stabylo',
       'relativeWidth': 0.5,
       'relativeHeight': 0.6
-    }
+      },{
+        'id': 1,
+        'family': '',
+        'underline': false,
+        'pointSize': null,
+        'strikeout': false,
+        'weight': null,
+        'annotation': 1,
+        'bgColor': 'transparent',
+        'fgColor': "black"
+      }
+    ]
 
-  }
-  property
-  var _addAnnotation
+
 
   function deleteAnnotation(sectionid) {
     _deleteAnnotation = sectionid
@@ -327,15 +327,14 @@ Item {
   function loadAnnotations(section) {
     return _loadAnnotations
   }
-  property
-  var _loadAnnotations: [{
+  property var _loadAnnotations: [[{
     'id': 7,
-    'relativeX': 0.16367713004484305,
-    'relativeY': 0.6580976863753213,
+    'relativeX': 0.4, // important pout les test
+    'relativeY': 0.5,// important pout les test
     'section': 3796,
     'classtype': 'AnnotationText',
-    'text': "un annotation",
-    'style': {
+    'text': "un annotation",}
+    ,{
       'id': 1,
       'family': '',
       'underline': false,
@@ -343,18 +342,18 @@ Item {
       'strikeout': false,
       'weight': null,
       'annotation': 1,
-      'bgColor': "transparent",
+      'bgColor': "orange",
       'fgColor': "red"
     }
-  }, {
-    'id': 6,
-    'relativeX': 0.531390134529148,
-    'relativeY': 0.531390134529148,
+  ], [{
+    'id': 6, // ne pas changer cet object (sauf adapter)
+    'relativeX': 0.48,
+    'relativeY': 0.10,
     'section': 3796,
     'classtype': 'Stabylo',
     'relativeWidth': 0.226457399103139,
     'relativeHeight': 0.07969151670951156,
-    'style': {
+    }, {
       'id': 12,
       'family': '',
       'underline': false,
@@ -364,16 +363,16 @@ Item {
       'annotation': 1,
       'bgColor': "blue",
       'fgColor': "black"
-    }
 
-  }, {
+
+  }], [{
     'id': 5,
     'relativeX': 0.30269058295964124,
     'relativeY': 0.38303341902313626,
     'section': 3796,
     'classtype': 'AnnotationText',
     'text': 'fzefzefzef',
-    'style': {
+    } ,{
       'id': 44,
       'family': '',
       'underline': true,
@@ -384,8 +383,8 @@ Item {
       'bgColor': "transparent",
       'fgColor': "green"
     }
-
-  }, {
+    ]
+  , [{
     'id': 4,
     'relativeX': 0.16367713004484305,
     'relativeY': 0.18508997429305912,
@@ -393,7 +392,7 @@ Item {
     'classtype': 'Stabylo',
     'relativeWidth': 0.09417040358744394,
     'relativeHeight': 0.05912596401028278,
-    'style': {
+    }, {
       'id': 5,
       'family': '',
       'underline': false,
@@ -403,16 +402,22 @@ Item {
       'annotation': 1,
       'bgColor': "transparent",
       'fgColor': "black"
-    }
-  }]
+    }]
+  ]
 
   function updateAnnotation(anotid, dico) {
-    retValue = _updateAnnotation
+    var backup = _updateAnnotation
     _updateAnnotation = [anotid, dico]
-    return retValue
+    return backup
   }
-  property
-  var _updateAnnotation
+  property var _updateAnnotation: {
+    'id': 1,
+    'relativeX': 0.44,
+    'relativeY': 0.93,
+    'section': 1,
+    'classtype': 'AnnotationText',
+    'text': 'bla'
+  }
 
   // SECTION
 
@@ -463,6 +468,5 @@ Item {
 
 }
 
-// Databaseobject
 
-///* beautify preserve:end */
+/* beautify preserve:end */

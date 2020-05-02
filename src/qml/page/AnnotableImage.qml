@@ -71,6 +71,7 @@ FocusScope {
   }
 
   function deleteAnnotation(anotObj) {
+    print("destroy")
     ddb.deleteAnnotation(anotObj.ddbId)
     let objIndex = annotations.indexOf(anotObj)
     annotations.splice(objIndex, 1)
@@ -107,6 +108,7 @@ FocusScope {
         "relativeWidth": rec.relativeWidth,
         "relativeHeight": rec.relativeHeight,
       })
+      print(JSON.stringify(rec.model))
       annotations.push(rec)
       rec.pushed = true
       return true

@@ -520,7 +520,8 @@ class TestImageSectionMixin:
             c_style = dict(content["style"])
 
         item = dao.addAnnotation(content)
-
+        print(item)
+        assert False
         with db_session:
             item = s.annotations.select()[:][0].to_dict()
             assert item.pop("id")
@@ -570,7 +571,6 @@ class TestImageSectionMixin:
                         assert getattr(item.style, i) == j
                 else:
                     assert getattr(item, k) == v
-        assert False
 
     def test_deleteAnnotation(self, dao, ddbn):
         check_args(dao.deleteAnnotation, int)

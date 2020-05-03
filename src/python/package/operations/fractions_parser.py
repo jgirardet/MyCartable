@@ -85,13 +85,12 @@ class Ligne:
 space = (
     regex(r"\s+").map(lambda x: " ").map(lambda x: Space).desc("1 ou plusieurs espaces")
 )
-signe = regex(r"[\+\-\*]").map(Signe).desc("signe: +,-,*")
+signe = regex(r"[\+\-\*=]").map(Signe).desc("signe: +,-,*")
 div = string("/").map(lambda x: Div).desc("slash délimite les fractions")
 open_brace = string("(").map(lambda x: OpenBrace)
 close_brace = string(")").map(lambda x: CloseBrace)
 
 nombre = regex(r"[0-9]+").map(Nombre).desc("des chiffres")
-# operateur = seq(signe, (nombre | operation)).combine(Operateur).desc("signe + nombre")
 
 
 @generate("operation entre parenthèse")
@@ -123,17 +122,15 @@ fraction = (
     .combine(Fraction)
     .desc("numerateur div denominateur")
 )
-membre = (fraction | forme).map(Membre).desc("operation ou fraction")
-noeud = seq(signe << space, membre).combine(Noeud).desc("signe + space + membre")
+membre = (fraction | forme).map(Membre).desc("forme ou fraction")
 
 
 @generate("membre seul ou membre + noeud")
 def ligne():
-    first = yield membre
-    noeuds = yield (space.optional() >> noeud).many()
-    print(noeuds)
     yield space.optional()
-    return Ligne(first, noeuds)
+    pl = (membre << space.optional()) | (signe << space)
+    noeuds = yield pl.at_least(1)
+    return noeuds
 
 
 class FractionParser:

@@ -2,13 +2,14 @@ import pytest
 from package.operations.fractions_parser import *
 from parsy import ParseError
 
-un = Nombre("1")
-deux = Nombre("2")
-quinze = Nombre("15")
+un = Terme("1")
+deux = Terme("2")
+quinze = Terme("15")
 plus = Signe("+")
 moins = Signe("-")
 fois = Signe("*")
 egale = Signe("=")
+sp = Space()
 moins_quinze = Operateur(moins, quinze)
 plus_deux = Operateur(plus, deux)
 fois_op_un_mois_quinze = Operateur(fois, Operation(un, [moins_quinze]))
@@ -43,26 +44,18 @@ m_f_un_moins_quinze_sur_un_moins_quinze_plus_deux = Membre(
     f_un_moins_quinze_sur_un_moins_quinze_plus_deux
 )
 m_e_un_moins_quinze = Membre(e_un_moins_quinze)
-nd_plus_un = Noeud(plus, m_un)
-nd_plus_quinze = Noeud(plus, m_quinze)
-nd_plus_un_moins_quinze = Noeud(plus, m_op_un_moins_quinze)
-nd_plus_un_moins_quinze_plus_deux = Noeud(plus, m_op_un_moins_quinze_plus_deux)
-nd_plus_un_sur_quinze = Noeud(plus, m_f_un_sur_quinze)
-nd_un_moins_quinze_sur_un_moins_quinze_plus_deux = Noeud(
-    plus, m_f_un_moins_quinze_sur_un_moins_quinze_plus_deux
-)
-nd_plus_e_un_moins_quinze = Noeud(plus, m_e_un_moins_quinze)
 
 
 @pytest.mark.parametrize(
     "parser, string, res",
     [
-        (nombre, "1", un),
-        (nombre, "0123456789", Nombre("0123456789")),
-        (nombre, "a", None),
+        (terme, "1", un),
+        (terme, "0123456789", Terme("0123456789")),
+        (terme, "a", Terme("a")),
+        (terme, "A", Terme("A")),
         (space, "", None),
-        (space, " ", Space),
-        (space, "     ", Space),
+        (space, " ", sp),
+        (space, "     ", sp),
         (signe, "+", plus),
         (signe, "-", moins),
         (signe, "*", fois),
@@ -126,13 +119,6 @@ nd_plus_e_un_moins_quinze = Noeud(plus, m_e_un_moins_quinze)
         (membre, "1-15/15", m_f_un_moins_qinze_sur_quinze),
         (membre, "1-15/1-15+2", m_f_un_moins_quinze_sur_un_moins_quinze_plus_deux),
         (membre, "(1-15)", m_e_un_moins_quinze),
-        # (noeud, "+ 1", nd_plus_un),
-        # (noeud, "+ 15", nd_plus_quinze),
-        # (noeud, "+ 1-15", nd_plus_un_moins_quinze),
-        # (noeud, "+ 1-15+2", nd_plus_un_moins_quinze_plus_deux),
-        # (noeud, "+ 1/15", nd_plus_un_sur_quinze),
-        # (noeud, "+ 1-15/1-15+2", nd_un_moins_quinze_sur_un_moins_quinze_plus_deux,),
-        # (noeud, "+ (1-15)", nd_plus_e_un_moins_quinze,),
         (ligne, "1", [m_un]),
         (ligne, "1 ", [m_un]),
         (ligne, " 1 ", [m_un]),
@@ -175,12 +161,44 @@ def test_parser(parser, string, res):
 
 
 @pytest.fixture()
-def f():
-    return FractionParser()
+def eb():
+
+    eqbuild = EquationBuilder()
+    eqbuild.reset_class()
+    return eqbuild
 
 
-class TestFractionParser:
-    def test_read(self, f):
-        f.read("pmojlihku")
-        assert f.len == 9
-        assert f.string == "pmojlihku"
+def cmp_listes(self, listes):
+    assert self.h == listes[0]
+    assert self.m == listes[1]
+    assert self.b == listes[2]
+    return True
+
+
+class TestEquationBuilder:
+    def test_build_ast(self, eb):
+        assert eb.build_ast("1 + 1/15") == [m_un, plus, m_f_un_sur_quinze]
+
+    # on test ici les utility
+
+    def test_add_au_milieu(self, eb):
+        eb.add_au_milieu("+")
+        assert cmp_listes(eb, [[" "], ["+"], [" "]])
+
+    def test_is_prev_space(self, eb):
+        eb.add_au_milieu(" ")
+        assert eb.prev_is_space
+        eb.add_au_milieu("+")
+        assert not eb.prev_is_space
+
+
+@pytest.mark.parametrize(
+    "string, res",
+    [
+        ("1 + 2", "     \n1 + 2\n     "),
+        ("1 + 1+2", " " * 7 + "\n1 + 1+2\n" + " " * 7),
+        ("1 * (3+4)", " " * 9 + "\n1 * (3+4)\n" + " " * 9),
+    ],
+)
+def test_output(string, res):
+    assert EquationBuilder(string)() == res

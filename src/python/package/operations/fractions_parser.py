@@ -1,120 +1,118 @@
 from dataclasses import dataclass, field
+from enum import Enum
 from typing import List, Union
 
 from parsy import regex, string, seq, generate
 
 
 @dataclass
-class Nombre:
-    value: str
+class Terme:
+    v: str
 
 
 @dataclass
 class Signe:
-    value: str
+    v: str
 
 
 class Div:
     pass
 
 
+class Base:
+    pass
+
+
+@dataclass
 class Space:
     pass
 
 
-class OpenBrace:
+class OParenthese:
     pass
 
 
-class CloseBrace:
+class FParenthese:
     pass
 
 
 @dataclass
 class Operateur:
     si: Signe
-    rhs: Union[Nombre, "Operation"]
+    v: Union[Terme, "Operation"]
 
 
 @dataclass
 class Operation:
-    lhs: Union[Nombre]
-    op: List[Operateur] = field(default=None)  # d'operateur
+    v: Union[Terme]
+    ops: List[Operateur] = field(default=None)  # d'operateur
 
 
 @dataclass
 class Expression:
-    lhs: Union[Nombre, "Operation"]
-    # si: Signe
-    # rhs: Union[Nombre, "Operation"]
+    v: Union[Terme, "Operation"]
 
 
 @dataclass
 class Numerateur:
-    v: Expression
+    v: Union[Terme, Expression, Operation]
 
 
 @dataclass
 class Denominateur:
-    v: Expression
+    v: Union[Terme, Expression, Operation]
 
 
 @dataclass
 class Fraction:
-    n: Numerateur  # operation
-    d: Denominateur  # operation
+    n: Numerateur
+    d: Denominateur
 
 
 @dataclass
 class Membre:
-    v: object  # nombren exp, frac
+    v: Union[Terme, Expression, Operation, Fraction]
 
 
-@dataclass
-class Noeud:
-    s: Signe
-    m: Membre
+""" 
+Les différents parseurs primitifs sont ici    
+"""
 
 
-@dataclass
-class Ligne:
-    f: Membre  # first
-    n: List[Noeud] = field(default=None)  # mais le parser mettra [] si none
+space = regex(r"\s+").map(lambda x: Space()).desc("one or more space")
+signe = regex(r"[\+\-\*=]").map(Signe).desc("un signe parmis +,-,*, =")
+div = string("/").map(lambda x: Div).desc("/ délimiteur fraction")
+o_parenthese = string("(").map(lambda x: OParenthese)
+f_parenthese = string(")").map(lambda x: FParenthese)
+terme = regex(r"[0-9a-zA-Z]+").map(Terme).desc("des chiffres")
 
-
-space = (
-    regex(r"\s+").map(lambda x: " ").map(lambda x: Space).desc("1 ou plusieurs espaces")
-)
-signe = regex(r"[\+\-\*=]").map(Signe).desc("signe: +,-,*")
-div = string("/").map(lambda x: Div).desc("slash délimite les fractions")
-open_brace = string("(").map(lambda x: OpenBrace)
-close_brace = string(")").map(lambda x: CloseBrace)
-
-nombre = regex(r"[0-9]+").map(Nombre).desc("des chiffres")
+"""
+Parseurs avancés. sous forme de generate du fait de recursion
+"""
 
 
 @generate("operation entre parenthèse")
 def expression():
-    yield open_brace
+    yield o_parenthese
     lhs = yield operation
-    yield close_brace
+    yield f_parenthese
     return Expression(lhs)  # , si, rhs)
 
 
-@generate("signe + (nombre ou expression)")
+@generate("signe + (terme ou expression)")
 def operateur():
     si = yield signe
-    rhs = yield (nombre | expression)
+    rhs = yield (terme | expression)
     return Operateur(si, rhs)
 
 
-@generate("nombre + 1 ou plusieurs opérateurs")
+@generate("terme + 1 ou plusieurs opérateurs")
 def operation():
-    nb, liste = yield seq(nombre | expression, operateur.at_least(1))
+    nb, liste = yield seq(terme | expression, operateur.at_least(1))
     return Operation(nb, liste)
 
 
-forme = (operation | nombre | expression).desc("operation ou nombre ou expression")
+forme = (operation | terme | expression).desc("operation ou terme ou expression")
 numerateur = forme.map(Numerateur).desc("une forme")
 denominateur = forme.map(Denominateur).desc("denominateur")
 fraction = (
@@ -133,10 +131,98 @@ def ligne():
     return noeuds
 
 
-class FractionParser:
-    def read(self, string):
+"""
+A partir d'ici on parcours le la "ligne" et on crée les string finales
+Principe : on écrit sur 3 lignes à la fois
+"""
+
+
+class Niveau(Enum):
+    haut = 0
+    milieu = 1
+    bas = 2
+
+
+class EquationBuilder:
+    def __init__(self, string=""):
         self.string = string
-        self.len = len(string)
+
+    def on_expression(self, el):
+        el = el.v
+        self.add_au_milieu("(")
+        self.on_operation(el)
+        self.add_au_milieu(")")
+
+    def on_membre(self, el):
+        el = el.v
+        if isinstance(el, Terme):
+            self.add_au_milieu(el.v)
+        elif isinstance(el, Operation):
+            self.on_operation(el)
+        elif isinstance(el, Expression):
+            self.on_expression(el)
+
+    def on_operateur(self, el):
+        self.add_au_milieu(el.si.v)
+        self.add_au_milieu(el.v.v)
+
+    def on_operation(self, el):
+        self.add_au_milieu(el.v.v)
+        for op in el.ops:
+            self.on_operateur(op)
+
+    def on_signe(self, el):
+        if self.prev_is_space:
+            self.add_au_milieu(el.v)
+
+    @staticmethod
+    def build_ast(string):
+        return ligne.parse(string)
+
+    @property
+    def prev_is_space(self):
+        try:
+            return all(x[-1] == " " for x in self.listes)
+        except IndexError:
+            return False
+
+    def add_au_milieu(self, v):
+        self.h.append(" ")
+        self.m.append(v)
+        self.b.append(" ")
+
+    def merge_listes(self):
+        return "\n".join(("".join(x) for x in self.listes))
+
+    def reset_class(self):
+        self.h = []
+        self.m = []
+        self.b = []
+        self.listes = [self.h, self.m, self.b]
+        self.niveau = 1
+
+    def __call__(self, string=None):
+        if string:
+            self.string = string
+        self.reset_class()
+        self.ast = self.build_ast(self.string)
+        for el in self.ast:
+            if isinstance(el, Signe):
+                self.on_signe(el)
+            elif isinstance(el, Membre):
+                self.on_membre(el)
+            if el != self.ast[-1]:
+                self.add_au_milieu(" ")
+
+        return self.merge_listes()
 
 
-res = ligne.parse("1-15/1-15+2 + 1/15 + 1-15+2")
+# def on_membre(mb):
+#     if isinstance(mb, Terme):
+
+
+#
+# def build_result(string):
+#     ast  = build_ast(string)
+#     res = ["", "", ""]
+#

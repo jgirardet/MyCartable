@@ -1,5 +1,7 @@
-from dataclasses import dataclass
-from parsy import regex, string, seq
+from dataclasses import dataclass, field
+from typing import List, Union
+
+from parsy import regex, string, seq, generate
 
 
 @dataclass
@@ -20,16 +22,25 @@ class Space:
     pass
 
 
+class OpenBrace:
+    pass
+
+
+class CloseBrace:
+    pass
+
+
 @dataclass
 class Operateur:
-    signe: Signe
-    nombre: Nombre
+    si: Signe
+    rhs: Union[Nombre, "Operation"]
 
 
 @dataclass
 class Operation:
-    lhs: Nombre
-    op: list  # d'operateur
+    lhs: Union[Nombre, "Operation"]
+    op: List[Operateur] = field(default=None)  # d'operateur
+    brace: bool = field(default=False)
 
 
 @dataclass
@@ -61,8 +72,13 @@ class Membre:
 @dataclass
 class Noeud:
     s: Signe
-    e: Space
     m: Membre
+
+
+@dataclass
+class Ligne:
+    f: Membre  # first
+    n: List[Noeud] = field(default=None)  # mais le parser mettra [] si none
 
 
 space = (
@@ -70,31 +86,48 @@ space = (
 )
 signe = regex(r"[\+\-\*]").map(Signe).desc("signe: +,-,*")
 div = string("/").map(lambda x: Div).desc("slash délimite les fractions")
+open_brace = string("(").map(lambda x: OpenBrace)
+close_brace = string(")").map(lambda x: CloseBrace)
 
 nombre = regex(r"[0-9]+").map(Nombre).desc("des chiffres")
-operateur = seq(signe, nombre).combine(Operateur).desc("signe + nombre")
-operation = (
-    seq(nombre, operateur.at_least(0))
-    .combine(Operation)
-    .desc("nombre + 1 ou plusieurs opérateurs")
-)
-expression = (nombre | operation).map(Expression).desc("nombre ou operation")
-numerateur = expression.map(Numerateur).desc("une expression")
-denominateur = expression.map(Denominateur).desc("une expression")
+# operateur = seq(signe, (nombre | operation)).combine(Operateur).desc("signe + nombre")
+
+
+@generate("signe + (nombre ou operation entre parenthese))")
+def operateur():
+    si = yield signe
+    rhs = yield (nombre | operation)
+    return Operateur(si, rhs)
+
+
+@generate("nombre + 1 ou plusieurs opérateurs")
+def operation():
+    open_b = yield open_brace.optional()
+    nb, liste = yield seq(nombre, operateur.many())
+    # nb, liste = yield seq(nombre, operateur.many())
+    if open_b:
+        yield close_brace
+    return Operation(nb, liste, bool(open_b))
+
+
+numerateur = operation.map(Numerateur).desc("une operation")
+denominateur = operation.map(Denominateur).desc("une operation")
 fraction = (
-    seq(numerateur, Div, denominateur)
+    seq(numerateur << div, denominateur)
     .combine(Fraction)
     .desc("numerateur div denominateur")
 )
-membre = (
-    (nombre | expression | fraction).map(Membre).desc("nombre, expression ou fraction")
-)
-noeud = seq(signe, space, membre).combine(Noeud).desc("signe + space + membre")
-ligne = seq(membre, space, noeud.at_least(0)).desc("membre + 1 ou plusieurs noeuds")
-#
-# operateur = nombre | .map(Operateur).desc("nombre ou fraction")
-# membre = seq(signe, space, operateur).combine(Membre).desc("signe + espace + nombre")
-# operation = seq(nombre, space, membre)
+membre = (fraction | operation).map(Membre).desc("operation ou fraction")
+noeud = seq(signe << space, membre).combine(Noeud).desc("signe + space + membre")
+
+
+@generate("membre seul ou membre + noeud")
+def ligne():
+    first = yield membre
+    noeuds = yield (space.optional() >> noeud).many()
+    print(noeuds)
+    yield space.optional()
+    return Ligne(first, noeuds)
 
 
 class FractionParser:

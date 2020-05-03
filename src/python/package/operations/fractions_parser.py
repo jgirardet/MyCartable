@@ -38,14 +38,15 @@ class Operateur:
 
 @dataclass
 class Operation:
-    lhs: Union[Nombre, "Operation"]
+    lhs: Union[Nombre]
     op: List[Operateur] = field(default=None)  # d'operateur
-    brace: bool = field(default=False)
 
 
 @dataclass
 class Expression:
-    v: object
+    lhs: Union[Nombre, "Operation"]
+    # si: Signe
+    # rhs: Union[Nombre, "Operation"]
 
 
 @dataclass
@@ -93,31 +94,36 @@ nombre = regex(r"[0-9]+").map(Nombre).desc("des chiffres")
 # operateur = seq(signe, (nombre | operation)).combine(Operateur).desc("signe + nombre")
 
 
-@generate("signe + (nombre ou operation entre parenthese))")
+@generate("operation entre parenthèse")
+def expression():
+    yield open_brace
+    lhs = yield operation
+    yield close_brace
+    return Expression(lhs)  # , si, rhs)
+
+
+@generate("signe + (nombre ou expression)")
 def operateur():
     si = yield signe
-    rhs = yield (nombre | operation)
+    rhs = yield (nombre | expression)
     return Operateur(si, rhs)
 
 
 @generate("nombre + 1 ou plusieurs opérateurs")
 def operation():
-    open_b = yield open_brace.optional()
-    nb, liste = yield seq(nombre, operateur.many())
-    # nb, liste = yield seq(nombre, operateur.many())
-    if open_b:
-        yield close_brace
-    return Operation(nb, liste, bool(open_b))
+    nb, liste = yield seq(nombre | expression, operateur.at_least(1))
+    return Operation(nb, liste)
 
 
-numerateur = operation.map(Numerateur).desc("une operation")
-denominateur = operation.map(Denominateur).desc("une operation")
+forme = (operation | nombre | expression).desc("operation ou nombre ou expression")
+numerateur = forme.map(Numerateur).desc("une forme")
+denominateur = forme.map(Denominateur).desc("denominateur")
 fraction = (
     seq(numerateur << div, denominateur)
     .combine(Fraction)
     .desc("numerateur div denominateur")
 )
-membre = (fraction | operation).map(Membre).desc("operation ou fraction")
+membre = (fraction | forme).map(Membre).desc("operation ou fraction")
 noeud = seq(signe << space, membre).combine(Noeud).desc("signe + space + membre")
 
 
@@ -134,3 +140,6 @@ class FractionParser:
     def read(self, string):
         self.string = string
         self.len = len(string)
+
+
+res = ligne.parse("1-15/1-15+2 + 1/15 + 1-15+2")

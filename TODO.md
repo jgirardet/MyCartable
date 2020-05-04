@@ -1,5 +1,9 @@
 # TODO
 
+## Critical
+    - police division
+    - 376,5 / 6
+
 ## Beta
     - changer taille de police
         - zone text [A refaire avec style zone text]

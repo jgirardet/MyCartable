@@ -2321,7 +2321,7 @@ s(index)\x0a       \
  event.accepted \
 = true\x0a      }\x0a \
    }\x0a\x0a  }\x0a\x0a}\
-\x00\x00\x05C\
+\x00\x00\x05D\
 i\
 mport QtQuick 2.\
 14\x0aimport QtQuic\
@@ -2341,73 +2341,73 @@ play\x0a  readOnly:\
 index)\x0a  validat\
 or: IntValidator\
  {\x0a    bottom: 0\
-;top: 9;\x0a  }\x0a  c\
-ursorDelegate: c\
-ursorComp\x0a  onFo\
-cusChanged: {\x0a  \
-  if (focus && !\
-readOnly) {\x0a    \
-  parent.GridVie\
-w.view.currentIn\
-dex = index\x0a    \
-}\x0a  }\x0a  Keys.onP\
-ressed: {\x0a    va\
-r isMove = [Qt.K\
-ey_Up, Qt.Key_Le\
-ft, Qt.Key_Down,\
- Qt.Key_Right].i\
-ncludes(event.ke\
-y)\x0a    var numPr\
-essed = [Qt.Key_\
-0, Qt.Key_1, Qt.\
-Key_2, Qt.Key_3,\
- Qt.Key_4, Qt.Ke\
-y_5, Qt.Key_6, Q\
-t.Key_7, Qt.Key_\
-8, Qt.Key_9].inc\
-ludes(event.key)\
-\x0a    var delPres\
-sed = [Qt.Key_Ba\
-ckspace, Qt.Key_\
-Delete].includes\
-(event.key)\x0a\x0a   \
- if (isMove) {\x0a \
-     model.moveC\
-ursor(index, eve\
-nt.key)\x0a      ev\
-ent.accepted = t\
-rue\x0a    } else i\
-f (numPressed) {\
-\x0a      edit = ev\
-ent.text\x0a      e\
+;top: 9;\x0a  }\x0a\x0a  \
+cursorDelegate: \
+cursorComp\x0a  onF\
+ocusChanged: {\x0a \
+   if (focus && \
+!readOnly) {\x0a   \
+   parent.GridVi\
+ew.view.currentI\
+ndex = index\x0a   \
+ }\x0a  }\x0a  Keys.on\
+Pressed: {\x0a    v\
+ar isMove = [Qt.\
+Key_Up, Qt.Key_L\
+eft, Qt.Key_Down\
+, Qt.Key_Right].\
+includes(event.k\
+ey)\x0a    var numP\
+ressed = [Qt.Key\
+_0, Qt.Key_1, Qt\
+.Key_2, Qt.Key_3\
+, Qt.Key_4, Qt.K\
+ey_5, Qt.Key_6, \
+Qt.Key_7, Qt.Key\
+_8, Qt.Key_9].in\
+cludes(event.key\
+)\x0a    var delPre\
+ssed = [Qt.Key_B\
+ackspace, Qt.Key\
+_Delete].include\
+s(event.key)\x0a\x0a  \
+  if (isMove) {\x0a\
+      model.move\
+Cursor(index, ev\
+ent.key)\x0a      e\
 vent.accepted = \
 true\x0a    } else \
-if (delPressed) \
-{\x0a      edit = \x22\
-\x22\x0a      event.ac\
-cepted = true\x0a  \
-  } else {\x0a     \
- moreKeys(event)\
-\x0a    }\x0a  }\x0a\x0a  fu\
-nction moreKeys(\
-event) {}\x0a\x0a  bac\
-kground: BorderR\
-ectangle {\x0a    /\
-/    color: inpu\
-t.parent.color\x0a \
-   color: input.\
-focus ? \x22yellow\x22\
- : root.color\x0a  \
-  borderColor: m\
-odel.isResultLin\
-e(index) ? \x22blac\
-k\x22 : input.paren\
-t.color\x0a    bord\
-erTop: -2\x0a  }\x0a\x0a \
- Component {\x0a   \
- id: cursorComp\x0a\
-    Item {}\x0a  }\x0a\
-\x0a}\
+if (numPressed) \
+{\x0a      edit = e\
+vent.text\x0a      \
+event.accepted =\
+ true\x0a    } else\
+ if (delPressed)\
+ {\x0a      edit = \
+\x22\x22\x0a      event.a\
+ccepted = true\x0a \
+   } else {\x0a    \
+  moreKeys(event\
+)\x0a    }\x0a  }\x0a\x0a  f\
+unction moreKeys\
+(event) {}\x0a\x0a  ba\
+ckground: Border\
+Rectangle {\x0a    \
+//    color: inp\
+ut.parent.color\x0a\
+    color: input\
+.focus ? \x22yellow\
+\x22 : root.color\x0a \
+   borderColor: \
+model.isResultLi\
+ne(index) ? \x22bla\
+ck\x22 : input.pare\
+nt.color\x0a    bor\
+derTop: -2\x0a  }\x0a\x0a\
+  Component {\x0a  \
+  id: cursorComp\
+\x0a    Item {}\x0a  }\
+\x0a\x0a}\
 \x00\x00\x01\xc3\
 i\
 mport QtQuick 2.\
@@ -2474,7 +2474,7 @@ orps.position\x0a\x0a \
 \x0a    id: corps\x0a \
    objectName: \x22\
 corps\x22\x0a    cellW\
-idth: 10\x0a    cel\
+idth: 16\x0a    cel\
 lHeight: 30\x0a    \
 delegate: Divisi\
 onDelegate {\x0a   \
@@ -2536,7 +2536,7 @@ d+)?)?$/\x0a      }\
 {\x0a      Layout.f\
 illHeight: true\x0a\
     }\x0a  }\x0a}\
-\x00\x00\x05,\
+\x00\x00\x07u\
 i\
 mport QtQuick 2.\
 14\x0aimport QtQuic\
@@ -2555,7 +2555,9 @@ dView grid: Grid\
 View.view\x0a  heig\
 ht: grid.cellHei\
 ght\x0a  width: gri\
-d.cellWidth\x0a\x0a  c\
+d.cellWidth\x0a  fo\
+cus: !model.isRe\
+tenue(index)\x0a  c\
 olor: \x22white\x22\x0a  \
 TextInputDelegat\
 e {\x0a    id: inpu\
@@ -2576,51 +2578,86 @@ t : TextInput.Al\
 ignHCenter\x0a    v\
 erticalAlignment\
 : TextInput.Alig\
-nVCenter\x0a\x0a    ba\
-ckground: Border\
-Rectangle {\x0a    \
-  color: input.f\
-ocus ? \x22yellow\x22 \
-: root.color\x0a   \
-   borderColor: \
-model.isMembreLi\
-ne(index + model\
-.columns) ? \x22bla\
-ck\x22 : input.pare\
-nt.color\x0a      b\
-orderTop: -2\x0a   \
- }\x0a    padding: \
-0\x0a\x0a    function \
-moreKeys(event) \
-{\x0a      if (even\
+nVCenter\x0a    fon\
+t.pointSize: roo\
+t.grid.cellWidth\
+ - 6\x0a    backgro\
+und: BorderRecta\
+ngle {\x0a      // \
+     width: inpu\
+t.contentWidth\x0a \
+     color: inpu\
+t.focus ? \x22yello\
+w\x22 : root.color\x0a\
+      border.wid\
+th: 0\x0a      bord\
+erColor: model.i\
+sMembreLine(inde\
+x + model.column\
+s) ? \x22black\x22 : i\
+nput.parent.colo\
+r\x0a      borderTo\
+p: -2\x0a    }\x0a    \
+padding: 0\x0a    l\
+eftInset: 0\x0a    \
+rightInset: 0\x0a  \
+  readOnly: !mod\
+el.isEditable(in\
+dex)\x0a    activeF\
+ocusOnPress: mod\
+el.isEditable(in\
+dex)\x0a    //    r\
+eadOnly: !model.\
+isDividendeLine(\
+index)\x0a\x0a    //  \
+  readOnly: mode\
+l.isRetenue(inde\
+x)\x0a\x0a    //    on\
+Pressed: {\x0a    /\
+/      if (model\
+.isRetenue(index\
+)) {\x0a    //     \
+   input.focus =\
+ false\x0a    //   \
+     print('bloc\
+k', event)\x0a    /\
+/        event.a\
+ccepted = false \
+// block la sour\
+is pour retenues\
+\x0a    //      }\x0a \
+   //    }\x0a\x0a    \
+function moreKey\
+s(event) {\x0a     \
+ if (event.key =\
+= Qt.Key_Return)\
+ {\x0a        root.\
+quotient.forceAc\
+tiveFocus()\x0a    \
+    event.accept\
+ed = true\x0a\x0a     \
+ } else if (even\
 t.key == Qt.Key_\
-Return) {\x0a      \
-  root.quotient.\
-forceActiveFocus\
+Plus) {\x0a        \
+model.goToAbaiss\
+eLine()\x0a        \
+event.accepted =\
+ true\x0a      } el\
+se if (event.key\
+ == Qt.Key_Minus\
+) {\x0a        mode\
+l.goToResultLine\
 ()\x0a        event\
 .accepted = true\
 \x0a\x0a      } else i\
 f (event.key == \
-Qt.Key_Plus) {\x0a \
-       model.goT\
-oAbaisseLine()\x0a \
+Qt.Key_Asterisk)\
+ {\x0a        model\
+.addRetenues()\x0a \
        event.acc\
-epted = true\x0a   \
-   } else if (ev\
-ent.key == Qt.Ke\
-y_Minus) {\x0a     \
-   model.goToRes\
-ultLine()\x0a      \
-  event.accepted\
- = true\x0a\x0a      }\
- else if (event.\
-key == Qt.Key_As\
-terisk) {\x0a      \
-  model.addReten\
-ues()\x0a        ev\
-ent.accepted = t\
-rue\x0a\x0a      }\x0a\x0a  \
-  }\x0a\x0a  }\x0a\x0a}\
+epted = true\x0a\x0a  \
+    }\x0a\x0a    }\x0a\x0a  \
+}\x0a\x0a}\
 \x00\x00\x00\x91\
 i\
 mport QtQuick 2.\
@@ -27626,27 +27663,27 @@ qt_resource_struct = b"\
 \x00\x00\x00\x00\x00\x00\x00\x00\
 \x00\x00\x00*\x00\x02\x00\x00\x00\x01\x00\x00\x00\x06\
 \x00\x00\x00\x00\x00\x00\x00\x00\
-\x00\x00\x06\x82\x00\x00\x00\x00\x00\x01\x00\x00\x9f&\
+\x00\x00\x06\x82\x00\x00\x00\x00\x00\x01\x00\x00\xa1p\
 \x00\x00\x01p\x1c\x22\xb3\x0d\
-\x00\x00\x07\x0c\x00\x00\x00\x00\x00\x01\x00\x04_B\
+\x00\x00\x07\x0c\x00\x00\x00\x00\x00\x01\x00\x04a\x8c\
 \x00\x00\x01q\xd1\x1aV\x00\
-\x00\x00\x07P\x00\x00\x00\x00\x00\x01\x00\x04\xc9\x87\
+\x00\x00\x07P\x00\x00\x00\x00\x00\x01\x00\x04\xcb\xd1\
 \x00\x00\x01q\xd1\x1aU\xf8\
-\x00\x00\x06\xe8\x00\x00\x00\x00\x00\x01\x00\x04T\xba\
+\x00\x00\x06\xe8\x00\x00\x00\x00\x00\x01\x00\x04W\x04\
 \x00\x00\x01q\xd1\x1aU\xf8\
-\x00\x00\x07(\x00\x00\x00\x00\x00\x01\x00\x04\x9bG\
+\x00\x00\x07(\x00\x00\x00\x00\x00\x01\x00\x04\x9d\x91\
 \x00\x00\x01q\xd1\x1aV\x04\
-\x00\x00\x07\xda\x00\x00\x00\x00\x00\x01\x00\x05(B\
+\x00\x00\x07\xda\x00\x00\x00\x00\x00\x01\x00\x05*\x8c\
 \x00\x00\x01q\xd1\x1aU\xf8\
-\x00\x00\x07\x96\x00\x00\x00\x00\x00\x01\x00\x04\xf7\xe7\
+\x00\x00\x07\x96\x00\x00\x00\x00\x00\x01\x00\x04\xfa1\
 \x00\x00\x01q\xd1\x1aU\xfc\
-\x00\x00\x07\xbe\x00\x00\x00\x00\x00\x01\x00\x04\xfb\x97\
+\x00\x00\x07\xbe\x00\x00\x00\x00\x00\x01\x00\x04\xfd\xe1\
 \x00\x00\x01q\xd1\x1aV\x04\
-\x00\x00\x07r\x00\x00\x00\x00\x00\x01\x00\x04\xce\x9a\
+\x00\x00\x07r\x00\x00\x00\x00\x00\x01\x00\x04\xd0\xe4\
 \x00\x00\x01q\xd1\x1aV\x04\
-\x00\x00\x06\xd0\x00\x00\x00\x00\x00\x01\x00\x03]\xb2\
+\x00\x00\x06\xd0\x00\x00\x00\x00\x00\x01\x00\x03_\xfc\
 \x00\x00\x01q\xd1\x1aU\xf8\
-\x00\x00\x06\xb4\x00\x00\x00\x00\x00\x01\x00\x01rH\
+\x00\x00\x06\xb4\x00\x00\x00\x00\x00\x01\x00\x01t\x92\
 \x00\x00\x01q\xd1\x1aU\xf4\
 \x00\x00\x00z\x00\x02\x00\x00\x00\x05\x00\x00\x006\
 \x00\x00\x00\x00\x00\x00\x00\x00\
@@ -27706,22 +27743,22 @@ qt_resource_struct = b"\
 \x00\x00\x01q\xd1\x1aVH\
 \x00\x00\x04\xd2\x00\x00\x00\x00\x00\x01\x00\x00\x81%\
 \x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x05\xca\x00\x00\x00\x00\x00\x01\x00\x00\x91\xcd\
+\x00\x00\x05\xca\x00\x00\x00\x00\x00\x01\x00\x00\x91\xce\
 \x00\x00\x01q\xd1\x1aVH\
 \x00\x00\x056\x00\x00\x00\x00\x00\x01\x00\x00\x86F\
 \x00\x00\x01q\xd1\x1aVH\
 \x00\x00\x05\x0c\x00\x00\x00\x00\x00\x01\x00\x00\x85\xaf\
 \x00\x00\x01q\xd1\x1aVH\
 \x00\x00\x05\x9a\x00\x00\x00\x00\x00\x01\x00\x00\x8c\x86\
+\x00\x00\x01q\xe4\xf5\x8d\xf0\
+\x00\x00\x05\xf2\x00\x00\x00\x00\x00\x01\x00\x00\x93\x95\
 \x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x05\xf2\x00\x00\x00\x00\x00\x01\x00\x00\x93\x94\
+\x00\x00\x06\x10\x00\x00\x00\x00\x00\x01\x00\x00\x94b\
+\x00\x00\x01q\xe5\x14\x91\x8b\
+\x00\x00\x06\x5c\x00\x00\x00\x00\x00\x01\x00\x00\xa0\xdb\
 \x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x06\x10\x00\x00\x00\x00\x00\x01\x00\x00\x94a\
-\x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x06\x5c\x00\x00\x00\x00\x00\x01\x00\x00\x9e\x91\
-\x00\x00\x01q\xd1\x1aVH\
-\x00\x00\x06.\x00\x00\x00\x00\x00\x01\x00\x00\x99a\
-\x00\x00\x01q\xd1\x1aVH\
+\x00\x00\x06.\x00\x00\x00\x00\x00\x01\x00\x00\x99b\
+\x00\x00\x01q\xe5\x14\x91\x7f\
 \x00\x00\x01\x0e\x00\x01\x00\x00\x00\x01\x00\x00\x0d\x98\
 \x00\x00\x01q\xd7]\xb01\
 \x00\x00\x00\x9e\x00\x00\x00\x00\x00\x01\x00\x00\x07\x9b\
@@ -27732,7 +27769,7 @@ qt_resource_struct = b"\
 \x00\x00\x01q\xd7]\xb01\
 \x00\x00\x00\xea\x00\x00\x00\x00\x00\x01\x00\x00\x0b9\
 \x00\x00\x01q\xd7]\xb01\
-\x00\x00\x07\xf4\x00\x01\x00\x00\x00\x01\x00\x05-\x0e\
+\x00\x00\x07\xf4\x00\x01\x00\x00\x00\x01\x00\x05/X\
 \x00\x00\x01q\xd1\x1aV\x10\
 "
 

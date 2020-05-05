@@ -607,8 +607,6 @@ class DivisionModel(OperationModel):
                 temp -= self.columns
                 if temp in self.editables:
                     return temp
-                elif temp in self.dividende_indexes and temp != 1:
-                    return temp - 1
         elif key == Qt.Key_Down:
             while temp < self.size:
                 temp += self.columns
@@ -706,6 +704,10 @@ class DivisionModel(OperationModel):
     def isRetenueGauche(self, index):
         return index in self.retenue_gauche
 
+    @Slot(int, result=bool)
+    def isEditable(self, value):
+        return value in self.editables
+
     # Property en plus
 
     memberChanged = Signal()
@@ -781,3 +783,9 @@ class DivisionModel(OperationModel):
         ligne = slice(debut_ligne, debut_ligne + self.columns)
         new_index = self._get_last_index_filled(self.datas[ligne])
         return debut_ligne + self.columns + new_index
+
+    @Slot(int, result=bool)
+    def readOnly(self, value):
+        print("readonly", value, bool(value not in self.editables))
+        print(self.editables)
+        return value not in self.editables

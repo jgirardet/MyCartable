@@ -12,6 +12,7 @@ TextField {
   validator: IntValidator {
     bottom: 0;top: 9;
   }
+
   cursorDelegate: cursorComp
   onFocusChanged: {
     if (focus && !readOnly) {

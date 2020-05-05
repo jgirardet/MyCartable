@@ -68,6 +68,10 @@ Item {
         return r.includes(index) ? false : true
       }
 
+      function isEditable(index) {
+        return [34, 37, 40, 10, 43, 13, 16, 19, 22, 25, 28, 31].includes(index)
+      }
+
       function getInitialPosition() {
         return size - 1
       }
@@ -214,6 +218,33 @@ Item {
       keyClick(Qt.Key_Asterisk)
       compare(model._addRetenues, "added")
 
+    }
+
+    function test_retenu_not_focusable() {
+      var it = corps.itemAtIndex(3).textinput
+      it.text = 2
+      //      it.forceActiveFocus()
+      mouseClick(it)
+      keyClick(Qt.Key_9)
+      compare(it.text, "2")
+    }
+
+    function test_dividende_is_readonly() {
+      var it = corps.itemAtIndex(3).textinput
+      compare(it.readOnly, true)
+    }
+
+    function test_foucs_onclick_case() {
+      for (var i of [3, 6, 10, 11, 13, 14, 16, 17, 18, 19, 21, 22, 24, 25, 28, 29, 31, 32, 34, 35, 37, 40, 43]) {
+        var it = corps.itemAtIndex(i)
+        mouseClick(it)
+        compare(corps.itemAtIndex(11).focus, false)
+      }
+      for (var i of [34, 37, 40, 10, 43, 13, 16, 19, 22, 25, 28, 31]) {
+        var it = corps.itemAtIndex(i)
+        mouseClick(it)
+        compare(corps.itemAtIndex(11).focus, true)
+      }
     }
 
   }

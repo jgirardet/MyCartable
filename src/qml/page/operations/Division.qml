@@ -11,7 +11,7 @@ RowLayout {
   BaseOperation {
     id: corps
     objectName: "corps"
-    cellWidth: 10
+    cellWidth: 16
     cellHeight: 30
     delegate: DivisionDelegate {
       model: corps.model

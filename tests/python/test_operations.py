@@ -1502,7 +1502,7 @@ class TestDivisionModel:
     @pytest.mark.parametrize(
         "index, res",
         [(3, 99), (6, 99)]
-        + [(10, 99), (11, 99), (13, 3), (14, 99), (16, 6)]
+        + [(10, 99), (11, 99), (13, 99), (14, 99), (16, 99)]
         + [(19, 10), (21, 3), (22, 13), (24, 6), (25, 16)]
         + [(28, 19), (29, 11), (31, 22), (32, 14), (34, 25)]
         + [(37, 28), (40, 31), (43, 34)],
@@ -1732,3 +1732,19 @@ class TestDivisionModel:
         divMod.quotient = quotient
         divMod.getPosByQuotient()
         assert divMod.cursor == res
+
+    def test_Readonly(self, divMod):
+        divMod("264/11")
+        #     # ' ', '2', ' ', '*', '6', ' ', '*', '4', ' ' //8
+        #     # ' ', '*', '*', ' ', '*', '*', ' ', '*', ' ', // 17
+        #     # ' ', '*', ' ', '*', '*', ' ', '*', '*', ' ', // 26
+        #     # ' ', '*', '*', ' ', '*', '*', ' ', '*', ' ', // 35
+        #     # ' ', '*', ' ', ' ',  '*', ' ', ' ', '*', ' ' , //44
+        assert divMod.editables == {34, 37, 40, 10, 43, 13, 16, 19, 22, 25, 28, 31}
+        non_compris = set(range(0, divMod.size)) - divMod.editables
+        check_is_range(divMod, "readOnly", non_compris)
+
+    def test_isEditable(self, divMod):
+        divMod("264/11")
+        assert divMod.editables == {34, 37, 40, 10, 43, 13, 16, 19, 22, 25, 28, 31}
+        check_is_range(divMod, "isEditable", divMod.editables)

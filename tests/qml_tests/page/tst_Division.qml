@@ -25,6 +25,7 @@ Item {
       /* beautify preserve:start */
       property var corps
       property var datas: ['', '2', '', '', '6', '', '', '4', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']
+      property var _editables: [34, 37, 40, 10, 43, 13, 16, 19, 22, 25, 28, 31]
       /* beautify preserve:end */
       Component.onCompleted: {
         for (var x of datas) {
@@ -64,12 +65,11 @@ Item {
       }
 
       function readOnly(index) {
-        var r = [3, 6, 10, 11, 13, 14, 16, 17, 18, 19, 21, 22, 24, 25, 28, 29, 31, 32, 34, 35, 37, 40, 43]
-        return r.includes(index) ? false : true
+        return !isEditable(index)
       }
 
       function isEditable(index) {
-        return [34, 37, 40, 10, 43, 13, 16, 19, 22, 25, 28, 31].includes(index)
+        return _editables.includes(index)
       }
 
       function getInitialPosition() {
@@ -235,15 +235,20 @@ Item {
     }
 
     function test_foucs_onclick_case() {
-      for (var i of [3, 6, 10, 11, 13, 14, 16, 17, 18, 19, 21, 22, 24, 25, 28, 29, 31, 32, 34, 35, 37, 40, 43]) {
-        var it = corps.itemAtIndex(i)
-        mouseClick(it)
-        compare(corps.itemAtIndex(11).focus, false)
+      for (var i of Array(model.size).keys()) {
+        if (!model._editables.includes(i)) {
+          var it = corps.itemAtIndex(i).textinput
+          it.focus = false
+          compare(it.focus, false, i)
+          mouseClick(it)
+          compare(it.focus, false, i)
+
+        }
       }
-      for (var i of [34, 37, 40, 10, 43, 13, 16, 19, 22, 25, 28, 31]) {
-        var it = corps.itemAtIndex(i)
+      for (var i of model._editables) {
+        var it = corps.itemAtIndex(i).textinput
         mouseClick(it)
-        compare(corps.itemAtIndex(11).focus, true)
+        compare(it.focus, true, i)
       }
     }
 

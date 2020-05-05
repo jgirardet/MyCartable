@@ -51,16 +51,13 @@ class SectionMixin:
         return item.id
 
     def addSectionPDF(self, page_id, path):
-        print("debut addsection pdf", path)
 
         with tempfile.TemporaryDirectory() as temp_path:
             res = run_convert_pdf(path, temp_path)
-            print("apres convert pdf", res)
             for page in res:
 
                 content = {"classtype": "ImageSection"}
                 content["path"] = self.store_new_file(page)
-                print("apres tore nex file", content)
                 try:
                     with db_session:
 

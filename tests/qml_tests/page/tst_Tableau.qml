@@ -346,9 +346,6 @@ Item {
       // new select invalid l'ancien
       mouseSelect([1, 4, 7, 10])
       mouseSelect([0, 3, 6, 9])
-
-      //       mouseDrag(tested.getItem(1), un.width/2, un.height/2, 0,un.height*3 )
-      //       mouseDrag(tested.getItem(0), un.width/2, un.height/2, 0,un.height*3 )
       compare(tested.selectedCells, selected([0, 3, 6, 9]))
       for (var i of tested.selectedCells) {
         compare(i.state, "selected")
@@ -370,11 +367,12 @@ Item {
 
       // les cas où il ne se passe rien
       // à côté
-      tested.unSelectAll()
-      mousePress(un, un.width, un.height / 2)
-      mouseMove(un, un.width, un.height / 3)
-      mouseRelease(un, un.width, un.height / 3)
-      tryCompare(tested, "selectedCells", [un])
+      //      tested.unSelectAll()
+      //
+      //      mousePress(un, un.width, un.height / 2)
+      //      mouseMove(un, un.width, un.height / 3)
+      //      mouseRelease(un, un.width, un.height / 3)
+      //      tryCompare(tested, "selectedCells", [un])
 
       // boutton droit
       mousePress(un, un.width, un.height / 2, Qt.RightButton)

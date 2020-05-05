@@ -374,7 +374,7 @@ Item {
       mousePress(un, un.width, un.height / 2)
       mouseMove(un, un.width, un.height / 3)
       mouseRelease(un, un.width, un.height / 3)
-      compare(tested.selectedCells, [un])
+      tryCompare(tested, "selectedCells", [un])
 
       // boutton droit
       mousePress(un, un.width, un.height / 2, Qt.RightButton)

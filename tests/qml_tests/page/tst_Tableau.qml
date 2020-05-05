@@ -336,9 +336,9 @@ Item {
     }
 
     function test_press_moove_release() {
-      mousePress(un, un.width, un.height / 2)
-      mouseMove(un, un.width, un.height / 3)
-      mouseRelease(un, un.width, un.height / 3)
+      mousePress(un, 0, 0)
+      mouseMove(un, 1, 1)
+      mouseRelease(un, 1, 1)
       compare(tested.selectedCells, [un])
     }
 

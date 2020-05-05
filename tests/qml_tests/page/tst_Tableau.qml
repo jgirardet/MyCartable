@@ -330,10 +330,21 @@ Item {
       mouseRelease(tested.getItem(last), 1, 1)
     }
 
+    function test_mouseSelect(liste) {
+      mouseSelect([1])
+      compare(tested.selectedCells, [un])
+    }
+
+    function test_press_moove_release() {
+      mousePress(un, un.width, un.height / 2)
+      mouseMove(un, un.width, un.height / 3)
+      mouseRelease(un, un.width, un.height / 3)
+      compare(tested.selectedCells, [un])
+    }
+
     function test_select() {
 
       // simple vertical
-      //      mouseDrag(tested.getItem(1), un.width/2, un.height/2, 0,un.height*3 )
       mouseSelect([1, 4, 7, 10])
       compare(tested.selectedCells, selected([1, 4, 7, 10]))
       for (var i of tested.selectedCells) {
@@ -369,13 +380,6 @@ Item {
     //       for (var i of tested.selectedCells) {
     //        compare(i.state, "selected")
     //      }
-
-    function test_press_moove_release() {
-      mousePress(un, un.width, un.height / 2)
-      mouseMove(un, un.width, un.height / 3)
-      mouseRelease(un, un.width, un.height / 3)
-      compare(tested.selectedCells, [un])
-    }
 
     function test_selectect_avec_bouton_droit_sans_effet() {
 

@@ -40,14 +40,14 @@ class FParenthese:
 
 @dataclass
 class Operateur:
-    si: Signe
-    v: Union[Terme, "Operation"]
+    signe: Signe
+    rhs: Union[Terme, "Operation", "Expression"]
 
 
 @dataclass
 class Operation:
-    v: Union[Terme]
-    ops: List[Operateur] = field(default=None)  # d'operateur
+    lhs: Union[Terme]
+    operateurs: List[Operateur] = field(default=None)  # d'operateur
 
 
 @dataclass
@@ -67,8 +67,8 @@ class Denominateur:
 
 @dataclass
 class Fraction:
-    n: Numerateur
-    d: Denominateur
+    numerateur: Numerateur
+    denominateur: Denominateur
 
 
 @dataclass
@@ -174,36 +174,26 @@ WHITE_SPACE_AND_CONTENT = re.compile(r"\S+|\s+")
 
 
 def three_lines_converter(string: str):
+
     # on separe
     lines = string.splitlines()
-    lines[1] = re.sub(r"_+", "/", lines[1])
 
-    # on match par ligne que l'on transforme en Matched pour les comparer
-    # indexes_haut = [Matched(m, Level.haut) for m in NO_WHITE_SPACE.finditer(lines[0])]
+    # on recupere chaque space et fragment
     indexes_milieu = list(WHITE_SPACE_AND_CONTENT.finditer(lines[1]))
-    ]
-    # indexes_bas = [Matched(m, Level.bas) for m in NO_WHITE_SPACE.finditer(lines[2])]
 
-    total = indexes_haut + indexes_bas + indexes_milieu
-
-    # on ordonne par start() et par Level
-    total.sort()
-
-    # res = "".join((x.m.group() for x in total))
-
+    # on boucle et on ajoute num et denom  quand ___
     res = []
     for m in indexes_milieu:
-        texte = m.m.group()
+        texte = m.group()
         if "_" in texte:
-            res.append(lines[0][m.m.start() : m.m.end()])
+            res.append(lines[0][m.start() : m.end()].replace(" ", ""))
             res.append(texte)
-            res.append(lines[2][m.m.start() : m.m.end()])
+            res.append(lines[2][m.start() : m.end()].replace(" ", ""))
         else:
             res.append(texte)
 
-    return "".join(res)
-
-    return sorted(total)
+    # retourne la chaine remplaçant les ___ par /
+    return re.sub(r"_+", "/", "".join(res))
 
 
 """
@@ -217,122 +207,117 @@ class EquationBuilder:
         self.string = string
 
     def on_expression(self, el):
-        el = el.v
-        self.add("(")
-        self.on_operation(el)
-        self.add(")")
+        self.append(self.level, "(")
+        if self.level == M:
+            self.append_space()
+        self.dispatch(el.v)
+        self.append(self.level, ")")
+        if self.level == M:
+            self.append_space()
 
     def on_fraction(self, el):
         self.debut_fraction = self.len
+
         # numerateur
         self.level = H
-        self.dispatch(el.n.v)
-        print(self.listes[H], "pares disp")
-        numerateur = self.listes[H][self.debut_fraction : self.len + 1]
-        print(numerateur, "num")
+        self.dispatch(el.numerateur.v)
+        numerateur = self.listes[H][self.debut_fraction : len(self.listes[H])]
 
-        # changement de niveau
-        # self.move_fragment_up()
-
-        print(self.listes)
-        self.level = B
         # denominateur
-        self.dispatch(el.d.v)
-        denominateur = self.listes[B][self.debut_fraction : self.len + 1]
-        print(denominateur)
-        print(self.listes)
+        self.level = B
+        self.dispatch(el.denominateur.v)
+        denominateur = self.listes[B][self.debut_fraction : len(self.listes[B])]
 
         # finalize
         len_frac = max(len(numerateur), len(denominateur))
-        print(len_frac)
-        self.add("_", level=M, many=len_frac, auto=False)
+        self.append(H, numerateur.center(len_frac), self.debut_fraction)
+        self.append(B, denominateur.center(len_frac), self.debut_fraction)
+        self.append(M, "_" * len_frac, self.debut_fraction)
+
+        # on repasse en mode standard
+        self.level = M
 
     def on_membre(self, el):
         el = el.v
         self.debut_membre = self.len
         self.dispatch(el)
 
+    # def on_oparenthese(self, el):
+    #     self.append(self.level, el.v)
+    #     if self.level == M:
+    #         self.append_space(nb=len(el.v))
+    #
+    # def on_fparenthese(self, el):
+    #     self.append(self.level, el.v)
+    #     if self.level == M:
+    #         self.append_space(nb=len(el.v))
+
     def on_operateur(self, el):
-        self.add(el.si.v)
-        self.add(el.v.v)
+        self.dispatch(el.signe)
+        self.dispatch(el.rhs)
 
     def on_operation(self, el):
-        self.add(el.v.v)
-        for op in el.ops:
-            self.on_operateur(op)
+        self.dispatch(el.lhs)
+        self.dispatch(el.operateurs)
 
     def on_terme(self, el):
-        self.add(el.v)
+        self.append(self.level, el.v)
+        if self.level == M:
+            self.append_space(nb=len(el.v))
 
     def on_signe(self, el):
-        # if self.prev_is_space:
-        self.add(el.v)
+        self.append(self.level, el.v)
+        if self.level == M:
+            self.append_space(nb=len(el.v))
 
     @staticmethod
     def build_ast(string):
         return ligne.parse(string)
 
-    # @property
-    # def prev_is_space(self):
-    #     try:
-    #         return all(x[-1] == " " for x in self.listes)
-    #     except IndexError:
-    #         return False
+    def append(self, level, value, start=None):
+        level = level if level is not None else self.level
+        self.listes[level] = self.listes[level][:start] + value
 
-    def add(self, v, level=None, many=1, auto=True):
-        level = level if level else self.level
-
-        for i in range(many):
-            if level == M:
-                for i in Level:
-                    if i == level:
-                        self.listes[level].append(v)
-                    elif auto:
-                        self.listes[i].append(" ")
-            elif level == H:
-                self.listes[H].append(v)
-            elif level == B:
-                self.listes[B].append(v)
+    def append_space(self, *, nb=1):
+        self.append(H, " " * nb)
+        self.append(B, " " * nb)
 
     def dispatch(self, el):
         if isinstance(el, Terme):
             self.on_terme(el)
+        if isinstance(el, Signe):
+            self.on_signe(el)
         elif isinstance(el, Operation):
             self.on_operation(el)
+        elif isinstance(el, Operateur):
+            self.on_operateur(el)
         elif isinstance(el, Expression):
             self.on_expression(el)
-        elif isinstance(el, Div):
-            self.on_div()
         elif isinstance(el, Fraction):
             self.on_fraction(el)
+        # elif isinstance(el, OParenthese):
+        #     self.on_oparenthese()
+        # elif isinstance(el, FParenthese):
+        #     self.on_fparenthese()
+        elif isinstance(el, list):
+            for sub_el in el:
+                self.dispatch(sub_el)
 
     @property
     def len(self):
         return len(self.listes[M])
 
     def merge_listes(self):
-        res = (
-            "".join(self.listes[H])
-            + "\n"
-            + "".join(self.listes[M])
-            + "\n"
-            + "".join(self.listes[B])
-        )
+        res = "\n".join((x for x in self.listes.values()))
         return res
 
     @property
     def data(self):
         return self.merge_listes()
 
-    # def move_fragment_up(self):
-    #     fragment = self.listes[M][self.debut_membre : self.len]
-    #     print(fragment)
-    #     self.listes[H] = self.listes[H][: self.debut_membre] + fragment
-    #     self.listes[M] = self.listes[M][: self.debut_membre] + ["_"] * len(fragment)
-
     def reset_class(self):
         self.b = []
-        self.listes = {H: [], M: [], B: []}
+        self.listes = {H: "", M: "", B: ""}
         self.level = M
         self.debut_membre = None
 
@@ -341,13 +326,15 @@ class EquationBuilder:
             self.string = string
         self.reset_class()
         self.ast = self.build_ast(self.string)
-        for el in self.ast:
+        for n, el in enumerate(self.ast):
             if isinstance(el, Signe):
                 self.on_signe(el)
             elif isinstance(el, Membre):
                 self.on_membre(el)
-            if el != self.ast[-1]:
-                self.add(" ")
+            if n != len(self.ast) - 1:
+                # on ajoute l'espace entre les membres
+                self.append(M, " ")
+                self.append_space()
 
         return self.data
 

@@ -41,6 +41,7 @@ m_quinze = Membre(quinze)
 m_op_un_moins_quinze = Membre(op_un_moins_quinze)
 m_op_un_moins_quinze_plus_deux = Membre(op_un_moins_quinze_plus_deux)
 m_f_un_sur_quinze = Membre(f_un_sur_quinze)
+m_f_quinze_sur_un = Membre(Fraction(Numerateur(quinze), Denominateur(un)))
 m_f_un_moins_qinze_sur_quinze = Membre(f_un_moins_qinze_sur_quinze)
 m_f_un_moins_quinze_sur_un_moins_quinze_plus_deux = Membre(
     f_un_moins_quinze_sur_un_moins_quinze_plus_deux
@@ -132,6 +133,7 @@ m_e_un_moins_quinze = Membre(e_un_moins_quinze)
         (ligne, "1-15", [m_op_un_moins_quinze]),
         (ligne, "1-15 + 1", [m_op_un_moins_quinze, plus, m_un]),
         (ligne, "1/15", [m_f_un_sur_quinze]),
+        (ligne, "15/1", [m_f_quinze_sur_un]),
         (ligne, "1/15 + 1", [m_f_un_sur_quinze, plus, m_un]),
         (ligne, "1 + 1/15", [m_un, plus, m_f_un_sur_quinze]),
         (
@@ -162,24 +164,35 @@ def test_parser(parser, string, res):
     assert temp == res, msg
 
 
+# le parametre 2 est juste la pour le model
 @pytest.mark.parametrize(
-    "parser, string, res",
+    "three, string, res",
     [
-        (ligne, "1", [m_un]),
-        (ligne, "1 ", [m_un]),
-        (ligne, " 1 ", [m_un]),
-        (ligne, " 1", [m_un]),
-        (ligne, "1 + 15", [m_un, plus, m_quinze]),
-        (ligne, "1 + 15 ", [m_un, plus, m_quinze]),
-        (ligne, " 1 + 15 ", [m_un, plus, m_quinze]),
-        (ligne, "1 + 15 + 1", [m_un, plus, m_quinze, plus, m_un]),
-        (ligne, "1-15", [m_op_un_moins_quinze]),
-        (ligne, "1-15 + 1", [m_op_un_moins_quinze, plus, m_un]),
-        (ligne, "1/15", [m_f_un_sur_quinze]),
-        (ligne, "1/15 + 1", [m_f_un_sur_quinze, plus, m_un]),
-        (ligne, "1 + 1/15", [m_un, plus, m_f_un_sur_quinze]),
+        (" \n1\n ", "1", [m_un]),
+        # ("", "1 ", [m_un]),
+        # ("", " 1 ", [m_un]),
+        # ("", " 1", [m_un]),
+        ("      \n1 + 15\n      ", "1 + 15", [m_un, plus, m_quinze]),
+        # ("", "1 + 15 ", [m_un, plus, m_quinze]),
+        # ("", " 1 + 15 ", [m_un, plus, m_quinze]),
         (
-            ligne,
+            "          \n1 + 15 + 1\n          ",
+            "1 + 15 + 1",
+            [m_un, plus, m_quinze, plus, m_un],
+        ),
+        # ("", "1-15", [m_op_un_moins_quinze]),
+        # ("", "1-15 + 1", [m_op_un_moins_quinze, plus, m_un]),
+        (" 1\n__\n15", "1/15", [m_f_un_sur_quinze]),
+        ("1 \n__\n15", "1/15", [m_f_un_sur_quinze]),
+        ("1\n__\n15", "1/15", [m_f_un_sur_quinze]),
+        ("15\n__\n 1", "15/1", [m_f_quinze_sur_un]),
+        ("15\n__\n1 ", "15/1", [m_f_quinze_sur_un]),
+        ("15\n__\n1", "15/1", [m_f_quinze_sur_un]),
+        ("1     \n__ + 1\n15    ", "1/15 + 1", [m_f_un_sur_quinze, plus, m_un]),
+        ("    1 \n1 + __\n    15", "1 + 1/15", [m_un, plus, m_f_un_sur_quinze]),
+        ("    1 \n1 + __\n    15", "1 + 1/15", [m_un, plus, m_f_un_sur_quinze]),
+        (
+            "  1-15    1         \n" "______ * __ - 1-15+2\n" "1-15+2   15         ",
             "1-15/1-15+2 * 1/15 - 1-15+2",
             [
                 m_f_un_moins_quinze_sur_un_moins_quinze_plus_deux,
@@ -189,21 +202,25 @@ def test_parser(parser, string, res):
                 m_op_un_moins_quinze_plus_deux,
             ],
         ),
-        (ligne, "(1-15)", [m_e_un_moins_quinze]),
-        (ligne, "1 - (1-15)", [m_un, moins, m_e_un_moins_quinze]),
-        (ligne, "(1-15) - 1", [m_e_un_moins_quinze, moins, m_un]),
-        (ligne, "(1-15) = 1/15", [m_e_un_moins_quinze, egale, m_f_un_sur_quinze]),
+        ("      \n" "(1-15)\n" "      ", "(1-15)", [m_e_un_moins_quinze]),
+        # ("", "1 - (1-15)", [m_un, moins, m_e_un_moins_quinze]),
+        # ("", "(1-15) - 1", [m_e_un_moins_quinze, moins, m_un]),
+        (
+            "         1 \n" "(1-15) = __\n" "         15",
+            "(1-15) = 1/15",
+            [m_e_un_moins_quinze, egale, m_f_un_sur_quinze],
+        ),
     ],
 )
-def test_parser_3_lines_to_one(parser, string, res):
+def test_parser_3_lines_to_one(three, string, res):
     msg = ""
+    new_string = three_lines_converter(three)
     try:
-        temp = parser.parse(string)
+        temp = ligne.parse(new_string)
     except ParseError as err:
         temp = None
         msg = str(err)
-    print(res)
-    assert temp == res, msg
+    assert temp == res, msg + "  " + new_string
 
 
 @pytest.fixture()
@@ -220,21 +237,11 @@ class TestEquationBuilder:
 
     # on test ici les utility
 
-    @pytest.mark.parametrize("",[(),])
-    def test_(self, ):
-      
-            
-                
-    def test_add(self, eb):
-        eb.level = M
-        eb.add("+")
-        assert eb.listes == {H: [" "], M: ["+"], B: [" "]}
-        eb.add("X", many=3 )
-        assert eb.listes == {H: [" XXX"], M: ["+XXX"], B: [" "]}
-
-        eb.level = H
-        eb.add("1")
-        assert eb.listes == {H: [" ", "1"], M: ["+"], B: [" "]}
+    # @pytest.mark.parametrize("",[(),])
+    # def test_(self, ):
+    #
+    #
+    #
 
     # def test_is_prev_space(self, eb):
     #     eb.add(" ")
@@ -243,15 +250,13 @@ class TestEquationBuilder:
     #     assert not eb.prev_is_space
 
     def test_merge_listes(self, eb):
-        eb.add("+", M)
-        eb.add("5", M)
-        eb.add("2", M)
-        assert eb.merge_listes() == "   \n+52\n   "
+        print(eb.merge_listes())
+        eb.listes = {H: "1  ", M: "+52", B: "  1"}
+        assert eb.merge_listes() == "1  \n+52\n  1"
 
     def test_len(self, eb):
-        for i in range(3):
-            eb.add("4", random.randint(0, 3))
-        assert all(len(v) == eb.len for v in eb.listes.values())
+        eb.listes = {H: "12345", M: "+52", B: "  1"}
+        assert eb.len == 3
 
     def test_data(self, eb):
         eb("1+4")
@@ -269,19 +274,80 @@ class TestEquationBuilder:
     #     }
 
 
+#
+# @pytest.mark.parametrize(
+#     "string, res",
+#     [
+#         ("1", " \n1\n "),
+#         ("1 + 2", "     \n1 + 2\n     "),
+#         ("1 + 1+2", " " * 7 + "\n1 + 1+2\n" + " " * 7),
+#         ("1 * (3+4)", " " * 9 + "\n1 * (3+4)\n" + " " * 9),
+#         # ("1/2", "1\n_\n2"),
+#     ],
+# )
+# def test_output(string, res):
+#     assert EquationBuilder(string)() == res
+
+
+# le parametre 2 est juste la pour le model
 @pytest.mark.parametrize(
-    "string, res",
+    "res, string, control",
     [
-        ("1", " \n1\n "),
-        ("1 + 2", "     \n1 + 2\n     "),
-        ("1 + 1+2", " " * 7 + "\n1 + 1+2\n" + " " * 7),
-        ("1 * (3+4)", " " * 9 + "\n1 * (3+4)\n" + " " * 9),
-        ("1/2", "1\n_\n2"),
+        (" \n1\n ", "1", [m_un]),
+        # # ("", "1 ", [m_un]),
+        # # ("", " 1 ", [m_un]),
+        # # ("", " 1", [m_un]),
+        ("      \n1 + 15\n      ", "1 + 15", [m_un, plus, m_quinze]),
+        # # ("", "1 + 15 ", [m_un, plus, m_quinze]),
+        # # ("", " 1 + 15 ", [m_un, plus, m_quinze]),
+        (
+            "          \n1 + 15 + 1\n          ",
+            "1 + 15 + 1",
+            [m_un, plus, m_quinze, plus, m_un],
+        ),
+        # # ("", "1-15", [m_op_un_moins_quinze]),
+        # # ("", "1-15 + 1", [m_op_un_moins_quinze, plus, m_un]),
+        ("1\n_\n1", "1/1", [Membre(Fraction(Numerateur(un), Denominateur(Terme(un))))]),
+        # (" 1\n__\n15", "1/15", [m_f_un_sur_quinze]), # non retesté du à la fn str.center
+        ("1 \n__\n15", "1/15", [m_f_un_sur_quinze]),
+        # ("1\n__\n15", "1/15", [m_f_un_sur_quinze]), # impossible
+        # ("15\n__\n 1", "15/1", [m_f_quinze_sur_un]),
+        ("15\n__\n1 ", "15/1", [m_f_quinze_sur_un]),
+        # ("15\n__\n1", "15/1", [m_f_quinze_sur_un]),
+        ("1     \n__ + 1\n15    ", "1/15 + 1", [m_f_un_sur_quinze, plus, m_un]),
+        ("    1 \n1 + __\n    15", "1 + 1/15", [m_un, plus, m_f_un_sur_quinze]),
+        ("    1 \n1 + __\n    15", "1 + 1/15", [m_un, plus, m_f_un_sur_quinze]),
+        (
+            " 1-15    1          \n" "______ * __ - 1-15+2\n" "1-15+2   15         ",
+            "1-15/1-15+2 * 1/15 - 1-15+2",
+            [
+                m_f_un_moins_quinze_sur_un_moins_quinze_plus_deux,
+                fois,
+                m_f_un_sur_quinze,
+                moins,
+                m_op_un_moins_quinze_plus_deux,
+            ],
+        ),
+        ("      \n" "(1-15)\n" "      ", "(1-15)", [m_e_un_moins_quinze]),
+        # # ("", "1 - (1-15)", [m_un, moins, m_e_un_moins_quinze]),
+        # # ("", "(1-15) - 1", [m_e_un_moins_quinze, moins, m_un]),
+        (
+            "         1 \n" "(1-15) = __\n" "         15",
+            "(1-15) = 1/15",
+            [m_e_un_moins_quinze, egale, m_f_un_sur_quinze],
+        ),
     ],
 )
-def test_output(string, res):
-    assert EquationBuilder(string)() == res
+def test_equation_builder_output(res, string, control):
+    msg = ""
+    eq = EquationBuilder(string)
+    new_three_string = eq()
+    # assert eq.ast == control
+    assert new_three_string == res
 
-
-
-def test_from_3_to_one_line()
+    # try:
+    #     temp = ligne.parse(new_string)
+    # except ParseError as err:
+    #     temp = None
+    #     msg = str(err)
+    # assert temp == res, msg + "  " + new_string

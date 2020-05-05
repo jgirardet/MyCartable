@@ -45,6 +45,7 @@
         <file alias="Multiplication.qml">qml/page/operations/Multiplication.qml</file>
         <file alias="DivisionDelegate.qml">qml/page/operations/DivisionDelegate.qml</file>
         <file alias="Division.qml">qml/page/operations/Division.qml</file>
+        <file alias="Equation.qml">qml/page/operations/Equation.qml</file>
 
     </qresource>
 

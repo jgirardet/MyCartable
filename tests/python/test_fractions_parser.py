@@ -342,12 +342,4 @@ def test_equation_builder_output(res, string, control):
     msg = ""
     eq = EquationBuilder(string)
     new_three_string = eq()
-    # assert eq.ast == control
     assert new_three_string == res
-
-    # try:
-    #     temp = ligne.parse(new_string)
-    # except ParseError as err:
-    #     temp = None
-    #     msg = str(err)
-    # assert temp == res, msg + "  " + new_string

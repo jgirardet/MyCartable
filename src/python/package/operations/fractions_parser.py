@@ -151,27 +151,6 @@ B = Level.bas
 NO_WHITE_SPACE = re.compile(r"\S+")
 WHITE_SPACE_AND_CONTENT = re.compile(r"\S+|\s+")
 
-#
-# class Matched:
-#     def __init__(self, match_item, level):
-#         self.m = match_item
-#         self.l = level
-#
-#     def __lt__(self, other):
-#         if self.m.start() < other.m.start():
-#             return True
-#         elif self.m.start() == other.m.start():
-#             if self.l.value > other.l.value:
-#                 print(self.l.value)
-#                 return True
-#         else:
-#             False
-#
-#     def __repr__(self):
-#         return (
-#             f"Matched {self.l.name} {self.m.start()},{self.m.end()} : {self.m.group()}"
-#         )
-
 
 def three_lines_converter(string: str):
 
@@ -242,16 +221,6 @@ class EquationBuilder:
         self.debut_membre = self.len
         self.dispatch(el)
 
-    # def on_oparenthese(self, el):
-    #     self.append(self.level, el.v)
-    #     if self.level == M:
-    #         self.append_space(nb=len(el.v))
-    #
-    # def on_fparenthese(self, el):
-    #     self.append(self.level, el.v)
-    #     if self.level == M:
-    #         self.append_space(nb=len(el.v))
-
     def on_operateur(self, el):
         self.dispatch(el.signe)
         self.dispatch(el.rhs)
@@ -295,10 +264,6 @@ class EquationBuilder:
             self.on_expression(el)
         elif isinstance(el, Fraction):
             self.on_fraction(el)
-        # elif isinstance(el, OParenthese):
-        #     self.on_oparenthese()
-        # elif isinstance(el, FParenthese):
-        #     self.on_fparenthese()
         elif isinstance(el, list):
             for sub_el in el:
                 self.dispatch(sub_el)
@@ -337,14 +302,3 @@ class EquationBuilder:
                 self.append_space()
 
         return self.data
-
-
-# def on_membre(mb):
-#     if isinstance(mb, Terme):
-
-
-#
-# def build_result(string):
-#     ast  = build_ast(string)
-#     res = ["", "", ""]
-#

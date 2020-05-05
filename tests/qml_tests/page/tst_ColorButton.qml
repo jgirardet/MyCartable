@@ -36,7 +36,6 @@ Item {
       uiManager.menuTarget = editor
       tested.menu = menu
       mouseClick(tested)
-      print(JSON.stringify(editor.res))
       compare(editor.res, {
         "style": {
           'fgColor': "red"

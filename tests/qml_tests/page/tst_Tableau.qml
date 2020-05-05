@@ -132,6 +132,9 @@ Item {
     property var underline: false
     property var pointSize: 12
     property var base: item
+    property var un
+    property var zero
+
     /* beautify preserve:end */
 
     function initPre() {
@@ -146,10 +149,12 @@ Item {
 
     function initPost() {
       waitForRendering(tested, 3000)
+      un = tested.getItem(1)
+      zero = tested.getItem(0)
     }
 
     function test_init() {
-      var un = tested.getItem(1)
+      compare(un, tested.getItem(1))
       compare(model.rowCount * model.columnCount, 12)
     }
 
@@ -173,7 +178,6 @@ Item {
     }
 
     function test_selected_state() {
-      var un = tested.getItem(1)
       compare(Qt.colorEqual(un.color, "blue"), true)
       un.state = "selected"
       compare(Qt.colorEqual(un.color, "lightsteelblue"), true)
@@ -253,7 +257,6 @@ Item {
 
     function test_mouse_focus() {
       //test aussi left click
-      var un = tested.getItem(1)
       mouseClick(un.tinput)
       compare(un.tinput.focus, true)
       un.tinput.text = "jiohuijokmojlikljomkpmojl"
@@ -266,7 +269,7 @@ Item {
     }
 
     function test_text_menu_style() {
-      var rec = tested.getItem(1)
+      var un = tested.getItem(1)
       var tx = tested.getItem(1).tinput
 
       //click droit ur text
@@ -277,8 +280,8 @@ Item {
       menuClick(uiManager.menuFlottantText, 1, 30)
       compare(Qt.colorEqual(tx.color, "red"), true)
 
-      // sur rec
-      mouseClick(rec, 1, 1, Qt.RightButton)
+      // sur un
+      mouseClick(un, 1, 1, Qt.RightButton)
       compare(uiManager.menuTarget, tx) //target is tx
       menuClick(uiManager.menuFlottantText, 1, 30)
       compare(Qt.colorEqual(tx.color, "red"), true)
@@ -291,7 +294,7 @@ Item {
     }
 
     function test_text_bigeer_smaller() {
-      var rec = tested.getItem(1)
+      var un = tested.getItem(1)
       var tx = tested.getItem(1).tinput
 
       tx.forceActiveFocus()
@@ -307,27 +310,27 @@ Item {
 
     }
 
+    function selected(liste) {
+      // renvoie une liste d'Item depres le index
+      var res = []
+      for (var i of liste) {
+        res.push(tested.getItem(i))
+      }
+      return res
+    }
+
+    function mouseSelect(liste) {
+      // reproduit press, moove, reles sur les items
+      mousePress(tested.getItem(liste[0]), 0, 0)
+      for (var x of liste) {
+        mouseMove(tested.getItem(x), 1, 1)
+
+      }
+      var [last] = liste.slice(-1)
+      mouseRelease(tested.getItem(last), 1, 1)
+    }
+
     function test_select() {
-      function selected(liste) {
-        var res = []
-        for (var i of liste) {
-          res.push(tested.getItem(i))
-        }
-        return res
-      }
-
-      function mouseSelect(liste) {
-        mousePress(tested.getItem(liste[0]), 0, 0)
-        for (var x of liste) {
-          mouseMove(tested.getItem(x), 1, 1)
-
-        }
-        var [last] = liste.slice(-1)
-        mouseRelease(tested.getItem(last), 1, 1)
-      }
-
-      var un = tested.getItem(1)
-      var zero = tested.getItem(0)
 
       // simple vertical
       //      mouseDrag(tested.getItem(1), un.width/2, un.height/2, 0,un.height*3 )
@@ -342,37 +345,39 @@ Item {
       for (var i of tested.getCells()) {
         compare(i.state, "")
       }
+    }
 
-      // new select invalid l'ancien
+    function test_new_select_invalid_l_ancien() {
       mouseSelect([1, 4, 7, 10])
       mouseSelect([0, 3, 6, 9])
       compare(tested.selectedCells, selected([0, 3, 6, 9]))
       for (var i of tested.selectedCells) {
         compare(i.state, "selected")
       }
+    }
 
-      //  test fail : cf : https://bugreports.qt.io/browse/QTBUG-83637
-      //      tested.unSelectAll()
-      //      // new select aec ctrl  n'invalid l'ancien
-      //       mouseSelect([1,4,7,10])
-      ////       mouseDrag(tested.getItem(1), un.width/2, un.height/2, 0,un.height*3 )
-      //      mousePress(zero, zero.width/2, zero.height/2, Qt.LeftButton,   Qt.ControlModifier)
-      //       mouseMove(zero, zero.width/2, zero.height/3, Qt.LeftButton)
-      //       mouseRelease(zero, zero.width/2, zero.height/3, Qt.LeftButton,  Qt.ControlModifier)
-      ////       mouseDrag(zero, zero.width/2, zero.height/2, 0,zero.height*1, Qt.LeftButton,  Qt.ControlModifier , -1)
-      //       compare(tested.selectedCells, selected([1,4,7,10, 0]))
-      //       for (var i of tested.selectedCells) {
-      //        compare(i.state, "selected")
-      //      }
+    //  test fail : cf : https://bugreports.qt.io/browse/QTBUG-83637
+    //      tested.unSelectAll()
+    //      // new select aec ctrl  n'invalid l'ancien
+    //       mouseSelect([1,4,7,10])
+    ////       mouseDrag(tested.getItem(1), un.width/2, un.height/2, 0,un.height*3 )
+    //      mousePress(zero, zero.width/2, zero.height/2, Qt.LeftButton,   Qt.ControlModifier)
+    //       mouseMove(zero, zero.width/2, zero.height/3, Qt.LeftButton)
+    //       mouseRelease(zero, zero.width/2, zero.height/3, Qt.LeftButton,  Qt.ControlModifier)
+    ////       mouseDrag(zero, zero.width/2, zero.height/2, 0,zero.height*1, Qt.LeftButton,  Qt.ControlModifier , -1)
+    //       compare(tested.selectedCells, selected([1,4,7,10, 0]))
+    //       for (var i of tested.selectedCells) {
+    //        compare(i.state, "selected")
+    //      }
 
-      // les cas où il ne se passe rien
-      // à côté
-      //      tested.unSelectAll()
-      //
-      //      mousePress(un, un.width, un.height / 2)
-      //      mouseMove(un, un.width, un.height / 3)
-      //      mouseRelease(un, un.width, un.height / 3)
-      //      tryCompare(tested, "selectedCells", [un])
+    function test_press_moove_release() {
+      mousePress(un, un.width, un.height / 2)
+      mouseMove(un, un.width, un.height / 3)
+      mouseRelease(un, un.width, un.height / 3)
+      compare(tested.selectedCells, [un])
+    }
+
+    function test_selectect_avec_bouton_droit_sans_effet() {
 
       // boutton droit
       mousePress(un, un.width, un.height / 2, Qt.RightButton)
@@ -380,21 +385,26 @@ Item {
       mouseRelease(un, un.width, un.height / 3, Qt.RightButton)
       compare(tested.selectedCells, [])
       //      mouseDrag(un, un.width/2, un.height/2, 0,un.height*3, Qt.RightButton )
+    }
+
+    function test_on_ne_rajoute_pas_item_dans_selected_quand_moove_si_deja_selected() {
 
       // on se déplace dans un élément déjà currentSelectedCell
       tested.currentSelectedCell = un
       mousePress(un, un.width, un.height / 2)
       mouseMove(un, un.width, un.height / 3)
-      //       mouseRelease(un, un.width, un.height/3, ,Qt.RightButton)
-      //      mouseDrag(un, un.width/2, un.height/2, 0,1, Qt.RightButton )
       compare(tested.selectedCells, [])
       // uniquement isTableDelegate pas testé
+    }
 
+    function test_unselect_all_deselect_current_selected() {
       //      // unSelectAll deselect currentselected
       tested.currentSelectedCell = un
       tested.unSelectAll()
       compare(tested.currentSelectedCell, null)
+    }
 
+    function test_deselect_marche_arriere() {
       // marche arrière
       tested.unSelectAll()
       mousePress(un)
@@ -407,8 +417,7 @@ Item {
     }
 
     function test_menu_style_cellules() {
-      var rec = tested.getItem(1)
-      var tx = tested.getItem(1).tinput
+      var tx = un.tinput
 
       //click droit ur text
       compare(uiManager.menuTarget, undefined)
@@ -418,8 +427,8 @@ Item {
       menuClick(uiManager.menuFlottantText, 1, 30)
       compare(Qt.colorEqual(tx.color, "red"), true)
 
-      // sur rec
-      mouseClick(rec, 1, 1, Qt.RightButton)
+      // sur un
+      mouseClick(un, 1, 1, Qt.RightButton)
       compare(uiManager.menuTarget, tx) //target is tx
       menuClick(uiManager.menuFlottantText, 1, 30)
       compare(Qt.colorEqual(tx.color, "red"), true)

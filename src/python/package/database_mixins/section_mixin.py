@@ -60,14 +60,14 @@ class SectionMixin:
                 content["path"] = self.store_new_file(page)
                 try:
                     with db_session:
-
                         item = self.db.ImageSection(page=page_id, **content)
                 except MyCartableOperationError as err:
                     LOG.error(err)
                     self.ui.sendToast.emit(str(err))
                     return 0
-                self.sectionAdded.emit(item.position)
-        return item.id
+                else:
+                    self.sectionAdded.emit(item.position)
+                    return item.id
 
     @Slot(int, result="QVariantMap")
     def loadSection(self, section_id):

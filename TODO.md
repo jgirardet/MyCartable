@@ -1,7 +1,7 @@
 # TODO
 
 ## Critical
-    - police division
+    - 1368,75/65 : que sur ordi d'axel
     - 376,5 / 6
 
 ## Beta

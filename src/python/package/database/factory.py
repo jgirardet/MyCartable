@@ -339,6 +339,19 @@ def f_tableauCell(x=0, y=0, style=None, tableau=None, td=False):
         return item.to_dict() if td else item
 
 
+def f_equationSection(
+    content="1     \n__ + 1\n15    ", created=None, page=None, position=0, td=False,
+):
+    created = created or f_datetime()
+    page = page or f_page(td=True)["id"]
+    with db_session:
+        item = getattr(db, "EquationSection")(
+            content=content, created=created, page=page, position=position,
+        )
+        item.flush()
+        return item.to_dict() if td else item
+
+
 def f_style(
     fgColor=None,
     bgColor=None,
@@ -374,9 +387,10 @@ def populate_database(matieres_list=MATIERES, nb_page=100):
     activites = db.Activite.select()[:]
     for i in range(nb_page):
         a = f_page(activite=random.choice(activites))
-        for x in range(random.randint(0, 14)):
+        for x in range(random.randint(0, 8)):
             random.choice(
                 [
+                    f_equationSection(page=a.id),
                     f_tableauSection(page=a.id),
                     f_imageSection(page=a.id),
                     f_textSection(page=a.id),

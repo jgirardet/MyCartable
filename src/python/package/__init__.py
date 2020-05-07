@@ -12,7 +12,7 @@ else:
 
 
 ROOT = Path(sys._MEIPASS) if PROD else Path(__file__).parents[3]
-DATA = ROOT / "data" if PROD else ROOT / "src" / "data"
+DATA = ROOT / "content" if PROD else ROOT / "src" / "data"
 
 if sys.platform == "linux":
     BINARY = DATA / "binary" / "linux"

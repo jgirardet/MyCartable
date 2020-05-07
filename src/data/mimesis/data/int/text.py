@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Provides all the data related to text."""
+"""Provides all the content related to text."""
 
 SAFE_COLORS = [
     "#1abc9c",

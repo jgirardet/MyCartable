@@ -429,8 +429,13 @@ Item {
   var _addSection
 
   function loadSection(sectionid) {
+    var backup = _loadSection
     _loadSection = sectionid
-    return {
+    return backup
+
+  }
+  /* beautify preserve:start */
+  property var _loadSection: {
       'id': 3796,
       'created': '2019-04-19T22:44:14.176013',
       'modified': '2019-04-19T22:44:14.176013',
@@ -440,10 +445,7 @@ Item {
       'path': 'qrc:/tests/tst_AnnotableImage.png',
       'annotations': [4, 5, 6, 7]
     }
-
-  }
-  property
-  var _loadSection
+  /* beautify preserve:end */
 
   function removeSection(sectoinid, index) {
     _removeSection = [sectoinid, index]
@@ -467,6 +469,5 @@ Item {
   signal changeAnnee(int annee)
 
 }
-
 
 /* beautify preserve:end */

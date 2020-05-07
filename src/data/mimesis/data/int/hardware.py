@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Provides all the data related to the hardware."""
+"""Provides all the content related to the hardware."""
 
 RESOLUTIONS = [
     "1152x768",

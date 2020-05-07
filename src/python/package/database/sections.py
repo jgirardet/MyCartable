@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-
+import re
 from PySide2.QtGui import QColor
 from descriptors import cachedproperty
 from package.exceptions import MyCartableOperationError
@@ -290,6 +290,26 @@ class DivisionSection(OperationSection):
     @cachedproperty
     def dividende_as_num(self):
         return self._as_num(self.dividende)
+
+
+class EquationSection(Section):
+
+    DEFAULT_CONTENT = "\n\n"
+    DEFAULT_CURSEUR = "1"
+
+    content = Required(str, default=DEFAULT_CONTENT, autostrip=False)
+    curseur = Required(int, default=DEFAULT_CURSEUR)
+
+    def set(self, *, content, curseur, **kwargs):
+        super().set(**kwargs)
+        if re.match("\s+", content):
+            self.content = self.DEFAULT_CONTENT
+            self.curseur = self.DEFAULT_CURSEUR
+            return self.to_dict()
+        else:
+            self.content = content
+            self.curseur = curseur
+            return self.to_dict()
 
 
 class Annotation(db.Entity):

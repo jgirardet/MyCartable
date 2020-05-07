@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Provides all the data for Structure."""
+"""Provides all the content for Structure."""
 
 CSS_PROPERTIES = {
     "background-color": "color",

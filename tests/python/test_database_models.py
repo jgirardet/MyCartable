@@ -459,7 +459,7 @@ class TestOperationSection:
     def test_datas(self, ddb):
         f_page()
 
-        # do not use data if None
+        # do not use content if None
         with pytest.raises(TypeError):
             a = ddb.OperationSection(page=1)
 
@@ -965,3 +965,22 @@ class TestStyle:
         assert item._bgColor == QColor("red").rgba()
         item.set(**{"fgColor": "red"})
         assert item._fgColor == QColor("red").rgba()
+
+
+class TestEquationModel:
+    def test_init(self, ddb):
+        a = EquationSection(page=f_page().id)
+        assert a.content == "\n\n"
+
+    def test_factory(self, ddbr):
+        a = f_equationSection()
+        assert a.content == "1     \n__ + 1\n15    ", "1/15 + 1"
+        a = f_equationSection(content="     \n1 + 1\n     ")
+        assert a.content == "     \n1 + 1\n     "
+
+    def test_set(self, ddb):
+        a = f_equationSection()
+        assert a.set(content="   ", curseur=1)["content"] == "\n\n"
+        assert a.set(content="   ", curseur=3)["curseur"] == 1
+        assert a.set(content="1+2", curseur=2)["content"] == "1+2"
+        assert a.set(content="1+2", curseur=9)["curseur"] == 9

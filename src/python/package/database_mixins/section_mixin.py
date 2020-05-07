@@ -79,6 +79,8 @@ class SectionMixin:
                 if res["classtype"] == "ImageSection":
                     res["path"] = QUrl.fromLocalFile(str(FILES / res["path"]))
                     # LOG.debug("loading Section: %s", res)
+            else:
+                LOG.error(f"La section {section_id} n'existe pas")
         return res
 
     @Slot(int, int)

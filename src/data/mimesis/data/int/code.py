@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Provides all data related to the codes."""
+"""Provides all content related to the codes."""
 
 IMEI_TACS = [
     "01124500",

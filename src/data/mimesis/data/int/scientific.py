@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Provides all the data related to science."""
+"""Provides all the content related to science."""
 
 MATH_FORMULAS = [
     "A = (ab)/2",

@@ -3,9 +3,10 @@ import sys
 import uuid
 
 import pytest
-from PySide2.QtCore import QUrl
+from PySide2.QtCore import QUrl, Qt
 from fixtures import compare, ss, check_args, wait
 from package import constantes
+from package.database_mixins.equation_mixin import EquationMixin
 from package.database_mixins.matiere_mixin import MatieresDispatcher
 from package.database_mixins.page_mixin import PageMixin
 from package.database_object import DatabaseObject
@@ -361,6 +362,20 @@ class TestSectionMixin:
             "position": 1,
         }
 
+    def test_loadsection_equation(self, dao):
+        eq = f_equationSection(content="1+2", td=True)
+        print(eq)
+        assert dao.loadSection(1) == {
+            "classtype": "EquationSection",
+            "created": eq["created"],  # .created.isoformat(),
+            "content": "1+2",
+            "id": 1,
+            "modified": eq["modified"],  # a.modified.isoformat(),
+            "page": 1,
+            "position": 1,
+            "curseur": 1,
+        }
+
     @pytest.mark.parametrize(
         "page, content, res, signal_emitted",
         [
@@ -617,6 +632,129 @@ class TestSettingsMixin:
 
     def test_anneActive(self, dao):
         assert dao.anneeActive == 2019
+
+
+class TestEquationMixin:
+    @pytest.mark.parametrize(
+        "line1, curseur, res",
+        [
+            ("/abcd", 6, ""),
+            ("a/bcd", 7, "a"),
+            ("a b/c", 9, "b"),
+            ("abcd/", 10, "abcd"),
+            ("a bc/", 10, "bc"),
+            ("a/ bc", 7, "a"),
+        ],
+    )
+    def test_get_split_position_line1(self, line1, curseur, res):
+        # line1 commence  à 5
+        start, end = DatabaseObject._get_split_position_line1("1234", line1, curseur)
+        assert line1[start:end] == res
+
+    @pytest.mark.parametrize(
+        "curseur, res",
+        [
+            (0, "ab"),
+            (1, "ab"),
+            (2, "      "),
+            (7, "      "),
+            (8, "cde"),
+            (10, "cde"),
+            (11, "  "),
+            (12, "  "),
+            (13, "fg"),
+            (14, "fg"),
+        ],
+    )
+    def test_find_membre_by_cursor(self, curseur, res):
+        a = "ab      cde  fg"
+        start, end = DatabaseObject._find_membre_by_cursor(a, curseur)
+        assert a[start:end] == res
+
+    @pytest.mark.parametrize(
+        "string, cursor, res",
+        [
+            ("012\n4567\n901", 1, 0),
+            ("012\n4567\n901", 3, 0),
+            ("012\n4567\n901", 4, 1),
+            ("012\n4567\n901", 6, 1),
+            ("012\n4567\n901", 7, 1),
+            ("012\n4567\n901", 8, 1),
+            ("012\n4567\n901", 9, 2),
+            ("012\n4567\n901", 10, 2),
+        ],
+    )
+    def test_get_cursor_line(self, string, cursor, res):
+        assert DatabaseObject._get_cursor_line(string, cursor) == res
+
+    @pytest.mark.parametrize(
+        "content, res, curseur, key, modifiers",
+        [
+            # partie ecritue line1
+            ("\n1\n", (" \n1\n ", 3), 2, Qt.Key_1, None),
+            (" \n12\n ", ("  \n12\n  ", 4), 3, Qt.Key_2, None),
+            ("  \n12 \n  ", ("   \n12 \n   ", 7), 6, Qt.Key_Space, None),
+            ("   \n12 +\n   ", ("    \n12 +\n    ", 9), 8, Qt.Key_Plus, None),
+            ("    \n12 +1\n    ", ("      \n12 + 1\n      ", 13), 10, Qt.Key_1, None,),
+            (
+                "         \n1 + 24 + 3\n         ",
+                ("          \n1 + 24 + 3\n          ", 17),
+                16,
+                Qt.Key_4,
+                None,
+            ),
+            ("\n1/\n", ("1\n_\n ", 4), 3, Qt.Key_Slash, None),
+            ("   \n1/ 2\n   ", ("1  \n_ 2\n   ", 8), 6, Qt.Key_Slash, None),
+            (
+                "     \n12 + 1/\n     ",
+                ("     1\n12 + _\n      ", 14),
+                13,
+                Qt.Key_Slash,
+                None,
+            ),
+            (
+                "          \n12 + 1/ + 5\n          ",
+                ("     1    \n12 + _ + 5\n          ", 22),
+                18,
+                Qt.Key_Slash,
+                None,
+            ),
+            # partie ecriture line 0
+            ("12\n_\n ", ("12\n__\n  ", 2), 2, Qt.Key_1, None),
+            ("1+2\n__\n  ", ("1+2\n___\n   ", 2), 2, Qt.Key_Plus, None),
+            ("(1+2\n___\n   ", ("(1+2\n____\n    ", 1), 1, Qt.Key_ParenLeft, None),
+            (
+                "(1+2)\n____\n    ",
+                ("(1+2)\n_____\n     ", 5),
+                5,
+                Qt.Key_ParenRight,
+                None,
+            ),
+            ("12\n_\n9", ("12\n__\n9 ", 2), 2, Qt.Key_1, None),
+            ("1+2\n__\n9 ", ("1+2\n___\n 9 ", 2), 2, Qt.Key_Plus, None),
+            (
+                "1+2*   1\n___ + _\n12    5",
+                ("1+2*   1\n____ + _\n 12    5", 4),
+                4,
+                Qt.Key_Asterisk,
+                None,
+            ),
+            (
+                "x1+2   1\n___ + _\n12    5",
+                ("x1+2   1\n____ + _\n 12    5", 1),
+                1,
+                Qt.Key_X,
+                None,
+            ),
+            ("1\n_\n ", ("1\n_\n ", 4), 1, Qt.Key_Space, None),
+            ("12\n__\n  ", ("12\n__\n  ", 7), 2, Qt.Key_Space, None),
+            ("12\n__\n  ", ("12\n__\n  ", 7), 1, Qt.Key_Space, None),
+        ],
+    )
+    def test_transform_equation(self, content, res, curseur, key, modifiers):
+        assert (
+            EquationMixin()._transform_equation(content, curseur, key, modifiers) == res
+        )
 
 
 class TestDatabaseObject:

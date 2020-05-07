@@ -135,7 +135,7 @@ class TableauModel(QAbstractTableModel):
         return self.rowCount()
 
     def get_cell(self, index):
-        # testé dans data et setData
+        # testé dans content et setData
         try:
             return self.db.TableauCell[self.sectionId, index.row(), index.column()]
         except ObjectNotFound:

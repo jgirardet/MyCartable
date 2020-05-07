@@ -128,7 +128,9 @@ membre = (fraction | forme).map(Membre).desc("forme ou fraction")
 @generate("membre seul ou membre + noeud")
 def ligne():
     yield space.optional()
-    pl = (membre << space.optional()) | (signe << space)
+    # pl = (membre << space.optional()) | (signe << space)
+    # pl = (membre << space.optional()) | (signe << space)
+    pl = membre | signe | space
     noeuds = yield pl.at_least(1)
     return noeuds
 
@@ -152,13 +154,45 @@ NO_WHITE_SPACE = re.compile(r"\S+")
 WHITE_SPACE_AND_CONTENT = re.compile(r"\S+|\s+")
 
 
+def pre_process_three_lines(string):
+    # fixe les longueurs de chaque ligne
+    lines = string.splitlines()
+
+    # premier caractère
+    if len(lines) == 2:
+        lines = [" ", lines[1], " "]
+
+    len0, len1, len2 = [len(x) for x in lines]
+
+    # ajout d'un caractère au milieu
+    if len1 > len0 and len1 > len2:
+        lines[0] = lines[0] + " "
+        lines[2] = lines[2] + " "
+
+    return lines
+
+
 def three_lines_converter(string: str):
 
     # on separe
     lines = string.splitlines()
+    print("lines", lines)
+    try:
+        len0, len1, len2 = [len(x) for x in lines]
+    except ValueError:
+        # il y a des lignes de vides donc forcément (1Er char du milieu)
+        lines = ["", lines[1], ""]
+        len0, len1, len2 = [len(x) for x in lines]
+
+    # on transfert l'espace  qui peut terminer le bas vers le milieu
+    # cas ou on ajoute un espace en base donc on remonte
+    if len2 > len1 and lines[2].endswith(" "):
+        lines[2] = lines[2][:-1]
+        lines[1] = lines[1] + " "
 
     # on recupere chaque space et fragment
     indexes_milieu = list(WHITE_SPACE_AND_CONTENT.finditer(lines[1]))
+    print("index milieu ", indexes_milieu)
 
     # on boucle et on ajoute num et denom  quand ___
     res = []

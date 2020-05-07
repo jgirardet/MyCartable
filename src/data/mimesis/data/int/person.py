@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Provides all the generic data related to the personal information."""
+"""Provides all the generic content related to the personal information."""
 
 BLOOD_GROUPS = (
     "O+",

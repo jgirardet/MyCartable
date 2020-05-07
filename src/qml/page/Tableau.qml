@@ -224,8 +224,8 @@ TableView {
         }
       }
 
-      //      function setStyleFromMenu(data) {
-      //        var res = ddb.setStyle(objStyle.id, data["style"])
+      //      function setStyleFromMenu(content) {
+      //        var res = ddb.setStyle(objStyle.id, content["style"])
       //        if (res) {
       //          objStyle = res
       //        }

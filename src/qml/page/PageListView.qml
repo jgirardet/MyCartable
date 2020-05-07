@@ -77,6 +77,13 @@ BasePageListView {
       }
     }
   }
+  Component {
+    id: equationDelegate
+    Equation {
+      sectionId: curSectionId
+      base: lv
+    }
+  }
   delegate: Component {
     Loader {
       id: load
@@ -104,6 +111,10 @@ BasePageListView {
         }
         case "TableauSection": {
           return tableauDelegate
+        }
+        case "EquationSection": {
+          print("equation")
+          return equationDelegate
         }
       }
 

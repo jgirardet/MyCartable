@@ -654,22 +654,29 @@ class TestEquationMixin:
     @pytest.mark.parametrize(
         "curseur, res",
         [
-            (0, "ab"),
-            (1, "ab"),
-            (2, "      "),
-            (7, "      "),
-            (8, "cde"),
-            (10, "cde"),
-            (11, "  "),
-            (12, "  "),
-            (13, "fg"),
-            (14, "fg"),
+            (0, "a\u2000"),
+            (1, "a\u2000"),
+            (2, None),
+            (7, None),
+            (8, "\u2000ce"),
+            (9, "\u2000ce"),
+            (10, "\u2000ce"),
+            (11, None),
+            (12, None),
+            (13, "\u2000fg\u2000"),
+            (14, "\u2000fg\u2000"),
+            (15, "\u2000fg\u2000"),
+            (16, "\u2000fg\u2000"),
         ],
     )
     def test_find_membre_by_cursor(self, curseur, res):
-        a = "ab      cde  fg"
-        start, end = DatabaseObject._find_membre_by_cursor(a, curseur)
-        assert a[start:end] == res
+        a = "a\u2000      \u2000ce  \u2000fg\u2000"
+        rr = DatabaseObject._find_membre_by_cursor(a, curseur)
+        if rr:
+            start, end = DatabaseObject._find_membre_by_cursor(a, curseur)
+            assert a[start:end] == res
+        else:
+            assert rr == res
 
     @pytest.mark.parametrize(
         "string, cursor, res",
@@ -687,53 +694,63 @@ class TestEquationMixin:
     def test_get_cursor_line(self, string, cursor, res):
         assert DatabaseObject._get_cursor_line(string, cursor) == res
 
-    # @pytest.mark.parametrize(
-    #     "content, res, curseur, key, modifiers",
-    #     [
-    #         ("12\n_\n¤", ("12\n__\n¤¤", 2), 2, Qt.Key_1, None),
-    #         ("1+2\n__\n¤¤", ("1+2\n___\n¤¤¤", 2), 2, Qt.Key_Plus, None),
-    #         ("(1+2\n___\n¤¤¤", ("(1+2\n____\n¤¤¤¤", 1), 1, Qt.Key_ParenLeft, None),
-    #         (
-    #             "(1+2)\n____\n¤¤¤¤",
-    #             ("(1+2)\n_____\n¤¤¤¤¤", 5),
-    #             5,
-    #             Qt.Key_ParenRight,
-    #             None,
-    #         ),
-    #         ("12\n_\n9", ("12\n__\n9¤", 2), 2, Qt.Key_1, None),
-    #         ("1+2\n__\n9¤", ("1+2\n___\n¤9¤", 2), 2, Qt.Key_Plus, None),
-    #         (
-    #             "1+2*   1\n___ + _\n12¤   5",
-    #             ("1+2*   1\n____ + _\n¤12¤   5", 4),
-    #             4,
-    #             Qt.Key_Asterisk,
-    #             None,
-    #         ),
-    #         (
-    #             "x1+2   1\n___ + _\n12¤    5",
-    #             ("x1+2   1\n____ + _\n¤12¤    5", 1),
-    #             1,
-    #             Qt.Key_X,
-    #             None,
-    #         ),
-    #         ("1\n_\n¤", ("1\n_\n¤", 4), 1, Qt.Key_Space, None),
-    #         ("12\n__\n¤¤", ("12\n__\n¤¤", 7), 2, Qt.Key_Space, None),
-    #         ("12\n__\n¤¤", ("12\n__\n¤¤", 7), 1, Qt.Key_Space, None),
-    #     ],
-    # )
-    # def test_transform_equation_line_0(self, content, res, curseur, key, modifiers):
-    #     assert (
-    #         EquationMixin()._transform_equation(content, curseur, key, modifiers) == res
-    #     )
+    @pytest.mark.parametrize(
+        "content, res, curseur, key, modifiers",
+        [
+            (f"12\n_\n{X}", (f"12\n__\n{X}{X}", 2), 2, Qt.Key_2, None),
+            (f"1+2\n__\n{X}{X}", (f"1+2\n___\n{X}{X}{X}", 2), 2, Qt.Key_Plus, None),
+            (
+                f"(1+2\n___\n{X}{X}{X}",
+                (f"(1+2\n____\n{X}{X}{X}{X}", 1),
+                1,
+                Qt.Key_ParenLeft,
+                None,
+            ),
+            (
+                f"(1+2)\n____\n{X}{X}{X}{X}",
+                (f"(1+2)\n_____\n{X}{X}{X}{X}{X}", 5),
+                5,
+                Qt.Key_ParenRight,
+                None,
+            ),
+            (f"12\n_\n9", (f"12\n__\n9{X}", 2), 2, Qt.Key_1, None),
+            (f"1+2\n__\n9{X}", (f"1+2\n___\n{X}9{X}", 2), 2, Qt.Key_Plus, None),
+            (
+                f"1+2*   1\n___ + _\n12{X}   5",
+                (f"1+2*   1\n____ + _\n{X}12{X}   5", 4),
+                4,
+                Qt.Key_Asterisk,
+                None,
+            ),
+            (
+                f"x1+2   1\n___ + _\n12{X}   5",
+                (f"x1+2   1\n____ + _\n{X}12{X}   5", 1),
+                1,
+                Qt.Key_X,
+                None,
+            ),
+            (
+                f"1{X}   12\n__ + _\n15   {X}",
+                (f"1{X}   12\n__ + __\n15   {X}{X}", 7),
+                7,
+                Qt.Key_2,
+                None,
+            ),
+        ],
+    )
+    def test_transform_equation_line_0(self, content, res, curseur, key, modifiers):
+        assert (
+            EquationMixin()._transform_equation(content, curseur, key, modifiers) == res
+        )
 
     @pytest.mark.parametrize(
         "content, res, curseur, key, modifiers",
         [
             ("\n1\n", (" \n1\n ", 3), 2, Qt.Key_1, None),
-            (" \n12\n ", ("  \n12\n  ", 4), 3, Qt.Key_2, None),
+            (" \n12\n ", ("  \n12\n  ", 5), 4, Qt.Key_2, None),
             ("  \n12 \n  ", ("   \n12 \n   ", 7), 6, Qt.Key_Space, None),
             ("   \n12 +\n   ", ("    \n12 +\n    ", 9), 8, Qt.Key_Plus, None),
-            ("    \n12 +1\n    ", ("      \n12 + 1\n      ", 13), 10, Qt.Key_1, None,),
+            # ("    \n12 +1\n    ", ("      \n12 + 1\n      ", 13), 10, Qt.Key_1, None,),
             (
                 "         \n1 + 24 + 3\n         ",
                 ("          \n1 + 24 + 3\n          ", 17),
@@ -748,19 +765,33 @@ class TestEquationMixin:
                 Qt.Key_8,
                 None,
             ),
-            ("\n1/\n", (f"1\n_\n{X}", 4), 3, Qt.Key_Slash, None),
-            ("   \n1/ 2\n   ", (f"1  \n_ 2\n{X}  ", 8), 6, Qt.Key_Slash, None),
+            ("\n1/\n", (f"1\n_\n{X}", 1), 3, Qt.Key_Slash, None),
+            ("   \n1/ 2\n   ", (f"1  \n_ 2\n{X}  ", 1), 6, Qt.Key_Slash, None),
             (
-                "     \n12 + 1/\n     ",
-                (f"     1\n12 + _\n     {X}", 14),
+                "      \n12 + 1/\n      ",
+                (f"     1\n12 + _\n     {X}", 6),
                 13,
                 Qt.Key_Slash,
                 None,
             ),
             (
                 "          \n12 + 1/ + 5\n          ",
-                (f"     1    \n12 + _ + 5\n     {X}    ", 22),
+                (f"     1    \n12 + _ + 5\n     {X}    ", 6),
                 18,
+                Qt.Key_Slash,
+                None,
+            ),
+            (
+                f"1{X}    \n__ + 1 \n15    ",
+                (f"1{X}     \n__ + 1 \n15     ", 15),
+                14,
+                Qt.Key_Space,
+                None,
+            ),
+            (
+                f"1{X}    \n__ + 1/\n15    ",
+                (f"1{X}   1\n__ + _\n15   {X}", 6),
+                13,
                 Qt.Key_Slash,
                 None,
             ),
@@ -771,47 +802,59 @@ class TestEquationMixin:
             EquationMixin()._transform_equation(content, curseur, key, modifiers) == res
         )
 
-    #
-    # @pytest.mark.parametrize(
-    #     "content, res, curseur, key, modifiers",
-    #     [
-    #         ("1\n_\n¤2", ("1\n_\n2", 5), 5, Qt.Key_2, None),
-    #         ("12\n__\n¤¤2", ("12\n__\n2¤", 7), 9, Qt.Key_2, None),
-    # ("1+2\n__\n  ", ("1+2\n___\n   ", 2), 2, Qt.Key_Plus, None),
-    # ("1+2\n__\n  ", ("1+2\n___\n   ", 2), 2, Qt.Key_Plus, None),
-    # ("(1+2\n___\n   ", ("(1+2\n____\n    ", 1), 1, Qt.Key_ParenLeft, None),
-    # (
-    #         "(1+2)\n____\n    ",
-    #         ("(1+2)\n_____\n     ", 5),
-    #         5,
-    #         Qt.Key_ParenRight,
-    #         None,
-    # ),
-    # ("12\n_\n9", ("12\n__\n9 ", 2), 2, Qt.Key_1, None),
-    # ("1+2\n__\n9 ", ("1+2\n___\n 9 ", 2), 2, Qt.Key_Plus, None),
-    # (
-    #         "1+2*   1\n___ + _\n12    5",
-    #         ("1+2*   1\n____ + _\n 12    5", 4),
-    #         4,
-    #         Qt.Key_Asterisk,
-    #         None,
-    # ),
-    # (
-    #         "x1+2   1\n___ + _\n12    5",
-    #         ("x1+2   1\n____ + _\n 12    5", 1),
-    #         1,
-    #         Qt.Key_X,
-    #         None,
-    # ),
-    # ("1\n_\n ", ("1\n_\n ", 4), 1, Qt.Key_Space, None),
-    # ("12\n__\n  ", ("12\n__\n  ", 7), 2, Qt.Key_Space, None),
-    # ("12\n__\n  ", ("12\n__\n  ", 7), 1, Qt.Key_Space, None),
-    #     ],
-    # )
-    # def test_transform_equation_line_2(self, content, res, curseur, key, modifiers):
-    #     assert (
-    #         EquationMixin()._transform_equation(content, curseur, key, modifiers) == res
-    #     )
+    @pytest.mark.parametrize(
+        "content, res, curseur, key, modifiers",
+        [
+            (f"1\n_\n{X}2", ("1\n_\n2", 5), 6, Qt.Key_2, None),  # à la fin
+            (f"12\n__\n{X}{X}2", (f"12\n__\n2{X}", 7), 9, Qt.Key_2, None),  # au début
+            (
+                f"1+2\n___\n{X}+{X}{X}",  # milieux G
+                (f"1+2\n___\n{X}+{X}", 10),
+                10,
+                Qt.Key_Plus,
+                None,
+            ),
+            (
+                f"1+2\n___\n{X}{X}+{X}",  # milieu D
+                (f"1+2\n___\n{X}+{X}", 10),
+                11,
+                Qt.Key_Plus,
+                None,
+            ),
+            (
+                "1+2\n___\n(1+2",
+                (f"1+2{X}\n____\n(1+2", 11),
+                9,
+                Qt.Key_ParenLeft,
+                None,
+            ),  # à la fin
+            (
+                f"1+2{X}\n____\n(1+2)",  # au début
+                (f"{X}1+2{X}\n_____\n(1+2)", 17),
+                15,
+                Qt.Key_ParenRight,
+                None,
+            ),
+            (
+                f"1+2   1\n___ + _\n12*{X}   5",
+                (f"1+2   1\n___ + _\n12*   5", 19),
+                19,
+                Qt.Key_Asterisk,
+                None,
+            ),
+            (
+                f"1+2   1\n___ + _\n12*4   5",
+                (f"1+2{X}   1\n____ + _\n12*4   5", 22),
+                20,
+                Qt.Key_Asterisk,
+                None,
+            ),
+        ],
+    )
+    def test_transform_equation_line_2(self, content, res, curseur, key, modifiers):
+        assert (
+            EquationMixin()._transform_equation(content, curseur, key, modifiers) == res
+        )
 
 
 class TestDatabaseObject:

@@ -339,8 +339,15 @@ def f_tableauCell(x=0, y=0, style=None, tableau=None, td=False):
         return item.to_dict() if td else item
 
 
+from package.database_mixins.equation_mixin import TextEquation
+
+
 def f_equationSection(
-    content="1     \n__ + 1\n15    ", created=None, page=None, position=0, td=False,
+    content=f"1{TextEquation.FSP}    \n{TextEquation.BARRE*2} + 1\n15    ",
+    created=None,
+    page=None,
+    position=0,
+    td=False,
 ):
     created = created or f_datetime()
     page = page or f_page(td=True)["id"]

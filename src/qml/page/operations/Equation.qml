@@ -13,23 +13,41 @@ TextArea {
   property var updating: false
   /* beautify preserve:end */
   //  text: data.content
-  cursorPosition: data.curseur
+  //  cursorPosition: data.curseur
   onSectionIdChanged: {
     data = ddb.loadSection(sectionId)
-    updating = true
+    //    updating = true
     text = data.content
     cursorPosition = data.curseur
+    //    print(text)
   }
 
   background: Rectangle {
     anchors.fill: parent
     color: "white"
   }
+  //  font.wordSpacing: 0
+  font.family: "Courier"
+
+  function sleepFor(sleepDuration) {
+    var now = new Date().getTime();
+    while (new Date().getTime() < now + sleepDuration) {
+      /* do nothing */
+    }
+  }
 
   Keys.onPressed: {
-    print(event)
-    ddb.updateEquation(sectionId, text, cursorPosition, event.key, event.modifiers)
-
+    var okKeys = [Qt.Key_Up, Qt.Key_Down, Qt.Key_Right,
+      Qt.Key_Left, Qt.Key_Shift, Qt.Key_Del, Qt.Key_Backspace
+    ]
+    if (!okKeys.includes(event.key)) {
+      var new_data = ddb.updateEquation(sectionId, text, cursorPosition, JSON.stringify(event), event.modifiers)
+      root.data = new_data
+      root.text = new_data.content
+      root.cursorPosition = new_data.curseur
+      event.accepted = true
+      return
+    }
     //    if (!updating) {
     //      updating = true
     //      data = ddb.updateEquation(sectionId, text, cursorPosition)

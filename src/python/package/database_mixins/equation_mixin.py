@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Dict, List
 
-from PySide2.QtCore import Slot, Qt
+from PySide2.QtCore import Slot, Qt, QObject, QJsonDocument
 from PySide2.QtGui import QKeyEvent
 from package.operations.fractions_parser import three_lines_converter, EquationBuilder
 from pony.orm import db_session
@@ -14,187 +14,167 @@ import logging
 LOG = logging.getLogger(__name__)
 
 
-SIGNES = ["*", "+", "-"]
-
-X = "\u2000"
+# X = "\u2000"
 
 
 class EquationMixin:
-    # @Slot(int, str, int, int, int, result="QVariantMap")
-    # def updateEquation(self, sectionId, content, curseur, key, modifiers):
-    #     lines = content.splitlines()
+    @Slot(int, str, int, str, int, result="QVariantMap")
+    def updateEquation(self, sectionId, content, curseur, event, modifiers):
+        event = json.loads(event)
+        new_lines, new_curseur = TextEquation(content, curseur, event, modifiers)()
+        return {"content": new_lines, "curseur": new_curseur}
 
-    @staticmethod
-    def insert_at(string, at, value):
-        return string[:at] + value + string[at:]
 
-    def _line1_added(self, lines: List[str], curseur, key, modifiers):
-        line0, line1, line2 = lines
+class TextEquation:
 
-        if key == Qt.Key_Slash:
-            # on ne toucha pas à la ligne opposé pendant que pas fini de éditer
+    FSP = "\u2000"  # espace comblant les espaces dans les fractions
+    BARRE = "\u2015"  # barre de fraction
 
-            # définition des fragments
-            space_avant, cut_index = self._get_split_position_line1(
-                line0, line1, curseur
-            )
-            print(space_avant, cut_index)
-            line1_avant = line1[:space_avant] if space_avant else ""
-            fragment = line1[space_avant:cut_index]
-            line1_apres = line1[cut_index + 1 :]
+    def __init__(self, lines: str, curseur: int, event, modifiers):
+        self.lines_string = lines
+        self.lines = lines.split("\n")
+        self.curseur = curseur
+        self.event = event
+        self.key = event["key"]
+        self.char = event["text"]
+        self.mofifiers = event["modifiers"]
+        self.line_active = self.lines_string[:curseur].count("\n")
+        LOG.debug(
+            f"curseur: {self.curseur}, line_active: {self.line_active}, line len: {len(self.lines[0])}"
+        )
 
-            line0_avant = line0[:space_avant]
-            line0_apres = line0[cut_index:]
+    def __call__(self):
+        new_curseur = getattr(self, "dispatch_line" + str(self.line_active))()
+        if new_curseur is None:
+            new_curseur = self.curseur
 
-            line2_avant = line0[:space_avant]
-            line2_apres = line0[cut_index:]
-            # print(
-            #     f":{line0_avant}:\n:{line0_apres}:\n:{line1_avant}:\n:{line1_apres}:\n:{line2_avant}:\n:{line2_apres}:"
-            # )
-            # réassemlbage des fragments
-            line0 = line0_avant + fragment + line0_apres
-            line1 = line1_avant + "_" * len(fragment) + line1_apres
-            line2 = line2_avant + X * len(fragment) + line2_apres
-            assert len(line0) == len(line1), f"{ len(line0)} {len(line1)}"
-            assert len(line1) == len(line2), f"{ len(line1)} {len(line2)}"
+        assert all(len(x) == len(self.lines[0]) for x in self.lines)
+        new_string = self.format_lines()
+        LOG.info(
+            "TextEquation nouvelle string : %s",
+            "\n||"
+            + new_string.replace(self.BARRE, "_")
+            .replace(self.FSP, "¤")
+            .replace("\n", "||\n||")
+            .replace(" ", ".")
+            + "||",
+        )
 
-            curseur = len(line0) + len(line1) + 2
+        return new_string, new_curseur
 
-        else:
-            rel_curseur = curseur - len(line1) - 1  # position relative dans ligne
-            rel_curseur = rel_curseur + 1 if rel_curseur >= 0 else 0
-            print("rel_curseur", rel_curseur)
+    @property
+    def debut_line0(self):
+        return len(self.lines[0]) * 0
 
-            # line0 = line0[:rel_curseur] + " " + line0[rel_curseur:]
+    @property
+    def debut_line1(self):
+        return len(self.lines[0]) * 1 + self.line_active
 
-            facteur = 1
-            if len(line1) >= 3 and line1[-2] in SIGNES and line1[-3] == " ":
-                line1 = line1[:-1] + " " + line1[-1]
-                facteur = 2
+    @property
+    def debut_line2(self):
+        return len(self.lines[0]) * 2 + self.line_active
 
-            line0 = self.insert_at(line0, rel_curseur, " " * facteur)
-            line2 = self.insert_at(line2, rel_curseur, " " * facteur)
-            # line0 = line0 + " " * facteur
-            # line2 = line2 + " " * facteur
+    def dispatch_line0(self):
+        """ chaque dispatch renvoi un nouveau curseur"""
+        if self.key == Qt.Key_Return:
+            return self.do_return()
+        elif self.char:
+            return self.fraction_add_char(0)
 
-            curseur = len(line0) + 1 + rel_curseur + (facteur - 1)
-        return [line0, line1, line2], curseur
+    def dispatch_line1(self):
+        if self.key == Qt.Key_Slash:
+            return self.new_fraction()
+        elif self.char:
+            return self.line1_add_char()
 
-    def _line0_added(self, lines: List[str], curseur, key, modifiers):
-        line0, line1, line2 = lines
+    def dispatch_line2(self):
+        if self.key == Qt.Key_Return:
+            self.do_return()
+        elif self.char:
+            return self.fraction_add_char(2)
 
-        if key == Qt.Key_Space:
-            curseur = len(line0) + len(line1) + 2 + int(len(line0) / 2)
-        else:
-            # on enleve 1 pour êtr sur de tomber dedans et curseur minimum = 1
-            start, end = self._find_membre_by_cursor(line0, curseur - 1)
+    def do_return(self):
+        curseur = self.get_line_curseur()
+        if self.line_active == 0:
+            return self.debut_line2 + curseur
+        elif self.ligne_active == 2:
+            _, end = self.fraction_get_start_and_end(curseur)
+            return self.debut_line1 + end
 
-            # on complète les autres lignes
-            line1 = line1[: end - 1] + "_" + line1[end - 1 :]
-            line2 = line2[: end - 1] + "¤" + line2[end - 1 :]
+    def fraction_add_char(self, n):
+        other = 0 if n == 2 else 2  # ligne opposée
+        curseur = self.get_line_curseur()
 
-            # line2 forcément < line0 donc on format ligne 2 en fonction de line0
-            centered = line2[start:end].strip("¤").center(end - start, "¤")
-            print(centered)
-            line2 = line2[:start] + centered + line2[end:]
-        return [line0, line1, line2], curseur
+        start, end = self.fraction_get_start_and_end(curseur)
+        # position dans fragment sans les faux espaces
+        f_curseur = (
+            curseur - start - self.lines[n][start:end].rstrip(self.FSP).count(self.FSP)
+        )
+        # decoupage et formattage des fragments
+        fragment_current = self.lines[n][start:end].strip(self.FSP)
+        fragment_current = (
+            fragment_current[:f_curseur] + self.char + fragment_current[f_curseur:]
+        )
+        fragment_other = self.lines[other][start:end].strip(self.FSP)
+        len_frac = max(len(fragment_current), len(fragment_other))
+        fragment_current = fragment_current.center(len_frac, self.FSP)
+        fragment_other = fragment_other.center(len_frac, self.FSP)
+        fragment1 = self.BARRE * len_frac
 
-    def _line2_added(self, lines: List[str], curseur, key, modifiers):
-        line0, line1, line2 = lines
+        # on refait les lignes
+        self.lines[n] = self.lines[n][:start] + fragment_current + self.lines[n][end:]
+        self.lines[1] = self.lines[1][:start] + fragment1 + self.lines[1][end:]
+        self.lines[other] = (
+            self.lines[other][:start] + fragment_other + self.lines[other][end:]
+        )
 
-        if key == Qt.Key_Space:
-            pass
-            # curseur = len(line0) + len(line1) + 2 + int(len(line0) / 2)
-        else:
-            curseur = curseur - len(line0) - len(line1) - 2
-            print("curseur au debut", curseur)
-            # on enleve 1 pour êtr sur de tomber dedans et curseur minimum = 1
-            start0, end0 = self._find_membre_by_cursor(line0, curseur - 1)
-            start1, end1 = self._find_membre_by_cursor(line1, curseur - 1)
-            start2, end2 = self._find_membre_by_cursor(line2, curseur - 1)
+        # curseur
+        new_pos = (
+            fragment_current.rstrip(self.FSP).count(self.FSP) + f_curseur + 1
+        )  # car 1 char ajouté
+        # new_curseur = len(self.lines[n][:start]) + new_pos
+        new_curseur = getattr(self, "debut_line" + str(n)) + start + new_pos
+        breakpoint()
 
-            fragment0 = line0[start0:end0]
-            fragment1 = line1[start1:end1]
-            fragment2 = line2[start2:end2]
-            print(fragment0, fragment1, fragment2)
+        return new_curseur
 
-            fragment0 = fragment0.strip("¤")
-            fragment1 = fragment1.strip()
-            fragment2 = fragment2.strip("¤")
-            print(fragment0, fragment1, fragment2)
-            len_frac = max(len(fragment0), len(fragment2))
-            # if len(fragment0) > len(fragment2):
-            #     fragment2 = fragment2.center(len(fragment0))
-            # elif len(fragment2) > len(fragment0):
-            #     fragment0 = fragment0.center(len(fragment2))
-            # else:
-            fragment0 = fragment0.center(len_frac, "¤")
-            fragment2 = fragment2.center(len_frac, "¤")
+    def fraction_get_start_and_end(self, line_curseur):
+        for item in re.finditer(rf"{self.BARRE}+|\s+|\S+", self.lines[1]):
+            if item.start() <= line_curseur < item.end():
+                return item.start(), item.end()
 
-            fragment1 = "_" * len(fragment2)
-            print(fragment0, fragment1, fragment2)
+    def get_line_curseur(self):
+        return self.curseur - getattr(self, "debut_line" + str(self.line_active))
 
-            # on complète les autres lignes
-            # line1 = line1[: end - 1] + "_" + line1[end - 1 :]
-            # line0 = line2[: end - 1] + " " + line2[end - 1 :]
+    def format_lines(self):
+        string = "\n".join(self.lines)
+        # string = string.replace(self.BARRE, "\u2015")
+        return string
 
-            # line2 forcément > line0 donc on format ligne 0 en fonction de line0
-            # centered = line2[start:end].strip().center(end - start)
-            line0 = line0[:start0] + fragment0 + line0[end0:]
-            line1 = line1[:start1] + fragment1 + line1[end1:]
-            line2 = line2[:start2] + fragment2 + line2[end2:]
-            curseur = len(line0) + len(line1) + 2 + len(line2.strip("¤"))
-        return [line0, line1, line2], curseur
+    def line1_add_char(self):
 
-    def _transform_equation(
-        self, content: str, curseur: int, key: int, modifiers: int = None
-    ):
-        ligne_active = self._get_cursor_line(content, curseur)
-        # print(ligne_active)
-        lines = content.splitlines()
-        new_curseur = curseur
-        # premier caractère
-        if len(lines) == 2:
-            lines = ["", lines[1], ""]
+        curseur = self.get_line_curseur()
+        self.lines[0] = self.lines[0][:curseur] + " " + self.lines[0][curseur:]
+        self.lines[1] = self.lines[1][:curseur] + self.char + self.lines[1][curseur:]
+        self.lines[2] = self.lines[2][:curseur] + " " + self.lines[2][curseur:]
 
-        if ligne_active == 0:
-            new_lines, new_curseur = self._line0_added(lines, curseur, key, modifiers)
-        elif ligne_active == 1:
-            new_lines, new_curseur = self._line1_added(lines, curseur, key, modifiers)
-        elif ligne_active == 2:
-            new_lines, new_curseur = self._line2_added(lines, curseur, key, modifiers)
+        return self.debut_line1 + curseur + 1
 
-        return ("\n".join(new_lines), new_curseur)
+    def new_fraction(self):
+        curseur = self.get_line_curseur()
+        start = self.lines[1][:curseur].rfind(" ") + 1  # renvoie -1 si trouve rien
+        start = start if start >= 0 else 0  # pas d'espace trouvé avant
+        end = self.lines[1][curseur:].find(" ")  # renvoie -1 si trouve rien
+        end = end if end != -1 else len(self.lines[1])  # pas d'espace trouvé avant
 
-    @staticmethod
-    def _get_cursor_line(string, cursor):
-        return string[:cursor].count("\n")
+        fragment = self.lines[1][start:end]
 
-    @staticmethod
-    def _get_split_position_line1(line0, line1, curseur):
-        """get les index du fragment  relatif à la ligne """
-        rel = curseur - len(line0) - 2  # on enleve \n deline0  et / révement ajouté
-        rel = rel if rel > 0 else 0
-        space_avant = line1[:rel].rfind(" ") + 1  # renvoie -1 si trouve rien
-        space_avant = space_avant if space_avant > 0 else 0  # pas d'espace trouvé avant
-        # print(space_avant, rel)
-        return space_avant, rel
+        self.lines[0] = self.lines[0][:start] + fragment + self.lines[0][end:]
+        self.lines[1] = (
+            self.lines[1][:start] + self.BARRE * len(fragment) + self.lines[1][end:]
+        )
+        self.lines[2] = (
+            self.lines[2][:start] + self.FSP * len(fragment) + self.lines[2][end:]
+        )
 
-    @staticmethod
-    def _find_membre_by_cursor(line: str, cursor: int):
-        for i in re.finditer(r"\S+|\s+", line):
-            print(i, i.group(), cursor)
-            if i.start() <= cursor < i.end():
-                return i.start(), i.end()
-
-    # def
-    #
-    #     with db_session:
-    #         item = self.db.EquationSection.get(id=sectionId)
-    #         if not item:
-    #             LOG.error(f"Aucune EquationSection avec if = {sectionId}")
-    #             return {}
-    #         item.set(content=rebuiled, curseur=curseur)
-    #         res = item.to_dict()
-    #         print("return update", res)
-    #         return res
+        return self.debut_line2 + end

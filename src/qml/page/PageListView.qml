@@ -113,7 +113,6 @@ BasePageListView {
           return tableauDelegate
         }
         case "EquationSection": {
-          print("equation")
           return equationDelegate
         }
       }

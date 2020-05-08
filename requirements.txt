@@ -15,4 +15,4 @@ pytest-qt
 aqtinstall==0.8
 mimesis
 jsbeautifier==1.11
-
+ipdb

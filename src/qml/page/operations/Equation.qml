@@ -37,17 +37,18 @@ TextArea {
   }
 
   Keys.onPressed: {
-    var okKeys = [Qt.Key_Up, Qt.Key_Down, Qt.Key_Right,
-      Qt.Key_Left, Qt.Key_Shift, Qt.Key_Del, Qt.Key_Backspace
-    ]
-    if (!okKeys.includes(event.key)) {
-      var new_data = ddb.updateEquation(sectionId, text, cursorPosition, JSON.stringify(event), event.modifiers)
-      root.data = new_data
-      root.text = new_data.content
-      root.cursorPosition = new_data.curseur
-      event.accepted = true
-      return
-    }
+    //    var okKeys = [Qt.Key_Up, Qt.Key_Down, Qt.Key_Right,
+    //      Qt.Key_Left, Qt.Key_Shift, Qt.Key_Del, Qt.Key_Backspace
+    //    ]
+    //    if (!okKeys.includes(event.key)) {
+    var new_data = ddb.updateEquation(sectionId, text, cursorPosition, JSON.stringify(event), event.modifiers)
+    root.data = new_data
+    root.text = new_data.content
+    root.cursorPosition = new_data.curseur
+    event.accepted = true
+    //    return
+    //    }
+    //    print("pppppppppppas", event.text)
     //    if (!updating) {
     //      updating = true
     //      data = ddb.updateEquation(sectionId, text, cursorPosition)

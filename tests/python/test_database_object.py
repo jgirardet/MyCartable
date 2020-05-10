@@ -370,7 +370,7 @@ class TestSectionMixin:
             "modified": eq["modified"],  # a.modified.isoformat(),
             "page": 1,
             "position": 1,
-            "curseur": 1,
+            "curseur": 0,
         }
 
     @pytest.mark.parametrize(
@@ -482,8 +482,11 @@ class TestEquationMixin:
         e = f_equationSection(content=" \n1\n ")
         event = json.dumps({"key": int(Qt.Key_2), "text": "2", "modifiers": None})
         res = dao.updateEquation(e.id, " \n1\n ", 3, event)
-
         assert res == {"content": "  \n12\n  ", "curseur": 5}
+
+    def test_isequationfocusable(self, dao):
+        assert not dao.isEquationFocusable("  \n1 \n  ", 0)
+        assert dao.isEquationFocusable("  \n1 \n  ", 4)
 
 
 class TestImageSectionMixin:

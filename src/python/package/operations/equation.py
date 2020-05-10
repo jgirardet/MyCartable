@@ -1,12 +1,10 @@
 import re
 from dataclasses import dataclass
-from typing import List
+from typing import List, ClassVar
 
-from PySide2.QtCore import Slot, Qt, QObject, QJsonDocument
+from PySide2.QtCore import Qt
 
 import logging
-
-from descriptors import cachedproperty
 
 LOG = logging.getLogger(__name__)
 
@@ -17,13 +15,14 @@ class Fragment:
     end: int
     value: str
     line: int
+    RE_PARTS: ClassVar[re.Pattern] = re.compile(r"(\u2000*)(\S*)(\u2000*)")
 
     def __len__(self):
         return len(self.value)
 
     @property
     def parts(self):
-        return re.search(r"(\u2000*)(\S*)(\u2000*)", self.value).groups()
+        return self.RE_PARTS.search(self.value).groups()
 
     def sub(self, index, value):
         self.value = self.value[:index] + value + self.value[index + 1 :]
@@ -37,6 +36,7 @@ class TextEquation:
     SIGNES = ["+", "-", MUL]
     SPACES = [" ", FSP]
     ARROWS = [Qt.Key_Right, Qt.Key_Up, Qt.Key_Left, Qt.Key_Down, Qt.Key_Return]
+    RE_FIND_FRACTION = re.compile(rf"{BARRE}+|\s+|\S+")
 
     def __init__(self, lines: str, curseur: int, event):
         self.lines_string = lines
@@ -53,6 +53,13 @@ class TextEquation:
         )
 
     def __call__(self):
+
+        if not self.lines_string:
+            if self.text and self.key != Qt.Key_Return:
+                return f" \n{self.text}\n ", 3
+            else:
+                return "", 0
+
         new_curseur = getattr(self, "dispatch_line" + str(self.line_active))()
         if new_curseur is None:
             new_curseur = self.curseur
@@ -315,7 +322,7 @@ class TextEquation:
     def fraction_get_start_and_end(self, line_curseur):
         if line_curseur > 0 and self.lines[1][line_curseur - 1] == self.BARRE:
             line_curseur -= 1  # corrige quand curseur en bout de ligne
-        for item in re.finditer(rf"{self.BARRE}+|\s+|\S+", self.lines[1]):
+        for item in self.RE_FIND_FRACTION.finditer(self.lines[1]):
             if item.start() <= line_curseur < item.end():
                 return item.start(), item.end()
 
@@ -326,6 +333,41 @@ class TextEquation:
         string = "\n".join(self.lines)
         string = string.replace("*", self.MUL)
         return string
+
+    @property
+    def is_focusable(self):
+        curseur = self.get_line_curseur()
+        if self.line_active == 1:
+            if (
+                curseur > 0
+                and self.line[curseur - 1] == self.BARRE
+                and self.line[curseur] == self.BARRE
+            ):
+                return False
+            else:
+                return True
+        else:
+            # cas simple c'est déjà un caratère
+            if curseur < self.len and self.line[curseur] not in self.SPACES:
+                return True
+            # on précise les choses dans les fractions
+            res = self.fraction_get_start_and_end(curseur)
+            # curseur pas dans fractions : ouste
+            if res is None:
+                return False
+            else:
+                start, end = res
+                if all(x == self.FSP for x in self.line[start:end]):
+                    return True
+                elif curseur > 0 and self.line[curseur - 1] not in self.SPACES:
+                    return True
+                elif (
+                    curseur < self.len - 1
+                    and self.line[curseur + 1] not in self.SPACES
+                    and self.line[curseur] not in self.SPACES
+                ):
+                    return True
+            return False
 
     def get_stripped(self, curseur, line):
         start, end = self.fraction_get_start_and_end(curseur)
@@ -338,7 +380,6 @@ class TextEquation:
         return Fragment(start, end, frag, line)
 
     def line1_add_char(self):
-
         curseur = self.get_line_curseur()
         self.lines[0] = self.lines[0][:curseur] + " " + self.lines[0][curseur:]
         self.lines[1] = self.lines[1][:curseur] + self.text + self.lines[1][curseur:]

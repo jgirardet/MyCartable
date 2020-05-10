@@ -970,7 +970,7 @@ class TestStyle:
 class TestEquationModel:
     def test_init(self, ddb):
         a = EquationSection(page=f_page().id)
-        assert a.content == "\n\n"
+        assert a.content == ""
 
     def test_factory(self, ddbr):
         a = f_equationSection(content="1\u2000    \n__ + 1\n15    ")
@@ -980,7 +980,7 @@ class TestEquationModel:
 
     def test_set(self, ddb):
         a = f_equationSection()
-        assert a.set(content="   ", curseur=1)["content"] == "\n\n"
-        assert a.set(content="   ", curseur=3)["curseur"] == 1
+        assert a.set(content="   ", curseur=1)["content"] == ""
+        assert a.set(content="   ", curseur=3)["curseur"] == 0
         assert a.set(content="1+2", curseur=2)["content"] == "1+2"
         assert a.set(content="1+2", curseur=9)["curseur"] == 9

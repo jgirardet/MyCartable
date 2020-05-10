@@ -83,6 +83,14 @@ ToolBar {
           onClicked: dialogAddDivision.open()
           ToolTip.text: "Ajouter une division"
         }
+        PageToolBarToolButton {
+          id: addEquation
+          icon.source: "qrc:///icons/addEquation"
+          onClicked: ddb.addSection(ddb.currentPage, {
+            "classtype": "EquationSection"
+          })
+          ToolTip.text: "Ajouter une equation"
+        }
       }
     }
 

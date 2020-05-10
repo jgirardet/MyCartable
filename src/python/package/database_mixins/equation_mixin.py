@@ -17,3 +17,9 @@ class EquationMixin:
             obj = self.db.Section.get(id=sectionId)
             obj.set(content=new_lines, curseur=new_curseur)
         return {"content": new_lines, "curseur": new_curseur}
+
+    @Slot(str, int, result=bool)
+    def isEquationFocusable(self, content, curseur):
+        return TextEquation(
+            content, curseur, {"key": None, "text": None, "modifiers": None}
+        ).is_focusable

@@ -25,26 +25,44 @@ Item {
         'page': 1,
         'position': 1,
         'classtype': 'EquationSection',
-        'content': '1     \n__ + 1\n15    '
+        'content': '1     \n__ + 1\n15    ',
+        'curseur': 10
       }
       tested.sectionId = 1
     }
 
     function test_init() {
       // test on section id changed
-      compare(tested.data, {
-        'id': 1,
-        'created': '2019-09-22T19:21:57.521813',
-        'modified': '2019-09-22T19:21:57.521813',
-        'page': 1,
-        'position': 1,
-        'classtype': 'EquationSection',
-        'content': '1     \n__ + 1\n15    '
-      })
+      tryCompare(tested, "text", '1     \n__ + 1\n15    ')
+      tryCompare(tested, "cursorPosition", 10)
     }
 
-    function test_bind_text_data_contnat() {
-      compare(tested.text, '1     \n__ + 1\n15    ')
+    function test_keypress() {
+      ddb._updateEquation = {
+        "content": "1      \n__5 + 1\n15     ",
+        "curseur": 12
+      }
+      mouseClick(tested)
+      verify(tested.focus)
+      tested.cursorPosition = 10
+      tryCompare(tested, "cursorPosition", 10)
+      keyClick(Qt.Key_5)
+      tryCompare(tested, "cursorPosition", 12)
+      tryCompare(tested, "text", "1      \n__5 + 1\n15     ")
+      compare(ddb._updateEquation[0], 1)
+      compare(ddb._updateEquation[1], '1     \n__ + 1\n15    ')
+      compare(ddb._updateEquation[2], 10)
+      compare(ddb._updateEquation[3], '{"objectName":"","key":53,"text":"5","modifiers":0,"isAutoRepeat":false,"count":65535,"nativeScanCode":0,"accepted":false}')
+    }
+
+    function test_isfocusable() {
+      tested.cursorPosition = 9
+      ddb._isEquationFocusable = false
+      mouseClick(tested, 23, 53)
+      compare(tested.cursorPosition, 9)
+      ddb._isEquationFocusable = true
+      mouseClick(tested, 23, 53)
+      compare(tested.cursorPosition, 15)
     }
 
   }

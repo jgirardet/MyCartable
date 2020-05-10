@@ -468,6 +468,23 @@ Item {
 
   signal changeAnnee(int annee)
 
+  // Equation
+  function updateEquation(sectionid, content, curseur, event) {
+    var backup = _updateEquation
+    _updateEquation = [sectionid, content, curseur, event]
+    return backup
+  }
+  property
+  var _updateEquation
+
+  function isEquationFocusable(content, curseur) {
+    var backup = _isEquationFocusable
+    _isEquationFocusable = [content, curseur]
+    return backup
+  }
+  property
+  var _isEquationFocusable: true
+
 }
 
 /* beautify preserve:end */

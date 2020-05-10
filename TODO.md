@@ -18,7 +18,6 @@
     - scrollbar pour la page
     - tester changment de size font dans section_text
     - déplace zoned de texte avec ctrl + fleche
-    - notation en fraction (ébauche)
     - exporter .odt .pdf
 
     

@@ -1006,6 +1006,35 @@ class TestTextEquation:
         )
         assert a() == ("\n\n", 1)
 
+    @pytest.mark.parametrize(
+        "curseur, res",
+        [
+            (0, True),
+            (1, True),
+            (2, False),
+            (5, False),
+            (5, False),
+            (14, False),
+            (15, True),
+            (28, False),
+            (29, True),
+            (49, True),
+            (50, False),
+            (57, True),
+        ],
+    )
+    def test_isFocusable(self, eq, curseur, res):
+        a = eq(UN, curseur)
+        assert a.is_focusable == res
+
+    @pytest.mark.parametrize("cur, res", [(6, True), (7, True), (8, True),])
+    def test_isFocusable2(self, eq, cur, res):
+        a = eq(
+            f"23\n{TextEquation.BARRE}{TextEquation.BARRE}\n{TextEquation.FSP}{TextEquation.FSP}",
+            cur,
+        )
+        assert a.is_focusable == res
+
 
 class TestFragment:
     def test_parts(self):

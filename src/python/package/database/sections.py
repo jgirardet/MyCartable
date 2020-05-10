@@ -294,10 +294,10 @@ class DivisionSection(OperationSection):
 
 class EquationSection(Section):
 
-    DEFAULT_CONTENT = "\n\n"
-    DEFAULT_CURSEUR = "1"
+    DEFAULT_CONTENT = ""
+    DEFAULT_CURSEUR = 0
 
-    content = Required(str, default=DEFAULT_CONTENT, autostrip=False)
+    content = Optional(str, default=DEFAULT_CONTENT, autostrip=False)
     curseur = Required(int, default=DEFAULT_CURSEUR)
 
     def set(self, *, content, curseur, **kwargs):

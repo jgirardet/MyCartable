@@ -12,7 +12,7 @@ import platform
 
 root = Path(__file__).parents[1].resolve()
 sys.path = [str(root)] + sys.path
-data = root / "src" / "content"
+data = root / "src" / "data"
 dist = root / "dist" / "MyCartable"
 filename = "MyCartable" if sys.platform == "linux" else "MyCartable.exe"
 exe = dist / filename

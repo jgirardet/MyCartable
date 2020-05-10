@@ -6,6 +6,8 @@ from PySide2.QtCore import Slot, Qt, QObject, QJsonDocument
 
 import logging
 
+from descriptors import cachedproperty
+
 LOG = logging.getLogger(__name__)
 
 
@@ -14,9 +16,17 @@ class Fragment:
     start: int
     end: int
     value: str
+    line: int
 
     def __len__(self):
         return len(self.value)
+
+    @property
+    def parts(self):
+        return re.search(r"(\u2000*)(\S*)(\u2000*)", self.value).groups()
+
+    def sub(self, index, value):
+        self.value = self.value[:index] + value + self.value[index + 1 :]
 
 
 class TextEquation:
@@ -47,7 +57,7 @@ class TextEquation:
         if new_curseur is None:
             new_curseur = self.curseur
 
-        assert all(len(x) == len(self.lines[0]) for x in self.lines)
+        assert all(len(x) == len(self.lines[0]) for x in self.lines), self.lines
         new_string = self.format_lines()
         LOG.debug(
             "TextEquation nouvelle string : %s",
@@ -85,6 +95,10 @@ class TextEquation:
         """active ligne"""
         return self.lines[self.line_active]
 
+    @line.setter
+    def line(self, value):
+        self.lines[self.line_active] = value
+
     @property
     def len(self) -> int:
         return len(self.lines[self.line_active])
@@ -95,6 +109,8 @@ class TextEquation:
             return self.do_return()
         elif self.key in self.ARROWS:
             return self.dispatch_arrows()
+        elif self.key == Qt.Key_Backspace:
+            return self.do_backspace()
         elif self.text:
             return self.fraction_add_char(0)
 
@@ -103,6 +119,8 @@ class TextEquation:
             return self.new_fraction()
         elif self.key in self.ARROWS:
             return self.dispatch_arrows()
+        elif self.key == Qt.Key_Backspace:
+            return self.do_backspace()
         elif self.text:
             return self.line1_add_char()
 
@@ -111,6 +129,8 @@ class TextEquation:
             return self.do_return()
         elif self.key in self.ARROWS:
             return self.dispatch_arrows()
+        elif self.key == Qt.Key_Backspace:
+            return self.do_backspace()
         elif self.text:
             return self.fraction_add_char(2)
 
@@ -123,6 +143,41 @@ class TextEquation:
             return self.do_right()
         elif self.key == Qt.Key_Up:
             return self.do_up()
+
+    def do_backspace(self):
+        if self.line_active == 1:
+            index = self.get_line_curseur()
+            if index > 0 and self.line[index - 1] != self.BARRE:
+                for i in range(3):
+                    self.lines[i] = self.lines[i][: index - 1] + self.lines[i][index:]
+                return self.curseur - 2
+
+        else:
+            index = self.get_line_curseur()
+            if index > 0 and self.line[index - 1] not in self.SPACES:
+                frag = self.get_unstripped(index, self.line_active)
+                f_index = index - frag.start  # index dans le fragment FSP inclus
+                fsp_pre = len(frag.parts[0])  # FSP avant l'index
+                nb_avant = (
+                    f_index - fsp_pre - 1
+                )  # nb char avant index (on enleve le deleté)
+                frag.sub(f_index - 1, self.FSP)  # on remplace le delete par FSP
+                membres = self.format_fraction(frag)
+                new_fsp_pre = (
+                    membres[self.line_active].rstrip(self.FSP).count(self.FSP)
+                )  # nb FSP avant après format
+                new_pos = new_fsp_pre + nb_avant  # nouvelle pos dans le fragement
+                for i in range(3):
+                    self.lines[i] = (
+                        self.lines[i][: frag.start]
+                        + membres[i]
+                        + self.lines[i][frag.end :]
+                    )
+                if not any(membres):  # on efface la fraction
+                    return self.debut_line[1] + frag.start
+                else:
+                    return self.debut_line_active + frag.start + new_pos
+        return self.curseur
 
     def do_down(self):
         if self.line_active == 0:
@@ -234,7 +289,6 @@ class TextEquation:
             f_curseur = 0
 
         # decoupage et formattage des fragments
-        # fragment_current = fragment_current.strip(self.FSP)
         fragment_current = (
             fragment_current[:f_curseur] + self.text + fragment_current[f_curseur:]
         )
@@ -276,7 +330,12 @@ class TextEquation:
     def get_stripped(self, curseur, line):
         start, end = self.fraction_get_start_and_end(curseur)
         frag = self.lines[line][start:end].rstrip(self.FSP)
-        return Fragment(start, end, frag)
+        return Fragment(start, end, frag, line)
+
+    def get_unstripped(self, curseur, line):
+        start, end = self.fraction_get_start_and_end(curseur)
+        frag = self.lines[line][start:end]
+        return Fragment(start, end, frag, line)
 
     def line1_add_char(self):
 
@@ -304,3 +363,18 @@ class TextEquation:
         )
 
         return self.debut_line[2] + start
+
+    def format_fraction(self, frag):
+        # L'utiliser en modif, pas en ajout
+        other = 2 if frag.line == 0 else 0
+        fragment_current = frag.value.replace(self.FSP, "")
+        fragment_other = self.lines[other][frag.start : frag.end].replace(self.FSP, "")
+        len_frac = max(len(fragment_current), len(fragment_other))
+        fragment_current = fragment_current.center(len_frac, self.FSP)
+        fragment_other = fragment_other.center(len_frac, self.FSP)
+        fragment1 = self.BARRE * len_frac
+
+        if frag.line == 0:
+            return fragment_current, fragment1, fragment_other
+        else:
+            return fragment_other, fragment1, fragment_current

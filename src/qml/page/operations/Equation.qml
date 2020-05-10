@@ -41,7 +41,7 @@ TextArea {
     //      Qt.Key_Left, Qt.Key_Shift, Qt.Key_Del, Qt.Key_Backspace
     //    ]
     //    if (!okKeys.includes(event.key)) {
-    var new_data = ddb.updateEquation(sectionId, text, cursorPosition, JSON.stringify(event), event.modifiers)
+    var new_data = ddb.updateEquation(sectionId, text, cursorPosition, JSON.stringify(event))
     root.data = new_data
     root.text = new_data.content
     root.cursorPosition = new_data.curseur

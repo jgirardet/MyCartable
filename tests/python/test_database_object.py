@@ -6,14 +6,11 @@ import pytest
 from PySide2.QtCore import QUrl, Qt
 from fixtures import compare, ss, check_args, wait
 from package import constantes
-from package.database_mixins.equation_mixin import EquationMixin, X
 from package.database_mixins.matiere_mixin import MatieresDispatcher
-from package.database_mixins.page_mixin import PageMixin
 from package.database_object import DatabaseObject
 from package.database.factory import *
 from unittest.mock import patch, call
 from package.files_path import FILES
-from pony.orm import exists, make_proxy
 
 
 class TestPageMixin:
@@ -478,6 +475,15 @@ class TestSectionMixin:
 
         with qtbot.waitSignal(dao.sectionRemoved, check_params_cb=lambda x: (8, 99)):
             dao.removeSection(r.id, 99)
+
+
+class TestEquationMixin:
+    def test_update(self, dao):
+        e = f_equationSection(content=" \n1\n ")
+        event = json.dumps({"key": int(Qt.Key_2), "text": "2", "modifiers": None})
+        res = dao.updateEquation(e.id, " \n1\n ", 3, event)
+
+        assert res == {"content": "  \n12\n  ", "curseur": 5}
 
 
 class TestImageSectionMixin:

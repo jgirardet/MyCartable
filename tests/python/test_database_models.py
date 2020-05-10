@@ -973,8 +973,8 @@ class TestEquationModel:
         assert a.content == "\n\n"
 
     def test_factory(self, ddbr):
-        a = f_equationSection()
-        assert a.content == "1     \n__ + 1\n15    ", "1/15 + 1"
+        a = f_equationSection(content="1\u2000    \n__ + 1\n15    ")
+        assert a.content == "1\u2000    \n__ + 1\n15    ", "1/15 + 1"
         a = f_equationSection(content="     \n1 + 1\n     ")
         assert a.content == "     \n1 + 1\n     "
 

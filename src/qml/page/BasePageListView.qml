@@ -24,7 +24,9 @@ ListView {
   Component.onCompleted: {
     model.rowsInserted.connect(onItemAdded)
   }
-
+  ScrollBar.vertical: ScrollBar {
+    minimumSize: 0.5
+  }
   Connections {
     target: model
     function onModelReset() {

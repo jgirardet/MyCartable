@@ -1,6 +1,15 @@
 name: test et build
 
-on: [push, pull_request]
+on:
+  # Trigger the workflow on push or pull request,
+  # but only for the master branch
+  push:
+    branches:
+      - master
+      - dev
+  pull_request:
+    branches:
+      - dev
 
 #env:
 #  CODECOV_TOKEN: b12c1d6f-032c-40bf-ab16-3cc301e48115

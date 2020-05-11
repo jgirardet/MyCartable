@@ -15,7 +15,7 @@
     - insérer entre section
     - déplacer section
     - Bug : entrer ajoute une ligne annotation text
-    - scrollbar pour la page
+    - scrollbar pour la page : début
     - tester changment de size font dans section_text
     - déplace zoned de texte avec ctrl + fleche
     - exporter .odt .pdf

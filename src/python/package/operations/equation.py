@@ -118,6 +118,8 @@ class TextEquation:
             return self.dispatch_arrows()
         elif self.key == Qt.Key_Backspace:
             return self.do_backspace()
+        elif self.key == Qt.Key_Space:
+            return self.curseur
         elif self.text:
             return self.fraction_add_char(0)
 
@@ -138,6 +140,8 @@ class TextEquation:
             return self.dispatch_arrows()
         elif self.key == Qt.Key_Backspace:
             return self.do_backspace()
+        elif self.key == Qt.Key_Space:
+            return self.curseur
         elif self.text:
             return self.fraction_add_char(2)
 

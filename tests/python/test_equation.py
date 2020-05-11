@@ -998,6 +998,57 @@ class TestTextEquation:
         assert TextEquation.debug_string_format(res_string) == res
         assert res_cur == res_c
 
+    @pytest.mark.parametrize(
+        "cur, res, res_c",
+        [
+            (
+                1,
+                textwrap.dedent(
+                    """
+                    ||1¤............¤12...1234....||
+                    ||__.+.13.+.3.+.___.+.____.+.1||
+                    ||15............234...789¤....||"""
+                ),
+                1,
+            ),
+            (
+                16,
+                textwrap.dedent(
+                    """
+                        ||1¤............¤12...1234....||
+                        ||__.+.13.+.3.+.___.+.____.+.1||
+                        ||15............234...789¤....||"""
+                ),
+                16,
+            ),
+            (
+                32,
+                textwrap.dedent(
+                    """
+                        ||1¤.............¤12...1234....||
+                        ||__..+.13.+.3.+.___.+.____.+.1||
+                        ||15.............234...789¤....||"""
+                ),
+                34,
+            ),
+            (
+                60,
+                textwrap.dedent(
+                    """
+                        ||1¤............¤12...1234....||
+                        ||__.+.13.+.3.+.___.+.____.+.1||
+                        ||15............234...789¤....||"""
+                ),
+                60,
+            ),
+        ],
+    )
+    def test_call_space(self, eq, cur, res, res_c):
+        a = eq(UN, cur, {"key": Qt.Key_Space, "text": " ", "modifiers": None})
+        res_string, res_cur = a()
+        assert TextEquation.debug_string_format(res_string) == res
+        assert res_cur == res_c
+
     def test_delete_full_fraction(self, eq):
         a = eq(
             f"1\n{TextEquation.BARRE}\n",

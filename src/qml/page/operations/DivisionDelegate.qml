@@ -12,6 +12,9 @@ Rectangle {
   width: grid.cellWidth
   focus: !model.isRetenue(index)
   color: "white"
+
+  signal jumpToQuotient()
+
   TextInputDelegate {
     id: input
 
@@ -46,6 +49,7 @@ Rectangle {
 
     function moreKeys(event) {
       if (event.key == Qt.Key_Return) {
+        //        jumpToQuotient.emit()
         root.quotient.forceActiveFocus()
         event.accepted = true
 

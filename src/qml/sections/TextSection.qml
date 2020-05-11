@@ -7,22 +7,22 @@ import "qrc:/qml/menu"
 
 TextArea {
   id: area
-  property QtObject base
+  /* beautify preserve:start */
   property int sectionId
-  property int position
+  property var sectionItem
+  /* beautify preserve:end */
+  //  property var listview
 
   selectByMouse: true
   wrapMode: TextEdit.Wrap
-  width: base ? base.width : 0
-
-  focus: ListView.isCurrentItem
+  width: sectionId ? sectionItem.width : undefined
+  //  focus: true
+  //  focus: parent.ListView.isCurrentItem
 
   onFocusChanged: {
 
     if (focus) {
-      //      print("jjjjjjjj", ListView.isCurrentItem)
       uiManager.menuTarget = doc
-      //      base.currentIndex = position
     }
   }
 
@@ -31,7 +31,6 @@ TextArea {
     acceptedButtons: Qt.LeftButton | Qt.RightButton
 
     onPressed: {
-      base.currentIndex = position
       if (pressedButtons == Qt.LeftButton) {
         uiManager.menuTarget = doc
         mouse.accepted = false
@@ -45,11 +44,6 @@ TextArea {
     if (event.key == Qt.Key_Return) {
       event.accepted = doc.paragraphAutoFormat()
     }
-  }
-
-  Component.onCompleted: {
-    //    base.currentIndex = position
-    forceActiveFocus()
   }
 
   function menuStylePopup(start, end) {
@@ -80,5 +74,9 @@ TextArea {
     onSelectionCleared: area.deselect()
     //    onDocumentContentChanged: {area.text}
 
+  }
+  background: Rectangle {
+    anchors.fill: parent
+    color: "white"
   }
 }

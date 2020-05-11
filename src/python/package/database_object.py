@@ -1,6 +1,5 @@
 import logging
 from PySide2.QtCore import QObject, Signal
-from PySide2.QtWidgets import QApplication
 from package.database_mixins.dev_mixin import DevMixin
 from package.database_mixins.equation_mixin import EquationMixin
 from package.database_mixins.image_section_mixin import ImageSectionMixin

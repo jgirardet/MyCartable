@@ -151,10 +151,10 @@ def f_imageSection(
         page = page or f_page(td=True)["id"]
 
         path = path or str(
-            Path(__file__).parents[5].absolute()
+            Path(__file__).parents[4].absolute()
             / "tests"
             / "resources"
-            / "tst_AnnotableImage.png"
+            / random.choice(["tst_AnnotableImage.png", "sc1.png"])
         )
 
         item = db.ImageSection(

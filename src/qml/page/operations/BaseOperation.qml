@@ -3,10 +3,15 @@ import QtQuick.Controls 2.14
 
 GridView {
   id: root
-  property int position
+  /* beautify preserve:start */
   property int sectionId
-  width: cellWidth * model.columns
-  height: cellHeight * model.rows
+  property var sectionItem
+  /* beautify preserve:end */
+  contentWidth: cellWidth * model.columns
+  width: contentWidth
+  height: contentHeight
+  contentHeight: cellHeight * model.rows
+  //  height: cellHeight * model.rows
   cellWidth: 50
   cellHeight: 50
   keyNavigationEnabled: false
@@ -15,7 +20,6 @@ GridView {
       currentItem.textinput.forceActiveFocus()
     }
   }
-
   Binding on currentIndex {
     when: model.sectionIdChanged
     value: model.cursor

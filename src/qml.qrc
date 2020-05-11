@@ -10,42 +10,47 @@
 
     </qresource>
 
+
     <qresource prefix="/qml/page">
         <file alias="PageToolBar.qml">qml/page/PageToolBar.qml</file>
         <file alias="PageToolBarToolButton.qml">qml/page/PageToolBarToolButton.qml</file>
         <file alias="DialogOperation.qml">qml/page/DialogOperation.qml</file>
         <file alias="PageListView.qml">qml/page/PageListView.qml</file>
-        <file alias="BasePageListView.qml">qml/page/BasePageListView.qml</file>
+        <file alias="BasePageDelegate.qml">qml/page/BasePageDelegate.qml</file>
         <file alias="PageRectangle.qml">qml/page/PageRectangle.qml</file>
-        <file alias="AnnotableImage.qml">qml/page/AnnotableImage.qml</file>
+        <file alias="PageTitre.qml">qml/page/PageTitre.qml</file>
         <file alias="AnnotationText.qml">qml/page/AnnotationText.qml</file>
         <file alias="StabyloRectangle.qml">qml/page/StabyloRectangle.qml</file>
-        <file alias="TextSection.qml">qml/page/TextSection.qml</file>
-        <file alias="PageTitre.qml">qml/page/PageTitre.qml</file>
-        <file alias="Tableau.qml">qml/page/Tableau.qml</file>
 
     </qresource>
-    <qresource prefix="/qml/menu">
+    <qresource prefix="/qml/sections">
+        <file alias="AdditionSection.qml">qml/sections/AdditionSection.qml</file>
+        <file alias="DivisionSection.qml">qml/sections/DivisionSection.qml</file>
+        <file alias="EquationSection.qml">qml/sections/EquationSection.qml</file>
+        <file alias="ImageSection.qml">qml/sections/ImageSection.qml</file>
+        <file alias="MultiplicationSection.qml">qml/sections/MultiplicationSection.qml</file>
+        <file alias="SoustractionSection.qml">qml/sections/SoustractionSection.qml</file>
+        <file alias="TableauSection.qml">qml/sections/TableauSection.qml</file>
+        <file alias="TextSection.qml">qml/sections/TextSection.qml</file>
+
+    </qresource>
+
+    <qresource prefix="/qml/page/operations">
+        <file alias="BaseOperation.qml">qml/page/operations/BaseOperation.qml</file>
+        <file alias="TextInputDelegate.qml">qml/page/operations/TextInputDelegate.qml</file>
+        <file alias="AdditionDelegate.qml">qml/page/operations/AdditionDelegate.qml</file>
+        <file alias="SoustractionDelegate.qml">qml/page/operations/SoustractionDelegate.qml</file>
+        <file alias="MultiplicationDelegate.qml">qml/page/operations/MultiplicationDelegate.qml</file>
+        <file alias="DivisionDelegate.qml">qml/page/operations/DivisionDelegate.qml</file>
+    </qresource>
+
+      <qresource prefix="/qml/menu">
         <file alias="BaseMenu.qml">qml/menu/BaseMenu.qml</file>
         <file alias="MenuFlottantText.qml">qml/menu/MenuFlottantText.qml</file>
         <file alias="MenuFlottantStabylo.qml">qml/menu/MenuFlottantStabylo.qml</file>
         <file alias="MenuFlottantTableau.qml">qml/menu/MenuFlottantTableau.qml</file>
 <!--        <file alias="MenuFlottantAnnotationText.qml">qml/menu/MenuFlottantAnnotationText.qml</file>-->
         <file alias="ColorButton.qml">qml/menu/ColorButton.qml</file>
-
-    </qresource>
-    <qresource prefix="/qml/page/operations">
-        <file alias="BaseOperation.qml">qml/page/operations/BaseOperation.qml</file>
-        <file alias="TextInputDelegate.qml">qml/page/operations/TextInputDelegate.qml</file>
-        <file alias="AdditionDelegate.qml">qml/page/operations/AdditionDelegate.qml</file>
-        <file alias="Addition.qml">qml/page/operations/Addition.qml</file>
-        <file alias="SoustractionDelegate.qml">qml/page/operations/SoustractionDelegate.qml</file>
-        <file alias="Soustraction.qml">qml/page/operations/Soustraction.qml</file>
-        <file alias="MultiplicationDelegate.qml">qml/page/operations/MultiplicationDelegate.qml</file>
-        <file alias="Multiplication.qml">qml/page/operations/Multiplication.qml</file>
-        <file alias="DivisionDelegate.qml">qml/page/operations/DivisionDelegate.qml</file>
-        <file alias="Division.qml">qml/page/operations/Division.qml</file>
-        <file alias="Equation.qml">qml/page/operations/Equation.qml</file>
 
     </qresource>
 

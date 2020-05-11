@@ -25,7 +25,7 @@ ListView {
     model.rowsInserted.connect(onItemAdded)
   }
   ScrollBar.vertical: ScrollBar {
-    minimumSize: 0.5
+    minimumSize: 0.2
   }
   Connections {
     target: model

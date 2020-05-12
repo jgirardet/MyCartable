@@ -78,7 +78,7 @@ TextField {
   })
 
   Component.onCompleted: {
-    deleteRequested.connect(referent.deleteAnnotation)
+    deleteRequested.connect(referent.parent.deleteAnnotation)
   }
 
   function setStyleFromMenu(data) {

@@ -59,8 +59,8 @@ Item {
   }
 
   CasTest {
-    name: "Addition"
-    testedNom: "qrc:/qml/sections/AdditionSection.qml"
+    name: "AdditionSection"
+    testedNom: "qrc:/qml/sections/AdditionSectionBase.qml"
     /* beautify preserve:start */
     property var model
     /* beautify preserve:end */

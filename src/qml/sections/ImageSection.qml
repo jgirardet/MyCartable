@@ -7,6 +7,7 @@ FocusScope {
   /* beautify preserve:start */
     property int sectionId
     property var sectionItem
+    property alias image: img
     property var annotations: []
     readonly property var annotationText: Qt.createComponent("qrc:/qml/page/AnnotationText.qml")
     readonly property var stabyloRectangle: Qt.createComponent("qrc:/qml/page/StabyloRectangle.qml")
@@ -68,7 +69,6 @@ FocusScope {
   }
 
   function deleteAnnotation(anotObj) {
-    print("destroy")
     ddb.deleteAnnotation(anotObj.ddbId)
     let objIndex = annotations.indexOf(anotObj)
     annotations.splice(objIndex, 1)
@@ -145,8 +145,6 @@ FocusScope {
     acceptedButtons: Qt.LeftButton | Qt.RightButton
 
     onPressed: {
-      print("pressed MMMMMMMMMM")
-      //      print(mouseArea.x, mouseArea.y, )
       if (pressedButtons === Qt.RightButton) {
         temp_rec = root.createZone(mouse)
       } else if (pressedButtons === Qt.LeftButton) {

@@ -7,10 +7,10 @@ Item {
   id: item
 
   CasTest {
-    name: "Equation"
-    testedNom: "qrc:/qml/page/operations/Equation.qml"
+    name: "EquationSection"
+    testedNom: "qrc:/qml/sections/EquationSection.qml"
     params: {
-      "base": item
+      "sectionItem": item
     }
 
     function initPre() {}

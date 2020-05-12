@@ -2,16 +2,22 @@ import QtQuick 2.14
 
 import ".."
 Item {
+  id: itemparent
   width: 200
   height: 200
-  id: item
+  Item {
+    anchors.fill: parent
+    implicitWidth: parent.width //important pour les tests
+    id: item
+
+  }
+
   function deleteAnnotation(obj) {
     _deleteAnnotation = obj
   }
   /* beautify preserve:start */
   property var _deleteAnnotation
   /* beautify preserve:end */
-
   CasTest {
     name: "StabyloRectangle"
     testedNom: "qrc:/qml/page/StabyloRectangle.qml"
@@ -72,7 +78,7 @@ Item {
       var spy = getSpy(tested, "deleteRequested")
       mouseClick(tested, 0, 0, Qt.MiddleButton)
       spy.wait()
-      compare(item._deleteAnnotation, tested)
+      compare(itemparent._deleteAnnotation, tested)
     }
 
   }

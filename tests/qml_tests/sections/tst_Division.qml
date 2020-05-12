@@ -109,8 +109,8 @@ Item {
   }
 
   CasTest {
-    name: "Division"
-    testedNom: "qrc:/qml/page/operations/Division.qml"
+    name: "DivisionSection"
+    testedNom: "qrc:/qml/sections/DivisionSectionBase.qml"
     /* beautify preserve:start */
     property var model
     property var quotient

@@ -25,12 +25,17 @@
     </qresource>
     <qresource prefix="/qml/sections">
         <file alias="AdditionSection.qml">qml/sections/AdditionSection.qml</file>
+        <file alias="AdditionSectionBase.qml">qml/sections/AdditionSectionBase.qml</file>
         <file alias="DivisionSection.qml">qml/sections/DivisionSection.qml</file>
+        <file alias="DivisionSectionBase.qml">qml/sections/DivisionSectionBase.qml</file>
         <file alias="EquationSection.qml">qml/sections/EquationSection.qml</file>
         <file alias="ImageSection.qml">qml/sections/ImageSection.qml</file>
         <file alias="MultiplicationSection.qml">qml/sections/MultiplicationSection.qml</file>
+        <file alias="MultiplicationSectionBase.qml">qml/sections/MultiplicationSectionBase.qml</file>
         <file alias="SoustractionSection.qml">qml/sections/SoustractionSection.qml</file>
+        <file alias="SoustractionSectionBase.qml">qml/sections/SoustractionSectionBase.qml</file>
         <file alias="TableauSection.qml">qml/sections/TableauSection.qml</file>
+        <file alias="TableauSectionBase.qml">qml/sections/TableauSectionBase.qml</file>
         <file alias="TextSection.qml">qml/sections/TextSection.qml</file>
 
     </qresource>

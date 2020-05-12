@@ -4,10 +4,12 @@ import "../../divers"
 
 Rectangle {
   id: root
-  property alias model: input.model
+  /* beautify preserve:start */
   property alias textinput: input
   property TextInput quotient
   property GridView grid: GridView.view
+  property var model: grid.model
+  /* beautify preserve:end */
   height: grid.cellHeight
   width: grid.cellWidth
   focus: !model.isRetenue(index)

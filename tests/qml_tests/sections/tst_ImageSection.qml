@@ -7,14 +7,14 @@ Item {
   id: item
 
   CasTest {
-    name: "AnnotableImage"
-    testedNom: "qrc:/qml/page/AnnotableImage.qml"
+    name: "ImageSection"
+    testedNom: "qrc:/qml/sections/ImageSection.qml"
     params: {}
 
     function initPre() {
       params = {
         "sectionId": 3796,
-        "base": item
+        "sectionItem": item
       } // 767 x 669}
     }
 
@@ -27,7 +27,9 @@ Item {
     }
 
     function test_init() {
-      compare(tested.image.sourceSize.width, item.width)
+
+      tryCompare(tested.image, "implicitWidth", item.width)
+      //      tryCompare(tested.image.sourceSize, "width", item.width)
     }
 
     function test_img_load_init() {

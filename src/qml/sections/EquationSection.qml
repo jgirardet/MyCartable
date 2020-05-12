@@ -16,7 +16,6 @@ TextArea {
     var data = ddb.loadSection(sectionId)
     text = data.content
     cursorPosition = data.curseur
-    print("cursopr pose", data.curseur, cursorPosition)
   }
 
   background: Rectangle {
@@ -33,9 +32,6 @@ TextArea {
     root.cursorPosition = new_data.curseur
     event.accepted = true
 
-  }
-  onPressed: {
-    print(event.x, event.y)
   }
   onSelectionStartChanged: {
     if (!ddb.isEquationFocusable(text, selectionStart)) {

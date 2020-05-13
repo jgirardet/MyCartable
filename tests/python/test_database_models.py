@@ -5,7 +5,7 @@ from fixtures import compare, compare_items, check_is_range, wait
 from package.database.factory import *
 import pytest
 from package.exceptions import MyCartableOperationError, MyCartableTableauError
-from pony.orm import flush, Database
+from pony.orm import flush, Database, make_proxy
 
 
 def test_creation_all(ddb):
@@ -375,13 +375,19 @@ class TestSection:
         f_section(page=a.id, created=datetime.utcnow())
         assert page_modified < a.modified
 
-    def test_before_update(self, ddb):
-        a = f_section()
-        b = a.modified
-        a.created = datetime.utcnow()
-        flush()
-        assert a.modified > b
-        assert a.page.modified == a.modified
+    def test_before_update(self, reset_db):
+        with db_session:
+            a = make_proxy(f_section())
+            b = a.modified
+        print(b)
+        with db_session:
+            print(a.modified)
+            a.created = datetime.utcnow()
+            print(a.modified)
+        with db_session:
+            print(a.modified)
+            assert a.modified > b
+            assert a.page.modified == a.modified
 
     def test_before_insert(self, ddbr):
         avant = datetime.utcnow()

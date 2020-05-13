@@ -74,29 +74,10 @@ class PageModel(QAbstractListModel):
     #     self.lastPosition == row
     #     return True
 
-    # @Slot(int, int, int, result=bool)
-    # def moveRows(
-    #     self,
-    #     # sourceParent,
-    #     sourceRow: int,
-    #     count: int,
-    #     # destinationParent,
-    #     destinationChild: int,
-    # ) -> bool:
-    #     self.beginMoveRows(
-    #         QModelIndex(),
-    #         sourceRow,
-    #         sourceRow + count,
-    #         QModelIndex(),
-    #         destinationChild,
-    #     )
-    #     self.endMoveRows()
-    #     return True
-
     @Slot(int, int, result=bool)
     def move(self, source: int, target: int):
         if source == target:
-            return
+            return False
 
         elif source > target:
             end = target
@@ -111,17 +92,20 @@ class PageModel(QAbstractListModel):
             source_obj = self.page.sections.select(
                 lambda o: o.position == source
             ).first()
+            if not source_obj:
+                return False
             source_obj.position = target
 
         self.endMoveRows()
+        self.lastPosition = target
         return True
 
     def rowCount(self, parent=QModelIndex()) -> int:
         return self.row_count
 
-    @db_session
     def slotReset(self, value):
         self.beginResetModel()
+        # breakpoint()
         if not value:
             self.page = None
         with db_session:
@@ -143,7 +127,6 @@ class PageModel(QAbstractListModel):
     def lastPosition(self):
         with db_session:
             return self.page.lastPosition
-        return self.lastPosition
 
     @lastPosition.setter
     def lastPosition_set(self, value: int):

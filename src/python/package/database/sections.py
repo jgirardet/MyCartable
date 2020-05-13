@@ -29,7 +29,7 @@ class Section(db.Entity):
 
             if position is not None:
                 _position = self.recalcule_position(_position, position, query=query)
-        self.updating_position = False
+        # self.updating_position = False
         super().__init__(*args, _position=_position, page=page, **kwargs)
 
     @property
@@ -68,11 +68,12 @@ class Section(db.Entity):
         self.page.modified = self.modified
 
     def before_update(self):
-        if getattr(self, "updating_position", None):
-            self.updating_position = False
-        else:
-            self.modified = datetime.utcnow()
-            self.page.modified = self.modified
+        # if getattr(self, "updating_position", None):
+        #     self.updating_position = False
+        # else:
+        self.modified = datetime.utcnow()
+        self.page.reasonUpdate = True  # block page autoupdate
+        self.page.modified = self.modified
 
     def before_delete(self):
         # backup la page pour after delete

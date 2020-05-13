@@ -1,6 +1,6 @@
 from functools import partial
 
-from PySide2.QtCore import Slot, Signal, Property, QObject, QTimer, QSettings
+from PySide2.QtCore import Slot, Signal, Property, QObject
 from package.constantes import TITRE_TIMER_DELAY
 from package.utils import create_singleshot
 from pony.orm import db_session, make_proxy
@@ -27,13 +27,13 @@ class PageMixin:
             partial(self._currentTitreSet, setted=True)
         )
 
-        from package.list_models import PageModel
+        from package.page.page_model import PageModel
 
-        self.models.update({"pageModel": PageModel()})
+        self._pageModel = PageModel()
 
     @Property(QObject, notify=currentPageChanged)
     def pageModel(self):
-        return self.models["pageModel"]
+        return self._pageModel
 
     # newPage
     @Slot(int, result="QVariantMap")

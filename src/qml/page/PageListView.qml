@@ -6,7 +6,6 @@ ListView {
   id: lv
   spacing: 10
   clip: true
-  //  currentIndex: model.lastPosition
   focus: true
 
   boundsBehavior: Flickable.DragOverBounds

@@ -33,7 +33,6 @@ class DatabaseObject(QObject, *MIXINS):
     def __init__(self, db, debug=True):
         super().__init__()
         self.db = db
-        self.models = {}
 
         for mixin in MIXINS:
             mixin.__init__(self)

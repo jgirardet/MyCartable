@@ -3,7 +3,7 @@ import sys
 import uuid
 
 import pytest
-from PySide2.QtCore import QUrl, Qt
+from PySide2.QtCore import QUrl, Qt, QModelIndex
 from fixtures import compare, ss, check_args, wait
 from package import constantes
 from package.database_mixins.matiere_mixin import MatieresDispatcher
@@ -104,7 +104,8 @@ class TestPageMixin:
         p1 = f_page()
         f_section(page=p1.id)
         dao.currentPage = p1.id
-        assert len(dao.pageModel._datas) == 1
+        with db_session:
+            assert dao.pageModel.page.id == p1.id
 
     def test_removePAge(self, dao, qtbot):
         f_page()
@@ -393,7 +394,8 @@ class TestSectionMixin:
         ],
     )
     def test_addSection(self, dao, ddbn, qtbot, page, content, res, signal_emitted):
-        f_page()
+        x = f_page()
+        dao.pageModel.slotReset(x.id)
         if signal_emitted:
             with qtbot.waitSignal(dao.sectionAdded):
                 a = dao.addSection(page, content)
@@ -425,7 +427,8 @@ class TestSectionMixin:
     def test_addSectionFile(
         self, png_annot, dao, ddbn, qtbot, page, content, res, signal_emitted, tmpfile
     ):
-        f_page()
+        x = f_page()
+        dao.pageModel.slotReset(x.id)
         if "path" not in content:
             pass
         if content["path"] == "png_annot":
@@ -685,14 +688,15 @@ class TestDatabaseObject:
         p = f_page()
         s1 = f_section(page=p.id)
         s2 = f_section(page=p.id)
-        assert s1.position == 1
+        dao.pageModel.slotReset(p.id)
+        assert s1.position == 0
         newid = dao.addSection(p.id, {"classtype": "TextSection"})
         with db_session:
             item = ddbn.Section[newid]
-            assert item.position == 3
-        dao.pageModel.slotReset(p.id)
-        assert len(dao.pageModel._datas) == 3
-        assert dao.pageModel._datas[item.position - 1]["id"] == item.id
+            assert item.position == 2
+        p = dao.pageModel
+        assert p.rowCount() == 3
+        assert p.data(p.index(2, 0), p.PageRole)["id"] == item.id
 
     def test_currentPageChanged(self, dao, ddbr, qtbot):
         a = f_page(td=True)
@@ -714,7 +718,7 @@ class TestDatabaseObject:
         with qtbot.waitSignal(dao.updateRecentsAndActivites):
             dao.currentPage = 0
 
-        assert dao.pageModel._page == None
+        assert dao.pageModel.page == None
         assert dao.currentMatiere == a["matiere"]
 
     def test_updateRecentsAndActivites(self, dao, qtbot):

@@ -330,7 +330,7 @@ class TestSectionMixin:
             "id": 1,
             "modified": a.modified.isoformat(),
             "page": 1,
-            "position": 1,
+            "position": 0,
             "size": 8,
             "virgule": 0,
         }
@@ -356,7 +356,7 @@ class TestSectionMixin:
             "lignes": 3,
             "modified": a.modified.isoformat(),
             "page": 1,
-            "position": 1,
+            "position": 0,
         }
 
     def test_loadsection_equation(self, dao):
@@ -369,7 +369,7 @@ class TestSectionMixin:
             "id": 1,
             "modified": eq["modified"],  # a.modified.isoformat(),
             "page": 1,
-            "position": 1,
+            "position": 0,
             "curseur": 0,
         }
 

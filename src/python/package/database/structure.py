@@ -125,7 +125,7 @@ class Page(db.Entity):
 
     @property
     def content(self):
-        return [p for p in self.sections.order_by(db.Section.position)]
+        return [p for p in self.sections.order_by(db.Section._position)]
 
     @property
     def content_dict(self):

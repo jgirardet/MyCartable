@@ -1,8 +1,5 @@
 # TODO
 
-## Critical
-    - 1368,75/65 : que sur ordi d'axel
-    - 376,5 / 6
 
 ## Beta
     - changer taille de police
@@ -11,11 +8,8 @@
     - reverifier tous les update recents
     - traits sur image
     - rotation image  
-    - supprimer section
     - insérer entre section
-    - déplacer section
     - Bug : entrer ajoute une ligne annotation text
-    - scrollbar pour la page : début
     - tester changment de size font dans section_text
     - déplace zoned de texte avec ctrl + fleche
     - exporter .odt .pdf

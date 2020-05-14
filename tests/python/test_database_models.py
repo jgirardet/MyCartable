@@ -400,40 +400,23 @@ class TestSection:
         with db_session:
             assert ddbr.Page[s.page.id].modified >= s.modified
 
-    def test_update_position_on_delete(self, ddbr):
+    def test_update_position__and_time_on_delete(self, ddbr):
         p = f_page()
-        s1 = f_section(page=p.id, position=1)
-        s2 = f_section(page=p.id, position=2)
-        s3 = f_section(page=p.id, position=3)
+        s0 = f_section(page=p.id)
+        s1 = f_section(page=p.id)
+        s2 = f_section(page=p.id)
 
         with db_session:
             now = ddbr.Page[p.id].modified
             wait()
-            ddbr.Section[s2.id].delete()
+            ddbr.Section[s0.id].delete()
 
         with db_session:
             # resultat avec décalage
-            ddbr.Section[s1.id].position == 1
-            ddbr.Section[s3.id].position == 2
+            assert ddbr.Section[s1.id].position == 0
+            assert ddbr.Section[s2.id].position == 1
             # page mis à jour
             assert now < ddbr.Page[p.id].modified
-
-    # def test_update_position_change_position_remonte(self, ddbr):
-    #     a = f_page()
-    #     b_section(5, page=a.id)
-    #     # controle
-    #     with db_session:
-    #         for i in range(1, 6):
-    #             assert ddbr.Section[i].position == i
-    #     with db_session:
-    #         x = ddbr.Section[3]
-    #         x.position = 1
-    #     with db_session:
-    #         assert ddbr.Section[1].position == 2
-    #         assert ddbr.Section[2].position == 3
-    #         assert ddbr.Section[3].position == 1
-    #         assert ddbr.Section[4].position == 4
-    #         assert ddbr.Section[5].position == 5
 
     def test_update_position_change_position_descend(self, ddbr):
         a = f_page()

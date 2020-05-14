@@ -83,11 +83,11 @@ class SectionMixin:
                 LOG.error(f"La section {section_id} n'existe pas")
         return res
 
-    @Slot(int, int)
-    def removeSection(self, sectionId, index):
-        with db_session:
-            item = self.db.Section.get(id=sectionId)
-            if item:
-                item.delete()
-        # on sort de la session avant d'emit pour que toutes modif/hook pris en compte
-        self.sectionRemoved.emit(index)
+    # @Slot(int, int)
+    # def removeSection(self, sectionId, index):
+    #     with db_session:
+    #         item = self.db.Section.get(id=sectionId)
+    #         if item:
+    #             item.delete()
+    #     # on sort de la session avant d'emit pour que toutes modif/hook pris en compte
+    #     self.sectionRemoved.emit(index)

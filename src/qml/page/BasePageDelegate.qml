@@ -17,8 +17,8 @@ Item {
     Loader {
       id: loader
       objectName: "loader"
-
     }
+
     width: loader.width
     height: loader.height
     color: "transparent"
@@ -58,11 +58,17 @@ Item {
 
     drag.target: held ? dragitem : undefined
     drag.axis: Drag.YAxis
+    acceptedButtons: Qt.LeftButton | Qt.MiddleButton
 
     onPressed: {
       if ((mouse.button == Qt.LeftButton) && (mouse.modifiers & Qt.ShiftModifier)) {
         held = true
         mouse.accepted = true
+
+      } else if ((mouse.button == Qt.MiddleButton) && (mouse.modifiers & Qt.ShiftModifier)) {
+        var coord = mapToItem(listview, mouse.x, mouse.y)
+        listview.removeDialog.ouvre(index, coord)
+
       } else {
         mouse.accepted = false
       }
@@ -88,4 +94,5 @@ Item {
       "sectionItem": root,
     })
   }
+
 }

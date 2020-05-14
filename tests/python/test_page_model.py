@@ -64,7 +64,7 @@ class TestPAgeModel:
 
         with db_session:
             d = f_section(page=x.page.id)
-        assert x.insertRow()
+        assert x.insertRow(1)
         assert x.row_count == 2
         assert x.lastPosition == 1
 
@@ -158,22 +158,35 @@ class TestPAgeModel:
 
         with db_session:
             assert a.page.lastPosition == 2
-            # assert ddbr.Section[.position == res_source
 
-    #
-    # def test_RemoveRow_begin_end(self, pm):
-    #     with check_begin_end(pm, "RemoveRows"):
-    #         pm.removeRows(0, 1, QModelIndex())
-    #
-    # def test_remove_row(self, pm, ddbr, qtbot):
-    #     p = f_page()
-    #     b_section(3, page=p.id)
-    #     pm.slotReset(p.id)
-    #     with db_session:
-    #         ddbr.Section[2].delete()
-    #
-    #     assert pm.removeRows(1, 1, QModelIndex())
-    #
-    #     assert pm.rowCount() == 2
-    #     assert pm.data(pm.index(0, 0), pm.PageRole)["id"] == 1
-    #     assert pm.data(pm.index(1, 0), pm.PageRole)["id"] == 3
+    def test_removeRows_at_0(self, pm, ddbr, qtbot):
+        a = pm(3)
+
+        assert a.removeRows(0, 0, QModelIndex())
+        assert a.rowCount() == 2
+        assert a.data(a.index(0, 0), a.PageRole)["id"] == 2
+        assert a.data(a.index(1, 0), a.PageRole)["id"] == 3
+
+    def test_removeRows_at_1(self, pm, ddbr, qtbot):
+        a = pm(3)
+
+        assert a.removeRows(1, 0, QModelIndex())
+        assert a.rowCount() == 2
+        assert a.data(a.index(0, 0), a.PageRole)["id"] == 1
+        assert a.data(a.index(1, 0), a.PageRole)["id"] == 3
+
+    def test_removeRows_at_end(self, pm, ddbr, qtbot):
+        a = pm(3)
+
+        assert a.removeRows(2, 0, QModelIndex())
+        assert a.rowCount() == 2
+        assert a.data(a.index(0, 0), a.PageRole)["id"] == 1
+        assert a.data(a.index(1, 0), a.PageRole)["id"] == 2
+
+    def test_removeSection(self, pm, ddbr, qtbot):
+        a = pm(3)
+
+        assert a.removeSection(0)
+        assert a.rowCount() == 2
+        assert a.data(a.index(0, 0), a.PageRole)["id"] == 2
+        assert a.data(a.index(1, 0), a.PageRole)["id"] == 3

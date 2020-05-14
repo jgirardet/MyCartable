@@ -459,25 +459,26 @@ class TestSectionMixin:
                 else:
                     assert content[i] == getattr(item, i)
 
-    def test_removeSection(self, dao, qtbot):
-        r = [f_imageSection(), f_textSection()]
-        for x in r:
-            dao.removeSection(x.id, 99)
-        with db_session:
-            assert len(dao.db.Section.select()) == 0
-
-        # not item
-        with qtbot.waitSignal(dao.sectionRemoved, check_params_cb=lambda x: x == 99):
-            dao.removeSection(9999, 99)
-
-    def test_removeSection_signal(self, dao, qtbot):
-        r = f_imageSection()
-        with db_session:
-            item = dao.db.Section[1]
-            item.position = 8
-
-        with qtbot.waitSignal(dao.sectionRemoved, check_params_cb=lambda x: (8, 99)):
-            dao.removeSection(r.id, 99)
+    #
+    # def test_removeSection(self, dao, qtbot):
+    #     r = [f_imageSection(), f_textSection()]
+    #     for x in r:
+    #         dao.removeSection(x.id, 99)
+    #     with db_session:
+    #         assert len(dao.db.Section.select()) == 0
+    #
+    #     # not item
+    #     with qtbot.waitSignal(dao.sectionRemoved, check_params_cb=lambda x: x == 99):
+    #         dao.removeSection(9999, 99)
+    #
+    # def test_removeSection_signal(self, dao, qtbot):
+    #     r = f_imageSection()
+    #     with db_session:
+    #         item = dao.db.Section[1]
+    #         item.position = 8
+    #
+    #     with qtbot.waitSignal(dao.sectionRemoved, check_params_cb=lambda x: (8, 99)):
+    #         dao.removeSection(r.id, 99)
 
 
 class TestEquationMixin:

@@ -53,8 +53,15 @@ Item {
       /* beautify preserve:start */
        property var _move
        /* beautify preserve:end */
-    }
 
+      function removeSection(source) {
+        _removeSection = source
+        remove(index)
+      }
+      /* beautify preserve:start */
+       property var _removeSection
+       /* beautify preserve:end */
+    }
   }
 
   CasTest {
@@ -73,7 +80,8 @@ Item {
       params = {
         'model': listmodel,
         'width': item.width,
-        "height": item.height
+        "height": item.height,
+        "populate": null
       }
     }
 
@@ -172,6 +180,14 @@ Item {
       mousePress(un, 1, 1, Qt.LeftButton, Qt.ShiftModifier)
       compare(dragged.opacity, 0.6) // move appelé
       verify(Qt.colorEqual(dragged.color, "steelblue"), dragged.color)
+    }
+
+    function test__remove_a_row() {
+      mouseClick(un, 1, 1, Qt.MiddleButton, Qt.ShiftModifier)
+      verify(tested.removeDialog.visible)
+      tested.removeDialog.accept()
+      compare(listmodel._removeSection, 1) // move appelé
+      compare(tested.count, 4)
     }
 
   }

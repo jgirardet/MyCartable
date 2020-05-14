@@ -82,24 +82,12 @@ class Section(db.Entity):
     def after_delete(self):
         page = db.Page.get(id=self._page)
         if page:
-            n = 1
+            n = 0
             for s in page.content:
                 s.updating_position = True  # do not update modified on position
-                s.position = n
+                s._position = n
                 n += 1
             page.modified = datetime.utcnow()
-
-    #
-    # def _update_position(self):
-    #     n = 1
-    #     for x in self.page.content:
-    #         if n == self._position:
-    #             n += 1
-    #         x.updating_position = True  # do not update modified on position
-    #         x.position = n
-    #         n += 1
-
-    # def_update_position_new_remonte(self)
 
 
 class ImageSection(Section):

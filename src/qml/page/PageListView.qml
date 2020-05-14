@@ -11,7 +11,6 @@ ListView {
   boundsBehavior: Flickable.DragOverBounds
   delegate: BasePageDelegate {}
   onCurrentIndexChanged: {
-    print("currentindex dans pagelistview changed :", currentIndex)
     if (model.lastPosition !== currentIndex) {
       model.lastPosition = currentIndex
     }

@@ -10,12 +10,18 @@ Item {
   /* beautify preserve:end */
   width: listview.width
   height: loader.height
+
   Rectangle {
     id: dragitem
-    //    anchors.fill: parent
-    width: listview.width
+    objectName: "dragitem"
+    Loader {
+      id: loader
+      objectName: "loader"
+
+    }
+    width: loader.width
     height: loader.height
-    color: dragArea.held ? "lightsteelblue" : "transparent"
+    color: "transparent"
     anchors {
       verticalCenter: parent.verticalCenter
     }
@@ -25,6 +31,12 @@ Item {
     Drag.hotSpot.y: height / 2
     states: State {
       when: dragArea.held
+      PropertyChanges {
+        target: dragitem
+        color: "steelblue"
+        opacity: 0.6
+
+      }
 
       ParentChange {
         target: dragitem;parent: listview.contentItem
@@ -35,11 +47,6 @@ Item {
           horizontalCenter: undefined;verticalCenter: undefined
         }
       }
-    }
-
-    Loader {
-      id: loader
-
     }
   }
 
@@ -53,7 +60,7 @@ Item {
     drag.axis: Drag.YAxis
 
     onPressed: {
-      if ((mouse.button == Qt.LeftButton) && (mouse.modifiers & Qt.ControlModifier)) {
+      if ((mouse.button == Qt.LeftButton) && (mouse.modifiers & Qt.ShiftModifier)) {
         held = true
         mouse.accepted = true
       } else {
@@ -67,9 +74,9 @@ Item {
   DropArea {
     id: droparea
     anchors {
-      fill: root;
+      fill: root
+      margins: 10
     }
-
     onEntered: {
       listview.model.move(drag.source.parent.modelIndex, index)
     }

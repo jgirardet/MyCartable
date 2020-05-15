@@ -13,8 +13,6 @@
 
     <qresource prefix="/qml/page">
         <file alias="PageToolBar.qml">qml/page/PageToolBar.qml</file>
-        <file alias="PageToolBarToolButton.qml">qml/page/PageToolBarToolButton.qml</file>
-        <file alias="DialogOperation.qml">qml/page/DialogOperation.qml</file>
         <file alias="PageListView.qml">qml/page/PageListView.qml</file>
         <file alias="BasePageDelegate.qml">qml/page/BasePageDelegate.qml</file>
         <file alias="PageRectangle.qml">qml/page/PageRectangle.qml</file>
@@ -59,6 +57,18 @@
 
     </qresource>
 
+      <qresource prefix="/qml/toolbuttons">
+        <file alias="NewSectionButton.qml">qml/toolbuttons/NewSectionButton.qml</file>
+        <file alias="NewTextSectionButton.qml">qml/toolbuttons/NewTextSectionButton.qml</file>
+        <file alias="NewImageSectionButton.qml">qml/toolbuttons/NewImageSectionButton.qml</file>
+        <file alias="NewEquationSectionButton.qml">qml/toolbuttons/NewEquationSectionButton.qml</file>
+        <file alias="NewOperationSectionButton.qml">qml/toolbuttons/NewOperationSectionButton.qml</file>
+        <file alias="NewTableauSectionButton.qml">qml/toolbuttons/NewTableauSectionButton.qml</file>
+        <file alias="NewSectionImageButton.qml">qml/toolbuttons/NewSectionButton.qml</file>
+        <file alias="PageToolBarToolButton.qml">qml/toolbuttons/PageToolBarToolButton.qml</file>
+
+    </qresource>
+
     <qresource prefix="/qml/divers">
         <file alias="BorderRectangle.qml">qml/divers/BorderRectangle.qml</file>
         <file alias="MainMenuBar.qml">qml/divers/MainMenuBar.qml</file>
@@ -68,15 +78,15 @@
         <file alias="PageButton.qml">qml/divers/PageButton.qml</file>
     </qresource>
     <qresource prefix="/icons">
-        <file alias="newImageSection">data/icons/base/divers/png/002-photo-1.png</file>
         <file alias="newTextSection">data/icons/base/divers/png/003-edit.png</file>
+        <file alias="newImageSection">data/icons/base/divers/png/002-photo-1.png</file>
+        <file alias="newEquationSection">data/icons/base/pack/png/equation.png</file>
         <file alias="removePage">data/icons/base/divers/png/006-trash-bin.png</file>
         <file alias="newTableauSection">data/icons/base/divers/png/013-spreadsheet.png</file>
-        <file alias="addAddition">data/icons/base/pack/png/plus.png</file>
-        <file alias="addSoustraction">data/icons/base/pack/png/minus.png</file>
-        <file alias="addMultiplication">data/icons/base/pack/png/multiply.png</file>
-        <file alias="addDivision">data/icons/base/pack/png/division.png</file>
-        <file alias="addEquation">data/icons/base/pack/png/equation.png</file>
+        <file alias="newOperationSection">data/icons/base/pack/png/plus.png</file>
+<!--        <file alias="addSoustraction">data/icons/base/pack/png/minus.png</file>-->
+<!--        <file alias="addMultiplication">data/icons/base/pack/png/multiply.png</file>-->
+<!--        <file alias="addDivision">data/icons/base/pack/png/division.png</file>-->
     </qresource>
     <qresource prefix="/fonts">
         <file alias="Verdana.ttf">data/fonts/Verdana.ttf</file>

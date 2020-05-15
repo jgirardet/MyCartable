@@ -40,6 +40,19 @@ class SectionMixin:
             else:
                 return 0
 
+        elif classtype == "OperationSection":
+            string = content["string"]
+            if "+" in string:
+                classtype = "AdditionSection"
+            elif "-" in string:
+                classtype = "SoustractionSection"
+            elif "*" in string:
+                classtype = "MultiplicationSection"
+            elif "/" in string:
+                classtype = "DivisionSection"
+            else:
+                return 0
+
         with db_session:
             try:
                 item = getattr(self.db, classtype)(page=page_id, **content)

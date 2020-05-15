@@ -1,5 +1,6 @@
 import QtQuick 2.14
 import QtQuick.Controls 2.14
+import "../toolbuttons"
 
 ListView {
 
@@ -9,6 +10,7 @@ ListView {
   focus: true
   /* beautify preserve:start */
   property var removeDialog: removeDialog
+  property var addDialog: addDialog
   /* beautify preserve:end */
   boundsBehavior: Flickable.DragOverBounds
   //  displayMarginEnd: 50
@@ -106,6 +108,54 @@ ListView {
     }
     onAccepted: root.model.removeSection(index)
 
+  }
+  Dialog {
+    id: addDialog
+    title: "Ajotuer un élément ?"
+    property int index
+    enter: Transition {
+      NumberAnimation {
+        property: "scale";from: 0.0;to: 1.0
+      }
+    }
+
+    contentItem: Row {
+
+      NewTextSectionButton {
+        id: newtext
+        targetIndex: typeof addDialog.index != "undefined" ? addDialog.index + 1 : 0
+        target: addDialog
+      }
+      NewImageSectionButton {
+        targetIndex: newtext.targetIndex
+        target: newtext.target
+      }
+      NewEquationSectionButton {
+        targetIndex: newtext.targetIndex
+        target: newtext.target
+      }
+      NewOperationSectionButton {
+        targetIndex: newtext.targetIndex
+        target: newtext.target
+      }
+      NewTableauSectionButton {
+        targetIndex: newtext.targetIndex
+        target: newtext.target
+      }
+      //          NewSectionImageButton {
+      //            sectionName: "ImageSection"
+      //            targetIndex: addDialog.index + 1
+      //            afterClick: addDialog.close
+      //
+      //          }
+    }
+    function ouvre(itemIndex, coords) {
+      index = itemIndex
+      open()
+      x = coords.x - width / 2
+      y = coords.y - height / 2
+    }
+    //    onAccepted: root.model.addSection(index, type)
   }
 
 }

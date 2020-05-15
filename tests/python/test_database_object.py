@@ -377,19 +377,20 @@ class TestSectionMixin:
     @pytest.mark.parametrize(
         "page, content, res, signal_emitted",
         [
-            (1, {"classtype": "TextSection"}, 1, False),
-            (1, {"classtype": "ImageSection"}, 0, False),
-            (1, {"classtype": "AdditionSection", "string": "3+4"}, 1, True),
+            (1, {"classtype": "TextSection"}, 1, True),
+            # (1, {"classtype": "ImageSection"}, 0, True),
+            (1, {"classtype": "EquationSection"}, 1, True),
+            (1, {"classtype": "OperationSection", "string": "3+4"}, 1, True),
             (
                 1,
-                {"classtype": "AdditionSection", "string": "3(4"},
+                {"classtype": "OperationSection", "string": "3(4"},
                 0,
                 False,
             ),  # string invalide
             (1, {"string": "3+4"}, 0, False),
-            (1, {"classtype": "MultiplicationSection", "string": "4*3"}, 1, True),
-            (1, {"classtype": "SoustractionSection", "string": "4-3"}, 1, True),
-            (1, {"classtype": "DivisionSection", "string": "4/3"}, 1, True),
+            (1, {"classtype": "OperationSection", "string": "4*3"}, 1, True),
+            (1, {"classtype": "OperationSection", "string": "4-3"}, 1, True),
+            (1, {"classtype": "OperationSection", "string": "4/3"}, 1, True),
             (1, {"classtype": "TableauSection", "lignes": 3, "colonnes": 2}, 1, True),
         ],
     )

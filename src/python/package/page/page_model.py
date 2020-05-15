@@ -53,7 +53,7 @@ class PageModel(QAbstractListModel):
     def insertRows(self, row: int, value, index=QModelIndex()) -> bool:
         self.beginInsertRows(QModelIndex(), row, row)  # + value - 1)
         with db_session:
-            self.row_count = self.page.sections.count()
+            self.count = self.page.sections.count()
         self.lastPosition = row
         self.endInsertRows()
         return True
@@ -103,13 +103,24 @@ class PageModel(QAbstractListModel):
             else:
                 return False
             flush()  # bien garder pour le count d'apres
-            self.row_count = self.page.sections.count()
+            self.count = self.page.sections.count()
             self.lastPosition = row
         self.endRemoveRows()
         return True
 
     def rowCount(self, parent=QModelIndex()) -> int:
         return self.row_count
+
+    countChanged = Signal()
+
+    @Property(int, notify=countChanged)
+    def count(self):
+        return self.row_count
+
+    @count.setter
+    def count_set(self, value: int):
+        self.row_count = value
+        self.countChanged.emit()
 
     def slotReset(self, value):
         self.beginResetModel()
@@ -122,7 +133,7 @@ class PageModel(QAbstractListModel):
                 self.endResetModel()
                 return
             self.page = make_proxy(page)
-            self.row_count = self.page.sections.count()
+            self.count = self.page.sections.count()
         self.lastPositionChanged.emit()
         self.endResetModel()
         return True

@@ -87,7 +87,19 @@ Item {
       listview.model.move(drag.source.parent.modelIndex, index)
     }
   }
-
+  MouseArea {
+    height: listview.spacing
+    width: root.width
+    //    color: "green"
+    anchors.top: root.bottom
+    acceptedButtons: Qt.RightButton
+    onClicked: {
+      if ((mouse.button == Qt.RightButton) && (mouse.modifiers & Qt.ShiftModifier)) {
+        var coord = mapToItem(listview, mouse.x, mouse.y)
+        listview.addDialog.ouvre(index, coord)
+      }
+    }
+  }
   Component.onCompleted: {
     loader.setSource(`qrc:/qml/sections/${page.classtype}.qml`, {
       "sectionId": sectionId,

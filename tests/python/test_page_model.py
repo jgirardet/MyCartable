@@ -190,3 +190,14 @@ class TestPAgeModel:
         assert a.rowCount() == 2
         assert a.data(a.index(0, 0), a.PageRole)["id"] == 2
         assert a.data(a.index(1, 0), a.PageRole)["id"] == 3
+
+    def test_count(self, pm, ddbr, qtbot):
+        a = pm(0)
+        assert a.count == 0
+        b = pm(3)
+        assert b.count == 3
+        x = f_page()
+        b_section(2, page=x.id)
+        with qtbot.waitSignal(b.countChanged):
+            b.slotReset(x.id)
+        assert b.count == 2

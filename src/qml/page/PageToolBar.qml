@@ -36,36 +36,9 @@ ToolBar {
         NewTableauSectionButton {
           targetIndex: ddb.currentPage ? ddb.pageModel.count : 0
         }
-        //        PageToolBarToolButton {
-        //          id: newImageSection
-        //          icon.source: "qrc:///icons/newImageSection"
-        //          onClicked: newImageSectionFileDialog.open()
-        //          ToolTip.text: "Ajouter une image"
-        //        }
-
-        //        PageToolBarToolButton {
-        //          id: newTableauSection
-        //          icon.source: "qrc:///icons/newTableauSection"
-        //          onClicked: dialogNewTableau.open()
-        //          //          onClicked: ddb.addSection(ddb.currentPage, {
-        //          //            "classtype": "TextSection"
-        //          //          })
-        //          ToolTip.text: "Ajouter un tableau"
-        //        }
-
-        //        PageToolBarToolButton {
-        //          id: removePage
-        //          icon.source: "qrc:///icons/removePage"
-        //          onClicked: dialogRemovePage.open()
-        //          ToolTip.text: "Supprimer la page"
-        //        }
-      }
-    }
-
-    ToolBar {
-      RowLayout {
-        spacing: 0
-
+        RemovePageButton {
+          targetIndex: ddb.currentPage ? ddb.pageModel.count : 0
+        }
       }
     }
 
@@ -74,27 +47,6 @@ ToolBar {
       Layout.fillHeight: true
     }
 
-  }
-
-  Dialogs13.FileDialog {
-    id: newImageSectionFileDialog
-    title: "Choisir une image à importer"
-    folder: shortcuts.pictures
-    nameFilters: ["fichiers Images (*.jpg *.png *.bmp *.ppm, *.pdf)"]
-    onAccepted: {
-      ddb.addSection(ddb.currentPage, {
-        'path': fileUrl,
-        "classtype": "ImageSection"
-      })
-
-    }
-  }
-
-  Dialog {
-    id: dialogRemovePage
-    title: "Supprimer la page ?"
-    standardButtons: Dialog.Ok | Dialog.Cancel
-    onAccepted: ddb.removePage(ddb.currentPage)
   }
 
 }

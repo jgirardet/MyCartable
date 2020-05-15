@@ -9,7 +9,6 @@ ToolButton {
   property int targetIndex
   property var target
   property var dialog
-//  property string tooltip: ToolTip.text
   /* beautify preserve:end */
   enabled: ddb.currentPage
   ToolTip.visible: hovered

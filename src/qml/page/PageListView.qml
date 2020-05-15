@@ -142,20 +142,14 @@ ListView {
         targetIndex: newtext.targetIndex
         target: newtext.target
       }
-      //          NewSectionImageButton {
-      //            sectionName: "ImageSection"
-      //            targetIndex: addDialog.index + 1
-      //            afterClick: addDialog.close
-      //
-      //          }
     }
     function ouvre(itemIndex, coords) {
       index = itemIndex
+      print("ouvre")
       open()
       x = coords.x - width / 2
       y = coords.y - height / 2
     }
-    //    onAccepted: root.model.addSection(index, type)
   }
 
 }

@@ -58,14 +58,14 @@
     </qresource>
 
       <qresource prefix="/qml/toolbuttons">
+        <file alias="PageToolBarToolButton.qml">qml/toolbuttons/PageToolBarToolButton.qml</file>
         <file alias="NewSectionButton.qml">qml/toolbuttons/NewSectionButton.qml</file>
         <file alias="NewTextSectionButton.qml">qml/toolbuttons/NewTextSectionButton.qml</file>
-        <file alias="NewImageSectionButton.qml">qml/toolbuttons/NewImageSectionButton.qml</file>
         <file alias="NewEquationSectionButton.qml">qml/toolbuttons/NewEquationSectionButton.qml</file>
         <file alias="NewOperationSectionButton.qml">qml/toolbuttons/NewOperationSectionButton.qml</file>
         <file alias="NewTableauSectionButton.qml">qml/toolbuttons/NewTableauSectionButton.qml</file>
-        <file alias="NewSectionImageButton.qml">qml/toolbuttons/NewSectionButton.qml</file>
-        <file alias="PageToolBarToolButton.qml">qml/toolbuttons/PageToolBarToolButton.qml</file>
+        <file alias="NewImageSectionButton.qml">qml/toolbuttons/NewImageSectionButton.qml</file>
+        <file alias="RemovePageButton.qml">qml/toolbuttons/RemovePageButton.qml</file>
 
     </qresource>
 

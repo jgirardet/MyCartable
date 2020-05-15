@@ -4,8 +4,8 @@ import ".."
 
 Item {
   id: item
-  width: 200
-  height: 300
+  width: 800
+  height: 600
 
   Component {
     id: modelComp
@@ -76,6 +76,8 @@ Item {
     /* beautify preserve:end */
 
     function initPre() {
+      Qt.application.organization = "blablb"
+
       listmodel = createTemporaryObject(modelComp, item)
       params = {
         'model': listmodel,
@@ -188,6 +190,24 @@ Item {
       tested.removeDialog.accept()
       compare(listmodel._removeSection, 1) // move appelé
       compare(tested.count, 4)
+    }
+
+    function test_insert_row_entre() {
+
+      // JE SAIS PAS LE TESTER
+
+      //      ddb.currentPage = 1
+      //      mouseClick(un, 1, height - 5, Qt.RightButton, Qt.ShiftModifier)
+      //      tested.addDialog.width = item.width
+      //      var addText = tested.addDialog.contentItem.children[0]
+      //      wait(2000)
+      //      mouseClick(addText, 1, 1)
+      //      //      addText.toggle()
+      //      compare(ddb._addSection, {
+      //        "classtype": "TextSection",
+      //        "position": 3
+      //      })
+      //          wait(3000)
     }
 
   }

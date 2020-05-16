@@ -423,10 +423,21 @@ class TestSectionMixin:
             (1, {"path": QUrl("createOne"), "classtype": "ImageSection",}, 1, True,),
             (1, {"path": None, "classtype": "ImageSection",}, 0, False,),
             (1, {"path": "my/path", "classtype": "ImageSection"}, 0, False),
+            (1, {"path": "lepdf", "classtype": "ImageSection",}, 1, True,),
         ],
     )
     def test_addSectionFile(
-        self, png_annot, dao, ddbn, qtbot, page, content, res, signal_emitted, tmpfile
+        self,
+        png_annot,
+        resources,
+        dao,
+        ddbr,
+        qtbot,
+        page,
+        content,
+        res,
+        signal_emitted,
+        tmpfile,
     ):
         x = f_page()
         dao.pageModel.slotReset(x.id)
@@ -434,12 +445,14 @@ class TestSectionMixin:
             pass
         if content["path"] == "png_annot":
             content["path"] = str(png_annot)
+            # breakpoint()
+        elif content["path"] == "lepdf":
+            content["path"] = str(resources / "2pages.pdf")
         elif isinstance(content["path"], QUrl):
             if content["path"].toString() == "createOne":
                 content["path"] = QUrl.fromLocalFile(str(tmpfile))
         elif content["path"] == "createOne":
             content["path"] = str(tmpfile)
-
         if signal_emitted:
             with qtbot.waitSignal(dao.sectionAdded):
                 a = dao.addSection(page, content)
@@ -449,7 +462,7 @@ class TestSectionMixin:
         if res == 0:
             return
         with db_session:
-            item = ddbn.Section[1]
+            item = ddbr.Section[1]
             assert item.page.id == 1
             for i in content.keys():
                 if i == "path":

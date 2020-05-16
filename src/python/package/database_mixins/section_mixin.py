@@ -14,7 +14,7 @@ LOG = logging.getLogger(__name__)
 
 class SectionMixin:
 
-    sectionAdded = Signal(int)
+    sectionAdded = Signal(int, int)  # position nombre
     sectionRemoved = Signal(int)
 
     @Slot(int, "QVariantMap", result=int)
@@ -34,8 +34,7 @@ class SectionMixin:
             )
             if path.is_file():
                 if path.suffix == ".pdf":
-                    self.addSectionPDF(page_id, path)
-                    return
+                    return self.addSectionPDF(page_id, path)
                 content["path"] = self.store_new_file(path)
             else:
                 return 0
@@ -60,10 +59,12 @@ class SectionMixin:
                 LOG.error(err)
                 self.ui.sendToast.emit(str(err))
                 return 0
-        self.sectionAdded.emit(item.position)
+        self.sectionAdded.emit(item.position, 1)
         return item.id
 
     def addSectionPDF(self, page_id, path):
+
+        first = None
 
         with tempfile.TemporaryDirectory() as temp_path:
             res = run_convert_pdf(path, temp_path)
@@ -79,8 +80,10 @@ class SectionMixin:
                     self.ui.sendToast.emit(str(err))
                     return 0
                 else:
-                    self.sectionAdded.emit(item.position)
-                    return item.id
+                    if not first:
+                        first = item
+            self.sectionAdded.emit(first.position, len(res))
+            return first.id
 
     @Slot(int, result="QVariantMap")
     def loadSection(self, section_id):

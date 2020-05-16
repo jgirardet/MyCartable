@@ -51,7 +51,7 @@ class PageModel(QAbstractListModel):
         return self.insertRows(value, 0)
 
     def insertRows(self, row: int, value, index=QModelIndex()) -> bool:
-        self.beginInsertRows(QModelIndex(), row, row)  # + value - 1)
+        self.beginInsertRows(QModelIndex(), row, row + value - 1)
         with db_session:
             self.count = self.page.sections.count()
         self.lastPosition = row

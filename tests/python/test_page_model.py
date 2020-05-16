@@ -43,16 +43,25 @@ class TestPAgeModel:
     def test_flags(self):
         """pas compris comment tester"""
 
-    def test_insertRows(self, pm):
-        x = pm(1)
+    def test_insertRows(self, pm, qtbot):
+        x = pm(2)
 
-        assert x.row_count == 1
+        def util(x, y, z):
+            assert x == QModelIndex()
+            assert y == 2
+            assert z == 4
+            return True
+
+        assert x.count == 2
 
         with db_session:
-            d = f_section(page=x.page.id)
-        assert x.insertRows(d.position, 1, QModelIndex())
-        assert x.row_count == 2
-        assert x.lastPosition == 1
+            d = b_section(3, page=x.page.id)
+        with qtbot.waitSignal(
+            x.rowsInserted, check_params_cb=util,
+        ):
+            assert x.insertRows(d[0].position, len(d))
+        assert x.count == 5
+        assert x.lastPosition == 2
 
     def test_insertRow(self, pm):
         """cela test aussi insertion en dernière place

@@ -5,7 +5,7 @@ from fixtures import compare, compare_items, check_is_range, wait
 from package.database.factory import *
 import pytest
 from package.exceptions import MyCartableOperationError, MyCartableTableauError
-from pony.orm import flush, Database
+from pony.orm import flush, Database, make_proxy
 
 
 def test_creation_all(ddb):
@@ -302,6 +302,33 @@ class TestMatiere:
 
 
 class TestSection:
+    def test_init(self, ddbr):
+        p = f_page()
+        f_section(page=p.id)
+        with db_session:
+            s = ddbr.Section(page=p)
+        with db_session:
+            x = ddbr.Section(page=p)
+        assert s._position == 1
+        assert x._position == 2
+        with db_session:
+            z = ddbr.Section(page=p, position=1)
+            assert ddbr.Section[s.id].position == 2
+            assert ddbr.Section[x.id].position == 3
+
+    def test_position_property(self, ddb):
+        p = f_page()
+        with db_session:
+            z = f_section(page=p.id)
+            flush()
+            x = f_section(page=p.id)
+            flush()
+            assert z.position == 0
+            assert x.position == 1
+            x.position = 0
+            assert z.position == 1
+            assert x.position == 0
+
     def test_to_dict(self, ddbr):
         a = datetime.utcnow()
         x = f_section(created=a, td=True)
@@ -312,33 +339,33 @@ class TestSection:
         """"remember factory are flushed"""
         a = f_page()
         b = f_section(page=a.id)
-        assert b.position == 1
+        flush()
+        assert b.position == 0
         c = f_section(page=a.id)
-        assert b.position == 1
-        assert c.position == 2
+        flush()
+        assert b.position == 0
+        assert c.position == 1
 
-    def test_before_insert_position_to_high(self, ddbr):
+    def test_before_insert_position_to_high(self, ddb):
         a = f_page()
         b = f_section(page=a.id)
-        assert b.position == 1
+        flush()
+        assert b.position == 0
         c = f_section(page=a.id, position=3)
-        assert b.position == 1
-        assert c.position == 2
+        flush()
+        assert b.position == 0
+        assert c.position == 1
 
     def test_update_position(self, ddb):
         a = f_page()
         b = b_section(5, page=a.id)
         modified_item = b[0].modified
+        flush()
         c = f_section(page=a.id, position=3)
-
+        flush()
         # test new item
         assert c.position == 3
 
-        # test item existant
-        n = 1
-        for x in a.content:
-            assert x.position == n
-            n += 1
         # position n'influence pas la date de modif de section
         assert a.content[0].modified == modified_item
 
@@ -348,13 +375,19 @@ class TestSection:
         f_section(page=a.id, created=datetime.utcnow())
         assert page_modified < a.modified
 
-    def test_before_update(self, ddb):
-        a = f_section()
-        b = a.modified
-        a.created = datetime.utcnow()
-        flush()
-        assert a.modified > b
-        assert a.page.modified == a.modified
+    def test_before_update(self, reset_db):
+        with db_session:
+            a = make_proxy(f_section())
+            b = a.modified
+        print(b)
+        with db_session:
+            print(a.modified)
+            a.created = datetime.utcnow()
+            print(a.modified)
+        with db_session:
+            print(a.modified)
+            assert a.modified > b
+            assert a.page.modified == a.modified
 
     def test_before_insert(self, ddbr):
         avant = datetime.utcnow()
@@ -367,23 +400,59 @@ class TestSection:
         with db_session:
             assert ddbr.Page[s.page.id].modified >= s.modified
 
-    def test_update_position_on_delete(self, ddbr):
+    def test_update_position__and_time_on_delete(self, ddbr):
         p = f_page()
-        s1 = f_section(page=p.id, position=1)
-        s2 = f_section(page=p.id, position=2)
-        s3 = f_section(page=p.id, position=3)
+        s0 = f_section(page=p.id)
+        s1 = f_section(page=p.id)
+        s2 = f_section(page=p.id)
 
         with db_session:
             now = ddbr.Page[p.id].modified
             wait()
-            ddbr.Section[s2.id].delete()
+            ddbr.Section[s0.id].delete()
 
         with db_session:
             # resultat avec décalage
-            ddbr.Section[s1.id].position == 1
-            ddbr.Section[s3.id].position == 2
+            assert ddbr.Section[s1.id].position == 0
+            assert ddbr.Section[s2.id].position == 1
             # page mis à jour
             assert now < ddbr.Page[p.id].modified
+
+    def test_update_position_change_position_descend(self, ddbr):
+        a = f_page()
+        with db_session:
+            for i in range(5):
+                z = ddbr.Section(page=a.id, _position=i)
+                flush()
+            for i in range(5):
+                assert ddbr.Section[i + 1].position == i
+        with db_session:
+            x = ddbr.Section[2]
+            x.position = 3
+            # with db_session:
+            assert ddbr.Section[1].position == 0  # Section[1]
+            assert ddbr.Section[2].position == 3  # Section[3]
+            assert ddbr.Section[3].position == 1  # Section[4]
+            assert ddbr.Section[4].position == 2  # Section[2]
+            assert ddbr.Section[5].position == 4  # Section[5]
+
+    def test_update_position_change_position_remonte(self, ddbr):
+        a = f_page()
+        with db_session:
+            for i in range(5):
+                z = ddbr.Section(page=a.id, _position=i)
+                flush()
+            for i in range(5):
+                assert ddbr.Section[i + 1].position == i
+        with db_session:
+            x = ddbr.Section[4]
+            x.position = 1
+            # with db_session:
+            assert ddbr.Section[1].position == 0  # Section[1]
+            assert ddbr.Section[2].position == 2  # Section[4]
+            assert ddbr.Section[3].position == 3  # Section[2]
+            assert ddbr.Section[4].position == 1  # Section[3]
+            assert ddbr.Section[5].position == 4  # Section[5]
 
 
 class TestImageSection:
@@ -436,7 +505,7 @@ class TestTableDataSection:
             "id": 1,
             "modified": a.modified.isoformat(),
             "page": 1,
-            "position": 1,
+            "position": 0,
             "rows": 3,
         }
 
@@ -491,7 +560,7 @@ class TestOperationSection:
             "id": 1,
             "modified": item["modified"],
             "page": 1,
-            "position": 1,
+            "position": 0,
             "size": 16,
             "virgule": 0,
         }
@@ -677,7 +746,7 @@ class TestDivisionSection:
             "diviseur": "4",
             "id": 1,
             "page": 1,
-            "position": 1,
+            "position": 0,
             "quotient": "",
             "rows": 7,
             "size": 84,
@@ -873,7 +942,7 @@ class TestTableauSection:
             "id": 1,
             "modified": item["modified"],
             "page": 1,
-            "position": 1,
+            "position": 0,
             "cells": [
                 (1, 0, 0),
                 (1, 0, 1),

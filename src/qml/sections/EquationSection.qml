@@ -3,19 +3,19 @@ import QtQuick.Controls 2.14
 
 TextArea {
   id: root
-  property int sectionId
-  width: base.width - 20
-  height: contentHeight + 30
-  font.pointSize: 12
   /* beautify preserve:start */
-  property var base
+  property int sectionId
+  property var sectionItem
   property int previousCursorPosition
   /* beautify preserve:end */
+
+  width: sectionItem.width - 20
+  height: contentHeight + 30
+  font.pointSize: 12
   onSectionIdChanged: {
     var data = ddb.loadSection(sectionId)
     text = data.content
     cursorPosition = data.curseur
-    print("cursopr pose", data.curseur, cursorPosition)
   }
 
   background: Rectangle {
@@ -32,9 +32,6 @@ TextArea {
     root.cursorPosition = new_data.curseur
     event.accepted = true
 
-  }
-  onPressed: {
-    print(event.x, event.y)
   }
   onSelectionStartChanged: {
     if (!ddb.isEquationFocusable(text, selectionStart)) {

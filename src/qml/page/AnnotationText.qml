@@ -21,7 +21,7 @@ TextField {
   height: contentHeight
   padding: 0
   width: contentWidth + 5
-  x: relativeX * referent.width
+  x: relativeX * referent.implicitWidth
   y: relativeY * referent.height
   color: objStyle ? objStyle.fgColor : "orange"
   font.underline: objStyle.underline
@@ -78,7 +78,7 @@ TextField {
   })
 
   Component.onCompleted: {
-    deleteRequested.connect(referent.deleteAnnotation)
+    deleteRequested.connect(referent.parent.deleteAnnotation)
   }
 
   function setStyleFromMenu(data) {

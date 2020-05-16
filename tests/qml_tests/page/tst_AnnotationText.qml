@@ -2,11 +2,16 @@ import QtQuick 2.14
 
 import ".."
 Item {
+  id: parentitem
   width: 200 // important pout les tests
   height: 200 //important pour les tests
-  id: item
-  function deleteAnnotation(obj) {}
+  Item {
+    anchors.fill: parent
+    implicitWidth: width //important pour les tests
+    id: item
+  }
 
+  function deleteAnnotation(obj) {}
   CasTest {
     name: "AnnotationText Cas"
     testedNom: "qrc:/qml/page/AnnotationText.qml"

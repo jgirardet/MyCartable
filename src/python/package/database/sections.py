@@ -5,7 +5,7 @@ from PySide2.QtGui import QColor
 from descriptors import cachedproperty
 from package.exceptions import MyCartableOperationError
 from package.operations.api import create_operation
-from pony.orm import Required, PrimaryKey, Optional, Set
+from pony.orm import Required, PrimaryKey, Optional, Set, select, count
 from .root_db import db
 from .mixins import ColorMixin
 
@@ -15,35 +15,65 @@ class Section(db.Entity):
     created = Required(datetime, default=datetime.utcnow)
     modified = Optional(datetime)
     page = Required("Page")
-    position = Optional(int, default=0)  # minimum = 1
+    _position = Required(int)
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.updating_position = False
+    def __init__(self, *args, _position=None, page=None, position=None, **kwargs):
+        # breakpoint()
+        if _position is not None:  # doit être juste sinon erreur:
+            pass
+        else:
+            if isinstance(page, db.Page):
+                page = page.id
+            query = select(s for s in db.Section if s.page.id == page)
+            _position = query.count()
+
+            if position is not None:
+                _position = self.recalcule_position(_position, position, query=query)
+        # self.updating_position = False
+        super().__init__(*args, _position=_position, page=page, **kwargs)
+
+    @property
+    def position(self):
+        return self._position
+
+    @position.setter
+    def position(self, new):
+        self._position = self.recalcule_position(self._position, new)
+
+    def recalcule_position(self, old, new, query=None):
+        query = query if query is not None else self.page.sections
+        if new >= query.count():
+            return query.count()
+        if old == new:
+            return
+        elif old < new:
+            for sec in query:
+                if old < sec.position <= new and sec != self:
+                    sec._position -= 1
+        elif old > new:
+            for sec in query:
+                if new <= sec.position < old:
+                    sec._position += 1
+        return new
 
     def to_dict(self, *args, **kwargs):
         dico = super().to_dict(*args, **kwargs)
         dico["created"] = self.created.isoformat()
         dico["modified"] = self.modified.isoformat()
+        dico["position"] = dico.pop("_position")
         return dico
 
     def before_insert(self):
         self.modified = self.created
         self.page.modified = self.modified
 
-        count = self.page.sections.count()
-        if not self.position or count < self.position:
-            # it seems that
-            self.position = self.page.sections.count()
-        else:
-            self._update_position()
-
     def before_update(self):
-        if getattr(self, "updating_position", None):
-            self.updating_position = False
-        else:
-            self.modified = datetime.utcnow()
-            self.page.modified = self.modified
+        # if getattr(self, "updating_position", None):
+        #     self.updating_position = False
+        # else:
+        self.modified = datetime.utcnow()
+        self.page.reasonUpdate = True  # block page autoupdate
+        self.page.modified = self.modified
 
     def before_delete(self):
         # backup la page pour after delete
@@ -52,21 +82,12 @@ class Section(db.Entity):
     def after_delete(self):
         page = db.Page.get(id=self._page)
         if page:
-            n = 1
+            n = 0
             for s in page.content:
                 s.updating_position = True  # do not update modified on position
-                s.position = n
+                s._position = n
                 n += 1
             page.modified = datetime.utcnow()
-
-    def _update_position(self):
-        n = 1
-        for x in self.page.content:
-            if n == self.position:
-                n += 1
-            x.updating_position = True  # do not update modified on position
-            x.position = n
-            n += 1
 
 
 class ImageSection(Section):

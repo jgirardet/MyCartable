@@ -9,7 +9,7 @@ Item {
 
   CasTest {
     name: "PageToolBarToolButton"
-    testedNom: "qrc:/qml/page/PageToolBarToolButton.qml"
+    testedNom: "qrc:/qml/toolbuttons/PageToolBarToolButton.qml"
     params: {
       "icon.source": "qrc:///icons/newImageSection"
     }

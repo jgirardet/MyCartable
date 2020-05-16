@@ -1,122 +1,155 @@
 import QtQuick 2.14
 import QtQuick.Controls 2.14
-import "operations"
-import Operations 1.0
-import Tableau 1.0
+import "../toolbuttons"
 
-BasePageListView {
-  id: lv
-  Component {
-    id: textDelegate
-    TextSection {
-      sectionId: curSectionId
-      base: lv
-      position: curPosition
+ListView {
 
-    }
+  id: root
+  spacing: 10
+  clip: true
+  focus: true
+  /* beautify preserve:start */
+  property var removeDialog: removeDialog
+  property var addDialog: addDialog
+  /* beautify preserve:end */
+  boundsBehavior: Flickable.DragOverBounds
+  //  displayMarginEnd: 50
 
-  }
-
-  Component {
-    id: imageDelegate
-    AnnotableImage {
-      sectionId: curSectionId
-      base: lv
-      position: curPosition
+  delegate: BasePageDelegate {}
+  onCurrentIndexChanged: {
+    if (model.lastPosition !== currentIndex) {
+      model.lastPosition = currentIndex
     }
   }
-  Component {
-    id: additionDelegate
-    Addition {
-      sectionId: curSectionId
-      position: curPosition
-      model: AdditionModel {
-        sectionId: curSectionId // on laisse tout là pour les tests
-      }
+  footer: Rectangle {
+    width: root.width
+    //    height: root.height / 2
+    implicitHeight: root.height / 2
+    color: "transparent"
+  }
+  footerPositioning: ListView.OverlayFooter
 
-    }
+  function onItemAdded(modelIndex, row, col) {
+    positionViewAtIndex(row, ListView.Contain)
+    currentIndex = row
   }
-  Component {
-    id: soustractionDelegate
-    Soustraction {
-      sectionId: curSectionId
-      position: curPosition
-      model: SoustractionModel {
-        sectionId: curSectionId // on laisse tout là pour les tests
-      }
-    }
+  Component.onCompleted: {
+    model.rowsInserted.connect(onItemAdded)
   }
-  Component {
-    id: multiplicationDelegate
-    Multiplication {
-      sectionId: curSectionId
-      position: curPosition
-      model: MultiplicationModel {
-        sectionId: curSectionId // on laisse tout là pour les tests
+  ScrollBar.vertical: ScrollBar {
+    minimumSize: 0.2
+  }
+  Connections {
+    target: model
+    function onModelReset() {
+      if (currentIndex != model.lastPosition) {
+        currentIndex = model.lastPosition
       }
     }
   }
-  Component {
-    id: divisionDelegate
-    Division {
-      sectionId: curSectionId
-      position: curPosition
-      model: DivisionModel {
-        sectionId: curSectionId // on laisse tout là pour les tests
-      }
-    }
-  }
-  Component {
-    id: tableauDelegate
-    Tableau {
-      sectionId: curSectionId
-      position: curPosition
-      base: lv
-      model: TableauModel {
-        sectionId: curSectionId // on laisse tout là pour les tests
-      }
-    }
-  }
-  Component {
-    id: equationDelegate
-    Equation {
-      sectionId: curSectionId
-      base: lv
-    }
-  }
-  delegate: Component {
-    Loader {
-      id: load
-      property int curSectionId: page.id
-      property int curPosition: index
 
-      sourceComponent: switch (page.classtype) {
-        case "ImageSection": {
-          return imageDelegate
-        }
-        case "TextSection": {
-          return textDelegate
-        }
-        case "AdditionSection": {
-          return additionDelegate
-        }
-        case "SoustractionSection": {
-          return soustractionDelegate
-        }
-        case "MultiplicationSection": {
-          return multiplicationDelegate
-        }
-        case "DivisionSection": {
-          return divisionDelegate
-        }
-        case "TableauSection": {
-          return tableauDelegate
-        }
-        case "EquationSection": {
-          return equationDelegate
-        }
+  // TRANSITIONS
+  remove: Transition {
+    ParallelAnimation {
+      NumberAnimation {
+        property: "opacity";to: 0;duration: 1000
       }
-
+      NumberAnimation {
+        property: "scale";to: 0;duration: 500
+      }
     }
   }
+  removeDisplaced: Transition {
+    NumberAnimation {
+      properties: "x,y";duration: 500
+    }
+  }
+
+  populate: Transition {
+    NumberAnimation {
+      property: "scale";from: 0;to: 1.0;duration: 800
+    }
+    NumberAnimation {
+      properties: "x,y";duration: 800;easing.type: Easing.OutBack
+    }
+  }
+
+  add: Transition {
+    NumberAnimation {
+      property: "opacity";from: 0;to: 1.0;duration: 1000
+    }
+    NumberAnimation {
+      property: "scale";from: 0;to: 1.0;duration: 400
+    }
+  }
+
+  displaced: Transition {
+    NumberAnimation {
+      properties: "x,y";duration: 800;easing.type: Easing.OutBounce
+    }
+  }
+
+  Dialog {
+    id: removeDialog
+    objectName: "removeDialog"
+    title: "Supprimer cet élément ?"
+    property int index
+    standardButtons: Dialog.Ok | Dialog.Cancel
+    enter: Transition {
+      NumberAnimation {
+        property: "scale";from: 0.0;to: 1.0
+      }
+    }
+    function ouvre(itemIndex, coords) {
+      index = itemIndex
+      open()
+      x = coords.x - width / 2
+      y = coords.y - height / 2
+    }
+    onAccepted: root.model.removeSection(index)
+
+  }
+  Dialog {
+    id: addDialog
+    title: "Ajotuer un élément ?"
+    property int index
+    enter: Transition {
+      NumberAnimation {
+        property: "scale";from: 0.0;to: 1.0
+      }
+    }
+
+    contentItem: Row {
+
+      NewTextSectionButton {
+        id: newtext
+        targetIndex: typeof addDialog.index != "undefined" ? addDialog.index + 1 : 0
+        target: addDialog
+      }
+      NewImageSectionButton {
+        targetIndex: newtext.targetIndex
+        target: newtext.target
+      }
+      NewEquationSectionButton {
+        targetIndex: newtext.targetIndex
+        target: newtext.target
+      }
+      NewOperationSectionButton {
+        targetIndex: newtext.targetIndex
+        target: newtext.target
+      }
+      NewTableauSectionButton {
+        targetIndex: newtext.targetIndex
+        target: newtext.target
+      }
+    }
+    function ouvre(itemIndex, coords) {
+      index = itemIndex
+      print("ouvre")
+      open()
+      x = coords.x - width / 2
+      y = coords.y - height / 2
+    }
+  }
+
 }

@@ -127,53 +127,56 @@ def b_page(n, *args, **kwargs):
     return res
 
 
-def f_section(
-    created=None, page=None, position=0, td=False,
+def _f_section(
+    model,
+    *args,
+    created=None,
+    page=None,
+    position=None,
+    _position=None,
+    td=False,
+    **kwargs,
 ):
+
     with db_session:
         created = created or f_datetime()
         page = page or f_page(td=True)["id"]
+        item = getattr(db, model)(
+            *args,
+            created=created,
+            page=page,
+            _position=_position,
+            position=position,
+            **kwargs,
+        )
+        dico = item.to_dict()  # valid la création
+        return dico if td else item
 
-        item = db.Section(created=created, page=page, position=position,)
-        item.flush()
-        return item.to_dict() if td else item
+
+def f_section(**kwargs):
+    with db_session:
+        return _f_section("Section", **kwargs)
 
 
 def b_section(n, *args, **kwargs):
     return [f_section(*args, **kwargs) for x in range(n)]
 
 
-def f_imageSection(
-    created=None, page=None, path=None, position=0, td=False,
-):
-    with db_session:
-        created = created or f_datetime()
-        page = page or f_page(td=True)["id"]
+def f_imageSection(path=None, **kwargs):
 
-        path = path or str(
-            Path(__file__).parents[5].absolute()
-            / "tests"
-            / "resources"
-            / "tst_AnnotableImage.png"
-        )
+    path = path or str(
+        Path(__file__).parents[4].absolute()
+        / "tests"
+        / "resources"
+        / random.choice(["tst_AnnotableImage.png", "sc1.png"])
+    )
 
-        item = db.ImageSection(
-            created=created, page=page, path=path, position=position,
-        )
-        item.flush()
-        return item.to_dict() if td else item
+    return _f_section("ImageSection", path=path, **kwargs)
 
 
-def f_textSection(created=None, page=None, position=0, td=False, text=None):
-    with db_session:
-        created = created or f_datetime()
-        page = page or f_page(td=True)["id"]
-
-        text = text or gen.text.text(random.randint(0, 10))
-
-        item = db.TextSection(created=created, page=page, text=text, position=position,)
-        item.flush()
-        return item.to_dict() if td else item
+def f_textSection(text=None, **kwargs):
+    text = text or gen.text.text(random.randint(0, 10))
+    return _f_section("TextSection", text=text, **kwargs)
 
 
 def f_stabylo(
@@ -232,19 +235,7 @@ def b_annotation(n, *args, **kwargs):
     return [f_annotationText(*args, **kwargs) for x in range(n)]
 
 
-def _operation_section(model, string, created=None, page=None, position=0, td=False):
-    with db_session:
-        created = created or f_datetime()
-        page = page or f_page(td=True)["id"]
-
-        item = getattr(db, model)(
-            string, created=created, page=page, position=position,
-        )
-        item.flush()
-        return item.to_dict() if td else item
-
-
-def f_additionSection(string=None, created=None, page=None, position=0, td=False):
+def f_additionSection(string=None, **kwargs):
     string = (
         string
         if string
@@ -253,22 +244,19 @@ def f_additionSection(string=None, created=None, page=None, position=0, td=False
         )
     )
 
-    return _operation_section("AdditionSection", string, created, page, position, td)
+    return _f_section("AdditionSection", string, **kwargs)
 
 
-def f_soustractionSection(string=None, created=None, page=None, position=0, td=False):
+def f_soustractionSection(string=None, **kwargs):
     string = (
         string
         if string
         else random.choice(["3-2", "12-3", "12-8", "87-76", "3458-827", "12-3,345"])
     )
-
-    return _operation_section(
-        "SoustractionSection", string, created, page, position, td
-    )
+    return _f_section("SoustractionSection", string, **kwargs)
 
 
-def f_multiplicationSection(string=None, created=None, page=None, position=0, td=False):
+def f_multiplicationSection(string=None, **kwargs):
     string = (
         string
         if string
@@ -286,44 +274,24 @@ def f_multiplicationSection(string=None, created=None, page=None, position=0, td
         )
     )
 
-    return _operation_section(
-        "MultiplicationSection", string, created, page, position, td
-    )
+    return _f_section("MultiplicationSection", string, **kwargs)
 
 
-def f_divisionSection(string=None, created=None, page=None, position=0, td=False):
+def f_divisionSection(string=None, **kwargs):
     string = (
         string
         if string
         else random.choice(["3/2", "251/14", "251/1,4", "13/6", "3458/82", "345,8/82",])
     )
 
-    return _operation_section("DivisionSection", string, created, page, position, td)
+    return _f_section("DivisionSection", string, **kwargs)
 
 
-def f_tableauSection(
-    lignes=None,
-    colonnes=None,
-    created=None,
-    page=None,
-    position=0,
-    _datas="[]",
-    td=False,
-):
+def f_tableauSection(lignes=None, colonnes=None, **kwargs):
     lignes = lignes if lignes is not None else random.randint(0, 10)
     colonnes = colonnes if colonnes is not None else random.randint(0, 10)
-    created = created or f_datetime()
-    page = page or f_page(td=True)["id"]
-    with db_session:
-        item = getattr(db, "TableauSection")(
-            lignes=lignes,
-            colonnes=colonnes,
-            created=created,
-            page=page,
-            position=position,
-        )
-        item.flush()
-        return item.to_dict() if td else item
+
+    return _f_section("TableauSection", lignes=lignes, colonnes=colonnes, **kwargs)
 
 
 def f_tableauCell(x=0, y=0, style=None, tableau=None, td=False):
@@ -343,20 +311,9 @@ from package.database_mixins.equation_mixin import TextEquation
 
 
 def f_equationSection(
-    content=f"1{TextEquation.FSP}    \n{TextEquation.BARRE*2} + 1\n15    ",
-    created=None,
-    page=None,
-    position=0,
-    td=False,
+    content=f"1{TextEquation.FSP}    \n{TextEquation.BARRE*2} + 1\n15    ", **kwargs
 ):
-    created = created or f_datetime()
-    page = page or f_page(td=True)["id"]
-    with db_session:
-        item = getattr(db, "EquationSection")(
-            content=content, created=created, page=page, position=position,
-        )
-        item.flush()
-        return item.to_dict() if td else item
+    return _f_section("EquationSection", content=content, **kwargs)
 
 
 def f_style(

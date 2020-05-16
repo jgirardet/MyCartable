@@ -7,10 +7,10 @@ Item {
   id: item
 
   CasTest {
-    name: "Equation"
-    testedNom: "qrc:/qml/page/operations/Equation.qml"
+    name: "EquationSection"
+    testedNom: "qrc:/qml/sections/EquationSection.qml"
     params: {
-      "base": item
+      "sectionItem": item
     }
 
     function initPre() {}
@@ -49,10 +49,10 @@ Item {
       keyClick(Qt.Key_5)
       tryCompare(tested, "cursorPosition", 12)
       tryCompare(tested, "text", "1      \n__5 + 1\n15     ")
-      compare(ddb._updateEquation[0], 1)
-      compare(ddb._updateEquation[1], '1     \n__ + 1\n15    ')
-      compare(ddb._updateEquation[2], 10)
-      compare(ddb._updateEquation[3], '{"objectName":"","key":53,"text":"5","modifiers":0,"isAutoRepeat":false,"count":65535,"nativeScanCode":0,"accepted":false}')
+      compare(ddb._updateEquationParams[0], 1)
+      compare(ddb._updateEquationParams[1], '1     \n__ + 1\n15    ')
+      compare(ddb._updateEquationParams[2], 10)
+      compare(ddb._updateEquationParams[3], '{"objectName":"","key":53,"text":"5","modifiers":0,"isAutoRepeat":false,"count":65535,"nativeScanCode":0,"accepted":false}')
     }
 
     function test_isfocusable() {

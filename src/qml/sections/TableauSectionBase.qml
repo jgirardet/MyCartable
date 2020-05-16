@@ -3,15 +3,19 @@ import QtQuick.Controls 2.14
 import "qrc:/js/lodash.js"
 as Lodash
 
+import "../page/operations"
+
 TableView {
   id: root
-  property int position
+  /* beautify preserve:start */
   property int sectionId
-  property
-  var base
+  property int sectionItem
+  /* beautify preserve:end */
+
   height: root.contentItem.childrenRect.height //model.x * 30
   contentY: model.n_rows * 30 // fix le problème d'une partie caché au chargement
-  width: base.width
+  width: 300 //sectionItem.width
+
   interactive: false
   clip: true
   columnSpacing: 3

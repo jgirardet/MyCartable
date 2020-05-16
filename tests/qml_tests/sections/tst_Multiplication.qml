@@ -73,8 +73,8 @@ Item {
   }
 
   CasTest {
-    name: "Multiplication"
-    testedNom: "qrc:/qml/page/operations/Multiplication.qml"
+    name: "MultiplicationSection"
+    testedNom: "qrc:/qml/sections/MultiplicationSectionBase.qml"
     /* beautify preserve:start */
     property var model
     /* beautify preserve:end */

@@ -1,12 +1,12 @@
 import QtQuick 2.14
+import "../page/operations"
 
 BaseOperation {
   id: root
-  cellWidth: 50
+  cellWidth: 30
   cellHeight: 50
 
-  delegate: MultiplicationDelegate {
+  delegate: SoustractionDelegate {
     model: root.model
   }
-
 }

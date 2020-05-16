@@ -429,9 +429,8 @@ Item {
   var _addSection
 
   function loadSection(sectionid) {
-    var backup = _loadSection
-    _loadSection = sectionid
-    return backup
+    _loadSectionParams = sectionid
+    return _loadSection
 
   }
   /* beautify preserve:start */
@@ -445,6 +444,7 @@ Item {
       'path': 'qrc:/tests/tst_AnnotableImage.png',
       'annotations': [4, 5, 6, 7]
     }
+   property var _loadSectionParams
   /* beautify preserve:end */
 
   function removeSection(sectoinid, index) {
@@ -470,12 +470,14 @@ Item {
 
   // Equation
   function updateEquation(sectionid, content, curseur, event) {
-    var backup = _updateEquation
-    _updateEquation = [sectionid, content, curseur, event]
-    return backup
+    _updateEquationParams = [sectionid, content, curseur, event]
+    return _updateEquation
   }
   property
   var _updateEquation
+
+  property
+  var _updateEquationParams
 
   function isEquationFocusable(content, curseur) {
     var backup = _isEquationFocusable

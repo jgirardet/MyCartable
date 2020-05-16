@@ -6,17 +6,15 @@ FocusScope {
   id: root
   /* beautify preserve:start */
     property int sectionId
-    property int position
-    property var base
-    property var annotations: []
+    property var sectionItem
     property alias image: img
+    property var annotations: []
     readonly property var annotationText: Qt.createComponent("qrc:/qml/page/AnnotationText.qml")
     readonly property var stabyloRectangle: Qt.createComponent("qrc:/qml/page/StabyloRectangle.qml")
    /* beautify preserve:end */
 
-  //doit rester comme ça pour les annotations +++
+  //doit rester comme ça car taille de root calculé sur image et width image calculé sur root. et  pour les annotations +++
   height: img.height
-  width: img.width
 
   Component.onCompleted: {
     var content = ddb.loadSection(sectionId)
@@ -37,7 +35,7 @@ FocusScope {
       var newObject = annotationText.createObject(root, {
         "model": newDdbObj,
         "objStyle": stylObj,
-        "referent": root
+        "referent": img
       })
       newObject.ddbId = newDdbObj.id
       newObject.objStyle = stylObj
@@ -65,13 +63,12 @@ FocusScope {
     var new_rec = stabyloRectangle.createObject(root, {
       "model": newDdbObj,
       "objStyle": stylObj,
-      "referent": root
+      "referent": img
     })
     return new_rec
   }
 
   function deleteAnnotation(anotObj) {
-    print("destroy")
     ddb.deleteAnnotation(anotObj.ddbId)
     let objIndex = annotations.indexOf(anotObj)
     annotations.splice(objIndex, 1)
@@ -81,7 +78,7 @@ FocusScope {
   function initZones(annots) {
     for (var z of ddb.loadAnnotations(sectionId)) {
       var initDict = {
-        "referent": root,
+        "referent": img,
         "model": z[0],
         'objStyle': z[1]
       }
@@ -134,14 +131,13 @@ FocusScope {
     //    asynchronous: true // asynchronous fail le scrolling on add
     fillMode: Image.PreserveAspectCrop
     source: root.imagePath
-    sourceSize.width: base ? base.width : 0
+    sourceSize.width: sectionItem ? sectionItem.width : 0
     // TODO: faire des trais.
-
   }
   MouseArea {
     id: mouseArea
     objectName: "mouseArea"
-    anchors.fill: root
+    anchors.fill: img
     /* beautify preserve:start */
     property var temp_rec: null
     /* beautify preserve:end */
@@ -149,7 +145,6 @@ FocusScope {
     acceptedButtons: Qt.LeftButton | Qt.RightButton
 
     onPressed: {
-      //      root.base.currentIndex = position
       if (pressedButtons === Qt.RightButton) {
         temp_rec = root.createZone(mouse)
       } else if (pressedButtons === Qt.LeftButton) {
@@ -176,14 +171,3 @@ FocusScope {
     }
   }
 }
-
-//  Dialog {
-//    id: dialogSupprimer
-//    title: "Supprimer l'image ?"
-//    standardButtons: Dialog.Ok | Dialog.Cancel
-//    parent: root.editor
-//    anchors.centerIn: parent
-//
-//    onAccepted: ddb.removeSection(root.editor.sectionId, root.editor.position)
-//    //      onRejected: null
-//  }

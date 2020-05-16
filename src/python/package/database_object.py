@@ -1,6 +1,5 @@
 import logging
 from PySide2.QtCore import QObject, Signal
-from PySide2.QtWidgets import QApplication
 from package.database_mixins.dev_mixin import DevMixin
 from package.database_mixins.equation_mixin import EquationMixin
 from package.database_mixins.image_section_mixin import ImageSectionMixin
@@ -34,7 +33,6 @@ class DatabaseObject(QObject, *MIXINS):
     def __init__(self, db, debug=True):
         super().__init__()
         self.db = db
-        self.models = {}
 
         for mixin in MIXINS:
             mixin.__init__(self)
@@ -55,7 +53,7 @@ class DatabaseObject(QObject, *MIXINS):
 
         self.newPageCreated.connect(self.onNewPageCreated)
         self.recentsItemClicked.connect(self.onRecentsItemClicked)
-        self.sectionAdded.connect(self.pageModel.insertRow)
+        self.sectionAdded.connect(self.pageModel.insertRows)
         self.sectionRemoved.connect(self.pageModel.removeRow)
 
         self.updateRecentsAndActivites.connect(self.pagesParSectionChanged)

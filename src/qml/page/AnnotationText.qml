@@ -1,8 +1,7 @@
-import QtQuick 2.12
-import QtQuick.Controls 2.12
-//import "menu"
+import QtQuick 2.14
+import QtQuick.Controls 2.14
 
-TextField {
+TextArea {
   id: root
   /* beautify preserve:start */
   property var model

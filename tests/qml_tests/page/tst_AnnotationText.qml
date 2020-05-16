@@ -127,6 +127,15 @@ Item {
       compare(uiManager.menuFlottantText.target, tested)
     }
 
+    function test_add_new_line() {
+      tested.text = ""
+      mouseClick(tested)
+      keyClick(Qt.Key_A)
+      keyClick(Qt.Key_Return)
+      keyClick(Qt.Key_B)
+      compare(tested.text, "a\nb")
+    }
+
   }
 
 }

@@ -9,12 +9,12 @@ TableView {
   id: root
   /* beautify preserve:start */
   property int sectionId
-  property int sectionItem
+  property var sectionItem
   /* beautify preserve:end */
 
   height: root.contentItem.childrenRect.height //model.x * 30
   contentY: model.n_rows * 30 // fix le problème d'une partie caché au chargement
-  width: 300 //sectionItem.width
+  width: sectionItem.width
 
   interactive: false
   clip: true

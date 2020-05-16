@@ -13,7 +13,7 @@ Item {
 
   function deleteAnnotation(obj) {}
   CasTest {
-    name: "AnnotationText Cas"
+    name: "AnnotationText"
     testedNom: "qrc:/qml/page/AnnotationText.qml"
     /* beautify preserve:start */
     property var objStyle
@@ -31,13 +31,14 @@ Item {
         "model": model,
         "objStyle": objStyle
       }
+
     }
 
     function initPost() {
       //      ref.annotations.push(tested)
 
     }
-    DdbData {}
+    //    DdbData {}
 
     function test_AnotXY() {
       compare(tested.x, 80)
@@ -99,24 +100,34 @@ Item {
     }
 
     function test_setStyle_color() {
+      var datapre = {
+        'fgColor': 'yellow',
+        'bgColor': 'red',
+        'underline': false
+      }
+
       var data = {
         'style': {
           'fgColor': 'blue',
-          'bgColor': 'red',
+          'bgColor': 'purple',
           'underline': true
         }
       }
+
       verify(!Qt.colorEqual(tested.color, "blue"))
-      verify(!Qt.colorEqual(tested.background.color, "red"))
-      verify(!tested.font.underline)
+      tested.objStyle.underline = false
+      tested.objStyleChanged()
+      verify(!Qt.colorEqual(tested.background.color, "purple"))
+      tryCompare(tested.font, "underline", false)
+      //      verify(!tested.font.underline)
 
       tested.setStyleFromMenu(data)
 
       verify(Qt.colorEqual(tested.color, "blue"))
-      verify(Qt.colorEqual(tested.background.color, "red"))
+      verify(Qt.colorEqual(tested.background.color, "purple"))
       verify(tested.font.underline)
 
-      compare(ddb._setStyle[0], objStyle.id)
+      compare(ddb._setStyle[0], 2)
       compare(ddb._setStyle[1], data['style'])
     }
 
@@ -134,6 +145,40 @@ Item {
       keyClick(Qt.Key_Return)
       keyClick(Qt.Key_B)
       compare(tested.text, "a\nb")
+    }
+
+    function test_taille_du_texte() {
+      // pointSize empty donc default  = annotationCurrentTextSizeFactor
+      compare(tested.fontSizeFactor, uiManager.annotationCurrentTextSizeFactor)
+
+      compare(tested.fontSizeFactor, uiManager.annotationCurrentTextSizeFactor)
+    }
+
+    function test_taille_du_text_fonction_taille_image() {
+      var old = (item.height / uiManager.annotationCurrentTextSizeFactor) | 0
+      compare(tested.font.pixelSize, old)
+      parentitem.height = parentitem.height * 2
+      //      tested.referent.height = tested.referent.height * 2
+      waitForRendering(tested)
+      compare(tested.font.pixelSize, old * 2)
+    }
+
+    function test_grossi__text() {
+      var size = tested.font.pixelSize
+      compare(tested.fontSizeFactor, 15)
+      keyClick(Qt.Key_Plus, Qt.ControlModifier)
+      compare(tested.fontSizeFactor, 14)
+      compare(ddb._setStyle[1]['pointSize'], 14)
+      verify(tested.font.pixelSize > size)
+    }
+
+    function test_diminue__text() {
+      var size = tested.font.pixelSize
+      compare(tested.fontSizeFactor, 15)
+      keyClick(Qt.Key_Minus, Qt.ControlModifier)
+      compare(tested.fontSizeFactor, 16)
+      compare(ddb._setStyle[1]['pointSize'], 16)
+      verify(tested.font.pixelSize < size)
     }
 
   }

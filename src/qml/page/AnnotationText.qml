@@ -12,8 +12,8 @@ TextArea {
   property real relativeX: model.relativeX
   property real relativeY: model.relativeY
   property int ddbId: model.id
-  property int pointSizeStep: 2
-
+  property int pointSizeStep: 1
+  property int fontSizeFactor: objStyle.pointSize ? objStyle.pointSize : 0 //uiManager.annotationCurrentTextSizeFactor
   signal deleteRequested(QtObject anotObj)
 
   //size and pos
@@ -22,16 +22,38 @@ TextArea {
   width: contentWidth + 5
   x: relativeX * referent.implicitWidth
   y: relativeY * referent.height
-  color: objStyle ? objStyle.fgColor : "orange"
-  font.underline: objStyle.underline
+  color: objStyle.fgColor ? objStyle.fgColor : "black"
+  font.underline: objStyle.underline ? objStyle.underline : false
   text: model.text
 
-  font.pointSize: objStyle.pointSize ? objStyle.pointSize : 12.0
+  onFontSizeFactorChanged: {
+    if (objStyle.pointSize == fontSizeFactor) {
+      return
+    }
+    // attention on stock fontSizeFactor dans du pointSize :le nom dans la ddb est nul :-)
+    var res = ddb.setStyle(objStyle.id, {
+      "pointSize": root.fontSizeFactor //uiManager.annotationCurrentTextSizeFactor
+    })
+    if (res) {
+      root.objStyle = res
+    }
+    uiManager.annotationCurrentTextSizeFactor = root.fontSizeFactor
+  }
+
+  font.pixelSize: (referent.height / fontSizeFactor) | 0
+
   // other atributes
+  Component.onCompleted: {
+    if (!objStyle.pointSize) {
+      fontSizeFactor = uiManager.annotationCurrentTextSizeFactor
+    }
+    deleteRequested.connect(referent.parent.deleteAnnotation)
+
+  }
   background: Rectangle {
     implicitWidth: parent.width
     implicitHeight: parent.height
-    color: objStyle.bgColor
+    color: objStyle.bgColor ? objStyle.bgColor : "transparent"
     border.color: root.focus ? "#21be2b" : "transparent"
   }
   selectByMouse: true
@@ -47,20 +69,10 @@ TextArea {
   }
   Keys.onPressed: {
     if ((event.key == Qt.Key_Plus) && (event.modifiers & Qt.ControlModifier)) {
-      var res = ddb.setStyle(objStyle.id, {
-        "pointSize": root.font.pointSize + pointSizeStep
-      })
-      if (res) {
-        root.objStyle = res
-      }
+      root.fontSizeFactor -= pointSizeStep
       event.accepted = true
     } else if ((event.key == Qt.Key_Minus) && (event.modifiers & Qt.ControlModifier)) {
-      var res = ddb.setStyle(objStyle.id, {
-        "pointSize": root.font.pointSize - pointSizeStep
-      })
-      if (res) {
-        root.objStyle = res
-      }
+      root.fontSizeFactor += pointSizeStep
       event.accepted = true
     }
   }
@@ -75,10 +87,6 @@ TextArea {
   onTextChanged: ddb.updateAnnotation(ddbId, {
     "text": text
   })
-
-  Component.onCompleted: {
-    deleteRequested.connect(referent.parent.deleteAnnotation)
-  }
 
   function setStyleFromMenu(data) {
     var res = ddb.setStyle(objStyle.id, data["style"])

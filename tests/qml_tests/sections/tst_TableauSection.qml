@@ -141,7 +141,7 @@ Item {
       model = createTemporaryObject(modelComp, item)
       params = {
         "model": model,
-        "base": item,
+        "sectionItem": item,
       }
     }
 
@@ -487,5 +487,8 @@ Item {
       //TODO: fix tests quand on peut mettre underline en role
     }
 
+    function test_taille_tableau_maxi_to_parent() {
+      compare(tested.width, item.width)
+    }
   }
 }

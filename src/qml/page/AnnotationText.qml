@@ -84,6 +84,7 @@ TextArea {
       uiManager.menuFlottantText.ouvre(root)
     }
   }
+
   onTextChanged: ddb.updateAnnotation(ddbId, {
     "text": text
   })
@@ -94,4 +95,5 @@ TextArea {
       objStyle = res
     }
   }
+
 }

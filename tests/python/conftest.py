@@ -7,6 +7,7 @@ from pathlib import Path
 from PySide2.QtCore import QSettings, QStandardPaths
 
 from PySide2.QtGui import QTextDocument
+from PySide2.QtWidgets import QApplication
 from mimesis import Generic
 from pony.orm import db_session, delete
 import subprocess
@@ -44,6 +45,16 @@ def pytest_sessionstart():
     from package.files_path import ROOT_DATA
 
     shutil.rmtree(ROOT_DATA)
+
+
+@pytest.fixture(scope="session")
+def qapp():
+    app = QApplication([])
+    from package.database_object import DatabaseObject
+    from package.database import db
+
+    app.dao = DatabaseObject(db)
+    yield app
 
 
 @pytest.fixture()

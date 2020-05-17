@@ -11,6 +11,7 @@ from PySide2.QtCore import (
     Property,
     QObject,
 )
+from PySide2.QtWidgets import QApplication
 from mimesis import typing
 from pony.orm import db_session, ObjectNotFound, make_proxy, flush
 from package.database import db
@@ -136,7 +137,15 @@ class PageModel(QAbstractListModel):
             self.count = self.page.sections.count()
         self.lastPositionChanged.emit()
         self.endResetModel()
+        self.onModelReset()
         return True
+
+    #
+    def onModelReset(self):
+        app = QApplication.instance()
+        self.rowsRemoved.connect(app.dao.updateRecentsAndActivites)
+        self.rowsInserted.connect(app.dao.updateRecentsAndActivites)
+        self.rowsMoved.connect(app.dao.updateRecentsAndActivites)
 
     ################## Property ########################
 

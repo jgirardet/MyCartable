@@ -134,6 +134,7 @@ def main(filename=None):
 
     # create instance de ce qui sera des singleton dans qml
     databaseObject, ui_manager = create_singleton_instance()
+    app.dao = databaseObject
 
     # register les new qml type
     register_new_qml_type(databaseObject)

@@ -1,6 +1,8 @@
 from pathlib import Path
 
 from PySide2.QtCore import Slot
+from PySide2.QtCore import Slot, Signal
+from package.convert import run_convert_pdf
 from package.utils import get_new_filename
 from pony.orm import db_session
 from PIL import Image
@@ -12,6 +14,8 @@ class ImageSectionMixin:
     Annotations
     """
 
+    imageChanged = Signal()
+
     @Slot("QVariantMap", result="QVariantList")
     def addAnnotation(self, content):
         with db_session:
@@ -20,11 +24,24 @@ class ImageSectionMixin:
             dico = item.to_dict()
             style = dico.pop("style")
             return [dico, style]
+        # ne pas emetre imageChanged ici, sinon emet pour empty trucs
 
     @Slot(int)
     def deleteAnnotation(self, annotation_id):
         with db_session:
-            self.db.Annotation[annotation_id].delete()
+            item = self.db.Annotation[annotation_id]
+            item.delete()
+
+            # tweak du au fait que le qml aojute et supprime une annoation si création n'aboutie pas
+            if isinstance(item, self.db.AnnotationText) and not item.text:
+                return
+            elif (
+                isinstance(item, self.db.Stabylo)
+                and not item.relativeWidth
+                and not item.relativeHeight
+            ):
+                return
+            self.imageChanged.emit()
 
     @Slot(int, result="QVariantList")
     def loadAnnotations(self, section):
@@ -46,6 +63,8 @@ class ImageSectionMixin:
                 style = dico.pop("style")
                 item.style.set(**style)
             item.set(**dico)
+            self.imageChanged.emit()
+
             return item.to_dict(exclude=["style"])
 
     """

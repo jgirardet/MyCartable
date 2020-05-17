@@ -205,7 +205,8 @@ class TestProperties:
     def test_onDocumentContentChanged(self, ddbr, doc, qtbot):
         a = f_textSection()
         doc.sectionId = a.id
-        doc.document.setHtml("<p>bla</p><h1>titre</h1>")
+        with qtbot.waitSignal(doc.dao.updateRecentsAndActivites):
+            doc.document.setHtml("<p>bla</p><h1>titre</h1>")
         with db_session:
             x = ddbr.TextSection[a.id]
             assert x.text == doc._proxy.text

@@ -1,5 +1,5 @@
 import json
-from PySide2.QtCore import Slot
+from PySide2.QtCore import Slot, Signal
 import logging
 
 from package.operations.equation import TextEquation
@@ -9,6 +9,9 @@ LOG = logging.getLogger(__name__)
 
 
 class EquationMixin:
+
+    equationChanged = Signal()
+
     @Slot(int, str, int, str, result="QVariantMap")
     def updateEquation(self, sectionId, content, curseur, event):
         event = json.loads(event)
@@ -16,6 +19,7 @@ class EquationMixin:
         with db_session:
             obj = self.db.Section.get(id=sectionId)
             obj.set(content=new_lines, curseur=new_curseur)
+        self.equationChanged.emit()
         return {"content": new_lines, "curseur": new_curseur}
 
     @Slot(str, int, result=bool)

@@ -8,6 +8,7 @@ from PySide2.QtGui import (
     QBrush,
     QColor,
 )
+from PySide2.QtWidgets import QApplication
 from bs4 import BeautifulSoup
 from package.page.blockFormat import P, BlockFormats
 from package.page.charFormat import CharFormats
@@ -36,6 +37,7 @@ class DocumentEditor(QObject):
         self._document = None
         self._sectionId = 0
 
+        self.dao = QApplication.instance().dao
         self._setup_connections()
 
     # Other method
@@ -178,6 +180,8 @@ class DocumentEditor(QObject):
 
                 # set connection later to avoid save on first load
                 self._document.contentsChanged.connect(self.onDocumenContentsChanged)
+                # self._document.contentsChanged.connect(self.dao.updateRecentsAndActivites)
+
             else:
                 self._proxy = None
 
@@ -187,6 +191,7 @@ class DocumentEditor(QObject):
     def onDocumenContentsChanged(self):
         with db_session:
             self._proxy.text = self.document.toHtml()
+        self.dao.updateRecentsAndActivites.emit()
         # self.documentChanged.emit()
         # self.documentContentChanged.emit()
 

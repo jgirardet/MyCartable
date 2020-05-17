@@ -659,8 +659,8 @@ class TestImageSectionMixin:
         assert img.width == 673
 
         f = f_imageSection(path=str(file))
-        with qtbot.waitSignal(dao.)
-        dao.pivoterImage(f.id, 1)
+        with qtbot.waitSignal(dao.imageChanged):
+            dao.pivoterImage(f.id, 1)
         img = Image.open(file)
         assert img.height == 673
         assert img.width == 124

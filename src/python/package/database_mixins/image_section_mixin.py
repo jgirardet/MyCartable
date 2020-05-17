@@ -89,4 +89,5 @@ class ImageSectionMixin:
             im = Image.open(file)
             sens_rotate = Image.ROTATE_270 if sens else Image.ROTATE_90
             im.transpose(sens_rotate).save(file)
+            self.imageChanged.emit()
             return True

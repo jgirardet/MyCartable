@@ -105,7 +105,6 @@ FocusScope {
         "relativeWidth": rec.relativeWidth,
         "relativeHeight": rec.relativeHeight,
       })
-      print(JSON.stringify(rec.model))
       annotations.push(rec)
       rec.pushed = true
       return true
@@ -155,10 +154,6 @@ FocusScope {
       if (pressedButtons === Qt.RightButton) {
         if (mouse.modifiers == Qt.ControlModifier) {
           uiManager.menuFlottantImage.ouvre(root)
-          var content = ddb.loadSection(root.sectionId)
-          var path = content.path.toString()
-          img.source = path.startsWith("file:///") || path.startsWith("qrc:") ? content.path : "file:///" + path
-
         } else {
           temp_rec = root.createZone(mouse)
         }
@@ -178,9 +173,7 @@ FocusScope {
     onReleased: {
       if (mouse.button == Qt.RightButton && mouse.modifiers & Qt.NoModifier) {
         temp_rec = root.storeZone(temp_rec)
-        if (!temp_rec) {
-          //          menuflotant.popup()
-        }
+        if (!temp_rec) {}
         temp_rec = null
       }
     }

@@ -7,6 +7,7 @@ Item {
       property var menuFlottantText: MenuFlottantText {}
       property var menuFlottantStabylo: MenuFlottantStabylo {}
       property var menuFlottantTableau: MenuFlottantTableau {}
+      property var menuFlottantImage: MenuFlottantImage {}
       property int annotationCurrentTextSizeFactor: 15
       /* beautify preserve:stop */
 }

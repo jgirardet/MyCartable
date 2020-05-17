@@ -381,7 +381,7 @@ Item {
       'weight': null,
       'annotation': 1,
       'bgColor': "transparent",
-      'fgColor': "green"
+      'fgColor': "orange"
     }
     ]
   , [{
@@ -418,6 +418,11 @@ Item {
     'classtype': 'AnnotationText',
     'text': 'bla'
   }
+
+  function pivoterImage(id, sens) {
+    _pivoterImage = [id, sens]
+    }
+  property var _pivoterImage
 
   // SECTION
 

@@ -5,17 +5,17 @@ BF_H1 = {
     "topMargin": 10,
     "bottomMargin": 10,
     "leftMargin": 0,
-    "rightMargin": 10,
+    "rightMargin": 0,
     "indent": 0,
 }
 
 BF_H2 = {
     "headingLevel": 2,
-    "topMargin": 5,
-    "bottomMargin": 5,
-    "leftMargin": 5,
-    "rightMargin": 5,
-    "indent": 0,
+    "topMargin": 10,
+    "bottomMargin": 10,
+    "leftMargin": 0,
+    "rightMargin": 0,
+    "indent": 1,
 }
 
 BF_H3 = {
@@ -24,7 +24,7 @@ BF_H3 = {
     "bottomMargin": 0,
     "leftMargin": 0,
     "rightMargin": 0,
-    "indent": 0,
+    "indent": 2,
 }
 BF_P = {
     "headingLevel": 0,

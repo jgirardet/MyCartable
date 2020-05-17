@@ -7,25 +7,25 @@ CF_H1 = {
     "fontUnderline": True,
     "underlineColor": "red",
     "underlineStyle": QTextCharFormat.SingleUnderline,
-    "foreground": "blue",
-    "background": "gray",
+    "foreground": "red",
+    "background": "white",
 }
 CF_H2 = {
     "fontWeight": QFont.Bold,
     "fontPointSize": 15,
     "fontUnderline": True,
-    "underlineColor": "red",
-    "underlineStyle": QTextCharFormat.SingleUnderline,
-    "foreground": "red",
-    "background": "white",
-}
-CF_H3 = {
-    "fontWeight": QFont.SemiCondensed,
-    "fontPointSize": 12,
-    "fontUnderline": True,
     "underlineColor": "green",
     "underlineStyle": QTextCharFormat.SingleUnderline,
     "foreground": "green",
+    "background": "white",
+}
+CF_H3 = {
+    "fontWeight": QFont.DemiBold,
+    "fontPointSize": 12,
+    "fontUnderline": True,
+    "underlineColor": "blue",
+    "underlineStyle": QTextCharFormat.SingleUnderline,
+    "foreground": "blue",
     "background": "white",
 }
 # "Font": ,

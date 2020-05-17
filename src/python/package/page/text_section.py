@@ -168,7 +168,7 @@ class DocumentEditor(QObject):
 
                 # set primitive style
                 self._document.setDefaultStyleSheet(
-                    "body { font-size: 16pt; color: black; }"
+                    "body { font-size: 22pt; color: black; }"
                 )
                 # # on convertit en html si plain text
                 if not bool(BeautifulSoup(item.text, "html.parser").find()):

@@ -1,13 +1,17 @@
 from pathlib import Path
 
 from PySide2.QtCore import Slot
-from package.convert import run_convert_pdf
 from package.utils import get_new_filename
 from pony.orm import db_session
-import tempfile
+from PIL import Image
 
 
 class ImageSectionMixin:
+
+    """
+    Annotations
+    """
+
     @Slot("QVariantMap", result="QVariantList")
     def addAnnotation(self, content):
         with db_session:
@@ -44,6 +48,10 @@ class ImageSectionMixin:
             item.set(**dico)
             return item.to_dict(exclude=["style"])
 
+    """
+        IMAGES
+    """
+
     def get_new_image_path(self, ext):
         return Path(str(self.annee_active), get_new_filename(ext)).as_posix()
 
@@ -53,3 +61,12 @@ class ImageSectionMixin:
         new_file.parent.mkdir(parents=True, exist_ok=True)
         new_file.write_bytes(filepath.read_bytes())
         return res_path
+
+    @Slot(int, int, result=bool)
+    def pivoterImage(self, sectionId, angle):
+        with db_session:
+            item = self.db.ImageSection[sectionId]
+            file = self.files / item.path
+            im = Image.open(file)
+            im.rotate(90).save(file)
+            return True

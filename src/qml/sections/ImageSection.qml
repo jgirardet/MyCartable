@@ -124,6 +124,13 @@ FocusScope {
     return rec
   }
 
+  function reloadImage() {
+    var oldSource = img.source
+    img.source = ""
+
+    img.source = oldSource
+  }
+
   Image {
     id: img
 
@@ -147,7 +154,11 @@ FocusScope {
     onPressed: {
       if (pressedButtons === Qt.RightButton) {
         if (mouse.modifiers == Qt.ControlModifier) {
-          uiManager.menuFlottantImage.ouvre(img)
+          uiManager.menuFlottantImage.ouvre(root)
+          var content = ddb.loadSection(root.sectionId)
+          var path = content.path.toString()
+          img.source = path.startsWith("file:///") || path.startsWith("qrc:") ? content.path : "file:///" + path
+
         } else {
           temp_rec = root.createZone(mouse)
         }
@@ -174,4 +185,5 @@ FocusScope {
       }
     }
   }
+
 }

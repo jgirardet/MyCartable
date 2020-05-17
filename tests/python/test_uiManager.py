@@ -35,3 +35,9 @@ class TestUiManager:
 
         with qtbot.assertNotEmitted(uiman.menuTargetChanged):
             uiman.menuTarget = a
+
+    def test_annotationCurrentTextSizeFactor(self, uiman: UiManager, qtbot):
+        assert uiman.annotationCurrentTextSizeFactor == 15
+        with qtbot.waitSignal(uiman.annotationCurrentTextSizeFactorChanged):
+            uiman.annotationCurrentTextSizeFactor = 40
+        assert uiman.annotationCurrentTextSizeFactor == 40

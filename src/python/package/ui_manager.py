@@ -12,6 +12,7 @@ class UiManager(QObject):
         super().__init__()
         self._menuTarget = None
         self._toast = None
+        self._annotationCurrentTextSizeFactor = 15
 
     @Property(QObject, notify=menuFlottantTextChanged)
     def menuFlottantText(self):
@@ -49,6 +50,17 @@ class UiManager(QObject):
         if value != self._menuTarget:
             self._menuTarget = value
             self.menuTargetChanged.emit()
+
+    annotationCurrentTextSizeFactorChanged = Signal()
+
+    @Property(int, notify=annotationCurrentTextSizeFactorChanged)
+    def annotationCurrentTextSizeFactor(self):
+        return self._annotationCurrentTextSizeFactor
+
+    @annotationCurrentTextSizeFactor.setter
+    def annotationCurrentTextSizeFactor_set(self, value: int):
+        self._annotationCurrentTextSizeFactor = value
+        self.annotationCurrentTextSizeFactorChanged.emit()
 
     # toastChanged = Signal()
 

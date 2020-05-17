@@ -13,7 +13,9 @@ TextArea {
   property real relativeY: model.relativeY
   property int ddbId: model.id
   property int pointSizeStep: 1
+  property int moveStep: 5
   property int fontSizeFactor: objStyle.pointSize ? objStyle.pointSize : 0 //uiManager.annotationCurrentTextSizeFactor
+
   signal deleteRequested(QtObject anotObj)
 
   //size and pos
@@ -73,7 +75,27 @@ TextArea {
     } else if ((event.key == Qt.Key_Minus) && (event.modifiers & Qt.ControlModifier)) {
       root.fontSizeFactor += pointSizeStep
       event.accepted = true
+    } else if ([Qt.Key_Left, Qt.Key_Right, Qt.Key_Up, Qt.Key_Down].includes(event.key) && (event.modifiers & Qt.ControlModifier)) {
+      move(event.key)
+      event.accepted = true
     }
+  }
+
+  function move(key) {
+    if (key == Qt.Key_Left) {
+      root.x -= moveStep
+    } else if (key == Qt.Key_Right) {
+      root.x += moveStep
+    } else if (key == Qt.Key_Up) {
+      root.y -= moveStep
+    } else if (key == Qt.Key_Down) {
+      root.y += moveStep
+    }
+
+    ddb.updateAnnotation(root.ddbId, {
+      "relativeX": root.x / root.referent.implicitWidth,
+      "relativeY": root.y / root.referent.height
+    })
   }
 
   onTextChanged: ddb.updateAnnotation(ddbId, {

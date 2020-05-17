@@ -190,6 +190,46 @@ Item {
       compare(tested.y, old.y + 10)
     }
 
+    function test_move_with_arrows_left() {
+      var old = Qt.point(tested.x, tested.y)
+      keyClick(Qt.Key_Left, Qt.ControlModifier)
+      compare(tested.x, old.x - tested.moveStep)
+      compare(tested.y, old.y)
+      compare(ddb._updateAnnotation[0], tested.ddbId)
+      compare(ddb._updateAnnotation[1]["relativeX"], tested.x / parentitem.width)
+      compare(ddb._updateAnnotation[1]["relativeY"], tested.y / parentitem.width)
+    }
+
+    function test_move_with_arrows_right() {
+      var old = Qt.point(tested.x, tested.y)
+      keyClick(Qt.Key_Right, Qt.ControlModifier)
+      compare(tested.x, old.x + tested.moveStep)
+      compare(tested.y, old.y)
+      compare(ddb._updateAnnotation[0], tested.ddbId)
+      compare(ddb._updateAnnotation[1]["relativeX"], tested.x / parentitem.width)
+      compare(ddb._updateAnnotation[1]["relativeY"], tested.y / parentitem.width)
+    }
+
+    function test_move_with_arrows_up() {
+      var old = Qt.point(tested.x, tested.y)
+      keyClick(Qt.Key_Up, Qt.ControlModifier)
+      compare(tested.x, old.x)
+      compare(tested.y, old.y - tested.moveStep)
+      compare(ddb._updateAnnotation[0], tested.ddbId)
+      compare(ddb._updateAnnotation[1]["relativeX"], tested.x / parentitem.width)
+      compare(ddb._updateAnnotation[1]["relativeY"], tested.y / parentitem.width)
+    }
+
+    function test_move_with_arrows_down() {
+      var old = Qt.point(tested.x, tested.y)
+      keyClick(Qt.Key_Down, Qt.ControlModifier)
+      compare(tested.x, old.x)
+      compare(tested.y, old.y + tested.moveStep)
+      compare(ddb._updateAnnotation[0], tested.ddbId)
+      compare(ddb._updateAnnotation[1]["relativeX"], tested.x / parentitem.width)
+      compare(ddb._updateAnnotation[1]["relativeY"], tested.y / parentitem.width)
+    }
+
   }
 
 }

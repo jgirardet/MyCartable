@@ -210,3 +210,15 @@ class TestPAgeModel:
         with qtbot.waitSignal(b.countChanged):
             b.slotReset(x.id)
         assert b.count == 2
+
+    def test_modif_update_recents_and_activites(self, qtbot, pm, qapp):
+        a = pm(3)
+
+        with qtbot.waitSignal(qapp.dao.updateRecentsAndActivites):
+            a.move(0, 2)
+
+        with qtbot.waitSignal(qapp.dao.updateRecentsAndActivites):
+            a.removeSection(0)
+
+        with qtbot.waitSignal(qapp.dao.updateRecentsAndActivites):
+            a.insertRow(0)

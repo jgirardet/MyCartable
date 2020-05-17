@@ -85,6 +85,8 @@
         <file alias="removePage">data/icons/base/divers/png/006-trash-bin.png</file>
         <file alias="newTableauSection">data/icons/base/divers/png/013-spreadsheet.png</file>
         <file alias="newOperationSection">data/icons/base/pack/png/calculator-1.png</file>
+        <file alias="rotateLeft">data/icons/base/perso/rotateleft.png</file>
+        <file alias="rotateRight">data/icons/base/perso/rotateright.png</file>
     </qresource>
     <qresource prefix="/fonts">
         <file alias="Verdana.ttf">data/fonts/Verdana.ttf</file>

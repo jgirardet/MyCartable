@@ -176,3 +176,14 @@ def png_annot(resources):
 @pytest.fixture()
 def resources():
     return Path(__file__).parents[1] / "resources"
+
+
+@pytest.fixture()
+def new_res(tmp_path, resources):
+    def factory(name):
+        file = resources / name
+        new_file = tmp_path / name
+        new_file.write_bytes(file.read_bytes())
+        return new_file
+
+    return factory

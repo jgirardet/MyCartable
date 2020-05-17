@@ -3,6 +3,7 @@ import sys
 import uuid
 
 import pytest
+from PIL import Image
 from PySide2.QtCore import QUrl, Qt, QModelIndex
 from fixtures import compare, ss, check_args, wait
 from package import constantes
@@ -623,6 +624,19 @@ class TestImageSectionMixin:
         with db_session:
             assert not ddbn.Annotation.exists(id=a.id)
             assert not ddbn.Annotation.exists(id=b.id)
+
+    def test_pivoter_image(self, new_res, dao, qtbot):
+        file = new_res("test_pivoter.png")
+        img = Image.open(file)
+        assert img.height == 124
+        assert img.width == 673
+
+        f = f_imageSection(path=str(file))
+        with qtbot.waitSignal(dao.)
+        dao.pivoterImage(f.id, 1)
+        img = Image.open(file)
+        assert img.height == 673
+        assert img.width == 124
 
 
 class TestSettingsMixin:

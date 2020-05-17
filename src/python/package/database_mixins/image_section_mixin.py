@@ -63,10 +63,11 @@ class ImageSectionMixin:
         return res_path
 
     @Slot(int, int, result=bool)
-    def pivoterImage(self, sectionId, angle):
+    def pivoterImage(self, sectionId, sens):
         with db_session:
             item = self.db.ImageSection[sectionId]
             file = self.files / item.path
             im = Image.open(file)
-            im.rotate(90).save(file)
+            sens_rotate = Image.ROTATE_270 if sens else Image.ROTATE_90
+            im.transpose(sens_rotate).save(file)
             return True

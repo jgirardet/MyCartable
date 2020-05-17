@@ -4,24 +4,29 @@ import QtQuick.Controls 2.14
 BaseMenu {
   id: menu
   MenuItem {
-    Column {
+    Row {
       ToolButton {
-        text: qsTr("90°")
+        icon.source: "qrc:///icons/rotateLeft"
+        icon.color: "blue"
         onClicked: {
-          print(target)
-          var res = ddb.pivoterImage(menu.target.sectionId, 90)
-          if ('res') {
-            print(target.image.source)
+          var res = ddb.pivoterImage(menu.target.sectionId, 0)
+          if (res) {
             target.reloadImage()
           }
-
-          menu.ferme()
-          //            var content = ddb.loadSection(sectionId)
-          //            var path = content.path.toString()
-          //            img.source = path.startsWith("file:///") || path.startsWith("qrc:") ? content.path : "file:///" + path
-
         }
-        ToolTip.text: "Pivoter l'image de 90°"
+        ToolTip.text: "Pivoter à  gauche"
+      }
+      ToolButton {
+        icon.source: "qrc:///icons/rotateRight"
+        icon.color: "blue"
+
+        onClicked: {
+          var res = ddb.pivoterImage(menu.target.sectionId, 1)
+          if (res) {
+            target.reloadImage()
+          }
+        }
+        ToolTip.text: "Pivoter à droite"
       }
     }
   }

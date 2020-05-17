@@ -127,7 +127,6 @@ FocusScope {
   function reloadImage() {
     var oldSource = img.source
     img.source = ""
-
     img.source = oldSource
   }
 
@@ -137,8 +136,9 @@ FocusScope {
     property QtObject mouseArea: mouseArea
     //    asynchronous: true // asynchronous fail le scrolling on add
     fillMode: Image.PreserveAspectCrop
-    source: root.imagePath
     sourceSize.width: sectionItem ? sectionItem.width : 0
+    cache: false
+
     // TODO: faire des trais.
   }
   MouseArea {
@@ -176,7 +176,7 @@ FocusScope {
     }
 
     onReleased: {
-      if (mouse.button == Qt.RightButton) {
+      if (mouse.button == Qt.RightButton && mouse.modifiers & Qt.NoModifier) {
         temp_rec = root.storeZone(temp_rec)
         if (!temp_rec) {
           //          menuflotant.popup()

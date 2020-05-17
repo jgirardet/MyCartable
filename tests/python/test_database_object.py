@@ -496,10 +496,11 @@ class TestSectionMixin:
 
 
 class TestEquationMixin:
-    def test_update(self, dao):
+    def test_update(self, dao, qtbot):
         e = f_equationSection(content=" \n1\n ")
         event = json.dumps({"key": int(Qt.Key_2), "text": "2", "modifiers": None})
-        res = dao.updateEquation(e.id, " \n1\n ", 3, event)
+        with qtbot.waitSignal(dao.equationChanged):
+            res = dao.updateEquation(e.id, " \n1\n ", 3, event)
         assert res == {"content": "  \n12\n  ", "curseur": 5}
 
     def test_isequationfocusable(self, dao):
@@ -796,3 +797,7 @@ class TestDatabaseObject:
     def test_image_update_update_recents_and_activite(self, dao, qtbot):
         with qtbot.waitSignal(dao.updateRecentsAndActivites):
             dao.imageChanged.emit()
+
+    def test_equation_update_update_recents_and_activite(self, dao, qtbot):
+        with qtbot.waitSignal(dao.updateRecentsAndActivites):
+            dao.equationChanged.emit()

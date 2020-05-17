@@ -58,6 +58,7 @@ class DatabaseObject(QObject, *MIXINS):
 
         # mise à jour
         self.imageChanged.connect(self.updateRecentsAndActivites)
+        self.equationChanged.connect(self.updateRecentsAndActivites)
 
         self.updateRecentsAndActivites.connect(self.pagesParSectionChanged)
         self.updateRecentsAndActivites.connect(self.recentsModelChanged)

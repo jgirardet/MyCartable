@@ -496,10 +496,11 @@ class TestSectionMixin:
 
 
 class TestEquationMixin:
-    def test_update(self, dao):
+    def test_update(self, dao, qtbot):
         e = f_equationSection(content=" \n1\n ")
         event = json.dumps({"key": int(Qt.Key_2), "text": "2", "modifiers": None})
-        res = dao.updateEquation(e.id, " \n1\n ", 3, event)
+        with qtbot.waitSignal(dao.equationChanged):
+            res = dao.updateEquation(e.id, " \n1\n ", 3, event)
         assert res == {"content": "  \n12\n  ", "curseur": 5}
 
     def test_isequationfocusable(self, dao):
@@ -610,6 +611,32 @@ class TestImageSectionMixin:
                         assert getattr(item.style, i) == j
                 else:
                     assert getattr(item, k) == v
+
+    def test_update_annotation_update_recents(self, dao, ddbr, qtbot):
+
+        x = f_annotationText()
+        with qtbot.wait_signal(dao.imageChanged):
+            dao.updateAnnotation(x.id, {"relativeX": 0.33715596330275227})
+
+    def test_delete_annotation_emit_image_changed(self, dao, ddbr, qtbot):
+
+        # pas de text pas d'emit
+        x = f_annotationText(text="empty")
+        with qtbot.assert_not_emitted(dao.imageChanged):
+            dao.deleteAnnotation(x.id)
+
+        # pas de taille, pas d'emit
+        x = f_stabylo(relativeWidth=0, relativeHeight=0)
+        with db_session:
+            ddbr.Stabylo[x.id].relativeWidth = 0
+            ddbr.Stabylo[x.id].relativeHeight = 0
+        with qtbot.assert_not_emitted(dao.imageChanged):
+            dao.deleteAnnotation(x.id)
+
+        # cas usuel ok
+        x = f_annotationText(text="bla")
+        with qtbot.wait_signal(dao.imageChanged):
+            dao.deleteAnnotation(x.id)
 
     def test_deleteAnnotation(self, dao, ddbn):
         check_args(dao.deleteAnnotation, int)
@@ -766,3 +793,11 @@ class TestDatabaseObject:
             assert dao.m_d.annee.id == 2020
             assert len(dao.recentsModel) == 0
             assert len(dao.matieresList) == 0
+
+    def test_image_update_update_recents_and_activite(self, dao, qtbot):
+        with qtbot.waitSignal(dao.updateRecentsAndActivites):
+            dao.imageChanged.emit()
+
+    def test_equation_update_update_recents_and_activite(self, dao, qtbot):
+        with qtbot.waitSignal(dao.updateRecentsAndActivites):
+            dao.equationChanged.emit()

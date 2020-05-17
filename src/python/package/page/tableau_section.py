@@ -9,6 +9,7 @@ from PySide2.QtCore import (
     QByteArray,
 )
 from PySide2.QtGui import QColor
+from PySide2.QtWidgets import QApplication
 from package.database import db
 
 from pony.orm import db_session, make_proxy, ObjectNotFound
@@ -19,6 +20,7 @@ LOG = logging.getLogger(__name__)
 
 class TableauModel(QAbstractTableModel):
     sectionIdChanged = Signal()
+
     ddb = None
 
     UnderlineRole = Qt.UserRole + 1
@@ -32,6 +34,8 @@ class TableauModel(QAbstractTableModel):
         self._rows = 0
         self._columns = 0
         self.sectionIdChanged.connect(self.load_proxy)
+        app = QApplication.instance()
+        self.dataChanged.connect(app.dao.updateRecentsAndActivites)
 
     @db_session
     def load_proxy(self):

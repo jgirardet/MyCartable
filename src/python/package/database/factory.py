@@ -212,11 +212,17 @@ def b_stabylo(n, *args, **kwargs):
 
 
 def f_annotationText(
-    relativeX=None, relativeY=None, text=None, td=False, section=None, style=None,
+    relativeX=None, relativeY=None, text="", td=False, section=None, style=None,
 ):
     relativeX = relativeX or random.randint(0, 100) / 100
     relativeY = relativeY or random.randint(0, 100) / 100
-    text = text or " ".join(gen.text.words(2))
+
+    print(text)
+    if text == "empty":
+        text = ""
+    elif not text:
+        text = "".join(gen.text.words(2))
+    print(text)
     section = section or f_section().id
     with db_session:
         style = style or db.Style()

@@ -41,6 +41,7 @@ def tt34(dao):
     return a
 
 
+@pytest.mark.usefixtures("qtbot")
 class TestTableauModel:
     def test_rowCount(self, tt):
         tt(4, 8)
@@ -50,12 +51,13 @@ class TestTableauModel:
         tt(4, 8)
         assert tt.columnCount() == 8
 
-    def load_proxy(self, tt):
+    def test_load_proxy(self, tt):
         tab = f_tableauSection(lignes=2, colonnes=5)
         tt.sectionId = tab.id
-        assert self.proxy.id == tab.id
-        assert self._rows == 2
-        assert self._columns == 4
+        with db_session:
+            assert tt.proxy.id == tab.id
+            assert tt._rows == 2
+            assert tt._columns == 5
 
     def test_sectionId(self, tt, qtbot):
         with qtbot.waitSignal(tt.sectionIdChanged):
@@ -120,6 +122,10 @@ class TestTableauModel:
         # idem pas de change
         with qtbot.assertNotEmitted(tt34.dataChanged):
             tt34.setData(tt34.index(0, 0), "aze", Qt.EditRole)
+
+    def test_update_recents_and_activite(self, qtbot, qapp, tt34):
+        with qtbot.waitSignal(qapp.dao.updateRecentsAndActivites):
+            tt34.setData(tt34.index(1, 0), "aze", Qt.EditRole)
 
 
 # def test_numBerOflines(self, tt):

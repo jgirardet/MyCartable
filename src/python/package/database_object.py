@@ -56,6 +56,9 @@ class DatabaseObject(QObject, *MIXINS):
         self.sectionAdded.connect(self.pageModel.insertRows)
         self.sectionRemoved.connect(self.pageModel.removeRow)
 
+        # mise à jour
+        self.imageChanged.connect(self.updateRecentsAndActivites)
+
         self.updateRecentsAndActivites.connect(self.pagesParSectionChanged)
         self.updateRecentsAndActivites.connect(self.recentsModelChanged)
 

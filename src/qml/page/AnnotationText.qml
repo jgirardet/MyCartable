@@ -57,7 +57,6 @@ TextArea {
     border.color: root.focus ? "#21be2b" : "transparent"
   }
   selectByMouse: true
-  hoverEnabled: true
   // slots
   onFocusChanged: {
 
@@ -76,14 +75,6 @@ TextArea {
       event.accepted = true
     }
   }
-  onHoveredChanged: hovered ? focus = true : null
-  onPressed: {
-    if (event.buttons === Qt.MiddleButton) {
-      deleteRequested(root)
-    } else if (event.buttons === Qt.RightButton) {
-      uiManager.menuFlottantText.ouvre(root)
-    }
-  }
 
   onTextChanged: ddb.updateAnnotation(ddbId, {
     "text": text
@@ -96,4 +87,42 @@ TextArea {
     }
   }
 
+  MouseArea {
+    id: mousearea
+    anchors.fill: parent
+    acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
+    hoverEnabled: true
+    onHoveredChanged: hovered ? root.focus = true : null
+    property bool held
+    //    property point startPosition
+    preventStealing: true
+    onPressed: {
+      if (mouse.buttons === Qt.MiddleButton) {
+        deleteRequested(root)
+        mouse.accepted = true
+      } else if (mouse.buttons === Qt.RightButton) {
+        uiManager.menuFlottantText.ouvre(root)
+        mouse.accepted = true
+      } else if (mouse.buttons === Qt.LeftButton && (mouse.modifiers & Qt.ControlModifier)) {
+        held = true
+        mouse.accepted = true
+      } else {
+        mouse.accepted = false
+      }
+    }
+    onReleased: {
+      if (held) {
+        held = false
+        ddb.updateAnnotation(root.ddbId, {
+          "relativeX": root.x / root.referent.implicitWidth,
+          "relativeY": root.y / root.referent.height
+        })
+      }
+
+    }
+    drag.target: root
+    //    drag.threshold: 0
+    drag.smoothed: false
+  }
 }
+//}

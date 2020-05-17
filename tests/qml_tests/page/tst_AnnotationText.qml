@@ -166,6 +166,7 @@ Item {
     function test_grossi__text() {
       var size = tested.font.pixelSize
       compare(tested.fontSizeFactor, 15)
+      tested.focus = true
       keyClick(Qt.Key_Plus, Qt.ControlModifier)
       compare(tested.fontSizeFactor, 14)
       compare(ddb._setStyle[1]['pointSize'], 14)
@@ -174,11 +175,19 @@ Item {
 
     function test_diminue__text() {
       var size = tested.font.pixelSize
+      tested.focus = true
       compare(tested.fontSizeFactor, 15)
       keyClick(Qt.Key_Minus, Qt.ControlModifier)
       compare(tested.fontSizeFactor, 16)
       compare(ddb._setStyle[1]['pointSize'], 16)
       verify(tested.font.pixelSize < size)
+    }
+
+    function test_drag() {
+      var old = Qt.point(tested.x, tested.y)
+      mouseDrag(tested, 1, 1, 20, 10, Qt.LeftButton, Qt.ControlModifier)
+      compare(tested.x, old.x + 20)
+      compare(tested.y, old.y + 10)
     }
 
   }

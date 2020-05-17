@@ -5,6 +5,7 @@ class UiManager(QObject):
 
     menuFlottantTextChanged = Signal()
     menuFlottantStabyloChanged = Signal()
+    menuFlottantImageChanged = Signal()
     menuFlottantTableauChanged = Signal()
     menuTargetChanged = Signal()
 
@@ -31,6 +32,16 @@ class UiManager(QObject):
     def menuFlottantStabylo_set(self, value: int):
         self._menuFlottantStabylo = value
         self.menuFlottantStabyloChanged.emit()
+
+    @Property(QObject, notify=menuFlottantImageChanged)
+    def menuFlottantImage(self):
+        return self._menuFlottantImage
+
+    @menuFlottantImage.setter
+    def menuFlottantImage_set(self, value: int):
+        print(value)
+        self._menuFlottantImage = value
+        self.menuFlottantImageChanged.emit()
 
     @Property(QObject, notify=menuFlottantTableauChanged)
     def menuFlottantTableau(self):

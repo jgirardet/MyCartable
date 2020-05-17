@@ -146,7 +146,11 @@ FocusScope {
 
     onPressed: {
       if (pressedButtons === Qt.RightButton) {
-        temp_rec = root.createZone(mouse)
+        if (mouse.modifiers == Qt.ControlModifier) {
+          uiManager.menuFlottantImage.ouvre(img)
+        } else {
+          temp_rec = root.createZone(mouse)
+        }
       } else if (pressedButtons === Qt.LeftButton) {
         root.focus = true
         root.addAnnotation(mouse)

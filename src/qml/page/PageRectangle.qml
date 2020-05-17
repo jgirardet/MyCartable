@@ -69,6 +69,12 @@ Rectangle {
     } else {
       print(newComp.errorString())
     }
+    var newComp = Qt.createComponent("qrc:/qml/menu/MenuFlottantImage.qml")
+    if (newComp.status == Component.Ready) {
+      uiManager.menuFlottantImage = newComp.createObject(base)
+    } else {
+      print(newComp.errorString())
+    }
   }
 
 }

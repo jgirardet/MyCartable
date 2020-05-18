@@ -1,5 +1,5 @@
 import Tableau 1.0
-
+import "qrc:/qml/operations"
 TableauSectionBase {
   id: root
   model: TableauModel {

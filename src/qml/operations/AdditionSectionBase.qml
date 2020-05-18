@@ -1,5 +1,4 @@
 import QtQuick 2.14
-import "../page/operations"
 
 BaseOperation {
   id: root

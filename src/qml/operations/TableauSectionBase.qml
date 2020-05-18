@@ -3,8 +3,6 @@ import QtQuick.Controls 2.14
 import "qrc:/js/lodash.js"
 as Lodash
 
-import "../page/operations"
-
 TableView {
   id: root
   /* beautify preserve:start */

@@ -1,5 +1,6 @@
 import itertools
 
+from PIL import Image
 from PySide2.QtGui import QFont
 from fixtures import compare, compare_items, check_is_range, wait
 from package.database.factory import *
@@ -1053,3 +1054,37 @@ class TestEquationModel:
         assert a.set(content="   ", curseur=3)["curseur"] == 0
         assert a.set(content="1+2", curseur=2)["content"] == "1+2"
         assert a.set(content="1+2", curseur=9)["curseur"] == 9
+
+
+class TestDessinModel:
+    def test_init(self, ddbr):
+        x = f_section(td=True)
+        with db_session:
+            a = Dessin(
+                x=0.1,
+                y=0.2,
+                width=0.5,
+                height=0.6,
+                section=x["id"],
+                tool="bla",
+                data=b"epofjpez",
+            )
+
+        with db_session:
+            image = Image.new("RGB", (20, 20))
+            a = Dessin.from_pillow_to_png(
+                image,
+                **{
+                    "x": 0.1,
+                    "y": 0.2,
+                    "tool": "bla",
+                    "width": 0.5,
+                    "height": 0.6,
+                    "section": x["id"],
+                }
+            )
+            print(a.data)
+            assert (
+                a.data
+                == b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x14\x00\x00\x00\x14\x08\x02\x00\x00\x00\x02\xeb\x8aZ\x00\x00\x00\x12IDATx\x9cc`\x18\x05\xa3`\x14\x8c\x82\xa1\x0b\x00\x04\xc4\x00\x014x$\x98\x00\x00\x00\x00IEND\xaeB`\x82"
+            )

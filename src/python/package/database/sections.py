@@ -1,6 +1,8 @@
 import json
 from datetime import datetime
 import re
+from io import BytesIO
+
 from PySide2.QtGui import QColor
 from descriptors import cachedproperty
 from package.exceptions import MyCartableOperationError
@@ -93,6 +95,7 @@ class Section(db.Entity):
 class ImageSection(Section):
     path = Required(str)
     annotations = Set("Annotation")
+    dessins = Set("Dessin")
 
     def to_dict(self, **kwargs):
         return super().to_dict(with_collections=True)
@@ -366,6 +369,23 @@ class Stabylo(Annotation):
 
 class AnnotationText(Annotation):
     text = Optional(str)
+
+
+class Dessin(db.Entity):
+    x = Required(float)
+    y = Required(float)
+    width = Required(float)
+    height = Required(float)
+    section = Required(ImageSection)
+    data = Required(bytes)
+    tool = Required(str)
+
+    @classmethod
+    def from_pillow_to_png(cls, image, **kwargs):
+        byte_tream = BytesIO()
+        image.save(byte_tream, "png")
+        byte_tream.seek(0)
+        return Dessin(data=byte_tream.read(), **kwargs)
 
 
 class TableauSection(Section):

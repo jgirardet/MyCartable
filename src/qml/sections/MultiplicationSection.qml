@@ -1,5 +1,5 @@
 import Operations 1.0
-
+import "qrc:/qml/operations"
 MultiplicationSectionBase {
   id: root
   model: MultiplicationModel {

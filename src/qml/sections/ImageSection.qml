@@ -1,8 +1,9 @@
 import QtQuick 2.14
 import QtQuick.Controls 2.14
 import "qrc:/qml/menu"
+import "qrc:/qml/dessin"
 
-FocusScope {
+Item {
   id: root
   /* beautify preserve:start */
     property int sectionId
@@ -132,7 +133,7 @@ FocusScope {
   Image {
     id: img
 
-    property QtObject mouseArea: mouseArea
+    property QtObject mouse: mouse
     //    asynchronous: true // asynchronous fail le scrolling on add
     fillMode: Image.PreserveAspectCrop
     sourceSize.width: sectionItem ? sectionItem.width : 0
@@ -140,9 +141,26 @@ FocusScope {
 
     // TODO: faire des trais.
   }
+
+  Repeater {
+    model: ["file:///home/jimmy/dev/qtforpython/build-untitled11-Desktop_Qt_5_14_2_GCC_64bit-Debug/bla.png", "file:///home/jimmy/dev/qtforpython/build-untitled11-Desktop_Qt_5_14_2_GCC_64bit-Debug/bla2.png", "file:///home/jimmy/dev/qtforpython/build-untitled11-Desktop_Qt_5_14_2_GCC_64bit-Debug/bla3.png"]
+    delegate: Image {
+      id: imgdelegate
+      source: modelData
+      x: 300
+    }
+  }
+
+  ImageCanvas {
+    id: canvas
+    mouse: mouse
+    anchors.fill: img
+
+  }
+
   MouseArea {
-    id: mouseArea
-    objectName: "mouseArea"
+    id: mouse
+    objectName: "mouse"
     anchors.fill: img
     /* beautify preserve:start */
     property var temp_rec: null
@@ -155,7 +173,8 @@ FocusScope {
         if (mouse.modifiers == Qt.ControlModifier) {
           uiManager.menuFlottantImage.ouvre(root)
         } else {
-          temp_rec = root.createZone(mouse)
+          canvas.startDraw()
+          //          temp_rec = root.createZone(mouse)
         }
       } else if (pressedButtons === Qt.LeftButton) {
         root.focus = true
@@ -164,19 +183,31 @@ FocusScope {
       }
     }
 
+    //    onPositionChanged: {
+    //      if (containsMouse && temp_rec) {
+    //        temp_rec = root.updateZone(mouse, temp_rec)
+    //      }
+    //    }
+
+    onReleased: {
+      //      if (mouse.button == Qt.RightButton && mouse.modifiers & Qt.NoModifier) {
+      //        temp_rec = root.storeZone(temp_rec)
+      //        if (!temp_rec) {}
+      //        temp_rec = null
+      if (canvas.painting) {
+        print("bla")
+        canvas.endDraw()
+      }
+
+    }
+    //    }
+
     onPositionChanged: {
-      if (containsMouse && temp_rec) {
-        temp_rec = root.updateZone(mouse, temp_rec)
+      if (pressedButtons == 2) {
+        canvas.requestPaint()
       }
     }
 
-    onReleased: {
-      if (mouse.button == Qt.RightButton && mouse.modifiers & Qt.NoModifier) {
-        temp_rec = root.storeZone(temp_rec)
-        if (!temp_rec) {}
-        temp_rec = null
-      }
-    }
   }
 
 }

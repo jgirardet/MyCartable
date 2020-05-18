@@ -1,5 +1,5 @@
 import Operations 1.0
-
+import "qrc:/qml/operations"
 DivisionSectionBase {
   id: root
   /* beautify preserve:start */

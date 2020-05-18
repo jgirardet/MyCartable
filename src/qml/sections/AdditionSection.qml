@@ -1,4 +1,5 @@
 import Operations 1.0
+import "qrc:/qml/operations"
 
 AdditionSectionBase {
   id: root

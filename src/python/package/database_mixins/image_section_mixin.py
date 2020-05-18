@@ -91,3 +91,39 @@ class ImageSectionMixin:
             im.transpose(sens_rotate).save(file)
             self.imageChanged.emit()
             return True
+
+    #
+    # def work(startX, startY, endX, endY, tool, data):
+    #     img = Image.open(urllib.request.urlopen(data))
+    #     width = img.width
+    #     height = img.height
+    #
+    #     # swap les indexes si besoin
+    #     if startX > endX:
+    #         bak = endX
+    #         endX = startX
+    #         startX = bak
+    #     if startY > endY:
+    #         bak = endY
+    #         endY = startY
+    #         startY = bak
+    #
+    #     # les positions relatives
+    #     relativeX = startX / width
+    #     relativeY = startY / height
+    #
+    #     # on transforme
+    #     res = img.crop((startX, startY, endX, endY))
+    #
+    #     Path("bla").write_bytes(res.tobytes())
+    #     encoded = base64.b64encode(res.tobytes())
+    #     x = b'data:image/png;base64,' + encoded
+    #     Path("blat").write_bytes(x)
+    #     Path("blatt").write_text(data)
+    #     print(x)
+    #     ii = BytesIO()
+    #     res.save(ii, "png")
+    #     ii.seek(0)
+    #     # print(ii.read())
+    #     Path("blattII").write_bytes(ii.read())
+    #     # print(res.tostring())

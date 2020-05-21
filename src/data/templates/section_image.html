@@ -1,0 +1,21 @@
+<%doc>
+    Section "Image":
+    Variables list:
+    path: URL / Path from image
+    annotations: List of annotations
+    stabylos: List of stabylos
+</%doc>
+
+
+
+<div class="section image" style="background-image: url('${path}');">
+    <img src="${path}"/>
+    % for annotation in annotations:
+        <!-- Annotation -->
+        <div class="annotation" style="color: ${annotation.style}; left: ${annotation.relativeX}px;top: ${annotation.relativeY}px;">${annotation.text}</div>
+    % endfor
+
+    % for stabylo in stabylos:
+        <!-- Marqueur -->
+        <div class="marqueur bg-blue" style="left: 143px;top: 273px;width: 95px;height: 30px;"></div>
+</div>

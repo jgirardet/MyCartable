@@ -31,7 +31,7 @@ html,body {
 .annotation {
     position: absolute;
     font-family: 'Cookie', Helvetica, sans-serif;
-    font-size: larger;
+    font-size: 20px;
 }
 .stabylo {
     position: absolute;
@@ -45,6 +45,17 @@ html,body {
     height: 1px;
     background-color: black;
     border: none;
+}
+
+.tableau table {
+    border: 1px solid #787E84;
+    margin-bottom: 1rem;
+    border-collapse: collapse;
+}
+.tableau table td, .tableau table th {
+    padding: .75rem;
+    vertical-align: top;
+    border: 1px solid #787E84;
 }
 
 

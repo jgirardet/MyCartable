@@ -1,12 +1,24 @@
 <%doc>
     Section "Image":
     Variables list:
-    path: URL / Path from image
-    annotations: List of annotations
-    stabylos: List of stabylos
+    path: URL / Chemin vers l'image
+    annotations: Liste des annotations
+        Annotation variables:
+        - relativeX: Position X relative à l'image
+        - relativeY: Position Y relative à l'image
+        - text: Contenu de l'annotation
+        - style: Couleur du texte. Formats acceptés: rgb(R,G,B), Hexa #RRGGBB
+    stabylos: Liste des stabylos
+        Stabylo variables:
+            - relativeX: Position X relative à l'image
+            - relativeY: Position Y relative à l'image
+            - relativeWidth: Largeur du stabylo
+            - relativeHeight: Hauteur du stabylo
+            - style: Couleur de fond du stabylo. Formats acceptés: rgb(R,G,B), Hexa #RRGGBB
+
+    => Les Stabylos ont automatiquement une opacité à 0.4
+    => Les positions des Stabylos et Annotations sont relatives à l'image.
 </%doc>
-
-
 
 <div class="section image" style="background-image: url('${path}');">
     <img src="${path}"/>
@@ -17,5 +29,5 @@
 
     % for stabylo in stabylos:
         <!-- Marqueur -->
-        <div class="marqueur bg-blue" style="left: 143px;top: 273px;width: 95px;height: 30px;"></div>
+        <div class="stabylo" style="background-color: ${stabylo.style}; left: ${stabylo.relativeX}px;top: ${stabylo.relativeY}px;width: ${stabylo.relativeWidth}px;height: ${stabylo.relativeHeight}px;"></div>
 </div>

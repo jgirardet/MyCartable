@@ -1,0 +1,49 @@
+html,body {
+    padding: 0;
+    margin: 0;
+}
+
+.page {
+    margin: 10px;
+}
+
+.section {
+    margin: 20px 0px;
+}
+
+.section.texte {
+    padding: 20px;
+}
+.section.image {
+    position: relative;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+.section.image img {
+    visibility: hidden;
+}
+.annotation {
+    position: absolute;
+    font-family: 'Cookie', Helvetica, sans-serif;
+    font-size: larger;
+}
+.marqueur {
+    position: absolute;
+    opacity: 0.4;
+}
+
+.division {
+
+}
+
+
+/* Colors */
+.txt-red { color: rgb(255,0,0); }
+.txt-blue { color: rgb(0,38,255); }
+.txt-green { color: rgb(6,159,19); }
+.txt-black { color: rgb(10,10,10); }
+
+.bg-red { background-color: rgb(255,0,0); }
+.bg-blue { background-color: rgb(0,38,255); }
+.bg-green { background-color: rgb(6,159,19); }
+.bg-black { background-color: rgb(10,10,10); }

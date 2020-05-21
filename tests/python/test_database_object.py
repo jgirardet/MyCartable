@@ -356,6 +356,7 @@ class TestSectionMixin:
             "colonnes": 3,
             "id": 1,
             "lignes": 3,
+            "dessins": [],
             "modified": a.modified.isoformat(),
             "page": 1,
             "position": 0,
@@ -525,6 +526,16 @@ class TestImageSectionMixin:
                 dao.get_new_image_path(".gif") == "2018/2344-09-21-07-48-05-d9ca3.gif"
             )
 
+    def test_store_new_file_pathlib(self, resources, dao):
+        obj = resources / "sc1.png"
+        res = dao.store_new_file(obj)
+        assert (dao.files / res).read_bytes() == obj.read_bytes()
+
+    def test_store_new_file_str(self, resources, dao):
+        obj = resources / "sc1.png"
+        res = dao.store_new_file(str(obj))
+        assert (dao.files / res).read_bytes() == obj.read_bytes()
+
     @pytest.mark.parametrize(
         "content",
         [
@@ -666,8 +677,9 @@ class TestImageSectionMixin:
         assert img.width == 124
 
     trait_600_600 = "data:image/png;base64,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"
-    trait_600_600_as_png = b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00D\x00\x00\x00b\x08\x06\x00\x00\x00\xe9\xe6u\x99\x00\x00\x038IDATx\x9c\xed\x9bM\x88\x8da\x18\x86/3\xfe\x86\xa6\xf1\x17\r2E\x84LQ\x14E\xa1P,(,X\xa0\xa4\xa4\x98\x05\x0b\x94\xa6\xa4\xb0`\x81\x92\x92\xc2\x82\x05\x0b\x16\x94\x14\x85\x10\xa2\x08\x11\x8d\x88\xfc4M\xc2`~\x8e\xc5g1\xf3>\xcf9\xdb{\xf1>W=\xab\xb3\xb9\xba\xfb\x9es\xce\xfb}\xdf\rP\xea1\x1b\tz\x05\xf2\x1d\x18\xaf\xd5\xd1SJ\xe6\x16P%5\x12\x93\x06R\x02vJ\x8d\xc4\xbc\xc5\x06\xf2\x07\x98.t\x922\x0f\xe8\xc4\x86\xf2\x14\x18 \xf4\x92r\x10\x7fu\x0e)\xa5\x94\xf4\x07\x9e`\x03\xe9\x02\x16\xe8\xb4\xb44\x02\xed\xd8PZ\x80:\x9d\x96\x96\x1d\xf8\xabsF)\xa5\xa4\n\xb8\x89\r\xa4\x1bX\xa5\xd3\xd2\xd2\x00\xb4aC\xf9\n\xd4\xeb\xb4\xb4\xac\xc7_\x9d+J)5\x17\xf1C\xd9\xac\x94R2\x02\xf8\x84\r\xe4\x070Q\xe8%e\x19\xc5\x17j\x1a\xca]\xa0Z\xe8%\xe5\x04\xfe\xea\xecQJ)\x19\x0c\xbc\xc6\x06\xf2\x17\x98)\xf4\x922\x07\xe8\xc0\x86\xf2\x02\xa8\x11zI\xd9\x87\xbf:G\x94RJ\xfa\x01\x0f\xf1\x0f\x80\x8b\x84^R\xa6\x00\xbf\xb0\xa1\xbc\x07\x86\n\xbd\xa44\xe1\xaf\xce9\xa5\x94\x92>\xc0u\xfcP\xd6\x08\xbd\xa4\x8c\x05Z\xb1\x81\xb4\xfe\xff,K\xd6\xe2_%\xd7(\xae\xa2,9\x8f\x1f\xca6\xa5\x94\x92a\xc0\x07l ?)~\x91\xb2d1\xfe\x01\xf0\x01\xc5\x7f\x97,9\x8a\xbf:{\x95RJj\x80\x97\xd8@:\x80\xd9B/)\xb3(N\xc0i(\xaf(N\xccY\xd2\x8c\xbf:\xc7\x95RJ\xfa\x02\xf7\xf0\x1fc,\x15zI\x99Dq\xdf5\r\xe5#0\\\xe8%e\x0b\xfe\xea\\PJ\xa9\xb9\x8a\x1f\xca:\xa5\x94\x92z\xe0\x1b6\x906\x8a\xa7\x83Y\xb2\x1a\xff_\xec\r2~\x8f\xed,\xfe\xealWJ)\xa9\x03\xdea\x03i\x07\xa6\t\xbd\xa4,\xa4\xb8\x19\x9d\x86\xf2\x98\xe2\xed\xa5,9\x8c\xbf:\x07\x94RJ\x06\x02\xcf\xb0\x81t\x02s\x85^RfP\xbc\x03\x9b\x86\xf2\x06\xa8\x15zI\xd9\x85\xbf:\'\x95RJ\xaa\x81\xdb\xf8\x07\xc0\xe5B/)\x13(\x9a\x17i(\x9f\x81\x91B/)\x9b\xf0W\xe7\x92RJ\xcde\xfcP\xb2-2\x8d\x02\xbe`\x03\xc9\xba\xc8\xb4\x02\xff\x00\x98u\x91\xe9\x14\xfe\xead[d\xaa\xc5/2\xfd&\x8aL&\x94(29\x13E\xa6d\xba\x80\xf92+1\x8d\x14\xdf\x1di(-D\x91\xc9\xcci\xa5\x94\x92JE\xa6\x95:--\rD\x91\xc9\xb0\x01\x7fu\xa2\xc8\xe4L\x14\x99\x92\x89"\x136\x94(29\x13E\xa6d\xa2\xc8\x84\r\xe59Qd2\x93u\x91\xe9\x11\xfe\x010\xdb"\xd3T\xa2\xc8dh\xc2_\x9d(29\x13E\xa6dZ\x811B/)Qdr(Wd\xda\xaa\x94RR\xa9\xc84Y\xe8%e\tQd2\x1c\xc3_\x9dl\x8bL\x83\x88"\x93!\x8aL\x0e\xcd\xf8\xab\x93u\x91\xe9>\xfec\x8c(2%\x13E&g\xa2\xc8\xe4L\xb6E\xa6\xd1\x94/2\x8d\xd3ii\xa9Td\xca\xf6\x00\x18E\xa6\x84!D\x91\xc9\x10E&\x87rE\xa6\xfdJ)%Qdr\xa8Td\xca\x96\xdd\xf8\xab\x93-\xd5\xc0\x1d"\x90^xE\xa6\xec\xe9Yd\xea\xfe\x07\xbf\x87D\xfd\xfc\x104\x06\x00\x00\x00\x00IEND\xaeB`\x82'
+    trait_600_600_as_png = "2019/2019-05-21-12-00-01-349bd.png"
 
+    @pytest.mark.freeze_time("2019-05-21 12:00:01")
     @pytest.mark.parametrize(
         "startX, startY, endX, endY, tool, data, res",
         [
@@ -686,7 +698,7 @@ class TestImageSectionMixin:
                     "width": (146 - 78) / 600,
                     "x": 78 / 600,
                     "y": 154 / 600,
-                    "data": trait_600_600_as_png,
+                    "path": trait_600_600_as_png,
                 },
             ),
             (
@@ -704,17 +716,27 @@ class TestImageSectionMixin:
                     "width": (146 - 78) / 600,
                     "x": 78 / 600,
                     "y": 154 / 600,
-                    "data": trait_600_600_as_png,
+                    "path": trait_600_600_as_png,
                 },
             ),
         ],
     )
-    def test_new_dessin(self, startX, startY, endX, endY, tool, data, res, dao, ddbn):
-        s = f_section()
-        dao.newDessin(s.id, startX, startY, endX, endY, tool, data)
-        with db_session:
-            item = ddbn.Dessin[1]
-            assert item.to_dict() == res
+    def test_new_dessin(
+        self, startX, startY, endX, endY, tool, data, res, dao, ddbn, monkeypatch
+    ):
+        uu = uuid.UUID("349bd92b-d477-4251-be88-21dcf6cb6ca8")
+        with monkeypatch.context() as m:
+            m.setattr(uuid, "uuid4", lambda: uu)
+            assert uuid.uuid4() == uu
+            s = f_section()
+            dao.newDessin(s.id, startX, startY, endX, endY, tool, data)
+            with db_session:
+                item = ddbn.AnnotationDessin[1]
+                dico = item.to_dict()
+                assert dico == res
+
+    def test_get_dessin_model(self, dao):
+        f_section()
 
 
 class TestSettingsMixin:

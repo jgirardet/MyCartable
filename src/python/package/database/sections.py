@@ -18,6 +18,7 @@ class Section(db.Entity):
     modified = Optional(datetime)
     page = Required("Page")
     _position = Required(int)
+    annotations = Set("Annotation")
 
     def __init__(self, *args, _position=None, page=None, position=None, **kwargs):
         # breakpoint()
@@ -94,8 +95,6 @@ class Section(db.Entity):
 
 class ImageSection(Section):
     path = Required(str)
-    annotations = Set("Annotation")
-    dessins = Set("Dessin")
 
     def to_dict(self, **kwargs):
         return super().to_dict(with_collections=True)
@@ -338,9 +337,9 @@ class EquationSection(Section):
 
 class Annotation(db.Entity):
     id = PrimaryKey(int, auto=True)
-    relativeX = Required(float)
-    relativeY = Required(float)
-    section = Required(ImageSection)
+    x = Required(float)
+    y = Required(float)
+    section = Required(Section)
     style = Optional(db.Style, default=db.Style, cascade_delete=True)
 
     def __init__(self, **kwargs):
@@ -348,11 +347,16 @@ class Annotation(db.Entity):
             kwargs["style"] = db.Style(**kwargs["style"])
         super().__init__(**kwargs)
 
-    def to_dict(self, *args, **kwargs):
-        dico = super().to_dict(*args, **kwargs)
-        if "style" in dico:  # ne pas l'ajouter sur a été exclude
-            dico["style"] = self.style.to_dict()
+    def to_dict(self, **kwargs):
+        dico = super().to_dict(**kwargs, related_objects=True)
+        dico.update(dico.pop("style").to_dict())
         return dico
+
+    def set(self, **kwargs):
+        if "style" in kwargs:
+            style = kwargs.pop("style")
+            self.style.set(**style)
+        super().set(**kwargs)
 
     def before_insert(self):
         self.section.before_update()
@@ -362,30 +366,34 @@ class Annotation(db.Entity):
             self.section.before_update()
 
 
-class Stabylo(Annotation):
-    relativeWidth = Required(float)
-    relativeHeight = Required(float)
+#
+# class Stabylo(Annotation):
+#     relativeWidth = Required(float)
+#     relativeHeight = Required(float)
 
 
 class AnnotationText(Annotation):
     text = Optional(str)
+    #
+    # def to_dict(self, **kwargs):
+    #     dico = super().to_dict(exclude=["style"], **kwargs)
+    #     dico["fgColor"] = self.style.fgColor
+    #     dico["fillStyle"] = self.style.bgColor
+    #     dico["lineWidth"] = self.style.pointSize
+    #     return dico
 
 
-class Dessin(db.Entity):
-    x = Required(float)
-    y = Required(float)
+class AnnotationDessin(Annotation):
+    # id = PrimaryKey(int, auto=True)
     width = Required(float)
     height = Required(float)
-    section = Required(ImageSection)
-    data = Required(bytes)
     tool = Required(str)
-
-    @classmethod
-    def from_pillow_to_png(cls, image, **kwargs):
-        byte_tream = BytesIO()
-        image.save(byte_tream, "png")
-        byte_tream.seek(0)
-        return Dessin(data=byte_tream.read(), **kwargs)
+    # section = Required(Section)
+    """style : 
+        fgColor: strokeStyle
+        bgColor: fillStyle
+        pointSize: lineWidth
+    """
 
 
 class TableauSection(Section):

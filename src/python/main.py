@@ -62,19 +62,21 @@ def register_new_qml_type(databaseObject):
     )
     from package.page.text_section import DocumentEditor
     from package.page.tableau_section import TableauModel
+    from package.page.annotation_model import AnnotationModel
 
-    qmlRegisterType(DocumentEditor, "DocumentEditor", 1, 0, "DocumentEditor")
     AdditionModel.ddb = databaseObject
     SoustractionModel.ddb = databaseObject
     MultiplicationModel.ddb = databaseObject
     DivisionModel.ddb = databaseObject
     TableauModel.ddb = databaseObject
 
-    qmlRegisterType(AdditionModel, "Operations", 1, 0, "AdditionModel")
-    qmlRegisterType(SoustractionModel, "Operations", 1, 0, "SoustractionModel")
-    qmlRegisterType(MultiplicationModel, "Operations", 1, 0, "MultiplicationModel")
-    qmlRegisterType(DivisionModel, "Operations", 1, 0, "DivisionModel")
-    qmlRegisterType(TableauModel, "Tableau", 1, 0, "TableauModel")
+    qmlRegisterType(DocumentEditor, "DocumentEditor", 1, 0, "DocumentEditor")
+    qmlRegisterType(AdditionModel, "MyCartable", 1, 0, "AdditionModel")
+    qmlRegisterType(SoustractionModel, "MyCartable", 1, 0, "SoustractionModel")
+    qmlRegisterType(MultiplicationModel, "MyCartable", 1, 0, "MultiplicationModel")
+    qmlRegisterType(DivisionModel, "MyCartable", 1, 0, "DivisionModel")
+    qmlRegisterType(TableauModel, "MyCartable", 1, 0, "TableauModel")
+    qmlRegisterType(AnnotationModel, "MyCartable", 1, 0, "AnnotationModel")
 
 
 def create_singleton_instance():

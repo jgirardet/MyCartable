@@ -2,11 +2,12 @@ import urllib.request
 from io import BytesIO
 from pathlib import Path
 
-from PySide2.QtCore import Slot
+from PySide2.QtCore import Slot, QUrl, QAbstractListModel
 from PySide2.QtCore import Slot, Signal
 from package.convert import run_convert_pdf
+from package.files_path import filesify
 from package.utils import get_new_filename
-from pony.orm import db_session
+from pony.orm import db_session, select
 from PIL import Image
 
 
@@ -76,12 +77,16 @@ class ImageSectionMixin:
     def get_new_image_path(self, ext):
         return Path(str(self.annee_active), get_new_filename(ext)).as_posix()
 
-    def store_new_file(self, filepath):
-        res_path = str(self.get_new_image_path(filepath.suffix))
-        new_file = self.files / res_path
-        new_file.parent.mkdir(parents=True, exist_ok=True)
-        new_file.write_bytes(filepath.read_bytes())
-        return res_path
+    def store_new_file(self, filepath, ext=None):
+        if isinstance(filepath, str):
+            filepath = Path(filepath).resolve()
+        if isinstance(filepath, Path):
+            ext = ext or filepath.suffix
+            res_path = self.get_new_image_path(ext)
+            new_file = self.files / res_path
+            new_file.parent.mkdir(parents=True, exist_ok=True)
+            new_file.write_bytes(filepath.read_bytes())
+            return res_path
 
     @Slot(int, int, result=bool)
     def pivoterImage(self, sectionId, sens):
@@ -94,29 +99,37 @@ class ImageSectionMixin:
             self.imageChanged.emit()
             return True
 
-    @Slot(int, int, int, int, int, str, str)
-    def newDessin(self, sectionId, startX, startY, endX, endY, tool, data):
-        img = Image.open(urllib.request.urlopen(data))
-
-        # swap les indexes si besoin
-        if startX > endX:
-            bak = endX
-            endX = startX
-            startX = bak
-        if startY > endY:
-            bak = endY
-            endY = startY
-            startY = bak
-
-        # on transforme
-        res = img.crop((startX, startY, endX, endY))
-
-        # les positions relatives
-        x = startX / img.width
-        y = startY / img.height
-        height = res.height / img.height
-        width = res.width / img.width
+    @Slot(int, result="QVariantList")
+    def getDessinModel(self, sectionId):
+        print(sectionId)
         with db_session:
-            dessin = self.db.Dessin.from_pillow_to_png(
-                res, x=x, y=y, height=height, width=width, section=sectionId, tool=tool
+            query = select(
+                p for p in self.db.AnnotationDessin if p.section.id == sectionId
             )
+            res = [p.to_dict() for p in query]
+            print(res)
+            return res
+
+    # @Slot(int, "QVariantMap")
+    # def newDessin(self, sectionId, datas):
+    #     # les positions relatives
+    #     print("dans new dessin", datas)
+    #     datas["startX"] /= datas["width"]
+    #     datas["endX"] /= datas["width"]
+    #     datas["startY"] /= datas["height"]
+    #     datas["endY"] /= datas["height"]
+    #     with db_session:
+    #         dessin = self.db.AnnotationDessin(
+    #             section=sectionId,
+    #             startX=datas["startX"],
+    #             endX=datas["endX"],
+    #             startY=datas["startY"],
+    #             endY=datas["endY"],
+    #             tool=datas["tool"],
+    #             style={
+    #                 "fgColor": datas["strokeStyle"],
+    #                 "bgColor": datas["fillStyle"],
+    #                 "pointSize": datas["lineWidth"],
+    #             },
+    #         )
+    #         print(dessin.to_dict())

@@ -87,7 +87,7 @@ Item {
 
   CasTest {
     name: "SoustractionSection"
-    testedNom: "qrc:/qml/sections/SoustractionSectionBase.qml"
+    testedNom: "qrc:/qml/operations/SoustractionSectionBase.qml"
     /* beautify preserve:start */
     property var model
     /* beautify preserve:end */

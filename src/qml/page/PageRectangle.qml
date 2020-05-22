@@ -51,9 +51,9 @@ Rectangle {
   }
 
   Component.onCompleted: {
-    var newComp = Qt.createComponent("qrc:/qml/menu/MenuFlottantStabylo.qml")
+    var newComp = Qt.createComponent("qrc:/qml/menu/MenuFlottantAnnotationDessin.qml")
     if (newComp.status == Component.Ready) {
-      uiManager.menuFlottantStabylo = newComp.createObject(base)
+      uiManager.menuFlottantAnnotationDessin = newComp.createObject(base)
     } else {
       print(newComp.errorString())
     }
@@ -63,9 +63,21 @@ Rectangle {
     } else {
       print(newComp.errorString())
     }
+    var newComp = Qt.createComponent("qrc:/qml/menu/MenuFlottantAnnotationText.qml")
+    if (newComp.status == Component.Ready) {
+      uiManager.menuFlottantAnnotationText = newComp.createObject(base)
+    } else {
+      print(newComp.errorString())
+    }
     var newComp = Qt.createComponent("qrc:/qml/menu/MenuFlottantTableau.qml")
     if (newComp.status == Component.Ready) {
       uiManager.menuFlottantTableau = newComp.createObject(base)
+    } else {
+      print(newComp.errorString())
+    }
+    var newComp = Qt.createComponent("qrc:/qml/menu/MenuFlottantImage.qml")
+    if (newComp.status == Component.Ready) {
+      uiManager.menuFlottantImage = newComp.createObject(base)
     } else {
       print(newComp.errorString())
     }

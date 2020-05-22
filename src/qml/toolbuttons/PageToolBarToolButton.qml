@@ -15,7 +15,6 @@ ToolButton {
   icon.color: enabled ? "transparent" : ddb.colorPageToolBar
   visible: enabled
   onClicked: {
-    print(dialog)
     if (dialog) {
       dialog.open()
     } else {

@@ -125,7 +125,7 @@ Item {
 
   CasTest {
     name: "TableauSection"
-    testedNom: "qrc:/qml/sections/TableauSectionBase.qml"
+    testedNom: "qrc:/qml/operations/TableauSectionBase.qml"
     params: {}
     /* beautify preserve:start */
     property var model

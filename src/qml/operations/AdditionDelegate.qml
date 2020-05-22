@@ -1,7 +1,6 @@
 import QtQuick 2.14
 import QtQuick.Controls 2.14
-import "../../divers"
-
+import "qrc:/qml/divers"
 Rectangle {
   id: root
   property alias model: input.model

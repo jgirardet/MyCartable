@@ -100,74 +100,88 @@ Item {
       mousePress(tested, 100, 100, Qt.LeftButton)
       mouseMove(tested, 50, 50)
     }
-    //
-    //    function test_store_zone() {
-    //      // index 4 car deja 4 dans la ddb
-    //      mousePress(tested, 50, 50, Qt.RightButton)
-    //      var rec = findChild(tested, "mouseArea").temp_rec
-    //      rec.x = 50
-    //      rec.y = 50 // car problème avec le mock
-    //      mouseMove(tested, 100, 170)
-    //      mouseRelease(tested, 100, 170, Qt.RightButton)
-    //      //      var rec = findChild(tested, "mouseArea").temp_rec
-    //      //      compare(rec, null)
-    //      //      compare(tested.annotations[4].relativeWidth, 0.25)
-    //      //      compare(tested.annotations[4].relativeHeight, 120 / 174) //cf plus heut
-    //      //      compare(tested.annotations[4].ddbId, 1)
-    //
-    //    }
 
-    //    function test_load_stabylo_on_completed() {
-    //      tested.destroy()
-    //
-    //      var ano = createObj("qrc:/qml/page/AnnotableImage.qml", {
-    //        "sectionId": 1,
-    //        "base": item
-    //      })
-    //      compare(ano.annotations.length, 4)
-    //      var item2 = ano.annotations[1]
-    //      compare(item2.relativeX, 0.48)
-    //      compare(item2.relativeY, 0.10)
-    //      compare(item2.relativeWidth, 0.226457399103139)
-    //      compare(item2.relativeHeight, 0.07969151670951156)
-    //      compare(item2.ddbId, 6)
-    //      compare(Qt.colorEqual(item2.color, "blue"), true)
+    function test_store_zone() {
+      // index 4 car deja 4 dans la ddb
+      mousePress(tested, 50, 50, Qt.RightButton)
+      var rec = findChild(tested, "mouseArea").temp_rec
+      rec.x = 50
+      rec.y = 50 // car problème avec le mock
+      mouseMove(tested, 100, 170)
+      mouseRelease(tested, 100, 170, Qt.RightButton)
+      //      var rec = findChild(tested, "mouseArea").temp_rec
+      //      compare(rec, null)
+      //      compare(tested.annotations[4].relativeWidth, 0.25)
+      //      compare(tested.annotations[4].relativeHeight, 120 / 174) //cf plus heut
+      //      compare(tested.annotations[4].ddbId, 1)
 
-    //  }
-    //
-    //    function test_load_annotationText_on_completed() {
-    //      tested.destroy()
-    //      var ano = createObj("qrc:/qml/page/AnnotableImage.qml", {
-    //        "sectionId": 1,
-    //        "base": item
-    //      })
-    //
-    //      compare(ano.annotations.length, 4)
-    //      var itemx = ano.annotations[0]
-    //      compare(itemx.relativeX, 0.16367713004484305)
-    //      compare(itemx.relativeY, 0.6580976863753213)
-    //      compare(itemx.ddbId, 7)
-    //      compare(itemx.text, "un annotation")
-    //
-    //    }
-    //
+    }
+
+    function test_load_stabylo_on_completed() {
+      tested.destroy()
+
+      var ano = createObj("qrc:/qml/sections/ImageSection.qml", {
+        "sectionId": 1,
+        "sectionItem": item
+      })
+      compare(ano.annotations.length, 4)
+      var item2 = ano.annotations[1]
+      compare(item2.relativeX, 0.48)
+      compare(item2.relativeY, 0.10)
+      compare(item2.relativeWidth, 0.226457399103139)
+      compare(item2.relativeHeight, 0.07969151670951156)
+      compare(item2.ddbId, 6)
+      compare(Qt.colorEqual(item2.color, "blue"), true)
+
+    }
+
+    function test_load_annotationText_on_completed() {
+      tested.destroy()
+      var ano = createObj("qrc:/qml/sections/ImageSection.qml", {
+        "sectionId": 1,
+        "sectionItem": item
+      })
+
+      compare(ano.annotations.length, 4)
+      var itemx = ano.annotations[0]
+      compare(itemx.relativeX, 0.4)
+      compare(itemx.relativeY, 0.5)
+      compare(itemx.ddbId, 7)
+      compare(itemx.text, "un annotation")
+
+    }
+
     //    function test_load_annotationText__unerlinedon_completed() {
     //      tested.destroy()
-    //      var ano = createObj("qrc:/qml/page/AnnotableImage.qml", {
-    //        "sectionId": 1,
-    //        "base": item
+    //      var ano = createObj("qrc:/qml/sections/ImageSection.qml", {
+    //        "sectionId": 3796,
+    //        "sectionItem": item
     //      })
     //
     //      compare(ano.annotations.length, 4)
     //      var obj = ano.annotations[2]
-    //      compare(obj.color, "#008000")
+    //      //      obj.objStyle = {
+    //      //        "underline": true
+    //      //      }
+    //      //      print(obj.ddbId, obj.objStyle.underline)
+    //      //      compare(obj.objStyle.fgColor, "#008000")
+    //      compare(obj.ddbId, 5)
+    //      compare(obj.objStyle, 5)
     //      compare(obj.font.underline, true)
     //    }
-    //
+
     //    function test_delete_annotationText() {
     //      var testedText = createObj("qrc:/qml/page/AnnotationText.qml", {
     //        "ddbId": 5,
     //        "referent": tested,
+    //        "model": {
+    //          'id': 7,
+    //          'relativeX': 0.4, // important pout les test
+    //          'relativeY': 0.5, // important pout les test
+    //          'section': 3796,
+    //          'classtype': 'AnnotationText',
+    //          'text': "un annotation",
+    //        }
     //        //        "uiManager": uiManager
     //      })
     //      tested.annotations = []
@@ -180,7 +194,7 @@ Item {
     //      compare(tested.ddbId, undefined)
     //
     //    }
-    //
+
     //    function test_delete_stabylo() {
     //      var restabb = createObj("qrc:/qml/page/StabyloRectangle.qml", {
     //        "ddbId": 5,
@@ -202,6 +216,12 @@ Item {
     //      compare(restabb.ddbId, undefined)
     //    }
 
+    function test_menu() {
+      compare(uiManager.menuFlottantImage.visible, false)
+      mouseClick(tested, 0, 0, Qt.RightButton, Qt.ControlModifier)
+      compare(uiManager.menuFlottantImage.visible, true)
+
+    }
   }
 
 }

@@ -179,38 +179,6 @@ def f_textSection(text=None, **kwargs):
     return _f_section("TextSection", text=text, **kwargs)
 
 
-def f_stabylo(
-    relativeX=None,
-    relativeY=None,
-    relativeWidth=None,
-    relativeHeight=None,
-    td=False,
-    section=None,
-    style=None,
-):
-    relativeX = relativeX or random.randint(0, 100) / 100
-    relativeY = relativeY or random.randint(0, 100) / 100
-    relativeWidth = relativeWidth or random.randint(0, 100) / 100
-    relativeHeight = relativeHeight or random.randint(0, 100) / 100
-    section = section or f_section().id
-    with db_session:
-        style = style or db.Style()
-        flush()
-        item = db.Stabylo(
-            relativeX=relativeX,
-            relativeY=relativeY,
-            relativeWidth=relativeWidth,
-            relativeHeight=relativeHeight,
-            section=section,
-            style=style if isinstance(style, (int, dict)) else style.id,
-        )
-        return item.to_dict() if td else item
-
-
-def b_stabylo(n, *args, **kwargs):
-    return [f_stabylo(*args, **kwargs) for x in range(n)]
-
-
 def f_annotationText(
     relativeX=None, relativeY=None, text="", td=False, section=None, style=None,
 ):

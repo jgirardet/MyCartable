@@ -3,7 +3,7 @@ from PySide2.QtGui import QFont, QTextCharFormat, QColor, QBrush
 
 CF_H1 = {
     "fontWeight": QFont.Black,
-    "fontPointSize": 20,
+    "fontPointSize": 35,
     "fontUnderline": True,
     "underlineColor": "red",
     "underlineStyle": QTextCharFormat.SingleUnderline,
@@ -12,7 +12,7 @@ CF_H1 = {
 }
 CF_H2 = {
     "fontWeight": QFont.Bold,
-    "fontPointSize": 15,
+    "fontPointSize": 30,
     "fontUnderline": True,
     "underlineColor": "green",
     "underlineStyle": QTextCharFormat.SingleUnderline,
@@ -21,12 +21,22 @@ CF_H2 = {
 }
 CF_H3 = {
     "fontWeight": QFont.DemiBold,
-    "fontPointSize": 12,
+    "fontPointSize": 25,
     "fontUnderline": True,
     "underlineColor": "blue",
     "underlineStyle": QTextCharFormat.SingleUnderline,
     "foreground": "blue",
     "background": "white",
+}
+
+CF_P = {
+    "fontWeight": QFont.Normal,
+    "fontPointSize": 20,
+    "fontUnderline": False,
+    "underlineColor": "blue",
+    "underlineStyle": QTextCharFormat.NoUnderline,
+    "foreground": "dimgray",
+    "background": "transparent",
 }
 # "Font": ,
 # "FontCapitalization": ,
@@ -69,8 +79,9 @@ def buildBlockFormat(format):
 H1c = buildBlockFormat(CF_H1)
 H2c = buildBlockFormat(CF_H2)
 H3c = buildBlockFormat(CF_H3)
+Pc = buildBlockFormat(CF_P)
 
-CharFormats = {1: H1c, 2: H2c, 3: H3c}  # , "p": P}
+CharFormats = {1: H1c, 2: H2c, 3: H3c, "p": Pc}
 
 #
 # for x in CF_H1.keys():

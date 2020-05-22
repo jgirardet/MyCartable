@@ -1,6 +1,8 @@
+import io
 import re
 
-from PySide2.QtCore import QObject, Signal, Property, Slot
+from PySide2 import QtCore
+from PySide2.QtCore import QObject, Signal, Property, Slot, QFile, QUrl, QIODevice
 from PySide2.QtGui import (
     QTextDocument,
     QTextCharFormat,
@@ -136,7 +138,8 @@ class DocumentEditor(QObject):
             self._cursor.movePosition(QTextCursor.End)
             self._cursor.insertBlock(BlockFormats["p"])
             self._cursor.select(QTextCursor.BlockUnderCursor)
-            self._cursor.setBlockCharFormat(QTextCharFormat())
+            # self._cursor.setBlockCharFormat(QTextCharFormat())
+            self._cursor.setBlockCharFormat(CharFormats["p"])
             self._cursor.clearSelection()
 
         self._cursor.endEditBlock()
@@ -147,35 +150,41 @@ class DocumentEditor(QObject):
         if not self._cursor.hasSelection():
             self._cursor.select(QTextCursor.WordUnderCursor)
         f = QTextCharFormat()
-        if data["type"] == "color":
-            f.setForeground(QBrush(data["value"]))
+        if "style" in data:
 
-        elif data["type"] == "underline":
-            f.setForeground(data["value"])
-            f.setUnderlineColor(QColor("yellow"))
-            f.setFontUnderline(True)
+            if "fgColor" in data["style"]:
+                f.setForeground(QBrush(data["style"]["fgColor"]))
+
+            if "underline" in data["style"]:
+                f.setFontUnderline(data["style"]["underline"])
 
         self._cursor.mergeCharFormat(f)
         self.selectionCleared.emit()
 
     @Slot(int)
     def _updateProxy(self, value):
+        print(value)
         with db_session:
 
             item = db.TextSection.get(id=value)
+            print("item", item)
             if item:
                 self._proxy = make_proxy(item)
 
                 # set primitive style
-                self._document.setDefaultStyleSheet(
-                    "body { font-size: 22pt; color: black; }"
-                )
+                aaa = QFile(":/css/textsection.css")
+                aaa.open(QFile.ReadOnly | QFile.Text)
+                self._document.setDefaultStyleSheet(aaa.readData(aaa.bytesAvailable()))
+                print(self._document.defaultStyleSheet())
+
                 # # on convertit en html si plain text
                 if not bool(BeautifulSoup(item.text, "html.parser").find()):
                     item.text = f"<html><body>{item.text}</body></html>"
 
                 # load content
-                self._document.setHtml(item.text)
+                # print(item.text)
+                self.document.setPlainText("aaa")
+                print(self.document.toHtml())
                 self._update_block_format()
 
                 # set connection later to avoid save on first load
@@ -191,6 +200,7 @@ class DocumentEditor(QObject):
     def onDocumenContentsChanged(self):
         with db_session:
             self._proxy.text = self.document.toHtml()
+            print("//////", self._proxy.text, "///////")
         self.dao.updateRecentsAndActivites.emit()
         # self.documentChanged.emit()
         # self.documentContentChanged.emit()
@@ -206,5 +216,6 @@ class DocumentEditor(QObject):
                 c.setCharFormat(CharFormats[heading_level])
             else:
                 c.setBlockFormat(BlockFormats["p"])
+                # c.setCharFormat(CharFormats["p"])
 
             b = b.next()

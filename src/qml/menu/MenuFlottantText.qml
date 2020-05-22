@@ -61,7 +61,7 @@ BaseMenu {
         color: "red"
         style: {
           "fgColor": color,
-          "underline": "true"
+          "underline": true
         }
         shortcut: "Alt+r"
         menu: root
@@ -71,7 +71,7 @@ BaseMenu {
         color: "blue"
         style: {
           "fgColor": color,
-          "underline": "true"
+          "underline": true
         }
         shortcut: "Alt+b"
         menu: root
@@ -81,7 +81,7 @@ BaseMenu {
         color: "green"
         style: {
           "fgColor": color,
-          "underline": "true"
+          "underline": true
         }
         shortcut: "Alt+g"
         menu: root
@@ -92,7 +92,7 @@ BaseMenu {
         color: "black"
         style: {
           "fgColor": color,
-          "underline": "true"
+          "underline": true
         }
         shortcut: "Alt+n"
         menu: root

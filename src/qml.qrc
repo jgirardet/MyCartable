@@ -92,6 +92,9 @@
     <qresource prefix="/js">
         <file alias="lodash.js">data/js/lodash.js</file>
     </qresource>
+    <qresource prefix="/css">
+        <file alias="textsection.css">data/css/textsection.css</file>
+    </qresource>
     <qresource prefix="/tests">
         <file alias="tst_AnnotableImage.png">../tests/resources/tst_AnnotableImage.png</file>
 <!--        <file alias="core.js">js/core.js</file>-->

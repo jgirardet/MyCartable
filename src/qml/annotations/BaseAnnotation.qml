@@ -77,7 +77,6 @@ Loader {
   }
 
   function setStyleFromMenu(data) {
-      print(JSON.stringify(data))
       data["id"] = annot.id
       edit= data
     }
@@ -85,7 +84,6 @@ Loader {
     root.setSource(`qrc:/qml/annotations/${annot.classtype}.qml`, {
       "referent": referent,
     })
-//    print(x, y, anchors.topMargin, anchors.leftMargin)
   }
 
 }

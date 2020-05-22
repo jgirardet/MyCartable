@@ -11,7 +11,6 @@ BaseOperation {
   }
 
   Component.onCompleted: {
-    print(width)
     currentIndex = count - 1
   }
 }

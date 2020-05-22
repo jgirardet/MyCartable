@@ -13,7 +13,6 @@ Slider {
   from: 1
   value: 5
   onValueChanged: {
-    print(menu)
     menu.target.setStyleFromMenu({
       "style": {
         "pointSize": value

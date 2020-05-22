@@ -49,8 +49,6 @@ TextArea {
     }
   }
   Component.onCompleted: {
-    print(parent)
-    print(JSON.stringify(root.annotation))
     if (!annot.pointSize) {
       fontSizeFactor = uiManager.annotationCurrentTextSizeFactor
     }
@@ -90,7 +88,6 @@ TextArea {
   }
 
     function move(key) {
-      print(parent.anchors.topMargin)
       if (key == Qt.Key_Left) {
         parent.move(-moveStep, 0)
       } else if (key == Qt.Key_Right) {

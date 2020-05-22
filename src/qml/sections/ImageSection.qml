@@ -36,14 +36,20 @@ Image {
     onPressed: {
       if (pressedButtons === Qt.RightButton) {
         if (mouse.modifiers == Qt.ControlModifier) {
-          uiManager.menuFlottantImage.ouvre(root)
+          canvas.startDraw(true)
         } else {
-          canvas.startDraw()
+          uiManager.menuFlottantImage.ouvre(root)
         }
       } else if (pressedButtons === Qt.LeftButton) {
-        print("adde annotaiton")
-        root.model.addAnnotation(mouse.x, mouse.y, root.width, root.height)
-        //        loader.item.focus = true
+        if (mouse.modifiers == Qt.ControlModifier) {
+          root.model.addAnnotation(mouse.x, mouse.y, root.width, root.height)
+        } else {
+          if (uiManager.annotationCurrentTool == "text") {
+            root.model.addAnnotation(mouse.x, mouse.y, root.width, root.height)
+          } else {
+            canvas.startDraw()
+          }
+        }
         mouse.accepted = true
       }
     }
@@ -53,7 +59,7 @@ Image {
       }
     }
     onPositionChanged: {
-      if (pressedButtons == 2) {
+      if (canvas.painting) {
         canvas.requestPaint()
       }
     }
@@ -83,22 +89,21 @@ Image {
   }
 
   function setStyleFromMenu(datas) {
-    print(JSON.stringify(datas))
     if ("style" in datas) {
       if ("pointSize" in datas['style']) {
-
         uiManager.annotationDessinCurrentLineWidth = datas['style']["pointSize"]
       }
       if ("fgColor" in datas['style']) {
-        print()
         uiManager.annotationDessinCurrentStrokeStyle = datas['style']["fgColor"]
       }
-
       if ("tool" in datas['style']) {
-        print("tool", datas['style']["tool"])
-        print(uiManager.annotationDessinCurrentTool)
-        uiManager.annotationDessinCurrentTool = datas['style']["tool"]
-        print(uiManager.annotationDessinCurrentTool)
+        var newTool = datas['style']["tool"]
+        uiManager.annotationCurrentTool = newTool
+        if (newTool == "text") {
+          uiManager.annotationDessinCurrentTool = "fillrect"
+        } else {
+          uiManager.annotationDessinCurrentTool = newTool
+        }
       }
 
     }

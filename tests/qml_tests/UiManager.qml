@@ -5,7 +5,7 @@ Item {
   /* beautify preserve:start */
       property var menuTarget
       property var menuFlottantText: MenuFlottantText {}
-      property var menuFlottantStabylo: MenuFlottantStabylo {}
+//      property var menuFlottantStabylo: MenuFlottantStabylo {}
       property var menuFlottantTableau: MenuFlottantTableau {}
       property var menuFlottantImage: MenuFlottantImage {}
       property int annotationCurrentTextSizeFactor: 15

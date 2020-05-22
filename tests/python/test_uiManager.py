@@ -21,12 +21,6 @@ class TestUiManager:
             uiman.menuFlottantText = a
         assert uiman.menuFlottantText == a
 
-    def test_menuAnnotationFlottantText(self, uiman: UiManager, qtbot):
-        a = QObject()
-        with qtbot.waitSignal(uiman.menuAnnotationFlottantTextChanged):
-            uiman.menuAnnotationFlottantText = a
-        assert uiman.menuAnnotationFlottantText == a
-
     def test_menuFlottantTableau(self, uiman: UiManager, qtbot):
         a = QObject()
         with qtbot.waitSignal(uiman.menuFlottantTableauChanged):
@@ -67,7 +61,13 @@ class TestUiManager:
         assert uiman.annotationDessinCurrentStrokeStyle == "red"
 
     def test_annotationDessinCurrentTool(self, uiman: UiManager, qtbot):
-        assert uiman.annotationDessinCurrentTool == "black"
+        assert uiman.annotationDessinCurrentTool == "fillrect"
         with qtbot.waitSignal(uiman.annotationDessinCurrentToolChanged):
             uiman.annotationDessinCurrentTool = "red"
         assert uiman.annotationDessinCurrentTool == "red"
+
+    def test_annotationCurrentTool(self, uiman: UiManager, qtbot):
+        assert uiman.annotationCurrentTool == "text"
+        with qtbot.waitSignal(uiman.annotationCurrentToolChanged):
+            uiman.annotationCurrentTool = "red"
+        assert uiman.annotationCurrentTool == "red"

@@ -6,6 +6,7 @@ Canvas {
   /* beautify preserve:start */
   property var mouse
   property bool painting: false
+  property bool useDefaultTool: false
   property string tool: uiManager.annotationDessinCurrentTool
   property real lineWidth: uiManager.annotationDessinCurrentLineWidth
   property color fillStyle: uiManager.annotationDessinCurrentStrokeStyle
@@ -14,12 +15,10 @@ Canvas {
   property real startY
   property real endX
   property real endY
-  property bool keepSens: false
-  visible: painting
+  visible: false
   /* beautify preserve:end */
 
   onPaint: {
-    print(tool, uiManager.annotationDessinCurrentTool)
     if (startX == mouse.mouseX || startY == mouse.mouseY) {
       return
     }
@@ -28,9 +27,12 @@ Canvas {
     ctx.fillStyle = canvas.fillStyle
     ctx.strokeStyle = canvas.strokeStyle
     ctx.clearRect(0, 0, canvas.width, canvas.height)
-    painting = true
+    visible = true
     if (!painting) {
       return
+    } else if (useDefaultTool) {
+      canvas.opacity = 0.2
+      ctx.fillRect(startX, startY, mouse.mouseX - startX, mouse.mouseY - startY)
     } else if (tool == "trait") {
       ctx.beginPath()
       ctx.moveTo(startX, startY)
@@ -42,17 +44,18 @@ Canvas {
       canvas.opacity = 0.2
       ctx.fillRect(startX, startY, mouse.mouseX - startX, mouse.mouseY - startY)
     } else if (tool == "ellipse") {
-      print("ellipse")
       ctx.beginPath()
       ctx.ellipse(startX, startY, mouse.mouseX - startX, mouse.mouseY - startY)
       ctx.stroke()
     }
   }
 
-  function startDraw() {
+  function startDraw(fallback) {
+    useDefaultTool = fallback ? true : false
     startX = mouse.mouseX
     startY = mouse.mouseY
     canvas.opacity = 1
+    painting = true
   }
 
   function endDraw(sectionId) {
@@ -82,10 +85,12 @@ Canvas {
       "endY": nEndY / new_height,
       "width": new_width / width,
       "height": new_height / height,
-      "tool": tool,
+      "tool": useDefaultTool ? "fillrect" : tool,
       "lineWidth": lineWidth,
       "strokeStyle": strokeStyle,
       "fillStyle": fillStyle,
     })
+    useDefaultTool = false
+    visible = false
   }
 }

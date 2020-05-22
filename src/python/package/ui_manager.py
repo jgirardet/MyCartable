@@ -18,7 +18,8 @@ class UiManager(QObject):
         self._annotationCurrentTextSizeFactor = 15
         self._annotationDessinCurrentLineWidth = 3
         self._annotationDessinCurrentStrokeStyle = "black"
-        self._annotationDessinCurrentTool = "rect"
+        self._annotationDessinCurrentTool = "fillrect"
+        self._annotationCurrentTool = "text"
 
     @Property(QObject, notify=menuFlottantTextChanged)
     def menuFlottantText(self):
@@ -53,7 +54,6 @@ class UiManager(QObject):
 
     @menuFlottantImage.setter
     def menuFlottantImage_set(self, value: int):
-        print(value)
         self._menuFlottantImage = value
         self.menuFlottantImageChanged.emit()
 
@@ -107,7 +107,6 @@ class UiManager(QObject):
     @annotationDessinCurrentStrokeStyle.setter
     def annotationDessinCurrentStrokeStyle_set(self, value: int):
         self._annotationDessinCurrentStrokeStyle = value
-        print(self._annotationDessinCurrentStrokeStyle)
         self.annotationDessinCurrentStrokeStyleChanged.emit()
 
     annotationDessinCurrentToolChanged = Signal()
@@ -119,31 +118,17 @@ class UiManager(QObject):
     @annotationDessinCurrentTool.setter
     def annotationDessinCurrentTool_set(self, value: int):
         self._annotationDessinCurrentTool = value
-        print(self._annotationDessinCurrentTool)
         self.annotationDessinCurrentToolChanged.emit()
 
-    # toastChanged = Signal()
+    annotationCurrentToolChanged = Signal()
 
-    # @Property(QObject, notify=toastChanged)
-    # def toast(self):
-    #     return self._toast
-    #
-    # @toast.setter
-    # def toast_set(self, value: int):
-    #     self._toast = value
-    #     self.toastChanged.emit()
+    @Property(str, notify=annotationCurrentToolChanged)
+    def annotationCurrentTool(self):
+        return self._annotationCurrentTool
 
-    # # @Slot(str, QObject)
-    # @Slot(str)
-    # def sendToast(self, msg):
-    #     # print(window)
-    #     # toast = self.toast.createWithInitialProperties(
-    #     # {"msg": "par lar", "parent": window}
-    #     # {"msg": "par lar"}
-    #     # )
-    #     print(self.toast)
-    #     self.toast.msg = "aaaaaaaaaaaa"
-    #     # print(toast)
-    #     self.toast.open()
+    @annotationCurrentTool.setter
+    def annotationCurrentTool_set(self, value: int):
+        self._annotationCurrentTool = value
+        self.annotationCurrentToolChanged.emit()
 
     sendToast = Signal(str)

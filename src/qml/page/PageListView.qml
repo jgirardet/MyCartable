@@ -145,7 +145,6 @@ ListView {
     }
     function ouvre(itemIndex, coords) {
       index = itemIndex
-      print("ouvre")
       open()
       x = coords.x - width / 2
       y = coords.y - height / 2

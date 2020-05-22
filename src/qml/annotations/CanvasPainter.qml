@@ -36,7 +36,6 @@ Canvas {
     ctx.lineWidth = lineWidth
     ctx.fillStyle = fillStyle
     ctx.strokeStyle = strokeStyle
-    print("patin", ctx.fillStyle)
 
     // draw
     if (annot.tool == "trait") {
@@ -47,7 +46,6 @@ Canvas {
     } else if (annot.tool == "rect") {
       ctx.strokeRect(startX, startY, endX - startX, endY - startY)
     } else if (annot.tool == "fillrect") {
-      print("fill rect")
       ctx.fillRect(startX, startY, endX - startX, endY - startY)
     } else if (annot.tool == "ellipse") {
       ctx.beginPath()

@@ -5,7 +5,7 @@ from .root_db import db
 
 
 class Style(db.Entity, ColorMixin):
-    sytleId = PrimaryKey(int, auto=True)
+    styleId = PrimaryKey(int, auto=True)
     _fgColor = Required(int, size=32, unsigned=True, default=4278190080)
     fgColor = property(ColorMixin.fgColor_get, ColorMixin.fgColor_set)
     _bgColor = Required(int, size=32, unsigned=True, default=0)

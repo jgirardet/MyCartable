@@ -35,11 +35,7 @@ class AnnotationModel(QAbstractListModel):
         if not index.isValid():
             return None
 
-        else:
-            # elif role == self.AnnotationRole:
-            # print(
-            #     "dans dara", self.section.annotations.select()[:][index.row()].to_dict()
-            # )
+        elif role == self.AnnotationRole:
             res = self.section.annotations.select()[:][index.row()].to_dict()
             return res
 
@@ -52,9 +48,7 @@ class AnnotationModel(QAbstractListModel):
         return self.insertRows(value, 0)
 
     def insertRows(self, row: int, value, index=QModelIndex()) -> bool:
-        print("dans insert orw", row, value, row)
         self.beginInsertRows(QModelIndex(), row, row + value)
-        # self.beginInsertRows(QModelIndex(), row, row + value - 1)
         with db_session:
             self.count = self.section.annotations.count()
         self.endInsertRows()
@@ -88,7 +82,6 @@ class AnnotationModel(QAbstractListModel):
             flush()  # bien garder pour le count d'apres
             self.count = self.section.annotations.count()
         self.endRemoveRows()
-        print("remove")
         return True
 
     def rowCount(self, parent=QModelIndex()) -> int:
@@ -106,20 +99,17 @@ class AnnotationModel(QAbstractListModel):
         self.countChanged.emit()
 
     def setData(self, index, value, role) -> bool:
-        print("dans set")
         if index.isValid() and role == Qt.EditRole:
             value = value.toVariant()
             annotation_id = int(value.pop("id"))
             with db_session:
                 item = self.db.Annotation[annotation_id]
                 item.set(**value)
-                print(value, item.to_dict())
             self.dataChanged.emit(index, index)
             return True
         return False
 
     def slotReset(self, value):
-        print("dans slot reset")
         self.beginResetModel()
         if not value:
             self.section = None
@@ -161,7 +151,6 @@ class AnnotationModel(QAbstractListModel):
         style["pointSize"] = datas.pop("lineWidth")
         with db_session:
             item = self.db.AnnotationDessin(section=sectionId, style=style, **datas)
-            print(item.to_dict())
         self.insertRow(self.count)
 
     @Slot(float, float, float, float)

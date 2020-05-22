@@ -1,6 +1,8 @@
 import json
 from datetime import datetime
 import re
+from io import BytesIO
+
 from PySide2.QtGui import QColor
 from descriptors import cachedproperty
 from package.exceptions import MyCartableOperationError
@@ -16,6 +18,7 @@ class Section(db.Entity):
     modified = Optional(datetime)
     page = Required("Page")
     _position = Required(int)
+    annotations = Set("Annotation")
 
     def __init__(self, *args, _position=None, page=None, position=None, **kwargs):
         # breakpoint()
@@ -92,7 +95,6 @@ class Section(db.Entity):
 
 class ImageSection(Section):
     path = Required(str)
-    annotations = Set("Annotation")
 
     def to_dict(self, **kwargs):
         return super().to_dict(with_collections=True)
@@ -335,9 +337,9 @@ class EquationSection(Section):
 
 class Annotation(db.Entity):
     id = PrimaryKey(int, auto=True)
-    relativeX = Required(float)
-    relativeY = Required(float)
-    section = Required(ImageSection)
+    x = Required(float)
+    y = Required(float)
+    section = Required(Section)
     style = Optional(db.Style, default=db.Style, cascade_delete=True)
 
     def __init__(self, **kwargs):
@@ -345,11 +347,16 @@ class Annotation(db.Entity):
             kwargs["style"] = db.Style(**kwargs["style"])
         super().__init__(**kwargs)
 
-    def to_dict(self, *args, **kwargs):
-        dico = super().to_dict(*args, **kwargs)
-        if "style" in dico:  # ne pas l'ajouter sur a été exclude
-            dico["style"] = self.style.to_dict()
+    def to_dict(self, **kwargs):
+        dico = super().to_dict(**kwargs, related_objects=True)
+        dico.update(dico.pop("style").to_dict())
         return dico
+
+    def set(self, **kwargs):
+        if "style" in kwargs:
+            style = kwargs.pop("style")
+            self.style.set(**style)
+        super().set(**kwargs)
 
     def before_insert(self):
         self.section.before_update()
@@ -359,13 +366,37 @@ class Annotation(db.Entity):
             self.section.before_update()
 
 
-class Stabylo(Annotation):
-    relativeWidth = Required(float)
-    relativeHeight = Required(float)
+#
+# class Stabylo(Annotation):
+#     relativeWidth = Required(float)
+#     relativeHeight = Required(float)
 
 
 class AnnotationText(Annotation):
     text = Optional(str)
+    #
+    # def to_dict(self, **kwargs):
+    #     dico = super().to_dict(exclude=["style"], **kwargs)
+    #     dico["fgColor"] = self.style.fgColor
+    #     dico["fillStyle"] = self.style.bgColor
+    #     dico["lineWidth"] = self.style.pointSize
+    #     return dico
+
+
+class AnnotationDessin(Annotation):
+    # id = PrimaryKey(int, auto=True)
+    width = Required(float)
+    height = Required(float)
+    tool = Required(str)
+    startX = Required(float)
+    startY = Required(float)
+    endX = Required(float)
+    endY = Required(float)
+    """style : 
+        fgColor: strokeStyle
+        bgColor: fillStyle
+        pointSize: lineWidth
+    """
 
 
 class TableauSection(Section):

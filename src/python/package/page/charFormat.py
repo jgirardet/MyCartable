@@ -81,8 +81,5 @@ H2c = buildBlockFormat(CF_H2)
 H3c = buildBlockFormat(CF_H3)
 Pc = buildBlockFormat(CF_P)
 
-CharFormats = {1: H1c, 2: H2c, 3: H3c, "p": Pc}
 
-#
-# for x in CF_H1.keys():
-#     print(getattr(H1c, x)())
+CharFormats = {1: H1c, 2: H2c, 3: H3c, "p": Pc}

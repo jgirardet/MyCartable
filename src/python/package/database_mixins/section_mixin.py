@@ -35,7 +35,7 @@ class SectionMixin:
             if path.is_file():
                 if path.suffix == ".pdf":
                     return self.addSectionPDF(page_id, path)
-                content["path"] = self.store_new_file(path)
+                content["path"] = str(self.store_new_file(path))
             else:
                 return 0
 

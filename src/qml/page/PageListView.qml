@@ -65,14 +65,14 @@ ListView {
     }
   }
 
-  populate: Transition {
-    NumberAnimation {
-      property: "scale";from: 0;to: 1.0;duration: 800
-    }
-    NumberAnimation {
-      properties: "x,y";duration: 800;easing.type: Easing.OutBack
-    }
-  }
+  //  populate: Transition {
+  //    NumberAnimation {
+  //      property: "scale";from: 0;to: 1.0;duration: 800
+  //    }
+  //    NumberAnimation {
+  //      properties: "x,y";duration: 800;easing.type: Easing.OutBack
+  //    }
+  //  }
 
   add: Transition {
     NumberAnimation {
@@ -145,7 +145,6 @@ ListView {
     }
     function ouvre(itemIndex, coords) {
       index = itemIndex
-      print("ouvre")
       open()
       x = coords.x - width / 2
       y = coords.y - height / 2

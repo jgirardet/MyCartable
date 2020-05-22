@@ -1,10 +1,13 @@
 from PySide2.QtCore import QObject, Property, Signal, Slot
+from PySide2.QtGui import QColor
 
 
 class UiManager(QObject):
 
     menuFlottantTextChanged = Signal()
-    menuFlottantStabyloChanged = Signal()
+    menuFlottantAnnotationTextChanged = Signal()
+    menuFlottantAnnotationDessinChanged = Signal()
+    menuFlottantImageChanged = Signal()
     menuFlottantTableauChanged = Signal()
     menuTargetChanged = Signal()
 
@@ -13,6 +16,10 @@ class UiManager(QObject):
         self._menuTarget = None
         self._toast = None
         self._annotationCurrentTextSizeFactor = 15
+        self._annotationDessinCurrentLineWidth = 3
+        self._annotationDessinCurrentStrokeStyle = "black"
+        self._annotationDessinCurrentTool = "fillrect"
+        self._annotationCurrentTool = "text"
 
     @Property(QObject, notify=menuFlottantTextChanged)
     def menuFlottantText(self):
@@ -23,14 +30,32 @@ class UiManager(QObject):
         self._menuFlottantText = value
         self.menuFlottantTextChanged.emit()
 
-    @Property(QObject, notify=menuFlottantStabyloChanged)
-    def menuFlottantStabylo(self):
-        return self._menuFlottantStabylo
+    @Property(QObject, notify=menuFlottantAnnotationTextChanged)
+    def menuFlottantAnnotationText(self):
+        return self._menuFlottantAnnotationText
 
-    @menuFlottantStabylo.setter
-    def menuFlottantStabylo_set(self, value: int):
-        self._menuFlottantStabylo = value
-        self.menuFlottantStabyloChanged.emit()
+    @menuFlottantAnnotationText.setter
+    def menuFlottantAnnotationText_set(self, value: int):
+        self._menuFlottantAnnotationText = value
+        self.menuFlottantAnnotationTextChanged.emit()
+
+    @Property(QObject, notify=menuFlottantAnnotationDessinChanged)
+    def menuFlottantAnnotationDessin(self):
+        return self._menuFlottantAnnotationDessin
+
+    @menuFlottantAnnotationDessin.setter
+    def menuFlottantAnnotationDessin_set(self, value: int):
+        self._menuFlottantAnnotationDessin = value
+        self.menuFlottantAnnotationDessinChanged.emit()
+
+    @Property(QObject, notify=menuFlottantImageChanged)
+    def menuFlottantImage(self):
+        return self._menuFlottantImage
+
+    @menuFlottantImage.setter
+    def menuFlottantImage_set(self, value: int):
+        self._menuFlottantImage = value
+        self.menuFlottantImageChanged.emit()
 
     @Property(QObject, notify=menuFlottantTableauChanged)
     def menuFlottantTableau(self):
@@ -62,28 +87,48 @@ class UiManager(QObject):
         self._annotationCurrentTextSizeFactor = value
         self.annotationCurrentTextSizeFactorChanged.emit()
 
-    # toastChanged = Signal()
+    annotationDessinCurrentLineWidthChanged = Signal()
 
-    # @Property(QObject, notify=toastChanged)
-    # def toast(self):
-    #     return self._toast
-    #
-    # @toast.setter
-    # def toast_set(self, value: int):
-    #     self._toast = value
-    #     self.toastChanged.emit()
+    @Property(int, notify=annotationDessinCurrentLineWidthChanged)
+    def annotationDessinCurrentLineWidth(self):
+        return self._annotationDessinCurrentLineWidth
 
-    # # @Slot(str, QObject)
-    # @Slot(str)
-    # def sendToast(self, msg):
-    #     # print(window)
-    #     # toast = self.toast.createWithInitialProperties(
-    #     # {"msg": "par lar", "parent": window}
-    #     # {"msg": "par lar"}
-    #     # )
-    #     print(self.toast)
-    #     self.toast.msg = "aaaaaaaaaaaa"
-    #     # print(toast)
-    #     self.toast.open()
+    @annotationDessinCurrentLineWidth.setter
+    def annotationDessinCurrentLineWidth_set(self, value: int):
+        self._annotationDessinCurrentLineWidth = value
+        self.annotationDessinCurrentLineWidthChanged.emit()
+
+    annotationDessinCurrentStrokeStyleChanged = Signal()
+
+    @Property(QColor, notify=annotationDessinCurrentStrokeStyleChanged)
+    def annotationDessinCurrentStrokeStyle(self):
+        return self._annotationDessinCurrentStrokeStyle
+
+    @annotationDessinCurrentStrokeStyle.setter
+    def annotationDessinCurrentStrokeStyle_set(self, value: int):
+        self._annotationDessinCurrentStrokeStyle = value
+        self.annotationDessinCurrentStrokeStyleChanged.emit()
+
+    annotationDessinCurrentToolChanged = Signal()
+
+    @Property(str, notify=annotationDessinCurrentToolChanged)
+    def annotationDessinCurrentTool(self):
+        return self._annotationDessinCurrentTool
+
+    @annotationDessinCurrentTool.setter
+    def annotationDessinCurrentTool_set(self, value: int):
+        self._annotationDessinCurrentTool = value
+        self.annotationDessinCurrentToolChanged.emit()
+
+    annotationCurrentToolChanged = Signal()
+
+    @Property(str, notify=annotationCurrentToolChanged)
+    def annotationCurrentTool(self):
+        return self._annotationCurrentTool
+
+    @annotationCurrentTool.setter
+    def annotationCurrentTool_set(self, value: int):
+        self._annotationCurrentTool = value
+        self.annotationCurrentToolChanged.emit()
 
     sendToast = Signal(str)

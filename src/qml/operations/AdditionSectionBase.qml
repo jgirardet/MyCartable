@@ -1,5 +1,4 @@
 import QtQuick 2.14
-import "../page/operations"
 
 BaseOperation {
   id: root
@@ -12,7 +11,6 @@ BaseOperation {
   }
 
   Component.onCompleted: {
-    print(width)
     currentIndex = count - 1
   }
 }

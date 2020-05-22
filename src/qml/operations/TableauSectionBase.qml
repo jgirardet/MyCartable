@@ -3,8 +3,6 @@ import QtQuick.Controls 2.14
 import "qrc:/js/lodash.js"
 as Lodash
 
-import "../page/operations"
-
 TableView {
   id: root
   /* beautify preserve:start */
@@ -297,7 +295,6 @@ TableView {
       selectedCells.pop(obj)
     }
 
-    //    print("selected cell", root.selectedCells)
   }
 
   function unSelectAll(obj) {
@@ -311,7 +308,6 @@ TableView {
 
     root.selectedCells.length = 0
     root.currentSelectedCell = null
-    //    print("unselectAll", root.selectedCells)
   }
 
   function getCells() {

@@ -1,24 +1,30 @@
+import urllib.request
+from io import BytesIO
 from pathlib import Path
 
+from PySide2.QtCore import Slot, QUrl, QAbstractListModel
 from PySide2.QtCore import Slot, Signal
 from package.convert import run_convert_pdf
+from package.files_path import filesify
 from package.utils import get_new_filename
-from pony.orm import db_session
-import tempfile
+from pony.orm import db_session, select
+from PIL import Image
 
 
 class ImageSectionMixin:
+
+    """
+    Annotations
+    """
 
     imageChanged = Signal()
 
     @Slot("QVariantMap", result="QVariantList")
     def addAnnotation(self, content):
         with db_session:
-            print(content)
             section = int(content.pop("section"))
             item = getattr(self.db, content["classtype"])(**content, section=section)
             dico = item.to_dict()
-
             style = dico.pop("style")
             return [dico, style]
         # ne pas emetre imageChanged ici, sinon emet pour empty trucs
@@ -27,7 +33,6 @@ class ImageSectionMixin:
     def deleteAnnotation(self, annotation_id):
         with db_session:
             item = self.db.Annotation[annotation_id]
-            print(item, item.to_dict())
             item.delete()
 
             # tweak du au fait que le qml aojute et supprime une annoation si création n'aboutie pas
@@ -65,12 +70,66 @@ class ImageSectionMixin:
 
             return item.to_dict(exclude=["style"])
 
+    """
+        IMAGES
+    """
+
     def get_new_image_path(self, ext):
         return Path(str(self.annee_active), get_new_filename(ext)).as_posix()
 
-    def store_new_file(self, filepath):
-        res_path = str(self.get_new_image_path(filepath.suffix))
-        new_file = self.files / res_path
-        new_file.parent.mkdir(parents=True, exist_ok=True)
-        new_file.write_bytes(filepath.read_bytes())
-        return res_path
+    def store_new_file(self, filepath, ext=None):
+        if isinstance(filepath, str):
+            filepath = Path(filepath).resolve()
+        if isinstance(filepath, Path):
+            ext = ext or filepath.suffix
+            res_path = self.get_new_image_path(ext)
+            new_file = self.files / res_path
+            new_file.parent.mkdir(parents=True, exist_ok=True)
+            new_file.write_bytes(filepath.read_bytes())
+            return res_path
+
+    @Slot(int, int, result=bool)
+    def pivoterImage(self, sectionId, sens):
+        with db_session:
+            item = self.db.ImageSection[sectionId]
+            file = self.files / item.path
+            im = Image.open(file)
+            sens_rotate = Image.ROTATE_270 if sens else Image.ROTATE_90
+            im.transpose(sens_rotate).save(file)
+            self.imageChanged.emit()
+            return True
+
+    @Slot(int, result="QVariantList")
+    def getDessinModel(self, sectionId):
+        print(sectionId)
+        with db_session:
+            query = select(
+                p for p in self.db.AnnotationDessin if p.section.id == sectionId
+            )
+            res = [p.to_dict() for p in query]
+            print(res)
+            return res
+
+    # @Slot(int, "QVariantMap")
+    # def newDessin(self, sectionId, datas):
+    #     # les positions relatives
+    #     print("dans new dessin", datas)
+    #     datas["startX"] /= datas["width"]
+    #     datas["endX"] /= datas["width"]
+    #     datas["startY"] /= datas["height"]
+    #     datas["endY"] /= datas["height"]
+    #     with db_session:
+    #         dessin = self.db.AnnotationDessin(
+    #             section=sectionId,
+    #             startX=datas["startX"],
+    #             endX=datas["endX"],
+    #             startY=datas["startY"],
+    #             endY=datas["endY"],
+    #             tool=datas["tool"],
+    #             style={
+    #                 "fgColor": datas["strokeStyle"],
+    #                 "bgColor": datas["fillStyle"],
+    #                 "pointSize": datas["lineWidth"],
+    #             },
+    #         )
+    #         print(dessin.to_dict())

@@ -17,43 +17,54 @@
         <file alias="BasePageDelegate.qml">qml/page/BasePageDelegate.qml</file>
         <file alias="PageRectangle.qml">qml/page/PageRectangle.qml</file>
         <file alias="PageTitre.qml">qml/page/PageTitre.qml</file>
-        <file alias="AnnotationText.qml">qml/page/AnnotationText.qml</file>
         <file alias="StabyloRectangle.qml">qml/page/StabyloRectangle.qml</file>
 
     </qresource>
     <qresource prefix="/qml/sections">
         <file alias="AdditionSection.qml">qml/sections/AdditionSection.qml</file>
-        <file alias="AdditionSectionBase.qml">qml/sections/AdditionSectionBase.qml</file>
         <file alias="DivisionSection.qml">qml/sections/DivisionSection.qml</file>
-        <file alias="DivisionSectionBase.qml">qml/sections/DivisionSectionBase.qml</file>
         <file alias="EquationSection.qml">qml/sections/EquationSection.qml</file>
         <file alias="ImageSection.qml">qml/sections/ImageSection.qml</file>
         <file alias="MultiplicationSection.qml">qml/sections/MultiplicationSection.qml</file>
-        <file alias="MultiplicationSectionBase.qml">qml/sections/MultiplicationSectionBase.qml</file>
         <file alias="SoustractionSection.qml">qml/sections/SoustractionSection.qml</file>
-        <file alias="SoustractionSectionBase.qml">qml/sections/SoustractionSectionBase.qml</file>
         <file alias="TableauSection.qml">qml/sections/TableauSection.qml</file>
-        <file alias="TableauSectionBase.qml">qml/sections/TableauSectionBase.qml</file>
         <file alias="TextSection.qml">qml/sections/TextSection.qml</file>
 
     </qresource>
 
-    <qresource prefix="/qml/page/operations">
-        <file alias="BaseOperation.qml">qml/page/operations/BaseOperation.qml</file>
-        <file alias="TextInputDelegate.qml">qml/page/operations/TextInputDelegate.qml</file>
-        <file alias="AdditionDelegate.qml">qml/page/operations/AdditionDelegate.qml</file>
-        <file alias="SoustractionDelegate.qml">qml/page/operations/SoustractionDelegate.qml</file>
-        <file alias="MultiplicationDelegate.qml">qml/page/operations/MultiplicationDelegate.qml</file>
-        <file alias="DivisionDelegate.qml">qml/page/operations/DivisionDelegate.qml</file>
+    <qresource prefix="/qml/annotations">
+        <file alias="CanvasFactory.qml">qml/annotations/CanvasFactory.qml</file>
+        <file alias="CanvasPainter.qml">qml/annotations/CanvasPainter.qml</file>
+        <file alias="BaseAnnotation.qml">qml/annotations/BaseAnnotation.qml</file>
+        <file alias="AnnotationDessin.qml">qml/annotations/AnnotationDessin.qml</file>
+        <file alias="AnnotationText.qml">qml/annotations/AnnotationText.qml</file>
+        <file alias="AnnotationDispatcher.qml">qml/annotations/AnnotationDispatcher.qml</file>
+    </qresource>
+
+    <qresource prefix="/qml/operations">
+        <file alias="AdditionSectionBase.qml">qml/operations/AdditionSectionBase.qml</file>
+        <file alias="DivisionSectionBase.qml">qml/operations/DivisionSectionBase.qml</file>
+        <file alias="MultiplicationSectionBase.qml">qml/operations/MultiplicationSectionBase.qml</file>
+        <file alias="SoustractionSectionBase.qml">qml/operations/SoustractionSectionBase.qml</file>
+        <file alias="TableauSectionBase.qml">qml/operations/TableauSectionBase.qml</file>
+        <file alias="BaseOperation.qml">qml/operations/BaseOperation.qml</file>
+        <file alias="TextInputDelegate.qml">qml/operations/TextInputDelegate.qml</file>
+        <file alias="AdditionDelegate.qml">qml/operations/AdditionDelegate.qml</file>
+        <file alias="SoustractionDelegate.qml">qml/operations/SoustractionDelegate.qml</file>
+        <file alias="MultiplicationDelegate.qml">qml/operations/MultiplicationDelegate.qml</file>
+        <file alias="DivisionDelegate.qml">qml/operations/DivisionDelegate.qml</file>
     </qresource>
 
       <qresource prefix="/qml/menu">
         <file alias="BaseMenu.qml">qml/menu/BaseMenu.qml</file>
         <file alias="MenuFlottantText.qml">qml/menu/MenuFlottantText.qml</file>
-        <file alias="MenuFlottantStabylo.qml">qml/menu/MenuFlottantStabylo.qml</file>
+        <file alias="MenuFlottantAnnotationText.qml">qml/menu/MenuFlottantAnnotationText.qml</file>
+        <file alias="MenuFlottantAnnotationDessin.qml">qml/menu/MenuFlottantAnnotationDessin.qml</file>
         <file alias="MenuFlottantTableau.qml">qml/menu/MenuFlottantTableau.qml</file>
+        <file alias="MenuFlottantImage.qml">qml/menu/MenuFlottantImage.qml</file>
 <!--        <file alias="MenuFlottantAnnotationText.qml">qml/menu/MenuFlottantAnnotationText.qml</file>-->
         <file alias="ColorButton.qml">qml/menu/ColorButton.qml</file>
+        <file alias="PointSizeSlider.qml">qml/menu/PointSizeSlider.qml</file>
 
     </qresource>
 
@@ -80,10 +91,17 @@
     <qresource prefix="/icons">
         <file alias="newTextSection">data/icons/base/divers/png/003-edit.png</file>
         <file alias="newImageSection">data/icons/base/divers/png/002-photo-1.png</file>
-        <file alias="newEquationSection">data/icons/base/pack/png/equation.png</file>
+        <file alias="newEquationSection">data/icons/base/perso/equation.png</file>
         <file alias="removePage">data/icons/base/divers/png/006-trash-bin.png</file>
         <file alias="newTableauSection">data/icons/base/divers/png/013-spreadsheet.png</file>
         <file alias="newOperationSection">data/icons/base/pack/png/calculator-1.png</file>
+        <file alias="rotateLeft">data/icons/base/perso/rotateleft.png</file>
+        <file alias="rotateRight">data/icons/base/perso/rotateright.png</file>
+        <file alias="rect">data/icons/base/pack/png/rect.png</file>
+        <file alias="fillrect">data/icons/base/pack/png/fillrect.png</file>
+        <file alias="trait">data/icons/base/pack/png/pencil.png</file>
+        <file alias="ellipse">data/icons/base/pack/png/sphere.png</file>
+<!--        <file alias="text">data/icons/base/pack/png/sphere.png</file>-->
     </qresource>
     <qresource prefix="/fonts">
         <file alias="Verdana.ttf">data/fonts/Verdana.ttf</file>

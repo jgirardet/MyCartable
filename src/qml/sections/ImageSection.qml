@@ -82,4 +82,26 @@ Image {
     root.source = oldSource
   }
 
+  function setStyleFromMenu(datas) {
+    print(JSON.stringify(datas))
+    if ("style" in datas) {
+      if ("pointSize" in datas['style']) {
+
+        uiManager.annotationDessinCurrentLineWidth = datas['style']["pointSize"]
+      }
+      if ("fgColor" in datas['style']) {
+        print()
+        uiManager.annotationDessinCurrentStrokeStyle = datas['style']["fgColor"]
+      }
+
+      if ("tool" in datas['style']) {
+        print("tool", datas['style']["tool"])
+        print(uiManager.annotationDessinCurrentTool)
+        uiManager.annotationDessinCurrentTool = datas['style']["tool"]
+        print(uiManager.annotationDessinCurrentTool)
+      }
+
+    }
+  }
+
 }

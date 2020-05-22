@@ -4,33 +4,38 @@ Canvas {
   id: canvas
   /* beautify preserve:start */
   property var referent
+  property var menu: uiManager.menuFlottantAnnotationDessin
+  property color strokeStyle: annot.fgColor
+  property color fillStyle: annot.bgColor
+  property real lineWidth: annot.pointSize
   width: annot.width*referent.implicitWidth
   height: annot.height*referent.implicitHeight
   /* beautify preserve:end */
-
   Component.onCompleted: {
-    print(JSON.stringify(annot))
-    print(referent.implicitWidth, referent.implicitHeight)
-    print("wh,h", x, y, width, height)
     canvas.requestPaint()
   }
+
+  onStrokeStyleChanged: requestPaint()
+  onFillStyleChanged: requestPaint()
+  onLineWidthChanged: requestPaint()
   onPaint: {
     // init variables
-    var lw = annot.pointSize / 2
-
-    var startX = lw
-    var startY = lw
-    var endX = width - lw
-    var endY = height - lw
+    var lw = lineWidth / 2
+    //
+    var startX = annot.startX * width
+    var startY = annot.startY * height
+    var endX = annot.endX * width
+    var endY = annot.endY * height
+    //    }
 
     if (annot.tool == "fillrect") {
       canvas.opacity = 0.2
     }
     var ctx = canvas.getContext('2d')
-    ctx.lineWidth = annot.pointSize
-    ctx.fillStyle = annot.bgColor
-    ctx.strokeStyle = annot.fgColor
-    //    ctx.clearRect(0, 0, annot.width, annot.height)
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    ctx.lineWidth = lineWidth
+    ctx.fillStyle = fillStyle
+    ctx.strokeStyle = strokeStyle
     print("patin", ctx.fillStyle)
 
     // draw
@@ -49,6 +54,18 @@ Canvas {
       ctx.ellipse(startX, startY, endX - startX, endY - startY)
       ctx.stroke()
     }
+  }
+
+  function checkPointIsDraw(mx, my) {
+    var ctx = canvas.getContext('2d')
+    mx = ~~mx
+    my = ~~my
+    var vWidth = ~~width
+    var vHeight = ~~height
+    var dd = ctx.getImageData(0, 0, vWidth, height).data
+    var debut = (vWidth * my + mx) * 4
+    var couleur = Qt.rgba(dd[debut], dd[debut + 1], dd[debut + 2], dd[debut + 3])
+    return Qt.colorEqual("#00000000", couleur)
   }
 
 }

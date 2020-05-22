@@ -6,18 +6,20 @@ Canvas {
   /* beautify preserve:start */
   property var mouse
   property bool painting: false
-  property string tool: "rect"
-  property real lineWidth: 5
-  property color fillStyle: "red"
-  property color strokeStyle: "blue"
+  property string tool: uiManager.annotationDessinCurrentTool
+  property real lineWidth: uiManager.annotationDessinCurrentLineWidth
+  property color fillStyle: uiManager.annotationDessinCurrentStrokeStyle
+  property color strokeStyle: uiManager.annotationDessinCurrentStrokeStyle
   property real startX
   property real startY
   property real endX
   property real endY
+  property bool keepSens: false
   visible: painting
   /* beautify preserve:end */
 
   onPaint: {
+    print(tool, uiManager.annotationDessinCurrentTool)
     if (startX == mouse.mouseX || startY == mouse.mouseY) {
       return
     }
@@ -26,6 +28,7 @@ Canvas {
     ctx.fillStyle = canvas.fillStyle
     ctx.strokeStyle = canvas.strokeStyle
     ctx.clearRect(0, 0, canvas.width, canvas.height)
+    painting = true
     if (!painting) {
       return
     } else if (tool == "trait") {
@@ -34,10 +37,8 @@ Canvas {
       ctx.lineTo(mouse.mouseX, mouse.mouseY)
       ctx.stroke()
     } else if (tool == "rect") {
-      print(startX, startY, mouse.mouseX, mouse.mouseY, mouse.mouseX - startX, mouse.mouseY - startY)
       ctx.strokeRect(startX, startY, mouse.mouseX - startX, mouse.mouseY - startY)
     } else if (tool == "fillrect") {
-      print("fillrect")
       canvas.opacity = 0.2
       ctx.fillRect(startX, startY, mouse.mouseX - startX, mouse.mouseY - startY)
     } else if (tool == "ellipse") {
@@ -49,34 +50,36 @@ Canvas {
   }
 
   function startDraw() {
-    painting = true
     startX = mouse.mouseX
     startY = mouse.mouseY
-    print(startX, startY)
+    canvas.opacity = 1
   }
 
   function endDraw(sectionId) {
     painting = false
-
     var lw = lineWidth / 2
     var mx = mouse.mouseX
     var my = mouse.mouseY
-    var newX = startX <= mx ? startX - lw : mx - lw
-    var newY = startY <= my ? startY - lw : my - lw
-
     if (Qt.point(startX, startY) == Qt.point(mx, my)) {
       return
     }
+
+    var newX = startX <= mx ? startX - lw : mx - lw
+    var newY = startY <= my ? startY - lw : my - lw
     var new_width = Math.abs(startX - mx) + lineWidth
     var new_height = Math.abs(startY - my) + lineWidth
-    parent.model.newDessin(sectionId, {
+    var nStartX = startX - newX
+    var nStartY = startY - newY
+    var nEndX = mx - newX
+    var nEndY = my - newY
 
+    parent.model.newDessin(sectionId, {
       "x": newX / width,
       "y": newY / height,
-      //      "startX": startX,
-      //      "startY": startY,
-      //      "endX": endX,
-      //      "endY": endY,
+      "startX": nStartX / new_width,
+      "startY": nStartY / new_height,
+      "endX": nEndX / new_width,
+      "endY": nEndY / new_height,
       "width": new_width / width,
       "height": new_height / height,
       "tool": tool,
@@ -84,7 +87,5 @@ Canvas {
       "strokeStyle": strokeStyle,
       "fillStyle": fillStyle,
     })
-    canvas.context.clearRect(0, 0, canvas.width, canvas.height)
-
   }
 }

@@ -51,15 +51,21 @@ Rectangle {
   }
 
   Component.onCompleted: {
-    var newComp = Qt.createComponent("qrc:/qml/menu/MenuFlottantStabylo.qml")
+    var newComp = Qt.createComponent("qrc:/qml/menu/MenuFlottantAnnotationDessin.qml")
     if (newComp.status == Component.Ready) {
-      uiManager.menuFlottantStabylo = newComp.createObject(base)
+      uiManager.menuFlottantAnnotationDessin = newComp.createObject(base)
     } else {
       print(newComp.errorString())
     }
     var newComp = Qt.createComponent("qrc:/qml/menu/MenuFlottantText.qml")
     if (newComp.status == Component.Ready) {
       uiManager.menuFlottantText = newComp.createObject(base)
+    } else {
+      print(newComp.errorString())
+    }
+    var newComp = Qt.createComponent("qrc:/qml/menu/MenuFlottantAnnotationText.qml")
+    if (newComp.status == Component.Ready) {
+      uiManager.menuFlottantAnnotationText = newComp.createObject(base)
     } else {
       print(newComp.errorString())
     }

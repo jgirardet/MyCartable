@@ -388,7 +388,10 @@ class AnnotationDessin(Annotation):
     width = Required(float)
     height = Required(float)
     tool = Required(str)
-    # section = Required(Section)
+    startX = Required(float)
+    startY = Required(float)
+    endX = Required(float)
+    endY = Required(float)
     """style : 
         fgColor: strokeStyle
         bgColor: fillStyle

@@ -27,12 +27,6 @@ Loader {
   MouseArea {
     id: mousearea
     anchors.fill: parent
-//    Rectangle{
-//      border.width:0
-//      anchors.fill: parent
-//      color: "green"
-//      opacity: 0.4
-//    }
     z:1
 
     acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
@@ -43,14 +37,19 @@ Loader {
     //    property point startPosition
     preventStealing: true
     onPressed: {
+      // check coordonnate
+      if (root.item.checkPointIsDraw(mouse.x, mouse.y)) {
+        mouse.accepted = false
+        return
+      }
+
       if (mouse.buttons === Qt.MiddleButton) {
         root.parent.model.removeRow(index)
       } else if (mouse.buttons === Qt.RightButton) {
-        uiManager.menuFlottantText.ouvre(root.item)
+        root.item.menu.ouvre(root)
           mouse.accepted = true
       } else if (mouse.buttons === Qt.LeftButton && (mouse.modifiers & Qt.ControlModifier)) {
         root.held = true
-        //        mouse.accepted = true
       }
       else {
               mouse.accepted = false
@@ -77,6 +76,11 @@ Loader {
         "y" : root.y / root.parent.implicitHeight}
   }
 
+  function setStyleFromMenu(data) {
+      print(JSON.stringify(data))
+      data["id"] = annot.id
+      edit= data
+    }
   Component.onCompleted: {
     root.setSource(`qrc:/qml/annotations/${annot.classtype}.qml`, {
       "referent": referent,

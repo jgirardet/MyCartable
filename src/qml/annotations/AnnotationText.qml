@@ -7,11 +7,11 @@ TextArea {
 //  property var annotation
   property var referent
   property var index
+  property var menu: uiManager.menuFlottantAnnotationText
 
   property int pointSizeStep: 1
   property int moveStep: 5
   property int fontSizeFactor: annot.pointSize ? annot.pointSize : 0 //uiManager.annotationCurrentTextSizeFactor
-
 
   //size and pos
   height: contentHeight
@@ -107,51 +107,10 @@ TextArea {
          edit= {"id": annot.id, "text":text}
   }
 
-    function setStyleFromMenu(data) {
-//      print(JSON.stringify(data))
-      data["id"] = annot.id
-      edit= data
-//      var res = ddb.setStyle(annot.id, data["style"])
-//      if (res) {
-//        annotation = res
-//      }
-    }
-
-  //  MouseArea {
-  //    id: mousearea
-  //    anchors.fill: parent
-  //    acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
-  //    hoverEnabled: true
-  //    onHoveredChanged: hovered ? root.focus = true : null
-  //    property bool held
-  //    //    property point startPosition
-  //    preventStealing: true
-  //    onPressed: {
-  //      if (mouse.buttons === Qt.MiddleButton) {
-  //        deleteRequested(root)
-  //        mouse.accepted = true
-  //      } else if (mouse.buttons === Qt.RightButton) {
-  //        uiManager.menuFlottantText.ouvre(root)
-  //        mouse.accepted = true
-  //      } else if (mouse.buttons === Qt.LeftButton && (mouse.modifiers & Qt.ControlModifier)) {
-  //        held = true
-  //        mouse.accepted = true
-  //      } else {
-  //        mouse.accepted = false
-  //      }
-  //    }
-  //    onReleased: {
-  //      if (held) {
-  //        held = false
+  function checkPointIsDraw(mx, my) {
+    return false
+  }
 
 
-  //        ddb.updateAnnotation(annot.id, {
-  //          "startX": root.x / root.referent.implicitWidth,
-  //          "startY": root.y / root.referent.height
-  //        })
-  //      }
-  //
-  //    }
+
 }
-//}
-//}

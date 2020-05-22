@@ -9,17 +9,23 @@ def uiman() -> UiManager:
 
 
 class TestUiManager:
-    def test_menuFlottantStabylo(self, uiman: UiManager, qtbot):
+    def test_menuFlottantAnnotationText(self, uiman: UiManager, qtbot):
         a = QObject()
-        with qtbot.waitSignal(uiman.menuFlottantStabyloChanged):
-            uiman.menuFlottantStabylo = a
-        assert uiman.menuFlottantStabylo == a
+        with qtbot.waitSignal(uiman.menuFlottantAnnotationTextChanged):
+            uiman.menuFlottantAnnotationText = a
+        assert uiman.menuFlottantAnnotationText == a
 
     def test_menuFlottantText(self, uiman: UiManager, qtbot):
         a = QObject()
         with qtbot.waitSignal(uiman.menuFlottantTextChanged):
             uiman.menuFlottantText = a
         assert uiman.menuFlottantText == a
+
+    def test_menuAnnotationFlottantText(self, uiman: UiManager, qtbot):
+        a = QObject()
+        with qtbot.waitSignal(uiman.menuAnnotationFlottantTextChanged):
+            uiman.menuAnnotationFlottantText = a
+        assert uiman.menuAnnotationFlottantText == a
 
     def test_menuFlottantTableau(self, uiman: UiManager, qtbot):
         a = QObject()
@@ -47,3 +53,21 @@ class TestUiManager:
         with qtbot.waitSignal(uiman.annotationCurrentTextSizeFactorChanged):
             uiman.annotationCurrentTextSizeFactor = 40
         assert uiman.annotationCurrentTextSizeFactor == 40
+
+    def test_annotationDessinCurrentLineWidth(self, uiman: UiManager, qtbot):
+        assert uiman.annotationDessinCurrentLineWidth == 3
+        with qtbot.waitSignal(uiman.annotationDessinCurrentLineWidthChanged):
+            uiman.annotationDessinCurrentLineWidth = 10
+        assert uiman.annotationDessinCurrentLineWidth == 10
+
+    def test_annotationDessinCurrentStrokeStyle(self, uiman: UiManager, qtbot):
+        assert uiman.annotationDessinCurrentStrokeStyle == "black"
+        with qtbot.waitSignal(uiman.annotationDessinCurrentStrokeStyleChanged):
+            uiman.annotationDessinCurrentStrokeStyle = "red"
+        assert uiman.annotationDessinCurrentStrokeStyle == "red"
+
+    def test_annotationDessinCurrentTool(self, uiman: UiManager, qtbot):
+        assert uiman.annotationDessinCurrentTool == "black"
+        with qtbot.waitSignal(uiman.annotationDessinCurrentToolChanged):
+            uiman.annotationDessinCurrentTool = "red"
+        assert uiman.annotationDessinCurrentTool == "red"

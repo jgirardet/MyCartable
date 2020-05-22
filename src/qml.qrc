@@ -58,11 +58,13 @@
       <qresource prefix="/qml/menu">
         <file alias="BaseMenu.qml">qml/menu/BaseMenu.qml</file>
         <file alias="MenuFlottantText.qml">qml/menu/MenuFlottantText.qml</file>
-        <file alias="MenuFlottantStabylo.qml">qml/menu/MenuFlottantStabylo.qml</file>
+        <file alias="MenuFlottantAnnotationText.qml">qml/menu/MenuFlottantAnnotationText.qml</file>
+        <file alias="MenuFlottantAnnotationDessin.qml">qml/menu/MenuFlottantAnnotationDessin.qml</file>
         <file alias="MenuFlottantTableau.qml">qml/menu/MenuFlottantTableau.qml</file>
         <file alias="MenuFlottantImage.qml">qml/menu/MenuFlottantImage.qml</file>
 <!--        <file alias="MenuFlottantAnnotationText.qml">qml/menu/MenuFlottantAnnotationText.qml</file>-->
         <file alias="ColorButton.qml">qml/menu/ColorButton.qml</file>
+        <file alias="PointSizeSlider.qml">qml/menu/PointSizeSlider.qml</file>
 
     </qresource>
 
@@ -95,6 +97,11 @@
         <file alias="newOperationSection">data/icons/base/pack/png/calculator-1.png</file>
         <file alias="rotateLeft">data/icons/base/perso/rotateleft.png</file>
         <file alias="rotateRight">data/icons/base/perso/rotateright.png</file>
+        <file alias="rect">data/icons/base/pack/png/rect.png</file>
+        <file alias="fillrect">data/icons/base/pack/png/fillrect.png</file>
+        <file alias="trait">data/icons/base/pack/png/pencil.png</file>
+        <file alias="ellipse">data/icons/base/pack/png/sphere.png</file>
+<!--        <file alias="text">data/icons/base/pack/png/sphere.png</file>-->
     </qresource>
     <qresource prefix="/fonts">
         <file alias="Verdana.ttf">data/fonts/Verdana.ttf</file>

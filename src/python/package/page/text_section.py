@@ -172,19 +172,21 @@ class DocumentEditor(QObject):
                 self._proxy = make_proxy(item)
 
                 # set primitive style
-                aaa = QFile(":/css/textsection.css")
-                aaa.open(QFile.ReadOnly | QFile.Text)
-                self._document.setDefaultStyleSheet(aaa.readData(aaa.bytesAvailable()))
-                print(self._document.defaultStyleSheet())
-
+                # aaa = QFile(":/css/textsection.css")
+                # aaa.open(QFile.ReadOnly | QFile.Text)
+                # self._document.setDefaultStyleSheet(aaa.readData(aaa.bytesAvailable()))
+                # print(self._document.defaultStyleSheet())
+                self._document.setDefaultStyleSheet(
+                    "body { font-size: 16pt; color: black; }"
+                )
                 # # on convertit en html si plain text
                 if not bool(BeautifulSoup(item.text, "html.parser").find()):
                     item.text = f"<html><body>{item.text}</body></html>"
 
                 # load content
                 # print(item.text)
-                self.document.setPlainText("aaa")
-                print(self.document.toHtml())
+                self.document.setHtml(item.text)
+                # print(self.document.toHtml())
                 self._update_block_format()
 
                 # set connection later to avoid save on first load
@@ -200,7 +202,7 @@ class DocumentEditor(QObject):
     def onDocumenContentsChanged(self):
         with db_session:
             self._proxy.text = self.document.toHtml()
-            print("//////", self._proxy.text, "///////")
+            # print("//////", self._proxy.text, "///////")
         self.dao.updateRecentsAndActivites.emit()
         # self.documentChanged.emit()
         # self.documentContentChanged.emit()

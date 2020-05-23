@@ -35,7 +35,8 @@ CF_P = {
     "fontUnderline": False,
     "underlineColor": "blue",
     "underlineStyle": QTextCharFormat.NoUnderline,
-    "foreground": "dimgray",
+    "foreground": "red",
+    # "foreground": "dimgray",
     "background": "transparent",
 }
 # "Font": ,

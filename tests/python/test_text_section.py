@@ -6,212 +6,213 @@ from PySide2.QtGui import QTextDocument, QTextCursor, QColor
 from fixtures import is_blockFormat
 from package.database.factory import f_textSection
 from package.page.blockFormat import BlockFormats
-from package.page.text_section import DocumentEditor, RE_AUTOPARAGRAPH
+
+# from package.page.text_section import DocumentEditor, RE_AUTOPARAGRAPH
 from bs4 import BeautifulSoup
 from pony.orm.core import EntityProxy, db_session
 
-
-@pytest.fixture()
-def doc() -> DocumentEditor:
-    doc = DocumentEditor()
-    doc._document = QTextDocument()
-    doc._init()
-    doc.bs4 = lambda: BeautifulSoup(
-        doc.document.toHtml().replace("\n", ""), "html.parser"
-    )
-    return doc
-
-
-class TestProperties:
-    def test_re_autoparagraph(self):
-        r = RE_AUTOPARAGRAPH
-        assert r.match("# zef")
-        assert r.match("###### zef")
-        assert not r.match(" # zef")
-        assert not r.match("####### zef")
-        assert not r.match("## zef ")
-        assert not r.match("##  zef")
-
-    def test_document(self, reset_db, qtbot):
-        doc = DocumentEditor()
-        o = QObject()
-        d = QTextDocument(parent=o)
-        with qtbot.waitSignal(doc.documentChanged):
-            doc.document = o
-        assert doc._document == doc.document == d
-
-    # def test_sectionId(self, reset_db, doc, check_simple_property):
-    #     assert doc.sectionId == 0
-    #     f_textSection()
-    #     check_simple_property("sectionId", 1)
-
-    def test_update_proxy_triggered_on_section_id_changed(self, doc, reset_db):
-        a = f_textSection()
-        doc.sectionId = 1
-        assert doc.document.toPlainText() == a.text
-
-    def test_selectionStart(self, doc, qtbot):
-        with qtbot.assertNotEmitted(doc.selectionStartChanged):
-            doc.selectionStart = 5
-        assert doc._cursor.position() == doc.selectionStart
-
-    def test_selectionEnd(self, doc, qtbot):
-        doc._cursor.insertText("un deux trois quatre cinq")
-        doc.selectionStart = 3
-        with qtbot.assertNotEmitted(doc.selectionEndChanged):
-            doc.selectionEnd = 7
-        assert doc._cursor.selectionEnd() == doc.selectionEnd
-        assert doc._cursor.selectedText() == "deux"
-
-    def test_paragraphAutoFormat_return_false_cases(self, doc):
-        doc._cursor.insertText("un deux trois quatre cinq")
-
-        # test middle line
-        doc._cursor.setPosition(5)
-        assert not doc.paragraphAutoFormat()
-
-        # test re not matched
-        doc._cursor.movePosition(QTextCursor.EndOfBlock)
-        assert not doc.paragraphAutoFormat()
-
-        # test level > 6
-        doc._cursor.insertText("####### blabla")
-        assert not doc.paragraphAutoFormat()
-
-    def test_paragraphAuto_ok_fin_de_docement(self, doc: DocumentEditor):
-        doc.document.setHtml("# blabla")
-        assert doc.paragraphAutoFormat()
-        html = doc.bs4()
-        assert len(html.body) == 2
-        bloc = doc.document.begin()
-        assert bloc.blockFormat() == BlockFormats[1]
-        assert html.body.h1.text == "blabla"
-        assert "font-weight:696" in html.body.h1.span["style"]  # check charformat
-        assert "-qt-paragraph-type:empty" in html.body.p["style"]
-
-    def test_paragraphAuto_ok_avec_text_avant(self, doc: DocumentEditor):
-        doc.document.setHtml("<h2>blabla</h2><p># hello</p>")
-        doc._cursor = QTextCursor(doc.document.begin().next())
-        doc._cursor.movePosition(QTextCursor.EndOfBlock)
-        assert doc._cursor.atBlockEnd()
-        assert doc.paragraphAutoFormat()
-        html = doc.bs4()
-        bloc = doc.document.begin()
-        assert bloc.text() == "blabla"
-        assert doc.document.blockCount() == 3
-        assert bloc.blockFormat().headingLevel() == 2
-
-        bloc = bloc.next()
-        assert bloc.blockFormat() == BlockFormats[1]
-        assert bloc.text() == "hello"
-
-        assert "font-weight:696" in html.body.h1.span["style"]  # check charformat
-        assert "-qt-paragraph-type:empty" in html.body.p["style"]
-
-    def test_paragraphAuto_ok_milieu_de_doc(self, doc: DocumentEditor):
-        doc.document.setHtml("<p># blabla</p><p>hello</p>")
-        doc._cursor = QTextCursor(doc.document.begin())
-        doc._cursor.movePosition(QTextCursor.EndOfBlock)
-        assert doc.paragraphAutoFormat()
-        html = doc.bs4()
-        assert len(html.body) == 2
-        bloc = doc.document.begin()
-        assert bloc.blockFormat() == BlockFormats[1]
-        assert "font-weight:696" in html.body.h1.span["style"]  # check charformat
-        assert "hello" == html.body.p.text
-
-    @pytest.mark.skip("broken")
-    @pytest.mark.parametrize(
-        "start,end, param, value, res",
-        [
-            (4, 4, "fgColor", QColor("red"), "color:#ff0000"),  # no selection color
-            (3, 7, "fgColor", QColor("blue"), "color:#0000ff"),  # selection color
-            (
-                3,
-                7,
-                "underline",
-                True,
-                ["color:#0000ff", "text-decoration: underline"],  # selection underlien
-            ),
-            (
-                4,
-                4,
-                "underline",
-                QColor("blue"),
-                [
-                    "color:#0000ff",
-                    "text-decoration: underline",
-                ],  # no selection underline
-            ),
-            (4, 4, "nothing", "red", None),  # Bad type
-            (4, 4, "fgColor", "rouge", None),  # bad value
-        ],
-    )
-    def test_setStyle_color(
-        self, doc: DocumentEditor, qtbot, start, end, param, value, res, signal=True
-    ):
-        doc.document.setHtml("<p>un deux trois</p>")
-        backup = doc.document.toHtml()
-
-        doc.selectionStart = start
-        doc.selectionEnd = end
-
-        with qtbot.waitSignal(doc.selectionCleared):
-            doc.setStyleFromMenu({"style": {param: value}})
-
-        html = doc.bs4().p.span
-        if res is not None:
-            assert html.text == "deux"
-            res = [res] if isinstance(res, str) else res
-            print(res)
-            print(doc.bs4())
-            print([x in html["style"] for x in res])
-            assert all(x in html["style"] for x in res)
-        else:
-            assert backup == doc.document.toHtml()
-
-    def test_update_proxy(self, doc, ddbr):
-        # bad id
-        doc.sectionId = 99999
-        assert doc._proxy is None
-
-        # good id
-        a = f_textSection()
-        doc._update_block_format = MagicMock()
-        doc.sectionId = 1
-
-        # test set_html and format block called
-        assert doc.bs4().p.text == a.text
-        doc._update_block_format.assert_called_with()
-
-        # test proxy set
-        assert isinstance(doc._proxy, EntityProxy)
-        with db_session:
-            assert doc._proxy.id == a.id
-
-    def test_update_proxy_do_not_change_modified(self, doc, reset_db):
-
-        a = f_textSection(text=f"<html><body>bla</body></html>")
-        # updaté si pas html
-        doc._updateProxy(a.id)
-        with db_session:
-            assert a.modified == doc._proxy.modified
-
-    def test_update_block_format(self, doc):
-        doc.document.setHtml("<p>bla</p><h1>titre</h1>")
-        doc._update_block_format()
-
-        bloc = doc.document.begin()
-        for x in ["p", 1]:
-            assert bloc.blockFormat() == BlockFormats[x]
-            bloc = bloc.next()
-
-    def test_onDocumentContentChanged(self, ddbr, doc, qtbot):
-        a = f_textSection()
-        doc.sectionId = a.id
-        with qtbot.waitSignal(doc.dao.updateRecentsAndActivites):
-            doc.document.setHtml("<p>bla</p><h1>titre</h1>")
-        with db_session:
-            x = ddbr.TextSection[a.id]
-            assert x.text == doc._proxy.text
-            assert x.text == doc.document.toHtml()
+#
+# @pytest.fixture()
+# def doc() -> DocumentEditor:
+#     doc = DocumentEditor()
+#     doc._document = QTextDocument()
+#     doc._init()
+#     doc.bs4 = lambda: BeautifulSoup(
+#         doc.document.toHtml().replace("\n", ""), "html.parser"
+#     )
+#     return doc
+#
+#
+# class TestProperties:
+#     def test_re_autoparagraph(self):
+#         r = RE_AUTOPARAGRAPH
+#         assert r.match("# zef")
+#         assert r.match("###### zef")
+#         assert not r.match(" # zef")
+#         assert not r.match("####### zef")
+#         assert not r.match("## zef ")
+#         assert not r.match("##  zef")
+#
+#     def test_document(self, reset_db, qtbot):
+#         doc = DocumentEditor()
+#         o = QObject()
+#         d = QTextDocument(parent=o)
+#         with qtbot.waitSignal(doc.documentChanged):
+#             doc.document = o
+#         assert doc._document == doc.document == d
+#
+#     # def test_sectionId(self, reset_db, doc, check_simple_property):
+#     #     assert doc.sectionId == 0
+#     #     f_textSection()
+#     #     check_simple_property("sectionId", 1)
+#
+#     def test_update_proxy_triggered_on_section_id_changed(self, doc, reset_db):
+#         a = f_textSection()
+#         doc.sectionId = 1
+#         assert doc.document.toPlainText() == a.text
+#
+#     def test_selectionStart(self, doc, qtbot):
+#         with qtbot.assertNotEmitted(doc.selectionStartChanged):
+#             doc.selectionStart = 5
+#         assert doc._cursor.position() == doc.selectionStart
+#
+#     def test_selectionEnd(self, doc, qtbot):
+#         doc._cursor.insertText("un deux trois quatre cinq")
+#         doc.selectionStart = 3
+#         with qtbot.assertNotEmitted(doc.selectionEndChanged):
+#             doc.selectionEnd = 7
+#         assert doc._cursor.selectionEnd() == doc.selectionEnd
+#         assert doc._cursor.selectedText() == "deux"
+#
+#     def test_paragraphAutoFormat_return_false_cases(self, doc):
+#         doc._cursor.insertText("un deux trois quatre cinq")
+#
+#         # test middle line
+#         doc._cursor.setPosition(5)
+#         assert not doc.paragraphAutoFormat()
+#
+#         # test re not matched
+#         doc._cursor.movePosition(QTextCursor.EndOfBlock)
+#         assert not doc.paragraphAutoFormat()
+#
+#         # test level > 6
+#         doc._cursor.insertText("####### blabla")
+#         assert not doc.paragraphAutoFormat()
+#
+#     def test_paragraphAuto_ok_fin_de_docement(self, doc: DocumentEditor):
+#         doc.document.setHtml("# blabla")
+#         assert doc.paragraphAutoFormat()
+#         html = doc.bs4()
+#         assert len(html.body) == 2
+#         bloc = doc.document.begin()
+#         assert bloc.blockFormat() == BlockFormats[1]
+#         assert html.body.h1.text == "blabla"
+#         assert "font-weight:696" in html.body.h1.span["style"]  # check charformat
+#         assert "-qt-paragraph-type:empty" in html.body.p["style"]
+#
+#     def test_paragraphAuto_ok_avec_text_avant(self, doc: DocumentEditor):
+#         doc.document.setHtml("<h2>blabla</h2><p># hello</p>")
+#         doc._cursor = QTextCursor(doc.document.begin().next())
+#         doc._cursor.movePosition(QTextCursor.EndOfBlock)
+#         assert doc._cursor.atBlockEnd()
+#         assert doc.paragraphAutoFormat()
+#         html = doc.bs4()
+#         bloc = doc.document.begin()
+#         assert bloc.text() == "blabla"
+#         assert doc.document.blockCount() == 3
+#         assert bloc.blockFormat().headingLevel() == 2
+#
+#         bloc = bloc.next()
+#         assert bloc.blockFormat() == BlockFormats[1]
+#         assert bloc.text() == "hello"
+#
+#         assert "font-weight:696" in html.body.h1.span["style"]  # check charformat
+#         assert "-qt-paragraph-type:empty" in html.body.p["style"]
+#
+#     def test_paragraphAuto_ok_milieu_de_doc(self, doc: DocumentEditor):
+#         doc.document.setHtml("<p># blabla</p><p>hello</p>")
+#         doc._cursor = QTextCursor(doc.document.begin())
+#         doc._cursor.movePosition(QTextCursor.EndOfBlock)
+#         assert doc.paragraphAutoFormat()
+#         html = doc.bs4()
+#         assert len(html.body) == 2
+#         bloc = doc.document.begin()
+#         assert bloc.blockFormat() == BlockFormats[1]
+#         assert "font-weight:696" in html.body.h1.span["style"]  # check charformat
+#         assert "hello" == html.body.p.text
+#
+#     @pytest.mark.skip("broken")
+#     @pytest.mark.parametrize(
+#         "start,end, param, value, res",
+#         [
+#             (4, 4, "fgColor", QColor("red"), "color:#ff0000"),  # no selection color
+#             (3, 7, "fgColor", QColor("blue"), "color:#0000ff"),  # selection color
+#             (
+#                 3,
+#                 7,
+#                 "underline",
+#                 True,
+#                 ["color:#0000ff", "text-decoration: underline"],  # selection underlien
+#             ),
+#             (
+#                 4,
+#                 4,
+#                 "underline",
+#                 QColor("blue"),
+#                 [
+#                     "color:#0000ff",
+#                     "text-decoration: underline",
+#                 ],  # no selection underline
+#             ),
+#             (4, 4, "nothing", "red", None),  # Bad type
+#             (4, 4, "fgColor", "rouge", None),  # bad value
+#         ],
+#     )
+#     def test_setStyle_color(
+#         self, doc: DocumentEditor, qtbot, start, end, param, value, res, signal=True
+#     ):
+#         doc.document.setHtml("<p>un deux trois</p>")
+#         backup = doc.document.toHtml()
+#
+#         doc.selectionStart = start
+#         doc.selectionEnd = end
+#
+#         with qtbot.waitSignal(doc.selectionCleared):
+#             doc.setStyleFromMenu({"style": {param: value}})
+#
+#         html = doc.bs4().p.span
+#         if res is not None:
+#             assert html.text == "deux"
+#             res = [res] if isinstance(res, str) else res
+#             print(res)
+#             print(doc.bs4())
+#             print([x in html["style"] for x in res])
+#             assert all(x in html["style"] for x in res)
+#         else:
+#             assert backup == doc.document.toHtml()
+#
+#     def test_update_proxy(self, doc, ddbr):
+#         # bad id
+#         doc.sectionId = 99999
+#         assert doc._proxy is None
+#
+#         # good id
+#         a = f_textSection()
+#         doc._update_block_format = MagicMock()
+#         doc.sectionId = 1
+#
+#         # test set_html and format block called
+#         assert doc.bs4().p.text == a.text
+#         doc._update_block_format.assert_called_with()
+#
+#         # test proxy set
+#         assert isinstance(doc._proxy, EntityProxy)
+#         with db_session:
+#             assert doc._proxy.id == a.id
+#
+#     def test_update_proxy_do_not_change_modified(self, doc, reset_db):
+#
+#         a = f_textSection(text=f"<html><body>bla</body></html>")
+#         # updaté si pas html
+#         doc._updateProxy(a.id)
+#         with db_session:
+#             assert a.modified == doc._proxy.modified
+#
+#     def test_update_block_format(self, doc):
+#         doc.document.setHtml("<p>bla</p><h1>titre</h1>")
+#         doc._update_block_format()
+#
+#         bloc = doc.document.begin()
+#         for x in ["p", 1]:
+#             assert bloc.blockFormat() == BlockFormats[x]
+#             bloc = bloc.next()
+#
+#     def test_onDocumentContentChanged(self, ddbr, doc, qtbot):
+#         a = f_textSection()
+#         doc.sectionId = a.id
+#         with qtbot.waitSignal(doc.dao.updateRecentsAndActivites):
+#             doc.document.setHtml("<p>bla</p><h1>titre</h1>")
+#         with db_session:
+#             x = ddbr.TextSection[a.id]
+#             assert x.text == doc._proxy.text
+#             assert x.text == doc.document.toHtml()

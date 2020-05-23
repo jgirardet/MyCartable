@@ -107,3 +107,8 @@ class SectionMixin:
     #             item.delete()
     #     # on sort de la session avant d'emit pour que toutes modif/hook pris en compte
     #     self.sectionRemoved.emit(index)
+
+    @Slot(str)
+    def html(self, value):
+        print(value.encode())
+        print("".join(value.split("\n")))

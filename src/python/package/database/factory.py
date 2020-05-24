@@ -174,8 +174,22 @@ def f_imageSection(path=None, **kwargs):
     return _f_section("ImageSection", path=path, **kwargs)
 
 
+HTML = """
+<body>
+<p>ligne normale</p>
+<h1>titre</h1>
+<h2>titre seconde</h2>
+<p>debut de ligne <span style="color: red;">rouge</span> suite de ligne</p>
+<h3>titre seconde</h3>
+<h4>titre seconde</h4>
+<p>du style en fin de <span style="color: purple;">lingne</span></p>
+<p>debut de ligne <span style="color: red;">rouge</span> suite de ligne</p>
+</body>
+"""
+
+
 def f_textSection(text=None, **kwargs):
-    text = text or gen.text.text(random.randint(0, 10))
+    text = text or HTML  # gen.text.text(random.randint(0, 10))
     return _f_section("TextSection", text=text, **kwargs)
 
 

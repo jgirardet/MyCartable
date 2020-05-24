@@ -9,7 +9,7 @@ from package.database_mixins.page_mixin import PageMixin
 from package.database_mixins.recents_mixin import RecentsMixin
 from package.database_mixins.section_mixin import SectionMixin
 from package.database_mixins.settings_mixin import SettingsMixin
-
+from package.database_mixins.text_mixin import TextSectionMixin
 
 LOG = logging.getLogger(__name__)
 
@@ -23,6 +23,7 @@ MIXINS = [
     SettingsMixin,
     DevMixin,
     EquationMixin,
+    TextSectionMixin,
 ]
 
 

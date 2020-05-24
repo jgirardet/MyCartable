@@ -1,5 +1,6 @@
 import html
 import re
+from contextlib import contextmanager
 
 from PySide2.QtGui import (
     QTextDocument,
@@ -18,49 +19,63 @@ from PySide2.QtWidgets import QApplication
 from bs4 import BeautifulSoup
 from package.page.blockFormat import P, BlockFormats
 from package.page.charFormat import CharFormats, Pc
+from package.utils import KeyW
 from pony.orm import db_session, make_proxy
 from package.database import db
 
+RED = "#D40020"
+BLUE = "#0048BA"
+GREEN = "#006A4E"
+BLACK = "#363636"
 
 _CSS_BASE = {
     "body": {
-        "color": "#363636",
+        "color": BLACK,
         "background-color": "#E6E6E6",
         "font-family": "Verdana",
         "font-size": "20pt",
         "font-weight": "96",
         "margin-top": "12px",
+        # "margin-right": "10px",
     },
     "h1": {
         "font-size": "30pt",
-        "color": "#D40020",
+        "color": RED,
         "font-weight": "600",
         "text-decoration": "underline",
         "text-transform": "uppercase",
         "margin-top": "18px",
+        "margin-left": "10px",
+        "margin-right": "10px",
     },
     "h2": {
         "font-size": "25pt",
-        "color": "#006A4E",
+        "color": GREEN,
         "font-weight": "600",
         "text-decoration": "underline",
         "margin-top": "16px",
+        "margin-left": "10px",
+        "margin-right": "10px",
     },
     "h3": {
         "font-size": "25pt",
-        "color": "#0048BA",
+        "color": BLUE,
         "font-weight": "400",
         "text-decoration": "underline",
         "margin-top": "14px",
+        "margin-left": "10px",
+        "margin-right": "10px",
     },
     "h4": {
-        "color": "#363636",
+        "color": BLACK,
         "font-size": "20pt",
         "font-weight": "400",
         "text-decoration": "underline",
         "margin-top": "18px",
+        "margin-left": "10px",
+        "margin-right": "10px",
     },
-    "p": {},
+    "p": {"margin-left": "10px", "margin-right": "10px",},
 }
 
 
@@ -145,13 +160,16 @@ def build_blockFormat_from_css(css):
         mt = datas.get("margin-top", None) or css["body"]["margin-top"]
         mt = float(mt.rstrip("px"))
         cf.setTopMargin(mt)
+        #
+        mt = datas.get("margin-left", None)
+        mt = float(mt.rstrip("px"))
+        cf.setLeftMargin(mt)
+        mt = datas.get("margin-right", None)
+        mt = float(mt.rstrip("px"))
+        cf.setRightMargin(mt)
 
         res.append(cf)
     return res
-
-
-BLOCK_CHAR_FORMAT = build_bockCharFormat_from_css(CSS_BASE)
-BLOCK_FORMAT = build_blockFormat_from_css(CSS_BASE)
 
 
 class BlockFormat_:
@@ -172,8 +190,8 @@ class BlockFormat_:
             return self.data[item]
 
 
-BlockCharFormat = BlockFormat_(build_bockCharFormat_from_css(CSS_BASE))
-BlockFormat = BlockFormat_(build_blockFormat_from_css(CSS_BASE))
+blockCharFormat = BlockFormat_(build_bockCharFormat_from_css(CSS_BASE))
+blockFormat = BlockFormat_(build_blockFormat_from_css(CSS_BASE))
 
 
 RE_AUTOPARAGRAPH_DEBUT = re.compile(r"^(#{1,6})\s\S.+\S$")
@@ -199,6 +217,10 @@ class TextSectionEditor(QTextDocument):
         return self.characterCount()
 
     @property
+    def s_len(self):
+        return abs(self.s_end - self.s_start)
+
+    @property
     def pos(self):
         return self.cur.position()
 
@@ -206,20 +228,6 @@ class TextSectionEditor(QTextDocument):
 
         self._update_ddb()
         self.setResponse(True)
-        return self.result
-
-    def onKey(self, event):
-        self.key = event["key"]
-        self.key_text = event["text"]
-        self.modifiers = event["modifiers"]
-
-        if self.key == Qt.Key_Return:
-            self.do_return()
-        else:
-            self.setResponse(False)
-
-        if self.pending:
-            self._update_ddb()
         return self.result
 
     @db_session
@@ -230,11 +238,60 @@ class TextSectionEditor(QTextDocument):
             self.setResponse(True, cur=self.len)
         return self.result
 
-    def do_return(self):
+    def onKey(self, event):
+
+        # on met en premier ceux à qui il faut passer l'event
+
+        if event["key"] == Qt.Key_Return:
+            self.do_key_return(event)
+
+        elif event["modifiers"] == Qt.ControlModifier:
+            self.do_control_modifier(event)
+
+        else:
+            self.setResponse(False)
+
+        if self.pending:
+            self._update_ddb()
+        return self.result
+
+    def do_control_modifier(self, event):
+        if event == KeyW.KEY_1:
+            self.do_key_1()
+
+        elif event == KeyW.KEY_2:
+            self.do_key_2()
+
+        elif event == KeyW.KEY_3:
+            self.do_key_3()
+
+        elif event == KeyW.KEY_4:
+            self.do_key_4()
+
+        elif event["key"] == Qt.Key_U:
+            self.do_key_u()
+
+    def do_key_1(self):
+        with self._merge_char_format() as f:
+            f.setForeground(QBrush(QColor(RED)))
+
+    def do_key_2(self):
+        with self._merge_char_format() as f:
+            f.setForeground(QBrush(QColor(BLUE)))
+
+    def do_key_3(self):
+        with self._merge_char_format() as f:
+            f.setForeground(QBrush(QColor(GREEN)))
+
+    def do_key_4(self):
+        with self._merge_char_format() as f:
+            f.setForeground(QBrush(QColor(BLACK)))
+
+    def do_key_return(self, event):
         block = self.findBlock(self.pos)
-        if self.modifiers == Qt.ControlModifier:
+        if event["modifiers"] == Qt.ControlModifier:
             self._appendEmptyBlock()
-        elif self.modifiers == Qt.ShiftModifier:
+        elif event["modifiers"] == Qt.ShiftModifier:
             self._insertEmptyBlock()
         elif block.blockFormat().headingLevel():
             self._appendEmptyBlock()
@@ -243,6 +300,10 @@ class TextSectionEditor(QTextDocument):
                 return
             else:
                 self.setResponse(False)
+
+    def do_key_u(self):
+        with self._merge_char_format() as f:
+            f.setFontUnderline(True)
 
     def setResponse(self, accepted, text=None, cur=None):
         self.result["text"] = text or self.toHtml()
@@ -253,7 +314,7 @@ class TextSectionEditor(QTextDocument):
         self, section="p", pre_move=QTextCursor.EndOfBlock, set_response=True
     ):
         self.cur.movePosition(pre_move)
-        self.cur.insertBlock(BlockFormat[section], BlockCharFormat[section])
+        self.cur.insertBlock(blockFormat[section], blockCharFormat[section])
         self.cur.insertFragment(QTextDocumentFragment.fromPlainText(""))
         self.pending = True
         if set_response:
@@ -294,9 +355,9 @@ class TextSectionEditor(QTextDocument):
 
         self.cur.beginEditBlock()
         self.cur.select(QTextCursor.LineUnderCursor)
-        self.cur.setCharFormat(BlockCharFormat[level])
+        self.cur.setCharFormat(blockCharFormat[level])
         self.cur.insertText(text)
-        self.cur.setBlockFormat(BlockFormat[level])
+        self.cur.setBlockFormat(blockFormat[level])
         self.cur.endEditBlock()
 
         self._appendEmptyBlock()
@@ -304,14 +365,32 @@ class TextSectionEditor(QTextDocument):
         self.setResponse(True)
         return True
 
+    def _select_word_or_selection(self):
+        if self.s_start < self.pos:
+            self.cur.movePosition(QTextCursor.Left, QTextCursor.KeepAnchor, self.s_len)
+        elif self.s_end > self.pos:
+            self.cur.movePosition(QTextCursor.Right, QTextCursor.KeepAnchor, self.s_len)
+        else:
+            self.cur.select(QTextCursor.WordUnderCursor)
+
     def _set_block_style(self, level):
-        self.cur.setBlockFormat(BlockFormat[level])
-        self.cur.setBlockCharFormat(BlockCharFormat[level])
+        self.cur.setBlockFormat(blockFormat[level])
+        self.cur.setBlockCharFormat(blockCharFormat[level])
+
+    @contextmanager
+    def _merge_char_format(self):
+        self._select_word_or_selection()
+        f: QTextCharFormat = QTextCharFormat()
+        yield f
+        self.cur.mergeCharFormat(f)
+        self.pending = True
+        self.setResponse(True, cur=max(self.pos, self.s_start, self.s_end))
 
     @db_session
     def _update_ddb(self):
         obj = db.Section[self.sectionId]
         new_body = TextSectionFormatter(self.toHtml()).build_body()
+        print(new_body)
         obj.set(text=new_body)
         return new_body
 
@@ -321,8 +400,6 @@ class TextSectionFormatter:
         self.soup = BeautifulSoup(html, "html.parser")
 
     def write_span(self, span, attrs):
-        # print(span)
-        # breakpoint()
         return (
             f"<span{self._write_style_block(attrs)}>{self.format_string(span)}</span>"
         )

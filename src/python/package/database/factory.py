@@ -188,8 +188,15 @@ HTML = """
 """
 
 
+HTML2 = """
+<body>
+<p>ligne normale</p>
+</body>
+"""
+
+
 def f_textSection(text=None, **kwargs):
-    text = text or HTML  # gen.text.text(random.randint(0, 10))
+    text = text or HTML.replace("\n", "")  # gen.text.text(random.randint(0, 10))
     return _f_section("TextSection", text=text, **kwargs)
 
 

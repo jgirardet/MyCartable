@@ -485,8 +485,10 @@ Item {
 
 // text section
 
-  function getTextSectionColor() {
-    return _getTextSectionColor
+  function getTextSectionColor(arg) {
+    var backup = _getTextSectionColor
+    _getTextSectionColor = arg
+    return backup
   }
   property var _getTextSectionColor: "red"
 /* beautify preserve:end */

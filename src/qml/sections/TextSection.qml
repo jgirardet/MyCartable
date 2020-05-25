@@ -54,6 +54,17 @@ TextEdit {
     }
   }
 
+  //  onSelectedTextChanged: {
+  //    if (selectedText) {
+  //      showMenuTimer.restart()
+  //    }
+  //  }
+  //  Timer {
+  //    id: showMenuTimer
+  //    interval: 500;running: false;repeat: false
+  //    onTriggered: root.showMenu()
+  //  }
+
   function setStyleFromMenu(params) {
     print("booem")
     var res = ddb.updateTextSectionOnMenu(sectionId, text, cursorPosition, selectionStart, selectionEnd, params)
@@ -68,24 +79,23 @@ TextEdit {
 
     }
   }
+  //  onSelectionStartChanged: print(selectionStart)
+  function showMenu() {
+    var s_start = Math.min(root.selectionStart, root.selectionEnd)
+    var s_end = Math.max(root.selectionEnd, root.selectionEnd)
+    uiManager.menuFlottantText.ouvre(root)
+    root.cursorPosition = s_start
+    root.moveCursorSelection(s_end, TextEdit.SelectCharacters)
+  }
+
   MouseArea {
+    id: mousearea
     anchors.fill: root
     acceptedButtons: Qt.RightButton
     onPressed: {
-      //
-      //      print("ùpmkojlihkuhiljomk")
-      //
-      //      //      if (mouse.button == Qt.LeftButton) {
-      //      //        event.accepted = false
       if (mouse.button == Qt.RightButton) {
-        print(root.cursorPosition, root.selectionStart, root.selectionEnd)
-        var s_start = Math.min(root.selectionStart, root.selectionEnd)
-        var s_end = Math.max(root.selectionEnd, root.selectionEnd)
-        uiManager.menuFlottantText.ouvre(root)
-        root.cursorPosition = s_start
-        root.moveCursorSelection(s_end, TextEdit.SelectCharacters)
-        print(root.cursorPosition, root.selectionStart, root.selectionEnd)
 
+        root.showMenu()
         mouse.accepted = true
       }
       //

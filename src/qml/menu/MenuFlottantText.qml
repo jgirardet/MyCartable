@@ -4,6 +4,7 @@ import QtQuick.Layouts 1.12
 
 BaseMenu {
   id: root
+
   MenuItem {
     RowLayout {
       anchors.fill: parent
@@ -91,5 +92,11 @@ BaseMenu {
       }
     }
   }
+  //  enter: Transition {
+  //    onRunningChanged: print("go")
+  //    NumberAnimation {
+  //      property: "opacity";from: 0.0;to: 1.0;duration: 500
+  //    }
+  //  }
 
 }

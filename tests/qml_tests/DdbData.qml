@@ -2,6 +2,7 @@ import QtQuick 2.14
 import QtTest 1.12
 
 /* beautify preserve:start */
+
 Item {
 
   Component.onCompleted: {
@@ -20,8 +21,7 @@ Item {
   }
   property int _getMatiereIndexFromId
 
-  property
-  var matieresList: [{
+  property   var matieresList: [{
     'id': 6,
     'nom': 'Lecture',
     'annee': 2019,
@@ -55,8 +55,7 @@ Item {
     "bgColor": "green"
   }]
 
-  property
-  var pagesParSection: [{
+  property   var pagesParSection: [{
     'id': 7,
     'nom': 'Leçons',
     'famille': 0,
@@ -172,8 +171,7 @@ Item {
     }]
   }]
 
-  property
-  var currentMatiereItem: {
+  property  var currentMatiereItem: {
     'id': 10,
     'nom': 'Géographie',
     'annee': 2019,
@@ -189,8 +187,7 @@ Item {
   function getLayoutSizes(value) {
     return _getLayoutSizes
   }
-  property
-  var _getLayoutSizes: 100
+  property   var _getLayoutSizes: 100
   property color colorFond: Qt.rgba(130, 134, 138, 1)
   property color colorMainMenuBar: Qt.rgba(83 / 255, 93 / 255, 105 / 255, 1)
   property color colorPageToolBar: Qt.rgba(197 / 255, 197 / 255, 197 / 255, 1)
@@ -430,8 +427,7 @@ Item {
     _addSection = [sectionid, content]
     return sectionid + 1
   }
-  property
-  var _addSection
+  property   var _addSection
 
   function loadSection(sectionid) {
     _loadSectionParams = sectionid
@@ -450,20 +446,17 @@ Item {
       'annotations': [4, 5, 6, 7]
     }
    property var _loadSectionParams
-  /* beautify preserve:end */
 
   function removeSection(sectoinid, index) {
     _removeSection = [sectoinid, index]
   }
-  property
-  var _removeSection
+  property   var _removeSection
 
   // Settings
   function getMenuAnnees() {
     return _getMenuAnnees
   }
-  property
-  var _getMenuAnnees: [{
+  property   var _getMenuAnnees: [{
     'id': 2018,
     'niveau': 'ce2'
   }, {
@@ -478,20 +471,25 @@ Item {
     _updateEquationParams = [sectionid, content, curseur, event]
     return _updateEquation
   }
-  property
-  var _updateEquation
+  property   var _updateEquation
 
-  property
-  var _updateEquationParams
+  property  var _updateEquationParams
 
   function isEquationFocusable(content, curseur) {
     var backup = _isEquationFocusable
     _isEquationFocusable = [content, curseur]
     return backup
   }
-  property
-  var _isEquationFocusable: true
+  property   var _isEquationFocusable: true
 
-}
 
+// text section
+
+  function getTextSectionColor(arg) {
+    var backup = _getTextSectionColor
+    _getTextSectionColor = arg
+    return backup
+  }
+  property var _getTextSectionColor: "red"
 /* beautify preserve:end */
+}

@@ -269,6 +269,7 @@ Item {
     }
 
     function test_text_menu_style() {
+      skip("Utiltise le mauvais menu flottant")
       var un = tested.getItem(1)
       var tx = tested.getItem(1).tinput
 
@@ -422,6 +423,7 @@ Item {
 
     function test_menu_style_cellules() {
       var tx = un.tinput
+      skip("Utiltise le mauvais menu flottant")
 
       //click droit ur text
       compare(uiManager.menuTarget, undefined)

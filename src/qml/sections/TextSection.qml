@@ -1,82 +1,103 @@
 import QtQuick 2.14
 import QtQuick.Controls 2.14
-import DocumentEditor 1.0
-import "qrc:/qml/menu"
 
-// TODO: interlignes doubles
-
-TextArea {
-  id: area
+TextEdit {
+  id: root
   /* beautify preserve:start */
   property int sectionId
   property var sectionItem
+  property bool doNotUpdate: false
   /* beautify preserve:end */
-  //  property var listview
-
+  font.pointSize: 20 // necéssaire pour que les taille html soient corrent == taille de p
+  height: contentHeight + 30
+  width: sectionItem.width
+  textFormat: TextEdit.RichText
+  leftPadding: 10
+  rightPadding: 10
   selectByMouse: true
   wrapMode: TextEdit.Wrap
-  width: sectionId ? sectionItem.width : undefined
-  //  focus: true
-  //  focus: parent.ListView.isCurrentItem
 
-  onFocusChanged: {
-
-    if (focus) {
-      uiManager.menuTarget = doc
+  Keys.onPressed: {
+    var res = ddb.updateTextSectionOnKey(sectionId, text, cursorPosition, selectionStart, selectionEnd, JSON.stringify(event))
+    event.accepted = res["eventAccepted"]
+    if (event.accepted == false) {
+      return
+    } else {
+      doNotUpdate = true
+      text = res["text"]
+      cursorPosition = res["cursorPosition"]
+      //      print(text)
     }
+  }
+  onSectionIdChanged: {
+    var res = ddb.loadTextSection(sectionId)
+    doNotUpdate = true
+    text = res["text"]
+    cursorPosition = res["cursorPosition"]
+  }
+  onTextChanged: {
+    if (doNotUpdate) {
+      doNotUpdate = false
+      return
+    } else {
+      var res = ddb.updateTextSectionOnChange(sectionId, text, cursorPosition, selectionStart, selectionEnd)
+      if (res["eventAccepted"]) {
+        // ici event Accepted veut dire : on ne remet pas à jour le text
+        return
+      } else {
+        doNotUpdate = true
+        text = res["text"]
+        cursorPosition = res["cursorPosition"]
+
+      }
+    }
+  }
+
+  //  onSelectedTextChanged: {
+  //    if (selectedText) {
+  //      showMenuTimer.restart()
+  //    }
+  //  }
+  //  Timer {
+  //    id: showMenuTimer
+  //    interval: 500;running: false;repeat: false
+  //    onTriggered: root.showMenu()
+  //  }
+
+  function setStyleFromMenu(params) {
+    var res = ddb.updateTextSectionOnMenu(sectionId, text, cursorPosition, selectionStart, selectionEnd, params)
+    if (!res["eventAccepted"]) {
+      // ici event Accepted veut dire : on ne remet pas à jour le text
+      return
+    } else {
+      doNotUpdate = true
+      text = res["text"]
+      cursorPosition = res["cursorPosition"]
+      //      print(text)
+
+    }
+  }
+  //  onSelectionStartChanged: print(selectionStart)
+  function showMenu() {
+    var s_start = Math.min(root.selectionStart, root.selectionEnd)
+    var s_end = Math.max(root.selectionEnd, root.selectionEnd)
+    uiManager.menuFlottantText.ouvre(root)
+    root.cursorPosition = s_start
+    root.moveCursorSelection(s_end, TextEdit.SelectCharacters)
   }
 
   MouseArea {
-    anchors.fill: area
-    acceptedButtons: Qt.LeftButton | Qt.RightButton
-
+    id: mousearea
+    anchors.fill: root
+    acceptedButtons: Qt.RightButton
     onPressed: {
-      if (pressedButtons == Qt.LeftButton) {
-        uiManager.menuTarget = doc
-        mouse.accepted = false
-      } else if (pressedButtons == Qt.RightButton) {
-        menuStylePopup(area.selectionStart, area.selectionEnd)
+      if (mouse.button == Qt.RightButton) {
+
+        root.showMenu()
+        mouse.accepted = true
       }
-
-    }
-  }
-  Keys.onPressed: {
-    if (event.key == Qt.Key_Return) {
-      event.accepted = doc.paragraphAutoFormat()
+      //
     }
   }
 
-  function menuStylePopup(start, end) {
-    uiManager.menuFlottantText.ouvre(doc)
-    cursorPosition = start
-    moveCursorSelection(end, TextEdit.SelectCharacters)
-  }
-
-  property DocumentEditor doc: DocumentEditor {
-    id: doc
-    document: area
-    Binding on sectionId {
-      when: doc.documentChanged
-      value: area.sectionId
-    }
-    Binding on selectionStart {
-      when: doc.documentChanged
-      value: area.selectionStart
-    }
-    Binding on selectionEnd {
-      when: doc.documentChanged
-      value: area.selectionEnd
-    }
-
-    onSelectionStartChanged: function() {
-      area.cursorPosition = selectionStart
-    }
-    onSelectionCleared: area.deselect()
-    //    onDocumentContentChanged: {area.text}
-
-  }
-  background: Rectangle {
-    anchors.fill: parent
-    color: "white"
-  }
 }

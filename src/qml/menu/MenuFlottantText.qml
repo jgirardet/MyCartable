@@ -4,44 +4,41 @@ import QtQuick.Layouts 1.12
 
 BaseMenu {
   id: root
+
   MenuItem {
     RowLayout {
       anchors.fill: parent
       spacing: 0
       ColorButton {
-        color: "red"
+        color: ddb.getTextSectionColor('red')
         style: {
           "fgColor": color,
           "underline": false
         }
-        shortcut: "Ctrl+r"
         menu: root
       }
       ColorButton {
-        color: "blue"
+        color: ddb.getTextSectionColor("blue")
         style: {
           "fgColor": color,
           "underline": false
         }
-        shortcut: "Ctrl+b"
         menu: root
       }
       ColorButton {
-        color: "green"
+        color: ddb.getTextSectionColor("green")
         style: {
           "fgColor": color,
           "underline": false
         }
-        shortcut: "Ctrl+g"
         menu: root
       }
       ColorButton {
-        color: "black"
+        color: ddb.getTextSectionColor("black")
         style: {
           "fgColor": color,
           "underline": false
         }
-        shortcut: "Ctrl+n"
         menu: root
       }
     }
@@ -58,48 +55,48 @@ BaseMenu {
       anchors.fill: parent
       spacing: 0
       ColorButton {
-        color: "red"
+        color: ddb.getTextSectionColor('red')
         style: {
           "fgColor": color,
-          "underline": "true"
+          "underline": true
         }
-        shortcut: "Alt+r"
         menu: root
         text: "S"
       }
       ColorButton {
-        color: "blue"
+        color: ddb.getTextSectionColor("blue")
         style: {
           "fgColor": color,
-          "underline": "true"
+          "underline": true
         }
-        shortcut: "Alt+b"
         menu: root
         text: "S"
       }
       ColorButton {
-        color: "green"
+        color: ddb.getTextSectionColor("green")
         style: {
           "fgColor": color,
-          "underline": "true"
+          "underline": true
         }
-        shortcut: "Alt+g"
         menu: root
         text: "S"
-
       }
       ColorButton {
-        color: "black"
+        color: ddb.getTextSectionColor("black")
         style: {
           "fgColor": color,
-          "underline": "true"
+          "underline": true
         }
-        shortcut: "Alt+n"
         menu: root
         text: "S"
-
       }
     }
   }
+  //  enter: Transition {
+  //    onRunningChanged: print("go")
+  //    NumberAnimation {
+  //      property: "opacity";from: 0.0;to: 1.0;duration: 500
+  //    }
+  //  }
 
 }

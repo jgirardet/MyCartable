@@ -52,6 +52,8 @@ class SectionMixin:
             else:
                 return 0
 
+        # elif classtype == "TextSection":
+
         with db_session:
             try:
                 item = getattr(self.db, classtype)(page=page_id, **content)
@@ -107,3 +109,8 @@ class SectionMixin:
     #             item.delete()
     #     # on sort de la session avant d'emit pour que toutes modif/hook pris en compte
     #     self.sectionRemoved.emit(index)
+
+    @Slot(str)
+    def html(self, value):
+        print(value.encode())
+        print("".join(value.split("\n")))

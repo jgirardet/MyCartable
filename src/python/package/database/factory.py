@@ -174,8 +174,29 @@ def f_imageSection(path=None, **kwargs):
     return _f_section("ImageSection", path=path, **kwargs)
 
 
+HTML = """
+<body>
+<p>ligne normale</p>
+<h1>titre</h1>
+<h2>titre seconde</h2>
+<p>debut de ligne <span style="color: red;">rouge</span> suite de ligne</p>
+<h3>titre seconde</h3>
+<h4>titre seconde</h4>
+<p>du style en fin de <span style="color: purple;">lingne</span></p>
+<p>debut de ligne <span style="color: red;">rouge</span> suite de ligne</p>
+</body>
+"""
+
+
+HTML2 = """
+<body>
+<p>ligne normale</p>
+</body>
+"""
+
+
 def f_textSection(text=None, **kwargs):
-    text = text or gen.text.text(random.randint(0, 10))
+    text = text or HTML.replace("\n", "")  # gen.text.text(random.randint(0, 10))
     return _f_section("TextSection", text=text, **kwargs)
 
 
@@ -328,18 +349,18 @@ def populate_database(matieres_list=MATIERES, nb_page=100):
         for x in range(random.randint(0, 8)):
             random.choice(
                 [
-                    f_equationSection(
-                        page=a.id,
-                        #                         content=f"""1{TextEquation.FSP}            {TextEquation.FSP}12   1234
-                        # ―― + 13 + 3 + ――― + ―――― + 1
-                        # 15            234   789{TextEquation.FSP}    """,
-                    ),
-                    f_tableauSection(page=a.id),
-                    f_imageSection(page=a.id),
+                    # f_equationSection(
+                    #     page=a.id,
+                    #     #                         content=f"""1{TextEquation.FSP}            {TextEquation.FSP}12   1234
+                    #     # ―― + 13 + 3 + ――― + ―――― + 1
+                    #     # 15            234   789{TextEquation.FSP}    """,
+                    # ),
+                    # f_tableauSection(page=a.id),
+                    # f_imageSection(page=a.id),
                     f_textSection(page=a.id),
-                    f_additionSection(page=a.id),
-                    f_soustractionSection(page=a.id),
-                    f_multiplicationSection(page=a.id),
-                    f_divisionSection(page=a.id),
+                    # f_additionSection(page=a.id),
+                    # f_soustractionSection(page=a.id),
+                    # f_multiplicationSection(page=a.id),
+                    # f_divisionSection(page=a.id),
                 ]
             )

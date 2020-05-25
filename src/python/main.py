@@ -60,7 +60,8 @@ def register_new_qml_type(databaseObject):
         MultiplicationModel,
         DivisionModel,
     )
-    from package.page.text_section import DocumentEditor
+
+    # from package.page.text_section import DocumentEditor
     from package.page.tableau_section import TableauModel
     from package.page.annotation_model import AnnotationModel
 
@@ -70,7 +71,7 @@ def register_new_qml_type(databaseObject):
     DivisionModel.ddb = databaseObject
     TableauModel.ddb = databaseObject
 
-    qmlRegisterType(DocumentEditor, "DocumentEditor", 1, 0, "DocumentEditor")
+    # qmlRegisterType(DocumentEditor, "DocumentEditor", 1, 0, "DocumentEditor")
     qmlRegisterType(AdditionModel, "MyCartable", 1, 0, "AdditionModel")
     qmlRegisterType(SoustractionModel, "MyCartable", 1, 0, "SoustractionModel")
     qmlRegisterType(MultiplicationModel, "MyCartable", 1, 0, "MultiplicationModel")

@@ -52,6 +52,8 @@ class SectionMixin:
             else:
                 return 0
 
+        # elif classtype == "TextSection":
+
         with db_session:
             try:
                 item = getattr(self.db, classtype)(page=page_id, **content)

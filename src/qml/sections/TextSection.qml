@@ -34,7 +34,6 @@ TextEdit {
     doNotUpdate = true
     text = res["text"]
     cursorPosition = res["cursorPosition"]
-    print(text)
   }
   onTextChanged: {
     if (doNotUpdate) {
@@ -66,7 +65,6 @@ TextEdit {
   //  }
 
   function setStyleFromMenu(params) {
-    print("booem")
     var res = ddb.updateTextSectionOnMenu(sectionId, text, cursorPosition, selectionStart, selectionEnd, params)
     if (!res["eventAccepted"]) {
       // ici event Accepted veut dire : on ne remet pas à jour le text
@@ -75,7 +73,7 @@ TextEdit {
       doNotUpdate = true
       text = res["text"]
       cursorPosition = res["cursorPosition"]
-      print(text)
+      //      print(text)
 
     }
   }

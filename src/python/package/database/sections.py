@@ -101,7 +101,7 @@ class ImageSection(Section):
 
 
 class TextSection(Section):
-    text = Optional(str, default="")
+    text = Optional(str, default="<body></body>")
 
 
 class TableDataSection(Section):

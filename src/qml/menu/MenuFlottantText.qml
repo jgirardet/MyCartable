@@ -14,7 +14,6 @@ BaseMenu {
           "fgColor": color,
           "underline": false
         }
-        shortcut: "Ctrl+r"
         menu: root
       }
       ColorButton {
@@ -23,7 +22,6 @@ BaseMenu {
           "fgColor": color,
           "underline": false
         }
-        shortcut: "Ctrl+b"
         menu: root
       }
       ColorButton {
@@ -32,7 +30,6 @@ BaseMenu {
           "fgColor": color,
           "underline": false
         }
-        shortcut: "Ctrl+g"
         menu: root
       }
       ColorButton {
@@ -41,7 +38,6 @@ BaseMenu {
           "fgColor": color,
           "underline": false
         }
-        shortcut: "Ctrl+n"
         menu: root
       }
     }
@@ -58,12 +54,11 @@ BaseMenu {
       anchors.fill: parent
       spacing: 0
       ColorButton {
-        color: ddb.getTextSectionColor("red")
+        color: ddb.getTextSectionColor('red')
         style: {
           "fgColor": color,
           "underline": true
         }
-        shortcut: "Alt+r"
         menu: root
         text: "S"
       }
@@ -73,7 +68,6 @@ BaseMenu {
           "fgColor": color,
           "underline": true
         }
-        shortcut: "Alt+b"
         menu: root
         text: "S"
       }
@@ -83,10 +77,8 @@ BaseMenu {
           "fgColor": color,
           "underline": true
         }
-        shortcut: "Alt+g"
         menu: root
         text: "S"
-
       }
       ColorButton {
         color: ddb.getTextSectionColor("black")
@@ -94,10 +86,8 @@ BaseMenu {
           "fgColor": color,
           "underline": true
         }
-        shortcut: "Alt+n"
         menu: root
         text: "S"
-
       }
     }
   }

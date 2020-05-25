@@ -242,14 +242,25 @@ class TextSectionEditor(QTextDocument):
             self.setResponse(True, cur=self.len)
         return self.result
 
-    def onMenu(self, style={},  **kwargs):
-        if "fgColor" in style:
-            print(style["fgColor"])
-            LOG.debug(f"{self.s_start} {self.s_end}, {self.pos}")
-            self._set_fg_color(style["fgColor"])
-        else:
-            self.setResponse(False)   
+    def onMenu(self, style={}, **kwargs):
+        backup = [self.pos, self.s_start, self.s_end]
 
+        for k, v in style.items():
+            # un peut répétition mais uniquement sur des if alors ...
+            if k == "fgColor":
+                self._set_fg_color(v)
+            elif k == "underline":
+                self._set_underline(style["underline"])
+
+            self.cur.setPosition(backup[0])
+            self.s_start = backup[1]
+            self.s_end = backup[2]
+
+        if self.pending:
+            # else:
+            self._update_ddb()
+        else:
+            self.setResponse(False)
         return self.result
 
     def onKey(self, event):
@@ -312,8 +323,7 @@ class TextSectionEditor(QTextDocument):
                 self.setResponse(False)
 
     def do_key_u(self):
-        with self._merge_char_format() as f:
-            f.setFontUnderline(True)
+        self._set_underline("toggle")
 
     def setResponse(self, accepted, text=None, cur=None):
         self.result["text"] = text or self.toHtml()
@@ -375,7 +385,6 @@ class TextSectionEditor(QTextDocument):
         self.setResponse(True)
         return True
 
-
     @contextmanager
     def _merge_char_format(self):
         self._select_word_or_selection()
@@ -401,6 +410,11 @@ class TextSectionEditor(QTextDocument):
         with self._merge_char_format() as f:
             f.setForeground(QBrush(QColor(color)))
 
+    def _set_underline(self, value):
+        with self._merge_char_format() as f:
+            if value == "toggle":
+                value = not self.cur.charFormat().fontUnderline()
+            f.setFontUnderline(value)
 
     @db_session
     def _update_ddb(self):

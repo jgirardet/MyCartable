@@ -34,7 +34,7 @@ TextEdit {
     doNotUpdate = true
     text = res["text"]
     cursorPosition = res["cursorPosition"]
-    //    print(text)
+    print(text)
   }
   onTextChanged: {
     if (doNotUpdate) {
@@ -53,10 +53,21 @@ TextEdit {
       }
     }
   }
+
   function setStyleFromMenu(params) {
-        print(JSON.stringify(params))
-        var res = ddb.updateTextSectionOnMenu(sectionId, text, cursorPosition, selectionStart, selectionEnd, params)
+    print("booem")
+    var res = ddb.updateTextSectionOnMenu(sectionId, text, cursorPosition, selectionStart, selectionEnd, params)
+    if (!res["eventAccepted"]) {
+      // ici event Accepted veut dire : on ne remet pas à jour le text
+      return
+    } else {
+      doNotUpdate = true
+      text = res["text"]
+      cursorPosition = res["cursorPosition"]
+      print(text)
+
     }
+  }
   MouseArea {
     anchors.fill: root
     acceptedButtons: Qt.RightButton
@@ -67,12 +78,16 @@ TextEdit {
       //      //      if (mouse.button == Qt.LeftButton) {
       //      //        event.accepted = false
       if (mouse.button == Qt.RightButton) {
-        print("boud")
+        print(root.cursorPosition, root.selectionStart, root.selectionEnd)
+        var s_start = Math.min(root.selectionStart, root.selectionEnd)
+        var s_end = Math.max(root.selectionEnd, root.selectionEnd)
         uiManager.menuFlottantText.ouvre(root)
+        root.cursorPosition = s_start
+        root.moveCursorSelection(s_end, TextEdit.SelectCharacters)
+        print(root.cursorPosition, root.selectionStart, root.selectionEnd)
+
         mouse.accepted = true
       }
-      //      //          cursorPosition = start
-      //      //          moveCursorSelection(end, TextEdit.SelectCharacters)
       //
     }
   }

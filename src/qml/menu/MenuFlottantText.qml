@@ -9,7 +9,7 @@ BaseMenu {
       anchors.fill: parent
       spacing: 0
       ColorButton {
-        color: "red"
+        color: ddb.getTextSectionColor('red')
         style: {
           "fgColor": color,
           "underline": false
@@ -18,7 +18,7 @@ BaseMenu {
         menu: root
       }
       ColorButton {
-        color: "blue"
+        color: ddb.getTextSectionColor("blue")
         style: {
           "fgColor": color,
           "underline": false
@@ -27,7 +27,7 @@ BaseMenu {
         menu: root
       }
       ColorButton {
-        color: "green"
+        color: ddb.getTextSectionColor("green")
         style: {
           "fgColor": color,
           "underline": false
@@ -36,7 +36,7 @@ BaseMenu {
         menu: root
       }
       ColorButton {
-        color: "black"
+        color: ddb.getTextSectionColor("black")
         style: {
           "fgColor": color,
           "underline": false
@@ -58,7 +58,7 @@ BaseMenu {
       anchors.fill: parent
       spacing: 0
       ColorButton {
-        color: "red"
+        color: ddb.getTextSectionColor("red")
         style: {
           "fgColor": color,
           "underline": true
@@ -68,7 +68,7 @@ BaseMenu {
         text: "S"
       }
       ColorButton {
-        color: "blue"
+        color: ddb.getTextSectionColor("blue")
         style: {
           "fgColor": color,
           "underline": true
@@ -78,7 +78,7 @@ BaseMenu {
         text: "S"
       }
       ColorButton {
-        color: "green"
+        color: ddb.getTextSectionColor("green")
         style: {
           "fgColor": color,
           "underline": true
@@ -89,7 +89,7 @@ BaseMenu {
 
       }
       ColorButton {
-        color: "black"
+        color: ddb.getTextSectionColor("black")
         style: {
           "fgColor": color,
           "underline": true

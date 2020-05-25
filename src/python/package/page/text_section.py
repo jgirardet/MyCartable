@@ -1,6 +1,7 @@
 import html
 import re
 from contextlib import contextmanager
+import logging
 
 from PySide2.QtGui import (
     QTextDocument,
@@ -22,6 +23,9 @@ from package.page.charFormat import CharFormats, Pc
 from package.utils import KeyW
 from pony.orm import db_session, make_proxy
 from package.database import db
+
+
+LOG = logging.getLogger(__name__)
 
 RED = "#D40020"
 BLUE = "#0048BA"
@@ -238,6 +242,16 @@ class TextSectionEditor(QTextDocument):
             self.setResponse(True, cur=self.len)
         return self.result
 
+    def onMenu(self, style={},  **kwargs):
+        if "fgColor" in style:
+            print(style["fgColor"])
+            LOG.debug(f"{self.s_start} {self.s_end}, {self.pos}")
+            self._set_fg_color(style["fgColor"])
+        else:
+            self.setResponse(False)   
+
+        return self.result
+
     def onKey(self, event):
 
         # on met en premier ceux à qui il faut passer l'event
@@ -272,20 +286,16 @@ class TextSectionEditor(QTextDocument):
             self.do_key_u()
 
     def do_key_1(self):
-        with self._merge_char_format() as f:
-            f.setForeground(QBrush(QColor(BLACK)))
+        self._set_fg_color(BLACK)
 
     def do_key_2(self):
-        with self._merge_char_format() as f:
-            f.setForeground(QBrush(QColor(BLUE)))
+        self._set_fg_color(BLUE)
 
     def do_key_3(self):
-        with self._merge_char_format() as f:
-            f.setForeground(QBrush(QColor(GREEN)))
+        self._set_fg_color(GREEN)
 
     def do_key_4(self):
-        with self._merge_char_format() as f:
-            f.setForeground(QBrush(QColor(RED)))
+        self._set_fg_color(RED)
 
     def do_key_return(self, event):
         block = self.findBlock(self.pos)
@@ -365,6 +375,16 @@ class TextSectionEditor(QTextDocument):
         self.setResponse(True)
         return True
 
+
+    @contextmanager
+    def _merge_char_format(self):
+        self._select_word_or_selection()
+        f: QTextCharFormat = QTextCharFormat()
+        yield f
+        self.cur.mergeCharFormat(f)
+        self.pending = True
+        self.setResponse(True, cur=max(self.pos, self.s_start, self.s_end))
+
     def _select_word_or_selection(self):
         if self.s_start < self.pos:
             self.cur.movePosition(QTextCursor.Left, QTextCursor.KeepAnchor, self.s_len)
@@ -377,20 +397,15 @@ class TextSectionEditor(QTextDocument):
         self.cur.setBlockFormat(blockFormat[level])
         self.cur.setBlockCharFormat(blockCharFormat[level])
 
-    @contextmanager
-    def _merge_char_format(self):
-        self._select_word_or_selection()
-        f: QTextCharFormat = QTextCharFormat()
-        yield f
-        self.cur.mergeCharFormat(f)
-        self.pending = True
-        self.setResponse(True, cur=max(self.pos, self.s_start, self.s_end))
+    def _set_fg_color(self, color):
+        with self._merge_char_format() as f:
+            f.setForeground(QBrush(QColor(color)))
+
 
     @db_session
     def _update_ddb(self):
         obj = db.Section[self.sectionId]
         new_body = TextSectionFormatter(self.toHtml()).build_body()
-        print(new_body)
         obj.set(text=new_body)
         return new_body
 

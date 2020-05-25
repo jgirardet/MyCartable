@@ -53,6 +53,10 @@ TextEdit {
       }
     }
   }
+  function setStyleFromMenu(params) {
+        print(JSON.stringify(params))
+        var res = ddb.updateTextSectionOnMenu(sectionId, text, cursorPosition, selectionStart, selectionEnd, params)
+    }
   MouseArea {
     anchors.fill: root
     acceptedButtons: Qt.RightButton
@@ -65,6 +69,7 @@ TextEdit {
       if (mouse.button == Qt.RightButton) {
         print("boud")
         uiManager.menuFlottantText.ouvre(root)
+        mouse.accepted = true
       }
       //      //          cursorPosition = start
       //      //          moveCursorSelection(end, TextEdit.SelectCharacters)

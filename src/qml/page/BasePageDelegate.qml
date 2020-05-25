@@ -68,6 +68,7 @@ Item {
       } else if ((mouse.button == Qt.MiddleButton) && (mouse.modifiers & Qt.ShiftModifier)) {
         var coord = mapToItem(listview, mouse.x, mouse.y)
         listview.removeDialog.ouvre(index, coord)
+        mouse.accepted = true
 
       } else {
         mouse.accepted = false

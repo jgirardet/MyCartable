@@ -53,5 +53,23 @@ TextEdit {
       }
     }
   }
+  MouseArea {
+    anchors.fill: root
+    acceptedButtons: Qt.RightButton
+    onPressed: {
+      //
+      //      print("ùpmkojlihkuhiljomk")
+      //
+      //      //      if (mouse.button == Qt.LeftButton) {
+      //      //        event.accepted = false
+      if (mouse.button == Qt.RightButton) {
+        print("boud")
+        uiManager.menuFlottantText.ouvre(root)
+      }
+      //      //          cursorPosition = start
+      //      //          moveCursorSelection(end, TextEdit.SelectCharacters)
+      //
+    }
+  }
 
 }

@@ -273,7 +273,7 @@ class TextSectionEditor(QTextDocument):
 
     def do_key_1(self):
         with self._merge_char_format() as f:
-            f.setForeground(QBrush(QColor(RED)))
+            f.setForeground(QBrush(QColor(BLACK)))
 
     def do_key_2(self):
         with self._merge_char_format() as f:
@@ -285,7 +285,7 @@ class TextSectionEditor(QTextDocument):
 
     def do_key_4(self):
         with self._merge_char_format() as f:
-            f.setForeground(QBrush(QColor(BLACK)))
+            f.setForeground(QBrush(QColor(RED)))
 
     def do_key_return(self, event):
         block = self.findBlock(self.pos)

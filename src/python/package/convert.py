@@ -5,7 +5,11 @@ from pathlib import Path
 import sys
 import logging
 
+from PySide2.QtCore import QDir
+from mako.lookup import TemplateLookup
 from package import DATA, BINARY
+from package.utils import read_qrc
+from pony.orm import Set, db_session
 
 LOG = logging.getLogger(__name__)
 
@@ -52,3 +56,64 @@ def run_convert_pdf(pdf, png_root, prefix="xxx", resolution=200, timeout=30):
 
     files = collect_files(root, pref=prefix, ext=".png")
     return files
+
+
+"""
+
+                       Files other than Impress documents are opened in        
+                       default mode , regardless of previous mode.             
+   --convert-to OutputFileExtension[:OutputFilterName] \                      
+     [--outdir output_dir] [--convert-images-to]                               
+                       Batch convert files (implies --headless). If --outdir   
+                       isn't specified, then current working directory is used 
+                       as output_dir. If --convert-images-to is given, its     
+                       parameter is taken as the target filter format for *all*
+                       images written to the output format. If --convert-to is 
+                       used more than once, the last value of                  
+                       OutputFileExtension[:OutputFilterName] is effective. If 
+                       --outdir is used more than once, only its last value is 
+                       effective. For example:                                 
+                   --convert-to pdf *.odt                                      
+                   --convert-to epub *.doc                                     
+                   --convert-to pdf:writer_pdf_Export --outdir /home/user *.doc
+                   --convert-to "html:XHTML Writer File:UTF8" \             
+                                --convert-images-to "jpg" *.doc              
+                   --convert-to "txt:Text (encoded):UTF8" *.doc              
+   --print-to-file [--printer-name printer_name] [--outdir output_dir]         
+                       Batch print files to file. If --outdir is not specified,
+                       then current working directory is used as output_dir.   
+                       If --printer-name or --outdir used multiple times, only 
+                       last value of each is effective. Also, {Printername} of 
+                       --pt switch interferes with --printer-name.             
+  
+"""
+
+
+class LibreOfficeConverter:
+    def __init__(self):
+        pass
+
+
+def create_lookup():
+    lookup = TemplateLookup()
+    for file in QDir(":/templates").entryInfoList():
+        lookup.put_string(file.fileName(), read_qrc(file.absoluteFilePath()))
+    return lookup
+
+
+html_lookup = create_lookup()
+
+
+def parse_node(entity):
+    res = entity.to_dict(with_collections=True, with_lazy=True, related_objects=True)
+    for k, v in res.items():
+        if isinstance(v, Set):
+            partial_res = []
+
+            res[k] = parse_node()
+    return res
+
+
+@db_session
+def create_context(section_id):
+    pass

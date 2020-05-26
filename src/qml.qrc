@@ -119,6 +119,10 @@
     </qresource>
     <qresource prefix="/tests">
         <file alias="tst_AnnotableImage.png">../tests/resources/tst_AnnotableImage.png</file>
-<!--        <file alias="core.js">js/core.js</file>-->
     </qresource>
+
+    <qresource prefix="/templates">
+        <file alias="rien.html">data/templates/rien.html</file>
+    </qresource>
+
 </RCC>

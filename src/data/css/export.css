@@ -52,7 +52,9 @@ html,body {
     border: 1px solid #787E84;
 }
 
-
+.section.equation {
+    font-family: Courier, monospace;
+}
 /* Colors */
 .txt-red { color: rgb(255,0,0); }
 .txt-blue { color: rgb(0,38,255); }

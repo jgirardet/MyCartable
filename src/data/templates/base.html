@@ -92,6 +92,13 @@
 s                    </div>
                 </div>
                 % endif
+               % if sec["classtype"] == "EquationSection":
+                <div class="section equation">
+                    <p>${sec["content"][0]}</p>
+                    <p>${sec["content"][1]}</p>
+                    <p>${sec["content"][2]}</p>
+                </div>
+                % endif
             % endfor
         </div>
     </body>

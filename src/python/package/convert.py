@@ -131,16 +131,8 @@ def create_context_var(section_id, tmpdir):
         # breakpoint()
         if section["classtype"] == "ImageSection":
             section["path"] = create_images_with_annotation(section, tmpdir)
-        #         _annots = []
-        #         for annotation_id in section["annotations"]:
-        #             annotation = Annotation[annotation_id]
-        #             _annots.append(annotation.to_dict())
-        #         section["annotations"] = _annots
-        #         section["path"] = str(FILES / section["path"])
-        # elif section["classtype"] == "TableauSection":
-        #     _cells = []
-        #     for cell in section["cells"]:
-        #         _cells.append(cell.to_dict())
+        elif section["classtype"] == "EquationSection":
+            section["content"] = section["content"].replace(" ", "\u2000").split("\n")
 
         sections.append(section)
     css = read_qrc(":/css/export.css")

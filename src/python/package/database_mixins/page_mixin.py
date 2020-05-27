@@ -1,11 +1,16 @@
+import subprocess
 import tempfile
+import uuid
 from functools import partial
 from pathlib import Path
 
-from PySide2.QtCore import Slot, Signal, Property, QObject
+from PySide2.QtCore import Slot, Signal, Property, QObject, QMarginsF
+from PySide2.QtGui import QTextDocument
+from PySide2.QtPrintSupport import QPrinter
 from package.constantes import TITRE_TIMER_DELAY
 from package.convert import convert_page_to_html
-from package.utils import create_singleshot
+from package.files_path import TMP
+from package.utils import create_singleshot, read_qrc
 from pony.orm import db_session, make_proxy
 import logging
 
@@ -116,9 +121,27 @@ class PageMixin:
 
     @Slot()
     def exportToPDF(self):
-        with tempfile.TemporaryDirectory() as tmpdir:
-            res = convert_page_to_html(self.currentPage, tmpdir)
-            # p = Path("/tmp/base.html")
-            # p.write_text(res)
+        tmpdir = tempfile.mkdtemp()
+        res = convert_page_to_html(self.currentPage, tmpdir)
+        # doc = QTextDocument()
+        # p = Path(TMP / (uuid.uuid4().hex + ".html"))
+        # p.write_text(res.read_text())
+        print(res)
+        subprocess.run(["firefox", str(res)])
+        # doc.setDefaultStyleSheet(read_qrc(":/css/export.css"))
+        # doc.setHtml(res.read_text())
+        # print(doc.toHtml())
 
-            print(tmpdir)
+        # printer = QPrinter()
+        # printer.setOutputFormat(QPrinter.PdfFormat)
+        # printer.setPaperSize(QPrinter.A4)
+        # print(res)
+        # printer.setOutputFileName(str(TMP / (uuid.uuid4().hex + ".pdf")))
+        # printer.setPageMargins(QMarginsF(15, 15, 15, 15))
+        # print(printer.printerState())
+        # printDialog = QPrintDialog(printer)
+        # printDialog.exec_()
+        # doc.print_(printer)
+        import time
+
+        # time.sleep(10)

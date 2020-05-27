@@ -154,7 +154,6 @@ def create_context_var(section_id, tmpdir):
                     cel_dict["text-transfomation"] = "none"
 
                 _cells.append(cel_dict)
-                print(cel_dict)
             section["cells"] = _cells
         elif section["classtype"] == "MultiplicationSection":
             start = (1 + sec.n_chiffres) * sec.columns
@@ -174,12 +173,8 @@ def convert_page_to_html(section_id, tmpdir):
     buf = StringIO()
     ctx = Context(buf, **context_vars)
     main_page.render_context(context=ctx)
-    output_html = Path(tmpdir, uuid.uuid4().hex + ".html").write_text(buf.getvalue())
-    import time
-
-    time.sleep(10)
-
-    # print(buf.getvalue())
+    output_html = Path(tmpdir, uuid.uuid4().hex + ".html")
+    output_html.write_text(buf.getvalue())
     return output_html
 
 

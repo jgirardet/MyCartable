@@ -1,7 +1,10 @@
+import tempfile
 from functools import partial
+from pathlib import Path
 
 from PySide2.QtCore import Slot, Signal, Property, QObject
 from package.constantes import TITRE_TIMER_DELAY
+from package.convert import convert_page_to_html
 from package.utils import create_singleshot
 from pony.orm import db_session, make_proxy
 import logging
@@ -110,3 +113,12 @@ class PageMixin:
         if self.currentPage and value != self._currentTitre:
             self._currentTitre = value
             self.timer_titre_setted.start(self.TITRE_TIMER_DELAY)
+
+    @Slot()
+    def exportToPDF(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            res = convert_page_to_html(self.currentPage, tmpdir)
+            # p = Path("/tmp/base.html")
+            # p.write_text(res)
+
+            print(tmpdir)

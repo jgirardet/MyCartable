@@ -59,7 +59,7 @@ TextArea {
     anchors.fill: parent
     color: annot.bgColor ? annot.bgColor : "blue"
     border.color: parent.focus ? "#21be2b" : "transparent"
-    opacity: 0.5
+    opacity: ddb.annotationTextBGOpacity
   }
   selectByMouse: true
 

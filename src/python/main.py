@@ -1,5 +1,5 @@
 from PySide2.QtGui import QFont, QFontDatabase
-from package.constantes import APPNAME, ORGNAME
+from package.constantes import APPNAME, ORGNAME, BASE_FONT
 from PySide2.QtCore import (
     QUrl,
     QLocale,
@@ -147,7 +147,7 @@ def main(filename=None):
 
     engine = setup_qml(databaseObject, ui_manager)
     QFontDatabase.addApplicationFont(":/fonts/Verdana.ttf")
-    font = QFont("Verdana", 12, QFont.Normal)
+    font = QFont(BASE_FONT, 12, QFont.Normal)
     # font = QFont('Verdana', 12, QFont.Normal)
     app.setFont(font)
 

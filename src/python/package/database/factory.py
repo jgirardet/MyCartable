@@ -226,6 +226,33 @@ def f_annotationText(
         return item.to_dict() if td else item
 
 
+#
+# def f_annotationDessin(
+#     relativeX=None, relativeY=None, text="", td=False, section=None, style=None,
+# ):
+#     relativeX = relativeX or random.randint(0, 100) / 100
+#     relativeY = relativeY or random.randint(0, 100) / 100
+#
+#     print(text)
+#     if text == "empty":
+#         text = ""
+#     elif not text:
+#         text = "".join(gen.text.words(2))
+#     print(text)
+#     section = section or f_section().id
+#     with db_session:
+#         style = style or db.Style()
+#         flush()
+#         item = db.AnnotationText(
+#             relativeX=relativeX,
+#             relativeY=relativeY,
+#             text=text,
+#             section=section,
+#             style=style.id if isinstance(style, int) else style,
+#         )
+#         return item.to_dict() if td else item
+
+
 def b_annotation(n, *args, **kwargs):
     return [f_annotationText(*args, **kwargs) for x in range(n)]
 
@@ -349,18 +376,18 @@ def populate_database(matieres_list=MATIERES, nb_page=100):
         for x in range(random.randint(0, 8)):
             random.choice(
                 [
-                    # f_equationSection(
-                    #     page=a.id,
-                    #     #                         content=f"""1{TextEquation.FSP}            {TextEquation.FSP}12   1234
-                    #     # ―― + 13 + 3 + ――― + ―――― + 1
-                    #     # 15            234   789{TextEquation.FSP}    """,
-                    # ),
-                    # f_tableauSection(page=a.id),
-                    # f_imageSection(page=a.id),
+                    f_equationSection(
+                        page=a.id,
+                        #                         content=f"""1{TextEquation.FSP}            {TextEquation.FSP}12   1234
+                        # ―― + 13 + 3 + ――― + ―――― + 1
+                        # 15            234   789{TextEquation.FSP}    """,
+                    ),
+                    f_tableauSection(page=a.id),
+                    f_imageSection(page=a.id),
                     f_textSection(page=a.id),
-                    # f_additionSection(page=a.id),
-                    # f_soustractionSection(page=a.id),
-                    # f_multiplicationSection(page=a.id),
-                    # f_divisionSection(page=a.id),
+                    f_additionSection(page=a.id),
+                    f_soustractionSection(page=a.id),
+                    f_multiplicationSection(page=a.id),
+                    f_divisionSection(page=a.id),
                 ]
             )

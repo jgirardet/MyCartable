@@ -1,0 +1,98 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>${page['titre']}</title>
+<!--        <meta name="description" content="">-->
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+<!--        <link href='http://fonts.googleapis.com/css?family=Cookie' rel='stylesheet' type='text/css'>-->
+        <style>
+            /*${css}*/
+        </style>
+    </head>
+    <body>
+        <div>${page['titre']}</div>
+
+        <div class="page">
+            % for sec in sections:
+                % if sec["classtype"] == "TextSection":
+                    <div class="section texte">
+                                ${sec['text'].replace("<body>", "").replace("</body>", "")}
+                    </div>
+                % endif
+                % if sec["classtype"] == "ImageSection":
+                    <div class="section image">
+                        <img src="${sec["path"]}"/>
+
+                    </div>
+                % endif
+                % if sec["classtype"] == "AdditionSection":
+                <div class="section addition">
+                    <table>
+                        <tbody>
+                            % for row in range(sec["rows"]):
+                                <tr>
+                                    % for col in range(sec["columns"]):
+                                        <td>${sec['datas'][row *sec["columns"] + col]}</td>
+                                    % endfor
+                                </tr>
+                            % endfor
+                        </tbody>
+                    </table>
+                </div>
+                % endif
+                % if sec["classtype"] == "SoustractionSection":
+                <div class="section soustraction">
+                    <table>
+                        <tbody>
+                            % for row in range(sec["rows"]):
+                                <tr>
+                                    % for col in range(sec["columns"]):
+                                        <td>${sec['datas'][row *sec["columns"] + col]}</td>
+                                    % endfor
+                                </tr>
+                            % endfor
+                        </tbody>
+                    </table>
+                </div>
+                % endif
+                % if sec["classtype"] == "MultiplicationSection":
+                <div class="section multiplication">
+                    <table>
+                        <tbody>
+                            % for row in range(sec["rows"]):
+                                <tr>
+                                    % for col in range(sec["columns"]):
+                                        <td>${sec['datas'][row *sec["columns"] + col]}</td>
+                                    % endfor
+                                </tr>
+                            % endfor
+                        </tbody>
+                    </table>
+                </div>
+                % endif
+                % if sec["classtype"] == "DivisionSection":
+                <div class="section division">
+                    <div>
+                        <table>
+                            <tbody>
+                                % for row in range(sec["rows"]):
+                                    <tr>
+                                        % for col in range(sec["columns"]):
+                                            <td>${sec['datas'][row *sec["columns"] + col]}</td>
+                                        % endfor
+                                    </tr>
+                                % endfor
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                        <div>${sec["diviseur"]}</div>
+                        <div>${sec["quotient"]}</div>
+s                    </div>
+                </div>
+                % endif
+            % endfor
+        </div>
+    </body>
+</html>

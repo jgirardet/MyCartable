@@ -6,6 +6,6 @@ PageToolBarToolButton {
   ToolTip.text: "Exporter la page en pdf"
   icon.source: "qrc:///icons/pdf"
   func: function() {
-    ddb.exportToPdf()
+    ddb.exportToPDF()
   }
 }

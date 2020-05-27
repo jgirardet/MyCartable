@@ -599,6 +599,7 @@ class DivisionModel(OperationModel):
         self._diviseur = self.proxy.diviseur_as_num
         self._quotient = self.proxy.quotient
         self.cursor = 10
+        self.quotientChanged.connect(self.ddb.recentsModelChanged)
 
     def move_cursor(self, index, key):
         temp = index
@@ -729,8 +730,10 @@ class DivisionModel(OperationModel):
 
     @quotient.setter
     def quotient_set(self, value: int):
+        print('"bonong')
         with db_session:
             if value != self.proxy.quotient:
+                print("bind")
                 self.proxy.quotient = value
         self.quotientChanged.emit()
 

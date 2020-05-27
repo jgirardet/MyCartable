@@ -1,3 +1,6 @@
+import os
+import uuid
+from io import StringIO
 from operator import attrgetter, methodcaller
 from subprocess import run, CalledProcessError
 
@@ -5,13 +8,28 @@ from pathlib import Path
 import sys
 import logging
 
-from PySide2.QtCore import QDir
+from PySide2.QtCore import QDir, QRectF, Qt, QPoint, QRect, QStandardPaths, QLine, QSize
+from PySide2.QtGui import QImage, QPainter, QColor, QBrush
 from mako.lookup import TemplateLookup
+from mako.runtime import Context
 from package import DATA, BINARY
+from package.constantes import BASE_FONT, ANNOTATION_TEXT_BG_OPACITY
+from package.database import db
+from package.database.sections import (
+    ImageSection,
+    TableauSection,
+    Annotation,
+    AnnotationText,
+)
+from package.database.structure import Page
+from package.files_path import FILES
 from package.utils import read_qrc
 from pony.orm import Set, db_session
 
 LOG = logging.getLogger(__name__)
+import qrc
+
+from package.ui_manager import DEFAULT_ANNOTATION_CURRENT_TEXT_SIZE_FACTOR
 
 
 def get_binary_path(name):
@@ -104,16 +122,157 @@ def create_lookup():
 html_lookup = create_lookup()
 
 
-def parse_node(entity):
-    res = entity.to_dict(with_collections=True, with_lazy=True, related_objects=True)
-    for k, v in res.items():
-        if isinstance(v, Set):
-            partial_res = []
-
-            res[k] = parse_node()
-    return res
-
-
 @db_session
-def create_context(section_id):
-    pass
+def create_context_var(section_id, tmpdir):
+    page = Page[section_id].to_dict()
+    sections = []
+    for section in Page[section_id].content_dict:
+        # print(section)
+        # breakpoint()
+        if section["classtype"] == "ImageSection":
+            section["path"] = create_images_with_annotation(section, tmpdir)
+        #         _annots = []
+        #         for annotation_id in section["annotations"]:
+        #             annotation = Annotation[annotation_id]
+        #             _annots.append(annotation.to_dict())
+        #         section["annotations"] = _annots
+        #         section["path"] = str(FILES / section["path"])
+        # elif section["classtype"] == "TableauSection":
+        #     _cells = []
+        #     for cell in section["cells"]:
+        #         _cells.append(cell.to_dict())
+
+        sections.append(section)
+    css = read_qrc(":/css/export.css")
+    return {"page": page, "sections": sections, "css": css}
+
+
+def convert_page_to_html(section_id, tmpdir):
+    QStandardPaths.writableLocation(QStandardPaths.AppDataLocation)
+    main_page = html_lookup.get_template("base.html")
+    context_vars = create_context_var(section_id, tmpdir)
+    # print(context_vars)
+    buf = StringIO()
+    ctx = Context(buf, **context_vars)
+    main_page.render_context(context=ctx)
+    output_html = Path(tmpdir, uuid.uuid4().hex + ".html").write_text(buf.getvalue())
+    import time
+
+    time.sleep(10)
+
+    # print(buf.getvalue())
+    return output_html
+
+
+def create_images_with_annotation(image_section, tmpdir):
+    image = QImage()
+    painter = QPainter()
+    # olf = QFile(str(FILES / image_section["path"]))
+    image.load(str(FILES / image_section["path"]))
+
+    painter.begin(image)
+    for annotation_id in image_section["annotations"]:
+        annotation = Annotation[annotation_id].to_dict()
+        if annotation["classtype"] == "AnnotationText":
+            draw_annotation_text(annotation, image, painter)
+        elif annotation["classtype"] == "AnnotationDessin":
+            width = annotation["width"] * image.width()
+            height = annotation["height"] * image.height()
+            x = annotation["x"] * image.width()
+            y = annotation["y"] * image.height()
+            sx = annotation["startX"] * width
+            ex = annotation["endX"] * width
+            sy = annotation["startY"] * height
+            ey = annotation["endY"] * height
+            pz = annotation["pointSize"]
+
+            if sx <= ex:
+                sx += pz / 2
+                ex -= pz / 2
+            else:
+                sx -= pz / 2
+                ex += pz / 2
+
+            if sx <= ey:
+                sy += pz / 2
+                ey -= pz / 2
+            else:
+                sy -= pz / 2
+                ey += pz / 2
+
+            pen = painter.pen()
+            pen.setWidth(annotation["pointSize"])
+            pen.setColor(annotation["fgColor"])
+            painter.setPen(pen)
+            painter.setOpacity(0.2 if annotation["tool"] == "fillrect" else 1)
+            painter.setRenderHint(QPainter.Antialiasing)
+            startPoint = QPoint(x + sx, y + sy)
+            endPoint = QPoint(x + ex, y + ey)
+            if annotation["tool"] == "trait":
+                painter.drawLine(startPoint, endPoint)
+            elif annotation["tool"] == "fillrect":
+                painter.fillRect(QRect(startPoint, endPoint), annotation["bgColor"])
+            elif annotation["tool"] == "rect":
+                painter.drawRect(QRect(startPoint, endPoint))
+            elif annotation["tool"] == "ellipse":
+                painter.drawEllipse(QRect(startPoint, endPoint))
+
+    painter.end()
+    new_path = str(Path(tmpdir) / (uuid.uuid4().hex + ".png"))
+    image.save(new_path)
+    return new_path
+
+
+def draw_annotation_text(annotation: dict, image: QImage, painter: QPainter):
+
+    # d'abord font params
+    font = painter.font()
+    font.setPixelSize(
+        image.height()
+        / (annotation["pointSize"] or DEFAULT_ANNOTATION_CURRENT_TEXT_SIZE_FACTOR)
+    )
+    font.setUnderline(annotation["underline"])
+    if not annotation.get("family", None):  # get considère empty "" comme true
+        font.setFamily(BASE_FONT)
+    painter.setFont(font)
+
+    # Ensuite le crayon
+    pen = painter.pen()
+    pen.setColor(annotation["fgColor"])
+    painter.setPen(pen)
+
+    # On evalue la taille de et la position de l'annotation
+    size = painter.fontMetrics().size(0, annotation["text"])
+    rect = QRect(
+        QPoint(annotation["x"] * image.width(), annotation["y"] * image.height()), size
+    )
+
+    #
+    painter.setOpacity(ANNOTATION_TEXT_BG_OPACITY)
+    painter.fillRect(rect, annotation["bgColor"])
+    painter.setOpacity(1)
+
+    painter.drawText(
+        rect, annotation["text"],
+    )
+
+
+#
+# ano = {
+#     "id": 1,
+#     "x": 0.13990825688073394,
+#     "y": 0.18775510204081633,
+#     "classtype": "AnnotationText",
+#     "text": "fezfze\nffzefze",
+#     "styleId": 9046,
+#     "family": "",
+#     "underline": False,
+#     "pointSize": None,
+#     "strikeout": False,
+#     "weight": None,
+#     "bgColor": QColor.fromRgbF(0.000000, 1.000000, 0.000000, 1.000000),
+#     "fgColor": QColor.fromRgbF(0.000000, 0.000000, 1.000000, 1.000000),
+# }
+# img = "/home/jimmy/dev/cacahuete/MyCartable/tests/resources/sc1.png"
+
+# create_images_with_annotation(img)

@@ -116,13 +116,14 @@
     </qresource>
     <qresource prefix="/css">
         <file alias="textsection.css">data/css/textsection.css</file>
+        <file alias="export.css">data/css/export.css</file>
     </qresource>
     <qresource prefix="/tests">
         <file alias="tst_AnnotableImage.png">../tests/resources/tst_AnnotableImage.png</file>
     </qresource>
 
     <qresource prefix="/templates">
-        <file alias="rien.html">data/templates/rien.html</file>
+        <file alias="base.html">data/templates/base.html</file>
     </qresource>
 
 </RCC>

@@ -2,8 +2,9 @@ import urllib.request
 from io import BytesIO
 from pathlib import Path
 
-from PySide2.QtCore import Slot, QUrl, QAbstractListModel
+from PySide2.QtCore import Slot, QUrl, QAbstractListModel, Property
 from PySide2.QtCore import Slot, Signal
+from package.constantes import ANNOTATION_TEXT_BG_OPACITY
 from package.convert import run_convert_pdf
 from package.files_path import filesify
 from package.utils import get_new_filename
@@ -109,6 +110,17 @@ class ImageSectionMixin:
             res = [p.to_dict() for p in query]
             print(res)
             return res
+
+    annotationTextBGOpacityChanged = Signal()
+
+    @Property(float, notify=annotationTextBGOpacityChanged)
+    def annotationTextBGOpacity(self):
+        return ANNOTATION_TEXT_BG_OPACITY
+
+    # @dessinOpacity.setter
+    # def dessinOpacity_set(self, value: int):
+    #     self._dessinOpacity = value
+    #     self.dessinOpacityChanged.emit()
 
     # @Slot(int, "QVariantMap")
     # def newDessin(self, sectionId, datas):

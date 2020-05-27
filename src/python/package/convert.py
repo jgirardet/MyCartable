@@ -20,6 +20,7 @@ from package.database.sections import (
     TableauSection,
     Annotation,
     AnnotationText,
+    TableauCell,
 )
 from package.database.structure import Page
 from package.files_path import FILES
@@ -122,23 +123,49 @@ def create_lookup():
 html_lookup = create_lookup()
 
 
-@db_session
 def create_context_var(section_id, tmpdir):
     page = Page[section_id].to_dict()
     sections = []
-    for section in Page[section_id].content_dict:
+    for sec in Page[section_id].content:
         # print(section)
         # breakpoint()
+        section = sec.to_dict()
         if section["classtype"] == "ImageSection":
             section["path"] = create_images_with_annotation(section, tmpdir)
         elif section["classtype"] == "EquationSection":
             section["content"] = section["content"].replace(" ", "\u2000").split("\n")
+
+        elif section["classtype"] == "TableauSection":
+            _cells = []
+            for cel in sec.cells.order_by(TableauCell.x, TableauCell.y):
+                cel_dict = cel.to_dict()
+                cel_dict["color"] = cel.style.fgColor.name()
+                cel_dict["background-color"] = (
+                    cel.style.bgColor.name()
+                    if cel.style.bgColor.name() != "#000000"
+                    else "transparent"
+                )
+                cel_dict["font-size"] = cel.style.pointSize
+                if cel.style.underline:
+                    cel_dict["text-transfomation"] = "underline"
+                elif cel.style.strikeout:
+                    cel_dict["text-transfomation"] = "line-through"
+                else:
+                    cel_dict["text-transfomation"] = "none"
+
+                _cells.append(cel_dict)
+                print(cel_dict)
+            section["cells"] = _cells
+        elif section["classtype"] == "MultiplicationSection":
+            start = (1 + sec.n_chiffres) * sec.columns
+            section["line_1"] = list(range(start, start + sec.columns))
 
         sections.append(section)
     css = read_qrc(":/css/export.css")
     return {"page": page, "sections": sections, "css": css}
 
 
+@db_session
 def convert_page_to_html(section_id, tmpdir):
     QStandardPaths.writableLocation(QStandardPaths.AppDataLocation)
     main_page = html_lookup.get_template("base.html")

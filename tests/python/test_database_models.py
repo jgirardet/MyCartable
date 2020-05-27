@@ -474,7 +474,7 @@ class TestTextSection:
     def test_default_is_empty_string(self, ddb):
         p = f_page()
         tex = ddb.TextSection(page=p.id)
-        assert tex.text == ""
+        assert tex.text == "<body></body>"
 
 
 class TestTableDataSection:

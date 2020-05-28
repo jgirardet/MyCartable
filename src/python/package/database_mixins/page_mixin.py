@@ -1,6 +1,7 @@
 import subprocess
 import tempfile
 import uuid
+import webbrowser
 from functools import partial
 from pathlib import Path
 
@@ -127,7 +128,7 @@ class PageMixin:
         # p = Path(TMP / (uuid.uuid4().hex + ".html"))
         # p.write_text(res.read_text())
         print(res)
-        subprocess.run(["firefox", str(res)])
+        webbrowser.open(res.as_uri())
         # doc.setDefaultStyleSheet(read_qrc(":/css/export.css"))
         # doc.setHtml(res.read_text())
         # print(doc.toHtml())

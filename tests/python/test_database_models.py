@@ -927,7 +927,7 @@ class TestTableauSection:
         a.flush()
         assert a.cells.count() == 12
         # si pas d'erreur c que pq ok
-        assert [ddb.TableauCell[1, x, y] for x in range(3) for y in range(4)]
+        assert [ddb.TableauCell[1, y, x] for y in range(3) for x in range(4)]
 
         b = f_tableauSection()
 
@@ -943,22 +943,70 @@ class TestTableauSection:
             "modified": item["modified"],
             "page": 1,
             "position": 0,
-            "annotations": [],
-            "cells": [
-                (1, 0, 0),
-                (1, 0, 1),
-                (1, 0, 2),
-                (1, 0, 3),
-                (1, 1, 0),
-                (1, 1, 1),
-                (1, 1, 2),
-                (1, 1, 3),
-                (1, 2, 0),
-                (1, 2, 1),
-                (1, 2, 2),
-                (1, 2, 3),
-            ],
+            # "annotations": [],
+            # "cells": [
+            #     (1, 0, 0),
+            #     (1, 0, 1),
+            #     (1, 0, 2),
+            #     (1, 0, 3),
+            #     (1, 1, 0),
+            #     (1, 1, 1),
+            #     (1, 1, 2),
+            #     (1, 1, 3),
+            #     (1, 2, 0),
+            #     (1, 2, 1),
+            #     (1, 2, 2),
+            #     (1, 2, 3),
+            # ],
         }
+
+    def test_get_par_ligne(self, ddb):
+        t = f_tableauSection(lignes=5, colonnes=4)
+        p1 = t.get_cells_par_ligne(0)
+        assert len(p1) == 4
+        assert p1 == [
+            TableauCell[TableauSection[1], 0, 0],
+            TableauCell[TableauSection[1], 0, 1],
+            TableauCell[TableauSection[1], 0, 2],
+            TableauCell[TableauSection[1], 0, 3],
+        ]
+        p1 = t.get_cells_par_ligne(1)
+        assert len(p1) == 4
+        assert p1 == [
+            TableauCell[TableauSection[1], 1, 0],
+            TableauCell[TableauSection[1], 1, 1],
+            TableauCell[TableauSection[1], 1, 2],
+            TableauCell[TableauSection[1], 1, 3],
+        ]
+
+        p1 = t.get_cells_par_ligne(2)
+        assert len(p1) == 4
+        assert p1 == [
+            TableauCell[TableauSection[1], 2, 0],
+            TableauCell[TableauSection[1], 2, 1],
+            TableauCell[TableauSection[1], 2, 2],
+            TableauCell[TableauSection[1], 2, 3],
+        ]
+        p1 = t.get_cells_par_ligne(3)
+        assert len(p1) == 4
+        assert p1 == [
+            TableauCell[TableauSection[1], 3, 0],
+            TableauCell[TableauSection[1], 3, 1],
+            TableauCell[TableauSection[1], 3, 2],
+            TableauCell[TableauSection[1], 3, 3],
+        ]
+        p1 = t.get_cells_par_ligne(4)
+        assert len(p1) == 4
+        assert p1 == [
+            TableauCell[TableauSection[1], 4, 0],
+            TableauCell[TableauSection[1], 4, 1],
+            TableauCell[TableauSection[1], 4, 2],
+            TableauCell[TableauSection[1], 4, 3],
+        ]
+
+        # for i in range(4):
+        #     assert p1[i].x == i
+        #     assert p1[i].y == 0
 
 
 class TestTableauCell:

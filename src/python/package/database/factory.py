@@ -309,7 +309,7 @@ def f_divisionSection(string=None, **kwargs):
     return _f_section("DivisionSection", string, **kwargs)
 
 
-def f_tableauSection(lignes=None, colonnes=None, **kwargs):
+def f_tableauSection(lignes=None, colonnes=None, **kwargs) -> TableauSection:
     lignes = lignes if lignes is not None else random.randint(0, 10)
     colonnes = colonnes if colonnes is not None else random.randint(0, 10)
 
@@ -376,18 +376,18 @@ def populate_database(matieres_list=MATIERES, nb_page=100):
         for x in range(random.randint(0, 8)):
             random.choice(
                 [
-                    f_equationSection(
-                        page=a.id,
-                        #                         content=f"""1{TextEquation.FSP}            {TextEquation.FSP}12   1234
-                        # ―― + 13 + 3 + ――― + ―――― + 1
-                        # 15            234   789{TextEquation.FSP}    """,
-                    ),
+                    # f_equationSection(
+                    #     page=a.id,
+                    #     #                         content=f"""1{TextEquation.FSP}            {TextEquation.FSP}12   1234
+                    #     # ―― + 13 + 3 + ――― + ―――― + 1
+                    #     # 15            234   789{TextEquation.FSP}    """,
+                    # ),
                     f_tableauSection(page=a.id),
-                    f_imageSection(page=a.id),
-                    f_textSection(page=a.id),
-                    f_additionSection(page=a.id),
-                    f_soustractionSection(page=a.id),
-                    f_multiplicationSection(page=a.id),
-                    f_divisionSection(page=a.id),
+                    # f_imageSection(page=a.id),
+                    # f_textSection(page=a.id),
+                    # f_additionSection(page=a.id),
+                    # f_soustractionSection(page=a.id),
+                    # f_multiplicationSection(page=a.id),
+                    # f_divisionSection(page=a.id),
                 ]
             )

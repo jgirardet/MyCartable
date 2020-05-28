@@ -112,7 +112,7 @@ p {
 .ligne_resultat {
     vertical-align: center;
     color: #D40020;
-    border-top: medium solid #222222;
+    border-top: 3px solid #222222;
 }
 
 .ligne_retenue  {

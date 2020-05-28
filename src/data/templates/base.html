@@ -6,9 +6,11 @@
 <!--        <meta name="description" content="">-->
         <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--        <link href='http://fonts.googleapis.com/css?family=Cookie' rel='stylesheet' type='text/css'>-->
+        <%doc>
         <style>
-            ${css}
+        ${css}
         </style>
+        </%doc>
     </head>
     <body>
         <div>${page['titre']}</div>
@@ -160,6 +162,6 @@
     % endif
 </%def>
 <%def name="tableau_class(row, index, cell)">
-    class="tableau_cell" style="color: ${cell['color']}; background-color: ${cell['background-color']}; text-decoration: cell["text-decoration"]; font-size: cell["font-size"]pt;"
+    class="tableau_cell" style="color: ${cell['color']}; background-color: ${cell['background-color']};${cell["text-decoration"]}"
 
 </%def>

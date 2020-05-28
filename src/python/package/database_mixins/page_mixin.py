@@ -124,13 +124,13 @@ class PageMixin:
     def exportToPDF(self):
         tmpdir = tempfile.mkdtemp()
         res = convert_page_to_html(self.currentPage, tmpdir)
-        # doc = QTextDocument()
-        # p = Path(TMP / (uuid.uuid4().hex + ".html"))
-        # p.write_text(res.read_text())
+        doc = QTextDocument()
+        doc.setDefaultStyleSheet(read_qrc(":/css/export.css"))
+        p = Path(TMP / ("aaaaaaaa" + ".html"))
+        doc.setHtml(res.read_text())
+        p.write_text(doc.toHtml())
         print(res)
         webbrowser.open(res.as_uri())
-        # doc.setDefaultStyleSheet(read_qrc(":/css/export.css"))
-        # doc.setHtml(res.read_text())
         # print(doc.toHtml())
 
         # printer = QPrinter()

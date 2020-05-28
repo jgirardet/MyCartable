@@ -146,13 +146,13 @@ def create_context_var(section_id, tmpdir):
                     if cel.style.bgColor.name() != "#000000"
                     else "transparent"
                 )
-                cel_dict["font-size"] = cel.style.pointSize
+                # cel_dict["font-size"] = " font-size"=cel.style.pointSize
                 if cel.style.underline:
-                    cel_dict["text-transfomation"] = "underline"
+                    cel_dict["text-decoration"] = " text-decoration=underline:"
                 elif cel.style.strikeout:
-                    cel_dict["text-transfomation"] = "line-through"
+                    cel_dict["text-decoration"] = " text-decoration=line-through:"
                 else:
-                    cel_dict["text-transfomation"] = "none"
+                    cel_dict["text-decoration"] = ""
 
                 _cells.append(cel_dict)
             section["cells"] = _cells

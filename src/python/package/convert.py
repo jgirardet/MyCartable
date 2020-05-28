@@ -131,7 +131,8 @@ def create_context_var(section_id, tmpdir):
         # breakpoint()
         section = sec.to_dict()
         if section["classtype"] == "ImageSection":
-            section["path"] = create_images_with_annotation(section, tmpdir)
+            path = create_images_with_annotation(section, tmpdir)
+            section["path"] = Path(path).as_uri()
         elif section["classtype"] == "EquationSection":
             section["content"] = section["content"].replace(" ", "\u2000").split("\n")
 

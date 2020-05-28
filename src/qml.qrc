@@ -77,6 +77,8 @@
         <file alias="NewTableauSectionButton.qml">qml/toolbuttons/NewTableauSectionButton.qml</file>
         <file alias="NewImageSectionButton.qml">qml/toolbuttons/NewImageSectionButton.qml</file>
         <file alias="RemovePageButton.qml">qml/toolbuttons/RemovePageButton.qml</file>
+        <file alias="ExportPdfButton.qml">qml/toolbuttons/ExportPdfButton.qml</file>
+        <file alias="ExportOdtButton.qml">qml/toolbuttons/ExportOdtButton.qml</file>
 
     </qresource>
 
@@ -89,6 +91,8 @@
         <file alias="PageButton.qml">qml/divers/PageButton.qml</file>
     </qresource>
     <qresource prefix="/icons">
+        <file alias="ellipse">data/icons/base/pack/png/sphere.png</file>
+        <file alias="fillrect">data/icons/base/pack/png/fillrect.png</file>
         <file alias="newTextSection">data/icons/base/divers/png/003-edit.png</file>
         <file alias="newImageSection">data/icons/base/divers/png/002-photo-1.png</file>
         <file alias="newEquationSection">data/icons/base/perso/equation.png</file>
@@ -96,11 +100,11 @@
         <file alias="newTableauSection">data/icons/base/divers/png/013-spreadsheet.png</file>
         <file alias="newOperationSection">data/icons/base/pack/png/calculator-1.png</file>
         <file alias="rotateLeft">data/icons/base/perso/rotateleft.png</file>
+        <file alias="odt">data/icons/base/perso/odt.png</file>
+        <file alias="pdf">data/icons/base/perso/pdf.png</file>
         <file alias="rotateRight">data/icons/base/perso/rotateright.png</file>
         <file alias="rect">data/icons/base/pack/png/rect.png</file>
-        <file alias="fillrect">data/icons/base/pack/png/fillrect.png</file>
         <file alias="trait">data/icons/base/pack/png/pencil.png</file>
-        <file alias="ellipse">data/icons/base/pack/png/sphere.png</file>
 <!--        <file alias="text">data/icons/base/pack/png/sphere.png</file>-->
     </qresource>
     <qresource prefix="/fonts">
@@ -112,9 +116,14 @@
     </qresource>
     <qresource prefix="/css">
         <file alias="textsection.css">data/css/textsection.css</file>
+        <file alias="export.css">data/css/export.css</file>
     </qresource>
     <qresource prefix="/tests">
         <file alias="tst_AnnotableImage.png">../tests/resources/tst_AnnotableImage.png</file>
-<!--        <file alias="core.js">js/core.js</file>-->
     </qresource>
+
+    <qresource prefix="/templates">
+        <file alias="base.html">data/templates/base.html</file>
+    </qresource>
+
 </RCC>

@@ -1,0 +1,202 @@
+html, body {
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    color: #363636;
+    background-color: transparent;
+    font-family: Verdana;
+    font-size: 20pt;
+    /*font-weight: 96;*/
+    margin-top: 12px;
+    clear: both;
+}
+
+.page {
+    margin: 10px auto;
+    padding: 20px;
+    border: 1px solid;
+    -webkit-box-shadow: 2px 2px 10px 0px rgba(0, 0, 0, 0.4);
+    -moz-box-shadow: 2px 2px 10px 0px rgba(0, 0, 0, 0.4);
+    box-shadow: 2px 2px 10px 0px rgba(0, 0, 0, 0.4);
+    max-width: 1280px;
+}
+
+.section {
+    margin: 20px 0px;
+}
+
+
+
+h1 {
+    font-size: 30pt;
+    color: #D40020;
+    font-weight: 600;
+    text-decoration: underline;
+    text-transform: uppercase;
+    margin-top: 18px;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+h2 {
+    font-size: 25pt;
+    color: #006A4E;
+    font-weight: 600;
+    text-decoration: underline;
+    margin-top: 16px;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+h3 {
+    font-size: 25pt;
+    color: #0048BA;
+    font-weight: 400;
+    text-decoration: underline;
+    margin-top: 14px;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+h4 {
+    color: #363636;
+    font-size: 20pt;
+    font-weight: 400;
+    text-decoration: underline;
+    margin-top: 18px;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+p {
+    margin-left: 10px;
+    margin-right: 10px;
+    color: #363636;
+}
+
+
+
+.section.image img {
+    /*visibility: hidden;*/
+    max-width: 100%;
+    /*height: auto;*/
+    /*  width: 100%;*/
+}
+
+.operation {
+
+}
+
+.operation th {
+    height: 1px;
+    background-color: black;
+    border: none;
+}
+
+.operation table {
+    border: 1px solid #787E84;
+    margin-bottom: 1rem;
+    border-collapse: collapse;
+    color: #363636;
+}
+
+.operation table td, .tableau table th {
+    padding: .75rem;
+    vertical-align: center;
+    /*border: 1px solid #787E84;*/
+}
+
+
+.ligne_resultat {
+    vertical-align: center;
+    color: #D40020;
+    border-top: 3px solid #222222;
+}
+
+.ligne_retenue  {
+    vertical-align: bottom;
+    color: darkgreen;
+    /*border-top: medium solid #222222;*/
+
+    /*border: 1px solid #787E84;*/
+}
+.line_1  {
+    /*color: darkgreen;*/
+    border-bottom: medium solid #222222;
+
+    /*border: 1px solid #787E84;*/
+}
+
+
+
+.section.equation {
+    font-family: Courier, monospace;
+}
+
+/*.division_gauche {*/
+/*  float: left;*/
+/*  width: 500px;*/
+/*  background: lightblue;*/
+/*}*/
+.division_droit {
+    border-left: 2px solid #787E84;
+    width: 150px;
+}
+
+.diviseur, .dividende {
+    border-bottom: solid 2px black;
+}
+.corps_retenue {
+    color: #D40020;
+    vertical-align: bottom;
+    font-size: smaller;
+}
+.retenue_gauche {
+    horiz-align: right;
+}
+
+.retenue_droite {
+    vertical-align: left;
+}
+.tableau_cell {
+    border: solid black 1px;
+}
+/*<div id="parent">*/
+/*  <div id="wide">Wide (rest of width)</div>*/
+/*  <div id="narrow">Narrow (200px)</div>*/
+/*</div>*/
+
+/* Colors */
+.txt-red {
+    color: rgb(255, 0, 0);
+}
+
+.txt-blue {
+    color: rgb(0, 38, 255);
+}
+
+.txt-green {
+    color: rgb(6, 159, 19);
+}
+
+.txt-black {
+    color: rgb(10, 10, 10);
+}
+
+.bg-red {
+    background-color: rgb(255, 0, 0);
+}
+
+.bg-blue {
+    background-color: rgb(0, 38, 255);
+}
+
+.bg-green {
+    background-color: rgb(6, 159, 19);
+}
+
+.bg-black {
+    background-color: rgb(10, 10, 10);
+}

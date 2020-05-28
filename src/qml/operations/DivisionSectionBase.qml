@@ -57,10 +57,16 @@ RowLayout {
       id: quotientField
       Layout.preferredWidth: 200
       objectName: "quotientField"
-      onTextEdited: {}
-      Binding on text {
-        when: root.model.sectionId
-        value: corps.model.quotient
+      onTextEdited: {
+        corps.model.quotient = text
+      }
+      //      Binding on text {
+      //        when: root.sectionId
+      //        value: corps.model.quotient
+      //      }
+      //      text: root.model.quotient
+      Component.onCompleted: {
+        text = corps.model.quotient
       }
 
       Keys.onReturnPressed: {

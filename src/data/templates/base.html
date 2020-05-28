@@ -1,0 +1,168 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>${page['titre']}</title>
+<!--        <meta name="description" content="">-->
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+<!--        <link href='http://fonts.googleapis.com/css?family=Cookie' rel='stylesheet' type='text/css'>-->
+
+        <style>
+        ${css}
+        </style>
+
+    </head>
+    <body>
+        <div>${page['titre']}</div>
+
+        <div class="page">
+            % for sec in sections:
+                % if sec["classtype"] == "TextSection":
+                    <div class="section texte">
+                                ${sec['text'].replace("<body>", "").replace("</body>", "")}
+                    </div>
+                % endif
+                % if sec["classtype"] == "ImageSection":
+                    <div class="section image">
+                        <img src="${sec["path"]}"/>
+
+                    </div>
+                % endif
+                % if sec["classtype"] == "AdditionSection":
+                <div class="section operation addition">
+                    <table>
+                        <tbody>
+                            % for row in range(sec["rows"]):
+                                <tr>
+                                    % for col in range(sec["columns"]):
+                                        <td${add_class_ligne_resultat(row, sec["rows"])}>${sec['datas'][row *sec["columns"] + col]}</td>
+                                    % endfor
+                                </tr>
+                            % endfor
+                        </tbody>
+                    </table>
+                </div>
+                % endif
+                % if sec["classtype"] == "SoustractionSection":
+                <div class="section operation soustraction">
+                    <table>
+                        <tbody>
+                            % for row in range(sec["rows"]):
+                                <tr>
+                                    % for col in range(sec["columns"]):
+                                        <td${add_class_ligne_resultat(row, sec["rows"])}>${sec['datas'][row *sec["columns"] + col]}</td>
+                                    % endfor
+                                </tr>
+                            % endfor
+                        </tbody>
+                    </table>
+                </div>
+                % endif
+                % if sec["classtype"] == "MultiplicationSection":
+                <div class="section operation multiplication">
+                    <table>
+                        <tbody>
+                            % for row in range(sec["rows"]):
+                                <tr>
+                                    % for col in range(sec["columns"]):
+                                        <td${add_class_multiplication(row, col, loop.index, sec)}>${sec['datas'][row *sec["columns"] + col]}</td>
+                                    % endfor
+                                </tr>
+                            % endfor
+                        </tbody>
+                    </table>
+                </div>
+                % endif
+                % if sec["classtype"] == "DivisionSection":
+                <div class="section operation division">
+                    <table class="division_gauche">
+                        <tbody>
+                            % for row in range(sec["rows"]):
+                                <tr>
+                                    % for col in range(sec["columns"]):
+                                        <td ${division_gauche_class(row, loop.index, sec)}>${sec['datas'][row *sec["columns"] + col]}</td>
+                                    % endfor
+                                    ${division_droit(row, loop.index, sec)}
+                                </tr>
+                            % endfor
+                        </tbody>
+                    </table>
+                </div>
+                % endif
+               % if sec["classtype"] == "EquationSection":
+                <div class="section equation">
+                    <p>${sec["content"][0]}</p>
+                    <p>${sec["content"][1]}</p>
+                    <p>${sec["content"][2]}</p>
+                </div>
+                % endif
+               % if sec["classtype"] == "TableauSection":
+                <div class="section tableau">
+                    <table>
+                        <tbody>
+                            % for row in range(sec["lignes"]):
+                                <tr>
+                                    % for col in range(sec["colonnes"]):
+                                        <td ${tableau_class(row, loop.index, sec['cells'][row *sec["colonnes"] + col])}>${sec['cells'][row *sec["colonnes"] + col]['texte']}</td>
+                                    % endfor
+                                </tr>
+                            % endfor
+                        </tbody>
+                    </table>
+                </div>
+                % endif
+            % endfor
+        </div>
+    </body>
+</html>
+
+
+
+
+
+<%def name="add_class_ligne_resultat(row, n_rows, index=1)">
+    % if row == n_rows-index:
+         class="ligne_resultat"
+    % endif
+</%def>
+
+<%def name="add_class_multiplication(row, col, index, sec)">
+    % if row == sec["rows"]-2:
+         class="ligne_retenue"
+    % endif
+    % if row == sec["rows"]-1:
+         class="ligne_resultat"
+    % endif
+    % if sec["columns"]*row + index in sec["line_1"]:
+         class="line_1"
+    % endif
+</%def>
+
+<%def name="division_droit(row, index, sec)">
+    % if index == 0:
+         <td class="division_droit diviseur">${sec['diviseur']}</td>
+    % elif index == 1:
+         <td class="division_droit quotient">${sec['quotient']}</td>
+    % else:
+        <td class="division_droit"></td>
+    % endif
+</%def>
+
+<%def name="division_gauche_class(row, index, sec)">
+    % if index < sec['columns'] and row == 0:
+        class="dividende"
+    % endif
+
+    % if index in range(1, sec['columns'], 3):
+         class="corps_chiffre"
+    % elif index in range(0, sec['columns'], 3):
+         class="corps_retenue retenue_gauche"
+    % else:
+         class="corps_retenue retenue_droite"
+    % endif
+</%def>
+<%def name="tableau_class(row, index, cell)">
+    class="tableau_cell" style="color: ${cell['color']}; background-color: ${cell['background-color']};${cell["text-decoration"]}"
+
+</%def>

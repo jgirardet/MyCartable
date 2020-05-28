@@ -3,7 +3,7 @@ import QtQuick.Controls 2.14
 
 NewSectionButton {
   id: root
-  ToolTip.text: "EFfacer un page"
+  ToolTip.text: "Effacer un page"
   icon.source: "qrc:///icons/removePage"
   dialog: Dialog {
     id: dialogRemovePage

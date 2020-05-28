@@ -39,6 +39,12 @@ ToolBar {
         RemovePageButton {
           targetIndex: ddb.currentPage ? ddb.pageModel.count : 0
         }
+        ExportOdtButton {
+          //          targetIndex: ddb.currentPage ? ddb.pageModel.count : 0
+        }
+        ExportPdfButton {
+          //          targetIndex: ddb.currentPage ? ddb.pageModel.count : 0
+        }
       }
     }
 

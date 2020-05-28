@@ -3,7 +3,7 @@ import uuid
 from dataclasses import dataclass
 from datetime import datetime
 
-from PySide2.QtCore import QTimer
+from PySide2.QtCore import QTimer, QFile
 from PySide2.QtWidgets import QApplication
 
 
@@ -56,5 +56,14 @@ class KeyWizard:
 
 
 KeyW = KeyWizard()
+
+
+def read_qrc(path):
+    file = QFile(path)
+    if file.open(QFile.ReadOnly | QFile.Text):
+        return file.readData(file.bytesAvailable())
+    else:
+        raise FileNotFoundError(f"{path} n'est pas une ressource valide")
+
 
 # def __eq__(self, other):

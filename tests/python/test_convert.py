@@ -10,6 +10,8 @@ from package.convert import (
 )
 import sys
 
+from package.database.factory import *
+
 
 def test_get_binary_path():
     if sys.platform == "linux":
@@ -81,3 +83,14 @@ def test_convert_pdf(resources, tmp_path):
     for f in res:
         assert f.is_file()
         assert f.name.startswith("xxx")  # le default
+
+
+#
+# class TextExportHtml:
+#     def test_create_context_var(self):
+#         p = f_page()
+#         text  = f_textSection(page=p.id)
+#         add = f_additionSection(page=p.id)
+#         image = f_imageSection(page=p.id)
+#         f_annotationText(section=image.id)
+#         f_

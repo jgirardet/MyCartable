@@ -1,8 +1,17 @@
+import subprocess
+import tempfile
+import uuid
+import webbrowser
 from functools import partial
+from pathlib import Path
 
-from PySide2.QtCore import Slot, Signal, Property, QObject
+from PySide2.QtCore import Slot, Signal, Property, QObject, QMarginsF
+from PySide2.QtGui import QTextDocument
+from PySide2.QtPrintSupport import QPrinter
 from package.constantes import TITRE_TIMER_DELAY
-from package.utils import create_singleshot
+from package.convert import convert_page_to_html
+from package.files_path import TMP
+from package.utils import create_singleshot, read_qrc
 from pony.orm import db_session, make_proxy
 import logging
 
@@ -110,3 +119,31 @@ class PageMixin:
         if self.currentPage and value != self._currentTitre:
             self._currentTitre = value
             self.timer_titre_setted.start(self.TITRE_TIMER_DELAY)
+
+    @Slot()
+    def exportToPDF(self):
+        tmpdir = tempfile.mkdtemp()
+        res = convert_page_to_html(self.currentPage, tmpdir)
+        doc = QTextDocument()
+        doc.setDefaultStyleSheet(read_qrc(":/css/export.css"))
+        p = Path(TMP / ("aaaaaaaa" + ".html"))
+        doc.setHtml(res.read_text())
+
+        p.write_text(res.read_text())
+        print(res)
+        webbrowser.open(res.as_uri())
+        print(doc.toHtml())
+
+        printer = QPrinter()
+        printer.setOutputFormat(QPrinter.PdfFormat)
+        printer.setPaperSize(QPrinter.A4)
+        # print(res)
+        printer.setOutputFileName(str(TMP / (uuid.uuid4().hex + ".pdf")))
+        printer.setPageMargins(QMarginsF(15, 15, 15, 15))
+        # print(printer.printerState())
+        # printDialog = QPrintDialog(printer)
+        # printDialog.exec_()
+        doc.print_(printer)
+        import time
+
+        # time.sleep(10)

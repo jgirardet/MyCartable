@@ -114,3 +114,11 @@ class SectionMixin:
     def html(self, value):
         print(value.encode())
         print("".join(value.split("\n")))
+
+    # @Slot(int, "QVariantMap")
+    # @db_session
+    # def updateSection(self, section_id, content):
+    #     section = self.db.Section.get(id=section_id)
+    #     print(section)
+    #     section.set(**content)
+    #     return True

@@ -452,3 +452,4 @@ class TableauCell(db.Entity, ColorMixin):
             style = kwargs.pop("style")
             self.style.set(**style)
         super().set(**kwargs)
+        self.tableau.modified = datetime.utcnow()

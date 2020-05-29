@@ -46,7 +46,6 @@
         <file alias="DivisionSectionBase.qml">qml/operations/DivisionSectionBase.qml</file>
         <file alias="MultiplicationSectionBase.qml">qml/operations/MultiplicationSectionBase.qml</file>
         <file alias="SoustractionSectionBase.qml">qml/operations/SoustractionSectionBase.qml</file>
-        <file alias="TableauSectionBase.qml">qml/operations/TableauSectionBase.qml</file>
         <file alias="BaseOperation.qml">qml/operations/BaseOperation.qml</file>
         <file alias="TextInputDelegate.qml">qml/operations/TextInputDelegate.qml</file>
         <file alias="AdditionDelegate.qml">qml/operations/AdditionDelegate.qml</file>

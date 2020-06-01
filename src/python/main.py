@@ -19,14 +19,13 @@ from PySide2.QtQml import QQmlApplicationEngine, qmlRegisterType
 
 import sys
 
-from package import PROD
-
-import package.database
 import logging
 
-
-logging.basicConfig(level=logging.DEBUG)
 LOG = logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG)
+from package import *
+
+import package.database
 
 
 def main_init_database(filename=None):

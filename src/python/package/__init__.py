@@ -15,7 +15,7 @@ else:
 
 
 ROOT = Path(sys._MEIPASS) if PROD else Path(__file__).parents[3]
-DATA = ROOT / "content" if PROD else ROOT / "src" / "data"
+DATA = ROOT / "data" if PROD else ROOT / "src" / "data"
 print("ROOT : %s", str(ROOT))
 print("DATA : %s", str(DATA))
 

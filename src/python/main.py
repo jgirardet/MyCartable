@@ -19,14 +19,13 @@ from PySide2.QtQml import QQmlApplicationEngine, qmlRegisterType
 
 import sys
 
-from package import PROD
-
-import package.database
 import logging
 
-
-logging.basicConfig(level=logging.DEBUG)
 LOG = logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG)
+from package import *
+
+import package.database
 
 
 def main_init_database(filename=None):
@@ -62,21 +61,18 @@ def register_new_qml_type(databaseObject):
     )
 
     # from package.page.text_section import DocumentEditor
-    from package.page.tableau_section import TableauModel
     from package.page.annotation_model import AnnotationModel
 
     AdditionModel.ddb = databaseObject
     SoustractionModel.ddb = databaseObject
     MultiplicationModel.ddb = databaseObject
     DivisionModel.ddb = databaseObject
-    TableauModel.ddb = databaseObject
 
     # qmlRegisterType(DocumentEditor, "DocumentEditor", 1, 0, "DocumentEditor")
     qmlRegisterType(AdditionModel, "MyCartable", 1, 0, "AdditionModel")
     qmlRegisterType(SoustractionModel, "MyCartable", 1, 0, "SoustractionModel")
     qmlRegisterType(MultiplicationModel, "MyCartable", 1, 0, "MultiplicationModel")
     qmlRegisterType(DivisionModel, "MyCartable", 1, 0, "DivisionModel")
-    qmlRegisterType(TableauModel, "MyCartable", 1, 0, "TableauModel")
     qmlRegisterType(AnnotationModel, "MyCartable", 1, 0, "AnnotationModel")
 
 

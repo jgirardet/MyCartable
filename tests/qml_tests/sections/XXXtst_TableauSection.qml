@@ -3,125 +3,125 @@ import ".."
 import Qt.labs.qmlmodels 1.0
 
 Item {
-  width: 200
-  height: 200
-  id: item
-
-  Component {
-    id: modelComp
-    TableModel {
-
-      property int n_rows: rowCount
-
-      CustomTableModelColumn {
-        display: "zero"
-        edit: "editZero"
-        background: "bgZero"
-        foreground: "fgZero"
-        underline: "uZero"
-        pointSize: "psZero"
-      }
-      CustomTableModelColumn {
-        display: "un"
-        edit: "editUn"
-        background: "bgUn"
-        foreground: "fgUn"
-        underline: "uUn"
-        pointSize: "psUn"
-      }
-      CustomTableModelColumn {
-        display: "deux"
-        edit: "editDeux"
-        background: "bgDeux"
-        foreground: "fgDeux"
-        underline: "uDeux"
-        pointSize: "psDeux"
-      }
-      rows: [
-        //      [
-        {
-          zero: "0",
-          un: "1",
-          deux: "2",
-          editZero: "",
-          editUn: "",
-          editDeux: "",
-          bgZero: "red",
-          bgUn: "blue",
-          bgDeux: "green",
-          fgZero: "black",
-          fgUn: "orange",
-          fgDeux: "orange",
-          uZero: true,
-          uUn: false,
-          uDeux: false,
-          psZero: 10,
-          psUn: 12,
-          psDeux: 14
-
-        }, {
-          zero: "3",
-          un: "4",
-          deux: "5",
-          editZero: "",
-          editUn: "",
-          editDeux: "",
-          bgZero: null,
-          bgUn: null,
-          bgDeux: "green",
-          fgZero: "black",
-          fgUn: "orange",
-          fgDeux: "orange",
-          uZero: true,
-          uUn: false,
-          uDeux: false,
-          psZero: 10,
-          psUn: 12,
-          psDeux: 14
-        }, {
-          zero: "6",
-          un: "7",
-          deux: "8",
-          editZero: "",
-          editUn: "",
-          editDeux: "",
-          bgZero: null,
-          bgUn: null,
-          bgDeux: "green",
-          fgZero: "black",
-          fgUn: "orange",
-          fgDeux: "orange",
-          uZero: true,
-          uUn: false,
-          uDeux: false,
-          psZero: 10,
-          psUn: 12,
-          psDeux: 14
-        }, {
-          zero: "9",
-          un: "10",
-          deux: "11",
-          editZero: "",
-          editUn: "",
-          editDeux: "",
-          bgZero: "red",
-          bgUn: "blue",
-          bgDeux: "green",
-          fgZero: "black",
-          fgUn: "orange",
-          fgDeux: "orange",
-          uZero: true,
-          uUn: false,
-          uDeux: false,
-          psZero: 10,
-          psUn: 12,
-          psDeux: 14
-        },
-
-      ]
-
-    }
-  }
+  //  width: 200
+  //  height: 200
+  //  id: item
+  //
+  //  Component {
+  //    id: modelComp
+  //    TableModel {
+  //
+  //      property int n_rows: rowCount
+  //
+  //      CustomTableModelColumn {
+  //        display: "zero"
+  //        edit: "editZero"
+  //        background: "bgZero"
+  //        foreground: "fgZero"
+  //        underline: "uZero"
+  //        pointSize: "psZero"
+  //      }
+  //      CustomTableModelColumn {
+  //        display: "un"
+  //        edit: "editUn"
+  //        background: "bgUn"
+  //        foreground: "fgUn"
+  //        underline: "uUn"
+  //        pointSize: "psUn"
+  //      }
+  //      CustomTableModelColumn {
+  //        display: "deux"
+  //        edit: "editDeux"
+  //        background: "bgDeux"
+  //        foreground: "fgDeux"
+  //        underline: "uDeux"
+  //        pointSize: "psDeux"
+  //      }
+  //      rows: [
+  //        //      [
+  //        {
+  //          zero: "0",
+  //          un: "1",
+  //          deux: "2",
+  //          editZero: "",
+  //          editUn: "",
+  //          editDeux: "",
+  //          bgZero: "red",
+  //          bgUn: "blue",
+  //          bgDeux: "green",
+  //          fgZero: "black",
+  //          fgUn: "orange",
+  //          fgDeux: "orange",
+  //          uZero: true,
+  //          uUn: false,
+  //          uDeux: false,
+  //          psZero: 10,
+  //          psUn: 12,
+  //          psDeux: 14
+  //
+  //        }, {
+  //          zero: "3",
+  //          un: "4",
+  //          deux: "5",
+  //          editZero: "",
+  //          editUn: "",
+  //          editDeux: "",
+  //          bgZero: null,
+  //          bgUn: null,
+  //          bgDeux: "green",
+  //          fgZero: "black",
+  //          fgUn: "orange",
+  //          fgDeux: "orange",
+  //          uZero: true,
+  //          uUn: false,
+  //          uDeux: false,
+  //          psZero: 10,
+  //          psUn: 12,
+  //          psDeux: 14
+  //        }, {
+  //          zero: "6",
+  //          un: "7",
+  //          deux: "8",
+  //          editZero: "",
+  //          editUn: "",
+  //          editDeux: "",
+  //          bgZero: null,
+  //          bgUn: null,
+  //          bgDeux: "green",
+  //          fgZero: "black",
+  //          fgUn: "orange",
+  //          fgDeux: "orange",
+  //          uZero: true,
+  //          uUn: false,
+  //          uDeux: false,
+  //          psZero: 10,
+  //          psUn: 12,
+  //          psDeux: 14
+  //        }, {
+  //          zero: "9",
+  //          un: "10",
+  //          deux: "11",
+  //          editZero: "",
+  //          editUn: "",
+  //          editDeux: "",
+  //          bgZero: "red",
+  //          bgUn: "blue",
+  //          bgDeux: "green",
+  //          fgZero: "black",
+  //          fgUn: "orange",
+  //          fgDeux: "orange",
+  //          uZero: true,
+  //          uUn: false,
+  //          uDeux: false,
+  //          psZero: 10,
+  //          psUn: 12,
+  //          psDeux: 14
+  //        },
+  //
+  //      ]
+  //
+  //    }
+  //  }
 
   CasTest {
     name: "TableauSection"

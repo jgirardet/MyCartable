@@ -341,17 +341,6 @@ class TestSectionMixin:
     def test_load_section_tableau(self, dao):
         a = f_tableauSection(lignes=3, colonnes=3)
         assert dao.loadSection(1) == {
-            "cells": [
-                (1, 0, 0),
-                (1, 0, 1),
-                (1, 0, 2),
-                (1, 1, 0),
-                (1, 1, 1),
-                (1, 1, 2),
-                (1, 2, 0),
-                (1, 2, 1),
-                (1, 2, 2),
-            ],
             "classtype": "TableauSection",
             "created": a.created.isoformat(),
             "colonnes": 3,
@@ -360,7 +349,6 @@ class TestSectionMixin:
             "modified": a.modified.isoformat(),
             "page": 1,
             "position": 0,
-            "annotations": [],
         }
 
     def test_loadsection_equation(self, dao):

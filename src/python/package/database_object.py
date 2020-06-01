@@ -9,6 +9,7 @@ from package.database_mixins.page_mixin import PageMixin
 from package.database_mixins.recents_mixin import RecentsMixin
 from package.database_mixins.section_mixin import SectionMixin
 from package.database_mixins.settings_mixin import SettingsMixin
+from package.database_mixins.tableau_mixin import TableauMixin
 from package.database_mixins.text_mixin import TextSectionMixin
 
 LOG = logging.getLogger(__name__)
@@ -24,6 +25,7 @@ MIXINS = [
     DevMixin,
     EquationMixin,
     TextSectionMixin,
+    TableauMixin,
 ]
 
 
@@ -60,6 +62,8 @@ class DatabaseObject(QObject, *MIXINS):
         # mise à jour
         self.imageChanged.connect(self.updateRecentsAndActivites)
         self.equationChanged.connect(self.updateRecentsAndActivites)
+        self.tableauChanged.connect(self.updateRecentsAndActivites)
+        self.textSectionChanged.connect(self.updateRecentsAndActivites)
 
         self.updateRecentsAndActivites.connect(self.pagesParSectionChanged)
         self.updateRecentsAndActivites.connect(self.recentsModelChanged)

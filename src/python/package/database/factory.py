@@ -309,7 +309,7 @@ def f_divisionSection(string=None, **kwargs):
     return _f_section("DivisionSection", string, **kwargs)
 
 
-def f_tableauSection(lignes=None, colonnes=None, **kwargs):
+def f_tableauSection(lignes=None, colonnes=None, **kwargs) -> TableauSection:
     lignes = lignes if lignes is not None else random.randint(0, 10)
     colonnes = colonnes if colonnes is not None else random.randint(0, 10)
 

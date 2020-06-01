@@ -407,11 +407,23 @@ class TableauSection(Section):
     def after_insert(self):
         for r in range(self.lignes):
             for c in range(self.colonnes):
-                TableauCell(tableau=self, x=r, y=c)
+                TableauCell(tableau=self, y=r, x=c)
 
-    def to_dict(self, **kwargs):
-        dico = super().to_dict(with_collections=True, **kwargs)
-        return dico
+    # def to_dict(self, **kwargs):
+    #     dico = super().to_dict(with_collections=**kwargs)
+    #     return dico
+
+    def debug(self):
+        for cel in self.cells:
+            print(cel.x, "|", cel.y, "|", cel.texte)
+
+    def get_cells(self):
+        return self.cells.select().sort_by(TableauCell.y, TableauCell.x)
+
+    def get_cells_par_ligne(self, row):
+        return self.get_cells().page(
+            row + 1, self.colonnes
+        )  # page commence a 1 chez pony
 
 
 class TableauCell(db.Entity, ColorMixin):
@@ -420,7 +432,7 @@ class TableauCell(db.Entity, ColorMixin):
     y = Required(int)
     texte = Optional(str)
     tableau = Required(TableauSection)
-    PrimaryKey(tableau, x, y)
+    PrimaryKey(tableau, y, x)
     style = Optional(db.Style, default=db.Style, cascade_delete=True)
 
     def __init__(self, **kwargs):
@@ -434,3 +446,10 @@ class TableauCell(db.Entity, ColorMixin):
         if "style" in dico:  # ne pas l'ajouter sur a été exclude
             dico["style"] = self.style.to_dict()
         return dico
+
+    def set(self, **kwargs):
+        if "style" in kwargs:
+            style = kwargs.pop("style")
+            self.style.set(**style)
+        super().set(**kwargs)
+        self.tableau.modified = datetime.utcnow()

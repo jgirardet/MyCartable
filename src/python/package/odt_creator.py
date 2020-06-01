@@ -3,6 +3,7 @@ from odf.style import Style, TextProperties, ParagraphProperties
 from odf.text import P, H
 
 doc = OpenDocumentText()
+from package.page.text_section import _CSS_BASE
 
 p_style = Style(name="p_style", family="paragraph")
 p_text_prop = TextProperties(

@@ -123,6 +123,11 @@
 
     <qresource prefix="/templates">
         <file alias="base.html">data/templates/base.html</file>
+        <file alias="base.xml">data/templates/base.xml</file>
+        <file alias="styles.xml">data/templates/styles.xml</file>
+        <file alias="automatic-styles.xml">data/templates/automatic-styles.xml</file>
+        <file alias="master-styles.xml">data/templates/master-styles.xml</file>
+        <file alias="body.xml">data/templates/body.xml</file>
     </qresource>
 
 </RCC>

@@ -1,4 +1,5 @@
 import os
+import tempfile
 import uuid
 from io import StringIO
 from operator import attrgetter, methodcaller
@@ -8,13 +9,25 @@ from pathlib import Path
 import sys
 import logging
 
-from PySide2.QtCore import QDir, QRectF, Qt, QPoint, QRect, QStandardPaths, QLine, QSize
+from PySide2.QtCore import (
+    QDir,
+    QRectF,
+    Qt,
+    QPoint,
+    QRect,
+    QStandardPaths,
+    QLine,
+    QSize,
+    QBuffer,
+)
 from PySide2.QtGui import QImage, QPainter, QColor, QBrush
+from bs4 import NavigableString, BeautifulSoup
 from mako.lookup import TemplateLookup
 from mako.runtime import Context
 from package import DATA, BINARY
 from package.constantes import BASE_FONT, ANNOTATION_TEXT_BG_OPACITY
 from package.database import db
+from package.database.factory import f_section, f_textSection, f_page, f_imageSection
 from package.database.sections import (
     ImageSection,
     TableauSection,
@@ -77,37 +90,6 @@ def run_convert_pdf(pdf, png_root, prefix="xxx", resolution=200, timeout=30):
     return files
 
 
-"""
-
-                       Files other than Impress documents are opened in        
-                       default mode , regardless of previous mode.             
-   --convert-to OutputFileExtension[:OutputFilterName] \                      
-     [--outdir output_dir] [--convert-images-to]                               
-                       Batch convert files (implies --headless). If --outdir   
-                       isn't specified, then current working directory is used 
-                       as output_dir. If --convert-images-to is given, its     
-                       parameter is taken as the target filter format for *all*
-                       images written to the output format. If --convert-to is 
-                       used more than once, the last value of                  
-                       OutputFileExtension[:OutputFilterName] is effective. If 
-                       --outdir is used more than once, only its last value is 
-                       effective. For example:                                 
-                   --convert-to pdf *.odt                                      
-                   --convert-to epub *.doc                                     
-                   --convert-to pdf:writer_pdf_Export --outdir /home/user *.doc
-                   --convert-to "html:XHTML Writer File:UTF8" \             
-                                --convert-images-to "jpg" *.doc              
-                   --convert-to "txt:Text (encoded):UTF8" *.doc              
-   --print-to-file [--printer-name printer_name] [--outdir output_dir]         
-                       Batch print files to file. If --outdir is not specified,
-                       then current working directory is used as output_dir.   
-                       If --printer-name or --outdir used multiple times, only 
-                       last value of each is effective. Also, {Printername} of 
-                       --pt switch interferes with --printer-name.             
-  
-"""
-
-
 class LibreOfficeConverter:
     def __init__(self):
         pass
@@ -120,7 +102,7 @@ def create_lookup():
     return lookup
 
 
-html_lookup = create_lookup()
+templates = create_lookup()
 
 
 def create_context_var(section_id, tmpdir):
@@ -168,7 +150,7 @@ def create_context_var(section_id, tmpdir):
 @db_session
 def convert_page_to_html(section_id, tmpdir):
     QStandardPaths.writableLocation(QStandardPaths.AppDataLocation)
-    main_page = html_lookup.get_template("base.html")
+    main_page = templates.get_template("base.html")
     context_vars = create_context_var(section_id, tmpdir)
     # print(context_vars)
     buf = StringIO()
@@ -179,10 +161,22 @@ def convert_page_to_html(section_id, tmpdir):
     return output_html
 
 
-def create_images_with_annotation(image_section, tmpdir):
+@db_session
+def convert_page_to_odt(section_id, tmpdir):
+    QStandardPaths.writableLocation(QStandardPaths.AppDataLocation)
+    main_page = templates.get_template("base.fodt")
+    context_vars = create_context_var(section_id, tmpdir)
+    buf = StringIO()
+    ctx = Context(buf, **context_vars)
+    main_page.render_context(context=ctx)
+    output_html = Path(tmpdir, uuid.uuid4().hex + ".fodt")
+    output_html.write_text(buf.getvalue())
+    return output_html
+
+
+def create_images_with_annotation(image_section, tmpdir=None):
     image = QImage()
     painter = QPainter()
-    # olf = QFile(str(FILES / image_section["path"]))
     image.load(str(FILES / image_section["path"]))
 
     painter.begin(image)
@@ -233,9 +227,19 @@ def create_images_with_annotation(image_section, tmpdir):
                 painter.drawEllipse(QRect(startPoint, endPoint))
 
     painter.end()
-    new_path = str(Path(tmpdir) / (uuid.uuid4().hex + ".png"))
-    image.save(new_path)
-    return new_path
+    if tmpdir:
+        new_path = str(Path(tmpdir) / (uuid.uuid4().hex + ".png"))
+        image.save(new_path)
+        return new_path
+
+    else:
+        buf = QBuffer()
+        buf.open(QBuffer.ReadWrite)
+        image.save(buf, "PNG")
+        buf.seek(0)
+        res = buf.readAll().toBase64()
+        buf.close()
+        return res
 
 
 def draw_annotation_text(annotation: dict, image: QImage, painter: QPainter):
@@ -291,3 +295,161 @@ def draw_annotation_text(annotation: dict, image: QImage, painter: QPainter):
 # img = "/home/jimmy/dev/cacahuete/MyCartable/tests/resources/sc1.png"
 
 # create_images_with_annotation(img)
+
+
+def simple_p(value):
+    return f"""<text:p text:style-name="Standard">{value}</text:p>"""
+
+
+def new_automatic_text(style_str):
+    item_style = [x.split(":") for x in style_str.replace(" ", "")[:-1].split(";")]
+    style_name = uuid.uuid4().hex
+    res = f"""<style:style style:name="{style_name}" style:family="text"> <style:text-properties """
+    for k, v in item_style:
+        if k == "color":
+            res = res + f''' fo:color="{QColor(v).name()}"'''
+        elif k == "text-decoration":
+            res = (
+                res
+                + f''' style:text-underline-style="solid" style:text-underline-width="auto" style:text-underline-color="font-color"'''
+            )
+            # new_prop.setAttribute("textunderlinestyle", "solid")
+    res = res + """/></style:style>"""
+    return style_name, res
+
+
+def span_text(value: NavigableString):
+    # for member in value.split(";")[:-1]:
+    style_str = value.attrs.get("style", None)
+    new_style = None
+    if style_str:
+        name, new_style = new_automatic_text(style_str)
+        span_res = f"""<text:span text:style-name="{name}">{value.text}</text:span>"""
+    else:
+        span_res = value.text
+    return span_res, new_style
+
+
+def new_p(ptag):
+    res = [f"""<text:p text:style-name="Standard">"""]
+    automatic = []
+    for elem in ptag.contents:
+        if not elem.name:
+            res.append(elem)
+        elif elem.name == "span":
+            string, style = span_text(elem)
+            res.append(string)
+            if style:
+                automatic.append(style)
+    res.append("</text:p>")
+    return "".join(res), "\n".join(automatic)
+
+
+def new_h(htag):
+    level = htag.name[-1]
+    res = f"""<text:h text:style-name="Heading_20_{level}" text:outline-level="{level}">{htag.text}</text:h>"""
+    return res
+
+
+def text_section(section):
+    soup = BeautifulSoup(section.text, "html.parser")
+    str_res = []
+    automatic_res = []
+    for paragraphe in soup.body.contents:
+        if paragraphe.name.startswith("h"):
+            str_res.append(new_h(paragraphe))
+        elif paragraphe.name == "p":
+            new_text, new_style = new_p(paragraphe)
+            str_res.append(new_text)
+            automatic_res.append(new_style)
+
+    return "\n".join(str_res), "\n".join(automatic_res)
+
+
+def image_section(section_e):
+    section = section_e.to_dict()
+    content = create_images_with_annotation(section)
+    res = f"""<text:p text:style-name="Standard">
+            <draw:frame draw:style-name="fr1" draw:name="{uuid.uuid4().hex}" text:anchor-type="paragraph" svg:width="17cm" svg:height="9.562cm" draw:z-index="0">
+                <draw:image loext:mime-type="image/png">
+                <office:binary-data>{content.data().decode()}</office:binary-data>
+                </draw:image>
+            </draw:frame>
+        </text:p>"""
+    return res
+
+
+def build_body(page_id):
+    # page = Page[page_id].to_dict()
+    # context_vars = create_context_var(page_id, tmpdir)
+    tags = []
+    automatic_res = []
+    page = Page[page_id]
+    for section in page.content:
+        if section.classtype == "TextSection":
+            new_tags, automatic_tags_style = text_section(section)
+            automatic_res.append(automatic_tags_style)
+
+        elif section.classtype == "ImageSection":
+            new_tags = image_section(section)
+
+        tags.append(new_tags)
+    tmpl = templates.get_template("body.xml")
+    body = "\n".join(tags)
+    return (
+        tmpl.render(titre=page.titre, body=body),
+        "\n".join(automatic_res),
+    )
+
+
+def build_automatic_styles(automatic_styles):
+    tmpl = templates.get_template("automatic-styles.xml")
+    return tmpl.render(automatic_styles=automatic_styles)
+
+
+def build_styles():
+    tmpl = templates.get_template("styles.xml")
+    return tmpl.render()
+
+
+def build_master_styles():
+    tmpl = templates.get_template("master-styles.xml")
+    return tmpl.render()
+
+
+@db_session
+def merge_all_xml(page_id):
+
+    body, automatic_data = build_body(page_id)
+    automatic_styles = build_automatic_styles(automatic_data)
+    master_styles = build_master_styles()
+    styles = build_styles()
+
+    tmpl = templates.get_template("base.xml")
+    res = tmpl.render(
+        body=body,
+        automatic_styles=automatic_styles,
+        master_styles=master_styles,
+        styles=styles,
+    )
+    output_html = Path("/tmp", "AAAAA" + ".fodt")
+    # output_html = Path("/tmp", uuid.uuid4().hex + ".fodt")
+    output_html.write_text(res)
+    return output_html
+
+
+from package.database import init_database
+
+init_database()
+page = f_page()
+sec = f_textSection(
+    page=page.id,
+    text="""<body><p><span>ligne normale</span></p><h1>titre</h1><h2>titre seconde</h2><p><span>debut de ligne </span><span style=" color:#ff0000;">rouge</span><span> suite de ligne</span></p><h3>titre seconde</h3><h4>titre seconde</h4><p><span>du</span><span style=" text-decoration:underline; color:#0048ba;"> style en fin </span><span>de </span><span style=" color:#800080;">lingne</span></p><p><span>debu</span><span style=" text-decoration:underline; color:#006a4e;">t de ligne </span><span style=" text-decoration:underline; color:#006a4e;">rou</span><span style=" color:#ff0000;">ge</span><span> suite de ligne</span></p></body>""",
+)
+img = f_imageSection(page=page.id)
+tp = tempfile.TemporaryDirectory()
+res = merge_all_xml(page.id)
+import subprocess
+
+subprocess.run(["xdg-open", str(res)])
+# print(res)

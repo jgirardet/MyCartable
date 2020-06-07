@@ -1,3 +1,4 @@
+import json
 import os
 import tempfile
 import uuid
@@ -27,7 +28,15 @@ from mako.runtime import Context
 from package import DATA, BINARY
 from package.constantes import BASE_FONT, ANNOTATION_TEXT_BG_OPACITY
 from package.database import db
-from package.database.factory import f_section, f_textSection, f_page, f_imageSection
+from package.database.factory import (
+    f_section,
+    f_textSection,
+    f_page,
+    f_imageSection,
+    f_additionSection,
+    f_soustractionSection,
+    f_multiplicationSection,
+)
 from package.database.sections import (
     ImageSection,
     TableauSection,
@@ -233,17 +242,10 @@ def create_images_with_annotation(image_section, tmpdir=None):
         return new_path
 
     else:
-        buf = QBuffer()
-        buf.open(QBuffer.ReadWrite)
-        image.save(buf, "PNG")
-        buf.seek(0)
-        res = buf.readAll().toBase64()
-        buf.close()
-        return res
+        return image
 
 
 def draw_annotation_text(annotation: dict, image: QImage, painter: QPainter):
-
     # d'abord font params
     font = painter.font()
     font.setPixelSize(
@@ -297,8 +299,8 @@ def draw_annotation_text(annotation: dict, image: QImage, painter: QPainter):
 # create_images_with_annotation(img)
 
 
-def simple_p(value):
-    return f"""<text:p text:style-name="Standard">{value}</text:p>"""
+def simple_p(value, style="Standard"):
+    return f"""<text:p text:style-name="{style}">{value}</text:p>"""
 
 
 def new_automatic_text(style_str):
@@ -368,9 +370,18 @@ def text_section(section):
 
 def image_section(section_e):
     section = section_e.to_dict()
-    content = create_images_with_annotation(section)
+    image = create_images_with_annotation(section)
+    factor = image.widthMM() / 210
+    if factor > 0:
+        new_image = image.scaledToWidth(image.width() / factor)
+    buf = QBuffer()
+    buf.open(QBuffer.ReadWrite)
+    new_image.save(buf, "PNG")
+    buf.seek(0)
+    content = buf.readAll().toBase64()
+    buf.close()
     res = f"""<text:p text:style-name="Standard">
-            <draw:frame draw:style-name="fr1" draw:name="{uuid.uuid4().hex}" text:anchor-type="paragraph" svg:width="17cm" svg:height="9.562cm" draw:z-index="0">
+            <draw:frame draw:style-name="fr1" draw:name="{uuid.uuid4().hex}" text:anchor-type="paragraph" svg:width="{new_image.widthMM()}mm"  svg:height="{new_image.heightMM()}mm" draw:z-index="0">
                 <draw:image loext:mime-type="image/png">
                 <office:binary-data>{content.data().decode()}</office:binary-data>
                 </draw:image>
@@ -379,13 +390,222 @@ def image_section(section_e):
     return res
 
 
+def operation_table_style(section, cell_width=1):
+    style_name = f"table-{uuid.uuid4()}"
+    total = section.columns * cell_width
+    res = f"""<style:style style:name="{style_name}" style:family="table">
+    <style:table-properties style:width="{total}cm" fo:margin-top="0.3cm" fo:margin-bottom="0.3cm" 
+    table:align="left" style:may-break-between-rows="false"/>
+  </style:style>"""
+    return style_name, res
+
+
+def operation_table_style_column(table_style_name, cell_width=1):
+    style_name = f"{table_style_name}.Col"
+    res = f"""<style:style style:name="{style_name}" style:family="table-column">
+    <style:table-column-properties style:column-width="{cell_width}cm"/>
+    </style:style>"""
+    return style_name, res
+
+
+def operation_table_style_row(table_style_name):
+    style_name = f"{table_style_name}.Row"
+    res = f"""<style:style style:name="{style_name}" style:family="table-row">
+            <style:table-row-properties fo:background-color="transparent">
+                <style:background-image/>
+            </style:table-row-properties>
+        </style:style>"""
+    return style_name, res
+
+
+def addition_retenue_style_paragraph(table_style_name):
+    style_name = f"{table_style_name}_p_retenue"
+    res = f"""<style:style style:name="{style_name}" style:family="paragraph" style:parent-style-name="Standard">
+   <style:paragraph-properties fo:text-align="center"/>
+   <style:text-properties fo:color="#D40020"  fo:font-size="10pt"/>
+   </style:style>"""
+    return style_name, res
+
+
+def addition_base_style_paragraph(table_style_name):
+    style_name = f"{table_style_name}_p_base"
+    res = f"""<style:style style:name="{style_name}" style:family="paragraph" style:parent-style-name="Standard">
+   <style:paragraph-properties fo:text-align="center"/>
+   </style:style>"""
+    return style_name, res
+
+
+def addition_base_style(table_style_name):
+    style_name = f"{table_style_name}.A1"
+    res = f"""<style:style style:name="{style_name}" style:family="table-cell">
+   <style:table-cell-properties fo:padding="0.097cm" fo:border="none"/>
+  </style:style>"""
+    return style_name, res
+
+
+def addition_total_style(table_style_name):
+    style_name = f"{table_style_name}.A4"
+    res = f"""<style:style style:name="{style_name}" style:family="table-cell">
+   <style:table-cell-properties fo:padding="0.097cm" fo:border-left="none" fo:border-right="none" fo:border-top="1pt solid #000000" fo:border-bottom="none"/>
+  </style:style>"""
+    return style_name, res
+
+
+def addition_section(section):
+    # res = simple_p("".join(section.datas[: section.columns]), style="Retenues_addition")
+    res = []
+    automatic_res = []
+    table_style_name, automatic_style = operation_table_style(section)
+    automatic_res.append(automatic_style)
+    column_style_name, automatic_style = operation_table_style_column(table_style_name)
+    automatic_res.append(automatic_style)
+    row_style_name, automatic_style = operation_table_style_row(table_style_name)
+    automatic_res.append(automatic_style)
+    addition_base_style_name, automatic_style = addition_base_style(table_style_name)
+    automatic_res.append(automatic_style)
+    addition_total_style_name, automatic_style = addition_total_style(table_style_name)
+    automatic_res.append(automatic_style)
+    addition_retenue_style_name, automatic_style = addition_retenue_style_paragraph(
+        table_style_name
+    )
+    automatic_res.append(automatic_style)
+    (
+        addition_base_style_name_paragraph,
+        automatic_style,
+    ) = addition_base_style_paragraph(table_style_name)
+    automatic_res.append(automatic_style)
+
+    res.append(
+        f"""<table:table table:name="{uuid.uuid4()}" table:style-name="{table_style_name}">
+    <table:table-column table:style-name="{column_style_name}" table:number-columns-repeated="{section.columns}"/>"""
+    )
+
+    for l in range(section.rows):
+        lignes = [f"""<table:table-row  table:style-name="{row_style_name}">"""]
+        if l == section.rows - 1:
+            cell_style = addition_total_style_name
+        else:
+            cell_style = addition_base_style_name
+
+        format_cell_style = (
+            addition_retenue_style_name
+            if l == 0
+            else addition_base_style_name_paragraph
+        )
+
+        for c in range(section.columns):
+            index = l * section.columns + c
+            cell = f"""<table:table-cell table:style-name="{cell_style}" office:value-type="string">
+              <text:p text:style-name="{format_cell_style}">{section.datas[index]}</text:p>
+             </table:table-cell>"""
+            lignes.append(cell)
+        lignes.append("""</table:table-row>""")
+        res.append("\n".join(lignes))
+
+    res.append("""</table:table>""")
+
+    return "\n".join(res), "\n".join(automatic_res)
+
+
+def soustraction_retenue_gauche_style_paragraph(table_style_name):
+    style_name = f"{table_style_name}_p_retenue_gauche"
+    res = f"""<style:style style:name="{style_name}" style:family="paragraph" style:parent-style-name="Standard">
+   <style:paragraph-properties fo:text-align="right"/>
+   <style:text-properties fo:color="#D40020" style:text-position="sub 66%"/>
+   </style:style>"""
+    return style_name, res
+
+
+def soustraction_retenue_droite_style_paragraph(table_style_name):
+    style_name = f"{table_style_name}_p_retenue_droite"
+    res = f"""<style:style style:name="{style_name}" style:family="paragraph" style:parent-style-name="Standard">
+   <style:paragraph-properties fo:text-align="left"/>
+   <style:text-properties fo:color="#D40020" style:text-position="sub 66%"/>
+   </style:style>"""
+    return style_name, res
+
+
+def soustraction_section(section):
+    res = []
+    automatic_res = []
+    cell_width = 0.5
+    table_style_name, automatic_style = operation_table_style(section, cell_width)
+    automatic_res.append(automatic_style)
+    column_style_name, automatic_style = operation_table_style_column(
+        table_style_name, cell_width
+    )
+    automatic_res.append(automatic_style)
+    row_style_name, automatic_style = operation_table_style_row(table_style_name)
+    automatic_res.append(automatic_style)
+    addition_base_style_name, automatic_style = addition_base_style(table_style_name)
+    automatic_res.append(automatic_style)
+    addition_total_style_name, automatic_style = addition_total_style(table_style_name)
+    automatic_res.append(automatic_style)
+    (
+        soustraction_retenue_gauche_style_name,
+        automatic_style,
+    ) = soustraction_retenue_gauche_style_paragraph(table_style_name)
+    automatic_res.append(automatic_style)
+    (
+        soustraction_retenue_droite_style_name,
+        automatic_style,
+    ) = soustraction_retenue_droite_style_paragraph(table_style_name)
+    automatic_res.append(automatic_style)
+    (
+        addition_base_style_name_paragraph,
+        automatic_style,
+    ) = addition_base_style_paragraph(table_style_name)
+    automatic_res.append(automatic_style)
+
+    res.append(
+        f"""<table:table table:name="{uuid.uuid4()}" table:style-name="{table_style_name}">
+        <table:table-column table:style-name="{column_style_name}" table:number-columns-repeated="{section.columns}"/>"""
+    )
+
+    for l in range(section.rows):
+        lignes = [f"""<table:table-row  table:style-name="{row_style_name}">"""]
+        if l == 2:
+            cell_style = addition_total_style_name
+        else:
+            cell_style = addition_base_style_name
+
+        for c in range(section.columns):
+            if not section.virgule:
+                modulo = modulo = (c - 2) % 3
+            else:
+                modulo = (
+                    (c - 2) % 3
+                    if c < section.virgule
+                    else (c - section.virgule + 1) % 3
+                )
+            if not c or c == section.virgule:
+                format_cell_style = addition_base_style_name_paragraph
+            elif modulo == 1:
+                format_cell_style = soustraction_retenue_droite_style_name
+            elif modulo == 2:
+                format_cell_style = soustraction_retenue_gauche_style_name
+            else:
+                format_cell_style = addition_base_style_name_paragraph
+
+            index = l * section.columns + c
+            cell = f"""<table:table-cell table:style-name="{cell_style}" office:value-type="string">
+                  <text:p text:style-name="{format_cell_style}">{section.datas[index]}</text:p>
+                 </table:table-cell>"""
+            lignes.append(cell)
+        lignes.append("""</table:table-row>""")
+        res.append("\n".join(lignes))
+
+    res.append("""</table:table>""")
+
+    return "\n".join(res), "\n".join(automatic_res)
+
+
 def build_body(page_id):
-    # page = Page[page_id].to_dict()
-    # context_vars = create_context_var(page_id, tmpdir)
     tags = []
     automatic_res = []
     page = Page[page_id]
     for section in page.content:
+        new_tags = ""
         if section.classtype == "TextSection":
             new_tags, automatic_tags_style = text_section(section)
             automatic_res.append(automatic_tags_style)
@@ -393,7 +613,15 @@ def build_body(page_id):
         elif section.classtype == "ImageSection":
             new_tags = image_section(section)
 
-        tags.append(new_tags)
+        elif section.classtype == "AdditionSection":
+            new_tags, automatic_tags_style = addition_section(section)
+            automatic_res.append(automatic_tags_style)
+        elif section.classtype == "SoustractionSection":
+            new_tags, automatic_tags_style = soustraction_section(section)
+            automatic_res.append(automatic_tags_style)
+        if new_tags:
+            tags.append(new_tags)
+            tags.append(f"""<text:p text:style-name="Standard"/>""")
     tmpl = templates.get_template("body.xml")
     body = "\n".join(tags)
     return (
@@ -419,7 +647,6 @@ def build_master_styles():
 
 @db_session
 def merge_all_xml(page_id):
-
     body, automatic_data = build_body(page_id)
     automatic_styles = build_automatic_styles(automatic_data)
     master_styles = build_master_styles()
@@ -442,14 +669,25 @@ from package.database import init_database
 
 init_database()
 page = f_page()
-sec = f_textSection(
-    page=page.id,
-    text="""<body><p><span>ligne normale</span></p><h1>titre</h1><h2>titre seconde</h2><p><span>debut de ligne </span><span style=" color:#ff0000;">rouge</span><span> suite de ligne</span></p><h3>titre seconde</h3><h4>titre seconde</h4><p><span>du</span><span style=" text-decoration:underline; color:#0048ba;"> style en fin </span><span>de </span><span style=" color:#800080;">lingne</span></p><p><span>debu</span><span style=" text-decoration:underline; color:#006a4e;">t de ligne </span><span style=" text-decoration:underline; color:#006a4e;">rou</span><span style=" color:#ff0000;">ge</span><span> suite de ligne</span></p></body>""",
-)
-img = f_imageSection(page=page.id)
-tp = tempfile.TemporaryDirectory()
+# sec = f_textSection(
+#     page=page.id,
+#     text="""<body><p><span>ligne normale</span></p><h1>titre</h1><h2>titre seconde</h2><p><span>debut de ligne </span><span style=" color:#ff0000;">rouge</span><span> suite de ligne</span></p><h3>titre seconde</h3><h4>titre seconde</h4><p><span>du</span><span style=" text-decoration:underline; color:#0048ba;"> style en fin </span><span>de </span><span style=" color:#800080;">lingne</span></p><p><span>debu</span><span style=" text-decoration:underline; color:#006a4e;">t de ligne </span><span style=" text-decoration:underline; color:#006a4e;">rou</span><span style=" color:#ff0000;">ge</span><span> suite de ligne</span></p></body>""",
+# )
+# img = f_imageSection(page=page.id)
+# img = f_imageSection(page=page.id)
+with db_session:
+    aa = f_additionSection(string="234+123", page=page.id)
+    aa._datas = json.dumps(
+        ["", "2", "", "3", "", "2", "3", "4", "+", "1", "2", "3", "", "2", "3", "1",]
+    )
+aa = f_additionSection(string="234,34+123,1", page=page.id)
+sous = f_soustractionSection(string="234-123", page=page.id)
+f_soustractionSection("1234253-342545", page=page.id)
+sous = f_soustractionSection(string="234,23-123,1", page=page.id)
+
+mul = f_multiplicationSection(string="234*123", page=page.id)
+
 res = merge_all_xml(page.id)
 import subprocess
 
 subprocess.run(["xdg-open", str(res)])
-# print(res)

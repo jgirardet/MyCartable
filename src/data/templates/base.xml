@@ -36,6 +36,14 @@
     <office:font-face-decls>
         <style:font-face style:name="Verdana" svg:font-family="Verdana" style:font-family-generic="swiss"
                          style:font-pitch="variable"/>
+        <style:font-face style:name="Noto Mono" svg:font-family="&apos;Noto Mono&apos;" style:font-pitch="fixed"/>
+        <style:font-face style:name="Courier New" svg:font-family="&apos;Courier New&apos;"
+                         style:font-family-generic="modern" style:font-pitch="fixed"/>
+        <style:font-face style:name="Courier" svg:font-family="&apos;Courier&apos;"
+                         style:font-family-generic="modern" style:font-pitch="fixed"/>
+        <style:font-face style:name="Liberation Mono" svg:font-family="&apos;Liberation Mono&apos;"
+                         style:font-family-generic="modern" style:font-pitch="fixed"/>
+
     </office:font-face-decls>
 
     ${styles}

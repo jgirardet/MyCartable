@@ -378,7 +378,7 @@ def populate_database(matieres_list=MATIERES, nb_page=100):
                 [
                     f_equationSection(
                         page=a.id,
-                        #                         content=f"""1{TextEquation.FSP}            {TextEquation.FSP}12   1234
+                        # content=f"""1{TextEquation.FSP}            {TextEquation.FSP}12   1234
                         # ―― + 13 + 3 + ――― + ―――― + 1
                         # 15            234   789{TextEquation.FSP}    """,
                     ),

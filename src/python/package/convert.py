@@ -21,13 +21,19 @@ from PySide2.QtCore import (
     QSize,
     QBuffer,
 )
-from PySide2.QtGui import QImage, QPainter, QColor, QBrush
+from PySide2.QtGui import (
+    QImage,
+    QPainter,
+    QColor,
+    QBrush,
+    QFontDatabase,
+    QGuiApplication,
+)
 from bs4 import NavigableString, BeautifulSoup
 from mako.lookup import TemplateLookup
 from mako.runtime import Context
 from package import DATA, BINARY
-from package.constantes import BASE_FONT, ANNOTATION_TEXT_BG_OPACITY
-from package.database import db
+from package.constantes import BASE_FONT, ANNOTATION_TEXT_BG_OPACITY, MONOSPACED_FONTS
 from package.database.factory import (
     f_section,
     f_textSection,
@@ -37,6 +43,8 @@ from package.database.factory import (
     f_soustractionSection,
     f_multiplicationSection,
     f_divisionSection,
+    f_tableauSection,
+    f_equationSection,
 )
 from package.database.sections import (
     ImageSection,
@@ -47,6 +55,7 @@ from package.database.sections import (
 )
 from package.database.structure import Page
 from package.files_path import FILES
+from package.operations.equation import TextEquation
 from package.utils import read_qrc
 from pony.orm import Set, db_session
 
@@ -300,8 +309,14 @@ def draw_annotation_text(annotation: dict, image: QImage, painter: QPainter):
 # create_images_with_annotation(img)
 
 
-def simple_p(value, style="Standard"):
-    return f"""<text:p text:style-name="{style}">{value}</text:p>"""
+def escape(text):
+    """<text:tab> elements for '\t',
+            <text:line-break> elements for '\n', and
+            <text:s> elements for runs of more than one blank."""
+    tab = "<text:tab/>"
+    lb = "<text:line-break/>"
+    sp = "<text:s/>"
+    return text.replace("\t", tab).replace("\n", lb).replace(" ", sp)
 
 
 def new_automatic_text(style_str):
@@ -327,9 +342,11 @@ def span_text(value: NavigableString):
     new_style = None
     if style_str:
         name, new_style = new_automatic_text(style_str)
-        span_res = f"""<text:span text:style-name="{name}">{value.text}</text:span>"""
+        span_res = (
+            f"""<text:span text:style-name="{name}">{escape(value.text)}</text:span>"""
+        )
     else:
-        span_res = value.text
+        span_res = escape(value.text)
     return span_res, new_style
 
 
@@ -338,7 +355,7 @@ def new_p(ptag):
     automatic = []
     for elem in ptag.contents:
         if not elem.name:
-            res.append(elem)
+            res.append(escape(elem))
         elif elem.name == "span":
             string, style = span_text(elem)
             res.append(string)
@@ -350,7 +367,7 @@ def new_p(ptag):
 
 def new_h(htag):
     level = htag.name[-1]
-    res = f"""<text:h text:style-name="Heading_20_{level}" text:outline-level="{level}">{htag.text}</text:h>"""
+    res = f"""<text:h text:style-name="Heading_20_{level}" text:outline-level="{level}">{escape(htag.text)}</text:h>"""
     return res
 
 
@@ -454,7 +471,6 @@ def addition_total_style(table_style_name):
 
 
 def addition_section(section):
-    # res = simple_p("".join(section.datas[: section.columns]), style="Retenues_addition")
     res = []
     automatic_res = []
     table_style_name, automatic_style = operation_table_style(section)
@@ -808,6 +824,143 @@ def division_section(section):
     return "\n".join(res), "\n".join(automatic_res)
 
 
+def create_cell(cell, table_style_name):
+    bgcolor = cell.style.bgColor.name()
+    if bgcolor == "#000000":
+        bgcolor = "transparent"
+    fgcolor = cell.style.fgColor.name()
+    fontsize = cell.style.pointSize or 14
+    fontsize -= 6  # mieux en papier
+    underline = (
+        f''' style:text-underline-style="solid" style:text-underline-width="auto" style:text-underline-color="font-color"'''
+        if cell.style.underline
+        else ""
+    )
+    style_name = f"{table_style_name}.{cell.y}.{cell.x}"
+    auto_style_cell = f"""<style:style style:name="{style_name}" style:family="table-cell">
+       <style:table-cell-properties fo:background-color="{bgcolor}" fo:padding="0.097cm" fo:border="1pt solid"/>
+      </style:style>"""
+
+    para_name = f"{style_name}.para"
+    auto_style_paragraph = f"""<style:style style:name="{para_name}" style:family="paragraph" style:parent-style-name="Standard">
+       <style:text-properties fo:font-size="{fontsize}" fo:color="{fgcolor}" {underline} />
+       <style:paragraph-properties fo:text-align="left"/>
+       </style:style>"""
+
+    new_cell = f"""<table:table-cell table:style-name="{style_name}" office:value-type="string">
+                  <text:p text:style-name="{para_name}">{escape(cell.texte)}</text:p>
+                 </table:table-cell>"""
+    cell_width = len(cell.texte) * fontsize / 28.34646 / 1.55 or 0.1
+    cell_height = (1 + cell.texte.count("\n")) * fontsize / 28.34646 or 2
+    return new_cell, auto_style_cell, auto_style_paragraph, cell_width, cell_height
+
+
+def tableau_style_column(table_style_name, index, width):
+    style_name = f"{table_style_name}.Col.{index}"
+    res = f"""<style:style style:name="{style_name}" style:family="table-column">
+    <style:table-column-properties style:column-width="{width}cm"/>
+    </style:style>"""
+    return style_name, res
+
+
+def tableau_style_row(table_style_name, index, width):
+    style_name = f"{table_style_name}.Row.{index}"
+    res = f"""<style:style style:name="{style_name}" style:family="table-row">
+    <style:table-row-properties style:min-row-height="{width}cm"/>
+    </style:style>"""
+    # <style:table-row-properties style:min-row-height="{width}cm" style:row-height="{width}cm"/>
+    return style_name, res
+
+
+def tableau_table_style(style_name, total):
+    res = f"""<style:style style:name="{style_name}" style:family="table">
+        <style:table-properties style:width="{total}cm" 
+        table:align="left" style:may-break-between-rows="false"/>
+      </style:style>"""
+    return res
+
+
+def tableau_section(section):
+    res = []
+    automatic_res = []
+    colonnes_max = {}
+    lignes_max = {}
+    cells = []
+    column_styles = []
+    row_styles = []
+
+    # tout d'abord le nom du sytle du tableau
+    table_style_name = f"table-{uuid.uuid4()}"
+
+    # on cree les cells en même temps que les style
+    for cell in section.get_cells():
+        (
+            new_cell,
+            auto_style_cell,
+            auto_style_paragraph,
+            cell_width,
+            cell_height,
+        ) = create_cell(cell, table_style_name)
+        colonnes_max[cell.x] = max(cell_width, colonnes_max.get(cell.x, 0))
+        lignes_max[cell.y] = max(cell_height, lignes_max.get(cell.y, 0))
+        automatic_res.append(auto_style_cell)
+        automatic_res.append(auto_style_paragraph)
+        cells.append(new_cell)
+
+    # style du tableau général
+    table_width = sum(colonnes_max.values())
+    tableau_style = tableau_table_style(table_style_name, table_width)
+    automatic_res.append(tableau_style)
+
+    # styles des columns
+    for index, mx in colonnes_max.items():
+        column_style_name, automatic_style = tableau_style_column(
+            table_style_name, index, mx
+        )
+        automatic_res.append(automatic_style)
+        column_styles.append(column_style_name)
+
+    # styles des rows
+    for index, mx in lignes_max.items():
+        row_style_name, automatic_style = tableau_style_row(table_style_name, index, mx)
+        automatic_res.append(automatic_style)
+        row_styles.append(row_style_name)
+
+    # construction du tableau
+    res.append(
+        f"""<table:table table:name="{uuid.uuid4()}" table:style-name="{table_style_name}">"""
+    )
+    for col_style in column_styles:
+        res.append(f"""<table:table-column table:style-name="{col_style}"/>""")
+    for n, row_style in enumerate(row_styles):
+        res.append(f"""<table:table-row  table:style-name="{row_style}">""")
+        for i in range(n * section.colonnes, (n + 1) * section.colonnes):
+            res.append(cells[i])
+        res.append("""</table:table-row>""")
+    res.append("""</table:table>""")
+    return "\n".join(res), "\n".join(automatic_res)
+
+
+def equation_section(section):
+    font = ""
+    for f in QFontDatabase().families():
+        if f in MONOSPACED_FONTS:
+            font = f
+    if not font:
+        raise SystemError("Pas de Font mono retrouvée")
+
+    para_name = f"{uuid.uuid4()}-equation"
+    auto_style = f"""<style:style style:name="{para_name}" style:family="paragraph" style:parent-style-name="Standard">
+    <style:text-properties style:font-name="{font}" fo:font-size="12pt"/>
+    </style:style>"""
+
+    res = (
+        f"""<text:p text:style-name="{para_name}">{escape(section.content)}</text:p>"""
+    )
+
+    return res, auto_style
+
+
 def build_body(page_id):
     tags = []
     automatic_res = []
@@ -833,6 +986,12 @@ def build_body(page_id):
         elif section.classtype == "DivisionSection":
             new_tags, automatic_tags_style = division_section(section)
 
+        elif section.classtype == "TableauSection":
+            new_tags, automatic_tags_style = tableau_section(section)
+
+        elif section.classtype == "EquationSection":
+            new_tags, automatic_tags_style = equation_section(section)
+
         if automatic_tags_style:
             automatic_res.append(automatic_tags_style)
 
@@ -842,7 +1001,7 @@ def build_body(page_id):
     tmpl = templates.get_template("body.xml")
     body = "\n".join(tags)
     return (
-        tmpl.render(titre=page.titre, body=body),
+        tmpl.render(titre=escape(page.titre), body=body),
         "\n".join(automatic_res),
     )
 
@@ -863,7 +1022,7 @@ def build_master_styles():
 
 
 @db_session
-def merge_all_xml(page_id):
+def build_odt(page_id):
     body, automatic_data = build_body(page_id)
     automatic_styles = build_automatic_styles(automatic_data)
     master_styles = build_master_styles()
@@ -876,20 +1035,32 @@ def merge_all_xml(page_id):
         master_styles=master_styles,
         styles=styles,
     )
-    output_html = Path("/tmp", "AAAAA" + ".fodt")
-    # output_html = Path("/tmp", uuid.uuid4().hex + ".fodt")
-    output_html.write_text(res)
-    return output_html
+    output = Path("/tmp", "AAAAA" + ".fodt")
+    # output = Path("/tmp", uuid.uuid4().hex + ".fodt")
+    output.write_text(res)
+    return output
 
 
-from package.database import init_database
-
-init_database()
-page = f_page()
+#
+# from package.database import init_database
+#
+# QGuiApplication([])
+# init_database()
+# page = f_page()
+#
+# eq = f_equationSection(page=page.id)
+#
 # sec = f_textSection(
 #     page=page.id,
-#     text="""<body><p><span>ligne normale</span></p><h1>titre</h1><h2>titre seconde</h2><p><span>debut de ligne </span><span style=" color:#ff0000;">rouge</span><span> suite de ligne</span></p><h3>titre seconde</h3><h4>titre seconde</h4><p><span>du</span><span style=" text-decoration:underline; color:#0048ba;"> style en fin </span><span>de </span><span style=" color:#800080;">lingne</span></p><p><span>debu</span><span style=" text-decoration:underline; color:#006a4e;">t de ligne </span><span style=" text-decoration:underline; color:#006a4e;">rou</span><span style=" color:#ff0000;">ge</span><span> suite de ligne</span></p></body>""",
+#     text="""<body><p><span>ligne\nnormale</span></p><h1>t   itre</h1><h2>titre seconde</h2><p><span>de but de ligne </span><span style=" color:#ff0000;">rou\tge</span><span> suite de ligne</span></p><h3>titre seconde</h3><h4>titre seconde</h4><p><span>du</span><span style=" text-decoration:underline; color:#0048ba;"> style en fin </span><span>de </span><span style=" color:#800080;">lingne</span></p><p><span>debu</span><span style=" text-decoration:underline; color:#006a4e;">t de ligne </span><span style=" text-decoration:underline; color:#006a4e;">rou</span><span style=" color:#ff0000;">ge</span><span> suite de ligne</span></p></body>""",
 # )
+#
+# f_equationSection(
+#     page=page.id,
+#     content=f"""1{TextEquation.FSP}            {TextEquation.FSP}12   1234
+# ―― + 13 + 3 + ――― + ―――― + 1
+# 15            234   789{TextEquation.FSP}    """,
+# ),
 # img = f_imageSection(page=page.id)
 # img = f_imageSection(page=page.id)
 # with db_session:
@@ -897,19 +1068,208 @@ page = f_page()
 #     aa._datas = json.dumps(
 #         ["", "2", "", "3", "", "2", "3", "4", "+", "1", "2", "3", "", "2", "3", "1",]
 #     )
-aa = f_additionSection(string="234,34+123,1", page=page.id)
-sous = f_soustractionSection(string="234-123", page=page.id)
+#
+# from PySide2.QtGui import QColor
+#
+# cells = [
+#     {
+#         "x": 0,
+#         "y": 0,
+#         "content": {
+#             "texte": "",
+#             "style": {
+#                 "family": "",
+#                 "underline": False,
+#                 "pointSize": None,
+#                 "strikeout": False,
+#                 "weight": None,
+#                 "bgColor": QColor.fromRgbF(1.000000, 0.498039, 0.498039, 1.000000),
+#                 "fgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 1.000000),
+#             },
+#         },
+#     },
+#     {
+#         "x": 0,
+#         "y": 1,
+#         "content": {
+#             "texte": "",
+#             "style": {
+#                 "family": "",
+#                 "underline": False,
+#                 "pointSize": None,
+#                 "strikeout": False,
+#                 "weight": None,
+#                 "bgColor": QColor.fromRgbF(1.000000, 0.498039, 0.498039, 1.000000),
+#                 "fgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 1.000000),
+#             },
+#         },
+#     },
+#     {
+#         "x": 0,
+#         "y": 2,
+#         "content": {
+#             "texte": "",
+#             "style": {
+#                 "family": "",
+#                 "underline": False,
+#                 "pointSize": None,
+#                 "strikeout": False,
+#                 "weight": None,
+#                 "bgColor": QColor.fromRgbF(1.000000, 0.498039, 0.498039, 1.000000),
+#                 "fgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 1.000000),
+#             },
+#         },
+#     },
+#     {
+#         "x": 0,
+#         "y": 3,
+#         "content": {
+#             "texte": "",
+#             "style": {
+#                 "family": "",
+#                 "underline": False,
+#                 "pointSize": None,
+#                 "strikeout": False,
+#                 "weight": None,
+#                 "bgColor": QColor.fromRgbF(1.000000, 0.498039, 0.498039, 1.000000),
+#                 "fgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 1.000000),
+#             },
+#         },
+#     },
+#     {
+#         "x": 1,
+#         "y": 1,
+#         "content": {
+#             "texte": "fze",
+#             "style": {
+#                 "family": "",
+#                 "underline": False,
+#                 "pointSize": 36.0,
+#                 "strikeout": False,
+#                 "weight": None,
+#                 "bgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 0.000000),
+#                 "fgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 1.000000),
+#             },
+#         },
+#     },
+#     {
+#         "x": 1,
+#         "y": 0,
+#         "content": {
+#             "texte": "fezf",
+#             "style": {
+#                 "family": "",
+#                 "underline": True,
+#                 "pointSize": None,
+#                 "strikeout": False,
+#                 "weight": None,
+#                 "bgColor": QColor.fromRgbF(0.498039, 0.498039, 1.000000, 1.000000),
+#                 "fgColor": QColor.fromRgbF(0.000000, 0.501961, 0.000000, 1.000000),
+#             },
+#         },
+#     },
+#     {
+#         "x": 1,
+#         "y": 3,
+#         "content": {
+#             "texte": "ezf",
+#             "style": {
+#                 "family": "",
+#                 "underline": False,
+#                 "pointSize": 6.0,
+#                 "strikeout": False,
+#                 "weight": None,
+#                 "bgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 0.000000),
+#                 "fgColor": QColor.fromRgbF(1.000000, 0.000000, 0.000000, 1.000000),
+#             },
+#         },
+#     },
+#     {
+#         "x": 2,
+#         "y": 0,
+#         "content": {
+#             "texte": "",
+#             "style": {
+#                 "family": "",
+#                 "underline": False,
+#                 "pointSize": None,
+#                 "strikeout": False,
+#                 "weight": None,
+#                 "bgColor": QColor.fromRgbF(0.498039, 0.498039, 1.000000, 1.000000),
+#                 "fgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 1.000000),
+#             },
+#         },
+#     },
+#     {
+#         "x": 2,
+#         "y": 2,
+#         "content": {
+#             "texte": "fzefzef\nzefzefzef",
+#             "style": {
+#                 "family": "",
+#                 "underline": True,
+#                 "pointSize": None,
+#                 "strikeout": False,
+#                 "weight": None,
+#                 "bgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 0.000000),
+#                 "fgColor": QColor.fromRgbF(1.000000, 0.000000, 0.000000, 1.000000),
+#             },
+#         },
+#     },
+#     {
+#         "x": 2,
+#         "y": 3,
+#         "content": {
+#             "texte": "fz   efzefze\tfzef",
+#             "style": {
+#                 "family": "",
+#                 "underline": True,
+#                 "pointSize": None,
+#                 "strikeout": False,
+#                 "weight": None,
+#                 "bgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 0.000000),
+#                 "fgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 1.000000),
+#             },
+#         },
+#     },
+#     {
+#         "x": 4,
+#         "y": 4,
+#         "content": {
+#             "texte": "fzefzefefzefezf",
+#             "style": {
+#                 "family": "",
+#                 "underline": True,
+#                 "pointSize": None,
+#                 "strikeout": False,
+#                 "weight": None,
+#                 "bgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 0.000000),
+#                 "fgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 1.000000),
+#             },
+#         },
+#     },
+# ]
+# from package.database import db
+#
+# with db_session:
+#     t = f_tableauSection(lignes=5, colonnes=7, page=page.id)
+#     t.flush()
+#     for c in cells:
+#         db.TableauCell[t.id, c["y"], c["x"]].set(**c["content"])
+#
+# aa = f_additionSection(string="234,34+123,1", page=page.id)
+# sous = f_soustractionSection(string="234-123", page=page.id)
 # f_soustractionSection("1234253-342545", page=page.id)
 # sous = f_soustractionSection(string="234,23-123,1", page=page.id)
 #
-mul = f_multiplicationSection(string="234*123", page=page.id)
+# mul = f_multiplicationSection(string="234*123", page=page.id)
 # mul = f_multiplicationSection(string="234,23*123,234", page=page.id)
-
-with db_session:
-    dd = f_divisionSection(string="34555/23", page=page.id)
-    dd.quotient = "234"
-
-res = merge_all_xml(page.id)
-import subprocess
-
-subprocess.run(["xdg-open", str(res)])
+#
+# with db_session:
+#     dd = f_divisionSection(string="34555/23", page=page.id)
+#     dd.quotient = "234"
+#
+# res = merge_all_xml(page.id)
+# import subprocess
+#
+# subprocess.run(["xdg-open", str(res)])

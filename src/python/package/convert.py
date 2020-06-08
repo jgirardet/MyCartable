@@ -36,6 +36,7 @@ from package.database.factory import (
     f_additionSection,
     f_soustractionSection,
     f_multiplicationSection,
+    f_divisionSection,
 )
 from package.database.sections import (
     ImageSection,
@@ -430,6 +431,7 @@ def addition_retenue_style_paragraph(table_style_name):
 def addition_base_style_paragraph(table_style_name):
     style_name = f"{table_style_name}_p_base"
     res = f"""<style:style style:name="{style_name}" style:family="paragraph" style:parent-style-name="Standard">
+    <style:text-properties  fo:font-size="12pt"/>
    <style:paragraph-properties fo:text-align="center"/>
    </style:style>"""
     return style_name, res
@@ -510,8 +512,8 @@ def addition_section(section):
 def soustraction_retenue_gauche_style_paragraph(table_style_name):
     style_name = f"{table_style_name}_p_retenue_gauche"
     res = f"""<style:style style:name="{style_name}" style:family="paragraph" style:parent-style-name="Standard">
+   <style:text-properties fo:font-size="12pt" fo:color="#D40020" style:text-position="sub 66%"/>
    <style:paragraph-properties fo:text-align="right"/>
-   <style:text-properties fo:color="#D40020" style:text-position="sub 66%"/>
    </style:style>"""
     return style_name, res
 
@@ -519,8 +521,8 @@ def soustraction_retenue_gauche_style_paragraph(table_style_name):
 def soustraction_retenue_droite_style_paragraph(table_style_name):
     style_name = f"{table_style_name}_p_retenue_droite"
     res = f"""<style:style style:name="{style_name}" style:family="paragraph" style:parent-style-name="Standard">
+   <style:text-properties fo:color="#D40020"  fo:font-size="12pt" style:text-position="sub 66%"/>
    <style:paragraph-properties fo:text-align="left"/>
-   <style:text-properties fo:color="#D40020" style:text-position="sub 66%"/>
    </style:style>"""
     return style_name, res
 
@@ -571,7 +573,7 @@ def soustraction_section(section):
 
         for c in range(section.columns):
             if not section.virgule:
-                modulo = modulo = (c - 2) % 3
+                modulo = (c - 2) % 3
             else:
                 modulo = (
                     (c - 2) % 3
@@ -655,6 +657,157 @@ def multiplication_section(section):
     return "\n".join(res), "\n".join(automatic_res)
 
 
+def divsion_table_style(section, cell_width, droite_width):
+    total = section.columns * cell_width + droite_width
+    style_name = f"division-table-{uuid.uuid4()}"
+    res = f"""<style:style style:name="{style_name}" style:family="table">
+        <style:table-properties style:width="{total}cm" 
+        table:align="left" style:may-break-between-rows="false"/>
+      </style:style>"""
+    return style_name, res
+
+
+def division_table_style_column_dividende(section, table_style_name, cell_width):
+    style_name = f"{table_style_name}.Dividende"
+    total = section.columns * cell_width
+    res = f"""<style:style style:name="{style_name}" style:family="table-column">
+    <style:table-column-properties style:column-width="{total}cm"/>
+    </style:style>"""
+    return style_name, res
+
+
+def division_table_style_column_droite(table_style_name, droite_width):
+    style_name = f"{table_style_name}.Droite"
+    res = f"""<style:style style:name="{style_name}" style:family="table-column">
+    <style:table-column-properties style:column-width="{droite_width}cm"/>
+    </style:style>"""
+    return style_name, res
+
+
+def division_dividende_style(table_style_name):
+    style_name = f"{table_style_name}.CellDividende"
+    res = f"""<style:style style:name="{style_name}" style:family="table-cell">
+   <style:table-cell-properties fo:padding="0.097cm" fo:border-left="none" fo:border-top="none" fo:border-right="2pt solid #000000" fo:border-bottom="none"/>
+  </style:style>"""
+    return style_name, res
+
+
+def division_section(section):
+    res = []
+    automatic_res = []
+
+    # style de la structure générale
+    cell_width = 0.35
+    droite_width = 4
+    table_division_name_base, automatic_style = divsion_table_style(
+        section, cell_width, droite_width
+    )
+    automatic_res.append(automatic_style)
+    dividende_style_name, automatic_style = division_table_style_column_dividende(
+        section, table_division_name_base, cell_width
+    )
+    automatic_res.append(automatic_style)
+    droite_style_name, automatic_style = division_table_style_column_droite(
+        table_division_name_base, droite_width
+    )
+    automatic_res.append(automatic_style)
+    base_style_name, automatic_style = addition_base_style(table_division_name_base)
+    automatic_res.append(automatic_style)
+    total_style_name, automatic_style = addition_total_style(table_division_name_base)
+    automatic_res.append(automatic_style)
+    dividende_style, automatic_style = division_dividende_style(
+        table_division_name_base
+    )
+    automatic_res.append(automatic_style)
+
+    # style du tableau dividende
+    table_style_name, automatic_style = operation_table_style(section, cell_width)
+    automatic_res.append(automatic_style)
+    column_style_name, automatic_style = operation_table_style_column(
+        table_style_name, cell_width
+    )
+    automatic_res.append(automatic_style)
+    row_style_name, automatic_style = operation_table_style_row(table_style_name)
+    automatic_res.append(automatic_style)
+    addition_base_style_name, automatic_style = addition_base_style_paragraph(
+        table_style_name
+    )
+    automatic_res.append(automatic_style)
+    # addition_total_style_name, automatic_style = addition_total_style(table_style_name)
+    # automatic_res.append(automatic_style)
+    (
+        soustraction_retenue_gauche_style_name,
+        automatic_style,
+    ) = soustraction_retenue_gauche_style_paragraph(table_style_name)
+    automatic_res.append(automatic_style)
+    (
+        soustraction_retenue_droite_style_name,
+        automatic_style,
+    ) = soustraction_retenue_droite_style_paragraph(table_style_name)
+    automatic_res.append(automatic_style)
+
+    # debut de structure générale
+    res.append(
+        f"""<table:table table:name="{uuid.uuid4()}" table:style-name="{table_division_name_base}">
+    <table:table-column table:style-name="{dividende_style_name}"/>
+    <table:table-column table:style-name="{droite_style_name}"/>
+    <table:table-row>
+     <table:table-cell table:style-name="{dividende_style}" table:number-rows-spanned="2" office:value-type="string">"""
+    )
+
+    # creation du tableau dividende
+    res.append(
+        f"""<table:table table:name="{uuid.uuid4()}" table:style-name="{table_style_name}">
+            <table:table-column table:style-name="{column_style_name}" table:number-columns-repeated="{section.columns}"/>"""
+    )
+    for l in range(section.rows):
+        lignes = [f"""<table:table-row  table:style-name="{row_style_name}">"""]
+        if l and not l % 2:
+            cell_style = total_style_name
+        else:
+            cell_style = addition_base_style_name
+        # format_cell_style = (
+        #     addition_retenue_style_name
+        #     if l < section.n_chiffres or l == section.rows - 2
+        #     else addition_base_style_name_paragraph
+        # )
+
+        for c in range(section.columns):
+            modulo = c % 3
+            if modulo == 1:
+                format_cell_style = addition_base_style_name
+            elif modulo == 2:
+                format_cell_style = soustraction_retenue_droite_style_name
+            else:
+                format_cell_style = soustraction_retenue_gauche_style_name
+            index = l * section.columns + c
+            cell = f"""<table:table-cell table:style-name="{cell_style}" office:value-type="string">
+                  <text:p text:style-name="{format_cell_style}">{section.datas[index]}</text:p>
+                 </table:table-cell>"""
+            lignes.append(cell)
+        lignes.append("""</table:table-row>""")
+        res.append("\n".join(lignes))
+    res.append("""</table:table>""")
+
+    # fin de la structure générale
+    res.append(
+        f"""</table:table-cell>
+     <table:table-cell table:style-name="{base_style_name}" office:value-type="string">
+      <text:p text:style-name="{addition_base_style_name}">{section.diviseur}</text:p>
+     </table:table-cell>
+    </table:table-row>
+    <table:table-row>
+     <table:covered-table-cell/>
+     <table:table-cell table:style-name="{total_style_name}" office:value-type="string">
+      <text:p text:style-name="{addition_base_style_name}">{section.quotient}</text:p>
+     </table:table-cell>
+    </table:table-row>
+   </table:table>"""
+    )
+
+    return "\n".join(res), "\n".join(automatic_res)
+
+
 def build_body(page_id):
     tags = []
     automatic_res = []
@@ -676,6 +829,9 @@ def build_body(page_id):
 
         elif section.classtype == "MultiplicationSection":
             new_tags, automatic_tags_style = multiplication_section(section)
+
+        elif section.classtype == "DivisionSection":
+            new_tags, automatic_tags_style = division_section(section)
 
         if automatic_tags_style:
             automatic_res.append(automatic_tags_style)
@@ -736,18 +892,22 @@ page = f_page()
 # )
 # img = f_imageSection(page=page.id)
 # img = f_imageSection(page=page.id)
-with db_session:
-    aa = f_additionSection(string="234+123", page=page.id)
-    aa._datas = json.dumps(
-        ["", "2", "", "3", "", "2", "3", "4", "+", "1", "2", "3", "", "2", "3", "1",]
-    )
+# with db_session:
+#     aa = f_additionSection(string="234+123", page=page.id)
+#     aa._datas = json.dumps(
+#         ["", "2", "", "3", "", "2", "3", "4", "+", "1", "2", "3", "", "2", "3", "1",]
+#     )
 aa = f_additionSection(string="234,34+123,1", page=page.id)
 sous = f_soustractionSection(string="234-123", page=page.id)
-f_soustractionSection("1234253-342545", page=page.id)
-sous = f_soustractionSection(string="234,23-123,1", page=page.id)
-
+# f_soustractionSection("1234253-342545", page=page.id)
+# sous = f_soustractionSection(string="234,23-123,1", page=page.id)
+#
 mul = f_multiplicationSection(string="234*123", page=page.id)
-mul = f_multiplicationSection(string="234,23*123,234", page=page.id)
+# mul = f_multiplicationSection(string="234,23*123,234", page=page.id)
+
+with db_session:
+    dd = f_divisionSection(string="34555/23", page=page.id)
+    dd.quotient = "234"
 
 res = merge_all_xml(page.id)
 import subprocess

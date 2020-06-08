@@ -387,7 +387,7 @@ def image_section(section_e):
                 </draw:image>
             </draw:frame>
         </text:p>"""
-    return res
+    return res, ""
 
 
 def operation_table_style(section, cell_width=1):
@@ -600,25 +600,86 @@ def soustraction_section(section):
     return "\n".join(res), "\n".join(automatic_res)
 
 
+def multiplication_section(section):
+    res = []
+    automatic_res = []
+    table_style_name, automatic_style = operation_table_style(section)
+    automatic_res.append(automatic_style)
+    column_style_name, automatic_style = operation_table_style_column(table_style_name)
+    automatic_res.append(automatic_style)
+    row_style_name, automatic_style = operation_table_style_row(table_style_name)
+    automatic_res.append(automatic_style)
+    addition_base_style_name, automatic_style = addition_base_style(table_style_name)
+    automatic_res.append(automatic_style)
+    addition_total_style_name, automatic_style = addition_total_style(table_style_name)
+    automatic_res.append(automatic_style)
+    addition_retenue_style_name, automatic_style = addition_retenue_style_paragraph(
+        table_style_name
+    )
+    automatic_res.append(automatic_style)
+    (
+        addition_base_style_name_paragraph,
+        automatic_style,
+    ) = addition_base_style_paragraph(table_style_name)
+    automatic_res.append(automatic_style)
+
+    res.append(
+        f"""<table:table table:name="{uuid.uuid4()}" table:style-name="{table_style_name}">
+        <table:table-column table:style-name="{column_style_name}" table:number-columns-repeated="{section.columns}"/>"""
+    )
+
+    for l in range(section.rows):
+        lignes = [f"""<table:table-row  table:style-name="{row_style_name}">"""]
+        if l == section.rows - 1 or l == section.n_chiffres + 2:
+            cell_style = addition_total_style_name
+        else:
+            cell_style = addition_base_style_name
+
+        format_cell_style = (
+            addition_retenue_style_name
+            if l < section.n_chiffres or l == section.rows - 2
+            else addition_base_style_name_paragraph
+        )
+
+        for c in range(section.columns):
+            index = l * section.columns + c
+            cell = f"""<table:table-cell table:style-name="{cell_style}" office:value-type="string">
+                  <text:p text:style-name="{format_cell_style}">{section.datas[index]}</text:p>
+                 </table:table-cell>"""
+            lignes.append(cell)
+        lignes.append("""</table:table-row>""")
+        res.append("\n".join(lignes))
+
+    res.append("""</table:table>""")
+
+    return "\n".join(res), "\n".join(automatic_res)
+
+
 def build_body(page_id):
     tags = []
     automatic_res = []
     page = Page[page_id]
     for section in page.content:
         new_tags = ""
+        automatic_tags_style = ""
         if section.classtype == "TextSection":
             new_tags, automatic_tags_style = text_section(section)
-            automatic_res.append(automatic_tags_style)
 
         elif section.classtype == "ImageSection":
-            new_tags = image_section(section)
+            new_tags, automatic_tags_style = image_section(section)
 
         elif section.classtype == "AdditionSection":
             new_tags, automatic_tags_style = addition_section(section)
-            automatic_res.append(automatic_tags_style)
+
         elif section.classtype == "SoustractionSection":
             new_tags, automatic_tags_style = soustraction_section(section)
+
+        elif section.classtype == "MultiplicationSection":
+            new_tags, automatic_tags_style = multiplication_section(section)
+
+        if automatic_tags_style:
             automatic_res.append(automatic_tags_style)
+
         if new_tags:
             tags.append(new_tags)
             tags.append(f"""<text:p text:style-name="Standard"/>""")
@@ -686,6 +747,7 @@ f_soustractionSection("1234253-342545", page=page.id)
 sous = f_soustractionSection(string="234,23-123,1", page=page.id)
 
 mul = f_multiplicationSection(string="234*123", page=page.id)
+mul = f_multiplicationSection(string="234,23*123,234", page=page.id)
 
 res = merge_all_xml(page.id)
 import subprocess

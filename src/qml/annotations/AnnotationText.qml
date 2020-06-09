@@ -100,7 +100,6 @@ TextArea {
 }
 
   onTextChanged: {
-
          edit= {"id": annot.id, "text":text}
   }
 

@@ -373,7 +373,7 @@ class Annotation(db.Entity):
 
 
 class AnnotationText(Annotation):
-    text = Optional(str)
+    text = Optional(str, autostrip=False)
     #
     # def to_dict(self, **kwargs):
     #     dico = super().to_dict(exclude=["style"], **kwargs)

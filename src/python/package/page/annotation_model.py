@@ -161,4 +161,4 @@ class AnnotationModel(QAbstractListModel):
             item = self.db.AnnotationText(
                 x=x / width, y=y / height, section=self.section.id
             )
-            self.insertRow(self.count)
+        self.insertRow(self.count)

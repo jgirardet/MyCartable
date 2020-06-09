@@ -29,7 +29,7 @@ TextArea {
       return
     }
     // attention on stock fontSizeFactor dans du pointSize :le nom dans la ddb est nul :-)
-    var res = ddb.setStyle(annot.sytleId, {
+    var res = ddb.setStyle(annot.styleId, {
       "pointSize": root.fontSizeFactor //uiManager.annotationCurrentTextSizeFactor
     })
     uiManager.annotationCurrentTextSizeFactor = root.fontSizeFactor
@@ -100,7 +100,6 @@ TextArea {
 }
 
   onTextChanged: {
-
          edit= {"id": annot.id, "text":text}
   }
 

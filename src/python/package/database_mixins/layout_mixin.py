@@ -30,7 +30,6 @@ class LayoutMixin:
                 LOG.error(f"Echec de la mise à jour du style : {err}")
                 return
             res = item.to_dict()
-            print(res)
             return res
 
     ColorChanged = Signal()

@@ -1,5 +1,6 @@
 import json
 import os
+import subprocess
 import tempfile
 import uuid
 from io import StringIO
@@ -54,7 +55,7 @@ from package.database.sections import (
     TableauCell,
 )
 from package.database.structure import Page
-from package.files_path import FILES
+from package.files_path import FILES, TMP
 from package.operations.equation import TextEquation
 from package.utils import read_qrc
 from pony.orm import Set, db_session
@@ -1035,10 +1036,25 @@ def build_odt(page_id):
         master_styles=master_styles,
         styles=styles,
     )
-    output = Path("/tmp", "AAAAA" + ".fodt")
+    # output = Path("/tmp", "AAAAA" + ".fodt")
     # output = Path("/tmp", uuid.uuid4().hex + ".fodt")
-    output.write_text(res)
-    return output
+    # output.write_text(res)
+    return res
+
+
+def soffice_convert(page_id, format, new_filename):
+    res = build_odt(page_id)
+    ext = "." + format.split(":")[0]
+    with tempfile.NamedTemporaryFile(mode="wt", dir=TMP) as f:
+        f.write(res)
+        subprocess.run(
+            ["soffice", "--headless", "--convert-to", format, f.name], cwd=TMP,
+        )
+        p = Path(f.name)
+        converted = p.parent / (p.stem + ext)
+        new_path = Path(p.parent, new_filename)
+        converted.rename(new_path)
+        return new_path
 
 
 #

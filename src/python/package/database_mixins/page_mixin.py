@@ -1,3 +1,4 @@
+import re
 import subprocess
 import tempfile
 import uuid
@@ -9,7 +10,7 @@ from PySide2.QtCore import Slot, Signal, Property, QObject, QMarginsF
 from PySide2.QtGui import QTextDocument
 from PySide2.QtPrintSupport import QPrinter
 from package.constantes import TITRE_TIMER_DELAY
-from package.convert import convert_page_to_html, build_odt
+from package.convert import convert_page_to_html, build_odt, soffice_convert
 from package.files_path import TMP
 from package.utils import create_singleshot, read_qrc
 from pony.orm import db_session, make_proxy
@@ -122,11 +123,21 @@ class PageMixin:
 
     @Slot()
     def exportToPDF(self):
-        tmpdir = tempfile.mkdtemp()
-        res = convert_page_to_html(self.currentPage, tmpdir)
-        webbrowser.open(res.as_uri())
+
+        filename = self.escaped_filename(self.currentTitre, ".pdf")
+        pdf = soffice_convert(self.currentPage, "pdf:writer_pdf_Export", filename)
+        subprocess.run(f"xdg-open {pdf}".split())
+
+    @staticmethod
+    def escaped_filename(nom, ext):
+        temp = re.sub(r"[\s]", "_", nom.encode("ascii", "ignore").decode("ascii"))
+        return re.sub(r"[\W]", "", temp) + ext
 
     @Slot()
     def exportToOdt(self):
-        res = build_odt(self.currentPage)
+        filename = self.escaped_filename(self.currentTitre, ".odt")
+        pdf = soffice_convert(self.currentPage, "odt", filename)
+        subprocess.run(f"xdg-open {pdf}".split())
+        # """soffice --headless --convert-to pdf:writer_pdf_Export """
+
         # runx([""])

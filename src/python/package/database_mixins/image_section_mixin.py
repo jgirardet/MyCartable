@@ -20,15 +20,17 @@ class ImageSectionMixin:
 
     imageChanged = Signal()
 
-    @Slot("QVariantMap", result="QVariantList")
-    def addAnnotation(self, content):
-        with db_session:
-            section = int(content.pop("section"))
-            item = getattr(self.db, content["classtype"])(**content, section=section)
-            dico = item.to_dict()
-            style = dico.pop("style")
-            return [dico, style]
-        # ne pas emetre imageChanged ici, sinon emet pour empty trucs
+    # @Slot("QVariantMap", result="QVariantList")
+    # def addAnnotation(self, content):
+    #     with db_session:
+    #         section = int(content.pop("section"))
+    #         item = getattr(self.db, content["classtype"])(**content, section=section)
+    #         dico = item.to_dict()
+    #         style = dico.pop("style")
+    #         # style.flush()
+    #         print(style)
+    #         return [dico, style]
+    # ne pas emetre imageChanged ici, sinon emet pour empty trucs
 
     @Slot(int)
     def deleteAnnotation(self, annotation_id):

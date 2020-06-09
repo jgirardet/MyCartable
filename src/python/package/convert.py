@@ -1,10 +1,9 @@
-import json
 import os
+import re
 import subprocess
 import tempfile
 import uuid
 from io import StringIO
-from operator import attrgetter, methodcaller
 from subprocess import run, CalledProcessError
 
 from pathlib import Path
@@ -13,40 +12,22 @@ import logging
 
 from PySide2.QtCore import (
     QDir,
-    QRectF,
-    Qt,
     QPoint,
     QRect,
     QStandardPaths,
-    QLine,
-    QSize,
     QBuffer,
 )
 from PySide2.QtGui import (
     QImage,
     QPainter,
     QColor,
-    QBrush,
     QFontDatabase,
-    QGuiApplication,
 )
 from bs4 import NavigableString, BeautifulSoup
 from mako.lookup import TemplateLookup
 from mako.runtime import Context
 from package import DATA, BINARY
 from package.constantes import BASE_FONT, ANNOTATION_TEXT_BG_OPACITY, MONOSPACED_FONTS
-from package.database.factory import (
-    f_section,
-    f_textSection,
-    f_page,
-    f_imageSection,
-    f_additionSection,
-    f_soustractionSection,
-    f_multiplicationSection,
-    f_divisionSection,
-    f_tableauSection,
-    f_equationSection,
-)
 from package.database.sections import (
     ImageSection,
     TableauSection,
@@ -57,7 +38,7 @@ from package.database.sections import (
 from package.database.structure import Page
 from package.files_path import FILES, TMP
 from package.operations.equation import TextEquation
-from package.utils import read_qrc
+from package.utils import read_qrc, LINUX, WIN
 from pony.orm import Set, db_session
 
 LOG = logging.getLogger(__name__)
@@ -110,11 +91,6 @@ def run_convert_pdf(pdf, png_root, prefix="xxx", resolution=200, timeout=30):
     return files
 
 
-class LibreOfficeConverter:
-    def __init__(self):
-        pass
-
-
 def create_lookup():
     lookup = TemplateLookup()
     for file in QDir(":/templates").entryInfoList():
@@ -129,8 +105,6 @@ def create_context_var(section_id, tmpdir):
     page = Page[section_id].to_dict()
     sections = []
     for sec in Page[section_id].content:
-        # print(section)
-        # breakpoint()
         section = sec.to_dict()
         if section["classtype"] == "ImageSection":
             path = create_images_with_annotation(section, tmpdir)
@@ -165,33 +139,6 @@ def create_context_var(section_id, tmpdir):
         sections.append(section)
     css = read_qrc(":/css/export.css")
     return {"page": page, "sections": sections, "css": css}
-
-
-@db_session
-def convert_page_to_html(section_id, tmpdir):
-    QStandardPaths.writableLocation(QStandardPaths.AppDataLocation)
-    main_page = templates.get_template("base.html")
-    context_vars = create_context_var(section_id, tmpdir)
-    # print(context_vars)
-    buf = StringIO()
-    ctx = Context(buf, **context_vars)
-    main_page.render_context(context=ctx)
-    output_html = Path(tmpdir, uuid.uuid4().hex + ".html")
-    output_html.write_text(buf.getvalue())
-    return output_html
-
-
-@db_session
-def convert_page_to_odt(section_id, tmpdir):
-    QStandardPaths.writableLocation(QStandardPaths.AppDataLocation)
-    main_page = templates.get_template("base.fodt")
-    context_vars = create_context_var(section_id, tmpdir)
-    buf = StringIO()
-    ctx = Context(buf, **context_vars)
-    main_page.render_context(context=ctx)
-    output_html = Path(tmpdir, uuid.uuid4().hex + ".fodt")
-    output_html.write_text(buf.getvalue())
-    return output_html
 
 
 def create_images_with_annotation(image_section, tmpdir=None):
@@ -311,9 +258,6 @@ def draw_annotation_text(annotation: dict, image: QImage, painter: QPainter):
 
 
 def escape(text):
-    """<text:tab> elements for '\t',
-            <text:line-break> elements for '\n', and
-            <text:s> elements for runs of more than one blank."""
     tab = "<text:tab/>"
     lb = "<text:line-break/>"
     sp = "<text:s/>"
@@ -332,13 +276,11 @@ def new_automatic_text(style_str):
                 res
                 + f''' style:text-underline-style="solid" style:text-underline-width="auto" style:text-underline-color="font-color"'''
             )
-            # new_prop.setAttribute("textunderlinestyle", "solid")
     res = res + """/></style:style>"""
     return style_name, res
 
 
 def span_text(value: NavigableString):
-    # for member in value.split(";")[:-1]:
     style_str = value.attrs.get("style", None)
     new_style = None
     if style_str:
@@ -851,7 +793,7 @@ def create_cell(cell, table_style_name):
     new_cell = f"""<table:table-cell table:style-name="{style_name}" office:value-type="string">
                   <text:p text:style-name="{para_name}">{escape(cell.texte)}</text:p>
                  </table:table-cell>"""
-    cell_width = len(cell.texte) * fontsize / 28.34646 / 1.55 or 0.1
+    cell_width = len(cell.texte) * fontsize / 28.34646 / 1.55 or 0.4
     cell_height = (1 + cell.texte.count("\n")) * fontsize / 28.34646 or 2
     return new_cell, auto_style_cell, auto_style_paragraph, cell_width, cell_height
 
@@ -1036,19 +978,48 @@ def build_odt(page_id):
         master_styles=master_styles,
         styles=styles,
     )
-    # output = Path("/tmp", "AAAAA" + ".fodt")
-    # output = Path("/tmp", uuid.uuid4().hex + ".fodt")
-    # output.write_text(res)
     return res
 
 
-def soffice_convert(page_id, format, new_filename):
+def find_soffice(ui=None):
+    if LINUX:
+        if Path("/usr/bin/soffice").is_file():
+            return "/usr/bin/soffice"
+        else:
+            res = (
+                subprocess.run(["which", "soffice"], capture_output=True,)
+                .stdout.decode()
+                .strip()
+            )
+            if res:
+                return res
+    if WIN:
+        if Path("C:\\Program Files\\LibreOffice\\program\\soffice.exe").is_file():
+            return "C:\\Program Files\\LibreOffice\\program\\soffice.exe"
+        else:
+            res = (
+                subprocess.run(
+                    ["where", "/R", os.environ.get("PROGRAMFILES", ""), "soffice.exe"],
+                    capture_output=True,
+                )
+                .stdout.decode()
+                .strip()
+            )
+            if res:
+                return res
+    if ui:
+        ui.sendToast.emit("Libreoffice non trouvé sur le système")
+    raise EnvironmentError("Libreoffice non trouvé")
+
+
+def soffice_convert(page_id, format, new_filename, ui=None):
     res = build_odt(page_id)
     ext = "." + format.split(":")[0]
+    soffice = find_soffice(ui)
     with tempfile.NamedTemporaryFile(mode="wt", dir=TMP) as f:
         f.write(res)
         subprocess.run(
-            ["soffice", "--headless", "--convert-to", format, f.name], cwd=TMP,
+            [soffice, "--headless", "--convert-to", format, f.name], cwd=TMP,
         )
         p = Path(f.name)
         converted = p.parent / (p.stem + ext)
@@ -1057,9 +1028,24 @@ def soffice_convert(page_id, format, new_filename):
         return new_path
 
 
+def escaped_filename(nom, ext):
+    nom = (
+        nom.replace("é", "e")
+        .replace("è", "e")
+        .replace("à", "a")
+        .replace("ê", "e")
+        .replace("â", "a")
+        .replace("ç", "c")
+        .replace("ù", "u")
+        .replace("ù", "u")
+    )
+    temp = re.sub(r"[\s]", "_", nom.encode("ascii", "ignore").decode("ascii"))
+    return re.sub(r"[\W]", "", temp) + ext
+
+
 #
 # from package.database import init_database
-#
+
 # QGuiApplication([])
 # init_database()
 # page = f_page()

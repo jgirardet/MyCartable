@@ -1,18 +1,10 @@
-import re
-import subprocess
-import tempfile
-import uuid
-import webbrowser
 from functools import partial
-from pathlib import Path
 
-from PySide2.QtCore import Slot, Signal, Property, QObject, QMarginsF
-from PySide2.QtGui import QTextDocument
-from PySide2.QtPrintSupport import QPrinter
+from PySide2.QtCore import Slot, Signal, Property, QObject
+from PySide2.QtGui import QDesktopServices
 from package.constantes import TITRE_TIMER_DELAY
-from package.convert import convert_page_to_html, build_odt, soffice_convert
-from package.files_path import TMP
-from package.utils import create_singleshot, read_qrc
+from package.convert import soffice_convert, escaped_filename
+from package.utils import create_singleshot
 from pony.orm import db_session, make_proxy
 import logging
 
@@ -124,20 +116,14 @@ class PageMixin:
     @Slot()
     def exportToPDF(self):
 
-        filename = self.escaped_filename(self.currentTitre, ".pdf")
-        pdf = soffice_convert(self.currentPage, "pdf:writer_pdf_Export", filename)
-        subprocess.run(f"xdg-open {pdf}".split())
-
-    @staticmethod
-    def escaped_filename(nom, ext):
-        temp = re.sub(r"[\s]", "_", nom.encode("ascii", "ignore").decode("ascii"))
-        return re.sub(r"[\W]", "", temp) + ext
+        filename = escaped_filename(self.currentTitre, ".pdf")
+        new_file = soffice_convert(
+            self.currentPage, "pdf:writer_pdf_Export", filename, self.ui
+        )
+        QDesktopServices.openUrl(new_file.as_uri())
 
     @Slot()
     def exportToOdt(self):
-        filename = self.escaped_filename(self.currentTitre, ".odt")
-        pdf = soffice_convert(self.currentPage, "odt", filename)
-        subprocess.run(f"xdg-open {pdf}".split())
-        # """soffice --headless --convert-to pdf:writer_pdf_Export """
-
-        # runx([""])
+        filename = escaped_filename(self.currentTitre, ".odt")
+        new_file = soffice_convert(self.currentPage, "odt", filename, self.ui)
+        QDesktopServices.openUrl(new_file.as_uri())

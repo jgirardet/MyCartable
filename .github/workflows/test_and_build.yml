@@ -74,11 +74,13 @@ jobs:
       if: runner.os == 'Windows'
       shell: cmd
       run: python run.py test_binary_as_dir
+    - name: zip dist
+      run: python -m zipfile -c MyCartable-${{runner.os}}64.zip dist/MyCartable/.
     - name: upload  on ${{ matrix.os }} binary in artifact
       uses: actions/upload-artifact@v1
       with:
-        path: dist/MyCartable
-        name: MyCartable-${{runner.os}}64
+        path: MyCartable-${{runner.os}}64.zip
+        name: MyCartable-${{runner.os}}64.zip
 
 
     - name: Release
@@ -87,7 +89,7 @@ jobs:
       env:
         GHR_COMPRESS: zip
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        GHR_PATH: build/
+        GHR_PATH: MyCartable-${{runner.os}}64.zip
 #  Deploy:
 #    - name: release github
 #      needs: TestAndBuild

@@ -3,9 +3,7 @@ from unittest.mock import MagicMock
 import pytest
 from PySide2.QtCore import QObject
 from PySide2.QtGui import QTextDocument, QTextCursor, QColor
-from fixtures import is_blockFormat
 from package.database.factory import f_textSection
-from package.page.blockFormat import BlockFormats
 
 # from package.page.text_section import DocumentEditor, RE_AUTOPARAGRAPH
 from bs4 import BeautifulSoup

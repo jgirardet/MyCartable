@@ -67,7 +67,7 @@
          Layout.fillWidth: true
          selectByMouse: true
          text: modelData.texte
-         font.pointSize: modelData.style.pointSize ? modelData.style.pointSize : 14
+         font.pointSize: modelData.style.pointSize ? modelData.style.pointSize : 14 // à changer aussi dans convert
          font.underline: modelData.style.underline
          color: modelData.style.fgColor
 

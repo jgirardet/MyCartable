@@ -1,17 +1,10 @@
-import subprocess
-import tempfile
-import uuid
-import webbrowser
 from functools import partial
-from pathlib import Path
 
-from PySide2.QtCore import Slot, Signal, Property, QObject, QMarginsF
-from PySide2.QtGui import QTextDocument
-from PySide2.QtPrintSupport import QPrinter
+from PySide2.QtCore import Slot, Signal, Property, QObject
+from PySide2.QtGui import QDesktopServices
 from package.constantes import TITRE_TIMER_DELAY
-from package.convert import convert_page_to_html
-from package.files_path import TMP
-from package.utils import create_singleshot, read_qrc
+from package.convert import soffice_convert, escaped_filename
+from package.utils import create_singleshot
 from pony.orm import db_session, make_proxy
 import logging
 
@@ -122,28 +115,15 @@ class PageMixin:
 
     @Slot()
     def exportToPDF(self):
-        tmpdir = tempfile.mkdtemp()
-        res = convert_page_to_html(self.currentPage, tmpdir)
-        # doc = QTextDocument()
-        # doc.setDefaultStyleSheet(read_qrc(":/css/export.css"))
-        # p = Path(TMP / ("aaaaaaaa" + ".html"))
-        # doc.setHtml(res.read_text(), encoding="utf-8")
 
-        # p.write_text(res.read_text())
-        print(res)
-        webbrowser.open(res.as_uri())
-        # print(doc.toHtml())
+        filename = escaped_filename(self.currentTitre, ".pdf")
+        new_file = soffice_convert(
+            self.currentPage, "pdf:writer_pdf_Export", filename, self.ui
+        )
+        QDesktopServices.openUrl(new_file.as_uri())
 
-        # printer = QPrinter()
-        # printer.setOutputFormat(QPrinter.PdfFormat)
-        # printer.setPaperSize(QPrinter.A4)
-        # print(res)
-        # printer.setOutputFileName(str(TMP / (uuid.uuid4().hex + ".pdf")))
-        # printer.setPageMargins(QMarginsF(15, 15, 15, 15))
-        # print(printer.printerState())
-        # printDialog = QPrintDialog(printer)
-        # printDialog.exec_()
-        # doc.print_(printer)
-        # import time
-
-        # time.sleep(10)
+    @Slot()
+    def exportToOdt(self):
+        filename = escaped_filename(self.currentTitre, ".odt")
+        new_file = soffice_convert(self.currentPage, "odt", filename, self.ui)
+        QDesktopServices.openUrl(new_file.as_uri())

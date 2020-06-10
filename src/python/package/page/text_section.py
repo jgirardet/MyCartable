@@ -10,18 +10,13 @@ from PySide2.QtGui import (
     QBrush,
     QColor,
     Qt,
-    QTextBlock,
     QTextBlockFormat,
-    QTextFragment,
     QTextDocumentFragment,
     QFont,
 )
-from PySide2.QtWidgets import QApplication
 from bs4 import BeautifulSoup
-from package.page.blockFormat import P, BlockFormats
-from package.page.charFormat import CharFormats, Pc
 from package.utils import KeyW
-from pony.orm import db_session, make_proxy
+from pony.orm import db_session
 from package.database import db
 
 
@@ -40,7 +35,6 @@ _CSS_BASE = {
         "font-size": "20pt",
         "font-weight": "96",
         "margin-top": "12px",
-        # "margin-right": "10px",
     },
     "h1": {
         "font-size": "30pt",
@@ -79,7 +73,16 @@ _CSS_BASE = {
         "margin-left": "10px",
         "margin-right": "10px",
     },
-    "p": {"margin-left": "10px", "margin-right": "10px",},
+    "p": {
+        "color": BLACK,
+        "background-color": "#E6E6E6",
+        "font-family": "Verdana",
+        "font-size": "20pt",
+        "font-weight": "96",
+        "margin-top": "12px",
+        "margin-left": "10px",
+        "margin-right": "10px",
+    },
 }
 
 

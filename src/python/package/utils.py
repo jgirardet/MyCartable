@@ -66,4 +66,17 @@ def read_qrc(path):
         raise FileNotFoundError(f"{path} n'est pas une ressource valide")
 
 
+WIN = sys.platform == "win32"
+LINUX = sys.platform == "linux"
+
+#
+# def runx(*args, **kwargs):
+#     if LINUX:
+#         com = "xdg-open"
+#     elif WIN:
+#         com = "start"
+#     # """C:\Users\jim\Desktop>where /R "c:\Program Files" soffice.exe"""
+#     subprocess.run([com, *args])
+#
+
 # def __eq__(self, other):

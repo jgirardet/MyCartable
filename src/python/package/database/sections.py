@@ -7,7 +7,7 @@ from PySide2.QtGui import QColor
 from descriptors import cachedproperty
 from package.exceptions import MyCartableOperationError
 from package.operations.api import create_operation
-from pony.orm import Required, PrimaryKey, Optional, Set, select, count
+from pony.orm import Required, PrimaryKey, Optional, Set, select, count, max
 from .root_db import db
 from .mixins import ColorMixin
 

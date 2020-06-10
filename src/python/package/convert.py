@@ -1020,10 +1020,10 @@ def soffice_convert(page_id, format, new_filename, ui=None):
     temp = QTemporaryFile(str(TMP / uuid.uuid4().hex))
     temp.open()
     p = Path(temp.fileName())
-    p.write_text(res)
+    p.write_bytes(res.encode())
     print(temp, p, soffice, format, TMP)
     proc = subprocess.run(
-        [soffice, "--headless", "--convert-to", format, p],
+        [soffice, "--headless", "--convert-to", format, str(p)],
         # [soffice, "--headless", "--convert-to", format, f.name],
         cwd=p.parent,
         # cwd=TMP,

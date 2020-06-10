@@ -1019,6 +1019,7 @@ def soffice_convert(page_id, format, new_filename, ui=None):
     with tempfile.NamedTemporaryFile(mode="wt", dir=TMP) as f:
         f.write(res)
         print(f)
+        print(soffice, format, f.name, TMP)
         proc = subprocess.run(
             [soffice, "--headless", "--convert-to", format, f.name], cwd=TMP,
         )

@@ -1021,8 +1021,11 @@ def soffice_convert(page_id, format, new_filename, ui=None):
         print(f)
         print(soffice, format, f.name, TMP)
         proc = subprocess.run(
-            [soffice, "--headless", "--convert-to", format, f.name], cwd=TMP,
+            [soffice, "--headless", "--convert-to", format, f.name],
+            cwd=TMP,
+            capture_output=True,
         )
+        print(proc)
         print(proc.stdout)
         p = Path(f.name)
         print("p", p)

@@ -87,21 +87,29 @@ jobs:
     runs-on: ubuntu-18.04
 #    if: ! contains(github.ref, "vrefs")
     steps:
-      - name: Download windows binary
-        uses: actions/download-artifact@v1
-        with:
-          name: MyCartable-Windows64
-      - name: Download Linux binary
-        uses: actions/download-artifact@v1
-        with:
-          name: MyCartable-Linux64
-      - name: release git_hub
-        uses: xresloader/upload-to-github-release@v1
+      - name: Release
+        uses: fnkr/github-action-ghr@v1
+        if: startsWith(github.ref, 'refs/tags/')
         env:
+#          GHR_COMPRESS: xz
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          file: "MyCartable-Linux64.zip;MyCartable-Windows64.zip"
-          tags: true
-          draft: False
-          release_name: MyCartable v${{github.ref}}
-          tag_name: v${{github.ref}}
+#          GHR_PATH: build/
+#    steps:
+#      - name: Download windows binary
+#        uses: actions/download-artifact@v1
+#        with:
+#          name: MyCartable-Windows64
+#      - name: Download Linux binary
+#        uses: actions/download-artifact@v1
+#        with:
+#          name: MyCartable-Linux64
+#      - name: release git_hub
+#        uses: xresloader/upload-to-github-release@v1
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        with:
+#          file: "MyCartable-Linux64.zip;MyCartable-Windows64.zip"
+#          tags: true
+#          draft: False
+#          release_name: MyCartable v${{github.ref}}
+#          tag_name: v${{github.ref}}

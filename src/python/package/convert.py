@@ -16,6 +16,7 @@ from PySide2.QtCore import (
     QRect,
     QStandardPaths,
     QBuffer,
+    QTemporaryFile,
 )
 from PySide2.QtGui import (
     QImage,
@@ -1016,25 +1017,29 @@ def soffice_convert(page_id, format, new_filename, ui=None):
     res = build_odt(page_id)
     ext = "." + format.split(":")[0]
     soffice = find_soffice(ui)
-    with tempfile.NamedTemporaryFile(mode="wt", dir=TMP) as f:
-        f.write(res)
-        print(f)
-        print(soffice, format, f.name, TMP)
-        proc = subprocess.run(
-            [soffice, "--headless", "--convert-to", format, f.name],
-            cwd=TMP,
-            capture_output=True,
-        )
-        print(proc)
-        print(proc.stdout)
-        p = Path(f.name)
-        print("p", p)
-        converted = p.parent / (p.stem + ext)
-        print("converted", converted)
-        new_path = Path(p.parent, new_filename)
-        print("new_path", new_path)
-        converted.rename(new_path)
-        return new_path
+    temp = QTemporaryFile(str(TMP / uuid.uuid4().hex))
+    temp.open()
+    p = Path(temp.fileName())
+    p.write_text(res)
+    print(temp, p, soffice, format, TMP)
+    proc = subprocess.run(
+        [soffice, "--headless", "--convert-to", format, p],
+        # [soffice, "--headless", "--convert-to", format, f.name],
+        cwd=p.parent,
+        # cwd=TMP,
+        capture_output=True,
+    )
+    print(proc)
+    print(proc.stdout)
+    # p = Path(f.name)
+    print("p", p)
+    converted = p.parent / (p.stem + ext)
+    print("converted", converted)
+    new_path = Path(p.parent, new_filename)
+    print("new_path", new_path)
+    converted.rename(new_path)
+    temp.close()
+    return new_path
 
 
 def escaped_filename(nom, ext):

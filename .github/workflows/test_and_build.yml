@@ -87,7 +87,7 @@ jobs:
       env:
         GHR_COMPRESS: zip
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#        GHR_PATH: dist/
+        GHR_PATH: build/
 #  Deploy:
 #    - name: release github
 #      needs: TestAndBuild

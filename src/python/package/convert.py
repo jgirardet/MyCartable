@@ -1018,12 +1018,17 @@ def soffice_convert(page_id, format, new_filename, ui=None):
     soffice = find_soffice(ui)
     with tempfile.NamedTemporaryFile(mode="wt", dir=TMP) as f:
         f.write(res)
-        subprocess.run(
+        print(f)
+        proc = subprocess.run(
             [soffice, "--headless", "--convert-to", format, f.name], cwd=TMP,
         )
+        print(proc.stdout)
         p = Path(f.name)
+        print("p", p)
         converted = p.parent / (p.stem + ext)
+        print("converted", converted)
         new_path = Path(p.parent, new_filename)
+        print("new_path", new_path)
         converted.rename(new_path)
         return new_path
 

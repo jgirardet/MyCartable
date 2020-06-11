@@ -23,6 +23,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        os : [ubuntu-18.04]
         os : [ubuntu-18.04, windows-2019]
 #        os : [ubuntu-latest, ubuntu-18.04, windows-2019, windows-latest]
         python: [3.7]
@@ -78,10 +79,12 @@ jobs:
 #      run: python -m zipfile -c MyCartable-${{runner.os}}64.zip dist/MyCartable/.
 #    - name: zip dist
 #      run: python -m zipfile -c MyCartable-${{runner.os}}64.zip .
+    - name: bla
+      run: "olhijmpjoljomkpù" > bla.txt
     - name: upload  on ${{ matrix.os }} binary in artifact
       uses: actions/upload-artifact@v1
       with:
-        path: ../
+        path: lat.txt
         name: MyCartable-${{runner.os}}64
 #        path: MyCartable-${{runner.os}}64.zip
 #        name: MyCartable-${{runner.os}}64

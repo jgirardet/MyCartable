@@ -79,22 +79,23 @@ jobs:
 #      run: python -m zipfile -c MyCartable-${{runner.os}}64.zip dist/MyCartable/.
 #    - name: zip dist
 #      run: python -m zipfile -c MyCartable-${{runner.os}}64.zip .
-    - name: bla
-      run: |
-        python -m zipfile -c MyCartable-${{runner.os}}64.zip .
+#    - name: bla
+#      run: |
+#        python -m zipfile -c MyCartable-${{runner.os}}64.zip .
     - name: upload  on ${{ matrix.os }} binary in artifact
       uses: actions/upload-artifact@v1
       with:
-        path: MyCartable-${{runner.os}}64.zip
+        path: .
         name: MyCartable-${{runner.os}}64
 #        path: MyCartable-${{runner.os}}64.zip
 #        name: MyCartable-${{runner.os}}64
 
   Create_release:
       needs: TestAndBuild
-      runs-on: ubuntu-18.04
+      runs-on: [ubuntu-18.04]
       steps:
         - name: Create Release
+          if: runner.os == 'Linux'
           id: create_release
           uses: actions/create-release@v1
           env:
@@ -104,15 +105,13 @@ jobs:
             release_name: Release ${{ github.ref }}
             draft: false
             prerelease: false
-
-  Upload_release:
-      needs: Create_release
-      runs-on: ${{ TestAndBuild.matrix.os }}
-      steps:
         - name: Download ${{runner.os}} binary
           uses: actions/download-artifact@v2
           with:
               name: MyCartable-${{runner.os}}64
+              path: ${{runner.os}}
+        - name: zip package
+          run: python -m zipfile -c MyCartable-${{runner.os}}64.zip Linux
         - name: Display structure of downloaded files
           run: ls -R
         - name: Upload Release Asset

@@ -269,9 +269,9 @@ class DivisionSection(OperationSection):
         self._datas = json.dumps(datas["datas"])
         self.size = self.columns * self.rows
 
-    @cachedproperty
-    def l_dividende(self):
-        return len(self.dividende)
+    # @cachedproperty
+    # def l_dividende(self):
+    #     return len(self.dividende)
 
     def is_ligne_dividende(self, index):
         return 0 <= index < self.columns

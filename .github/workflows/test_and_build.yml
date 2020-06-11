@@ -19,7 +19,7 @@ on:
 
 
 jobs:
-  TestAndBuild
+  TestAndBuild:
     id: test_and_build
     runs-on: ${{ matrix.os }}
     strategy:

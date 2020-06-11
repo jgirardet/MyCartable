@@ -94,10 +94,8 @@ jobs:
     - name: upload  on ${{ matrix.os }} binary in artifact
       uses: actions/upload-artifact@v1
       with:
-        path: .
+        path: dist/MyCartable
         name: MyCartable-${{runner.os}}64
-#        path: MyCartable-${{runner.os}}64.zip
-#        name: MyCartable-${{runner.os}}64
 
   Create_release:
       needs: TestAndBuild
@@ -111,7 +109,7 @@ jobs:
             python -m zipfile -c MyCartable-Windows64.zip MyCartable-Windows64
         - name: new latest release on master
           uses: "marvinpinto/action-automatic-releases@latest"
-          if: github.ref == 'master'
+          if: github.ref == 'refs/heads/master'
           with:
             repo_token: "${{ secrets.GITHUB_TOKEN }}"
             prerelease: false

@@ -4,20 +4,21 @@ from PySide2.QtGui import QColor
 class ColorMixin:
     @staticmethod
     def color_getter(value):
+        if value is None:
+            return QColor("transparent")
         return QColor.fromRgba(value)
 
     @staticmethod
     def color_setter(value):
-        try:
-            if isinstance(value, QColor):
-                return value.rgba()
-            elif isinstance(value, str):
-                return QColor(value).rgba()
-            elif isinstance(value, int):
-                return value
-            elif isinstance(value, tuple):
-                return QColor(*value).rgba()
-        except TypeError:
+        if isinstance(value, QColor):
+            return value.rgba()
+        elif isinstance(value, str):
+            return QColor(value).rgba()
+        elif isinstance(value, int):
+            return value
+        elif isinstance(value, tuple):
+            return QColor(*value).rgba()
+        else:
             return None
 
     def fgColor_get(self):

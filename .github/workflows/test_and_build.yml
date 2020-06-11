@@ -105,7 +105,7 @@ jobs:
       strategy:
         matrix:
           os: [ubuntu-18.04] #, windows-2019]
-#      if: contains(github.ref, '/tags/')
+      if: contains(github.ref, '/tags/')
       steps:
 #        - name: Create Release
 #          if: runner.os == 'Linux'
@@ -135,6 +135,26 @@ jobs:
             repo_token: "${{ secrets.GITHUB_TOKEN }}"
             automatic_release_tag: "latest"
             prerelease: false
+            files: |
+              MyCartable-Linux64.zip
+              MyCartable-Windows64.zip
+        - name: Display structure of downloaded files
+          run: ls -R
+        - uses: "marvinpinto/action-automatic-releases@latest"
+          if: contains(github.ref, '/tags/')
+          with:
+            repo_token: "${{ secrets.GITHUB_TOKEN }}"
+            prerelease: false
+            files: |
+              MyCartable-Linux64.zip
+              MyCartable-Windows64.zip
+        - uses: "marvinpinto/action-automatic-releases@latest"
+          if: github.ref == 'master'
+          with:
+            repo_token: "${{ secrets.GITHUB_TOKEN }}"
+            prerelease: false
+            automatic_release_tag: "latest"
+            title: "MyCartable Latest"
             files: |
               MyCartable-Linux64.zip
               MyCartable-Windows64.zip

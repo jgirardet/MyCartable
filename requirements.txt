@@ -4,7 +4,6 @@ dickens==1.0.1
 pyinstaller==3.6
 Pillow==7.1.2
 mako==1.1.2
-odfpy==1.4.1
 
 #dev
 coverage
@@ -17,4 +16,4 @@ pytest-qt
 aqtinstall==0.8
 mimesis
 jsbeautifier==1.11
-ipdb
+

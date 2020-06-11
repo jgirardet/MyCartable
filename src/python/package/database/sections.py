@@ -27,7 +27,9 @@ class Section(db.Entity):
         else:
             if isinstance(page, db.Page):
                 page = page.id
-            query = select(s for s in db.Section if s.page.id == page)
+            query = select(
+                s for s in db.Section if s.page.id == page
+            )  # pragma: no cover
             _position = query.count()
 
             if position is not None:
@@ -53,7 +55,8 @@ class Section(db.Entity):
             for sec in query:
                 if old < sec.position <= new and sec != self:
                     sec._position -= 1
-        elif old > new:
+        else:
+            # elif old > new:
             for sec in query:
                 if new <= sec.position < old:
                     sec._position += 1
@@ -84,13 +87,12 @@ class Section(db.Entity):
 
     def after_delete(self):
         page = db.Page.get(id=self._page)
-        if page:
-            n = 0
-            for s in page.content:
-                s.updating_position = True  # do not update modified on position
-                s._position = n
-                n += 1
-            page.modified = datetime.utcnow()
+        n = 0
+        for s in page.content:
+            s.updating_position = True  # do not update modified on position
+            s._position = n
+            n += 1
+        page.modified = datetime.utcnow()
 
 
 class ImageSection(Section):
@@ -216,10 +218,7 @@ class MultiplicationSection(OperationSection):
 
     @property
     def line_res_index(self):
-        if self.virgule:
-            return self.size - self.columns * 2, self.size - self.columns
-        else:
-            return self.size - self.columns, self.size
+        return self.size - self.columns, self.size
 
     @property
     def line_res(self):

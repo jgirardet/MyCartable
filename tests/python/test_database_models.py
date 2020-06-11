@@ -380,13 +380,9 @@ class TestSection:
         with db_session:
             a = make_proxy(f_section())
             b = a.modified
-        print(b)
         with db_session:
-            print(a.modified)
             a.created = datetime.utcnow()
-            print(a.modified)
         with db_session:
-            print(a.modified)
             assert a.modified > b
             assert a.page.modified == a.modified
 
@@ -454,6 +450,11 @@ class TestSection:
             assert ddbr.Section[3].position == 3  # Section[2]
             assert ddbr.Section[4].position == 1  # Section[3]
             assert ddbr.Section[5].position == 4  # Section[5]
+
+    def test_recalcule_position_idem(self, ddb):
+        f_section()
+        x = f_section(page=1)
+        assert x.recalcule_position(1, 1) is None
 
 
 class TestImageSection:

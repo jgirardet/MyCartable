@@ -9,6 +9,7 @@ RowLayout {
   property var sectionItem
   property var model
   /* beautify preserve:end */
+
   BaseOperation {
     id: corps
     objectName: "corps"

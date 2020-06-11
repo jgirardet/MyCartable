@@ -47,8 +47,6 @@ class OperationModel(QAbstractListModel):
         self.custom_params_load()
         self.cursor = self.getInitialPosition()
 
-    # Property
-
     @Property(int, notify=paramsChanged)
     def columns(self):
         return int(self.params["columns"])

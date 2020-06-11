@@ -81,12 +81,12 @@ jobs:
 #      run: python -m zipfile -c MyCartable-${{runner.os}}64.zip .
     - name: bla
       run: |
-        python -m zipfile -c MyCartable-${{runner.os}}64.zip .
+        python -m zipfile -c MyCartable-${{runner.os}}644.zip .
 #        echo "olhijmpjoljomkpù" > bla.txt
     - name: upload  on ${{ matrix.os }} binary in artifact
       uses: actions/upload-artifact@v1
       with:
-        path: MyCartable-${{runner.os}}64.zip
+        path: MyCartable-${{runner.os}}644.zip
         name: MyCartable-${{runner.os}}64
 #        path: MyCartable-${{runner.os}}64.zip
 #        name: MyCartable-${{runner.os}}64

@@ -105,7 +105,7 @@ jobs:
       strategy:
         matrix:
           os: [ubuntu-18.04] #, windows-2019]
-      if: contains(github.ref, '/tags/')
+#      if: contains(github.ref, '/tags/')
       steps:
         - name: Create Release
           if: runner.os == 'Linux'

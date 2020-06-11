@@ -1717,7 +1717,7 @@
     lodash.templateSettings = {
 
       /**
-       * Used to detect `data` property values to be HTML-escaped.
+       * Used to detect `content` property values to be HTML-escaped.
        *
        * @memberOf _.templateSettings
        * @type {RegExp}
@@ -1733,7 +1733,7 @@
       'evaluate': reEvaluate,
 
       /**
-       * Used to detect `data` property values to inject.
+       * Used to detect `content` property values to inject.
        *
        * @memberOf _.templateSettings
        * @type {RegExp}
@@ -1741,7 +1741,7 @@
       'interpolate': reInterpolate,
 
       /**
-       * Used to reference the data object in the template text.
+       * Used to reference the content object in the template text.
        *
        * @memberOf _.templateSettings
        * @type {string}
@@ -4531,9 +4531,9 @@
      * Creates a clone of `dataView`.
      *
      * @private
-     * @param {Object} dataView The data view to clone.
+     * @param {Object} dataView The content view to clone.
      * @param {boolean} [isDeep] Specify a deep clone.
-     * @returns {Object} Returns the cloned data view.
+     * @returns {Object} Returns the cloned content view.
      */
     function cloneDataView(dataView, isDeep) {
       var buffer = isDeep ? cloneArrayBuffer(dataView.buffer) : dataView.buffer;
@@ -5927,12 +5927,12 @@
     }
 
     /**
-     * Gets the data for `map`.
+     * Gets the content for `map`.
      *
      * @private
      * @param {Object} map The map to query.
      * @param {string} key The reference key.
-     * @returns {*} Returns the map data.
+     * @returns {*} Returns the map content.
      */
     function getMapData(map, key) {
       var data = map.__data__;
@@ -5946,7 +5946,7 @@
      *
      * @private
      * @param {Object} object The object to query.
-     * @returns {Array} Returns the match data of `object`.
+     * @returns {Array} Returns the match content of `object`.
      */
     function getMatchData(object) {
       var result = keys(object),
@@ -6043,7 +6043,7 @@
      */
     var getTag = baseGetTag;
 
-    // Fallback for data views, maps, sets, and weak maps in IE 11 and promises in Node.js < 6.
+    // Fallback for content views, maps, sets, and weak maps in IE 11 and promises in Node.js < 6.
     if ((DataView && getTag(new DataView(new ArrayBuffer(1))) != dataViewTag) ||
         (Map && getTag(new Map) != mapTag) ||
         (Promise && getTag(Promise.resolve()) != promiseTag) ||
@@ -6434,7 +6434,7 @@
     }
 
     /**
-     * Merges the function metadata of `source` into `data`.
+     * Merges the function metadata of `source` into `content`.
      *
      * Merging metadata reduces the number of wrappers used to invoke a function.
      * This is possible because methods like `_.bind`, `_.curry`, and `_.partial`
@@ -6447,7 +6447,7 @@
      * @private
      * @param {Array} data The destination metadata.
      * @param {Array} source The source metadata.
-     * @returns {Array} Returns `data`.
+     * @returns {Array} Returns `content`.
      */
     function mergeData(data, source) {
       var bitmask = data[1],
@@ -14664,8 +14664,8 @@
     }
 
     /**
-     * Creates a compiled template function that can interpolate data properties
-     * in "interpolate" delimiters, HTML-escape interpolated data properties in
+     * Creates a compiled template function that can interpolate content properties
+     * in "interpolate" delimiters, HTML-escape interpolated content properties in
      * "escape" delimiters, and execute JavaScript in "evaluate" delimiters. Data
      * properties may be accessed as free variables in the template. If a setting
      * object is given, it takes precedence over `_.templateSettings` values.
@@ -14697,7 +14697,7 @@
      * @param {string} [options.sourceURL='lodash.templateSources[n]']
      *  The sourceURL of the compiled template.
      * @param {string} [options.variable='obj']
-     *  The data object variable name.
+     *  The content object variable name.
      * @param- {Object} [guard] Enables use as an iteratee for methods like `_.map`.
      * @returns {Function} Returns the compiled template function.
      * @example
@@ -14707,7 +14707,7 @@
      * compiled({ 'user': 'fred' });
      * // => 'hello fred!'
      *
-     * // Use the HTML "escape" delimiter to escape data property values.
+     * // Use the HTML "escape" delimiter to escape content property values.
      * var compiled = _.template('<b><%- value %></b>');
      * compiled({ 'value': '<script>' });
      * // => '<b>&lt;script&gt;</b>'
@@ -14741,15 +14741,15 @@
      *
      * // Use the `sourceURL` option to specify a custom sourceURL for the template.
      * var compiled = _.template('hello <%= user %>!', { 'sourceURL': '/basic/greeting.jst' });
-     * compiled(data);
+     * compiled(content);
      * // => Find the source of "greeting.jst" under the Sources tab or Resources panel of the web inspector.
      *
      * // Use the `variable` option to ensure a with-statement isn't used in the compiled template.
-     * var compiled = _.template('hi <%= data.user %>!', { 'variable': 'data' });
+     * var compiled = _.template('hi <%= content.user %>!', { 'variable': 'content' });
      * compiled.source;
-     * // => function(data) {
+     * // => function(content) {
      * //   var __t, __p = '';
-     * //   __p += 'hi ' + ((__t = ( data.user )) == null ? '' : __t) + '!';
+     * //   __p += 'hi ' + ((__t = ( content.user )) == null ? '' : __t) + '!';
      * //   return __p;
      * // }
      *
@@ -14835,7 +14835,7 @@
       source += "';\n";
 
       // If `variable` is not specified wrap a with-statement around the generated
-      // code to add the data object to the top of the scope chain.
+      // code to add the content object to the top of the scope chain.
       // Like with sourceURL, we take care to not check the option's prototype,
       // as this configuration is a code injection vector.
       var variable = hasOwnProperty.call(options, 'variable') && options.variable;

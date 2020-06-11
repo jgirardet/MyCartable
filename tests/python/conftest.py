@@ -7,6 +7,7 @@ from pathlib import Path
 from PySide2.QtCore import QSettings, QStandardPaths
 
 from PySide2.QtGui import QTextDocument
+from PySide2.QtWidgets import QApplication
 from mimesis import Generic
 from pony.orm import db_session, delete
 import subprocess
@@ -44,6 +45,16 @@ def pytest_sessionstart():
     from package.files_path import ROOT_DATA
 
     shutil.rmtree(ROOT_DATA)
+
+
+@pytest.fixture(scope="session")
+def qapp():
+    app = QApplication([])
+    from package.database_object import DatabaseObject
+    from package.database import db
+
+    app.dao = DatabaseObject(db)
+    yield app
 
 
 @pytest.fixture()
@@ -135,7 +146,7 @@ def dao(ddbr, tmpfilename, uim):
 import time
 
 
-@pytest.fixture(autouse=False)
+@pytest.fixture(autouse=True)
 def duree_test():
     debut = time.time()
     yield
@@ -176,3 +187,14 @@ def png_annot(resources):
 @pytest.fixture()
 def resources():
     return Path(__file__).parents[1] / "resources"
+
+
+@pytest.fixture()
+def new_res(tmp_path, resources):
+    def factory(name):
+        file = resources / name
+        new_file = tmp_path / name
+        new_file.write_bytes(file.read_bytes())
+        return new_file
+
+    return factory

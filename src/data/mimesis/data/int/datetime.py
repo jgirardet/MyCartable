@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Provides all the data related to the data and time."""
+"""Provides all the content related to the content and time."""
 
 ROMAN_NUMS = [
     "I",

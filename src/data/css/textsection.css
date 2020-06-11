@@ -1,0 +1,12 @@
+body {
+  font-family: 'Verdana';
+  padding: 100px;
+  font-size: 20pt;
+}
+
+p {
+font-size:30pt;
+color:green;
+//color:#696969;
+background-color:transparent;
+}

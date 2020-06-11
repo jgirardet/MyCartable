@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Provides all the generic data related to the address."""
+"""Provides all the generic content related to the address."""
 
 COUNTRY_CODES = {
     "a2": [

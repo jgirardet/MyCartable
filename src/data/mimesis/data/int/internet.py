@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Provides all the data related to the internet."""
+"""Provides all the content related to the internet."""
 
 HTTP_METHODS = [
     "GET",
@@ -529,7 +529,7 @@ TLD = {
         ".cymru",
         ".dad",
         ".dance",
-        ".data",
+        ".content",
         ".date",
         ".dating",
         ".day",

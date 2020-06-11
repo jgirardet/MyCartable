@@ -1,10 +1,22 @@
 name: test et build
 
-on: [push, pull_request]
-
+on:
+  # Trigger the workflow o push or pull request,
+  # but only for the master
+  push:
+    branches:
+      - master
+      - dev
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - dev
+      - master
+#
 #env:
-#  CODECOV_TOKEN: b12c1d6f-032c-40bf-ab16-3cc301e48115
-#  USE_SDL2: 1
+#  WIN_ARTIFACT: MyCartable-Windows64
+#  LINUX_ARTIFACT: MyCartable-Linux64
 
 
 
@@ -13,93 +25,46 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os : [ubuntu-latest, ubuntu-18.04, windows-2019, windows-latest]
+        os : [ubuntu-18.04, windows-2019]
+#        os : [ubuntu-latest, ubuntu-18.04, windows-2019, windows-latest]
         python: [3.7]
     env:
       DISPLAY: ':99.0'
     steps:
     - name: Get repo
       uses: actions/checkout@v1
+    - name: Dump GitHub context
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+        GITHUB_REF: ${{ github.ref }}
+      run: |
+        echo "$GITHUB_REF"
+        echo "$GITHUB_CONTEXT"
+
     - name: Setup Python ${{ matrix.python }}
       uses: actions/setup-python@v1
       with:
         python-version: ${{ matrix.python }}
-    - name: install dependencies
-      run: |
-        python run.py install
-
-    - name: Linux custom installs
-      if: runner.os == 'Linux'
-      run: |
-        sudo apt install libxkbcommon-x11-0
-        /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -screen 0 1920x1200x24 -ac +extension GLX
-    - name: Tests python on ${{ matrix.os }}
-      run: python run.py test_python
-    - name: Install Qt on Linux
-      if: runner.os == 'Linux'
-      uses: jurplel/install-qt-action@v2
-      with:
-        version: '5.14.1'
-        host: 'linux'
-        target: 'desktop'
-    - name: Install Qt on Windows
-      if: runner.os == 'Windows'
-      uses: jurplel/install-qt-action@v2
-      with:
-        version: '5.14.1'
-        host: 'windows'
-        target: 'desktop'
-        arch: 'win64_mingw73'
-    - name: Tests QML on ${{ matrix.os }}
-      run: python run.py test_qml_reset
-
-    - name: Coverage on ${{ matrix.os }}
-      run: |
-        python run.py cov
-    - name: build on ${{ matrix.os }}
-      run: |
-        python run.py build_binary_as_dir
-    - name: test run on windows CMD
-      if: runner.os == 'Windows'
-      shell: cmd
-      run: python run.py test_binary_as_dir
-    - name: upload  on ${{ matrix.os }} binary in artifact
-      uses: actions/upload-artifact@v1
-      with:
-        path: dist/MyCartable
-        name: MyCartable-${{runner.os}}64
-
+#    - name: install dependencies
+#      run: |
+#        python run.py install
 #
-#  Windows:
-#    runs-on: ${{ matrix.os }}
-#    strategy:
-#      matrix:
-#        os: [windows-2019, windows-latest]
-#        python: [3.7]
-#    steps:
-#    - name: get repo  on ${{ matrix.os }}
-#      uses: actions/checkout@v1
-#    - name: Set up Python
-#      uses: actions/setup-python@v1
-#      with:
-#        python-version: ${{ matrix.python-version }}
-#    - name: setup conda env
-#      uses: goanpeca/setup-miniconda@v1
-#      with:
-#        miniconda-version: 'latest'
-#        python-version: ${{ matrix.python }}
-#        environment-file: MyCartableEnv.yml
-#        auto-activate-base: false
-#        activate-environment: MyCartableEnv
-#    - name: test conda
-#      shell: bash -l {0}
+#    - name: Linux custom installs
+#      if: runner.os == 'Linux'
 #      run: |
-#        conda info
-#    - name: Tests python on ${{matrix.os}}
-#      shell: cmd /C CALL {0}
-#      run: |
-#          python run.py test_python
-#    - name: Install Qt on ${{ matrix.os }}
+#        sudo apt install libxkbcommon-x11-0
+#        /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -screen 0 1920x1200x24 -ac +extension GLX
+#    - name: Tests python on ${{ matrix.os }}
+#      run: python run.py test_python
+#    - name: Install Qt on Linux
+#      if: runner.os == 'Linux'
+#      uses: jurplel/install-qt-action@v2
+#      with:
+#        version: '5.14.1'
+#        host: 'linux'
+#        target: 'desktop'
+#    - name: Install Qt on Windows
+#      if: runner.os == 'Windows'
 #      uses: jurplel/install-qt-action@v2
 #      with:
 #        version: '5.14.1'
@@ -107,97 +72,60 @@ jobs:
 #        target: 'desktop'
 #        arch: 'win64_mingw73'
 #    - name: Tests QML on ${{ matrix.os }}
+#      run: python run.py test_qml_reset
+#
+#    - name: Coverage on ${{ matrix.os }}
 #      run: |
-#          python tests/qml_tests/create-js-data.py
-#          qmake tests\qml_tests\qml_tests.pro -spec win32-g++ "CONFIG+=debug" "CONFIG+=qml_debug"  -o target/qml_tests/Makefile
-#          mingw32-make.exe -j4 -C target/qml_tests
-#          target\qml_tests\qml_tests.exe
-#
+#        python run.py cov
 #    - name: build on ${{ matrix.os }}
-#      shell: cmd /C CALL {0}
-#      run: >-
-#        conda info && pyinstaller scripts/dir.spec -y --clean
-#
-##    #        poetry run  python scripted/build_executable.py
-#    - name: upload  on ${{ matrix.os }} binary in artifact
-#      uses: actions/upload-artifact@v1
-#      with:
-#        path: dist/MyCartable
-#        name: MyCartable-Win64
-##      with:
-##        path: dist/MyCartable.exe
-##        name: MyCartable.exe
-#
+#      run: |
+#        python run.py build_binary_as_dir
+#    - name: test run on windows CMD
+#      if: runner.os == 'Windows'
+#      shell: cmd
+#      run: python run.py test_binary_as_dir
+#    - name: zip dist
+#      run: python -m zipfile -c MyCartable-${{runner.os}}64.zip dist/MyCartable/.
+#    - name: zip dist
+#      run: python -m zipfile -c MyCartable-${{runner.os}}64.zip .
+#    - name: bla
+#      run: |
+#        python -m zipfile -c MyCartable-${{runner.os}}64.zip .
+    - name: upload  on ${{ matrix.os }} binary in artifact
+      uses: actions/upload-artifact@v1
+      with:
+        path: .
+        name: MyCartable-${{runner.os}}64
+#        path: MyCartable-${{runner.os}}64.zip
+#        name: MyCartable-${{runner.os}}64
 
-
-#
-#  Test_linux:
-#    needs: [Linux]
-#    runs-on: ubuntu-latest
-#    env:
-#      DISPLAY: ':99.0'
-#    steps:
-#      - name: Set up Python
-#        uses: actions/setup-python@v1
-#        with:
-#          python-version: 3.7
-#      - name: Download Linux binary
-#        uses: actions/download-artifact@v1
-#        with:
-#          name: MyDevoirs
-#      - name: setup_env
-#        run: |
-#          sudo rm -f /etc/apt/sources.list.d/dotnetdev.list /etc/apt/sources.list.d/microsoft-prod.list
-#          sudo apt update
-#          sudo apt install -y language-pack-fr pulseaudio
-#          /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -screen 0 1280x720x24 -ac +extension GLX
-#          pip install -U  appdirs
-#          chmod +x MyDevoirs/MyDevoirs
-#      - name: run_script
-#        run: |
-#          wget https://raw.githubusercontent.com/jgirardet/mydevoirs/master/scripted/check_executable.py
-#          python check_executable.py
-#  Test_windows:
-#
-#    needs: [Windows]
-#    runs-on: windows-latest
-#    env:
-#      KIVY_GL_BACKEND: 'angle_sdl2'
-#    steps:
-#      - name: Set up Python
-#        uses: actions/setup-python@v1
-#        with:
-#          python-version: 3.7
-#      - name: Download Windows binary
-#        uses: actions/download-artifact@v1
-#        with:
-#          name: MyDevoirs.exe
-#      - name: run_script
-#        run: |
-#          pip install -U appdirs
-#          (New-Object System.Net.WebClient).DownloadFile("https://raw.githubusercontent.com/jgirardet/mydevoirs/master/scripted/check_executable.py", "check_executable.py")
-#          python check_executable.py
-#  Deploy:
-#    name: release github
-#    needs: [Test_linux, Test_windows]
-#    runs-on: ubuntu-latest
-#    if: ! contains(github.ref, "vrefs")
-#    steps:
-#      - name: Download windows binary
-#        uses: actions/download-artifact@v1
-#        with:
-#          name: MyDevoirs.exe
-#      - name: Download Linux binary
-#        uses: actions/download-artifact@v1
-#        with:
-#          name: MyDevoirs
-#      - name: release git_hub
-#        uses: xresloader/upload-to-github-release@v1
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#        with:
-#          file: "MyDevoirs;MyDevoirs.exe"
-#          tags: true
-#          draft: False
-#          release_name: MyDevoirs v${{github.ref}}
-#          tag_name: v${{github.ref}}
+  Create_release:
+      needs: TestAndBuild
+      runs-on: ubuntu-latest
+      steps:
+        - name: Download artifact binary
+          uses: actions/download-artifact@v2
+        - name: zip release
+          run: |
+            python -m zipfile -c MyCartable-Linux64.zip MyCartable-Linux64
+            python -m zipfile -c MyCartable-Windows64.zip MyCartable-Windows64
+        - name: new latest release on master
+          uses: "marvinpinto/action-automatic-releases@latest"
+          if: github.ref == 'master'
+            with:
+              repo_token: "${{ secrets.GITHUB_TOKEN }}"
+              prerelease: false
+              automatic_release_tag: "latest"
+              title: "MyCartable Latest"
+              files: |
+                MyCartable-Linux64.zip
+                MyCartable-Windows64.zip
+        - name: new tag release
+          uses: "marvinpinto/action-automatic-releases@latest"
+          if: contains(github.ref, '/tags/')
+          with:
+            repo_token: "${{ secrets.GITHUB_TOKEN }}"
+            prerelease: false
+            files: |
+              MyCartable-Linux64.zip
+              MyCartable-Windows64.zip

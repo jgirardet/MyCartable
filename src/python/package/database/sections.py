@@ -1,11 +1,13 @@
 import json
 from datetime import datetime
+import re
+from io import BytesIO
 
 from PySide2.QtGui import QColor
 from descriptors import cachedproperty
 from package.exceptions import MyCartableOperationError
 from package.operations.api import create_operation
-from pony.orm import Required, PrimaryKey, Optional, Set
+from pony.orm import Required, PrimaryKey, Optional, Set, select, count, max
 from .root_db import db
 from .mixins import ColorMixin
 
@@ -15,35 +17,66 @@ class Section(db.Entity):
     created = Required(datetime, default=datetime.utcnow)
     modified = Optional(datetime)
     page = Required("Page")
-    position = Optional(int, default=0)  # minimum = 1
+    _position = Required(int)
+    annotations = Set("Annotation")
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.updating_position = False
+    def __init__(self, *args, _position=None, page=None, position=None, **kwargs):
+        # breakpoint()
+        if _position is not None:  # doit être juste sinon erreur:
+            pass
+        else:
+            if isinstance(page, db.Page):
+                page = page.id
+            query = select(s for s in db.Section if s.page.id == page)
+            _position = query.count()
+
+            if position is not None:
+                _position = self.recalcule_position(_position, position, query=query)
+        # self.updating_position = False
+        super().__init__(*args, _position=_position, page=page, **kwargs)
+
+    @property
+    def position(self):
+        return self._position
+
+    @position.setter
+    def position(self, new):
+        self._position = self.recalcule_position(self._position, new)
+
+    def recalcule_position(self, old, new, query=None):
+        query = query if query is not None else self.page.sections
+        if new >= query.count():
+            return query.count()
+        if old == new:
+            return
+        elif old < new:
+            for sec in query:
+                if old < sec.position <= new and sec != self:
+                    sec._position -= 1
+        elif old > new:
+            for sec in query:
+                if new <= sec.position < old:
+                    sec._position += 1
+        return new
 
     def to_dict(self, *args, **kwargs):
         dico = super().to_dict(*args, **kwargs)
         dico["created"] = self.created.isoformat()
         dico["modified"] = self.modified.isoformat()
+        dico["position"] = dico.pop("_position")
         return dico
 
     def before_insert(self):
         self.modified = self.created
         self.page.modified = self.modified
 
-        count = self.page.sections.count()
-        if not self.position or count < self.position:
-            # it seems that
-            self.position = self.page.sections.count()
-        else:
-            self._update_position()
-
     def before_update(self):
-        if getattr(self, "updating_position", None):
-            self.updating_position = False
-        else:
-            self.modified = datetime.utcnow()
-            self.page.modified = self.modified
+        # if getattr(self, "updating_position", None):
+        #     self.updating_position = False
+        # else:
+        self.modified = datetime.utcnow()
+        self.page.reasonUpdate = True  # block page autoupdate
+        self.page.modified = self.modified
 
     def before_delete(self):
         # backup la page pour after delete
@@ -52,33 +85,23 @@ class Section(db.Entity):
     def after_delete(self):
         page = db.Page.get(id=self._page)
         if page:
-            n = 1
+            n = 0
             for s in page.content:
                 s.updating_position = True  # do not update modified on position
-                s.position = n
+                s._position = n
                 n += 1
             page.modified = datetime.utcnow()
-
-    def _update_position(self):
-        n = 1
-        for x in self.page.content:
-            if n == self.position:
-                n += 1
-            x.updating_position = True  # do not update modified on position
-            x.position = n
-            n += 1
 
 
 class ImageSection(Section):
     path = Required(str)
-    annotations = Set("Annotation")
 
     def to_dict(self, **kwargs):
         return super().to_dict(with_collections=True)
 
 
 class TextSection(Section):
-    text = Optional(str, default="")
+    text = Optional(str, default="<body></body>")
 
 
 class TableDataSection(Section):
@@ -292,11 +315,31 @@ class DivisionSection(OperationSection):
         return self._as_num(self.dividende)
 
 
+class EquationSection(Section):
+
+    DEFAULT_CONTENT = ""
+    DEFAULT_CURSEUR = 0
+
+    content = Optional(str, default=DEFAULT_CONTENT, autostrip=False)
+    curseur = Required(int, default=DEFAULT_CURSEUR)
+
+    def set(self, *, content, curseur, **kwargs):
+        super().set(**kwargs)
+        if re.match("\s+", content):
+            self.content = self.DEFAULT_CONTENT
+            self.curseur = self.DEFAULT_CURSEUR
+            return self.to_dict()
+        else:
+            self.content = content
+            self.curseur = curseur
+            return self.to_dict()
+
+
 class Annotation(db.Entity):
     id = PrimaryKey(int, auto=True)
-    relativeX = Required(float)
-    relativeY = Required(float)
-    section = Required(ImageSection)
+    x = Required(float)
+    y = Required(float)
+    section = Required(Section)
     style = Optional(db.Style, default=db.Style, cascade_delete=True)
 
     def __init__(self, **kwargs):
@@ -304,11 +347,16 @@ class Annotation(db.Entity):
             kwargs["style"] = db.Style(**kwargs["style"])
         super().__init__(**kwargs)
 
-    def to_dict(self, *args, **kwargs):
-        dico = super().to_dict(*args, **kwargs)
-        if "style" in dico:  # ne pas l'ajouter sur a été exclude
-            dico["style"] = self.style.to_dict()
+    def to_dict(self, **kwargs):
+        dico = super().to_dict(**kwargs, related_objects=True)
+        dico.update(dico.pop("style").to_dict())
         return dico
+
+    def set(self, **kwargs):
+        if "style" in kwargs:
+            style = kwargs.pop("style")
+            self.style.set(**style)
+        super().set(**kwargs)
 
     def before_insert(self):
         self.section.before_update()
@@ -318,13 +366,37 @@ class Annotation(db.Entity):
             self.section.before_update()
 
 
-class Stabylo(Annotation):
-    relativeWidth = Required(float)
-    relativeHeight = Required(float)
+#
+# class Stabylo(Annotation):
+#     relativeWidth = Required(float)
+#     relativeHeight = Required(float)
 
 
 class AnnotationText(Annotation):
-    text = Optional(str)
+    text = Optional(str, autostrip=False)
+    #
+    # def to_dict(self, **kwargs):
+    #     dico = super().to_dict(exclude=["style"], **kwargs)
+    #     dico["fgColor"] = self.style.fgColor
+    #     dico["fillStyle"] = self.style.bgColor
+    #     dico["lineWidth"] = self.style.pointSize
+    #     return dico
+
+
+class AnnotationDessin(Annotation):
+    # id = PrimaryKey(int, auto=True)
+    width = Required(float)
+    height = Required(float)
+    tool = Required(str)
+    startX = Required(float)
+    startY = Required(float)
+    endX = Required(float)
+    endY = Required(float)
+    """style : 
+        fgColor: strokeStyle
+        bgColor: fillStyle
+        pointSize: lineWidth
+    """
 
 
 class TableauSection(Section):
@@ -335,11 +407,23 @@ class TableauSection(Section):
     def after_insert(self):
         for r in range(self.lignes):
             for c in range(self.colonnes):
-                TableauCell(tableau=self, x=r, y=c)
+                TableauCell(tableau=self, y=r, x=c)
 
-    def to_dict(self, **kwargs):
-        dico = super().to_dict(with_collections=True, **kwargs)
-        return dico
+    # def to_dict(self, **kwargs):
+    #     dico = super().to_dict(with_collections=**kwargs)
+    #     return dico
+
+    def debug(self):
+        for cel in self.cells:
+            print(cel.x, "|", cel.y, "|", cel.texte)
+
+    def get_cells(self):
+        return self.cells.select().sort_by(TableauCell.y, TableauCell.x)
+
+    def get_cells_par_ligne(self, row):
+        return self.get_cells().page(
+            row + 1, self.colonnes
+        )  # page commence a 1 chez pony
 
 
 class TableauCell(db.Entity, ColorMixin):
@@ -348,7 +432,7 @@ class TableauCell(db.Entity, ColorMixin):
     y = Required(int)
     texte = Optional(str)
     tableau = Required(TableauSection)
-    PrimaryKey(tableau, x, y)
+    PrimaryKey(tableau, y, x)
     style = Optional(db.Style, default=db.Style, cascade_delete=True)
 
     def __init__(self, **kwargs):
@@ -362,3 +446,10 @@ class TableauCell(db.Entity, ColorMixin):
         if "style" in dico:  # ne pas l'ajouter sur a été exclude
             dico["style"] = self.style.to_dict()
         return dico
+
+    def set(self, **kwargs):
+        if "style" in kwargs:
+            style = kwargs.pop("style")
+            self.style.set(**style)
+        super().set(**kwargs)
+        self.tableau.modified = datetime.utcnow()

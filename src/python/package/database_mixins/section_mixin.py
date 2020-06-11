@@ -14,7 +14,7 @@ LOG = logging.getLogger(__name__)
 
 class SectionMixin:
 
-    sectionAdded = Signal(int)
+    sectionAdded = Signal(int, int)  # position nombre
     sectionRemoved = Signal(int)
 
     @Slot(int, "QVariantMap", result=int)
@@ -34,11 +34,25 @@ class SectionMixin:
             )
             if path.is_file():
                 if path.suffix == ".pdf":
-                    self.addSectionPDF(page_id, path)
-                    return
-                content["path"] = self.store_new_file(path)
+                    return self.addSectionPDF(page_id, path)
+                content["path"] = str(self.store_new_file(path))
             else:
                 return 0
+
+        elif classtype == "OperationSection":
+            string = content["string"]
+            if "+" in string:
+                classtype = "AdditionSection"
+            elif "-" in string:
+                classtype = "SoustractionSection"
+            elif "*" in string:
+                classtype = "MultiplicationSection"
+            elif "/" in string:
+                classtype = "DivisionSection"
+            else:
+                return 0
+
+        # elif classtype == "TextSection":
 
         with db_session:
             try:
@@ -47,10 +61,12 @@ class SectionMixin:
                 LOG.error(err)
                 self.ui.sendToast.emit(str(err))
                 return 0
-        self.sectionAdded.emit(item.position)
+        self.sectionAdded.emit(item.position, 1)
         return item.id
 
     def addSectionPDF(self, page_id, path):
+
+        first = None
 
         with tempfile.TemporaryDirectory() as temp_path:
             res = run_convert_pdf(path, temp_path)
@@ -66,8 +82,10 @@ class SectionMixin:
                     self.ui.sendToast.emit(str(err))
                     return 0
                 else:
-                    self.sectionAdded.emit(item.position)
-                    return item.id
+                    if not first:
+                        first = item
+            self.sectionAdded.emit(first.position, len(res))
+            return first.id
 
     @Slot(int, result="QVariantMap")
     def loadSection(self, section_id):
@@ -79,13 +97,28 @@ class SectionMixin:
                 if res["classtype"] == "ImageSection":
                     res["path"] = QUrl.fromLocalFile(str(FILES / res["path"]))
                     # LOG.debug("loading Section: %s", res)
+            else:
+                LOG.error(f"La section {section_id} n'existe pas")
         return res
 
-    @Slot(int, int)
-    def removeSection(self, sectionId, index):
-        with db_session:
-            item = self.db.Section.get(id=sectionId)
-            if item:
-                item.delete()
-        # on sort de la session avant d'emit pour que toutes modif/hook pris en compte
-        self.sectionRemoved.emit(index)
+    # @Slot(int, int)
+    # def removeSection(self, sectionId, index):
+    #     with db_session:
+    #         item = self.db.Section.get(id=sectionId)
+    #         if item:
+    #             item.delete()
+    #     # on sort de la session avant d'emit pour que toutes modif/hook pris en compte
+    #     self.sectionRemoved.emit(index)
+
+    @Slot(str)
+    def html(self, value):
+        print(value.encode())
+        print("".join(value.split("\n")))
+
+    # @Slot(int, "QVariantMap")
+    # @db_session
+    # def updateSection(self, section_id, content):
+    #     section = self.db.Section.get(id=section_id)
+    #     print(section)
+    #     section.set(**content)
+    #     return True

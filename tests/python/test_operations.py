@@ -589,7 +589,7 @@ class TestOperationModel:
         op = OperationModel()
 
         assert check_super_init(
-            "package.list_models.QAbstractListModel", OperationModel
+            "package.operations.models.QAbstractListModel", OperationModel
         )
         qtmodeltester.check(op)
         assert op.datas == []

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Provides all data related to decorators."""
+"""Provides all content related to decorators."""
 
 COMMON_LETTERS = {
     "\t": "\t",

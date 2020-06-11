@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Provides all the data related to the development."""
+"""Provides all the content related to the development."""
 
 LICENSES = [
     "Apache License, 2.0 (Apache-2.0)",

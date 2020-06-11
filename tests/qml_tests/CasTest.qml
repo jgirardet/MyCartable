@@ -21,7 +21,6 @@ TestCase {
     initPre()
     uiManager = createTemporaryObject(Qt.createComponent("UiManager.qml"), testcase.parent)
     ddb = createTemporaryObject(Qt.createComponent("DdbData.qml"), testcase.parent)
-
     initPreCreate()
     tested = createObj(testedNom, params)
     initPost()

@@ -1,6 +1,6 @@
 from PySide2.QtCore import Property, Signal, Slot
 from PySide2.QtGui import QColor
-from package.constantes import LAYOUT_SIZES
+from package.constantes import LAYOUT_SIZES, BASE_FONT
 from pony.orm import db_session, ObjectNotFound
 
 import logging
@@ -30,7 +30,6 @@ class LayoutMixin:
                 LOG.error(f"Echec de la mise à jour du style : {err}")
                 return
             res = item.to_dict()
-            print(res)
             return res
 
     ColorChanged = Signal()
@@ -61,4 +60,4 @@ colors = {
 }
 
 
-fonts = {"main": "Verdana"}
+fonts = {"main": BASE_FONT}

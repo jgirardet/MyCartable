@@ -1,205 +1,497 @@
+import html
 import re
+from contextlib import contextmanager
+import logging
 
-from PySide2.QtCore import QObject, Signal, Property, Slot
 from PySide2.QtGui import (
     QTextDocument,
     QTextCharFormat,
     QTextCursor,
     QBrush,
     QColor,
+    Qt,
+    QTextBlockFormat,
+    QTextDocumentFragment,
+    QFont,
 )
 from bs4 import BeautifulSoup
-from package.page.blockFormat import P, BlockFormats
-from package.page.charFormat import CharFormats
-from pony.orm import db_session, make_proxy
+from package.utils import KeyW
+from pony.orm import db_session
 from package.database import db
 
 
-RE_AUTOPARAGRAPH = re.compile(r"^(#{1,6})\s\S.+\S$")
+LOG = logging.getLogger(__name__)
+
+RED = "#D40020"
+BLUE = "#0048BA"
+GREEN = "#006A4E"
+BLACK = "#363636"
+
+_CSS_BASE = {
+    "body": {
+        "color": BLACK,
+        "background-color": "#E6E6E6",
+        "font-family": "Verdana",
+        "font-size": "20pt",
+        "font-weight": "96",
+        "margin-top": "12px",
+    },
+    "h1": {
+        "font-size": "30pt",
+        "color": RED,
+        "font-weight": "600",
+        "text-decoration": "underline",
+        "text-transform": "uppercase",
+        "margin-top": "18px",
+        "margin-left": "10px",
+        "margin-right": "10px",
+    },
+    "h2": {
+        "font-size": "25pt",
+        "color": GREEN,
+        "font-weight": "600",
+        "text-decoration": "underline",
+        "margin-top": "16px",
+        "margin-left": "10px",
+        "margin-right": "10px",
+    },
+    "h3": {
+        "font-size": "25pt",
+        "color": BLUE,
+        "font-weight": "400",
+        "text-decoration": "underline",
+        "margin-top": "14px",
+        "margin-left": "10px",
+        "margin-right": "10px",
+    },
+    "h4": {
+        "color": BLACK,
+        "font-size": "20pt",
+        "font-weight": "400",
+        "text-decoration": "underline",
+        "margin-top": "18px",
+        "margin-left": "10px",
+        "margin-right": "10px",
+    },
+    "p": {
+        "color": BLACK,
+        "background-color": "#E6E6E6",
+        "font-family": "Verdana",
+        "font-size": "20pt",
+        "font-weight": "96",
+        "margin-top": "12px",
+        "margin-left": "10px",
+        "margin-right": "10px",
+    },
+}
 
 
-class DocumentEditor(QObject):
-    documentChanged = Signal()
-    sectionIdChanged = Signal(int)
-    selectionStartChanged = (
-        Signal()
-    )  # pour signal les changements de position de curseur au textarea
-    selectionEndChanged = Signal()
-    selectionCleared = Signal()
+def lowerise(source):
+    target = {}
+    # lowerise les cles mais pas les values
+    for k, v in source.items():
+        k = k.lower()
+        if isinstance(v, str):
+            target[k] = v
+        elif isinstance(v, dict):
+            target[k] = lowerise(v)
+    return target
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._proxy = None
-        self._cursor = None
 
-        # property handler
-        self._document = None
-        self._sectionId = 0
+CSS_BASE = lowerise(_CSS_BASE)
 
-        self._setup_connections()
 
-    # Other method
-    def _setup_connections(self):
-        # First setup connection next call _init
-        self.sectionIdChanged.connect(self._updateProxy)
-        self.sectionIdChanged.connect(self._init)
+def build_css_string(dico):
+    return "".join([" " + k + ":" + v + ";" for k, v in dico.items()])
 
-    @Slot()
-    def _init(self):
-        # pass
-        self._cursor = QTextCursor(self._document)  # type: QTextCursor
 
-    @Property(QObject, notify=documentChanged)
-    def document(self):
-        return self._document
+def build_css(source=CSS_BASE):
+    target = []
+    for tag, items in source.items():
+        target.append(f"{tag} {{{build_css_string(items)}}}")
+    return "".join(target)
 
-    @document.setter
-    def document_set(self, value: QObject):
-        self._document = value.children()[0]  # type: QTextDocument
-        self._cursor = QTextCursor(self._document)  # type: QTextCursor
-        self.documentChanged.emit()
-        # ce signal est géré dans le QML
 
-    @Property(int, notify=sectionIdChanged)
-    def sectionId(self):
-        """setté dans le QML"""
-        return self._sectionId
+CSS = build_css(CSS_BASE)
 
-    @sectionId.setter
-    def sectionId_set(self, value: int):
-        self._sectionId = value
-        self.sectionIdChanged.emit(value)
 
-    @Property(int, notify=selectionEndChanged)
-    def selectionEnd(self):
-        return self._cursor.selectionEnd()
+def build_bockCharFormat_from_css(css):
+    res = []
+    ordre = ["p", "h1", "h2", "h3", "h4"]
+    for item in ordre:
+        datas = css[item]
+        cf = QTextCharFormat()
+        cf.setForeground(
+            QBrush(QColor(datas.get("color", None) or css["body"]["color"]))
+        )
+        cf.setBackground(
+            QBrush(
+                QColor(
+                    datas.get("background-color", None)
+                    or css["body"]["background-color"]
+                )
+            )
+        )
+        pt = datas.get("font-size", None) or css["body"]["font-size"]
+        pt = float(pt.rstrip("pt"))
+        cf.setFontPointSize(pt)
 
-    @selectionEnd.setter
-    def selectionEnd_set(self, value: int):
-        """selection de cursor strictement equivalente à textearea.
-        A tester via cursor.hasSelection
-        """
-        self._cursor.setPosition(value, QTextCursor.KeepAnchor)
+        if "text-decoration" in datas:
+            cf.setFontUnderline(True)
+        if "font-weight" in datas:
+            cf.setFontWeight(
+                int(datas["font-weight"]) / 8
+            )  # cssweight = 8 * QFont.wieight
+        if "text-transform" in datas:
+            if datas["text-transform"] == "uppercase":
+                cf.setFontCapitalization(QFont.AllUppercase)
+            elif datas["text-transform"] == "lowercase":
+                cf.setFontCapitalization(QFont.AllLowercase)
 
-    @Property(int, notify=selectionStartChanged)
-    def selectionStart(self):
-        return self._cursor.selectionStart()
+        res.append(cf)
+    return res
 
-    @selectionStart.setter
-    def selectionStart_set(self, value: int):
-        """LE sens prévu est de textarea vers Document Editor.
-        Pour transmettre une nouvelle position a textarea, il faut emmetre
-        selectionStartChanged manuellement.
-        """
-        self._cursor.setPosition(value)
 
-    @Slot(result=bool)
-    def paragraphAutoFormat(self):
+def build_blockFormat_from_css(css):
+    res = []
+    ordre = ["p", "h1", "h2", "h3", "h4"]
+    for item in ordre:
+        cf = QTextBlockFormat()
+        datas = css[item]
 
-        # on agit uniquement en fin de ligne
-        if not self._cursor.atBlockEnd():
-            return False
+        if item == "p":
+            cf.setHeadingLevel(0)
+        else:
+            cf.setHeadingLevel(int(item[1]))
+
+        mt = datas.get("margin-top", None) or css["body"]["margin-top"]
+        mt = float(mt.rstrip("px"))
+        cf.setTopMargin(mt)
+        #
+        mt = datas.get("margin-left", None)
+        mt = float(mt.rstrip("px"))
+        cf.setLeftMargin(mt)
+        mt = datas.get("margin-right", None)
+        mt = float(mt.rstrip("px"))
+        cf.setRightMargin(mt)
+
+        res.append(cf)
+    return res
+
+
+class BlockFormat_:
+    def __init__(self, data):
+        self.data = data
+
+    def __getattr__(self, item):
+        return self[item]
+
+    def __getitem__(self, item):
+        if isinstance(item, str):
+            if item == "p":
+                level = 0
+            else:
+                level = int(item[1])
+            return self.data[level]
+        elif isinstance(item, int):
+            return self.data[item]
+
+
+blockCharFormat = BlockFormat_(build_bockCharFormat_from_css(CSS_BASE))
+blockFormat = BlockFormat_(build_blockFormat_from_css(CSS_BASE))
+
+
+RE_AUTOPARAGRAPH_DEBUT = re.compile(r"^(#{1,6})\s\S.+\S$")
+RE_AUTOPARAGRAPH_FIN = re.compile(r"^\S+\s(#{1,6})$")
+
+
+class TextSectionEditor(QTextDocument):
+    def __init__(self, sectionId, content="", pos=0, selectionStart=0, selectionEnd=0):
+        super().__init__()
+        self.sectionId = sectionId
+        self.setDefaultStyleSheet(CSS)
+        self.setHtml(content)
+        self.s_start = selectionStart
+        self.s_end = selectionEnd
+
+        self.cur = QTextCursor(self)
+        self.cur.setPosition(pos)
+        self.result = {"text": "", "cursorPosition": self.pos, "eventAccepted": False}
+        self.pending = False
+
+    @property
+    def len(self):
+        return self.characterCount()
+
+    @property
+    def s_len(self):
+        return abs(self.s_end - self.s_start)
+
+    @property
+    def pos(self):
+        return self.cur.position()
+
+    def onChange(self):
+
+        self._update_ddb()
+        self.setResponse(True)
+        return self.result
+
+    @db_session
+    def onLoad(self):
+        item = db.Section[self.sectionId]
+        if item:
+            self.setHtml(item.text)
+            self.setResponse(True, cur=self.len)
+        return self.result
+
+    def onMenu(self, style={}, **kwargs):
+        backup = [self.pos, self.s_start, self.s_end]
+
+        for k, v in style.items():
+            # un peut répétition mais uniquement sur des if alors ...
+            if k == "fgColor":
+                self._set_fg_color(v)
+            elif k == "underline":
+                self._set_underline(style["underline"])
+
+            self.cur.setPosition(backup[0])
+            self.s_start = backup[1]
+            self.s_end = backup[2]
+
+        if self.pending:
+            # else:
+            self._update_ddb()
+        else:
+            self.setResponse(False)
+        return self.result
+
+    def onKey(self, event):
+
+        # on met en premier ceux à qui il faut passer l'event
+
+        if event["key"] == Qt.Key_Return:
+            self.do_key_return(event)
+
+        elif event["modifiers"] == Qt.ControlModifier:
+            self.do_control_modifier(event)
+
+        else:
+            self.setResponse(False)
+
+        if self.pending:
+            self._update_ddb()
+        return self.result
+
+    def do_control_modifier(self, event):
+        if event == KeyW.KEY_1:
+            self.do_key_1()
+
+        elif event == KeyW.KEY_2:
+            self.do_key_2()
+
+        elif event == KeyW.KEY_3:
+            self.do_key_3()
+
+        elif event == KeyW.KEY_4:
+            self.do_key_4()
+
+        elif event["key"] == Qt.Key_U:
+            self.do_key_u()
+
+    def do_key_1(self):
+        self._set_fg_color(BLACK)
+
+    def do_key_2(self):
+        self._set_fg_color(BLUE)
+
+    def do_key_3(self):
+        self._set_fg_color(GREEN)
+
+    def do_key_4(self):
+        self._set_fg_color(RED)
+
+    def do_key_return(self, event):
+        block = self.findBlock(self.pos)
+        if event["modifiers"] == Qt.ControlModifier:
+            self._appendEmptyBlock()
+        elif event["modifiers"] == Qt.ShiftModifier:
+            self._insertEmptyBlock()
+        elif block.blockFormat().headingLevel():
+            self._appendEmptyBlock()
+        else:
+            if self._headerAutoFormat():
+                return
+            else:
+                self.setResponse(False)
+
+    def do_key_u(self):
+        self._set_underline("toggle")
+
+    def setResponse(self, accepted, text=None, cur=None):
+        self.result["text"] = text or self.toHtml()
+        self.result["cursorPosition"] = cur or self.cur.position()
+        self.result["eventAccepted"] = accepted
+
+    def _appendEmptyBlock(
+        self, section="p", pre_move=QTextCursor.EndOfBlock, set_response=True
+    ):
+        self.cur.movePosition(pre_move)
+        self.cur.insertBlock(blockFormat[section], blockCharFormat[section])
+        self.cur.insertFragment(QTextDocumentFragment.fromPlainText(""))
+        self.pending = True
+        if set_response:
+            self.setResponse(True)
+
+    def _insertEmptyBlock(
+        self, section="p", pre_move=QTextCursor.StartOfBlock, set_response=True
+    ):
+        old = self.cur.blockFormat().headingLevel()
+        self._appendEmptyBlock(pre_move=pre_move, set_response=False)
+        self._set_block_style(old)
+        self.cur.movePosition(QTextCursor.PreviousBlock)
+        self._set_block_style(section)
+        self.pending = True
+        if set_response:
+            self.setResponse(True)
+
+    def _headerAutoFormat(self):
 
         # on check les expressions régulières suivantes:
-        #   #, ##, ###, ####, #####, ######
-        line = self._cursor.block().text()
-        matched = RE_AUTOPARAGRAPH.search(line)
+        #   #, ##, ###, ####, #####
+        line = self.cur.block().text()
+        matched = RE_AUTOPARAGRAPH_DEBUT.search(line)
+        matched_at_start = False
         if not matched:
-            return False
-
-        self._cursor.beginEditBlock()
-
-        bloc = self._cursor.block()
-        level = len(matched.groups()[0])
+            matched = RE_AUTOPARAGRAPH_FIN.search(line)
+            if not matched:
+                return False
+        else:
+            matched_at_start = True
 
         # strip les # et applique les styles par défault
-        text = bloc.text()[level + 1 :]
-        self._cursor = QTextCursor(bloc)
-        self._cursor.setBlockFormat(BlockFormats[level])
-        self._cursor.select(QTextCursor.LineUnderCursor)
-        self._cursor.insertText(text)
-        self._cursor.movePosition(QTextCursor.StartOfBlock)
-        self._cursor.movePosition(QTextCursor.EndOfBlock, QTextCursor.KeepAnchor)
-        self._cursor.setCharFormat(CharFormats[level])
-
-        # simple sécurité
-        self._cursor.clearSelection()
-
-        if self._cursor.block().next().isValid():
-            # en milieu de paragraphie,on passe simplement à la ligne du dessous
-            self._cursor.movePosition(QTextCursor.NextBlock)
-            self.selectionStartChanged.emit()
+        level = len(matched.groups()[0])
+        if matched_at_start:
+            text = self.cur.block().text()[level + 1 :]
         else:
-            # en fin de paragraphe, on créer un nouvelle ligne d'écritue simple.
-            self._cursor.movePosition(QTextCursor.End)
-            self._cursor.insertBlock(BlockFormats["p"])
-            self._cursor.select(QTextCursor.BlockUnderCursor)
-            self._cursor.setBlockCharFormat(QTextCharFormat())
-            self._cursor.clearSelection()
+            text = self.cur.block().text()[: -(level + 1)]
 
-        self._cursor.endEditBlock()
+        self.cur.beginEditBlock()
+        self.cur.select(QTextCursor.LineUnderCursor)
+        self.cur.setCharFormat(blockCharFormat[level])
+        self.cur.insertText(text)
+        self.cur.setBlockFormat(blockFormat[level])
+        self.cur.endEditBlock()
+
+        self._appendEmptyBlock()
+        self.pending = True
+        self.setResponse(True)
         return True
 
-    @Slot("QVariantMap")
-    def setStyleFromMenu(self, data):
-        if not self._cursor.hasSelection():
-            self._cursor.select(QTextCursor.WordUnderCursor)
-        f = QTextCharFormat()
-        if data["type"] == "color":
-            f.setForeground(QBrush(data["value"]))
+    @contextmanager
+    def _merge_char_format(self):
+        self._select_word_or_selection()
+        f: QTextCharFormat = QTextCharFormat()
+        yield f
+        self.cur.mergeCharFormat(f)
+        self.pending = True
+        self.setResponse(True, cur=max(self.pos, self.s_start, self.s_end))
 
-        elif data["type"] == "underline":
-            f.setForeground(data["value"])
-            f.setUnderlineColor(QColor("yellow"))
-            f.setFontUnderline(True)
+    def _select_word_or_selection(self):
+        if self.s_start < self.pos:
+            self.cur.movePosition(QTextCursor.Left, QTextCursor.KeepAnchor, self.s_len)
+        elif self.s_end > self.pos:
+            self.cur.movePosition(QTextCursor.Right, QTextCursor.KeepAnchor, self.s_len)
+        else:
+            self.cur.select(QTextCursor.WordUnderCursor)
 
-        self._cursor.mergeCharFormat(f)
-        self.selectionCleared.emit()
+    def _set_block_style(self, level):
+        self.cur.setBlockFormat(blockFormat[level])
+        self.cur.setBlockCharFormat(blockCharFormat[level])
 
-    @Slot(int)
-    def _updateProxy(self, value):
-        with db_session:
+    def _set_fg_color(self, color):
+        with self._merge_char_format() as f:
+            f.setForeground(QBrush(QColor(color)))
 
-            item = db.TextSection.get(id=value)
-            if item:
-                self._proxy = make_proxy(item)
+    def _set_underline(self, value):
+        with self._merge_char_format() as f:
+            if value == "toggle":
+                value = not self.cur.charFormat().fontUnderline()
+            f.setFontUnderline(value)
 
-                # set primitive style
-                self._document.setDefaultStyleSheet(
-                    "body { font-size: 16pt; color: black; }"
-                )
-                # # on convertit en html si plain text
-                if not bool(BeautifulSoup(item.text, "html.parser").find()):
-                    item.text = f"<html><body>{item.text}</body></html>"
+    @db_session
+    def _update_ddb(self):
+        obj = db.Section[self.sectionId]
+        new_body = TextSectionFormatter(self.toHtml()).build_body()
+        obj.set(text=new_body)
+        return new_body
 
-                # load content
-                self._document.setHtml(item.text)
-                self._update_block_format()
 
-                # set connection later to avoid save on first load
-                self._document.contentsChanged.connect(self.onDocumenContentsChanged)
+class TextSectionFormatter:
+    def __init__(self, html):
+        self.soup = BeautifulSoup(html, "html.parser")
+
+    def write_span(self, span, attrs):
+        return (
+            f"<span{self._write_style_block(attrs)}>{self.format_string(span)}</span>"
+        )
+
+    def _write_style_block(self, attrs):
+        style = build_css_string(attrs)
+        return f' style="{style}"' if style else ""
+
+    def format_string(self, tag):
+        if tag.string:
+            string = html.escape(tag.string)
+        else:
+            if tag.name == "p":
+                string = "<br/>"
             else:
-                self._proxy = None
+                string = ""
 
-    # documentContentChanged = Signal()
+        return string
 
-    @Slot()
-    def onDocumenContentsChanged(self):
-        with db_session:
-            self._proxy.text = self.document.toHtml()
-        # self.documentChanged.emit()
-        # self.documentContentChanged.emit()
-
-    def _update_block_format(self):
-        b = self._document.begin()
-        while b.isValid():
-            c = QTextCursor(b)
-            heading_level = b.blockFormat().headingLevel()
-            if heading_level:
-                c.setBlockFormat(BlockFormats[heading_level])
-                c.select(QTextCursor.BlockUnderCursor)
-                c.setCharFormat(CharFormats[heading_level])
+    def build_body(self):
+        res = ["<body>"]
+        for tag in self.soup.body:
+            if tag == "\n":
+                continue
+            elif tag.name in ["h1", "h2", "h3", "h4"]:
+                res.append(f"<{tag.name}>{self.format_string(tag)}</{tag.name}>")
+            elif tag.name == "p":
+                res.append("<p>")
+                res.extend(self.extract_spans(tag))
+                res.append("</p>")
             else:
-                c.setBlockFormat(BlockFormats["p"])
+                raise TypeError(f"le type de tag '{tag.name}' n'est pas reconnu")
+        res.append("</body>")
+        return "".join(res)
 
-            b = b.next()
+    def extract_params(self, actual):
+        """extrait les attributs non standards ou différents"""
+        res = {}
+        if not actual:
+            return res
+        for member in actual.split(";")[:-1]:
+            attr, value = member.replace(" ", "").split(":")
+            value = value.lower()
+            if attr not in CSS_BASE["p"] and attr not in CSS_BASE["body"]:
+                res[attr] = value
+            elif (
+                value != CSS_BASE["p"].get(attr, "").lower()
+                and value != CSS_BASE["body"].get(attr, "").lower()
+            ):
+                res[attr] = value
+        return res
+
+    def extract_spans(self, tag):
+        res = []
+        for span in tag:
+            if isinstance(span, str):
+                res.append(span)
+                continue
+
+            new_span_attrs = self.extract_params(span.attrs.get("style", {}))
+
+            res.append(self.write_span(span, new_span_attrs))
+        return res

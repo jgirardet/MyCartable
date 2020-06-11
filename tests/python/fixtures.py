@@ -3,8 +3,6 @@ from itertools import zip_longest
 from operator import itemgetter, attrgetter
 from unittest.mock import patch, MagicMock
 
-import package.page.blockFormat as blockformat
-import package.page.charFormat as charformat
 from pony.orm import db_session
 from contextlib import contextmanager
 

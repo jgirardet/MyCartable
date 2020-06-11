@@ -1,6 +1,13 @@
 from datetime import datetime, timedelta
 
-from pony.orm import select, Database, PrimaryKey, Optional, Required, Set, desc, flush
+from pony.orm import (
+    select,
+    PrimaryKey,
+    Optional,
+    Required,
+    Set,
+    desc,
+)
 from package.constantes import ACTIVITES
 from .root_db import db
 from .mixins import ColorMixin
@@ -91,7 +98,10 @@ class Page(db.Entity):
         self.modified = self.created
 
     def before_update(self):
-        self.modified = datetime.utcnow()
+        if hasattr(self, "reasonUpdate"):
+            del self.reasonUpdate  # block page autoupdate when provient de section
+        else:
+            self.modified = datetime.utcnow()
 
     def to_dict(self, *args, **kwargs):
         dico = super().to_dict(*args, **kwargs)
@@ -125,7 +135,7 @@ class Page(db.Entity):
 
     @property
     def content(self):
-        return [p for p in self.sections.order_by(db.Section.position)]
+        return [p for p in self.sections.order_by(db.Section._position)]
 
     @property
     def content_dict(self):

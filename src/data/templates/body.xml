@@ -1,0 +1,6 @@
+<office:body>
+    <office:text>
+        <text:p text:style-name="TITRE_PRINCIPALE">${titre}</text:p>
+        ${body}
+    </office:text>
+</office:body>

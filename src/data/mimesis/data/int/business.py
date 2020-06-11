@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Provides all the generic data related to the business."""
+"""Provides all the generic content related to the business."""
 
 CURRENCY_ISO_CODES = [
     "AED",

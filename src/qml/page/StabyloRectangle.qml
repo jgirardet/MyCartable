@@ -52,7 +52,9 @@ Rectangle {
       }
     }
   }
-  Component.onCompleted: deleteRequested.connect(referent.deleteAnnotation)
+  Component.onCompleted: {
+    deleteRequested.connect(referent.parent.deleteAnnotation)
+  }
 
   function setStyleFromMenu(data) {
     var res = ddb.setStyle(objStyle.id, data["style"])

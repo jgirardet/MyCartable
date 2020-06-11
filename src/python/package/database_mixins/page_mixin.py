@@ -1,7 +1,9 @@
 from functools import partial
 
-from PySide2.QtCore import Slot, Signal, Property, QObject, QTimer, QSettings
+from PySide2.QtCore import Slot, Signal, Property, QObject
+from PySide2.QtGui import QDesktopServices
 from package.constantes import TITRE_TIMER_DELAY
+from package.convert import soffice_convert, escaped_filename
 from package.utils import create_singleshot
 from pony.orm import db_session, make_proxy
 import logging
@@ -27,13 +29,13 @@ class PageMixin:
             partial(self._currentTitreSet, setted=True)
         )
 
-        from package.list_models import PageModel
+        from package.page.page_model import PageModel
 
-        self.models.update({"pageModel": PageModel()})
+        self._pageModel = PageModel()
 
     @Property(QObject, notify=currentPageChanged)
     def pageModel(self):
-        return self.models["pageModel"]
+        return self._pageModel
 
     # newPage
     @Slot(int, result="QVariantMap")
@@ -110,3 +112,18 @@ class PageMixin:
         if self.currentPage and value != self._currentTitre:
             self._currentTitre = value
             self.timer_titre_setted.start(self.TITRE_TIMER_DELAY)
+
+    @Slot()
+    def exportToPDF(self):
+
+        filename = escaped_filename(self.currentTitre, ".pdf")
+        new_file = soffice_convert(
+            self.currentPage, "pdf:writer_pdf_Export", filename, self.ui
+        )
+        QDesktopServices.openUrl(new_file.as_uri())
+
+    @Slot()
+    def exportToOdt(self):
+        filename = escaped_filename(self.currentTitre, ".odt")
+        new_file = soffice_convert(self.currentPage, "odt", filename, self.ui)
+        QDesktopServices.openUrl(new_file.as_uri())

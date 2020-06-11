@@ -1,5 +1,5 @@
 from PySide2.QtGui import QFont, QFontDatabase
-from package.constantes import APPNAME, ORGNAME
+from package.constantes import APPNAME, ORGNAME, BASE_FONT
 from PySide2.QtCore import (
     QUrl,
     QLocale,
@@ -19,14 +19,13 @@ from PySide2.QtQml import QQmlApplicationEngine, qmlRegisterType
 
 import sys
 
-from package import PROD
-
-import package.database
 import logging
 
-
-logging.basicConfig(level=logging.DEBUG)
 LOG = logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG)
+from package import *
+
+import package.database
 
 
 def main_init_database(filename=None):
@@ -60,21 +59,21 @@ def register_new_qml_type(databaseObject):
         MultiplicationModel,
         DivisionModel,
     )
-    from package.page.text_section import DocumentEditor
-    from package.page.tableau_section import TableauModel
 
-    qmlRegisterType(DocumentEditor, "DocumentEditor", 1, 0, "DocumentEditor")
+    # from package.page.text_section import DocumentEditor
+    from package.page.annotation_model import AnnotationModel
+
     AdditionModel.ddb = databaseObject
     SoustractionModel.ddb = databaseObject
     MultiplicationModel.ddb = databaseObject
     DivisionModel.ddb = databaseObject
-    TableauModel.ddb = databaseObject
 
-    qmlRegisterType(AdditionModel, "Operations", 1, 0, "AdditionModel")
-    qmlRegisterType(SoustractionModel, "Operations", 1, 0, "SoustractionModel")
-    qmlRegisterType(MultiplicationModel, "Operations", 1, 0, "MultiplicationModel")
-    qmlRegisterType(DivisionModel, "Operations", 1, 0, "DivisionModel")
-    qmlRegisterType(TableauModel, "Tableau", 1, 0, "TableauModel")
+    # qmlRegisterType(DocumentEditor, "DocumentEditor", 1, 0, "DocumentEditor")
+    qmlRegisterType(AdditionModel, "MyCartable", 1, 0, "AdditionModel")
+    qmlRegisterType(SoustractionModel, "MyCartable", 1, 0, "SoustractionModel")
+    qmlRegisterType(MultiplicationModel, "MyCartable", 1, 0, "MultiplicationModel")
+    qmlRegisterType(DivisionModel, "MyCartable", 1, 0, "DivisionModel")
+    qmlRegisterType(AnnotationModel, "MyCartable", 1, 0, "AnnotationModel")
 
 
 def create_singleton_instance():
@@ -134,6 +133,7 @@ def main(filename=None):
 
     # create instance de ce qui sera des singleton dans qml
     databaseObject, ui_manager = create_singleton_instance()
+    app.dao = databaseObject
 
     # register les new qml type
     register_new_qml_type(databaseObject)
@@ -143,7 +143,7 @@ def main(filename=None):
 
     engine = setup_qml(databaseObject, ui_manager)
     QFontDatabase.addApplicationFont(":/fonts/Verdana.ttf")
-    font = QFont("Verdana", 12, QFont.Normal)
+    font = QFont(BASE_FONT, 12, QFont.Normal)
     # font = QFont('Verdana', 12, QFont.Normal)
     app.setFont(font)
 

@@ -30,8 +30,8 @@ jobs:
     env:
       DISPLAY: ':99.0'
     steps:
-#    - name: Get repo
-#      uses: actions/checkout@v1
+    - name: Get repo
+      uses: actions/checkout@v1
     - name: Setup Python ${{ matrix.python }}
       uses: actions/setup-python@v1
       with:
@@ -81,12 +81,11 @@ jobs:
 #      run: python -m zipfile -c MyCartable-${{runner.os}}64.zip .
     - name: bla
       run: |
-        python -m zipfile -c MyCartable-${{runner.os}}644.zip .
-#        echo "olhijmpjoljomkpù" > bla.txt
+        python -m zipfile -c MyCartable-${{runner.os}}64.zip .
     - name: upload  on ${{ matrix.os }} binary in artifact
       uses: actions/upload-artifact@v1
       with:
-        path: MyCartable-${{runner.os}}644.zip
+        path: MyCartable-${{runner.os}}64.zip
         name: MyCartable-${{runner.os}}64
 #        path: MyCartable-${{runner.os}}64.zip
 #        name: MyCartable-${{runner.os}}64

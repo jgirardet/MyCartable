@@ -95,7 +95,7 @@ jobs:
   Create_release:
       needs: TestAndBuild
       runs-on: [ubuntu-18.04]
-      if: ! contains(github.ref, "vrefs")
+      if: !contains(github.ref, "vrefs")
       steps:
         - name: Create Release
           if: runner.os == 'Linux'

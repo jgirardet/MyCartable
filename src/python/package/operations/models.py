@@ -728,10 +728,8 @@ class DivisionModel(OperationModel):
 
     @quotient.setter
     def quotient_set(self, value: int):
-        print('"bonong')
         with db_session:
             if value != self.proxy.quotient:
-                print("bind")
                 self.proxy.quotient = value
         self.quotientChanged.emit()
 

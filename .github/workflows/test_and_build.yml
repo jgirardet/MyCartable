@@ -29,53 +29,55 @@ jobs:
     env:
       DISPLAY: ':99.0'
     steps:
-    - name: Get repo
-      uses: actions/checkout@v1
+#    - name: Get repo
+#      uses: actions/checkout@v1
     - name: Setup Python ${{ matrix.python }}
       uses: actions/setup-python@v1
       with:
         python-version: ${{ matrix.python }}
-    - name: install dependencies
-      run: |
-        python run.py install
-
-    - name: Linux custom installs
-      if: runner.os == 'Linux'
-      run: |
-        sudo apt install libxkbcommon-x11-0
-        /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -screen 0 1920x1200x24 -ac +extension GLX
-    - name: Tests python on ${{ matrix.os }}
-      run: python run.py test_python
-    - name: Install Qt on Linux
-      if: runner.os == 'Linux'
-      uses: jurplel/install-qt-action@v2
-      with:
-        version: '5.14.1'
-        host: 'linux'
-        target: 'desktop'
-    - name: Install Qt on Windows
-      if: runner.os == 'Windows'
-      uses: jurplel/install-qt-action@v2
-      with:
-        version: '5.14.1'
-        host: 'windows'
-        target: 'desktop'
-        arch: 'win64_mingw73'
-    - name: Tests QML on ${{ matrix.os }}
-      run: python run.py test_qml_reset
-
-    - name: Coverage on ${{ matrix.os }}
-      run: |
-        python run.py cov
-    - name: build on ${{ matrix.os }}
-      run: |
-        python run.py build_binary_as_dir
-    - name: test run on windows CMD
-      if: runner.os == 'Windows'
-      shell: cmd
-      run: python run.py test_binary_as_dir
+#    - name: install dependencies
+#      run: |
+#        python run.py install
+#
+#    - name: Linux custom installs
+#      if: runner.os == 'Linux'
+#      run: |
+#        sudo apt install libxkbcommon-x11-0
+#        /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -screen 0 1920x1200x24 -ac +extension GLX
+#    - name: Tests python on ${{ matrix.os }}
+#      run: python run.py test_python
+#    - name: Install Qt on Linux
+#      if: runner.os == 'Linux'
+#      uses: jurplel/install-qt-action@v2
+#      with:
+#        version: '5.14.1'
+#        host: 'linux'
+#        target: 'desktop'
+#    - name: Install Qt on Windows
+#      if: runner.os == 'Windows'
+#      uses: jurplel/install-qt-action@v2
+#      with:
+#        version: '5.14.1'
+#        host: 'windows'
+#        target: 'desktop'
+#        arch: 'win64_mingw73'
+#    - name: Tests QML on ${{ matrix.os }}
+#      run: python run.py test_qml_reset
+#
+#    - name: Coverage on ${{ matrix.os }}
+#      run: |
+#        python run.py cov
+#    - name: build on ${{ matrix.os }}
+#      run: |
+#        python run.py build_binary_as_dir
+#    - name: test run on windows CMD
+#      if: runner.os == 'Windows'
+#      shell: cmd
+#      run: python run.py test_binary_as_dir
+#    - name: zip dist
+#      run: python -m zipfile -c MyCartable-${{runner.os}}64.zip dist/MyCartable/.
     - name: zip dist
-      run: python -m zipfile -c MyCartable-${{runner.os}}64.zip dist/MyCartable/.
+      run: python -m zipfile -c MyCartable-${{runner.os}}64.zip .
     - name: upload  on ${{ matrix.os }} binary in artifact
       uses: actions/upload-artifact@v1
       with:

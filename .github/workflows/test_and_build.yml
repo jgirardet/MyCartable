@@ -24,7 +24,7 @@ jobs:
     strategy:
       matrix:
         os : [ubuntu-18.04]
-        os : [ubuntu-18.04, windows-2019]
+#        os : [ubuntu-18.04, windows-2019]
 #        os : [ubuntu-latest, ubuntu-18.04, windows-2019, windows-latest]
         python: [3.7]
     env:
@@ -84,7 +84,7 @@ jobs:
     - name: upload  on ${{ matrix.os }} binary in artifact
       uses: actions/upload-artifact@v1
       with:
-        path: lat.txt
+        path: bla.txt
         name: MyCartable-${{runner.os}}64
 #        path: MyCartable-${{runner.os}}64.zip
 #        name: MyCartable-${{runner.os}}64

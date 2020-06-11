@@ -1117,3 +1117,63 @@ class TestDessinModel:
                 tool="bla",
                 path="epofjpez",
             )
+
+
+class TestColorMixin:
+    class YupMixin(ColorMixin):
+        _fgColor = None
+        fgColor = property(ColorMixin.fgColor_get, ColorMixin.fgColor_set)
+        _bgColor = None
+        bgColor = property(ColorMixin.bgColor_get, ColorMixin.bgColor_set)
+
+    def test_fgcolor_mixin(self):
+        a = self.YupMixin()
+
+        assert a.fgColor == QColor("transparent")
+        assert a._fgColor == None
+
+        a.fgColor = "red"
+        assert a.fgColor == QColor("red")
+        assert a._fgColor == 4294901760
+
+        a.fgColor = QColor("blue")
+        assert a.fgColor == QColor("blue")
+        assert a._fgColor == 4278190335
+
+        a.fgColor = 4294901760
+        assert a.fgColor == QColor("red")
+        assert a._fgColor == 4294901760
+
+        a.fgColor = (0, 0, 255)
+        assert a.fgColor == QColor("blue")
+        assert a._fgColor == 4278190335
+
+        a.fgColor = [1, 1, 1]  # not supported no changed
+        assert a.fgColor == QColor("blue")
+        assert a._fgColor == 4278190335
+
+    def test_bgcolor_mixin(self):
+        a = self.YupMixin()
+
+        assert a.bgColor == QColor("transparent")
+        assert a._bgColor == None
+
+        a.bgColor = "red"
+        assert a.bgColor == QColor("red")
+        assert a._bgColor == 4294901760
+
+        a.bgColor = QColor("blue")
+        assert a.bgColor == QColor("blue")
+        assert a._bgColor == 4278190335
+
+        a.bgColor = 4294901760
+        assert a.bgColor == QColor("red")
+        assert a._bgColor == 4294901760
+
+        a.bgColor = (0, 0, 255)
+        assert a.bgColor == QColor("blue")
+        assert a._bgColor == 4278190335
+
+        a.bgColor = [1, 1, 1]  # not supported no changed
+        assert a.bgColor == QColor("blue")
+        assert a._bgColor == 4278190335

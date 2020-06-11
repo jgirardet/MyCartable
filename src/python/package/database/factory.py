@@ -200,30 +200,56 @@ def f_textSection(text=None, **kwargs):
     return _f_section("TextSection", text=text, **kwargs)
 
 
-def f_annotationText(
-    relativeX=None, relativeY=None, text="", td=False, section=None, style=None,
+def f_annotation(
+    x=None, y=None, section=None, style=None, td=False, classtype=None, **kwargs
 ):
-    relativeX = relativeX or random.randint(0, 100) / 100
-    relativeY = relativeY or random.randint(0, 100) / 100
+    x = x or random.randrange(10, 100, 10) / 100
+    y = y or random.randrange(10, 100, 10) / 100
+    section = section or f_section().id
+    classtype = classtype or db.Annotation
+    with db_session:
+        item = classtype(x=x, y=y, section=section, **kwargs)
+        if style:
+            item.style = db.Style[style]
+        return item.to_dict() if td else item
 
-    print(text)
+
+def f_annotationText(text="", **kwargs):
     if text == "empty":
         text = ""
     elif not text:
         text = "".join(gen.text.words(2))
-    print(text)
-    section = section or f_section().id
-    with db_session:
-        style = style or db.Style()
-        flush()
-        item = db.AnnotationText(
-            relativeX=relativeX,
-            relativeY=relativeY,
-            text=text,
-            section=section,
-            style=style.id if isinstance(style, int) else style,
-        )
-        return item.to_dict() if td else item
+    return f_annotation(classtype=db.AnnotationText, text=text, **kwargs)
+
+
+def f_annotationDessin(
+    width=None,
+    height=None,
+    tool=None,
+    startX=None,
+    startY=None,
+    endX=None,
+    endY=None,
+    **kwargs,
+):
+    width = width or random.randrange(10, 100, 10) / 100
+    height = height or random.randrange(10, 100, 10) / 100
+    tool = random.choice(["rect", "fillrect", "ellipse", "trait"])
+    startX = startX or random.randrange(10, 100, 10) / 100
+    startY = startY or random.randrange(10, 100, 10) / 100
+    endX = endX or random.randrange(10, 100, 10) / 100
+    endY = endY or random.randrange(10, 100, 10) / 100
+    return f_annotation(
+        classtype=db.AnnotationDessin,
+        width=width,
+        height=height,
+        tool=tool,
+        startX=startX,
+        startY=startY,
+        endX=endX,
+        endY=endY,
+        **kwargs,
+    )
 
 
 #
@@ -347,6 +373,7 @@ def f_style(
     strikeout=False,
     weight=None,
     td=False,
+    **kwargs,
 ):
 
     with db_session:
@@ -358,6 +385,7 @@ def f_style(
             pointSize=pointSize,
             strikeout=strikeout,
             weight=weight,
+            **kwargs,
         )
         return item.to_dict() if td else item
 

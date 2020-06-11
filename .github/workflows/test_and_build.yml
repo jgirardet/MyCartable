@@ -85,7 +85,7 @@ jobs:
         name: MyCartable-${{runner.os}}64
 
   Deploy:
-    - needs: TestAndBuild
+      needs: TestAndBuild
       runs-on: ubuntu-18.04
       steps:
         - name: Create Release

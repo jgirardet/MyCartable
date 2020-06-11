@@ -81,8 +81,8 @@ jobs:
 #      run: python -m zipfile -c MyCartable-${{runner.os}}64.zip .
     - name: bla
       run: |
-#        echo "olhijmpjoljomkpù" > bla.txt
         python -m zipfile -c MyCartable-${{runner.os}}64.zip .
+#        echo "olhijmpjoljomkpù" > bla.txt
     - name: upload  on ${{ matrix.os }} binary in artifact
       uses: actions/upload-artifact@v1
       with:

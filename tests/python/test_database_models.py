@@ -765,112 +765,37 @@ class TestDivisionSection:
         assert x.dividende_as_num == 5.333333
 
 
-@pytest.mark.skip("broken")
 class TestAnnotations:
-    # def test_init(self):
-    #     # with dict
-    #     a = f_stabylo(style={"bgColor": "red"}, td=True)
-    #     assert a["style"]["bgColor"] == "red"
-
-    # def test_factory_stabylo(self, ddbr):
-    #     a = f_stabylo()
-    #     isinstance(a, db.Stabylo)
-    #     a = f_stabylo(0.30, 0.40, 0.50, 0.60, td=True)
-    #     assert list(a.values()) == [
-    #         2,
-    #         0.3,
-    #         0.4,
-    #         2,
-    #         {
-    #             "bgColor": QColor("transparent"),
-    #             "fgColor": QColor("black"),
-    #             "annotation": 2,
-    #             "family": "",
-    #             "id": 2,
-    #             "pointSize": None,
-    #             "strikeout": False,
-    #             "underline": False,
-    #             "weight": None,
-    #         },
-    #         "Stabylo",
-    #         0.5,
-    #         0.6,
-    #     ]
-
-    def test_factory_annotationtext(self, ddbr):
-        a = f_annotationText()
-        isinstance(a, db.AnnotationText)
-        a = f_annotationText(0.30, 0.40, "coucou", td=True)
-        assert list(a.values()) == [
-            2,
-            0.3,
-            0.4,
-            2,
-            {
-                "bgColor": QColor("transparent"),
-                "fgColor": QColor("black"),
-                "family": "",
-                "id": 2,
-                "pointSize": None,
-                "strikeout": False,
-                "underline": False,
-                "weight": None,
-            },
-            "AnnotationText",
-            "coucou",
-        ]
-
-    def test_create_annotation_accept_style(self, ddbr):
+    def test_init(self, ddb):
         s = f_section()
+        x = ddb.Annotation(x=0.1, y=0.4, section=s.id)
+        x.style.flush()
+        assert x.style.styleId == 1
+
+    def test_factory(self, ddbr):
+        a = f_annotation()
+        assert a.id == 1
+
+    def test_init_and_to_dict(self, ddb):
+        s = f_section()
+        x = ddb.Annotation(x=0.1, y=0.4, section=s.id, style={"bgColor": "red"})
+        assert x.style.bgColor == QColor("red")
+
+        r = x.to_dict()
+        assert r["x"] == 0.1
+        assert r["y"] == 0.4
+        assert r["section"] == Section[1]
+        assert r["bgColor"] == QColor("red")
+        assert r["fgColor"] == QColor("black")
+
+    def test_set(self, ddbr):
+        x = f_annotation(x=0.3)
         with db_session:
-            item = ddbr.Stabylo(
-                relativeX=0.5,
-                relativeY=0.5,
-                relativeWidth=0.5,
-                relativeHeight=0.5,
-                section=s.id,
-                style=db.Style(fgColor="red"),
-            )
-            assert item.style.fgColor == QColor("red")
-
-    def test_annotation_to_dict(self, ddbr):
-        s = f_style(fgColor="red")
-        a = f_stabylo(td=True, style=s.id)
-        assert a["style"]["fgColor"] == QColor("red")
-
-        # None case
-        a = f_stabylo(
-            relativeHeight=0.33,
-            relativeWidth=0.5,
-            relativeX=0.8,
-            relativeY=0.67,
-            td=True,
-        )
-        assert a == {
-            "classtype": "Stabylo",
-            "id": 2,
-            "relativeHeight": 0.33,
-            "relativeWidth": 0.5,
-            "relativeX": 0.8,
-            "relativeY": 0.67,
-            "section": 2,
-            "style": {
-                "bgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 0.000000),
-                "family": "",
-                "fgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 1.000000),
-                "id": 2,
-                "pointSize": None,
-                "strikeout": False,
-                "underline": False,
-                "weight": None,
-            },
-        }
-
-        # test exlude pour "style"
-        a = f_stabylo()
-        with db_session:
-            b = ddbr.Stabylo[a.id].to_dict(exclude=["style"])
-            assert "style" not in b
+            x = Annotation[1]
+            assert not x.style.underline
+            x.set(**{"x": 0.7, "style": {"underline": True}})
+            assert x.x == 0.7
+            assert x.style.underline
 
     def test_add_modify_section_and_page_modified_attribute(self, ddbr):
         p = f_page()
@@ -879,7 +804,7 @@ class TestAnnotations:
         before = s.modified
 
         wait()
-        a = f_annotationText(section=s.id)
+        a = f_annotation(section=s.id)
 
         with db_session:
             n = ddbr.Section[s.id]
@@ -890,10 +815,11 @@ class TestAnnotations:
         assert before < after
         assert before_p < after_p
 
+    #
     def test_delete_modify_section_and_page_modified_attribute(self, ddbr):
         p = f_page()
         s = f_section(page=p.id, created=datetime.utcnow())
-        a = f_annotationText(section=s.id)
+        a = f_annotation(section=s.id)
         wait()
         with db_session:
             n = ddbr.Section[s.id]
@@ -912,12 +838,23 @@ class TestAnnotations:
         assert before_p < after_p
 
     def test_delete_not_fail_if_section_deleted(self, ddbr):
-        a = f_annotationText()
+        a = f_annotation()
         with db_session:
             s = ddbr.Section[1]
             a = ddbr.Annotation[1]
             s.delete()
             a.delete()
+
+    def test_annotation_text(self):
+        an = f_annotationText(text=" jihkujgy ")
+        assert an.text == " jihkujgy "
+
+    def test_annotation_dessin(self):
+        an = f_annotationText(text=" jihkujgy ")
+        assert an.text == " jihkujgy "
+
+    def test_annotation_dession(self):
+        an = f_annotationDessin()
 
 
 class TestTableauSection:

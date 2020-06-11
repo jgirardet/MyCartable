@@ -27,9 +27,10 @@ class Section(db.Entity):
         else:
             if isinstance(page, db.Page):
                 page = page.id
-            query = select(
+            to_select = (  # pragma: no branch
                 s for s in db.Section if s.page.id == page
-            )  # pragma: no cover
+            )
+            query = select(to_select)
             _position = query.count()
 
             if position is not None:
@@ -365,25 +366,11 @@ class Annotation(db.Entity):
             self.section.before_update()
 
 
-#
-# class Stabylo(Annotation):
-#     relativeWidth = Required(float)
-#     relativeHeight = Required(float)
-
-
 class AnnotationText(Annotation):
     text = Optional(str, autostrip=False)
-    #
-    # def to_dict(self, **kwargs):
-    #     dico = super().to_dict(exclude=["style"], **kwargs)
-    #     dico["fgColor"] = self.style.fgColor
-    #     dico["fillStyle"] = self.style.bgColor
-    #     dico["lineWidth"] = self.style.pointSize
-    #     return dico
 
 
 class AnnotationDessin(Annotation):
-    # id = PrimaryKey(int, auto=True)
     width = Required(float)
     height = Required(float)
     tool = Required(str)

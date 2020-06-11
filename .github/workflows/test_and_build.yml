@@ -34,6 +34,11 @@ jobs:
     steps:
     - name: Get repo
       uses: actions/checkout@v1
+    - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+
     - name: Setup Python ${{ matrix.python }}
       uses: actions/setup-python@v1
       with:
@@ -95,7 +100,7 @@ jobs:
   Create_release:
       needs: TestAndBuild
       runs-on: [ubuntu-18.04]
-      if: !contains(github.ref, "vrefs")
+#      if: !contains(github.ref, "vrefs")
       steps:
         - name: Create Release
           if: runner.os == 'Linux'

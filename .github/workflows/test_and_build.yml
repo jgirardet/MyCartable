@@ -107,36 +107,45 @@ jobs:
           os: [ubuntu-18.04] #, windows-2019]
 #      if: contains(github.ref, '/tags/')
       steps:
-        - name: Create Release
-          if: runner.os == 'Linux'
-          id: create_release
-          uses: actions/create-release@v1
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          with:
-            tag_name: ${{ github.ref }}
-            release_name: Version ${{ github.ref }}
-            draft: false
-            prerelease: false
-        - name: Download ${{runner.os}} binary
+#        - name: Create Release
+#          if: runner.os == 'Linux'
+#          id: create_release
+#          uses: actions/create-release@v1
+#          env:
+#            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#          with:
+#            tag_name: ${{ github.ref }}
+#            release_name: Version ${{ github.ref }}
+#            draft: false
+#            prerelease: false
+        - name: Download artifact binary
           uses: actions/download-artifact@v2
 #          with:
 #            path:
 #              name: MyCartable-${{runner.os}}64
 #              path: ${{runner.os}}
-#        - name: zippackage
-#          run: python -m zipfile -c MyCartable-${{runner.os}}64.zip ${{runner.os}}
+        - name: zip release
+          run: |
+            python -m zipfile -c MyCartable-Linux64.zip MyCartable-Linux64
+            python -m zipfile -c MyCartable-Windows64.zip MyCartable-Windows64
         - name: Display structure of downloaded files
           run: ls -R
-        - name: Upload Release Asset
-          uses: actions/upload-release-asset@v1
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          with:
-            upload_url: ${{ steps.create_release.outputs.upload_url }} # This pudlls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-            asset_path: MyCartable-${{runner.os}}64.zip
-            asset_name: MyCartable-${{runner.os}}64.zip
-            asset_content_type: application/zip
+        - uses: "marvinpinto/action-automatic-releases@latest"
+            with:
+              repo_token: "${{ secrets.GITHUB_TOKEN }}"
+              prerelease: false
+              files: |
+                MyCartable-Linux64.zip
+                MyCartable-Windows64.zip
+#        - name: Upload Release Asset
+#          uses: actions/upload-release-asset@v1
+#          env:
+#            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#          with:
+#            upload_url: ${{ steps.create_release.outputs.upload_url }} # This pudlls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+#            asset_path: MyCartable-${{runner.os}}64.zip
+#            asset_name: MyCartable-${{runner.os}}64.zip
+#            asset_content_type: application/zip
 #        - name: Upload Release Asset win
 #          uses: actions/upload-release-asset@v1
 #          env:

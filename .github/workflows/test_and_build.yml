@@ -81,7 +81,7 @@ jobs:
     - name: upload  on ${{ matrix.os }} binary in artifact
       uses: actions/upload-artifact@v1
       with:
-        path: .
+        path: ../
         name: MyCartable-${{runner.os}}64
 #        path: MyCartable-${{runner.os}}64.zip
 #        name: MyCartable-${{runner.os}}64

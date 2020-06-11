@@ -102,19 +102,19 @@ jobs:
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           with:
-            tag_name: ${{ github.ref }
+            tag_name: ${{ github.ref }}
             release_name: Release ${{ github.ref }}
             draft: false
             prerelease: false
 
   Upload_release:
       needs: Create_release
-      runs-on: {{ jobs.test_and_build.matrix.os }}
+      runs-on: ${{ jobs.test_and_build.matrix.os }}
       - steps:
-        - name: Download Linux binary
+        - name: Download ${{runner.os}} binary
           uses: actions/download-artifact@v2
           with:
-              name: MyCartable-{{runner.os}}64
+              name: MyCartable-${{runner.os}}64
         - name: Display structure of downloaded files
           run: ls -R
         - name: Upload Release Asset
@@ -123,8 +123,8 @@ jobs:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           with:
             upload_url: ${{ jobs.job_release.steps.create_release.outputs.upload_url }} # This pudlls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-            asset_path: MyCartable-{{runner.os}}64.zip
-            asset_name: MyCartable-{{runner.os}}64.zip
+            asset_path: MyCartable-${{runner.os}}64.zip
+            asset_name: MyCartable-${{runner.os}}64.zip
             asset_content_type: application/zip
 #        - name: Upload Release Asset win
 #          uses: actions/upload-release-asset@v1

@@ -55,14 +55,14 @@ jobs:
       if: runner.os == 'Linux'
       uses: jurplel/install-qt-action@v2
       with:
-        version: '5.14.1'
+        version: '5.15.0'
         host: 'linux'
         target: 'desktop'
     - name: Install Qt on Windows
       if: runner.os == 'Windows'
       uses: jurplel/install-qt-action@v2
       with:
-        version: '5.14.1'
+        version: '5.15.0'
         host: 'windows'
         target: 'desktop'
         arch: 'win64_mingw73'

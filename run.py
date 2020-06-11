@@ -10,7 +10,7 @@ from pathlib import Path
 
 
 PACKAGE = "MyCartable"
-QT_VERSION = "5.14.1"
+QT_VERSION = "5.15.0"
 ROOT = Path(__file__).parent.resolve()
 SRC = ROOT / "src"
 VIRTUAL_ENV = ROOT / ".venv"
@@ -60,7 +60,7 @@ def runCommand(command, cwd=str(ROOT), sleep_time=0.2, with_env=True):
     currentProccess = process
     while process.poll() is None:
         for line in process.stdout:
-            print(line, end= "")
+            print(line, end="")
         time.sleep(sleep_time)
     if process.returncode == 0:
         print(
@@ -105,7 +105,7 @@ def cmd_clean(*args, **kwargs):
         ROOT / "dist",
         DIST,
         ROOT / "aqtinstall.log",
-        ".coverage"
+        ".coverage",
     ]
     for p in to_remove:
         if isinstance(p, str):
@@ -151,6 +151,7 @@ def cmd_install_dev(*args, **kwargs):
     cmd_create_env()
     cmd_install()
     cmd_install_qt()
+
 
 def cmd_install_qt(*args, **kwargs):
     if QT_PATH.exists():
@@ -209,7 +210,7 @@ def cmd_test_binary_as_dir(*args, **kwargs):
 
 
 def cmd_test_python(*args, **kwargs):
-    test_path = ROOT /"tests" /"python"
+    test_path = ROOT / "tests" / "python"
     runCommand(f"python -m pytest -s {test_path}", sleep_time=0.001)
 
 

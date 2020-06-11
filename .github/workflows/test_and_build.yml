@@ -110,7 +110,7 @@ jobs:
   Upload_release:
       needs: Create_release
       runs-on: ${{ jobs.test_and_build.matrix.os }}
-      - steps:
+      steps:
         - name: Download ${{runner.os}} binary
           uses: actions/download-artifact@v2
           with:

@@ -29,14 +29,13 @@ jobs:
     steps:
     - name: Get repo
       uses: actions/checkout@v1
-    - name: Dump GitHub context
-      env:
-        GITHUB_CONTEXT: ${{ toJson(github) }}
-        GITHUB_REF: ${{ github.ref }}
-      run: |
-        echo "$GITHUB_REF"
-        echo "$GITHUB_CONTEXT"
-
+#    - name: Dump GitHub context
+#      env:
+#        GITHUB_CONTEXT: ${{ toJson(github) }}
+#        GITHUB_REF: ${{ github.ref }}
+#      run: |
+#        echo "$GITHUB_REF"
+#        echo "$GITHUB_CONTEXT"
     - name: Setup Python ${{ matrix.python }}
       uses: actions/setup-python@v1
       with:
@@ -70,9 +69,9 @@ jobs:
     - name: Tests QML on ${{ matrix.os }}
       run: python run.py test_qml_reset
 
-    - name: Coverage on ${{ matrix.os }}
-      run: |
-        python run.py cov
+#    - name: Coverage on ${{ matrix.os }}
+#      run: |
+#        python run.py cov
     - name: build on ${{ matrix.os }}
       run: |
         python run.py build_binary_as_dir

@@ -112,14 +112,14 @@ jobs:
         - name: new latest release on master
           uses: "marvinpinto/action-automatic-releases@latest"
           if: github.ref == 'master'
-            with:
-              repo_token: "${{ secrets.GITHUB_TOKEN }}"
-              prerelease: false
-              automatic_release_tag: "latest"
-              title: "MyCartable Latest"
-              files: |
-                MyCartable-Linux64.zip
-                MyCartable-Windows64.zip
+          with:
+            repo_token: "${{ secrets.GITHUB_TOKEN }}"
+            prerelease: false
+            automatic_release_tag: "latest"
+            title: "MyCartable Latest"
+            files: |
+              MyCartable-Linux64.zip
+              MyCartable-Windows64.zip
         - name: new tag release
           uses: "marvinpinto/action-automatic-releases@latest"
           if: contains(github.ref, '/tags/')

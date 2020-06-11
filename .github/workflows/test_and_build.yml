@@ -35,9 +35,9 @@ jobs:
     - name: Get repo
       uses: actions/checkout@v1
     - name: Dump GitHub context
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-        run: echo "$GITHUB_CONTEXT"
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      run: echo "$GITHUB_CONTEXT"
 
     - name: Setup Python ${{ matrix.python }}
       uses: actions/setup-python@v1

@@ -252,6 +252,16 @@ class TestMatiereMixin:
         assert dao.pagesParSection[2]["id"] == 3
         assert dao.pagesParSection[2]["pages"] == [p]
 
+    def test_matiere_dispatch(self, ddbr):
+        # anne n'exist pas
+        m = MatieresDispatcher(ddbr, 2000)
+        assert m.annee.id == 2000
+
+        # anne existe
+        f_annee(1954)
+        m = MatieresDispatcher(ddbr, 1954)
+        assert m.annee.id == 1954
+
 
 class TestRecentsMixin:
     def test_init(self, dao, ddbn):

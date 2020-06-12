@@ -124,7 +124,7 @@ class OperationModel(QAbstractListModel):
     @Slot(int, int)
     def moveCursor(self, index, key):
         res = self.move_cursor(index, key)
-        if res != index:
+        if res != index:  # pragma: no branch
             self.cursor = res
 
     @Slot(int, result=bool)
@@ -293,19 +293,19 @@ class SoustractionModel(OperationModel):
                 new = temp
             elif index % self.columns >= self.columns - 4:
                 pass
-            elif temp + 1 in self.editables:
+            elif temp + 1 in self.editables:  # pragma: no branch
                 new = temp + 1
         elif key == Qt.Key_Left:
             temp = index - 3
             if temp in self.editables:
                 new = temp
-            elif self.datas[temp].isdigit() or self.datas[temp] == ",":
-                new = temp - 1
+            # elif self.datas[temp].isdigit() or self.datas[temp] == ",":
+            #     new = temp - 1
             elif self.datas[temp + 1] == ",":
                 new = temp - 1
         elif key == Qt.Key_Up:
             new = index
-        elif key == Qt.Key_Down:
+        elif key == Qt.Key_Down:  # pragma: no branch
             new = index
         return new
 
@@ -320,7 +320,7 @@ class MultiplicationModel(OperationModel):
         self.n_chiffres = self.proxy.n_chiffres
 
     def get_initial_position(self):
-        return self.i_line_1.stop + self.columns
+        return self.i_line_1.stop + self.columns - 1
 
     def is_result_line(self, index):
         return self.size - self.columns <= index < self.size
@@ -365,7 +365,7 @@ class MultiplicationModel(OperationModel):
                     new = index
                     break
 
-        elif key == Qt.Key_Left:
+        elif key == Qt.Key_Left:  # pragma: no branch
             while index % self.columns:
                 index -= 1
                 if index in self.editables:
@@ -388,9 +388,9 @@ class MultiplicationModel(OperationModel):
 
         if self.isResultLine(position):
             if self.n_chiffres == 1:  # cas ou mambre 2 a 1 seul chiffre
-                if position - 1 != self.size - self.columns:
+                if position - 1 != self.size - self.columns:  # pragma: no branch
                     temp = self._if_middle_line(position)
-                    if temp is not None:
+                    if temp is not None:  # pragma: no branch
                         res = temp
 
             else:
@@ -400,10 +400,12 @@ class MultiplicationModel(OperationModel):
 
         elif self.isMiddleLine(position):
             temp = self._if_middle_line(position)
-            if temp is not None:
+            # je sais pas si_if_middle_peut_etre_none
+            if temp is not None:  # pragma: no branch
                 res = temp
 
-        elif self.isRetenueLine(position):
+        elif self.isRetenueLine(position):  # pragma: no branch
+            # pourrait être else mais moins explicit, d'où le pragama
             if position < self.columns * self.n_chiffres:  # retenu du haut.
                 y = self.n_chiffres - (position // self.columns) - 1
                 x = (
@@ -417,9 +419,6 @@ class MultiplicationModel(OperationModel):
                 res = position + self.columns
 
         return res
-
-    def get_initial_position(self):
-        return self.i_line_1.stop + self.columns - 1
 
     # move_cursor/automove next
     def _get_retenue(self, y, x):
@@ -469,9 +468,8 @@ class MultiplicationModel(OperationModel):
             return position - 1
 
         # cas fin de ligne
-        elif x > self.len_ligne0 - 1:
+        elif x > self.len_ligne0 - 1:  # pragma: no branch
             return self.get_next_line(y)
-        return None
 
     # private utils property / methods
     @cachedproperty
@@ -501,13 +499,6 @@ class MultiplicationModel(OperationModel):
         return pre_list & self.editables
 
     @cachedproperty
-    def i_line_res(self):
-        if self.virgule:
-            return slice(self.size - self.columns * 2, self.size - self.columns)
-        else:
-            return slice(self.size - self.columns, self.size)
-
-    @cachedproperty
     def i_retenue_virgule(self):
         try:
             return self.datas[self.i_line_0].index(",")
@@ -517,10 +508,10 @@ class MultiplicationModel(OperationModel):
     @cachedproperty
     def len_ligne0(self):
         line1 = self.datas[self.i_line_0]
-        for n, i in enumerate(line1):
+        for n, i in enumerate(line1):  # pragma: no branch
             if i == "":
                 pass
-            elif i.isdigit():
+            elif i.isdigit():  # pragma: no branch
                 self._len_ligne0 = self.columns - n
                 if "," in line1:
                     self._len_ligne0 -= 1
@@ -535,11 +526,7 @@ class MultiplicationModel(OperationModel):
         except ValueError:
             return 0  # virgule ne peut jamais avoir index 0
 
-    def is_virgule_index(self, index):
-        return index % self.columns == self.virgule
-
     def isMembreLine(self, index):
-
         return self.i_line_0.start <= index < self.i_line_1.stop
 
     @functools.lru_cache()
@@ -552,7 +539,7 @@ class MultiplicationModel(OperationModel):
 
         i_case = index % self.columns
         if self.n_chiffres == 1:
-            y = -1
+            return (self.columns * 3) - 1, index - (2 * self.columns)
         else:
             y = (index - self.i_line_1.stop) // self.columns
         x = self.columns - i_case - y - 1
@@ -614,7 +601,7 @@ class DivisionModel(OperationModel):
                 temp += 1
                 if temp in self.editables:
                     return temp
-        elif key == Qt.Key_Left:
+        elif key == Qt.Key_Left:  # pragma: no branch
             while temp > 0:
                 temp -= 1
                 if temp in self.editables:
@@ -628,7 +615,7 @@ class DivisionModel(OperationModel):
             res = res + self.columns - 1
         elif res in self.retenue_droite:  # va au chiffre d'avant du bas
             res = res + self.columns + 2
-        elif res in self.regular_chiffre:
+        elif res in self.regular_chiffre:  # pragma: no branch
             row = int(position / self.columns)
             if bool(row & 1):  # impair : on va faire le chiffre de gauche
                 debut_ligne = row * self.columns
@@ -734,10 +721,6 @@ class DivisionModel(OperationModel):
     # private utils property / methods
 
     @cachedproperty
-    def dividende_indexes(self):
-        return set(range(1, self.columns, 3))
-
-    @cachedproperty
     def retenue_gauche(self):
         res = set()
         for i in range(self.rows - 2):  # pas de rentenu gauche pour la derniere ligne
@@ -783,6 +766,4 @@ class DivisionModel(OperationModel):
 
     @Slot(int, result=bool)
     def readOnly(self, value):
-        print("readonly", value, bool(value not in self.editables))
-        print(self.editables)
         return value not in self.editables

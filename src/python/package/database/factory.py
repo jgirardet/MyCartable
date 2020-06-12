@@ -342,14 +342,19 @@ def f_tableauSection(lignes=None, colonnes=None, **kwargs) -> TableauSection:
     return _f_section("TableauSection", lignes=lignes, colonnes=colonnes, **kwargs)
 
 
-def f_tableauCell(x=0, y=0, style=None, tableau=None, td=False):
+def f_tableauCell(x=0, y=0, texte=None, style=None, tableau=None, td=False):
     tableau = tableau or f_tableauSection(lignes=0, colonnes=0).id
+    texte = texte or random.choice(["bla", "bli", "A", "1", "33"])
 
     with db_session:
         style = style or db.Style()
         flush()
         item = getattr(db, "TableauCell")(
-            x=x, y=y, tableau=tableau, style=style if isinstance(style, int) else style,
+            x=x,
+            y=y,
+            tableau=tableau,
+            style=style if isinstance(style, int) else style,
+            texte=texte,
         )
         item.flush()
         return item.to_dict() if td else item

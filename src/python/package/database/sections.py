@@ -395,14 +395,6 @@ class TableauSection(Section):
             for c in range(self.colonnes):
                 TableauCell(tableau=self, y=r, x=c)
 
-    # def to_dict(self, **kwargs):
-    #     dico = super().to_dict(with_collections=**kwargs)
-    #     return dico
-
-    def debug(self):
-        for cel in self.cells:
-            print(cel.x, "|", cel.y, "|", cel.texte)
-
     def get_cells(self):
         return self.cells.select().sort_by(TableauCell.y, TableauCell.x)
 
@@ -429,7 +421,7 @@ class TableauCell(db.Entity, ColorMixin):
 
     def to_dict(self, *args, **kwargs):
         dico = super().to_dict(*args, **kwargs)
-        if "style" in dico:  # ne pas l'ajouter sur a été exclude
+        if "style" in dico:  # pragma: no branch # ne pas l'ajouter sur a été exclude
             dico["style"] = self.style.to_dict()
         return dico
 

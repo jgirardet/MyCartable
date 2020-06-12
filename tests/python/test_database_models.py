@@ -796,6 +796,8 @@ class TestAnnotations:
             x.set(**{"x": 0.7, "style": {"underline": True}})
             assert x.x == 0.7
             assert x.style.underline
+            x.set(**{"x": 0.9})
+            assert x.x == 0.9
 
     def test_add_modify_section_and_page_modified_attribute(self, ddbr):
         p = f_page()
@@ -942,10 +944,6 @@ class TestTableauSection:
             TableauCell[TableauSection[1], 4, 3],
         ]
 
-        # for i in range(4):
-        #     assert p1[i].x == i
-        #     assert p1[i].y == 0
-
 
 class TestTableauCell:
     def test_init(self, ddb):
@@ -966,12 +964,12 @@ class TestTableauCell:
 
     def test_to_dict(self, reset_db):
         s = f_style(bgColor="red")
-        b = f_tableauCell(x=2, y=0, style=s.styleId, td=True)
+        b = f_tableauCell(x=2, y=0, style=s.styleId, td=True, texte="bla")
         assert b == {
             "tableau": 1,
             "x": 2,
             "y": 0,
-            "texte": "",
+            "texte": "bla",
             "style": {
                 "bgColor": QColor("red"),
                 "family": "",
@@ -983,6 +981,17 @@ class TestTableauCell:
                 "weight": None,
             },
         }
+
+    def test_set(self, ddbr):
+        x = f_tableauCell(texte="bla")
+        with db_session:
+            x = TableauCell[1, 0, 0]
+            assert not x.style.underline
+            x.set(**{"texte": "bbb"})
+            assert x.texte == "bbb"
+            x.set(**{"texte": "aaa", "style": {"underline": True}})
+            assert x.texte == "aaa"
+            assert x.style.underline
 
 
 class TestStyle:

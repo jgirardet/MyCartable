@@ -130,6 +130,24 @@ class TestPageMixin:
         dao.currentPage = 1
         dao.currentPage = 0
 
+    def test_exportToPdf(selfsekf, dao):
+        f_page(titre="blà")
+        dao.currentPage = 1
+        with patch("package.database_mixins.page_mixin.QDesktopServices.openUrl") as m:
+            with patch("package.database_mixins.page_mixin.soffice_convert") as v:
+                dao.exportToPDF()
+                v.assert_called_with(1, "pdf:writer_pdf_Export", "bla.pdf", dao.ui)
+                m.assert_called_with(v.return_value.as_uri())
+
+    def test_exportToOdt(selfsekf, dao):
+        f_page(titre="blà")
+        dao.currentPage = 1
+        with patch("package.database_mixins.page_mixin.QDesktopServices.openUrl") as m:
+            with patch("package.database_mixins.page_mixin.soffice_convert") as v:
+                dao.exportToOdt()
+                v.assert_called_with(1, "odt", "bla.odt", dao.ui)
+                m.assert_called_with(v.return_value.as_uri())
+
 
 class TestMatiereMixin:
     def create_matiere(self):

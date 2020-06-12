@@ -52,8 +52,6 @@ class SectionMixin:
             else:
                 return 0
 
-        # elif classtype == "TextSection":
-
         with db_session:
             try:
                 item = getattr(self.db, classtype)(page=page_id, **content)
@@ -71,19 +69,12 @@ class SectionMixin:
         with tempfile.TemporaryDirectory() as temp_path:
             res = run_convert_pdf(path, temp_path)
             for page in res:
-
                 content = {"classtype": "ImageSection"}
                 content["path"] = self.store_new_file(page)
-                try:
-                    with db_session:
-                        item = self.db.ImageSection(page=page_id, **content)
-                except MyCartableOperationError as err:
-                    LOG.error(err)
-                    self.ui.sendToast.emit(str(err))
-                    return 0
-                else:
-                    if not first:
-                        first = item
+                with db_session:
+                    item = self.db.ImageSection(page=page_id, **content)
+                if not first:
+                    first = item
             self.sectionAdded.emit(first.position, len(res))
             return first.id
 
@@ -100,25 +91,3 @@ class SectionMixin:
             else:
                 LOG.error(f"La section {section_id} n'existe pas")
         return res
-
-    # @Slot(int, int)
-    # def removeSection(self, sectionId, index):
-    #     with db_session:
-    #         item = self.db.Section.get(id=sectionId)
-    #         if item:
-    #             item.delete()
-    #     # on sort de la session avant d'emit pour que toutes modif/hook pris en compte
-    #     self.sectionRemoved.emit(index)
-
-    @Slot(str)
-    def html(self, value):
-        print(value.encode())
-        print("".join(value.split("\n")))
-
-    # @Slot(int, "QVariantMap")
-    # @db_session
-    # def updateSection(self, section_id, content):
-    #     section = self.db.Section.get(id=section_id)
-    #     print(section)
-    #     section.set(**content)
-    #     return True

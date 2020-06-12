@@ -69,11 +69,6 @@ class MatiereMixin:
                 res = matiere.pages_par_section()
         return res
 
-    # @pagesParSection.setter
-    # def pagesParSection_set(self, value: int):
-    #     self._pagesParSection = value
-    #     self.pagesParSectionChanged.emit()
-
     CurrentMatiereItemChanged = Signal()
 
     @Property("QVariantMap", notify=CurrentMatiereItemChanged)
@@ -81,13 +76,6 @@ class MatiereMixin:
         with db_session:
             mat = self.db.Matiere[self.currentMatiere]
             return mat.to_dict()
-
-    #
-    # @CurrentMatiereColor.setter
-    # def CurrentMatiereColor_set(self, value: int):
-    #     self._CurrentMatiereColor = value
-    #     self.CurrentMatiereColorChanged.emit()
-    #
 
 
 class MatieresDispatcher:
@@ -99,7 +87,6 @@ class MatieresDispatcher:
             except ObjectNotFound:
                 self.annee = self.db.Annee(id=annee_active)
             self.query = self.annee.get_matieres()
-            # self.query = self.db.Matiere.select().order_by(self.db.Matiere.id)
             self.nom_id = self._build_nom_id()
             self.id_nom = self._build_id_nom()
             self.id_index = self._build_id_index()

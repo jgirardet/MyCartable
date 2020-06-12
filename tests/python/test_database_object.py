@@ -345,14 +345,11 @@ class TestLayoutMixin:
 
 
 class TestSectionMixin:
-    @pytest.mark.skip("broken")
     def test_loadsection_image(self, dao):
         s = f_imageSection(path="bla/ble.jpg")
-        # b_stabylo(5, section=s.id)
         res = dao.loadSection(s.id)
         assert res["id"] == 1
         assert res["path"] == QUrl.fromLocalFile(str(FILES / "bla/ble.jpg"))
-        assert len(res["annotations"]) == 5
 
     def test_loadsection_image_false(self, dao):
         res = dao.loadSection(99999)
@@ -418,6 +415,7 @@ class TestSectionMixin:
             (1, {"classtype": "OperationSection", "string": "4*3"}, 1, True),
             (1, {"classtype": "OperationSection", "string": "4-3"}, 1, True),
             (1, {"classtype": "OperationSection", "string": "4/3"}, 1, True),
+            (1, {"classtype": "OperationSection", "string": "4/a"}, 0, False),
             (1, {"classtype": "TableauSection", "lignes": 3, "colonnes": 2}, 1, True),
         ],
     )

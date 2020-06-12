@@ -92,8 +92,8 @@ class OperationModel(QAbstractListModel):
 
     def flags(self, index):
         if not index.isValid():
-            return Qt.ItemIsDropEnabled
-        return QAbstractItemModel.flags(index) | Qt.ItemIsEditable
+            return
+        return super().flags(index) | Qt.ItemIsEditable
 
     def rowCount(self, parent=QModelIndex()) -> int:
         return int(self.params["size"])

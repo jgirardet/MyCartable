@@ -16,6 +16,8 @@ def test_root_data():
 
 def test_files():
     root = root_data()
+    fil = files(root)
+    assert fil.is_dir()
     shutil.rmtree(root)
     fil = files(root)
     assert fil.is_dir()

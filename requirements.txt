@@ -13,7 +13,7 @@ freezegun
 pytest
 pytest-freezegun
 pytest-qt
-aqtinstall==0.8
+aqtinstall==0.9
 mimesis
 jsbeautifier==1.11
 

@@ -109,7 +109,7 @@ class DecimalLitteral(Decimal):
         for n, x in enumerate(self.string):
             if x.isdigit():
                 temp += ["", x, ""]
-            elif x == ",":
+            elif x == ",":  # pragma: no branch
                 prev_index = (n - 1) * 3 + 1
                 temp[prev_index] = temp[prev_index] + ","
 

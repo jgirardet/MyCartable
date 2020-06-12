@@ -2,7 +2,6 @@ import functools
 import operator
 
 from PySide2.QtCore import (
-    QAbstractTableModel,
     Qt,
     QModelIndex,
     Signal,
@@ -94,7 +93,6 @@ class OperationModel(QAbstractListModel):
     def flags(self, index):
         if not index.isValid():
             return Qt.ItemIsDropEnabled
-
         return QAbstractItemModel.flags(index) | Qt.ItemIsEditable
 
     def rowCount(self, parent=QModelIndex()) -> int:

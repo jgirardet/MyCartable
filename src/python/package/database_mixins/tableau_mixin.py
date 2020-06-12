@@ -8,7 +8,7 @@ class TableauMixin:
 
     @Slot(int, result="QVariantList")
     @db_session
-    def initDatas(self, sectionId):
+    def initTableauDatas(self, sectionId):
         datas = [x.to_dict() for x in self.db.TableauSection[sectionId].get_cells()]
         return datas
 

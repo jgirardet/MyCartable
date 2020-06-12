@@ -12,6 +12,7 @@ from package.database_object import DatabaseObject
 from package.database.factory import *
 from unittest.mock import patch, call
 from package.files_path import FILES
+from package.page import text_section
 
 
 class TestPageMixin:
@@ -498,27 +499,6 @@ class TestSectionMixin:
                 else:
                     assert content[i] == getattr(item, i)
 
-    #
-    # def test_removeSection(self, dao, qtbot):
-    #     r = [f_imageSection(), f_textSection()]
-    #     for x in r:
-    #         dao.removeSection(x.id, 99)
-    #     with db_session:
-    #         assert len(dao.db.Section.select()) == 0
-    #
-    #     # not item
-    #     with qtbot.waitSignal(dao.sectionRemoved, check_params_cb=lambda x: x == 99):
-    #         dao.removeSection(9999, 99)
-    #
-    # def test_removeSection_signal(self, dao, qtbot):
-    #     r = f_imageSection()
-    #     with db_session:
-    #         item = dao.db.Section[1]
-    #         item.position = 8
-    #
-    #     with qtbot.waitSignal(dao.sectionRemoved, check_params_cb=lambda x: (8, 99)):
-    #         dao.removeSection(r.id, 99)
-
 
 class TestEquationMixin:
     def test_update(self, dao, qtbot):
@@ -632,6 +612,64 @@ class TestTableauMixin:
             dao.updateCell(1, 3, 2, {"texte": "bla"})
         with db_session:
             assert TableauCell[1, 3, 2].texte == "bla"
+
+
+class TestTextSectionMixin:
+    def test_updateTextSectionOnKey(self, dao):
+        check_args(dao.updateTextSectionOnKey, [int, str, int, int, int, str], dict)
+        f_textSection(text="bla")
+        dic_event = {"key": int(Qt.Key_B), "modifiers": int(Qt.ControlModifier)}
+        event = json.dumps(dic_event)
+        args = 1, "bla", 3, 3, 3
+
+        with patch("package.database_mixins.text_mixin.TextSectionEditor") as m:
+            res = dao.updateTextSectionOnKey(*args, event)
+            m.assert_called_with(*args)
+            m.return_value.onKey.assert_called_with(dic_event)
+            assert res == m.return_value.onKey.return_value
+
+    def test_updateTextSectionOnChange(self, dao, qtbot):
+        check_args(dao.updateTextSectionOnChange, [int, str, int, int, int], dict)
+        f_textSection(text="bla")
+        dic_event = {"key": int(Qt.Key_B), "modifiers": int(Qt.ControlModifier)}
+        args = 1, "blap", 3, 3, 4
+
+        with patch("package.database_mixins.text_mixin.TextSectionEditor") as m:
+            with qtbot.waitSignal(dao.textSectionChanged):
+                res = dao.updateTextSectionOnChange(*args)
+            m.assert_called_with(*args)
+            m.return_value.onChange.assert_called_with()
+            assert res == m.return_value.onChange.return_value
+
+    def test_updateTextSectionOnMenu(self, dao):
+        check_args(dao.updateTextSectionOnMenu, [int, str, int, int, int, dict], dict)
+        f_textSection()
+        dic_params = {"ble": "bla"}
+        # params = json.dumps(dic_params)
+        args = 1, "bla", 3, 3, 3
+
+        with patch("package.database_mixins.text_mixin.TextSectionEditor") as m:
+            res = dao.updateTextSectionOnMenu(*args, dic_params)
+            m.assert_called_with(*args)
+            m.return_value.onMenu.assert_called_with(ble="bla")
+            assert res == m.return_value.onMenu.return_value
+
+    def test_loadTextSection(self, dao):
+        check_args(dao.loadTextSection, int, dict)
+        f_textSection()
+
+        with patch("package.database_mixins.text_mixin.TextSectionEditor") as m:
+            res = dao.loadTextSection(1)
+            m.assert_called_with(1)
+            m.return_value.onLoad.assert_called_with()
+            assert res == m.return_value.onLoad.return_value
+
+    def test_getTextSectionColor(self, dao):
+        check_args(dao.getTextSectionColor, str, QColor)
+        for x in ["red", "blue", "green", "black"]:
+            assert dao.getTextSectionColor(x) == QColor(
+                getattr(text_section, x.upper())
+            )
 
 
 class TestDatabaseObject:

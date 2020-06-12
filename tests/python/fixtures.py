@@ -6,7 +6,7 @@ from unittest.mock import patch, MagicMock
 from pony.orm import db_session
 from contextlib import contextmanager
 
-from PySide2.QtGui import QFontInfo
+from PySide2.QtGui import QFontInfo, QColor
 
 
 def compare_items(first, two, key="id"):
@@ -60,6 +60,7 @@ EQUIVALENTS = {
     list: "QVariantList",
     None: "void",
     bool: "bool",
+    QColor: "QColor",
 }
 
 

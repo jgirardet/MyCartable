@@ -53,7 +53,7 @@ class TextSectionMixin:
             return QColor(BLUE)
         elif col == "green":
             return QColor(GREEN)
-        elif col == "black":
+        elif col == "black":  # pragma: no branch
             return QColor(BLACK)
 
         # pas terrible mais on laisse comme ça pour le moment

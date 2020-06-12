@@ -50,7 +50,7 @@ def pytest_sessionstart():
 
 @pytest.fixture(scope="session")
 def qapp():
-    app = QApplication([])
+    app = QApplication([]).instance() or QApplication([])
     from package.database_object import DatabaseObject
     from package.database import db
 

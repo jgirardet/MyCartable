@@ -1,5 +1,8 @@
 from PySide2.QtGui import QColor
 
+"""
+    Toute matiere appartient à un groupe, ce n'est pas négociable
+"""
 
 MATIERES_BASE = [
     {"nom": "Orthographe", "groupe": 3},
@@ -77,23 +80,18 @@ def get_color_by_group(groupe):
     return matieres
 
 
-def build_grouped_color():
-    return {group["id"]: get_color_by_group(group) for group in MATIERE_GROUPE_BASE}
+def build_grouped_color(matiere_groupe_base):
+    return {group["id"]: get_color_by_group(group) for group in matiere_groupe_base}
 
 
-def build_matiere():
+def build_matiere(matieres_base, matiere_groupe_base):
     res = []
-    matieres_groupe = build_grouped_color()
-    for m in MATIERES_BASE:
+    matieres_groupe = build_grouped_color(matiere_groupe_base)
+    for m in matieres_base:
         group_id = m["groupe"]
-        if group_id in matieres_groupe:
-            nom = m["nom"]
-            if nom in matieres_groupe[group_id]:
-                res.append(matieres_groupe[group_id][nom])
-        else:
-            res.append(m)
+        nom = m["nom"]
+        res.append(matieres_groupe[group_id][nom])
     return res
 
 
-MATIERES = MATIERES_BASE
-MATIERES = build_matiere()
+MATIERES = build_matiere(MATIERES_BASE, MATIERE_GROUPE_BASE)

@@ -58,7 +58,7 @@
 
      Repeater {
        id: repeater
-       model: root.sectionId ? ddb.initDatas(root.sectionId) : 0
+       model: root.sectionId ? ddb.initTableauDatas(root.sectionId) : 0
        delegate: TextArea {
          id: tx
          focus: true

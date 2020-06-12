@@ -615,6 +615,25 @@ class TestSettingsMixin:
         assert dao.anneeActive == 2019
 
 
+class TestTableauMixin:
+    def test_init_datas(self, dao):
+        check_args(dao.initTableauDatas, exp_args=int, exp_return_type=list)
+        f_tableauSection(3, 4)
+
+        with db_session:
+            assert dao.initTableauDatas(1) == [
+                x.to_dict() for x in TableauSection[1].get_cells()
+            ]
+
+    def test_updat_cell(self, dao, qtbot):
+        check_args(dao.updateCell, [int, int, int, dict])
+        f_tableauCell(x=2, y=3, texte="zer")
+        with qtbot.waitSignal(dao.tableauChanged):
+            dao.updateCell(1, 3, 2, {"texte": "bla"})
+        with db_session:
+            assert TableauCell[1, 3, 2].texte == "bla"
+
+
 class TestDatabaseObject:
     def test_init_settings(self, ddbr, dao):
         # settings pas inité en mode debug (default

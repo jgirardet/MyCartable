@@ -5,6 +5,7 @@ source =
 omit =
   */__init__.py,
   */factory.py
+  */dev_mixin.py
 
 [report]
 ignore_errors = True

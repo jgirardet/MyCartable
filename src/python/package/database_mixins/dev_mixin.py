@@ -1,7 +1,7 @@
 from PySide2.QtCore import Slot
 
 
-class DevMixin:
+class DevMixin:  # pragma: no cover
     @Slot()
     def peupler(self):
         from package.database.factory import populate_database

@@ -307,6 +307,14 @@ class TestLayoutMixin:
         )
         assert caplog.records[0].levelname == "ERROR"
 
+    def test_color_property(self, dao):
+        assert dao.colorFond == QColor(130, 134, 138)
+        assert dao.colorMainMenuBar == QColor(83, 93, 105)
+        assert dao.colorPageToolBar == QColor(197, 197, 197)
+
+    def test_font_property(self, dao):
+        assert dao.fontMain == "Verdana"
+
 
 class TestSectionMixin:
     @pytest.mark.skip("broken")

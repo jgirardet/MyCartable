@@ -48,7 +48,7 @@ class LayoutMixin:
 
     fontChanged = Signal()
 
-    @Property(str, notify=ColorChanged)
+    @Property(str, notify=fontChanged)
     def fontMain(self):
         return fonts["main"]
 

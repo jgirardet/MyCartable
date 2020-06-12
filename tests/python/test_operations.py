@@ -3,7 +3,7 @@ from decimal import Decimal
 from unittest.mock import patch, call
 
 import pytest
-from PySide2.QtCore import Qt, Signal
+from PySide2.QtCore import Qt, Signal, QAbstractItemModel
 from fixtures import check_super_init, check_args, check_is_range
 from package.database.factory import (
     f_additionSection,

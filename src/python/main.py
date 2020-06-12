@@ -37,6 +37,7 @@ def main_init_database(filename=None):
         filename = settings.value("General/ddb_path", ROOT_DATA / "mycartable.ddb")
         create_db = True
     else:
+        QStandardPaths.setTestModeEnabled(True)
         filename = ":memory:"
         create_db = False
 

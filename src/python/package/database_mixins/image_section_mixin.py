@@ -1,14 +1,10 @@
-import urllib.request
-from io import BytesIO
 from pathlib import Path
 
-from PySide2.QtCore import Slot, QUrl, QAbstractListModel, Property
+from PySide2.QtCore import Property
 from PySide2.QtCore import Slot, Signal
 from package.constantes import ANNOTATION_TEXT_BG_OPACITY
-from package.convert import run_convert_pdf
-from package.files_path import filesify
 from package.utils import get_new_filename
-from pony.orm import db_session, select
+from pony.orm import db_session
 from PIL import Image
 
 

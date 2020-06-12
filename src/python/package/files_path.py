@@ -1,23 +1,34 @@
 from pathlib import Path
 
-from PySide2.QtCore import QStandardPaths, QUrl
+from PySide2.QtCore import QStandardPaths
 from package.constantes import APPNAME
 
-ROOT_DATA = Path(QStandardPaths.writableLocation(QStandardPaths.AppDataLocation))
-if not ROOT_DATA.is_dir():
-    ROOT_DATA.mkdir(parents=True)
 
-FILES = ROOT_DATA / "files"
-if not FILES.is_dir():
-    FILES.mkdir(parents=True)
-
-TMP = Path(QStandardPaths.writableLocation(QStandardPaths.TempLocation), APPNAME)
-if not TMP.is_dir():
-    TMP.mkdir(parents=True)
+def root_data():
+    r = Path(QStandardPaths.writableLocation(QStandardPaths.AppDataLocation))
+    if not r.is_dir():
+        r.mkdir(parents=True)
+    return r
 
 
-def filesify(items, field="path"):
-    for it in items:
-        it[field] = QUrl.fromLocalFile(str(FILES / it[field])).toEncoded()
+ROOT_DATA = root_data()
 
-    return items
+
+def files(root_d):
+    f = root_d / "files"
+    if not f.is_dir():
+        f.mkdir(parents=True)
+    return f
+
+
+FILES = files(ROOT_DATA)
+
+
+def tmp_files():
+    t = Path(QStandardPaths.writableLocation(QStandardPaths.TempLocation), APPNAME)
+    if not t.is_dir():  # pragma: no branch
+        t.mkdir(parents=True)
+    return t
+
+
+TMP = tmp_files()

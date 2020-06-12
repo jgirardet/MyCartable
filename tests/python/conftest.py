@@ -21,6 +21,7 @@ def gen(request):
 
 
 def pytest_sessionstart():
+    QStandardPaths.setTestModeEnabled(True)
 
     # modify python path
     root = Path(__file__).parents[2]
@@ -41,10 +42,10 @@ def pytest_sessionstart():
     subprocess.run(command, cwd=root, shell=True)
 
     # remove all FILES
-    QStandardPaths.setTestModeEnabled(True)
-    from package.files_path import ROOT_DATA
 
-    shutil.rmtree(ROOT_DATA)
+    from package.files_path import root_data
+
+    shutil.rmtree(root_data())
 
 
 @pytest.fixture(scope="session")

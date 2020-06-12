@@ -26,7 +26,7 @@ FILES = files(ROOT_DATA)
 
 def tmp_files():
     t = Path(QStandardPaths.writableLocation(QStandardPaths.TempLocation), APPNAME)
-    if not t.is_dir():  # pragma: no branch
+    if not t.is_dir():
         t.mkdir(parents=True)
     return t
 

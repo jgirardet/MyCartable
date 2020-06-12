@@ -3,7 +3,7 @@ from decimal import Decimal
 from unittest.mock import patch, call
 
 import pytest
-from PySide2.QtCore import Qt, Signal, QAbstractItemModel
+from PySide2.QtCore import Qt, Signal, QAbstractItemModel, QModelIndex
 from fixtures import check_super_init, check_args, check_is_range
 from package.database.factory import (
     f_additionSection,
@@ -641,8 +641,11 @@ class TestOperationModel:
         # unvalid role
         assert to.data(to.index(5, 0), 999999) is None
 
-    def test_flags(self, to):
-        to.flags(to.index(99, 99)) == Qt.ItemIsDropEnabled
+    def test_flags(self):
+        x = OperationModel()
+        x.rowCount = lambda x: 1
+        assert int(x.flags(x.index(0, 0))) == 128 + 35
+        assert x.flags(x.index(99, 99)) is None
 
     def test_setData(self, to):
         assert to.setData(to.index(11, 0), "5", Qt.EditRole)  # doit retourner True

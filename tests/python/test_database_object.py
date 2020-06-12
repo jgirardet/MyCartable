@@ -499,7 +499,6 @@ class TestEquationMixin:
         assert dao.isEquationFocusable("  \n1 \n  ", 4)
 
 
-@pytest.mark.skip("broken")
 class TestImageSectionMixin:
     @pytest.mark.freeze_time("2344-9-21 7:48:5")
     def test_new_image_path(self, dao):
@@ -526,133 +525,6 @@ class TestImageSectionMixin:
         res = dao.store_new_file(str(obj))
         assert (dao.files / res).read_bytes() == obj.read_bytes()
 
-    @pytest.mark.parametrize(
-        "content",
-        [
-            {
-                "classtype": "Stabylo",
-                "section": 1.0,
-                "relativeX": 0.3,
-                "relativeY": 0.4,
-                "relativeWidth": 0.5,
-                "relativeHeight": 0.6,
-            },
-            {
-                "classtype": "Stabylo",
-                "section": 1.0,
-                "relativeX": 0.3,
-                "relativeY": 0.4,
-                "relativeWidth": 0.5,
-                "relativeHeight": 0.6,
-                "style": {"bgColor": "red"},
-            },
-            {
-                "classtype": "AnnotationText",
-                "section": 1.0,
-                "relativeX": 0.3,
-                "relativeY": 0.4,
-                "text": "",
-                # "underline": None,
-            },
-        ],
-    )
-    def test_addAnnotation(self, dao, content):
-        s = f_imageSection()
-        wait()
-        c_style = {}
-        if "style" in content:
-            c_style = dict(content["style"])
-
-        item = dao.addAnnotation(content)
-        with db_session:
-            item = s.annotations.select()[:][0].to_dict()
-            assert item.pop("id")
-            assert item.pop("section") == s.id
-            style = item.pop("style")
-            if c_style:
-                c_style = content.pop("style")
-                for k, v in c_style.items():
-                    assert style[k] == v
-
-            assert item == content
-
-    def test_loadAnnotations(self, dao):
-        s = f_imageSection()
-        b_stabylo(5, section=s.id)
-        res = dao.loadAnnotations(s.id)
-        assert len(res) == 5
-
-    def test_update_annotations_args(self, dao):
-        check_args(dao.updateAnnotation, (int, dict), dict)
-
-    @pytest.mark.parametrize(
-        "genre, content",
-        [
-            ("AnnotationText", {"text": "bla"}),
-            ("AnnotationText", {"style": {"underline": True}}),
-            (
-                "AnnotationText",
-                {"style": {"fgColor": QColor("red")}, "text": "oiuouoi"},
-            ),
-            ("Stabylo", {"relativeWidth": 0.3, "style": {"strikeout": True}}),
-        ],
-    )
-    def test_updateAnnotation(self, dao, ddbn, genre, content):
-
-        from package.database import factory
-
-        fn = "f_" + genre[0].lower() + genre[1:]
-        a = getattr(factory, fn)()
-        res = dao.updateAnnotation(a.id, content)
-        with db_session:
-            item = ddbn.Annotation[a.id]
-            assert res == item.to_dict(exclude=["style"])
-            for k, v in content.items():
-                if k == "style":
-                    for i, j in v.items():
-                        assert getattr(item.style, i) == j
-                else:
-                    assert getattr(item, k) == v
-
-    def test_update_annotation_update_recents(self, dao, ddbr, qtbot):
-
-        x = f_annotationText()
-        with qtbot.wait_signal(dao.imageChanged):
-            dao.updateAnnotation(x.id, {"relativeX": 0.33715596330275227})
-
-    def test_delete_annotation_emit_image_changed(self, dao, ddbr, qtbot):
-
-        # pas de text pas d'emit
-        x = f_annotationText(text="empty")
-        with qtbot.assert_not_emitted(dao.imageChanged):
-            dao.deleteAnnotation(x.id)
-
-        # pas de taille, pas d'emit
-        x = f_stabylo(relativeWidth=0, relativeHeight=0)
-        with db_session:
-            ddbr.Stabylo[x.id].relativeWidth = 0
-            ddbr.Stabylo[x.id].relativeHeight = 0
-        with qtbot.assert_not_emitted(dao.imageChanged):
-            dao.deleteAnnotation(x.id)
-
-        # cas usuel ok
-        x = f_annotationText(text="bla")
-        with qtbot.wait_signal(dao.imageChanged):
-            dao.deleteAnnotation(x.id)
-
-    def test_deleteAnnotation(self, dao, ddbn):
-        check_args(dao.deleteAnnotation, int)
-
-        a = f_annotationText()
-        b = f_stabylo()
-
-        c = dao.deleteAnnotation(a.id)
-        d = dao.deleteAnnotation(b.id)
-
-        with db_session:
-            assert not ddbn.Annotation.exists(id=a.id)
-            assert not ddbn.Annotation.exists(id=b.id)
-
     def test_pivoter_image(self, new_res, dao, qtbot):
         file = new_res("test_pivoter.png")
         img = Image.open(file)
@@ -669,64 +541,8 @@ class TestImageSectionMixin:
     trait_600_600 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAlgAAAJYCAYAAAC+ZpjcAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAK90lEQVR4nO3d26utZRnG4Z/LXG4WbrOVrsQFilKRoKihpGKJBQoVlAdKWCCCCOWB/kPpgQZ6oJCCGIoaFRYKSoniXtRSTMT9toNhoOP7iJzgfNc3vC6YTHjnyX02b553jOctAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADYd+w/OsDCHV/trN4aHQQAYBP8ovp3devoIAAAS3dU9bvq40/9XDE0EQDAgu1XPdhny9XH1evVCQNzAQAs2k+rj5qWrPuqHQNzAQD7CB9y//werfZWp62dH1+9U92/7YkAADbAodWTTadY71anDswFALBo51YfNC1ZD1cHDswFAAzminDrnq12Vd9bO99dHVLdue2JAAA2wM7qoaZTrA+r7w/MBQCwaKdUbzctWU9Xh4+LBQCwbNc1LVgfV9ePDAUAsGQ7qnuaFqyPqp+PiwUAsGx7q9ealqyXq2MH5gIAWLRfNn9VePvIUAAAS3dL8yXrqpGhAACW7OjqxaYF643qpIG5AAAW7eLmH4T+U5a7AsDG88/+i/F4tac6fe38uFbP69y77YkAADbArlZFa32K9V51xsBcAACLdnb1ftOS9Y/q4IG5AIAvkCvCL9bz1YHVeWvnR1eHVXdseyIAgA1wQPXX5h+EvnBgLgCARftW9VbTkvVcdeTAXAAAi3ZN8wtIbxwZCgBgyfar7mq+ZF06MBcAwKIdV73atGC9+snfAADYgsuan2Ld2WrKBQDAFtzUfMn6zchQAABLdlSrHVnrBevNVt84BABgC37Y/IPQD7TanQUALJRN7uM80Wqj+3fXzvd88vvu7Y0DALAZDq4ebTrFer86a2AuAIBFO7N6r2nJeqzaNTAXALBFrgjHe6HaUZ2/dv7VVh+G//12BwIA2ARfqf7cdIr1UXXRwFwAAIt2cvVG05L1QqtpFgAAW3B18wtIbx4ZCgBg6e5ovmRdPjIUAMCSHVu90rRgvVbtHZgLAGDRLml+y/vdrb5xCADAFtzQ/FXhtSNDAQAs2eHVM00L1tvVdwbmAgBYtB9UHzYtWQ9WOwfmAgD+B5vc921PVUdUZ6+dH9OqYN217YkAADbAQdUjTadYH1TnDMwFALBop1XvNi1ZT1SHDswFAMxwRbgML7X6LNYFa+dHVrur27Y9EQDABti/ur/5B6F/MjAXAMCinVi93rRk/bPVJAsAgC24svkFpLeODAUAsHS3NV+yrhgZCgBgyb5e/atpwXq9OmFgLgCARftp8w9C35cHoQFgKGsaluvRam+rHVmfdnz1TqtvHAIA8DkdWj3ZdIr1TnXqwFwAAIt2bqtnc9ZL1sPVgQNzAcCXlivC5Xu22lV9b+18d3VIdee2JwIA2AA7q4eaTrE+rM4fFwsAYNlOafXZq/WS9XR1+LhYAADLdl3zC0h/OzIUAMCS7ajuaf5B6J+NiwUAsGx7q9ealqyXq2MH5gIAWLRfNX9VePvATAAAi3dL8yXrqpGhAACW7OjqxaYF643qpIG5AAAW7eLmH4T+U5bMAsAXxj/ZzfZ4tac6fe38uFbP69y77YkAADbArlZFa32K9V51xsBcAACLdnb1ftOS9ffq4IG5AGAjuSL8cni+OrA6b+38a9Vh1R3bnggAYAMcUP2t+QehLxyYCwBg0b5dvdW0ZD1XHTkwFwDAol3T/ALSG0eGAgBYsv2qu5ovWZcOzAUAsGjHVa82LVivVt8YmAsAYNEua36KdWerKRcAAFtwU/Ml69cjQwEALNlRrXZkrResN6tvDswFALBoP2r+QegHWu3OAgA+J5vceaLVRvfvrp3v+eT33dsbBwBgMxxSPdp0ivV+ddbAXAAAi3Zm9V7TkvVYtWtgLgBYHFeE/NcL1Y7q/LXzr7b6MPzvtzsQAMAm+Er1l6ZTrI+qiwbmAgBYtJOrN5qWrBdaTbMAANiCq5tfQHrzyFAAAEt3R/Ml6/KRoQAAlmxP9UrTgvVadfzAXAAAi3ZJ81ve786D0AAAW3ZD81eF144MBQCwZEdUzzQtWG9X3xmYCwBg0X5Qfdi0ZD1Y7RyYCwD2STa58/94qtUk6+y182OqA6o/bHsiAIANcFD1SNMp1gfVOQNzAQAs2mnVu01L1hPVoQNzAcA+xRUhn8dLrdY2XLB2fmS1u7pt2xMBAGyA/as/Nv8g9I8H5gIAWLQTq9eblqwHRoYCAFi6K/vs9Or66vChiQAANsBtrd4rvGR0EACATbG71aPQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwJfcfnMkYbH3cuQYAAAAASUVORK5CYII="
     trait_600_600_as_png = "2019/2019-05-21-12-00-01-349bd.png"
 
-    @pytest.mark.freeze_time("2019-05-21 12:00:01")
-    @pytest.mark.parametrize(
-        "startX, startY, endX, endY, tool, data, res",
-        [
-            (
-                78,
-                154,
-                146,
-                252,
-                "trait",
-                trait_600_600,
-                {
-                    "height": (252 - 154) / 600,
-                    "id": 1,
-                    "section": 1,
-                    "tool": "trait",
-                    "width": (146 - 78) / 600,
-                    "x": 78 / 600,
-                    "y": 154 / 600,
-                    "path": trait_600_600_as_png,
-                },
-            ),
-            (
-                146,
-                252,
-                78,
-                154,
-                "trait",
-                trait_600_600,
-                {
-                    "height": (252 - 154) / 600,
-                    "id": 1,
-                    "section": 1,
-                    "tool": "trait",
-                    "width": (146 - 78) / 600,
-                    "x": 78 / 600,
-                    "y": 154 / 600,
-                    "path": trait_600_600_as_png,
-                },
-            ),
-        ],
-    )
-    def test_new_dessin(
-        self, startX, startY, endX, endY, tool, data, res, dao, ddbn, monkeypatch
-    ):
-        uu = uuid.UUID("349bd92b-d477-4251-be88-21dcf6cb6ca8")
-        with monkeypatch.context() as m:
-            m.setattr(uuid, "uuid4", lambda: uu)
-            assert uuid.uuid4() == uu
-            s = f_section()
-            dao.newDessin(s.id, startX, startY, endX, endY, tool, data)
-            with db_session:
-                item = ddbn.AnnotationDessin[1]
-                dico = item.to_dict()
-                assert dico == res
-
-    def test_get_dessin_model(self, dao):
-        f_section()
+    def test_annotationTextBGOpacity(self, dao):
+        assert dao.annotationTextBGOpacity == 0.5
 
 
 class TestSettingsMixin:

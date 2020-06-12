@@ -147,7 +147,7 @@ def dao(ddbr, tmpfilename, uim):
 import time
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(autouse=False)
 def duree_test():
     debut = time.time()
     yield

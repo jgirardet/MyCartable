@@ -683,7 +683,11 @@ class TestDatabaseObject:
             assert m.call_args_list == [call()]
 
         # init matiere dsi annee_active
-        assert isinstance(dao.m_d, MatieresDispatcher)
+        class DBO(DatabaseObject):
+            anne_active = 1983
+
+        x = DBO(ddbr, debug=False)
+        assert isinstance(x.m_d, MatieresDispatcher)
 
     def test_RecentsItem_Clicked(self, ddbr, qtbot):
         rec1 = f_page(created=datetime.now(), td=True)

@@ -6,6 +6,7 @@ omit =
   */__init__.py,
   */factory.py
   */dev_mixin.py
+  */qrc.py
 
 [report]
 ignore_errors = True

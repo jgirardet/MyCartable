@@ -937,6 +937,8 @@ class TestSoustractionModel:
             (43, Qt.Key_Left, 39),
             (46, Qt.Key_Left, 43),
             (49, Qt.Key_Left, 46),
+            (49, Qt.Key_Up, 49),
+            (49, Qt.Key_Down, 49),
         ],
     )
     def test_movecursor2(self, ts, index, key, res):
@@ -1420,6 +1422,37 @@ class TestMultiplicationModel:
             tm.cursor = 46
         assert tm.highLight == [33, 25]
 
+    def test_highLightProperty_simple(self, tm, qtbot):
+        tm("12*2")
+        tm.editables = {1, 10, 11}
+
+        with qtbot.waitSignal(tm.highLightChanged):
+            tm.cursor = 10
+        assert tm.highLight == [8, 4]
+        with qtbot.waitSignal(tm.highLightChanged):
+            tm.cursor = 11
+        assert tm.highLight == [8, 5]
+
+    def test_custom_params_load(self, dao):
+        class MultiplicationModel2(MultiplicationModel):
+            ddb = dao
+
+        a = MultiplicationModel2()
+        # a.ddb = dao
+        x = f_multiplicationSection()
+        a.sectionId = 1
+        with db_session:
+            assert a.n_chiffres == x.n_chiffres
+
+    def test_get_initial_position(self, dao):
+        class MultiplicationModel2(MultiplicationModel):
+            ddb = dao
+
+        a = MultiplicationModel2()
+        x = f_multiplicationSection(string="323*23")
+        a.sectionId = 1
+        assert a.cursor == 24
+
 
 @pytest.fixture
 def td():
@@ -1699,6 +1732,7 @@ class TestDivisionModel:
         assert td._get_last_index_filled(["", "3", "5", "", "", "", ""]) == 2
         assert td._get_last_index_filled(["1", "", "", "", "", "", ""]) == 0
         assert td._get_last_index_filled(["", "", "", "", "", "", ""]) == 6
+        assert td._get_last_index_filled(("", "", "", "", "", "", "")) == 6
 
     def test_goToResultLine(self, td):
         td("264/11")

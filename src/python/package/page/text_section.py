@@ -93,7 +93,7 @@ def lowerise(source):
         k = k.lower()
         if isinstance(v, str):
             target[k] = v
-        elif isinstance(v, dict):
+        elif isinstance(v, dict):  # pragma: no branch
             target[k] = lowerise(v)
     return target
 
@@ -138,15 +138,15 @@ def build_bockCharFormat_from_css(css):
 
         if "text-decoration" in datas:
             cf.setFontUnderline(True)
-        if "font-weight" in datas:
+        if "font-weight" in datas:  # pragma: no branch
             cf.setFontWeight(
                 int(datas["font-weight"]) / 8
             )  # cssweight = 8 * QFont.wieight
         if "text-transform" in datas:
-            if datas["text-transform"] == "uppercase":
+            if datas["text-transform"] == "uppercase":  # pragma: no branch
                 cf.setFontCapitalization(QFont.AllUppercase)
-            elif datas["text-transform"] == "lowercase":
-                cf.setFontCapitalization(QFont.AllLowercase)
+            # elif datas["text-transform"] == "lowercase":
+            #     cf.setFontCapitalization(QFont.AllLowercase)
 
         res.append(cf)
     return res
@@ -191,17 +191,20 @@ class BlockFormat_:
             if item == "p":
                 level = 0
             else:
+
                 level = int(item[1])
             return self.data[level]
         elif isinstance(item, int):
             return self.data[item]
+        else:
+            raise KeyError("int ou string")
 
 
 blockCharFormat = BlockFormat_(build_bockCharFormat_from_css(CSS_BASE))
 blockFormat = BlockFormat_(build_blockFormat_from_css(CSS_BASE))
 
 
-RE_AUTOPARAGRAPH_DEBUT = re.compile(r"^(#{1,6})\s\S.+\S$")
+RE_AUTOPARAGRAPH_DEBUT = re.compile(r"^(#{1,6})\s\S+$")
 RE_AUTOPARAGRAPH_FIN = re.compile(r"^\S+\s(#{1,6})$")
 
 

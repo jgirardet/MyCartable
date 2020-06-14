@@ -41,6 +41,9 @@ def pytest_sessionstart():
     command = f"pyside2-rcc {orig.absolute()} -o {dest.absolute()}"
     subprocess.run(command, cwd=root, shell=True)
 
+    # import qrc
+    import qrc
+
     # remove all FILES
 
     from package.files_path import root_data

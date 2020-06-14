@@ -40,8 +40,10 @@ class TestPAgeModel:
         # no good role
         assert a.data(a.index(1, 0), 99999) is None
 
-    def test_flags(self):
-        """pas compris comment tester"""
+    def test_flags(self, pm):
+        x = pm(1)
+        assert int(x.flags(x.index(0, 0))) == 128 + 35
+        assert x.flags(x.index(99, 99)) is None
 
     def test_insertRows(self, pm, qtbot):
         x = pm(2)
@@ -149,6 +151,7 @@ class TestPAgeModel:
             (2, 0, True, 0, 1),
             (2, 1, True, 1, 2),
             (-1, 3, False, 1, 2),
+            (-1, 1, False, 1, 2),
             (1, 1, False, 1, 1),
         ],
     )

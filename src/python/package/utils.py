@@ -7,6 +7,10 @@ from PySide2.QtCore import QTimer, QFile
 from PySide2.QtWidgets import QApplication
 
 
+WIN = sys.platform == "win32"
+LINUX = sys.platform == "linux"
+
+
 def create_singleshot(fn):
     # timer = QTimer(QApplication.instance() or QApplication())
     timer = QTimer(QApplication.instance())
@@ -33,7 +37,7 @@ KEYS = {
 }
 
 # 1 pour windows 0 pour linux
-OS = 1 if sys.platform == "win32" else 0
+OS = 0 if WIN else 1
 
 
 @dataclass
@@ -45,10 +49,14 @@ class KeyCross:
             return self.key[OS] == other
         elif isinstance(other, dict):
             return self.key[OS] == other["nativeScanCode"]
+        else:
+            return False
 
 
 class KeyWizard:
     """ordre linux windows"""
+
+    """raccourci clavier compatible windows linux"""
 
     def __init__(self):
         for k, v in KEYS.items():
@@ -64,19 +72,3 @@ def read_qrc(path):
         return file.readData(file.bytesAvailable())
     else:
         raise FileNotFoundError(f"{path} n'est pas une ressource valide")
-
-
-WIN = sys.platform == "win32"
-LINUX = sys.platform == "linux"
-
-#
-# def runx(*args, **kwargs):
-#     if LINUX:
-#         com = "xdg-open"
-#     elif WIN:
-#         com = "start"
-#     # """C:\Users\jim\Desktop>where /R "c:\Program Files" soffice.exe"""
-#     subprocess.run([com, *args])
-#
-
-# def __eq__(self, other):

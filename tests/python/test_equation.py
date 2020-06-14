@@ -1049,6 +1049,42 @@ class TestTextEquation:
         assert TextEquation.debug_string_format(res_string) == res
         assert res_cur == res_c
 
+    def test_call_from_empty(self, eq):
+        a = eq("", 0, {"key": Qt.Key_A, "text": "a", "modifiers": None})
+        res_string, res_cur = a()
+        assert res_string == " \na\n "
+        assert res_cur == 3
+        a = eq("", 0, {"key": Qt.Key_Return, "text": "\n", "modifiers": None})
+        res_string, res_cur = a()
+        assert res_string == ""
+        assert res_cur == 0
+
+    def test_slash_line1(self, eq):
+        a = eq(" \n1\n ", 3, {"key": Qt.Key_Slash, "text": "/", "modifiers": None})
+        res_string, res_cur = a()
+        assert res_string == f"1\n{TextEquation.BARRE}\n{TextEquation.FSP}"
+        assert res_cur == 4
+
+    def test_return_line2(self, eq):
+        a = eq(
+            f"1\n{TextEquation.BARRE}\n2",
+            5,
+            {"key": Qt.Key_Return, "text": "\n", "modifiers": None},
+        )
+        res_string, res_cur = a()
+        assert res_string == f"1 \n{TextEquation.BARRE} \n2 "
+        assert res_cur == 5
+
+    def test_add_cchar_frgment_none(self, eq):
+        a = eq(
+            f"1\n{TextEquation.BARRE}\n{TextEquation.FSP}",
+            4,
+            {"key": Qt.Key_2, "text": "2", "modifiers": None},
+        )
+        res_string, res_cur = a()
+        assert res_string == f"1\n{TextEquation.BARRE}\n2"
+        assert res_cur == 5
+
     def test_delete_full_fraction(self, eq):
         a = eq(
             f"1\n{TextEquation.BARRE}\n",

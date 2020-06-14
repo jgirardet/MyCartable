@@ -120,7 +120,7 @@ class TextEquation:
             return self.do_backspace()
         elif self.key == Qt.Key_Space:
             return self.curseur
-        elif self.text:
+        elif self.text:  # pragma: no branch
             return self.fraction_add_char(0)
 
     def dispatch_line1(self):
@@ -130,7 +130,7 @@ class TextEquation:
             return self.dispatch_arrows()
         elif self.key == Qt.Key_Backspace:
             return self.do_backspace()
-        elif self.text:
+        elif self.text:  # pragma: no branch
             return self.line1_add_char()
 
     def dispatch_line2(self):
@@ -142,7 +142,7 @@ class TextEquation:
             return self.do_backspace()
         elif self.key == Qt.Key_Space:
             return self.curseur
-        elif self.text:
+        elif self.text:  # pragma: no branch
             return self.fraction_add_char(2)
 
     def dispatch_arrows(self):
@@ -256,10 +256,11 @@ class TextEquation:
             start, end = self.fraction_get_start_and_end(curseur)
             f2 = self.lines[2][start:end].rstrip(self.FSP)
             return self.debut_line[2] + start + len(f2)
-        elif self.line_active == 2:
+        elif self.line_active == 2:  # pragma: no branch
             _, end = self.fraction_get_start_and_end(curseur)
             appended = 0
             if end == self.len:
+                # breakpoint()
                 self.append_at_end(" ")
                 appended = 1
             return self.debut_line[1] + end + appended
@@ -342,8 +343,9 @@ class TextEquation:
     def is_focusable(self):
         curseur = self.get_line_curseur()
         if self.line_active == 1:
-            if (
+            if (  # cas du clique au milieu d'une barre
                 curseur > 0
+                and curseur < self.len
                 and self.line[curseur - 1] == self.BARRE
                 and self.line[curseur] == self.BARRE
             ):
@@ -365,12 +367,13 @@ class TextEquation:
                     return True
                 elif curseur > 0 and self.line[curseur - 1] not in self.SPACES:
                     return True
-                elif (
-                    curseur < self.len - 1
-                    and self.line[curseur + 1] not in self.SPACES
-                    and self.line[curseur] not in self.SPACES
-                ):
-                    return True
+                # elif ( # juste commenté, au cas ou ce soit util....
+                #     curseur < self.len - 1
+                #     and self.line[curseur + 1] not in self.SPACES
+                #     and self.line[curseur] not in self.SPACES
+                # ):
+                #     breakpoint()
+                #     return True
             return False
 
     def get_stripped(self, curseur, line):

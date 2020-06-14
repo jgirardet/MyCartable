@@ -35,7 +35,7 @@ class PageModel(QAbstractListModel):
         if not index.isValid():
             return None
         elif role == self.PageRole:
-            return (
+            return (  # pragma: no branch
                 self.page.sections.select(lambda sec: sec.position == index.row())
                 .first()
                 .to_dict()
@@ -45,8 +45,8 @@ class PageModel(QAbstractListModel):
 
     def flags(self, index):
         if not index.isValid():
-            return Qt.ItemIsDropEnabled
-        return QAbstractItemModel.flags(index) | Qt.ItemIsEditable
+            return
+        return super().flags(index) | Qt.ItemIsEditable
 
     def insertRow(self, value) -> bool:
         return self.insertRows(value, 0)
@@ -72,14 +72,15 @@ class PageModel(QAbstractListModel):
         elif source > target:
             end = target
 
-        elif source < target:
+        else:
             end = target + 1
 
-        if not self.beginMoveRows(QModelIndex(), source, source, QModelIndex(), end,):
-            return False
+        self.beginMoveRows(
+            QModelIndex(), source, source, QModelIndex(), end,
+        )
 
         with db_session:
-            source_obj = self.page.sections.select(
+            source_obj = self.page.sections.select(  # pragma: no branch
                 lambda o: o.position == source
             ).first()
             if not source_obj:
@@ -98,11 +99,10 @@ class PageModel(QAbstractListModel):
         # count = nombre de row à supprimer en plus
         self.beginRemoveRows(QModelIndex(), row, row + count)
         with db_session:
-            item = self.page.sections.select(lambda sec: sec.position == row).first()
-            if item:
-                item.delete()
-            else:
-                return False
+            item = self.page.sections.select(  # pragma: no branch
+                lambda sec: sec.position == row
+            ).first()
+            item.delete()
             flush()  # bien garder pour le count d'apres
             self.count = self.page.sections.count()
             self.lastPosition = row

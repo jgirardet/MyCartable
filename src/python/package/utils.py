@@ -37,7 +37,7 @@ KEYS = {
 }
 
 # 1 pour windows 0 pour linux
-OS = 0 if WIN else 1
+OS = 1 if WIN else 0
 
 
 @dataclass
@@ -45,6 +45,7 @@ class KeyCross:
     key: list
 
     def __eq__(self, other):
+        print(other)
         if isinstance(other, int):
             return self.key[OS] == other
         elif isinstance(other, dict):

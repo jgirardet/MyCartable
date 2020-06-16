@@ -97,15 +97,89 @@ def check_is_range(obj, fn, res):
         assert not getattr(obj, fn)(i), f" {i} should return False"
 
 
-def is_blockFormat(item):
-    block_style = item["style"]
-    level = item.name[-1]
-    char_style = item.span["style"]
-    format = getattr(blockformat, f"BF_H{level}")
-    template = f' margin-top:{format["topMargin"]}px; margin-bottom:{format["bottomMargin"]}px; margin-left:{format["leftMargin"]}px; margin-right:{format["rightMargin"]}px; -qt-block-indent:{format["indent"]}; text-indent:0px;'
-
-    return block_style == template
+#
+#
+# def is_blockFormat(item):
+#     block_style = item["style"]
+#     level = item.name[-1]
+#     char_style = item.span["style"]
+#     format = getattr(blockformat, f"BF_H{level}")
+#     template = f' margin-top:{format["topMargin"]}px; margin-bottom:{format["bottomMargin"]}px; margin-left:{format["leftMargin"]}px; margin-right:{format["rightMargin"]}px; -qt-block-indent:{format["indent"]}; text-indent:0px;'
+#
+#     return block_style == template
 
 
 def wait():
     time.sleep(1 / 1000)
+
+
+def compare_block_format(lhs, rhs):
+    attrs = [
+        "alignment",
+        "bottomMargin",
+        "headingLevel",
+        "indent",
+        "leftMargin",
+        "lineHeight",
+        "lineHeightType",
+        "marker",
+        "nonBreakableLines",
+        "pageBreakPolicy",
+        "rightMargin",
+    ]
+
+    for attr in attrs:
+        assert getattr(lhs, attr) == getattr(rhs, attr)
+    return True
+
+
+def compare_char_format(lhs, rhs, exclude=[]):
+    """bizarement un charformat psa toujours égal même si toutes propriété égale"""
+    try:
+        assert lhs == rhs
+    except AssertionError:
+        pass
+    else:
+        return True
+
+    # si comparaison de base échoue, on fait le détail
+
+    attrs = [
+        "anchorHref",
+        "anchorName",
+        "anchorNames",
+        "font",
+        "fontCapitalization",
+        "fontFamilies",
+        "fontFamily",
+        "fontFixedPitch",
+        "fontHintingPreference",
+        "fontItalic",
+        "fontKerning",
+        "fontLetterSpacing",
+        "fontLetterSpacingType",
+        "fontOverline",
+        "fontPointSize",
+        "fontStretch",
+        "fontStrikeOut",
+        "fontStyleHint",
+        "fontStyleName",
+        "fontStyleStrategy",
+        "fontUnderline",
+        "fontWeight",
+        "tableCellColumnSpan",
+        "tableCellRowSpan",
+        "textOutline",
+        "toolTip",
+        "underlineColor",
+        "underlineStyle",
+        "verticalAlignment",
+    ]
+
+    for attr in attrs:
+        if attr in exclude:
+            continue
+        r = getattr(lhs, attr)()
+        l = getattr(rhs, attr)()
+        assert r == l, f"{attr}: {r}!={l}"
+    return True

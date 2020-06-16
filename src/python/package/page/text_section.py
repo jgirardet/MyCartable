@@ -171,8 +171,8 @@ def collect_block_and_char_format():
 
 blockCharFormat, blockFormat = collect_block_and_char_format()
 
-RE_AUTOPARAGRAPH_DEBUT = re.compile(r"^(#{1,6})\s\S+$")
-RE_AUTOPARAGRAPH_FIN = re.compile(r"^\S+\s(#{1,6})$")
+RE_AUTOPARAGRAPH_DEBUT = re.compile(r"^(#{1,6})\s.+$")
+RE_AUTOPARAGRAPH_FIN = re.compile(r"^.+\s(#{1,6})$")
 
 
 class TextSectionEditor(QTextDocument):
@@ -251,10 +251,7 @@ class TextSectionEditor(QTextDocument):
         return self.result
 
     def do_control_modifier(self, event):
-        print(event, KeyW.KEY_2)
 
-        print(KeyW.KEY_2 == event)
-        print(event == KeyW.KEY_2)
         if event == KeyW.KEY_1:
             self.do_key_1()
 

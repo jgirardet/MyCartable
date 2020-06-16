@@ -45,7 +45,6 @@ class KeyCross:
     key: list
 
     def __eq__(self, other):
-        print(other)
         if isinstance(other, int):
             return self.key[OS] == other
         elif isinstance(other, dict):

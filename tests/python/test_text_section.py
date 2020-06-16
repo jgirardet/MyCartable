@@ -169,26 +169,39 @@ def test_block_format(level):
 
 
 @pytest.mark.parametrize(
-    "string", ["# a", "# ab", "# abc", "## a", "## ab", "### a", "#### a", "# a"]
+    "string",
+    [
+        "# a",
+        "# ab",
+        "# abc",
+        "## a",
+        "## ab",
+        "### a",
+        "#### a",
+        "# a",
+        "# a a",
+        "# a ",
+    ],
 )
 def test_re_autoparagraph_debut(string):
     assert RE_AUTOPARAGRAPH_DEBUT.match(string)
 
 
-@pytest.mark.parametrize("string", [" # a", "#", "# ", "# a ", "#a"])
-def test_re_autoparagraph_debut(string):
+@pytest.mark.parametrize("string", [" # a", "#", "# ", "#a"])
+def test_re_autoparagraph_debut_fail(string):
     assert not RE_AUTOPARAGRAPH_DEBUT.match(string)
 
 
 @pytest.mark.parametrize(
-    "string", ["a #", "ab #", "abc #", "a ##", "ab ##", "a ###", "a ####"]
+    "string",
+    ["a #", "ab #", "abc #", "a ##", "ab ##", "a ###", "a ####", "a b c #", " a #"],
 )
-def test_re_autoparagraph_debut(string):
+def test_re_autoparagraph_fin(string):
     assert RE_AUTOPARAGRAPH_FIN.match(string)
 
 
-@pytest.mark.parametrize("string", [" a #", " #", "#", "a#"])
-def test_re_autoparagraph_debut(string):
+@pytest.mark.parametrize("string", [" #", "#", "a#"])
+def test_re_autoparagraph_fin_fail(string):
     assert not RE_AUTOPARAGRAPH_FIN.match(string)
 
 

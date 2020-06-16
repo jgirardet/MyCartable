@@ -27,6 +27,7 @@ BLUE = "#0048BA"
 GREEN = "#006A4E"
 BLACK = "#363636"
 
+# p doit figurer avant les h1,h2..  : c'est pour le block format
 _CSS_BASE = {
     "body": {
         "color": BLACK,
@@ -35,8 +36,21 @@ _CSS_BASE = {
         "font-size": "20pt",
         "font-weight": "96",
         "margin-top": "12px",
+        "margin-bottom": "0px",
+    },
+    "p": {
+        "color": BLACK,
+        # "background-color": "#E6E6E6",
+        "font-family": "Verdana",
+        "font-size": "20pt",
+        "font-weight": "96",
+        "margin-top": "12px",
+        "margin-left": "10px",
+        "margin-right": "10px",
+        "margin-bottom": "0px",
     },
     "h1": {
+        "font-family": "Verdana",
         "font-size": "30pt",
         "color": RED,
         "font-weight": "600",
@@ -45,8 +59,10 @@ _CSS_BASE = {
         "margin-top": "18px",
         "margin-left": "10px",
         "margin-right": "10px",
+        "margin-bottom": "0px",
     },
     "h2": {
+        "font-family": "Verdana",
         "font-size": "25pt",
         "color": GREEN,
         "font-weight": "600",
@@ -54,8 +70,10 @@ _CSS_BASE = {
         "margin-top": "16px",
         "margin-left": "10px",
         "margin-right": "10px",
+        "margin-bottom": "0px",
     },
     "h3": {
+        "font-family": "Verdana",
         "font-size": "25pt",
         "color": BLUE,
         "font-weight": "400",
@@ -63,25 +81,18 @@ _CSS_BASE = {
         "margin-top": "14px",
         "margin-left": "10px",
         "margin-right": "10px",
+        "margin-bottom": "0px",
     },
     "h4": {
+        "font-family": "Verdana",
+        "font-size": "21pt",
         "color": BLACK,
-        "font-size": "20pt",
         "font-weight": "400",
         "text-decoration": "underline",
         "margin-top": "18px",
         "margin-left": "10px",
         "margin-right": "10px",
-    },
-    "p": {
-        "color": BLACK,
-        "background-color": "#E6E6E6",
-        "font-family": "Verdana",
-        "font-size": "20pt",
-        "font-weight": "96",
-        "margin-top": "12px",
-        "margin-left": "10px",
-        "margin-right": "10px",
+        "margin-bottom": "0px",
     },
 }
 
@@ -115,70 +126,6 @@ def build_css(source=CSS_BASE):
 CSS = build_css(CSS_BASE)
 
 
-def build_bockCharFormat_from_css(css):
-    res = []
-    ordre = ["p", "h1", "h2", "h3", "h4"]
-    for item in ordre:
-        datas = css[item]
-        cf = QTextCharFormat()
-        cf.setForeground(
-            QBrush(QColor(datas.get("color", None) or css["body"]["color"]))
-        )
-        cf.setBackground(
-            QBrush(
-                QColor(
-                    datas.get("background-color", None)
-                    or css["body"]["background-color"]
-                )
-            )
-        )
-        pt = datas.get("font-size", None) or css["body"]["font-size"]
-        pt = float(pt.rstrip("pt"))
-        cf.setFontPointSize(pt)
-
-        if "text-decoration" in datas:
-            cf.setFontUnderline(True)
-        if "font-weight" in datas:  # pragma: no branch
-            cf.setFontWeight(
-                int(datas["font-weight"]) / 8
-            )  # cssweight = 8 * QFont.wieight
-        if "text-transform" in datas:
-            if datas["text-transform"] == "uppercase":  # pragma: no branch
-                cf.setFontCapitalization(QFont.AllUppercase)
-            # elif datas["text-transform"] == "lowercase":
-            #     cf.setFontCapitalization(QFont.AllLowercase)
-
-        res.append(cf)
-    return res
-
-
-def build_blockFormat_from_css(css):
-    res = []
-    ordre = ["p", "h1", "h2", "h3", "h4"]
-    for item in ordre:
-        cf = QTextBlockFormat()
-        datas = css[item]
-
-        if item == "p":
-            cf.setHeadingLevel(0)
-        else:
-            cf.setHeadingLevel(int(item[1]))
-
-        mt = datas.get("margin-top", None) or css["body"]["margin-top"]
-        mt = float(mt.rstrip("px"))
-        cf.setTopMargin(mt)
-        #
-        mt = datas.get("margin-left", None)
-        mt = float(mt.rstrip("px"))
-        cf.setLeftMargin(mt)
-        mt = datas.get("margin-right", None)
-        mt = float(mt.rstrip("px"))
-        cf.setRightMargin(mt)
-
-        res.append(cf)
-    return res
-
-
 class BlockFormat_:
     def __init__(self, data):
         self.data = data
@@ -191,7 +138,6 @@ class BlockFormat_:
             if item == "p":
                 level = 0
             else:
-
                 level = int(item[1])
             return self.data[level]
         elif isinstance(item, int):
@@ -200,9 +146,30 @@ class BlockFormat_:
             raise KeyError("int ou string")
 
 
-blockCharFormat = BlockFormat_(build_bockCharFormat_from_css(CSS_BASE))
-blockFormat = BlockFormat_(build_blockFormat_from_css(CSS_BASE))
+def collect_block_and_char_format():
+    q = QTextDocument()
+    q.setDefaultStyleSheet(CSS)
+    css = dict(_CSS_BASE)
+    css.pop("body")
+    q.setHtml("")
+    old = q.allFormats()
 
+    html = "".join((f"<{k}>a</{k}>" for k in css.keys()))
+    q.setHtml(html)
+    charFormat = []
+    blockFormat = []
+    for f in q.allFormats():
+        if f in old:
+            continue
+        elif f.isCharFormat():
+            charFormat.append(f.toCharFormat())
+        elif f.isBlockFormat():  # pragma: no branch
+            blockFormat.append(f.toBlockFormat())
+
+    return BlockFormat_(charFormat), BlockFormat_(blockFormat)
+
+
+blockCharFormat, blockFormat = collect_block_and_char_format()
 
 RE_AUTOPARAGRAPH_DEBUT = re.compile(r"^(#{1,6})\s\S+$")
 RE_AUTOPARAGRAPH_FIN = re.compile(r"^\S+\s(#{1,6})$")
@@ -243,9 +210,8 @@ class TextSectionEditor(QTextDocument):
     @db_session
     def onLoad(self):
         item = db.Section[self.sectionId]
-        if item:
-            self.setHtml(item.text)
-            self.setResponse(True, cur=self.len)
+        self.setHtml(item.text)
+        self.setResponse(True, cur=self.len)
         return self.result
 
     def onMenu(self, style={}, **kwargs):
@@ -255,7 +221,7 @@ class TextSectionEditor(QTextDocument):
             # un peut répétition mais uniquement sur des if alors ...
             if k == "fgColor":
                 self._set_fg_color(v)
-            elif k == "underline":
+            elif k == "underline":  # pragma: no branch
                 self._set_underline(style["underline"])
 
             self.cur.setPosition(backup[0])
@@ -270,9 +236,7 @@ class TextSectionEditor(QTextDocument):
         return self.result
 
     def onKey(self, event):
-
         # on met en premier ceux à qui il faut passer l'event
-
         if event["key"] == Qt.Key_Return:
             self.do_key_return(event)
 
@@ -287,6 +251,10 @@ class TextSectionEditor(QTextDocument):
         return self.result
 
     def do_control_modifier(self, event):
+        print(event, KeyW.KEY_2)
+
+        print(KeyW.KEY_2 == event)
+        print(event == KeyW.KEY_2)
         if event == KeyW.KEY_1:
             self.do_key_1()
 
@@ -299,7 +267,7 @@ class TextSectionEditor(QTextDocument):
         elif event == KeyW.KEY_4:
             self.do_key_4()
 
-        elif event["key"] == Qt.Key_U:
+        elif event["key"] == Qt.Key_U:  # pragma: no branch
             self.do_key_u()
 
     def do_key_1(self):
@@ -355,7 +323,7 @@ class TextSectionEditor(QTextDocument):
         self.cur.movePosition(QTextCursor.PreviousBlock)
         self._set_block_style(section)
         self.pending = True
-        if set_response:
+        if set_response:  # pragma: no branch
             self.setResponse(True)
 
     def _headerAutoFormat(self):
@@ -447,7 +415,7 @@ class TextSectionFormatter:
         if tag.string:
             string = html.escape(tag.string)
         else:
-            if tag.name == "p":
+            if tag.name == "p" or tag.name == "br":
                 string = "<br/>"
             else:
                 string = ""
@@ -477,7 +445,8 @@ class TextSectionFormatter:
             return res
         for member in actual.split(";")[:-1]:
             attr, value = member.replace(" ", "").split(":")
-            value = value.lower()
+            value = value.lower().strip("'")
+
             if attr not in CSS_BASE["p"] and attr not in CSS_BASE["body"]:
                 res[attr] = value
             elif (

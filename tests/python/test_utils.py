@@ -37,12 +37,12 @@ def test_get_new_filename():
 @pytest.mark.parametrize("cle", [("KEY_1"), ("KEY_2"), ("KEY_3"), ("KEY_4"),])
 def test_KeyWizard(cle):
     if WIN:
-        assert getattr(KeyW, cle) == KEYS[cle][0]
-        assert getattr(KeyW, cle) == {"nativeScanCode": KEYS[cle][0]}
-        assert getattr(KeyW, cle) != "bla"
-    else:
         assert getattr(KeyW, cle) == KEYS[cle][1]
         assert getattr(KeyW, cle) == {"nativeScanCode": KEYS[cle][1]}
+        assert getattr(KeyW, cle) != "bla"
+    else:
+        assert getattr(KeyW, cle) == KEYS[cle][0]
+        assert getattr(KeyW, cle) == {"nativeScanCode": KEYS[cle][0]}
         assert getattr(KeyW, cle) != "bla"
 
 

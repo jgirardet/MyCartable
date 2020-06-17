@@ -68,8 +68,6 @@ KeyW = KeyWizard()
 
 def read_qrc(path, mode="t"):
     file = QFile(path)
-    # if file.open(QFile.ReadOnly | QFile.Text):
-    #     return file.readData(file.bytesAvailable())
     if file.open(QFile.ReadOnly):
         if mode == "t":  # pragma: no branch
             out = QTextStream(file)

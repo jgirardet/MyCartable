@@ -218,10 +218,11 @@ def cmd_test_qml(*args, **kwargs):
     qml_tests = "qml_tests"
     if sys.platform == "linux":
         make = "make"
+        command_line = str(QMLTESTS / qml_tests)
     elif sys.platform == "win32":
         make = "mingw32-make.exe"
+        command_line = str(QMLTESTS / qml_tests / "debug" / "qml_tests.exe")
     runCommand(f"{make} -C build/qml_tests")
-    command_line = str(QMLTESTS / qml_tests)
     if sys.platform == "win32":
         subprocess.run("dir build /S", shell=True)
     filedir = kwargs.get("input", None)

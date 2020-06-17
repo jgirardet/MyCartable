@@ -223,7 +223,7 @@ def cmd_test_qml(*args, **kwargs):
     runCommand(f"{make} -C build/qml_tests")
     command_line = str(QMLTESTS / qml_tests)
     if sys.platform == "win32":
-        runCommand("dir build /S")
+        subprocess.run("dir build /S", shell=True)
     filedir = kwargs.get("input", None)
     if filedir:
         command_line = f"{command_line} -input {filedir}"

@@ -66,16 +66,15 @@ class KeyWizard:
 KeyW = KeyWizard()
 
 
-def read_qrc(path):
+def read_qrc(path, mode="t"):
     file = QFile(path)
     # if file.open(QFile.ReadOnly | QFile.Text):
     #     return file.readData(file.bytesAvailable())
-
     if file.open(QFile.ReadOnly):
-        out = QTextStream(file)
-        print(out.codec().name())
-        print(out.locale())
-        return out.readAll()
+        if mode == "t":  # pragma: no branch
+            out = QTextStream(file)
+            return out.readAll()
+        # other format to be added
         # content = file.readAll()
         # return content.data().decode().replace("\r\n", "\n"
     else:

@@ -73,6 +73,6 @@ def read_qrc(path):
 
     if file.open(QFile.ReadOnly):
         content = file.readAll()
-        return content.data().decode()
+        return content.data().decode().replace("\r\n", "\n")
     else:
         raise FileNotFoundError(f"{path} n'est pas une ressource valide")

@@ -222,7 +222,8 @@ def cmd_test_qml(*args, **kwargs):
         make = "mingw32-make.exe"
     runCommand(f"{make} -C build/qml_tests")
     command_line = str(QMLTESTS / qml_tests)
-    runCommand("dir build /S")
+    if sys.platform == "win32":
+        runCommand("dir build /S")
     filedir = kwargs.get("input", None)
     if filedir:
         command_line = f"{command_line} -input {filedir}"

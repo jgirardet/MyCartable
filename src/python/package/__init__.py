@@ -16,11 +16,11 @@ else:
 
 ROOT = Path(sys._MEIPASS) if PROD else Path(__file__).parents[3]
 DATA = ROOT / "data" if PROD else ROOT / "src" / "data"
-print("ROOT : %s", str(ROOT))
-print("DATA : %s", str(DATA))
+print(f"ROOT : {str(ROOT)}")
+print(f"DATA : {str(DATA)}")
 
 if sys.platform == "linux":
     BINARY = DATA / "binary" / "linux"
 elif sys.platform == "win32":
     BINARY = DATA / "binary" / "windows"
-print("BINARY : %s", str(BINARY))
+print(f"BINARY : {str(BINARY)}")

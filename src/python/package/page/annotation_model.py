@@ -41,8 +41,8 @@ class AnnotationModel(QAbstractListModel):
 
     def flags(self, index):
         if not index.isValid():
-            return Qt.ItemIsDropEnabled
-        return QAbstractItemModel.flags(index) | Qt.ItemIsEditable
+            return
+        return super().flags(index) | Qt.ItemIsEditable
 
     def insertRow(self, value) -> bool:
         return self.insertRows(value, 0)
@@ -111,14 +111,16 @@ class AnnotationModel(QAbstractListModel):
 
     def slotReset(self, value):
         self.beginResetModel()
-        if not value:
-            self.section = None
         with db_session:
             section = self.db.ImageSection.get(id=value)
             if not section:
+                self.section = None
+                self._sectionId = 0
                 self.endResetModel()
                 return
             self.section = make_proxy(section)
+            if self.sectionId != self.section.id:
+                self._sectionId = self.section.id
             self.count = self.section.annotations.count()
         self.endResetModel()
         self.onModelReset()

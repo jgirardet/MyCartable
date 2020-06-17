@@ -49,7 +49,7 @@ def test_KeyWizard(cle):
 def test_read_qrc():
     ressource = Path(__file__).parents[2] / "src" / "qml" / "main.qml"
     assert ressource.is_file()
-    assert ressource.read_text().splitlines() == read_qrc(":/qml/main.qml").splitlines()
+    assert ressource.read_text() == read_qrc(":/qml/main.qml")
 
     with pytest.raises(FileNotFoundError):
         read_qrc(":/qml/blabdlzebflzef.qml")

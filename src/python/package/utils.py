@@ -68,7 +68,11 @@ KeyW = KeyWizard()
 
 def read_qrc(path):
     file = QFile(path)
-    if file.open(QFile.ReadOnly | QFile.Text):
-        return file.readData(file.bytesAvailable())
+    # if file.open(QFile.ReadOnly | QFile.Text):
+    #     return file.readData(file.bytesAvailable())
+
+    if file.open(QFile.ReadOnly):
+        content = file.readAll()
+        return content.data().decode()
     else:
         raise FileNotFoundError(f"{path} n'est pas une ressource valide")

@@ -3,7 +3,7 @@ import uuid
 from dataclasses import dataclass
 from datetime import datetime
 
-from PySide2.QtCore import QTimer, QFile
+from PySide2.QtCore import QTimer, QFile, QTextStream
 from PySide2.QtWidgets import QApplication
 
 
@@ -72,7 +72,11 @@ def read_qrc(path):
     #     return file.readData(file.bytesAvailable())
 
     if file.open(QFile.ReadOnly):
-        content = file.readAll()
-        return content.data().decode().replace("\r\n", "\n")
+        out = QTextStream(file)
+        print(out.codec().name())
+        print(out.locale())
+        return out.readAll()
+        # content = file.readAll()
+        # return content.data().decode().replace("\r\n", "\n"
     else:
         raise FileNotFoundError(f"{path} n'est pas une ressource valide")

@@ -76,7 +76,7 @@ Canvas {
     var nEndX = mx - newX
     var nEndY = my - newY
 
-    parent.model.newDessin(sectionId, {
+    parent.model.newDessin({
       "x": newX / width,
       "y": newY / height,
       "startX": nStartX / new_width,

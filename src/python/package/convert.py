@@ -49,7 +49,7 @@ from package.ui_manager import DEFAULT_ANNOTATION_CURRENT_TEXT_SIZE_FACTOR
 
 
 def get_binary_path(name):
-    name = name + ".exe" if sys.platform == "win32" else name
+    name = name + ".exe" if WIN else name
     exec_path = BINARY / name
     return exec_path
 
@@ -84,12 +84,87 @@ def run_convert_pdf(pdf, png_root, prefix="xxx", resolution=200, timeout=30):
     except CalledProcessError as err:
         LOG.error(err.stderr)
         return []
-    except TimeoutError as err:
+    except subprocess.TimeoutExpired as err:
         LOG.error(err.stderr)
         return []
 
     files = collect_files(root, pref=prefix, ext=".png")
     return files
+
+
+def find_soffice(ui=None):
+    if LINUX:
+        if Path("/usr/bin/soffice").is_file():
+            return "/usr/bin/soffice"
+        else:
+            res = (
+                subprocess.run(["which", "soffice"], capture_output=True,)
+                .stdout.decode()
+                .strip()
+            )
+            if res:
+                return res
+    elif WIN:
+        if Path("C:\\Program Files\\LibreOffice\\program\\soffice.exe").is_file():
+            return "C:\\Program Files\\LibreOffice\\program\\soffice.exe"
+        else:
+            res = (
+                subprocess.run(
+                    ["where", "/R", os.environ.get("PROGRAMFILES", ""), "soffice.exe"],
+                    capture_output=True,
+                )
+                .stdout.decode()
+                .strip()
+            )
+            if res:
+                return res
+    if ui:
+        ui.sendToast.emit("Libreoffice non trouvé sur le système")
+    raise EnvironmentError("Libreoffice non trouvé")
+
+
+def soffice_convert(page_id, format, new_filename, ui=None):
+    res = build_odt(page_id)
+    ext = "." + format.split(":")[0]
+    soffice = find_soffice(ui)
+    temp = QTemporaryFile(str(TMP / uuid.uuid4().hex))
+    temp.open()
+    p = Path(temp.fileName())
+    p.write_bytes(res.encode())
+    print(temp, p, soffice, format, TMP)
+    proc = subprocess.run(
+        [soffice, "--headless", "--convert-to", format, str(p)],
+        # [soffice, "--headless", "--convert-to", format, f.name],
+        cwd=p.parent,
+        # cwd=TMP,
+        capture_output=True,
+    )
+    print(proc)
+    print(proc.stdout)
+    # p = Path(f.name)
+    print("p", p)
+    converted = p.parent / (p.stem + ext)
+    print("converted", converted)
+    new_path = Path(p.parent, new_filename)
+    print("new_path", new_path)
+    converted.rename(new_path)
+    temp.close()
+    return new_path
+
+
+def escaped_filename(nom, ext):
+    nom = (
+        nom.replace("é", "e")
+        .replace("è", "e")
+        .replace("à", "a")
+        .replace("ê", "e")
+        .replace("â", "a")
+        .replace("ç", "c")
+        .replace("ù", "u")
+        .replace("ù", "u")
+    )
+    temp = re.sub(r"[\s]", "_", nom.encode("ascii", "ignore").decode("ascii"))
+    return re.sub(r"[\W]", "", temp) + ext
 
 
 def create_lookup():
@@ -100,46 +175,6 @@ def create_lookup():
 
 
 templates = create_lookup()
-
-
-def create_context_var(section_id, tmpdir):
-    page = Page[section_id].to_dict()
-    sections = []
-    for sec in Page[section_id].content:
-        section = sec.to_dict()
-        if section["classtype"] == "ImageSection":
-            path = create_images_with_annotation(section, tmpdir)
-            section["path"] = Path(path).as_uri()
-        elif section["classtype"] == "EquationSection":
-            section["content"] = section["content"].replace(" ", "\u2000").split("\n")
-
-        elif section["classtype"] == "TableauSection":
-            _cells = []
-            for cel in sec.cells.order_by(TableauCell.x, TableauCell.y):
-                cel_dict = cel.to_dict()
-                cel_dict["color"] = cel.style.fgColor.name()
-                cel_dict["background-color"] = (
-                    cel.style.bgColor.name()
-                    if cel.style.bgColor.name() != "#000000"
-                    else "transparent"
-                )
-                # cel_dict["font-size"] = " font-size"=cel.style.pointSize
-                if cel.style.underline:
-                    cel_dict["text-decoration"] = " text-decoration=underline:"
-                elif cel.style.strikeout:
-                    cel_dict["text-decoration"] = " text-decoration=line-through:"
-                else:
-                    cel_dict["text-decoration"] = ""
-
-                _cells.append(cel_dict)
-            section["cells"] = _cells
-        elif section["classtype"] == "MultiplicationSection":
-            start = (1 + sec.n_chiffres) * sec.columns
-            section["line_1"] = list(range(start, start + sec.columns))
-
-        sections.append(section)
-    css = read_qrc(":/css/export.css")
-    return {"page": page, "sections": sections, "css": css}
 
 
 def create_images_with_annotation(image_section, tmpdir=None):
@@ -980,81 +1015,6 @@ def build_odt(page_id):
         styles=styles,
     )
     return res
-
-
-def find_soffice(ui=None):
-    if LINUX:
-        if Path("/usr/bin/soffice").is_file():
-            return "/usr/bin/soffice"
-        else:
-            res = (
-                subprocess.run(["which", "soffice"], capture_output=True,)
-                .stdout.decode()
-                .strip()
-            )
-            if res:
-                return res
-    if WIN:
-        if Path("C:\\Program Files\\LibreOffice\\program\\soffice.exe").is_file():
-            return "C:\\Program Files\\LibreOffice\\program\\soffice.exe"
-        else:
-            res = (
-                subprocess.run(
-                    ["where", "/R", os.environ.get("PROGRAMFILES", ""), "soffice.exe"],
-                    capture_output=True,
-                )
-                .stdout.decode()
-                .strip()
-            )
-            if res:
-                return res
-    if ui:
-        ui.sendToast.emit("Libreoffice non trouvé sur le système")
-    raise EnvironmentError("Libreoffice non trouvé")
-
-
-def soffice_convert(page_id, format, new_filename, ui=None):
-    res = build_odt(page_id)
-    ext = "." + format.split(":")[0]
-    soffice = find_soffice(ui)
-    temp = QTemporaryFile(str(TMP / uuid.uuid4().hex))
-    temp.open()
-    p = Path(temp.fileName())
-    p.write_bytes(res.encode())
-    print(temp, p, soffice, format, TMP)
-    proc = subprocess.run(
-        [soffice, "--headless", "--convert-to", format, str(p)],
-        # [soffice, "--headless", "--convert-to", format, f.name],
-        cwd=p.parent,
-        # cwd=TMP,
-        capture_output=True,
-    )
-    print(proc)
-    print(proc.stdout)
-    # p = Path(f.name)
-    print("p", p)
-    converted = p.parent / (p.stem + ext)
-    print("converted", converted)
-    new_path = Path(p.parent, new_filename)
-    print("new_path", new_path)
-    converted.rename(new_path)
-    temp.close()
-    return new_path
-
-
-def escaped_filename(nom, ext):
-    nom = (
-        nom.replace("é", "e")
-        .replace("è", "e")
-        .replace("à", "a")
-        .replace("ê", "e")
-        .replace("â", "a")
-        .replace("ç", "c")
-        .replace("ù", "u")
-        .replace("ù", "u")
-    )
-    temp = re.sub(r"[\s]", "_", nom.encode("ascii", "ignore").decode("ascii"))
-    return re.sub(r"[\W]", "", temp) + ext
 
 
 #

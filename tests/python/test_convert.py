@@ -121,3 +121,8 @@ def test_find_soffice(qtbot):
                 ui = UiManager()
                 with qtbot.waitSignal(ui.sendToast):
                     find_soffice(ui=ui)
+
+
+#
+# # def mock_build_odt()
+# def test_soffice_convert(ddbr):

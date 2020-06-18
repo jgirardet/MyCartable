@@ -1,16 +1,21 @@
 from pathlib import Path
+from subprocess import CalledProcessError
 from time import sleep
+from unittest.mock import patch
 
+import pytest
 from package import BINARY
 from package.convert import (
     get_binary_path,
     get_command_line_pdftopng,
     collect_files,
     run_convert_pdf,
+    find_soffice,
 )
 import sys
 
 from package.database.factory import *
+from package.ui_manager import UiManager
 
 
 def test_get_binary_path():
@@ -77,6 +82,7 @@ def test_collect_files_standard_checkordalphbetique(tmp_path):
     assert collect_files(tmp_path, ext=".png") == res
 
 
+@pytest.mark.skip("lent")
 def test_convert_pdf(resources, tmp_path):
     res = run_convert_pdf(resources / "2pages.pdf", tmp_path / "rien")
     assert len(res) == 2
@@ -84,13 +90,34 @@ def test_convert_pdf(resources, tmp_path):
         assert f.is_file()
         assert f.name.startswith("xxx")  # le default
 
+    assert run_convert_pdf(resources / "xxxxxx .pdf", tmp_path / "rien") == []
+    assert (
+        run_convert_pdf(resources / "xxxxxx .pdf", tmp_path / "rien", timeout=0) == []
+    )
 
-#
-# class TextExportHtml:
-#     def test_create_context_var(self):
-#         p = f_page()
-#         text  = f_textSection(page=p.id)
-#         add = f_additionSection(page=p.id)
-#         image = f_imageSection(page=p.id)
-#         f_annotationText(section=image.id)
-#         f_
+
+def test_find_soffice(qtbot):
+
+    # default dir
+    assert find_soffice()
+
+    # en cherchant
+    with patch("package.convert.Path.is_file", return_value=False):
+        assert find_soffice()
+
+    # pas trouvé
+    class Rien:
+        stdout = b""
+
+    with pytest.raises(EnvironmentError):
+        with patch("package.convert.Path.is_file", return_value=False):
+            with patch("package.convert.subprocess.run", return_value=Rien()):
+                find_soffice()
+
+    # pas trouvé avec toast
+    with pytest.raises(EnvironmentError):
+        with patch("package.convert.Path.is_file", return_value=False):
+            with patch("package.convert.subprocess.run", return_value=Rien()):
+                ui = UiManager()
+                with qtbot.waitSignal(ui.sendToast):
+                    find_soffice(ui=ui)

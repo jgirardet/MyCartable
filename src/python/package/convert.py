@@ -134,19 +134,17 @@ def soffice_convert(page_id, format, new_filename, ui=None):
     print(temp, p, soffice, format, TMP)
     proc = subprocess.run(
         [soffice, "--headless", "--convert-to", format, str(p)],
-        # [soffice, "--headless", "--convert-to", format, f.name],
         cwd=p.parent,
-        # cwd=TMP,
         capture_output=True,
     )
-    print(proc)
-    print(proc.stdout)
+    print(page_id, format, new_filename, res)
+    # print(proc.stdout)
     # p = Path(f.name)
-    print("p", p)
+    # print("p", p)
     converted = p.parent / (p.stem + ext)
-    print("converted", converted)
+    # print("converted", converted)
     new_path = Path(p.parent, new_filename)
-    print("new_path", new_path)
+    # print("new_path", new_path)
     converted.rename(new_path)
     temp.close()
     return new_path

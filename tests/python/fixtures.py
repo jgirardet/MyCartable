@@ -61,6 +61,7 @@ EQUIVALENTS = {
     None: "void",
     bool: "bool",
     QColor: "QColor",
+    float: "double",
 }
 
 

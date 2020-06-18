@@ -131,7 +131,6 @@ class AnnotationModel(QAbstractListModel):
         app = QApplication.instance()
         self.rowsRemoved.connect(app.dao.updateRecentsAndActivites)
         self.rowsInserted.connect(app.dao.updateRecentsAndActivites)
-        # self.rowsMoved.connect(app.dao.updateRecentsAndActivites)
 
     sectionIdChanged = Signal(int)
 
@@ -145,22 +144,18 @@ class AnnotationModel(QAbstractListModel):
 
         self.sectionIdChanged.emit(self._sectionId)
 
-    @Slot(int, "QVariantMap")
-    def newDessin(self, sectionId, datas):
+    @Slot("QVariantMap")
+    def newDessin(self, datas):
         style = {}
         style["fgColor"] = (datas.pop("strokeStyle"),)
         style["bgColor"] = (datas.pop("fillStyle"),)
         style["pointSize"] = datas.pop("lineWidth")
         with db_session:
-            item = self.db.AnnotationDessin(section=sectionId, style=style, **datas)
+            self.db.AnnotationDessin(section=self.sectionId, style=style, **datas)
         self.insertRow(self.count)
 
     @Slot(float, float, float, float)
     def addAnnotation(self, x, y, width, height):
-        # breakpoint()
         with db_session:
-            # section = int(content.pop("section"))
-            item = self.db.AnnotationText(
-                x=x / width, y=y / height, section=self.section.id
-            )
+            self.db.AnnotationText(x=x / width, y=y / height, section=self.sectionId)
         self.insertRow(self.count)

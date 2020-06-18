@@ -11,6 +11,7 @@ omit =
 [report]
 ignore_errors = True
 exclude_lines =
+    pragma: no cover
     pragma: no cover_all
     pragma: no cover_linux
     def __repr__

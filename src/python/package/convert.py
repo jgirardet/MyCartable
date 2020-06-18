@@ -104,7 +104,7 @@ def find_soffice(ui=None):
             )
             if res:
                 return res
-    elif WIN:
+    elif WIN:  # pragma: no cover
         if Path("C:\\Program Files\\LibreOffice\\program\\soffice.exe").is_file():
             return "C:\\Program Files\\LibreOffice\\program\\soffice.exe"
         else:
@@ -131,20 +131,13 @@ def soffice_convert(page_id, format, new_filename, ui=None):
     temp.open()
     p = Path(temp.fileName())
     p.write_bytes(res.encode())
-    print(temp, p, soffice, format, TMP)
     proc = subprocess.run(
         [soffice, "--headless", "--convert-to", format, str(p)],
         cwd=p.parent,
         capture_output=True,
     )
-    print(page_id, format, new_filename, res)
-    # print(proc.stdout)
-    # p = Path(f.name)
-    # print("p", p)
     converted = p.parent / (p.stem + ext)
-    # print("converted", converted)
     new_path = Path(p.parent, new_filename)
-    # print("new_path", new_path)
     converted.rename(new_path)
     temp.close()
     return new_path
@@ -158,7 +151,6 @@ def escaped_filename(nom, ext):
         .replace("ê", "e")
         .replace("â", "a")
         .replace("ç", "c")
-        .replace("ù", "u")
         .replace("ù", "u")
     )
     temp = re.sub(r"[\s]", "_", nom.encode("ascii", "ignore").decode("ascii"))
@@ -185,47 +177,8 @@ def create_images_with_annotation(image_section, tmpdir=None):
         annotation = Annotation[annotation_id].to_dict()
         if annotation["classtype"] == "AnnotationText":
             draw_annotation_text(annotation, image, painter)
-        elif annotation["classtype"] == "AnnotationDessin":
-            width = annotation["width"] * image.width()
-            height = annotation["height"] * image.height()
-            x = annotation["x"] * image.width()
-            y = annotation["y"] * image.height()
-            sx = annotation["startX"] * width
-            ex = annotation["endX"] * width
-            sy = annotation["startY"] * height
-            ey = annotation["endY"] * height
-            pz = annotation["pointSize"]
-
-            if sx <= ex:
-                sx += pz / 2
-                ex -= pz / 2
-            else:
-                sx -= pz / 2
-                ex += pz / 2
-
-            if sx <= ey:
-                sy += pz / 2
-                ey -= pz / 2
-            else:
-                sy -= pz / 2
-                ey += pz / 2
-
-            pen = painter.pen()
-            pen.setWidth(annotation["pointSize"])
-            pen.setColor(annotation["fgColor"])
-            painter.setPen(pen)
-            painter.setOpacity(0.2 if annotation["tool"] == "fillrect" else 1)
-            painter.setRenderHint(QPainter.Antialiasing)
-            startPoint = QPoint(x + sx, y + sy)
-            endPoint = QPoint(x + ex, y + ey)
-            if annotation["tool"] == "trait":
-                painter.drawLine(startPoint, endPoint)
-            elif annotation["tool"] == "fillrect":
-                painter.fillRect(QRect(startPoint, endPoint), annotation["bgColor"])
-            elif annotation["tool"] == "rect":
-                painter.drawRect(QRect(startPoint, endPoint))
-            elif annotation["tool"] == "ellipse":
-                painter.drawEllipse(QRect(startPoint, endPoint))
+        elif annotation["classtype"] == "AnnotationDessin":  # pragma: no branch
+            draw_annotation_dessin(annotation, image, painter)
 
     painter.end()
     if tmpdir:
@@ -245,8 +198,9 @@ def draw_annotation_text(annotation: dict, image: QImage, painter: QPainter):
         / (annotation["pointSize"] or DEFAULT_ANNOTATION_CURRENT_TEXT_SIZE_FACTOR)
     )
     font.setUnderline(annotation["underline"])
-    if not annotation.get("family", None):  # get considère empty "" comme true
-        font.setFamily(BASE_FONT)
+    # get considère empty "" comme true
+    if not annotation.get("family", None):  # pragma: no branch
+        font.setFamily(BASE_FONT)  # pragma: no cover
     painter.setFont(font)
 
     # Ensuite le crayon
@@ -268,6 +222,49 @@ def draw_annotation_text(annotation: dict, image: QImage, painter: QPainter):
     painter.drawText(
         rect, annotation["text"],
     )
+
+
+def draw_annotation_dessin(annotation: dict, image: QImage, painter: QPainter) -> None:
+    width = annotation["width"] * image.width()
+    height = annotation["height"] * image.height()
+    x = annotation["x"] * image.width()
+    y = annotation["y"] * image.height()
+    sx = annotation["startX"] * width
+    ex = annotation["endX"] * width
+    sy = annotation["startY"] * height
+    ey = annotation["endY"] * height
+    pz = annotation["pointSize"]
+
+    if sx <= ex:
+        sx += pz / 2
+        ex -= pz / 2
+    else:
+        sx -= pz / 2
+        ex += pz / 2
+
+    if sx <= ey:
+        sy += pz / 2
+        ey -= pz / 2
+    else:
+        sy -= pz / 2
+        ey += pz / 2
+
+    pen = painter.pen()
+    pen.setWidth(annotation["pointSize"])
+    pen.setColor(annotation["fgColor"])
+    painter.setPen(pen)
+    painter.setOpacity(0.2 if annotation["tool"] == "fillrect" else 1)
+    painter.setRenderHint(QPainter.Antialiasing)
+    startPoint = QPoint(x + sx, y + sy)
+    endPoint = QPoint(x + ex, y + ey)
+    if annotation["tool"] == "trait":
+        painter.drawLine(startPoint, endPoint)
+    elif annotation["tool"] == "fillrect":
+        painter.fillRect(QRect(startPoint, endPoint), annotation["bgColor"])
+    elif annotation["tool"] == "rect":
+        painter.drawRect(QRect(startPoint, endPoint))
+    elif annotation["tool"] == "ellipse":  # pragma: no branch
+        painter.drawEllipse(QRect(startPoint, endPoint))
 
 
 #

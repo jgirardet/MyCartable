@@ -151,7 +151,10 @@ class AnnotationModel(QAbstractListModel):
         style["bgColor"] = (datas.pop("fillStyle"),)
         style["pointSize"] = datas.pop("lineWidth")
         with db_session:
-            self.db.AnnotationDessin(section=self.sectionId, style=style, **datas)
+            item = self.db.AnnotationDessin(
+                section=self.sectionId, style=style, **datas
+            )
+            print(item.to_dict())
         self.insertRow(self.count)
 
     @Slot(float, float, float, float)

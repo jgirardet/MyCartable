@@ -6,14 +6,15 @@ Pillow==7.1.2
 mako==1.1.2
 
 #dev
-coverage
+aqtinstall==0.9
 beautifulsoup4
 black
+coverage
 freezegun
+jsbeautifier==1.11
+mimesis
 pytest
 pytest-freezegun
 pytest-qt
-aqtinstall==0.9
-mimesis
-jsbeautifier==1.11
+PyPDF2
 

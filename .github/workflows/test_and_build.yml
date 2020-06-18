@@ -50,6 +50,12 @@ jobs:
         sudo apt install libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0
         sudo apt install libreoffice-common
         /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -screen 0 1920x1200x24 -ac +extension GLX
+    - name: Install libreoffice on Windows
+        if: runner.os == 'Windows'
+        uses: crazy-max/ghaction-chocolatey@v1
+        with:
+          args: install libreoffice-fresh -y
+
     - name: Tests python on ${{ matrix.os }}
       run: python run.py test_python
     - name: Install Qt on Linux

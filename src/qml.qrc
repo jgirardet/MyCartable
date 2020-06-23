@@ -17,7 +17,6 @@
         <file alias="BasePageDelegate.qml">qml/page/BasePageDelegate.qml</file>
         <file alias="PageRectangle.qml">qml/page/PageRectangle.qml</file>
         <file alias="PageTitre.qml">qml/page/PageTitre.qml</file>
-        <file alias="StabyloRectangle.qml">qml/page/StabyloRectangle.qml</file>
 
     </qresource>
     <qresource prefix="/qml/sections">
@@ -34,11 +33,11 @@
 
     <qresource prefix="/qml/annotations">
         <file alias="CanvasFactory.qml">qml/annotations/CanvasFactory.qml</file>
+        <file alias="ImageSectionBase.qml">qml/annotations/ImageSectionBase.qml</file>
         <file alias="CanvasPainter.qml">qml/annotations/CanvasPainter.qml</file>
         <file alias="BaseAnnotation.qml">qml/annotations/BaseAnnotation.qml</file>
         <file alias="AnnotationDessin.qml">qml/annotations/AnnotationDessin.qml</file>
         <file alias="AnnotationText.qml">qml/annotations/AnnotationText.qml</file>
-        <file alias="AnnotationDispatcher.qml">qml/annotations/AnnotationDispatcher.qml</file>
     </qresource>
 
     <qresource prefix="/qml/operations">

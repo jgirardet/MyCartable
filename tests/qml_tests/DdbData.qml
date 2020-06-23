@@ -420,6 +420,7 @@ Item {
     _pivoterImage = [id, sens]
     }
   property var _pivoterImage
+  property real annotationTextBGOpacity: 0.3
 
   // SECTION
 

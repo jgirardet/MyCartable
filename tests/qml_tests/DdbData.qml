@@ -1,5 +1,5 @@
-import QtQuick 2.14
-import QtTest 1.12
+import QtQuick 2.15
+import QtTest 1.15
 
 /* beautify preserve:start */
 
@@ -486,9 +486,7 @@ Item {
 // text section
 
   function getTextSectionColor(arg) {
-    var backup = _getTextSectionColor
-    _getTextSectionColor = arg
-    return backup
+    return _getTextSectionColor
   }
   property var _getTextSectionColor: "red"
 /* beautify preserve:end */

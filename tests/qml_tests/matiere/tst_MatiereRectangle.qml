@@ -34,14 +34,21 @@ Item {
       compare(combo.contentItem.text, "Mathematiques")
       compare(Qt.colorEqual(combo.contentItem.color, "yellow"), true)
       compare(Qt.colorEqual(combo.background.color, "black"), true)
-      compare(combo.popup.contentItem.children[0].children[0].contentItem.text, "Lecture")
-      compare(Qt.colorEqual(combo.popup.contentItem.children[0].children[0].contentItem.color, "red"), true)
     }
 
     function test_activite_rectangle() {
       ddb.currentPage = 1
       var rep = findChild(tested, "repeater")
       compare(rep.contentItem.children[0].model, ddb.pagesParSection[0])
+
+    }
+
+    function test_combo_popup() {
+      combo.popup.open()
+      var le_un = combo.popup.contentItem.itemAtIndex(0)
+      compare(le_un.contentItem.text, "Lecture")
+      compare(le_un.contentItem.color, "#ff0000")
+      compare(le_un.background.color, "#0000ff")
 
     }
   }

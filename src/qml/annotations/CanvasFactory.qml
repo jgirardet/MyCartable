@@ -19,6 +19,7 @@ Canvas {
   /* beautify preserve:end */
 
   onPaint: {
+    // not tested
     if (startX == mouse.mouseX || startY == mouse.mouseY) {
       return
     }
@@ -66,7 +67,7 @@ Canvas {
     if (Qt.point(startX, startY) == Qt.point(mx, my)) {
       return
     }
-
+    // not tested
     var newX = startX <= mx ? startX - lw : mx - lw
     var newY = startY <= my ? startY - lw : my - lw
     var new_width = Math.abs(startX - mx) + lineWidth

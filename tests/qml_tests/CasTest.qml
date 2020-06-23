@@ -19,8 +19,10 @@ TestCase {
   function init() {
     backupParams = params
     initPre()
-    uiManager = createTemporaryObject(Qt.createComponent("UiManager.qml"), testcase.parent)
     ddb = createTemporaryObject(Qt.createComponent("DdbData.qml"), testcase.parent)
+    uiManager = createTemporaryObject(Qt.createComponent("UiManager.qml"), testcase.parent, {
+      "ddb": ddb
+    })
     initPreCreate()
     tested = createObj(testedNom, params)
     initPost()
@@ -40,11 +42,10 @@ TestCase {
   }
 
   function createObj(nom, rabParams, parentItem) {
-    //    var kwargs = {
-    //      'ddb': ddb,
-    //      "uiManager": uiManager
-    //    }
-    var kwargs = {}
+    var kwargs = {
+      'ddb': ddb,
+      "uiManager": uiManager
+    }
     if (rabParams) {
       Object.assign(kwargs, rabParams);
     }

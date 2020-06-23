@@ -152,7 +152,6 @@ def cmd_install_dev(*args, **kwargs):
     cmd_install()
     cmd_install_qt()
 
-
 def cmd_install_qt(*args, **kwargs):
     if QT_PATH.exists():
         shutil.rmtree(QT_PATH)
@@ -218,11 +217,11 @@ def cmd_test_qml(*args, **kwargs):
     qml_tests = "qml_tests"
     if sys.platform == "linux":
         make = "make"
-        command_line = str(QMLTESTS / qml_tests)
     elif sys.platform == "win32":
         make = "mingw32-make.exe"
-        command_line = str(QMLTESTS / "debug" / f"{qml_tests}.exe")
     runCommand(f"{make} -C build/qml_tests")
+    command_line = str(QMLTESTS / qml_tests)
+
     filedir = kwargs.get("input", None)
     if filedir:
         command_line = f"{command_line} -input {filedir}"

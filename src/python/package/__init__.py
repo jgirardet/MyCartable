@@ -14,10 +14,12 @@ else:
     PROD = False
 
 
-ROOT = Path(sys._MEIPASS) if PROD else Path(__file__).parents[3]
+ROOT = Path(sys._MEIPASS) if PROD else Path(__file__).parents[3]  # type: ignore
 DATA = ROOT / "data" if PROD else ROOT / "src" / "data"
 print(f"ROOT : {str(ROOT)}")
 print(f"DATA : {str(DATA)}")
+
+BINARY: Path
 
 if sys.platform == "linux":
     BINARY = DATA / "binary" / "linux"

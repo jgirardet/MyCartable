@@ -81,8 +81,8 @@
 
     <style:page-layout style:name="pm1">
         <style:page-layout-properties fo:page-width="21.001cm" fo:page-height="29.7cm" style:num-format="1"
-                                      style:print-orientation="portrait" fo:margin-top="1cm" fo:margin-bottom="1cm"
-                                      fo:margin-left="2cm" fo:margin-right="2cm" style:writing-mode="lr-tb"
+                                      style:print-orientation="portrait" fo:margin-top="${margins['top']}cm" fo:margin-bottom="${margins['bottom']}cm"
+                                      fo:margin-left="${margins['left']}cm" fo:margin-right="${margins['right']}cm" style:writing-mode="lr-tb"
                                       style:layout-grid-color="#c0c0c0" style:layout-grid-lines="20"
                                       style:layout-grid-base-height="0.706cm"
                                       style:layout-grid-ruby-height="0.353cm" style:layout-grid-mode="none"
@@ -93,8 +93,8 @@
                                 style:rel-width="25%" style:color="#000000"/>
         </style:page-layout-properties>
         <style:header-style>
-            <style:header-footer-properties fo:min-height="0.6cm" fo:margin-left="0cm" fo:margin-right="0cm"
-                                            fo:margin-bottom="0.499cm" fo:background-color="transparent"
+            <style:header-footer-properties svg:height="${header['height']}cm" fo:margin-left="0cm" fo:margin-right="0cm"
+                                            fo:margin-bottom="0cm" fo:background-color="transparent"
                                             style:dynamic-spacing="false" draw:fill="none"
                                             draw:fill-color="#729fcf"/>
         </style:header-style>

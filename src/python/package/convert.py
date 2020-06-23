@@ -1,14 +1,12 @@
 import os
 import re
 import subprocess
-import tempfile
 import uuid
-from io import StringIO
 from subprocess import run, CalledProcessError
 
 from pathlib import Path
-import sys
 import logging
+from typing import Tuple
 
 from PySide2.QtCore import (
     QDir,
@@ -26,26 +24,25 @@ from PySide2.QtGui import (
 )
 from bs4 import NavigableString, BeautifulSoup
 from mako.lookup import TemplateLookup
-from mako.runtime import Context
-from package import DATA, BINARY
+from package import BINARY
 from package.constantes import BASE_FONT, ANNOTATION_TEXT_BG_OPACITY, MONOSPACED_FONTS
 from package.database.sections import (
     ImageSection,
-    TableauSection,
     Annotation,
-    AnnotationText,
-    TableauCell,
 )
 from package.database.structure import Page
 from package.files_path import FILES, TMP
-from package.operations.equation import TextEquation
 from package.utils import read_qrc, LINUX, WIN
-from pony.orm import Set, db_session
+from pony.orm import db_session
 
 LOG = logging.getLogger(__name__)
-import qrc
+import qrc  # type: ignore
 
 from package.ui_manager import DEFAULT_ANNOTATION_CURRENT_TEXT_SIZE_FACTOR
+
+
+MARGINS = {"bottom": 1, "top": 1, "left": 2, "right": 2}
+HEADER = {"height": 1}
 
 
 def get_binary_path(name):
@@ -360,25 +357,48 @@ def text_section(section):
     return "\n".join(str_res), "\n".join(automatic_res)
 
 
-def image_section(section_e):
+def get_image_size(image):
+    margin_horiz = (MARGINS["left"] + MARGINS["right"]) * 10
+    margin_vert = (MARGINS["bottom"] + MARGINS["top"] + HEADER["height"]) * 10
+    width_mm_dispo = 210 - margin_horiz - 5
+    height_mm_dispo = 297 - margin_vert - 5  # 5 = marge de sécurité
+    if image.widthMM() > width_mm_dispo:
+        # on adapte width si dépasse
+        width = width_mm_dispo
+        height = image.heightMM() * width_mm_dispo / image.widthMM()
+        if height > height_mm_dispo:
+            # si pas suffisance pour la hauteur on réadapte les 2
+            width = width * height_mm_dispo / height
+            height = height_mm_dispo
+    elif image.heightMM() > height_mm_dispo:
+        # width déà ok, donc on rgèle simplement height
+        height = height_mm_dispo
+        width = image.widthMM() * height_mm_dispo / image.heightMM()
+    else:
+        # les 2 sont ok
+        width = image.widthMM()
+        height = image.heightMM()
+
+    return width, height
+
+
+def image_section(section_e: ImageSection) -> Tuple[str, str]:
     section = section_e.to_dict()
     image = create_images_with_annotation(section)
-    factor = image.widthMM() / 210
-    if factor > 0:
-        new_image = image.scaledToWidth(image.width() / factor)
+    width, height = get_image_size(image)
     buf = QBuffer()
     buf.open(QBuffer.ReadWrite)
-    new_image.save(buf, "PNG")
+    image.save(buf, "PNG")
     buf.seek(0)
     content = buf.readAll().toBase64()
     buf.close()
     res = f"""<text:p text:style-name="Standard">
-            <draw:frame draw:style-name="fr1" draw:name="{uuid.uuid4().hex}" text:anchor-type="paragraph" svg:width="{new_image.widthMM()}mm"  svg:height="{new_image.heightMM()}mm" draw:z-index="0">
-                <draw:image loext:mime-type="image/png">
-                <office:binary-data>{content.data().decode()}</office:binary-data>
-                </draw:image>
-            </draw:frame>
-        </text:p>"""
+<draw:frame draw:style-name="fr1" draw:name="{uuid.uuid4().hex}" text:anchor-type="paragraph" svg:width="{int(width)}mm"  svg:height="{int(height)}mm" draw:z-index="0">
+    <draw:image loext:mime-type="image/png">
+<office:binary-data>{content.data().decode()}</office:binary-data>
+            </draw:image>
+        </draw:frame>
+    </text:p>"""
     return res, ""
 
 
@@ -935,7 +955,7 @@ def equation_section(section):
     return res, auto_style
 
 
-def build_body(page_id):
+def build_body(page_id: int) -> Tuple[str, str]:
     tags = []
     automatic_res = []
     page = Page[page_id]
@@ -980,23 +1000,25 @@ def build_body(page_id):
     )
 
 
-def build_automatic_styles(automatic_styles):
+def build_automatic_styles(automatic_styles: str) -> str:
     tmpl = templates.get_template("automatic-styles.xml")
-    return tmpl.render(automatic_styles=automatic_styles)
+    return tmpl.render(
+        automatic_styles=automatic_styles, margins=MARGINS, header=HEADER
+    )
 
 
-def build_styles():
+def build_styles() -> str:
     tmpl = templates.get_template("styles.xml")
     return tmpl.render()
 
 
-def build_master_styles():
+def build_master_styles() -> str:
     tmpl = templates.get_template("master-styles.xml")
     return tmpl.render()
 
 
 @db_session
-def build_odt(page_id):
+def build_odt(page_id: int) -> str:
     body, automatic_data = build_body(page_id)
     automatic_styles = build_automatic_styles(automatic_data)
     master_styles = build_master_styles()

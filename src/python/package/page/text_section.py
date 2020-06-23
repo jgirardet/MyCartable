@@ -392,6 +392,7 @@ class TextSectionEditor(QTextDocument):
         obj = db.Section[self.sectionId]
         new_body = TextSectionFormatter(self.toHtml()).build_body()
         obj.set(text=new_body)
+        print(obj.text)
         return new_body
 
 

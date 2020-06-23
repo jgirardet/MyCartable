@@ -1,4 +1,6 @@
+import base64
 import io
+from dataclasses import dataclass
 from pathlib import Path
 from subprocess import CalledProcessError
 from time import sleep
@@ -7,7 +9,7 @@ from unittest.mock import patch
 import PIL
 import PyPDF2
 import pytest
-from PySide2.QtCore import QBuffer, QByteArray
+from PySide2.QtCore import QBuffer, QByteArray, QSize
 from PySide2.QtGui import QImage, QPainter
 from package import BINARY
 from package.convert import (
@@ -22,6 +24,11 @@ from package.convert import (
     draw_annotation_dessin,
     draw_annotation_text,
     create_images_with_annotation,
+    escape,
+    new_automatic_text,
+    text_section,
+    image_section,
+    get_image_size,
 )
 import sys
 
@@ -391,3 +398,61 @@ def test_createimages_with_annotation(resources, tmp_path, ddbr):
 # {'id': 3, 'x': 0.075, 'y': 0.29445876288659795, 'section': ImageSection[2859], 'classtype': 'AnnotationDessin', 'width': 0.14492753623188406, 'height': 0.4162371134020619, 'tool': 'trait', 'startX': 0.0025, 'startY': 0.0015479876160990713, 'endX': 0.9975, 'endY': 0.9984520123839009, 'styleId': 9752, 'family': '', 'underline': False, 'pointSize': 1.0, 'strikeout': False, 'weight': None, 'bgColor': PySide2.QtGui.QColor.fromRgbF(1.000000, 0.000000, 0.000000, 1.000000), 'fgColor': PySide2.QtGui.QColor.fromRgbF(1.000000, 0.000000, 0.000000, 1.000000)}
 # {'id': 4, 'x': 0.13079710144927537, 'y': 0.16172680412371135, 'section': ImageSection[2859], 'classtype': 'AnnotationDessin', 'width': 0.10942028985507246, 'height': 0.20876288659793815, 'tool': 'ellipse', 'startX': 0.04966887417218543, 'startY': 0.046296296296296294, 'endX': 0.9503311258278145, 'endY': 0.9537037037037037, 'styleId': 9753, 'family': '', 'underline': False, 'pointSize': 15.0, 'strikeout': False, 'weight': None, 'bgColor': PySide2.QtGui.QColor.fromRgbF(0.000000, 0.000000, 1.000000, 1.000000), 'fgColor': PySide2.QtGui.QColor.fromRgbF(0.000000, 0.000000, 1.000000, 1.000000)}
 # {'id': 5, 'x': 0.597463768115942, 'y': 0.264819587628866, 'section': ImageSection[2859], 'classtype': 'AnnotationDessin', 'width': 0.06811594202898551, 'height': 0.6275773195876289, 'tool': 'fillrect', 'startX': 0.0797872340425532, 'startY': 0.015400410677618069, 'endX': 0.9202127659574468, 'endY': 0.9845995893223819, 'styleId': 9754, 'family': '', 'underline': False, 'pointSize': 15.0, 'strikeout': False, 'weight': None, 'bgColor': PySide2.QtGui.QColor.fromRgbF(0.000000, 0.000000, 1.000000, 1.000000), 'fgColor': PySide2.QtGui.QColor.fromRgbF(0.000000, 0.000000, 1.000000, 1.000000)}
+
+
+@dataclass
+class M:
+    """mock uuid.uuid4"""
+
+    hex: str
+
+    @classmethod
+    def range(cls):
+        n = 1
+        while True:
+            yield M(str(n))
+            n += 1
+
+
+class TestBuildOdt:
+    def test_escape(self,):
+        assert (
+            escape("a\ta   a\na")
+            == "a<text:tab/>a<text:s/><text:s/><text:s/>a<text:line-break/>a"
+        )
+
+    @patch(
+        "package.convert.uuid.uuid4", side_effect=M.range(),
+    )
+    def test_text_section(self, mm):
+        class Sect:
+            text = """<body><p><span>text normal</span></p><h1>titre h1</h1><h2>titre h2</h2><h3>titre h3</h3><h4>titre h4</h4><p><span><br/></span></p><p><span>le debut est normal et la fin est </span><span style=" text-decoration:underline; color:#d40020;">soulignée en rouge</span><span> mais plus là.</span></p><p><span>ici </span><span style=" color:#006a4e;">vert</span><span>, </span><span style=" color:#0048ba;">blue</span><span>,</span></p><p><span> </span></p></body>"""
+
+        assert text_section(Sect()) == (
+            """<text:p text:style-name="Standard">text<text:s/>normal</text:p>
+<text:h text:style-name="Heading_20_1" text:outline-level="1">titre<text:s/>h1</text:h>
+<text:h text:style-name="Heading_20_2" text:outline-level="2">titre<text:s/>h2</text:h>
+<text:h text:style-name="Heading_20_3" text:outline-level="3">titre<text:s/>h3</text:h>
+<text:h text:style-name="Heading_20_4" text:outline-level="4">titre<text:s/>h4</text:h>
+<text:p text:style-name="Standard"></text:p>
+<text:p text:style-name="Standard">le<text:s/>debut<text:s/>est<text:s/>normal<text:s/>et<text:s/>la<text:s/>fin<text:s/>est<text:s/><text:span text:style-name="1">soulignée<text:s/>en<text:s/>rouge</text:span><text:s/>mais<text:s/>plus<text:s/>là.</text:p>\n<text:p text:style-name="Standard">ici<text:s/><text:span text:style-name="2">vert</text:span>,<text:s/><text:span text:style-name="3">blue</text:span>,</text:p>
+<text:p text:style-name="Standard"><text:s/></text:p>""",
+            """
+
+<style:style style:name="1" style:family="text"> <style:text-properties  style:text-underline-style="solid" style:text-underline-width="auto" style:text-underline-color="font-color" fo:color="#d40020"/></style:style>
+<style:style style:name="2" style:family="text"> <style:text-properties  fo:color="#006a4e"/></style:style>
+<style:style style:name="3" style:family="text"> <style:text-properties  fo:color="#0048ba"/></style:style>
+""",
+        )
+
+    @pytest.mark.parametrize(
+        "width, height, width_res, height_res", [(330, 500, 165, 250),]
+    )
+    def test_get_image_size(self, width, height, width_res, height_res):
+        image = QImage(1, 1, QImage.Format_RGB32)
+        image.fill(200)
+        image = image.scaled(
+            int(width * image.dotsPerMeterX() / 1000),
+            int(height * image.dotsPerMeterY() / 1000),
+        )
+        assert get_image_size(image) == (width_res, height_res)

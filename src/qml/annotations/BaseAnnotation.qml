@@ -22,7 +22,7 @@ Loader {
       }
     }
   ]
-  focus: parent.currentAnnotation == root
+  focus: parent.currentAnnotation === root
 
   MouseArea {
     id: mousearea
@@ -39,6 +39,7 @@ Loader {
     onPressed: {
       // check coordonnate
       if (root.item.checkPointIsDraw(mouse.x, mouse.y)) {
+        // non teste : comment faire ?
         mouse.accepted = false
         return
       }

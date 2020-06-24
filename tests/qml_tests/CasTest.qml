@@ -54,7 +54,6 @@ TestCase {
       print(comp, comp.status, comp.errorString())
     }
     var obj = createTemporaryObject(comp, parentItem ? parentItem : testcase.parent, kwargs)
-
     return obj
   }
 

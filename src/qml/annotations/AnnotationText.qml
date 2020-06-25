@@ -108,7 +108,7 @@ TextArea {
     }
   }
 
-  function checkPointIsDraw(mx, my) {
+  function checkPointIsNotDraw(mx, my) {
     return false
   }
 

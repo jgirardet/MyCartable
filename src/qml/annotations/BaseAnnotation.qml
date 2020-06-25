@@ -38,7 +38,7 @@ Loader {
     preventStealing: true
     onPressed: {
       // check coordonnate
-      if (root.item.checkPointIsDraw(mouse.x, mouse.y)) {
+      if (root.item.checkPointIsNotDraw(mouse.x, mouse.y)) {
         // non teste : comment faire ?
         mouse.accepted = false
         return

@@ -1,6 +1,6 @@
 import QtQuick 2.15
 
-import ".."
+
 FocusScope {
   id: item
   width: 200 // important pout les tests

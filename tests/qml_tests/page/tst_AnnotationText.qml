@@ -209,45 +209,44 @@ FocusScope {
       verify(tested.font.pixelSize < size)
     }
     //
-    //    function test_move_with_arrows_left() {
-    //      var old = Qt.point(tested.x, tested.y)
-    //      keyClick(Qt.Key_Left, Qt.ControlModifier)
-    //      compare(tested.x, old.x - tested.moveStep)
-    //      compare(tested.y, old.y)
-    //      compare(ddb._updateAnnotation[0], tested.ddbId)
-    //      compare(ddb._updateAnnotation[1]["relativeX"], tested.x / item.width)
-    //      compare(ddb._updateAnnotation[1]["relativeY"], tested.y / item.width)
-    //    }
-    //
-    //    function test_move_with_arrows_right() {
-    //      var old = Qt.point(tested.x, tested.y)
-    //      keyClick(Qt.Key_Right, Qt.ControlModifier)
-    //      compare(tested.x, old.x + tested.moveStep)
-    //      compare(tested.y, old.y)
-    //      compare(ddb._updateAnnotation[0], tested.ddbId)
-    //      compare(ddb._updateAnnotation[1]["relativeX"], tested.x / item.width)
-    //      compare(ddb._updateAnnotation[1]["relativeY"], tested.y / item.width)
-    //    }
-    //
-    //    function test_move_with_arrows_up() {
-    //      var old = Qt.point(tested.x, tested.y)
-    //      keyClick(Qt.Key_Up, Qt.ControlModifier)
-    //      compare(tested.x, old.x)
-    //      compare(tested.y, old.y - tested.moveStep)
-    //      compare(ddb._updateAnnotation[0], tested.ddbId)
-    //      compare(ddb._updateAnnotation[1]["relativeX"], tested.x / item.width)
-    //      compare(ddb._updateAnnotation[1]["relativeY"], tested.y / item.width)
-    //    }
-    //
-    //    function test_move_with_arrows_down() {
-    //      var old = Qt.point(tested.x, tested.y)
-    //      keyClick(Qt.Key_Down, Qt.ControlModifier)
-    //      compare(tested.x, old.x)
-    //      compare(tested.y, old.y + tested.moveStep)
-    //      compare(ddb._updateAnnotation[0], tested.ddbId)
-    //      compare(ddb._updateAnnotation[1]["relativeX"], tested.x / item.width)
-    //      compare(ddb._updateAnnotation[1]["relativeY"], tested.y / item.width)
-    //    }
+
+    function test_move_data() {
+      return [{
+        "key": Qt.Key_Left,
+        "movex": -5,
+        "movey": 0,
+      }, {
+        "key": Qt.Key_Right,
+        "movex": 5,
+        "movey": 0,
+      }, {
+        "key": Qt.Key_Up,
+        "movex": 0,
+        "movey": -5,
+      }, {
+        "key": Qt.Key_Down,
+        "movex": 0,
+        "movey": 5,
+      }, ]
+    }
+
+    function test_move(data) {
+      keyClick(data.key, Qt.ControlModifier)
+      compare(item._move, [data.movex, data.movey])
+    }
+
+    function test_on_textChanged() {
+      keyClick(Qt.Key_A)
+      compare(edit, {
+        "id": 34,
+        "text": "a"
+      })
+
+    }
+
+    function test_checkPointIsDraw() {
+      verify(!tested.checkPointIsDraw(4, 5))
+    }
 
   }
   /**/

@@ -1,5 +1,4 @@
 import QtQuick 2.14
-import ".."
 
 // baseoperation testé ici car addition très simple
 

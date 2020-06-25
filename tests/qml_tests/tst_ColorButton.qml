@@ -1,5 +1,5 @@
 import QtQuick 2.14
-import ".."
+
 
 Item {
   id: item

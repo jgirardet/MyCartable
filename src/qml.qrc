@@ -34,7 +34,6 @@
     <qresource prefix="/qml/annotations">
         <file alias="CanvasFactory.qml">qml/annotations/CanvasFactory.qml</file>
         <file alias="ImageSectionBase.qml">qml/annotations/ImageSectionBase.qml</file>
-        <file alias="CanvasPainter.qml">qml/annotations/CanvasPainter.qml</file>
         <file alias="BaseAnnotation.qml">qml/annotations/BaseAnnotation.qml</file>
         <file alias="AnnotationDessin.qml">qml/annotations/AnnotationDessin.qml</file>
         <file alias="AnnotationText.qml">qml/annotations/AnnotationText.qml</file>

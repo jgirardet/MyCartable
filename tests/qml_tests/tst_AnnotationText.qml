@@ -1,6 +1,5 @@
 import QtQuick 2.15
 
-
 FocusScope {
   id: item
   width: 200 // important pout les tests
@@ -244,8 +243,8 @@ FocusScope {
 
     }
 
-    function test_checkPointIsDraw() {
-      verify(!tested.checkPointIsDraw(4, 5))
+    function test_checkPointIsNotDraw() {
+      verify(!tested.checkPointIsNotDraw(4, 5))
     }
 
   }

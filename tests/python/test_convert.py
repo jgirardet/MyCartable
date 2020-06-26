@@ -148,14 +148,18 @@ def test_soffice_convert(ddbr, resources):
     ui = UiManager()
 
     # PDF
-    (TMP / "blabla.pdf").unlink()
+    new_path = TMP / "blabla.pdf"
+    if new_path.is_file():
+        new_path.unlink()
     with patch("package.convert.build_odt", return_value=content):
         res = soffice_convert(1, "pdf:writer_pdf_Export", "blabla.pdf", ui)
     assert res == TMP / "blabla.pdf"
     assert PyPDF2.PdfFileReader(str(res))
 
     # ODF
-    (TMP / "blabla.odt").unlink()
+    new_path = TMP / "blabla.odt"
+    if new_path.is_file():
+        new_path.unlink()
     with patch("package.convert.build_odt", return_value=content):
         res = soffice_convert(1, "odt", "blabla.odt", ui)
     assert res == TMP / "blabla.odt"

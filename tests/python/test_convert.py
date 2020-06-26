@@ -143,7 +143,7 @@ def test_find_soffice(qtbot):
                     find_soffice(ui=ui)
 
 
-def test_run_soffice():
+def test_run_sofffice():
     p = Path("bla.txt")
     p.write_text("blaabalba")
     soffice = find_soffice()

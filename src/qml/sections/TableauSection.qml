@@ -1,7 +1,6 @@
- import QtQuick 2.14
- import QtQuick.Controls 2.14
- import QtQuick.Layouts 1.14
- //
+ import QtQuick 2.15
+ import QtQuick.Controls 2.15
+ import QtQuick.Layouts 1.15
 
  Item {
    id: root
@@ -15,29 +14,41 @@
 
    GridLayout {
      id: grid
+     objectName: "grid"
 
      /* beautify preserve:start */
-    property var selectedCells: []
-    //    property var mouseArea: bigMouse
-    property var currentSelectedCell: null
+     property var selectedCells: []
+     property var currentSelectedCell: null
      /* beautify preserve:end */
      columns: root.tableau.colonnes
      columnSpacing: 3
      rowSpacing: 3
 
      function selectCell(obj) {
-       obj.state = obj.state == "selected" ? null : "selected"
+       obj.state = obj.state == "selected" ? "" : "selected"
        if (obj.state == "selected") {
          if (!selectedCells.includes(obj)) {
            selectedCells.push(obj)
+           currentSelectedCell = obj
          }
        } else {
-         selectedCells.pop(obj)
+         const index = selectedCells.indexOf(obj);
+         if (index > -1) {
+           selectedCells.splice(index, 1);
+         }
+         if (obj == currentSelectedCell) {
+           if (selectedCells.length > 0) {
+             currentSelectedCell = selectedCells[selectedCells.length - 1]
+           } else {
+             currentSelectedCell = null
+           }
+         }
        }
 
      }
 
      function setStyleFromMenu(data) {
+       // set give data style to every selected cells
        for (var i of selectedCells) {
          i.state = "" // leger hack pour les probleme de restore de value apres state
          i.setStyleFromMenu(data)
@@ -45,7 +56,7 @@
        unSelectAll()
      }
 
-     function unSelectAll(obj) {
+     function unSelectAll() {
        // désectionne toutes les cases
        for (var i of Array(repeater.count).keys()) {
          var ite = grid.children[i]
@@ -58,7 +69,8 @@
 
      Repeater {
        id: repeater
-       model: root.sectionId ? ddb.initTableauDatas(root.sectionId) : 0
+       objectName: "repeater"
+       model: root.sectionId ? ddb.initDatas(root.sectionId) : 0
        delegate: TextArea {
          id: tx
          focus: true
@@ -223,15 +235,19 @@
      preventStealing: true
      acceptedButtons: Qt.LeftButton | Qt.RightButton
      propagateComposedEvents: true
+     property bool selecting: false
 
      onPressed: {
        var ite = grid.childAt(mouse.x, mouse.y)
        if (mouse.button == Qt.LeftButton) {
          if (mouse.modifiers == Qt.ControlModifier) {
+           grid.selectCell(grid.childAt(mouse.x, mouse.y))
+           selecting = true
            return // il ne faut pas sette mouse.accepted = false/true sinon pas de positionchanged
          } else {
-           grid.currentSelectedCell = null
            grid.unSelectAll()
+           selecting = false
+           ite.forceActiveFocus()
            mouse.accepted = false
 
          }
@@ -249,10 +265,7 @@
      }
 
      onPositionChanged: {
-       if (!grid.currentSelectedCell && (mouse.modifiers != Qt.ControlModifier)) {
-         // nouvelle sélection après que clique ait été relaché
-         // gardé si ctrl enfoncé
-         grid.unSelectAll()
+       if (!selecting) {
          return
        }
        var tempItem = grid.childAt(mouse.x, mouse.y)
@@ -266,7 +279,7 @@
          return
        } else if (tempItem === grid.selectedCells[grid.selectedCells.length - 2]) {
          // si c un recul  on déselect celui en cours et change current
-         grid.selectCell(root.currentSelectedCell)
+         grid.selectCell(grid.currentSelectedCell)
          grid.currentSelectedCell = tempItem
        } else {
          //cas simple : nouveau = on ajoute.

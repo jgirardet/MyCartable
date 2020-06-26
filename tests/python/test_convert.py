@@ -154,6 +154,7 @@ def test_soffice_convert(ddbr, resources):
     with patch("package.convert.build_odt", return_value=content):
         res = soffice_convert(1, "pdf:writer_pdf_Export", "blabla.pdf", ui)
     assert res == TMP / "blabla.pdf"
+    assert False
     assert PyPDF2.PdfFileReader(str(res))
 
     # ODF

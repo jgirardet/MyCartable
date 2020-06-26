@@ -490,5 +490,20 @@ Item {
     return _getTextSectionColor
   }
   property var _getTextSectionColor: "red"
+
+
+// tableau
+  function initDatas(arg) {
+    return _initDatas
+  }
+  property var _initDatas
+
+  function updateCell(secId, mdy, mdx, content) {
+    _updateCell = [secId, mdy, mdx, content]
+    }
+  property var _updateCell
+
+
+
 /* beautify preserve:end */
 }

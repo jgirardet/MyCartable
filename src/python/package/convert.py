@@ -92,6 +92,7 @@ def run_convert_pdf(pdf, png_root, prefix="xxx", resolution=200, timeout=30):
 def find_soffice(ui=None):
     if LINUX:
         if Path("/usr/bin/soffice").is_file():
+            LOG.debug(f"soffice found at '/usr/bin/soffice'")
             return "/usr/bin/soffice"
         else:
             res = (
@@ -100,6 +101,7 @@ def find_soffice(ui=None):
                 .strip()
             )
             if res:
+                LOG.debug(f"soffice found at {res}")
                 return res
     elif WIN:  # pragma: no cover
         if Path("C:\\Program Files\\LibreOffice\\program\\soffice.exe").is_file():

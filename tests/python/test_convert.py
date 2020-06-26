@@ -1,5 +1,6 @@
 import base64
 import io
+import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 from subprocess import CalledProcessError
@@ -140,6 +141,32 @@ def test_find_soffice(qtbot):
                 ui = UiManager()
                 with qtbot.waitSignal(ui.sendToast):
                     find_soffice(ui=ui)
+
+
+def test_run_soffice():
+    p = Path("bla.txt")
+    p.write_text("blaabalba")
+    soffice = find_soffice()
+    print(soffice)
+    res = subprocess.run(
+        [soffice, "--headless", "--convert-to", "pdf:writer_pdf_Export", str(p)],
+        # cwd=p.parent,
+        capture_output=True,
+    )
+    print(res, res.stdout)
+    res = subprocess.run(
+        [
+            soffice,
+            "--headless",
+            "--invisible",
+            "--convert-to",
+            "pdf:writer_pdf_Export",
+            str(p),
+        ],
+        # cwd=p.parent,
+        capture_output=True,
+    )
+    print(res, res.stdout)
 
 
 # @pytest.mark.skip("lent")

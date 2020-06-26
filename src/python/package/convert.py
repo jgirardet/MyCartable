@@ -138,7 +138,7 @@ def soffice_convert(page_id, format, new_filename, ui=None):
     LOG.debug("converted", converted, converted.is_file())
     new_path = Path(p.parent, new_filename)
     LOG.debug("newpath", new_path, new_path.is_file())
-    converted.replace(new_path)
+    # converted.replace(new_path)
     LOG.debug("new converted", converted, converted.exists())
     LOG.debug("new path", new_path, new_path.exists())
     temp.close()

@@ -325,7 +325,7 @@ def test_draw_annotation(annot, res):
     # a = PIL.Image.open(io.BytesIO(content))
     # a.show()
     # print(content)
-    assert content == res
+    assert hash(content) == hash(res)
 
 
 @db_session
@@ -389,7 +389,7 @@ def test_createimages_with_annotation(resources, tmp_path, ddbr):
     res = create_images_with_annotation(image_section, tmp_path)
     assert Path(res).read_bytes() == control
     res = create_images_with_annotation(image_section)
-    assert res == QImage.fromData(QByteArray(control))
+    assert hash(res) == hash(QImage.fromData(QByteArray(control)))
 
 
 # {'id': 1, 'x': 0.2503623188405797, 'y': 0.09987113402061856, 'section': ImageSection[2859], 'classtype': 'AnnotationDessin', 'width': 0.33405797101449275, 'height': 0.5889175257731959, 'tool': 'rect', 'startX': 0.0032537960954446853, 'startY': 0.0032822757111597373, 'endX': 0.9967462039045553, 'endY': 0.9967177242888403, 'styleId': 9750, 'family': '', 'underline': False, 'pointSize': 3.0, 'strikeout': False, 'weight': None, 'bgColor': PySide2.QtGui.QColor.fromRgbF(0.000000, 0.000000, 0.000000, 1.000000), 'fgColor': PySide2.QtGui.QColor.fromRgbF(0.000000, 0.000000, 0.000000, 1.000000)}

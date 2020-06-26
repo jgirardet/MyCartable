@@ -133,13 +133,14 @@ def soffice_convert(page_id, format, new_filename, ui=None):
         cwd=p.parent,
         capture_output=True,
     )
+    LOG.debug(proc.stdout)
     converted = p.parent / (p.stem + ext)
-    print("converted", converted, converted.is_file())
+    LOG.debug("converted", converted, converted.is_file())
     new_path = Path(p.parent, new_filename)
-    print("newpath", new_path, new_path.is_file())
+    LOG.debug("newpath", new_path, new_path.is_file())
     converted.replace(new_path)
-    print("new converted", converted, converted.exists())
-    print("new path", new_path, new_path.exists())
+    LOG.debug("new converted", converted, converted.exists())
+    LOG.debug("new path", new_path, new_path.exists())
     temp.close()
     return new_path
 

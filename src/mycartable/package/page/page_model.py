@@ -12,7 +12,7 @@ from PySide2.QtCore import (
     QObject,
 )
 from PySide2.QtWidgets import QApplication
-from mimesis import typing
+import typing
 from pony.orm import db_session, ObjectNotFound, make_proxy, flush
 from package.database import db
 import logging

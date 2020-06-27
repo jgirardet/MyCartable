@@ -135,7 +135,7 @@ def soffice_convert(page_id, format, new_filename, ui=None):
         cwd=p.parent,
         capture_output=True,
     )
-    print(proc.stdout)
+    print(proc)
     converted = p.parent / (p.stem + ext)
     print("converted", converted, converted.is_file())
     new_path = Path(p.parent, new_filename)

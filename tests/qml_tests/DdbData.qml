@@ -1,5 +1,5 @@
-import QtQuick 2.14
-import QtTest 1.12
+import QtQuick 2.15
+import QtTest 1.15
 
 /* beautify preserve:start */
 
@@ -420,6 +420,7 @@ Item {
     _pivoterImage = [id, sens]
     }
   property var _pivoterImage
+  property real annotationTextBGOpacity: 0.3
 
   // SECTION
 
@@ -486,10 +487,23 @@ Item {
 // text section
 
   function getTextSectionColor(arg) {
-    var backup = _getTextSectionColor
-    _getTextSectionColor = arg
-    return backup
+    return _getTextSectionColor
   }
   property var _getTextSectionColor: "red"
+
+
+// tableau
+  function initDatas(arg) {
+    return _initDatas
+  }
+  property var _initDatas
+
+  function updateCell(secId, mdy, mdx, content) {
+    _updateCell = [secId, mdy, mdx, content]
+    }
+  property var _updateCell
+
+
+
 /* beautify preserve:end */
 }

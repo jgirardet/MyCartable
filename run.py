@@ -211,18 +211,18 @@ def cmd_test_binary_as_dir(*args, **kwargs):
 
 def cmd_test_python(*args, **kwargs):
     test_path = ROOT / "tests" / "python"
-    runCommand(f"python -m pytest -s -vvv {test_path}", sleep_time=0.001)
+    runCommand(f"python -m pytest -s {test_path}", sleep_time=0.001)
 
 
 def cmd_test_qml(*args, **kwargs):
     qml_tests = "qml_tests"
     if sys.platform == "linux":
         make = "make"
-        command_line = str(QMLTESTS / qml_tests)
     elif sys.platform == "win32":
         make = "mingw32-make.exe"
-        command_line = str(QMLTESTS / "debug" / f"{qml_tests}.exe")
     runCommand(f"{make} -C build/qml_tests")
+    command_line = str(QMLTESTS / qml_tests)
+
     filedir = kwargs.get("input", None)
     if filedir:
         command_line = f"{command_line} -input {filedir}"

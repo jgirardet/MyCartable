@@ -17,4 +17,5 @@ pytest
 pytest-freezegun
 pytest-qt
 PyPDF2
+mypy
 

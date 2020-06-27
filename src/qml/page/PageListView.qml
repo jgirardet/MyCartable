@@ -21,13 +21,6 @@ ListView {
       model.lastPosition = currentIndex
     }
   }
-  footer: Rectangle {
-    width: root.width
-    //    height: root.height / 2
-    implicitHeight: root.height / 2
-    color: "transparent"
-  }
-  footerPositioning: ListView.OverlayFooter
 
   function onItemAdded(modelIndex, row, col) {
     positionViewAtIndex(row, ListView.Contain)

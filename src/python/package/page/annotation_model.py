@@ -154,7 +154,6 @@ class AnnotationModel(QAbstractListModel):
             item = self.db.AnnotationDessin(
                 section=self.sectionId, style=style, **datas
             )
-            print(item.to_dict())
         self.insertRow(self.count)
 
     @Slot(float, float, float, float)

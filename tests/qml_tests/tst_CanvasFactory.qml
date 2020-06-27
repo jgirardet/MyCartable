@@ -1,6 +1,5 @@
 import QtQuick 2.15
 
-
 Item {
   width: 200
   height: 200
@@ -10,8 +9,8 @@ Item {
   property var _newDessin: null
   property var model: Item {
   /* beautify preserve:end */
-    function newDessin(secId, args) {
-      _newDessin = [secId, args]
+    function newDessin(args) {
+      _newDessin = args
     }
   }
 
@@ -80,8 +79,9 @@ Item {
         "mouseY": 120
       }
       tested.endDraw(23)
-      compare(item._newDessin[0], 23)
-      compare(JSON.stringify(item._newDessin[1]), '{"x":0.2425,"y":0.2925,"startX":0.02830188679245283,"startY":0.023809523809523808,"endX":0.9716981132075472,"endY":0.9761904761904762,"width":0.265,"height":0.315,"tool":"fillrect","lineWidth":3,"strokeStyle":{"r":0,"g":0,"b":0,"a":1,"hsvHue":-1,"hsvSaturation":0,"hsvValue":0,"hslHue":-1,"hslSaturation":0,"hslLightness":0,"valid":true},"fillStyle":{"r":0,"g":0,"b":0,"a":1,"hsvHue":-1,"hsvSaturation":0,"hsvValue":0,"hslHue":-1,"hslSaturation":0,"hslLightness":0,"valid":true}}')
+      //      print(JSON.stringify(item._newDessin))
+      //      compare(item._newDessin[0], 23)
+      compare(JSON.stringify(item._newDessin), '{"x":0.2425,"y":0.2925,"startX":0.02830188679245283,"startY":0.023809523809523808,"endX":0.9716981132075472,"endY":0.9761904761904762,"width":0.265,"height":0.315,"tool":"fillrect","lineWidth":3,"strokeStyle":{"r":0,"g":0,"b":0,"a":1,"hsvHue":-1,"hsvSaturation":0,"hsvValue":0,"hslHue":-1,"hslSaturation":0,"hslLightness":0,"valid":true},"fillStyle":{"r":0,"g":0,"b":0,"a":1,"hsvHue":-1,"hsvSaturation":0,"hsvValue":0,"hslHue":-1,"hslSaturation":0,"hslLightness":0,"valid":true}}')
       verify(!tested.useDefaultTool)
       verify(!tested.visble)
 
@@ -98,7 +98,7 @@ Item {
       }
       tested.endDraw(23)
 
-      var res = item._newDessin[1]
+      var res = item._newDessin
       compare(res.strokeStyle, "#0000ff")
       compare(res.lineWidth, 10)
       compare(res.tool, "rect")
@@ -108,7 +108,7 @@ Item {
     function test_endDraw_trait() {
       uiManager.annotationDessinCurrentTool = "trait"
       tested.endDraw(23)
-      compare(item._newDessin[1].tool, "trait")
+      compare(item._newDessin.tool, "trait")
     }
 
   }

@@ -1,6 +1,5 @@
 import QtQuick 2.14
 
-
 Item {
   width: 200
   height: 200
@@ -27,14 +26,6 @@ Item {
       compare(spt.count, 0)
       combo.activated(3)
       compare(spt.count, 2) // called twice... why ???
-    }
-
-    function test_comno_property_when_matiere_set() {
-      skip("broken")
-      ddb._getMatiereIndexFromId = 1
-      compare(combo.contentItem.text, "Mathematiques")
-      compare(Qt.colorEqual(combo.contentItem.color, "yellow"), true)
-      compare(Qt.colorEqual(combo.background.color, "black"), true)
     }
 
     function test_activite_rectangle() {

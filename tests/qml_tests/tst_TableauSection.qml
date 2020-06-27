@@ -238,7 +238,7 @@
          "page": 101,
          "position": 0
        }
-       ddb._initDatas = model
+       ddb._initTableauDatas = model
      }
 
      function initPost() {
@@ -340,7 +340,7 @@
      }
 
      function test_repeater() {
-       compare(rep.model, ddb.initDatas(3))
+       compare(rep.model, ddb.initTableauDatas(3))
      }
 
      function test_delegate_init() {

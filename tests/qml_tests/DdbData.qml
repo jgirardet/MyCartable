@@ -493,10 +493,10 @@ Item {
 
 
 // tableau
-  function initDatas(arg) {
-    return _initDatas
+  function initTableauDatas(arg) {
+    return _initTableauDatas
   }
-  property var _initDatas
+  property var _initTableauDatas
 
   function updateCell(secId, mdy, mdx, content) {
     _updateCell = [secId, mdy, mdx, content]

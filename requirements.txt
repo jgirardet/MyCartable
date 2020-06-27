@@ -1,4 +1,4 @@
-pyside2==5.14.1
+pyside2==5.15.0
 pony==0.7.11
 dickens==1.0.1
 pyinstaller==3.6
@@ -16,6 +16,6 @@ mimesis
 pytest
 pytest-freezegun
 pytest-qt
-
-
+PyPDF2
+mypy
 

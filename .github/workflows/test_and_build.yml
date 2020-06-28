@@ -21,9 +21,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os : [ubuntu-20.04, windows-2019]
+        os : [ubuntu-18.04, windows-2019]
 #        os : [ubuntu-latest, ubuntu-18.04, windows-2019, windows-latest]
-        python: [3.7, 3.8]
+        python: [3.8]
     env:
       DISPLAY: ':99.0'
     steps:
@@ -45,8 +45,9 @@ jobs:
         /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -screen 0 1920x1200x24 -ac +extension GLX
     - name: Windows custom install
       if: runner.os == 'Windows'
-      run: choco install libreoffice-fresh -y
-
+      run: |
+        choco install libreoffice-fresh -y
+        choco install wixtoolset -y
     - name: Tests python on ${{ matrix.os }}
       run: python run.py test_python
     - name: Install Qt on Linux
@@ -72,22 +73,22 @@ jobs:
 #    - name: Coverage on ${{ matrix.os }}
 #      run: |
 #        python run.py cov
-    - name: build on ${{ matrix.os }}
-      run: |
-        python run.py make_qrc
-        briefcase create
-        briefcase build
-        briefcase package
+#    - name: build on ${{ matrix.os }}
+#      run: |
+#        python run.py make_qrc
+#        briefcase create
+#        briefcase build
+#        briefcase package
 #    - name: test run on windows CMD
 #      if: runner.os == 'Windows'
 #      shell: cmd
 #      run: python run.py test_binary_as_dir
-    - name: upload  on ${{ matrix.os }} binary in artifact
-      if: runner.os == 'Windows'
-      uses: actions/upload-artifact@v1
-      with:
-        path: windows
-        name: MyCartable-${{runner.os}}64
+#    - name: upload  on ${{ matrix.os }} binary in artifact
+#      if: runner.os == 'Windows'
+#      uses: actions/upload-artifact@v1
+#      with:
+#        path: windows
+#        name: MyCartable-${{runner.os}}64
 
     - name: upload  on ${{ matrix.os }} binary in artifact
       if: runner.os == 'Linux'

@@ -90,7 +90,7 @@ def create_singleton_instance():
 
 def setup_qml(ddb, ui_manager):
     # import ressources
-    import qrc
+    from package import qrc
 
     # # set env : why ???
     # os.environ["QT_STYLE_OVERRIDE"] = ""

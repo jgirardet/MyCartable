@@ -87,26 +87,32 @@ def cmd_black(*args, **kwargs):
         runCommand("python -m black src tests")
 
 
-def cmd_build_binary_as_dir(*args, **kwargs):
+
+def cmd_package(*args, **kwargs):
     cmd_make_qrc()
-    pyinstaller = "pyinstaller"
-    runCommand("pyinstaller  scripts/dir.spec --clean -y")
-    cmd_test_binary_as_dir()
+    runCommand("briefcase package")
+    # cmd_test_binary_as_dir()
 
 
 def cmd_clean(*args, **kwargs):
     to_remove = [
         *ROOT.rglob(".pytest_cache"),
         *ROOT.rglob("__pycache__"),
-        QT_PATH,
+        *ROOT.rglob(".mypy_cache"),
         ROOT / "htmlcov",
-        # VIRTUAL_ENV,
         BUILD,
         ROOT / "dist",
         DIST,
         ROOT / "aqtinstall.log",
         ".coverage",
+        ROOT/"linux",
+        ROOT/"windows"
     ]
+    if "-venv" in args:
+        to_remove.append(VIRTUAL_ENV)
+    if "-qt" in args:
+        to_remove.append(QT_PATH)
+
     for p in to_remove:
         if isinstance(p, str):
             p = ROOT / p
@@ -133,13 +139,9 @@ def cmd_cov_html(*args, **kwargs):
 
 
 def cmd_create_env(*args, **kwargs):
-    if sys.platform == "linux":
-        python = "python3"
-    else:
-        python = "python"
     # elif sys.platform == "win32":
     #     python = "python"
-    runCommand(f"{python} -m venv .venv", with_env=False)
+    runCommand(f"{sys.executable} -m venv .venv", with_env=False)
 
 
 def cmd_install(*args, **kwargs):
@@ -148,7 +150,7 @@ def cmd_install(*args, **kwargs):
 
 
 def cmd_install_dev(*args, **kwargs):
-    cmd_create_env()
+    cmd_create_env(*args, *kwargs)
     cmd_install()
     cmd_install_qt()
 
@@ -171,7 +173,7 @@ def cmd_js_style(*args, **kwargs):
         editedfile.write_text(jsbeautifier.beautify_file(editedfile, opts))
 
     else:
-        qmldir = ROOT / "src" / "main" / "resources"
+        qmldir = ROOT / "src" / "qml"
         qml_tests = ROOT / "tests" / "qml_tests"
         dirs = (qmldir, qml_tests)
 
@@ -182,20 +184,17 @@ def cmd_js_style(*args, **kwargs):
 
 def cmd_make_qrc(*args, **kwargs):
     input = SRC / "qml.qrc"
-    output = SRC / "python" / "qrc.py"
+    output = SRC / "mycartable" / "package" / "qrc.py"
     runCommand(f"pyside2-rcc {input} -o {output}")
 
 
-def cmd_run(*args, **kwargs):
+def cmd_dev(*args, **kwargs):
     cmd_make_qrc()
-    runCommand(f"python src/python/main.py")
+    runCommand(f"briefcase dev")
 
 
-def cmd_run_dist(*args, **kwargs):
-    executable = PACKAGE
-    if sys.platform == "win32":
-        executable = executable + ".exe"
-    runCommand(str(DIST / executable))
+def cmd_run(*args, **kwargs):
+    runCommand(f"briefcase run -u")
 
 
 def cmd_setup_qml(*args, **kwargs):
@@ -263,11 +262,13 @@ if __name__ == "__main__":
     args = parser.parse_args()
     com = args.command
     arguments = args.args
+
     try:
         commands = build_commands()
         if com not in commands:
             print(f"commandes possible : {list(commands.keys())}")
             sys.exit(1)
+        print(arguments)
         commands[com](*arguments, input=args.input)
     except KeyboardInterrupt:
         currentProccess.terminate()

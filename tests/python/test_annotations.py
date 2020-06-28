@@ -4,18 +4,15 @@ import pytest
 
 from PySide2.QtCore import Qt, QModelIndex, QJsonDocument
 from PySide2.QtGui import QColor
-from fixtures import check_super_init, check_begin_end
-from package.database.factory import (
-    f_page,
-    b_section,
-    f_section,
+from fixtures import check_super_init
+from tests.python.factory import (
     f_annotationText,
     f_annotationDessin,
     f_imageSection,
 )
 from package.database.sections import AnnotationText, ImageSection, AnnotationDessin
 from package.page.annotation_model import AnnotationModel
-from pony.orm import db_session, make_proxy
+from pony.orm import db_session
 from pony.orm.core import EntityProxy
 
 from tests.python.fixtures import check_args

@@ -25,7 +25,7 @@ def pytest_sessionstart():
 
     # modify python path
     root = Path(__file__).parents[2]
-    python_dir = root / "src" / "python"
+    python_dir = root / "src" / "mycartable"
     sys.path.append(str(python_dir))
     sys.path.append(str(Path(__file__).parent))
 

@@ -1,9 +1,7 @@
-from unittest.mock import MagicMock, call
-
 import pytest
-from PySide2.QtCore import Signal, QModelIndex, Qt, QByteArray
+from PySide2.QtCore import Qt, QByteArray
 from PySide2.QtGui import QColor
-from package.database.factory import f_tableauSection
+from tests.python.factory import f_tableauSection
 
 from pony.orm import db_session
 

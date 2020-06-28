@@ -1,15 +1,13 @@
-import logging
-import sys
 import uuid
 
 import pytest
 from PIL import Image
-from PySide2.QtCore import QUrl, Qt, QModelIndex
-from fixtures import compare, ss, check_args, wait
+from PySide2.QtCore import QUrl, Qt
+from fixtures import check_args
 from package import constantes
 from package.database_mixins.matiere_mixin import MatieresDispatcher
 from package.database_object import DatabaseObject
-from package.database.factory import *
+from tests.python.factory import *
 from unittest.mock import patch, call
 from package.files_path import FILES
 from package.page import text_section

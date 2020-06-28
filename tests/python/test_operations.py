@@ -1,17 +1,15 @@
-import itertools
 from decimal import Decimal
 from unittest.mock import patch, call
 
 import pytest
-from PySide2.QtCore import Qt, Signal, QAbstractItemModel, QModelIndex
+from PySide2.QtCore import Qt, Signal
 from fixtures import check_super_init, check_args, check_is_range
-from package.database.factory import (
+from tests.python.factory import (
     f_additionSection,
     f_soustractionSection,
     f_multiplicationSection,
     f_divisionSection,
 )
-from package.database_object import DatabaseObject
 from package.operations.api import (
     match,
     convert_addition,

@@ -2,22 +2,15 @@ from PySide2.QtGui import QFont, QFontDatabase
 from package.constantes import APPNAME, ORGNAME, BASE_FONT
 from PySide2.QtCore import (
     QUrl,
-    QLocale,
     QStandardPaths,
     QSettings,
     QCoreApplication,
-    QFile,
 )
-import os
 
 # from fbs_runtime.application_context.PySide2 import ApplicationContext
-from pathlib import Path
 
 from PySide2.QtWidgets import QApplication
-import sys
 from PySide2.QtQml import QQmlApplicationEngine, qmlRegisterType
-
-import sys
 
 import logging
 
@@ -47,7 +40,7 @@ def main_init_database(filename=None):
 
     if not PROD:
 
-        from package.database.factory import populate_database
+        from tests.python.factory import populate_database
 
         populate_database()
     return package.database.db
@@ -90,7 +83,6 @@ def create_singleton_instance():
 
 def setup_qml(ddb, ui_manager):
     # import ressources
-    from package import qrc
 
     # # set env : why ???
     # os.environ["QT_STYLE_OVERRIDE"] = ""

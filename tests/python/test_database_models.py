@@ -1,11 +1,10 @@
 import itertools
 
-from PIL import Image
 from PySide2.QtGui import QFont
-from fixtures import compare, compare_items, check_is_range, wait
-from package.database.factory import *
+from fixtures import compare_items, check_is_range, wait
+from tests.python.factory import *
 import pytest
-from package.exceptions import MyCartableOperationError, MyCartableTableauError
+from package.exceptions import MyCartableOperationError
 from pony.orm import flush, Database, make_proxy
 
 

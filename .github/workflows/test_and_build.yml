@@ -90,12 +90,12 @@ jobs:
 #        path: windows
 #        name: MyCartable-${{runner.os}}64
 
-    - name: upload  on ${{ matrix.os }} binary in artifact
-      if: runner.os == 'Linux'
-      uses: actions/upload-artifact@v1
-      with:
-        path: linux
-        name: MyCartable-${{runner.os}}64
+#    - name: upload  on ${{ matrix.os }} binary in artifact
+#      if: runner.os == 'Linux'
+#      uses: actions/upload-artifact@v1
+#      with:
+#        path: linux
+#        name: MyCartable-${{runner.os}}64
 
   Create_release:
       needs: TestAndBuild

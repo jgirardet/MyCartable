@@ -28,6 +28,7 @@ DATA_DIR_INCLUDED = [data]
 
 
 def test_data_one_dir_included(path: Path):
+    """dot être fixe"""
     path = path.resolve()
     dist_data = (dist / path.name).resolve()
 

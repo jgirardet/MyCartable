@@ -4,16 +4,6 @@ FocusScope {
     id: item
 
     property Item model
-
-    model: Item {
-        property var _removeRow: 3
-
-        function removeRow(secId, flag) {
-            _removeRow = [secId, flag];
-        }
-
-    }
-
     property var _move: null
 
     function move(dx, dy) {
@@ -23,15 +13,16 @@ FocusScope {
     width: 200 // important pout les tests
     height: 200 //important pour les tests
     focus: true
+
     //  function deleteAnnotation(obj) {}
     CasTest {
+        //        "height": 0.8
+        //        "index": index,
+
         property var annot
         property var edit
 
         function initPre() {
-            //        "height": 0.8
-            //        "index": index,
-
             //    item.currentAnnotation = null
             //      item.model._removeRow = 0
             edit = null;
@@ -167,7 +158,7 @@ FocusScope {
             keyClick(Qt.Key_A);
             keyClick(Qt.Key_Return);
             keyClick(Qt.Key_B);
-            compare(tested.text, "a\\nb");
+            compare(tested.text, "a\nb");
         }
 
         function test_taille_du_texte() {
@@ -243,6 +234,15 @@ FocusScope {
 
         name: "AnnotationText"
         testedNom: "qrc:/qml/annotations/AnnotationText.qml"
+    }
+
+    model: Item {
+        property var _removeRow: 3
+
+        function removeRow(secId, flag) {
+            _removeRow = [secId, flag];
+        }
+
     }
 
 }

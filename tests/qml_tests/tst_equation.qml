@@ -22,7 +22,7 @@ Item {
                 "page": 1,
                 "position": 1,
                 "classtype": "EquationSection",
-                "content": "1     \\n__ + 1\\n15    ",
+                "content": "1     \n__ + 1\n15    ",
                 "curseur": 10
             };
             tested.sectionId = 1;
@@ -30,13 +30,13 @@ Item {
 
         function test_init() {
             // test on section id changed
-            tryCompare(tested, "text", "1     \\n__ + 1\\n15    ");
+            tryCompare(tested, "text", "1     \n__ + 1\n15    ");
             tryCompare(tested, "cursorPosition", 10);
         }
 
         function test_keypress() {
             ddb._updateEquation = {
-                "content": "1      \\n__5 + 1\\n15     ",
+                "content": "1      \n__5 + 1\n15     ",
                 "curseur": 12
             };
             mouseClick(tested);
@@ -45,9 +45,9 @@ Item {
             tryCompare(tested, "cursorPosition", 10);
             keyClick(Qt.Key_5);
             tryCompare(tested, "cursorPosition", 12);
-            tryCompare(tested, "text", "1      \\n__5 + 1\\n15     ");
+            tryCompare(tested, "text", "1      \n__5 + 1\n15     ");
             compare(ddb._updateEquationParams[0], 1);
-            compare(ddb._updateEquationParams[1], "1     \\n__ + 1\\n15    ");
+            compare(ddb._updateEquationParams[1], "1     \n__ + 1\n15    ");
             compare(ddb._updateEquationParams[2], 10);
             compare(ddb._updateEquationParams[3], "{\"objectName\":\"\",\"key\":53,\"text\":\"5\",\"modifiers\":0,\"isAutoRepeat\":false,\"count\":65535,\"nativeScanCode\":0,\"accepted\":false}");
         }

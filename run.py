@@ -164,27 +164,6 @@ def cmd_install_qt(*args, **kwargs):
     runCommand(f"aqt install {QT_VERSION} linux desktop")
 
 
-#
-# def cmd_js_style(*args, **kwargs):
-#     import jsbeautifier
-#
-#     opts = jsbeautifier.default_options()
-#     opts.max_preserve_newlines = 2
-#     opts.indent_size = 2
-#     if args:
-#         editedfile = Path(args[0])
-#         editedfile.write_text(jsbeautifier.beautify_file(editedfile, opts))
-#
-#     else:
-#         qmldir = ROOT / "src" / "qml"
-#         qml_tests = ROOT / "tests" / "qml_tests"
-#         dirs = (qmldir, qml_tests)
-#
-#         for d in dirs:
-#             for f in d.rglob("*.qml"):
-#                 f.write_text(jsbeautifier.beautify_file(f, opts))
-
-
 def cmd_make_qrc(*args, **kwargs):
     input = SRC / "qml.qrc"
     output = SRC / "mycartable" / "package" / "qrc.py"
@@ -206,7 +185,7 @@ def cmd_qmlformat(*args, **kwargs):
         files = list(SRC.rglob("*.qml")) + list(
             (ROOT / "tests" / "qml_tests").rglob("*.qml")
         )
-    excluded = ["ImageSectionBase.qml"]
+    excluded = ["ImageSectionBase.qml", "tst_AnnotationText.qml", "tst_equation.qml"]
     errors = []
     for file in files:
         if file.name in excluded:
@@ -220,23 +199,6 @@ def cmd_qmlformat(*args, **kwargs):
 
         if errors:
             sys.exit(1)
-
-        # runCommand(f"qmlformat -i  {' '.join(map(str,files))}")
-
-        # opts.max_preserve_newlines = 2
-        # opts.indent_size = 2
-        # if args:
-        #     editedfile = Path(args[0])
-        #     editedfile.write_text(jsbeautifier.beautify_file(editedfile, opts))
-        #
-        # else:
-        #     qmldir = ROOT / "src" / "qml"
-        #     qml_tests = ROOT / "tests" / "qml_tests"
-        #     dirs = (qmldir, qml_tests)
-        #
-        #     for d in dirs:
-        #         for f in d.rglob("*.qml"):
-        #             f.write_text(jsbeautifier.beautify_file(f, opts))
 
 
 def cmd_run(*args, **kwargs):

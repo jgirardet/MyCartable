@@ -80,6 +80,14 @@ jobs:
         python run.py make_qrc
         briefcase create --no-docker
         briefcase build --no-docker
+
+    - name: build on ${{ matrix.os }}
+      if:  matrix.os == 'ubuntu-16.04'
+      run: |
+        python run.py make_qrc
+        briefcase create
+        briefcase build
+        briefcase package
 #    - name: build on ${{ matrix.os }}
 #      if:  matrix.os == 'ubuntu-18.04'
 #      run: |

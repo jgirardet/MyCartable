@@ -82,7 +82,7 @@ jobs:
         briefcase build --no-docker
 
     - name: build on ${{ matrix.os }}
-      if:  matrix.os == 'ubuntu-16.04'
+      if:  matrix.os == 'windows-2019'
       run: |
         python run.py make_qrc
         briefcase create

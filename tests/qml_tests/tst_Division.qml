@@ -2,8 +2,6 @@ import QtQuick 2.14
 import "qrc:/js/lodash.js" as Lodash
 
 Item {
-    id: item
-
     width: 600
     height: 600
 
@@ -28,15 +26,6 @@ Item {
             property var _moveCursor
             property var _addRetenues: ""
 
-            //      function isResultLine(index) {
-            //      return false
-            //      }
-            //      function isRetenueLine(index) {
-            //      return false
-            //      }
-            //      function isMiddleLine(index) {
-            //      return true
-            //      }
             function isDividendeLine(index) {
                 return _.range(0, 9).includes(index) ? true : false;
             }
@@ -129,8 +118,6 @@ Item {
         }
 
         function test_properties() {
-            //Red
-
             //        //1,10 (text) et 11 retenu droit,  21 : retenue gauche
             compare(corps.itemAtIndex(1).textinput.color, "#000000");
             //black

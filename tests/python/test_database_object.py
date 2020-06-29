@@ -7,7 +7,7 @@ from fixtures import check_args
 from package import constantes
 from package.database_mixins.matiere_mixin import MatieresDispatcher
 from package.database_object import DatabaseObject
-from tests.python.factory import *
+from factory import *
 from unittest.mock import patch, call
 from package.files_path import FILES
 from package.page import text_section

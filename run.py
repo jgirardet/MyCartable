@@ -151,11 +151,6 @@ def cmd_install(*args, **kwargs):
     runCommand(f"pip install -r requirements.txt")
 
 
-def cmd_install_dev(*args, **kwargs):
-    cmd_create_env(*args, *kwargs)
-    cmd_install()
-    cmd_install_qt()
-
 
 def cmd_install_qt(*args, **kwargs):
     if QT_PATH.exists():
@@ -206,6 +201,12 @@ def cmd_run(*args, **kwargs):
 
     runCommand(f"briefcase run -u")
     # runCommand(f"briefcase run -u {no_input}")
+
+
+def cmd_setup(*args, **kwargs):
+    cmd_create_env(*args, *kwargs)
+    cmd_install()
+    cmd_install_qt()
 
 
 def cmd_setup_qml(*args, **kwargs):

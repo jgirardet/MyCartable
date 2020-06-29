@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 import pytest
 from PySide2.QtCore import Qt
 from PySide2.QtGui import QTextDocument, QColor, QFont, QKeyEvent, QBrush
-from tests.python.factory import f_textSection, TextSection
+from factory import f_textSection, TextSection
 
 # from package.page.text_section import DocumentEditor, RE_AUTOPARAGRAPH
 from bs4 import BeautifulSoup

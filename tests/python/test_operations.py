@@ -4,7 +4,7 @@ from unittest.mock import patch, call
 import pytest
 from PySide2.QtCore import Qt, Signal
 from fixtures import check_super_init, check_args, check_is_range
-from tests.python.factory import (
+from factory import (
     f_additionSection,
     f_soustractionSection,
     f_multiplicationSection,

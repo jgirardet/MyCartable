@@ -14,7 +14,6 @@ description = "My first application"
 sources = ['src/mycartable']
 requires = ['pyside2==5.15.0',
             'pony>=0.7.11,<0.8',
-            'dickens==1.0.1',
             'Pillow==7.1.2',
             'mako==1.1.2',
             'beautifulsoup4']

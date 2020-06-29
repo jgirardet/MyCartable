@@ -13,7 +13,7 @@ from PySide2.QtCore import (
 
 from package.database import db
 from pony.orm import db_session, make_proxy
-from descriptors import cachedproperty
+from functools import cached_property
 
 
 class OperationModel(QAbstractListModel):
@@ -258,7 +258,7 @@ class SoustractionModel(OperationModel):
         """retenu == fistr line"""
         return 0 <= index and index < self.columns
 
-    @cachedproperty
+    @cached_property
     def retenue_gauche(self):
         res = set()
         i = 4
@@ -271,7 +271,7 @@ class SoustractionModel(OperationModel):
             i += 3
         return res
 
-    @cachedproperty
+    @cached_property
     def retenue_droite(self):
         res = set()
         i = 3 + self.columns
@@ -472,17 +472,17 @@ class MultiplicationModel(OperationModel):
             return self.get_next_line(y)
 
     # private utils property / methods
-    @cachedproperty
+    @cached_property
     def i_line_0(self):
         start = self.n_chiffres * self.columns
         return slice(start, start + self.columns)
 
-    @cachedproperty
+    @cached_property
     def i_line_1(self):
         start = self.i_line_0.stop
         return slice(start, start + self.columns)
 
-    @cachedproperty
+    @cached_property
     def editables_index_middle(self):
         """index d'op sans les retenues"""
 
@@ -498,14 +498,14 @@ class MultiplicationModel(OperationModel):
         )
         return pre_list & self.editables
 
-    @cachedproperty
+    @cached_property
     def i_retenue_virgule(self):
         try:
             return self.datas[self.i_line_0].index(",")
         except ValueError:
             return 0  # virgule ne peut jamais avoir index 0
 
-    @cachedproperty
+    @cached_property
     def len_ligne0(self):
         line1 = self.datas[self.i_line_0]
         for n, i in enumerate(line1):  # pragma: no branch
@@ -517,9 +517,11 @@ class MultiplicationModel(OperationModel):
                     self._len_ligne0 -= 1
                 return self._len_ligne0
 
-    i_line0_vigule = i_retenue_virgule
+    @cached_property
+    def i_line0_vigule(self):
+        return self.i_retenue_virgule
 
-    @cachedproperty
+    @cached_property
     def i_line1_virgule(self):
         try:
             return self.datas[self.i_line_1].index(",")
@@ -720,7 +722,7 @@ class DivisionModel(OperationModel):
 
     # private utils property / methods
 
-    @cachedproperty
+    @cached_property
     def retenue_gauche(self):
         res = set()
         for i in range(self.rows - 2):  # pas de rentenu gauche pour la derniere ligne
@@ -730,7 +732,7 @@ class DivisionModel(OperationModel):
             res.update(set(range(debut + 3, debut + self.columns, 3)))
         return res
 
-    @cachedproperty
+    @cached_property
     def retenue_droite(self):
         res = set()
         for i in range(1, self.rows - 1):
@@ -740,7 +742,7 @@ class DivisionModel(OperationModel):
             res.update(set(range(debut, debut + self.columns - 3, 3)))
         return res
 
-    @cachedproperty
+    @cached_property
     def regular_chiffre(self):
         res = set()
         for i in range(1, self.rows):

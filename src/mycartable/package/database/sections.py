@@ -4,7 +4,7 @@ import re
 from io import BytesIO
 
 from PySide2.QtGui import QColor
-from descriptors import cachedproperty
+from functools import cached_property
 from package.exceptions import MyCartableOperationError
 from package.operations.api import create_operation
 from pony.orm import Required, PrimaryKey, Optional, Set, select, count, max
@@ -203,7 +203,7 @@ class SoustractionSection(OperationSection):
 
 
 class MultiplicationSection(OperationSection):
-    @cachedproperty
+    @cached_property
     def n_chiffres(self):
         return int((self.rows - 4) / 2) or 1
 
@@ -270,7 +270,7 @@ class DivisionSection(OperationSection):
         self._datas = json.dumps(datas["datas"])
         self.size = self.columns * self.rows
 
-    # @cachedproperty
+    # @cached_property
     # def l_dividende(self):
     #     return len(self.dividende)
 
@@ -306,11 +306,11 @@ class DivisionSection(OperationSection):
             res = float(num)
         return res
 
-    @cachedproperty
+    @cached_property
     def diviseur_as_num(self):
         return self._as_num(self.diviseur)
 
-    @cachedproperty
+    @cached_property
     def dividende_as_num(self):
         return self._as_num(self.dividende)
 

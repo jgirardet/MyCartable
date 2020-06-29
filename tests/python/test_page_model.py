@@ -2,7 +2,7 @@ import pytest
 
 from PySide2.QtCore import Qt, QModelIndex
 from fixtures import check_super_init, check_begin_end
-from tests.python.factory import f_page, b_section, f_section
+from factory import f_page, b_section, f_section
 from package.page.page_model import PageModel
 from pony.orm import db_session, make_proxy
 

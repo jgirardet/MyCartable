@@ -61,7 +61,7 @@
       <option name="workingDir" value="$ProjectFileDir$" />
       <envs />
     </TaskOptions>
-    <TaskOptions isEnabled="false">
+    <TaskOptions isEnabled="true">
       <option name="arguments" value="run.py black $FilePath$" />
       <option name="checkSyntaxErrors" value="true" />
       <option name="description" />
@@ -81,7 +81,7 @@
       <option name="workingDir" value="$ProjectFileDir$" />
       <envs />
     </TaskOptions>
-    <TaskOptions isEnabled="true">
+    <TaskOptions isEnabled="false">
       <option name="arguments" value="run.py qmlformat -input $FilePath$" />
       <option name="checkSyntaxErrors" value="false" />
       <option name="description" />

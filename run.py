@@ -90,7 +90,6 @@ def cmd_black(*args, **kwargs):
         runCommand("python -m black src tests")
 
 
-
 def cmd_package(*args, **kwargs):
     cmd_make_qrc()
     runCommand("briefcase package")
@@ -108,8 +107,8 @@ def cmd_clean(*args, **kwargs):
         DIST,
         ROOT / "aqtinstall.log",
         ".coverage",
-        ROOT/"linux",
-        ROOT/"windows"
+        ROOT / "linux",
+        ROOT / "windows",
     ]
     if "-venv" in args:
         to_remove.append(VIRTUAL_ENV)
@@ -164,6 +163,7 @@ def cmd_install_qt(*args, **kwargs):
     QT_PATH.mkdir(parents=True)
     runCommand(f"aqt install {QT_VERSION} linux desktop")
 
+
 #
 # def cmd_js_style(*args, **kwargs):
 #     import jsbeautifier
@@ -199,17 +199,14 @@ def cmd_dev(*args, **kwargs):
 def cmd_qmlformat(*args, **kwargs):
     # qmlformat pas encore très stable donc on verifie nous même
     command_line = f"qmlformat -i "
-    files=[]
+    files = []
     if filedir := kwargs.get("input", None):
         files.append(Path(filedir))
     else:
-        files.extend([
-            *SRC.rglob("*.qml"),
-            *(SRC / "test" / "qml_tests").rglob("*.qml")]
-
+        files = list(SRC.rglob("*.qml")) + list(
+            (ROOT / "tests" / "qml_tests").rglob("*.qml")
         )
-
-    excluded = ['ImageSectionBase.qml']
+    excluded = ["ImageSectionBase.qml"]
     errors = []
     for file in files:
         if file.name in excluded:
@@ -240,6 +237,7 @@ def cmd_qmlformat(*args, **kwargs):
         #     for d in dirs:
         #         for f in d.rglob("*.qml"):
         #             f.write_text(jsbeautifier.beautify_file(f, opts))
+
 
 def cmd_run(*args, **kwargs):
     no_input = "--no-input" if kwargs.get("no-input") else ""

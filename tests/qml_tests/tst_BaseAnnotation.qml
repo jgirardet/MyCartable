@@ -7,9 +7,9 @@ Item {
   id: item
   implicitWidth: width
   implicitHeight: height
-  /* beautify preserve:start */
+
   property var currentAnnotation: null
-  /* beautify preserve:end */
+
 
   property Item model: Item {
     function removeRow(idx) {
@@ -22,11 +22,11 @@ Item {
   CasTest {
     name: "BaseAnnotation"
     testedNom: "qrc:/qml/annotations/BaseAnnotation.qml"
-    /* beautify preserve:start */
+
     property var annot
     property int index:1
     property var edit
-    /* beautify preserve:end */
+
 
     function initPre() {
       //      params = {

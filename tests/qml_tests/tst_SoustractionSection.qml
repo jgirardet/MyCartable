@@ -17,9 +17,9 @@ Item {
       property int cursor: 0
       property int sectionId: 0
       property int size: 40
-      /* beautify preserve:start */
+
       property var datas: ['', '', '4', '', '', '3', '', '', '2', '', ',', '', '5', '', '', '4', '', '-', '', '3', '', '', '9', '', '', '1', '', ',', '', '4', '', '', '1', '', '', '', '', '', '', '', '', '', '', '', ',', '', '', '', '', '', '']
-      /* beautify preserve:end */
+
       Component.onCompleted: {
         for (var x of datas) {
           listmodel.append({
@@ -88,9 +88,9 @@ Item {
   CasTest {
     name: "SoustractionSection"
     testedNom: "qrc:/qml/operations/SoustractionSectionBase.qml"
-    /* beautify preserve:start */
+
     property var model
-    /* beautify preserve:end */
+
 
     function initPre() {
       model = createTemporaryObject(modelComp, item)

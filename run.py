@@ -42,7 +42,7 @@ def cmd_rien():
     runCommand("pip -V")
 
 
-def runCommand(command, cwd=str(ROOT), sleep_time=0.2, with_env=True):
+def runCommand(command, cwd=str(ROOT), sleep_time=0.2, with_env=True, exit=True):
     global currentProccess
     print(f"##### running: {command} #####")
     env = get_env() if with_env else None
@@ -72,7 +72,10 @@ def runCommand(command, cwd=str(ROOT), sleep_time=0.2, with_env=True):
         print(
             f"##### finished: {command}  ==>>  ECHEC  with return code {process.returncode} #####"
         )
-        return sys.exit(process.returncode)
+        if exit:
+            return sys.exit(process.returncode)
+        else:
+            return False
 
 
 def cmd_black(*args, **kwargs):
@@ -194,14 +197,33 @@ def cmd_dev(*args, **kwargs):
 
 
 def cmd_qmlformat(*args, **kwargs):
-    # filedir = kwargs.get("input", None)
+    # qmlformat pas encore très stable donc on verifie nous même
     command_line = f"qmlformat -i "
     files=[]
     if filedir := kwargs.get("input", None):
         files.append(filedir)
     else:
-        return
-    runCommand(f"qmlformat -i {' '.join(files)}")
+        files.extend([
+            *SRC.rglob("*.qml"),
+            *(SRC / "test" / "qml_tests").rglob("*.qml")]
+
+        )
+
+    excluded = ['ImageSectionBase.qml']
+    errors = []
+    for file in files:
+        if file.name in excluded:
+            print(f"!!!!! skipping {file.name} !!!!!!!")
+            continue
+        if not runCommand(f"qmlformat -i  {file}", exit=False):
+            errors.append(file)
+        for file in errors:
+            print(f"error with file {file}")
+
+        if errors:
+            sys.exit(1)
+
+        # runCommand(f"qmlformat -i  {' '.join(map(str,files))}")
 
         # opts.max_preserve_newlines = 2
         # opts.indent_size = 2

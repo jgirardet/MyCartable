@@ -6,9 +6,9 @@
    width: 400
    height: 300
    id: item
-   /* beautify preserve:start */
+
   property var cellModel: [
-  /* beautify preserve:end */{
+  {
      "style": {
        "bgColor": "red",
        "family": "",
@@ -210,7 +210,7 @@
      name: "TableauSection"
      testedNom: "qrc:/qml/sections/TableauSection.qml"
      params: {}
-     /* beautify preserve:start */
+
     property Repeater rep
     property GridLayout grid
     property TextArea un
@@ -218,7 +218,7 @@
     property var model: item.cellModel
 
 
-    /* beautify preserve:end */
+
 
      function initPre() {
        params = {

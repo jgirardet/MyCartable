@@ -11,11 +11,11 @@ Item {
     params: {
       "model": []
     }
-    /* beautify preserve:start */
+
     property var lv
     property var header
 
-    /* beautify preserve:end */
+
 
     function initPreCreate() {
       params['model'] = ddb.pagesParSection[2]

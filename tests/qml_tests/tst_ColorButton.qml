@@ -9,11 +9,11 @@ Item {
   CasTest {
     name: "ColorButton"
     testedNom: "qrc:/qml/menu/ColorButton.qml"
-    /* beautify preserve:start */
+
     property var style : {
       "fgColor": "red"
     }
-    /* beautify preserve:end */
+
     params: {
       "color": "red",
       "style": style

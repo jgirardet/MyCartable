@@ -1,6 +1,12 @@
 import QtQuick 2.14
 
 Canvas {
+    //    }
+    //      canvas.save("tests/qml_tests/assets/trait.png") // pour tests
+    //      canvas.save("tests/qml_tests/assets/rect.png") // pour tests
+    //      canvas.save("tests/qml_tests/assets/fillrect.png") // pour tests
+    //      canvas.save("tests/qml_tests/assets/ellipse.png") // pour tests
+
     id: canvas
 
     // beautify preserve:start
@@ -32,12 +38,6 @@ Canvas {
     onFillStyleChanged: requestPaint()
     onLineWidthChanged: requestPaint()
     onPaint: {
-        //    }
-        //      canvas.save("tests/qml_tests/assets/trait.png") // pour tests
-        //      canvas.save("tests/qml_tests/assets/rect.png") // pour tests
-        //      canvas.save("tests/qml_tests/assets/fillrect.png") // pour tests
-        //      canvas.save("tests/qml_tests/assets/ellipse.png") // pour tests
-
         // init variables
         var lw = lineWidth / 2;
         var startX = annot.startX * width;

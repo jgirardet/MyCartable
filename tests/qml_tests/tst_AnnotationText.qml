@@ -6,9 +6,9 @@ FocusScope {
   height: 200 //important pour les tests
   focus: true
   property Item model: Item {
-    /* beautify preserve:start */
+
      property var _removeRow:3
-     /* beautify preserve:end */
+
     function removeRow(secId, flag) {
       _removeRow = [secId, flag]
     }
@@ -17,17 +17,17 @@ FocusScope {
   function move(dx, dy) {
     _move = [dx, dy]
   }
-  /* beautify preserve:start */
+
   property var _move: null
-  /* beautify preserve:end */
+
   //  function deleteAnnotation(obj) {}
   CasTest {
     name: "AnnotationText"
     testedNom: "qrc:/qml/annotations/AnnotationText.qml"
-    /* beautify preserve:start */
+
     property var annot
     property var edit
-    /* beautify preserve:end */
+
     function initPre() {
       //    item.currentAnnotation = null
       //      item.model._removeRow = 0

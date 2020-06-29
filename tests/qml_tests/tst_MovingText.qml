@@ -16,10 +16,10 @@ Item {
       "pauseOnLeft": 0,
       "pauseOnRight": 0 //pas de latence
     }
-    /* beautify preserve:start */
+
     property var moveTextLeft
     property var moveTextRight
-    /* beautify preserve:end */
+
 
     function initPre() {}
 

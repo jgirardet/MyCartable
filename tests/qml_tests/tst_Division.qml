@@ -22,11 +22,11 @@ Item {
       property real dividende: 264
       property string quotient: ""
 
-      /* beautify preserve:start */
+
       property var corps
       property var datas: ['', '2', '', '', '6', '', '', '4', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']
       property var _editables: [34, 37, 40, 10, 43, 13, 16, 19, 22, 25, 28, 31]
-      /* beautify preserve:end */
+
       Component.onCompleted: {
         for (var x of datas) {
           listmodel.append({
@@ -111,11 +111,11 @@ Item {
   CasTest {
     name: "DivisionSection"
     testedNom: "qrc:/qml/operations/DivisionSectionBase.qml"
-    /* beautify preserve:start */
+
     property var model
     property var quotient
     property var corps
-    /* beautify preserve:end */
+
 
     function initPre() {
       model = createTemporaryObject(modelComp, item)

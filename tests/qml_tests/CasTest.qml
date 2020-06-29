@@ -6,7 +6,7 @@ import QtTest 1.14
 TestCase {
   id: testcase
   when: windowShown
-  /* beautify preserve:start */
+
     property var tested
     property var ddb
     property var uiManager
@@ -14,7 +14,7 @@ TestCase {
     property var params
     property var backupParams
     property var ddbData
-    /* beautify preserve:end */
+
 
   function init() {
     backupParams = params

@@ -1,7 +1,7 @@
 import QtQuick 2.15
 import QtTest 1.15
 
-/* beautify preserve:start */
+
 
 Item {
 
@@ -435,7 +435,7 @@ Item {
     return _loadSection
 
   }
-  /* beautify preserve:start */
+
   property var _loadSection: {
       'id': 3796,
       'created': '2019-04-19T22:44:14.176013',
@@ -505,5 +505,5 @@ Item {
 
 
 
-/* beautify preserve:end */
+
 }

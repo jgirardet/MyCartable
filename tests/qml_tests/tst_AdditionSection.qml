@@ -16,9 +16,9 @@ Item {
       property int columns: 3
       property int cursor: 0
       property int size: 12
-      /* beautify preserve:start */
+
       property var datas: ["", "", "", "", "", "9", "+", "", "8", "", "", ""]
-      /* beautify preserve:end */
+
       Component.onCompleted: {
         for (var x of datas) {
           listmodel.append({
@@ -60,9 +60,9 @@ Item {
   CasTest {
     name: "AdditionSection"
     testedNom: "qrc:/qml/operations/AdditionSectionBase.qml"
-    /* beautify preserve:start */
+
     property var model
-    /* beautify preserve:end */
+
 
     function initPre() {
       model = createTemporaryObject(modelComp, item)

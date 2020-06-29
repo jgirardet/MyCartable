@@ -18,10 +18,10 @@ Item {
       property int sectionId: 0
       property int size: 60
       property int virgule: 0
-      /* beautify preserve:start */
+
       property var datas: ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '2', '5', '1', 'x', '', '', '1', '4', '8', '', '', '', '', '', '', '+', '', '', '', '', '', '+', '', '', '', '', '', '+', '', '', '', '', '', '', '', '', '', '', '']
 
-      /* beautify preserve:end */
+
       Component.onCompleted: {
         for (var x of datas) {
           listmodel.append({
@@ -75,9 +75,9 @@ Item {
   CasTest {
     name: "MultiplicationSection"
     testedNom: "qrc:/qml/operations/MultiplicationSectionBase.qml"
-    /* beautify preserve:start */
+
     property var model
-    /* beautify preserve:end */
+
 
     function initPre() {
       model = createTemporaryObject(modelComp, item)

@@ -5,10 +5,10 @@ Item {
   height: 200
   id: item
 
-  /* beautify preserve:start */
+
   property var _newDessin: null
   property var model: Item {
-  /* beautify preserve:end */
+
     function newDessin(args) {
       _newDessin = args
     }
@@ -17,9 +17,9 @@ Item {
   CasTest {
     name: "CanvasFactory"
     testedNom: "qrc:/qml/annotations/CanvasFactory.qml"
-    /* beautify preserve:start */
+
     property var mouse
-    /* beautify preserve:end */
+
 
     function initPre() {
       //      params = {

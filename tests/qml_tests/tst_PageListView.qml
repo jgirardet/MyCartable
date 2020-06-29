@@ -50,17 +50,17 @@ Item {
       function move(source, target) {
         _move = [source, target]
       }
-      /* beautify preserve:start */
+
        property var _move
-       /* beautify preserve:end */
+
 
       function removeSection(source) {
         _removeSection = source
         remove(index)
       }
-      /* beautify preserve:start */
+
        property var _removeSection
-       /* beautify preserve:end */
+
     }
   }
 
@@ -68,12 +68,12 @@ Item {
     name: "PageListView"
     testedNom: "qrc:/qml/page/PageListView.qml"
     property ListModel listmodel
-    /* beautify preserve:start */
+
     property var un
     property var deux
     property var eq1
     property var eq2
-    /* beautify preserve:end */
+
 
     function initPre() {
       Qt.application.organization = "blablb"

@@ -20,10 +20,10 @@ Item {
     id: modelComp
     ListModel {
       id: listmodel
-      /* beautify preserve:start */
+
       ////      property int rows: 0
       property var _addAnnotation: null
-            /* beautify preserve:end */
+
       function addAnnotation(mx, my, mwidth, mheight) {
         _addAnnotation = [mx, my, mwidth, mheight]
       }
@@ -33,10 +33,10 @@ Item {
   CasTest {
     name: "ImageSection"
     testedNom: "qrc:/qml/annotations/ImageSectionBase.qml"
-    /* beautify preserve:start */
+
     property var model
     property var canvas
-    /* beautify preserve:end */
+
     params: {}
 
     function initPre() {

@@ -10,9 +10,9 @@ Item {
     id: testCase
     name: "AnnotationDessin"
     testedNom: "qrc:/qml/annotations/AnnotationDessin.qml"
-    /* beautify preserve:start */
+
     property var annot
-    /* beautify preserve:end */
+
     function initPre() {
       annot = {
         "sectionId": 2,

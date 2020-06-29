@@ -9,9 +9,9 @@ Item {
   CasTest {
     name: "PageButton"
     testedNom: "qrc:/qml/divers/PageButton.qml"
-    /* beautify preserve:start */
+
     property var model
-    /* beautify preserve:end */
+
 
     function initPre() {}
 

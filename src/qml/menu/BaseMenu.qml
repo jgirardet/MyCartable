@@ -1,29 +1,26 @@
-import QtQuick 2.14
-import QtQuick.Controls 2.14
-
 // Class de base pour les menus
-//
 // on open/close avec ouvre et ferme
-//
 // interface :
 //    setStyleFromMenu: implémenté par target et appelé via menu
 //    ex : menu.target.setStyleFromTarge(balbal)
 
+import QtQuick 2.14
+import QtQuick.Controls 2.14
+
 Menu {
-  id: root
-  /* beautify preserve:start */
-  property var target
-  /* beautify preserve:end */
+    id: root
 
-  function ouvre(newTarget) {
-    //    parent = newTarget
-    target = newTarget
-    uiManager.menuTarget = newTarget
-    root.popup()
-  }
+    property var target
 
-  function ferme() {
-    root.visible = false
-  }
+    function ouvre(newTarget) {
+        //    parent = newTarget
+        target = newTarget;
+        uiManager.menuTarget = newTarget;
+        root.popup();
+    }
+
+    function ferme() {
+        root.visible = false;
+    }
 
 }

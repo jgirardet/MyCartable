@@ -141,14 +141,17 @@ def cmd_cov_html(*args, **kwargs):
 
 
 def cmd_create_env(*args, **kwargs):
-    # elif sys.platform == "win32":
-    #     python = "python"
     runCommand(f"{sys.executable} -m venv .venv", with_env=False)
 
 
 def cmd_install(*args, **kwargs):
     runCommand(f"python -m pip install -U pip")
     runCommand(f"pip install -r requirements.txt")
+    from briefcase.config import parse_config
+    with open("pyproject.toml") as ff:
+        _,appconfig = parse_config(ff, sys.platform, "")
+    reqs = [f'"{r}"' for r in appconfig['mycartable']['requires']]
+    runCommand(f"pip install {' '.join(reqs)}")
 
 
 

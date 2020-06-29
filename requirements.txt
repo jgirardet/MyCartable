@@ -1,8 +1,8 @@
-pyside2==5.15.0
-pony>=0.7.13,<0.8
-Pillow>=7.1.2,<7.2
-mako>=1.1.2,<1.2
-beautifulsoup4>=4.9,<4.10
+#pyside2==5.15.0
+# pony>=0.7.13,<0.8
+#Pillow>=7.1.2,<7.2
+#mako>=1.1.2,<1.2
+#beautifulsoup4>=4.9,<4.10
 
 #dev
 aqtinstall==0.9
@@ -16,4 +16,5 @@ pytest-qt
 PyPDF2
 mypy
 briefcase
+toml
 

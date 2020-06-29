@@ -161,25 +161,25 @@ def cmd_install_qt(*args, **kwargs):
     QT_PATH.mkdir(parents=True)
     runCommand(f"aqt install {QT_VERSION} linux desktop")
 
-
-def cmd_js_style(*args, **kwargs):
-    import jsbeautifier
-
-    opts = jsbeautifier.default_options()
-    opts.max_preserve_newlines = 2
-    opts.indent_size = 2
-    if args:
-        editedfile = Path(args[0])
-        editedfile.write_text(jsbeautifier.beautify_file(editedfile, opts))
-
-    else:
-        qmldir = ROOT / "src" / "qml"
-        qml_tests = ROOT / "tests" / "qml_tests"
-        dirs = (qmldir, qml_tests)
-
-        for d in dirs:
-            for f in d.rglob("*.qml"):
-                f.write_text(jsbeautifier.beautify_file(f, opts))
+#
+# def cmd_js_style(*args, **kwargs):
+#     import jsbeautifier
+#
+#     opts = jsbeautifier.default_options()
+#     opts.max_preserve_newlines = 2
+#     opts.indent_size = 2
+#     if args:
+#         editedfile = Path(args[0])
+#         editedfile.write_text(jsbeautifier.beautify_file(editedfile, opts))
+#
+#     else:
+#         qmldir = ROOT / "src" / "qml"
+#         qml_tests = ROOT / "tests" / "qml_tests"
+#         dirs = (qmldir, qml_tests)
+#
+#         for d in dirs:
+#             for f in d.rglob("*.qml"):
+#                 f.write_text(jsbeautifier.beautify_file(f, opts))
 
 
 def cmd_make_qrc(*args, **kwargs):
@@ -193,8 +193,36 @@ def cmd_dev(*args, **kwargs):
     runCommand(f"briefcase dev")
 
 
+def cmd_qmlformat(*args, **kwargs):
+    # filedir = kwargs.get("input", None)
+    command_line = f"qmlformat -i "
+    files=[]
+    if filedir := kwargs.get("input", None):
+        files.append(filedir)
+    else:
+        return
+    runCommand(f"qmlformat -i {' '.join(files)}")
+
+        # opts.max_preserve_newlines = 2
+        # opts.indent_size = 2
+        # if args:
+        #     editedfile = Path(args[0])
+        #     editedfile.write_text(jsbeautifier.beautify_file(editedfile, opts))
+        #
+        # else:
+        #     qmldir = ROOT / "src" / "qml"
+        #     qml_tests = ROOT / "tests" / "qml_tests"
+        #     dirs = (qmldir, qml_tests)
+        #
+        #     for d in dirs:
+        #         for f in d.rglob("*.qml"):
+        #             f.write_text(jsbeautifier.beautify_file(f, opts))
+
 def cmd_run(*args, **kwargs):
+    no_input = "--no-input" if kwargs.get("no-input") else ""
+
     runCommand(f"briefcase run -u")
+    # runCommand(f"briefcase run -u {no_input}")
 
 
 def cmd_setup_qml(*args, **kwargs):
@@ -260,6 +288,7 @@ if __name__ == "__main__":
     parser.add_argument("command")
     parser.add_argument("args", nargs="*")
     parser.add_argument("-input", nargs="?")
+    parser.add_argument("-ni", "--no-input")
 
     args = parser.parse_args()
     com = args.command

@@ -21,7 +21,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os : [ubuntu-18.04, windows-2019]
+        os : [ubuntu-16.04]
+#        os : [ubuntu-18.04, windows-2019]
 #        os : [ubuntu-latest, ubuntu-18.04, windows-2019, windows-latest]
         python: [3.8]
     env:
@@ -73,10 +74,10 @@ jobs:
 #    - name: Coverage on ${{ matrix.os }}
 #      run: |
 #        python run.py cov
-#    - name: build on ${{ matrix.os }}
-#      run: |
-#        python run.py make_qrc
-#        briefcase create
+    - name: build on ${{ matrix.os }}
+      run: |
+        python run.py make_qrc
+        briefcase create --no-docker
 #        briefcase build
 #        briefcase package
 #    - name: test run on windows CMD

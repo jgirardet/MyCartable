@@ -201,7 +201,7 @@ def cmd_qmlformat(*args, **kwargs):
     command_line = f"qmlformat -i "
     files=[]
     if filedir := kwargs.get("input", None):
-        files.append(filedir)
+        files.append(Path(filedir))
     else:
         files.extend([
             *SRC.rglob("*.qml"),
@@ -219,6 +219,7 @@ def cmd_qmlformat(*args, **kwargs):
             errors.append(file)
         for file in errors:
             print(f"error with file {file}")
+            runCommand(f"qmlformat -V {file}", exit=False)
 
         if errors:
             sys.exit(1)

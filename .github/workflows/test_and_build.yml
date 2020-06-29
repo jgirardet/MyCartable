@@ -21,8 +21,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os : [ubuntu-16.04, ubuntu-20.04]
-#        os : [ubuntu-18.04, windows-2019]
+#        os : [ubuntu-16.04, ubuntu-20.04]
+        os : [ubuntu-16.04, windows-2019]
 #        os : [ubuntu-latest, ubuntu-18.04, windows-2019, windows-latest]
         python: [3.8]
     env:
@@ -87,31 +87,31 @@ jobs:
 #        briefcase create --no-input
 #        briefcase build --no-input
 
-    - name: build on ${{ matrix.os }}
-      if:  matrix.os == 'ubuntu-20.04'
-      run: |
-        python run.py make_qrc
-        briefcase create --no-input
-        briefcase build --no-input
+#    - name: build on ${{ matrix.os }}
+#      if:  matrix.os == 'ubuntu-20.04'
+#      run: |
+#        python run.py make_qrc
+#        briefcase create --no-input
+#        briefcase build --no-input
 #        briefcase build
 #        briefcase package
 #    - name: test run on windows CMD
 #      if: runner.os == 'Windows'
 #      shell: cmd
 #      run: python run.py test_binary_as_dir
-#    - name: upload  on ${{ matrix.os }} binary in artifact
-#      if: runner.os == 'Windows'
-#      uses: actions/upload-artifact@v1
-#      with:
-#        path: windows
-#        name: MyCartable-${{runner.os}}64
+    - name: upload  on ${{ matrix.os }} binary in artifact
+      if: runner.os == 'Windows'
+      uses: actions/upload-artifact@v1
+      with:
+        path: windows
+        name: MyCartable-${{runner.os}}64
 
-#    - name: upload  on ${{ matrix.os }} binary in artifact
-#      if: runner.os == 'Linux'
-#      uses: actions/upload-artifact@v1
-#      with:
-#        path: linux
-#        name: MyCartable-${{runner.os}}64
+    - name: upload  on ${{ matrix.os }} binary in artifact
+      if: runner.os == 'Linux'
+      uses: actions/upload-artifact@v1
+      with:
+        path: linux
+        name: MyCartable-${{runner.os}}64
 
   Create_release:
       needs: TestAndBuild

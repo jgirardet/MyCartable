@@ -27,7 +27,7 @@ def f_datetime(start=None, end=None):
         if start < res <= end:
             return res
 
-# #
+#
 def f_annee(id=2019, niveau=None, td=False):
     id = id or random.randint(2018, 2020)
     if isinstance(id, db.Annee):

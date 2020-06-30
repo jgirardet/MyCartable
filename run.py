@@ -146,6 +146,7 @@ def cmd_create_env(*args, **kwargs):
 
 def cmd_install(*args, **kwargs):
     runCommand(f"python -m pip install -U pip")
+    runCommand("pip install https://github.com/jgirardet/briefcase/archive/docker-tty.zip")
     runCommand(f"pip install -r requirements.txt")
     from briefcase.config import parse_config
     with open("pyproject.toml") as ff:

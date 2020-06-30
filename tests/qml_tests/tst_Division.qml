@@ -2,6 +2,8 @@ import QtQuick 2.14
 import "qrc:/js/lodash.js" as Lodash
 
 Item {
+    id: item
+
     width: 600
     height: 600
 

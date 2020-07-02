@@ -2,14 +2,13 @@ import QtQuick 2.14
 import QtQuick.Controls 2.14
 
 Item {
-    //    loader.setSource(`qrc:/qml/sections/${page.classtype}.qml`, {
-
     id: root
 
     property var listview: ListView.view
     property int sectionId: page.id
     property int modelIndex: typeof model !== "undefined" ? model.index : undefined
 
+    focus: true
     width: listview.width
     height: loader.height
     Component.onCompleted: {
@@ -17,6 +16,14 @@ Item {
             "sectionId": sectionId,
             "sectionItem": root
         });
+    }
+    onActiveFocusChanged: {
+        if (activeFocus)
+            loader.item.forceActiveFocus();
+
+    }
+    ListView.onAdd: {
+        loader.item.forceActiveFocus();
     }
 
     Rectangle {
@@ -34,6 +41,7 @@ Item {
         Loader {
             id: loader
 
+            focus: true
             objectName: "loader"
         }
 

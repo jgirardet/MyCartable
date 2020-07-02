@@ -3,16 +3,6 @@ import QtQuick 2.14
 import QtQuick.Controls 2.14
 
 ListView {
-    //  displayMarginEnd: 50
-    //  populate: Transition {
-    //    NumberAnimation {
-    //      property: "scale";from: 0;to: 1.0;duration: 800
-    //    }
-    //    NumberAnimation {
-    //      properties: "x,y";duration: 800;easing.type: Easing.OutBack
-    //    }
-    //  }
-
     id: root
 
     property var removeDialog: removeDialog

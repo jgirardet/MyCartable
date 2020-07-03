@@ -1,11 +1,10 @@
 import itertools
 
-from PIL import Image
 from PySide2.QtGui import QFont
-from fixtures import compare, compare_items, check_is_range, wait
-from package.database.factory import *
+from fixtures import compare_items, check_is_range, wait
+from factory import *
 import pytest
-from package.exceptions import MyCartableOperationError, MyCartableTableauError
+from package.exceptions import MyCartableOperationError
 from pony.orm import flush, Database, make_proxy
 
 
@@ -1048,22 +1047,6 @@ class TestEquationModel:
         assert a.set(content="   ", curseur=3)["curseur"] == 0
         assert a.set(content="1+2", curseur=2)["content"] == "1+2"
         assert a.set(content="1+2", curseur=9)["curseur"] == 9
-
-
-@pytest.mark.skip("broken")
-class TestDessinModel:
-    def test_init(self, ddbr):
-        x = f_section(td=True)
-        with db_session:
-            a = AnnotationDessin(
-                x=0.1,
-                y=0.2,
-                width=0.5,
-                height=0.6,
-                section=x["id"],
-                tool="bla",
-                path="epofjpez",
-            )
 
 
 class TestColorMixin:

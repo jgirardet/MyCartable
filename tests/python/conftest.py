@@ -25,7 +25,7 @@ def pytest_sessionstart():
 
     # modify python path
     root = Path(__file__).parents[2]
-    python_dir = root / "src" / "python"
+    python_dir = root / "src" / "mycartable"
     sys.path.append(str(python_dir))
     sys.path.append(str(Path(__file__).parent))
 
@@ -37,12 +37,12 @@ def pytest_sessionstart():
 
     # run qrc update
     orig = root / "src" / "qml.qrc"
-    dest = python_dir / "qrc.py"
+    dest = python_dir / "package"/ "qrc.py"
     command = f"pyside2-rcc {orig.absolute()} -o {dest.absolute()}"
     subprocess.run(command, cwd=root, shell=True)
 
     # import qrc
-    import qrc
+    from package import qrc
 
     # remove all FILES
 

@@ -1,17 +1,15 @@
-import json
 from string import Template
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
-from PySide2.QtCore import QObject, Qt
-from PySide2.QtGui import QTextDocument, QTextCursor, QColor, QFont, QKeyEvent, QBrush
-from package import utils
-from package.database.factory import f_textSection, TextSection
+from PySide2.QtCore import Qt
+from PySide2.QtGui import QTextDocument, QColor, QFont, QKeyEvent, QBrush
+from factory import f_textSection, TextSection
 
 # from package.page.text_section import DocumentEditor, RE_AUTOPARAGRAPH
 from bs4 import BeautifulSoup
 from package.utils import KeyW
-from pony.orm.core import EntityProxy, db_session
+from pony.orm.core import db_session
 
 from package.page.text_section import (
     CSS,

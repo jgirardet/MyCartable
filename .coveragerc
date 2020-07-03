@@ -1,7 +1,7 @@
 [run]
   branch = True
 source =
-	src/python
+	src/mycartable
 omit =
   */__init__.py,
   */factory.py

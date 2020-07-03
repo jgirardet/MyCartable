@@ -21,21 +21,15 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os : [ubuntu-18.04, windows-2019]
+#        os : [ubuntu-16.04, ubuntu-20.04]
+        os : [ubuntu-20.04, windows-2019]
 #        os : [ubuntu-latest, ubuntu-18.04, windows-2019, windows-latest]
-        python: [3.7]
+        python: [3.8]
     env:
       DISPLAY: ':99.0'
     steps:
     - name: Get repo
       uses: actions/checkout@v1
-#    - name: Dump GitHub context
-#      env:
-#        GITHUB_CONTEXT: ${{ toJson(github) }}
-#        GITHUB_REF: ${{ github.ref }}
-#      run: |
-#        echo "$GITHUB_REF"
-#        echo "$GITHUB_CONTEXT"
     - name: Setup Python ${{ matrix.python }}
       uses: actions/setup-python@v1
       with:
@@ -52,8 +46,9 @@ jobs:
         /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -screen 0 1920x1200x24 -ac +extension GLX
     - name: Windows custom install
       if: runner.os == 'Windows'
-      run: choco install libreoffice-fresh -y
-
+      run: |
+        choco install libreoffice-fresh -y
+        choco install wixtoolset -y
     - name: Tests python on ${{ matrix.os }}
       run: python run.py test_python
     - name: Install Qt on Linux
@@ -80,16 +75,48 @@ jobs:
 #      run: |
 #        python run.py cov
     - name: build on ${{ matrix.os }}
+      if:  matrix.os == 'ubuntu-16.04'
       run: |
-        python run.py build_binary_as_dir
-    - name: test run on windows CMD
-      if: runner.os == 'Windows'
-      shell: cmd
-      run: python run.py test_binary_as_dir
+        python run.py make_qrc
+        briefcase create --no-docker
+        briefcase build --no-docker
+
+    - name: build on ${{ matrix.os }}
+      if:  matrix.os == 'windows-2019'
+      run: |
+        python run.py make_qrc
+        briefcase create
+        briefcase build
+        briefcase package
+#    - name: build on ${{ matrix.os }}
+#      if:  matrix.os == 'ubuntu-18.04'
+#      run: |
+#        python run.py make_qrc
+#        briefcase create --no-input
+#        briefcase build --no-input
+
+    - name: build on ${{ matrix.os }}
+      if:  matrix.os == 'ubuntu-20.04'
+      run: |
+        python run.py make_qrc
+        briefcase create
+        briefcase build
+#    - name: test run on windows CMD
+#      if: runner.os == 'Windows'
+#      shell: cmd
+#      run: python run.py test_binary_as_dir
     - name: upload  on ${{ matrix.os }} binary in artifact
+      if: runner.os == 'Windows'
       uses: actions/upload-artifact@v1
       with:
-        path: dist/MyCartable
+        path: windows
+        name: MyCartable-${{runner.os}}64
+
+    - name: upload  on ${{ matrix.os }} binary in artifact
+      if: runner.os == 'Linux'
+      uses: actions/upload-artifact@v1
+      with:
+        path: linux
         name: MyCartable-${{runner.os}}64
 
   Create_release:

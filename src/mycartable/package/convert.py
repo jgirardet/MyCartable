@@ -36,7 +36,7 @@ from package.utils import read_qrc, LINUX, WIN
 from pony.orm import db_session
 
 LOG = logging.getLogger(__name__)
-import qrc  # type: ignore
+from package import qrc  # type: ignore
 
 from package.ui_manager import DEFAULT_ANNOTATION_CURRENT_TEXT_SIZE_FACTOR
 

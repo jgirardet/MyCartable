@@ -1,17 +1,21 @@
 import QtQuick 2.14
 
 Item {
-  width: 200
-  height: 200
-  id: item
+    id: item
 
-  CasTest {
-    name: "RecentsRectangle"
-    testedNom: "qrc:/qml/matiere/RecentsRectangle.qml"
-    params: {}
+    width: 200
+    height: 200
 
-    function test_init() {
-      compare(ddb.recentsModel, tested.children[0].model)
+    CasTest {
+
+        function test_init() {
+            compare(ddb.recentsModel, tested.children[0].model);
+        }
+
+        name: "RecentsRectangle"
+        testedNom: "qrc:/qml/matiere/RecentsRectangle.qml"
+        params: {
+        }
     }
-  }
+
 }

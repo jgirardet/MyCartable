@@ -1,21 +1,20 @@
-pyside2==5.15.0
-pony==0.7.11
-dickens==1.0.1
-pyinstaller==3.6
-Pillow==7.1.2
-mako==1.1.2
+#pyside2==5.15.0
+# pony>=0.7.13,<0.8
+#Pillow>=7.1.2,<7.2
+#mako>=1.1.2,<1.2
+#beautifulsoup4>=4.9,<4.10
 
 #dev
 aqtinstall==0.9
-beautifulsoup4
 black
 coverage
 freezegun
-jsbeautifier==1.11
 mimesis
 pytest
 pytest-freezegun
 pytest-qt
 PyPDF2
 mypy
+#briefcase
+toml
 

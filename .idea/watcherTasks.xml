@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ProjectTasksOptions">
-    <TaskOptions isEnabled="true">
+    <TaskOptions isEnabled="false">
       <option name="arguments" value="$FilePath$" />
       <option name="checkSyntaxErrors" value="true" />
       <option name="description" />
@@ -41,7 +41,7 @@
       <option name="workingDir" value="$ProjectFileDir$" />
       <envs />
     </TaskOptions>
-    <TaskOptions isEnabled="true">
+    <TaskOptions isEnabled="false">
       <option name="arguments" value="run.py js_style $FilePath$" />
       <option name="checkSyntaxErrors" value="false" />
       <option name="description" />
@@ -69,6 +69,26 @@
       <option name="fileExtension" value="py" />
       <option name="immediateSync" value="false" />
       <option name="name" value="black_inplace" />
+      <option name="output" value="" />
+      <option name="outputFilters">
+        <array />
+      </option>
+      <option name="outputFromStdout" value="false" />
+      <option name="program" value="$PyInterpreterDirectory$/python" />
+      <option name="runOnExternalChanges" value="false" />
+      <option name="scopeName" value="Open Files" />
+      <option name="trackOnlyRoot" value="false" />
+      <option name="workingDir" value="$ProjectFileDir$" />
+      <envs />
+    </TaskOptions>
+    <TaskOptions isEnabled="true">
+      <option name="arguments" value="run.py qmlformat -input $FilePath$" />
+      <option name="checkSyntaxErrors" value="false" />
+      <option name="description" />
+      <option name="exitCodeBehavior" value="NEVER" />
+      <option name="fileExtension" value="qml" />
+      <option name="immediateSync" value="false" />
+      <option name="name" value="qmlformat" />
       <option name="output" value="" />
       <option name="outputFilters">
         <array />

@@ -201,6 +201,8 @@ def cmd_qmlformat(*args, **kwargs):
 
 
 def cmd_run(*args, **kwargs):
+    os.environ["MYCARTABLE_PROD"] = "True"
+
     no_input = "--no-input" if kwargs.get("no-input") else ""
 
     runCommand(f"briefcase run -u")

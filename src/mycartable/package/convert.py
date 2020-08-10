@@ -24,7 +24,7 @@ from PySide2.QtGui import (
 )
 from bs4 import NavigableString, BeautifulSoup
 from mako.lookup import TemplateLookup
-from package import BINARY
+from package import get_root_binary_path
 from package.constantes import BASE_FONT, ANNOTATION_TEXT_BG_OPACITY, MONOSPACED_FONTS
 from package.database.sections import (
     ImageSection,
@@ -32,7 +32,8 @@ from package.database.sections import (
 )
 from package.database.structure import Page
 from package.files_path import FILES, TMP
-from package.utils import read_qrc, LINUX, WIN
+from package.utils import read_qrc
+from package import LINUX, WIN
 from pony.orm import db_session
 
 LOG = logging.getLogger(__name__)
@@ -47,7 +48,7 @@ HEADER = {"height": 1}
 
 def get_binary_path(name):
     name = name + ".exe" if WIN else name
-    exec_path = BINARY / name
+    exec_path = get_root_binary_path() / name
     return exec_path
 
 

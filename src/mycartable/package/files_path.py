@@ -1,6 +1,8 @@
 from pathlib import Path
 
 from PySide2.QtCore import QStandardPaths
+from logging import getLogger
+LOG = getLogger(__name__)
 from package.constantes import APPNAME
 
 
@@ -8,6 +10,7 @@ def root_data():
     r = Path(QStandardPaths.writableLocation(QStandardPaths.AppDataLocation))
     if not r.is_dir():
         r.mkdir(parents=True)
+    LOG.info('Root data set to %s', r)
     return r
 
 

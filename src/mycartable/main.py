@@ -21,10 +21,10 @@ from package import *
 import package.database
 
 
-def main_init_database(filename=None):
+def main_init_database(filename=None, prod=False):
     # init database first
     settings = QSettings()
-    if PROD:
+    if prod:
         from package.files_path import ROOT_DATA
 
         filename = settings.value("General/ddb_path", ROOT_DATA / "mycartable.ddb")
@@ -38,7 +38,7 @@ def main_init_database(filename=None):
         filename=filename, create_db=create_db
     )
 
-    if not PROD:
+    if not prod:
 
         from tests.python.factory import populate_database
 
@@ -111,7 +111,8 @@ def setup_qml(ddb, ui_manager):
 
 
 def main(filename=None):
-    if not PROD:
+    prod = get_prod()
+    if not prod:
         QStandardPaths.setTestModeEnabled(True)
 
     # global settings
@@ -122,7 +123,7 @@ def main(filename=None):
     app = QApplication([])
 
     # First instanciate db
-    main_init_database(filename=filename)
+    main_init_database(filename=filename, prod=prod)
 
     # create instance de ce qui sera des singleton dans qml
     databaseObject, ui_manager = create_singleton_instance()

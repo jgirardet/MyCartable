@@ -5,10 +5,7 @@ from datetime import datetime
 
 from PySide2.QtCore import QTimer, QFile, QTextStream
 from PySide2.QtWidgets import QApplication
-
-
-WIN = sys.platform == "win32"
-LINUX = sys.platform == "linux"
+from package import WIN
 
 
 def create_singleshot(fn):

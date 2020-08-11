@@ -1,5 +1,6 @@
 from loguru import logger
 from PySide2.QtCore import QObject, Signal
+from package.database.utilisateur import Utilisateur
 from package.database_mixins.dev_mixin import DevMixin
 from package.database_mixins.equation_mixin import EquationMixin
 from package.database_mixins.image_section_mixin import ImageSectionMixin
@@ -8,13 +9,17 @@ from package.database_mixins.matiere_mixin import MatiereMixin
 from package.database_mixins.page_mixin import PageMixin
 from package.database_mixins.recents_mixin import RecentsMixin
 from package.database_mixins.section_mixin import SectionMixin
+from package.database_mixins.session import SessionMixin
 from package.database_mixins.settings_mixin import SettingsMixin
 from package.database_mixins.tableau_mixin import TableauMixin
 from package.database_mixins.text_mixin import TextSectionMixin
 
 from loguru import logger
+from package.files_path import FILES
+from pony.orm import db_session
 
 MIXINS = [
+    SessionMixin,
     PageMixin,
     MatiereMixin,
     LayoutMixin,
@@ -40,13 +45,17 @@ class DatabaseObject(QObject, *MIXINS):
         for mixin in MIXINS:
             mixin.__init__(self)
 
-        if not debug:
-            self.setup_settings()
+        # if not debug:
+        # self.setup_settings()
+        #
+        # if self.annee_active:
+        #     self.init_matieres()
 
-        if self.annee_active:
-            self.init_matieres()
+        self.files = FILES
 
         self.setup_connections()
+
+        self.annee_active = self.initialize_session()
 
     def setup_connections(self):
 
@@ -91,7 +100,7 @@ class DatabaseObject(QObject, *MIXINS):
     def onChangeAnnee(self, value: int):
         self.currentPage = 0
         self.currentMatiere = 0
-        self.setup_settings(value)
+        self.anneeActive = value
         self.init_matieres(annee=value)
         self.recentsModelChanged.emit()
         self.matieresListNomChanged.emit()

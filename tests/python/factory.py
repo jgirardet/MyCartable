@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from pathlib import Path
+
 #
 import mimesis
 import random
@@ -27,17 +28,29 @@ def f_datetime(start=None, end=None):
         if start < res <= end:
             return res
 
+
+def f_user(nom="lenom", prenom="leprenom", td=False):
+    with db_session:
+        user = Utilisateur.user() or Utilisateur(nom=nom, prenom=prenom)
+        return user.to_dict() if td else user
+
+
 #
-def f_annee(id=2019, niveau=None, td=False):
+def f_annee(id=2019, niveau=None, user=None, td=False):
     id = id or random.randint(2018, 2020)
     if isinstance(id, db.Annee):
         id = id.id
     niveau = niveau or "cm" + str(id)
     with db_session:
+        if user is not None:
+            user = user if isinstance(user, int) else user.id
+        else:
+            user = f_user()
+            # user = Utilisateur.user()
         if db.Annee.exists(id=id):
             an = db.Annee[id]
         else:
-            an = db.Annee(id=id, niveau=niveau)
+            an = db.Annee(id=id, niveau=niveau, user=user)
         return an.to_dict() if td else an
 
 
@@ -255,8 +268,6 @@ def f_annotationDessin(
     )
 
 
-
-
 def b_annotation(n, *args, **kwargs):
     return [f_annotationText(*args, **kwargs) for x in range(n)]
 
@@ -375,8 +386,9 @@ def f_style(
 
 @db_session
 def populate_database(matieres_list=MATIERES, nb_page=100):
-    annee = f_annee(id=2019, niveau="cm1")
-    f_annee(id=2018, niveau="ce2")
+    user = db.Utilisateur(nom="Lenom", prenom="Leprenom")
+    annee = Annee(id=2019, niveau="cm1", user=user)
+    Annee(id=2018, niveau="ce2", user=user)
     [db.GroupeMatiere(**x) for x in MATIERE_GROUPE]
     flush()
     matieres = [db.Matiere(**x, annee=annee.id) for x in matieres_list]

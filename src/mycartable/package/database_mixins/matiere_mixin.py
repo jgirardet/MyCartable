@@ -20,7 +20,7 @@ class MatiereMixin:
 
     def init_matieres(self, annee=None):
         annee = annee or self.annee_active
-        self.m_d = MatieresDispatcher(self.db, self.annee_active)
+        self.m_d = MatieresDispatcher(self.db, annee)
 
     @Property(int, notify=currentMatiereChanged)
     def currentMatiere(self):
@@ -43,15 +43,21 @@ class MatiereMixin:
 
     @Slot(int, result=int)
     def getMatiereIndexFromId(self, matiere_id):
+        if not hasattr(self, "m_d"):
+            return 0
         try:
             return self.m_d.id_index[matiere_id]
         except KeyError:
             logger.debug("matiere index non trouvé ou currentMatiere non settée")
+            return 0
 
     # matieresList
     @Property("QVariantList", notify=matieresListNomChanged)
     def matieresList(self):
-        return self.m_d.matieres_list
+        if md := getattr(self, "m_d", None):
+            return md.matieres_list
+        else:
+            return []
 
     @Slot()
     def matieresListRefresh(self):
@@ -82,10 +88,14 @@ class MatieresDispatcher:
     def __init__(self, db, annee_active):
         self.db = db
         with db_session:
-            try:
-                self.annee = self.db.Annee[annee_active]
-            except ObjectNotFound:
-                self.annee = self.db.Annee(id=annee_active)
+            # try:
+            self.annee = self.db.Annee[annee_active]
+            # except ObjectNotFound:
+            # user = self.db.Utilisateur.fisrt()
+            # self.annee = self.db.Annee(id=annee_active)
+            # del self
+            # return
+            # self.annee = self.db.Annee.select().first()
             self.query = self.annee.get_matieres()
             self.nom_id = self._build_nom_id()
             self.id_nom = self._build_id_nom()

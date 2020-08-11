@@ -12,6 +12,7 @@ from unittest.mock import patch, call
 from package.files_path import FILES
 from package.page import text_section
 from loguru_caplog import loguru_caplog as caplog  # used in tests
+from pony.orm import ObjectNotFound
 
 
 class TestPageMixin:
@@ -189,7 +190,7 @@ class TestMatiereMixin:
 
         # get index from id
         assert dao.getMatiereIndexFromId(3) == 2
-        assert dao.getMatiereIndexFromId(99999) is None
+        assert dao.getMatiereIndexFromId(99999) is 0
 
     def test_currentMatiereItem(self, dao):
         m = f_matiere(td=True)
@@ -272,8 +273,9 @@ class TestMatiereMixin:
 
     def test_matiere_dispatch(self, ddbr):
         # anne n'exist pas
-        m = MatieresDispatcher(ddbr, 2000)
-        assert m.annee.id == 2000
+        with pytest.raises(ObjectNotFound):
+            MatieresDispatcher(ddbr, 2000)
+        # assert m.annee.id == 2000
 
         # anne existe
         f_annee(1954)
@@ -573,21 +575,27 @@ class TestSettingsMixin:
         dao.settings.clear()
         assert dao.get_annee_active() == dao._determine_annee()
 
-    def test_setup_settings(self, dao):
-        dao.settings.clear()
-        dao.setup_settings()
-        assert isinstance(dao.annee_active, int)
+    # def test_setup_settings(self, dao):
+    #     dao.settings.clear()
+    #     dao.setup_settings()
+    #     assert isinstance(dao.annee_active, int)
 
     def test_getMenuesAnnees(self, dao):
         check_args(dao.getMenuAnnees, None, list)
+        with db_session:
+            user = dao.db.Utilisateur.select().first()
         for i in range(4):
-            f_annee(2016 - (i * i))  # pour tester l'ordre
+            f_annee(2016 - (i * i), user=user.id)  # pour tester l'ordre
         assert dao.getMenuAnnees() == [
-            {"id": 2007, "niveau": "cm2007"},
-            {"id": 2012, "niveau": "cm2012"},
-            {"id": 2015, "niveau": "cm2015"},
-            {"id": 2016, "niveau": "cm2016"},
-            {"id": 2019, "niveau": "cm2019"},  # 2019 setté dans la fixture dao
+            {"id": 2007, "niveau": "cm2007", "user": 1},
+            {"id": 2012, "niveau": "cm2012", "user": 1},
+            {"id": 2015, "niveau": "cm2015", "user": 1},
+            {"id": 2016, "niveau": "cm2016", "user": 1},
+            {
+                "id": 2019,
+                "niveau": "cm2019",
+                "user": 1,
+            },  # 2019 setté dans la fixture dao
         ]
 
     def test_anneActive(self, dao):
@@ -671,22 +679,46 @@ class TestTextSectionMixin:
             )
 
 
+class TestSessionMixin:
+    @db_session
+    def test_init_user(self, dao):
+        assert dao.init_user() == {
+            "id": 1,
+            "last_used": 2019,
+            "nom": "lenom",
+            "prenom": "leprenom",
+        }
+        Utilisateur.user().delete()
+        assert dao.init_user() == {}
+
+
 class TestDatabaseObject:
-    def test_init_settings(self, ddbr, dao):
-        # settings pas inité en mode debug (default
-        assert DatabaseObject(ddbr).annee_active is None
+    # def test_init_settings(self, ddbr, dao):
+    #     # settings pas inité en mode debug (default
+    #     assert DatabaseObject(ddbr).annee_active is None
+    #
+    #     # settings inités en non debug
+    #     with patch.object(DatabaseObject, "setup_settings") as m:
+    #         DatabaseObject(ddbr, debug=False)
+    #         assert m.call_args_list == [call()]
+    #
+    #     # init matiere dsi annee_active
+    #     class DBO(DatabaseObject):
+    #         anne_active = 1983
+    #
+    #     x = DBO(ddbr, debug=False)
 
-        # settings inités en non debug
-        with patch.object(DatabaseObject, "setup_settings") as m:
-            DatabaseObject(ddbr, debug=False)
-            assert m.call_args_list == [call()]
+    def test_initialize_session(self, dao):
+        assert dao.annee_active == 2019
+        assert dao.currentUser == {
+            "id": 1,
+            "last_used": 0,
+            "nom": "lenom",
+            "prenom": "leprenom",
+        }
 
-        # init matiere dsi annee_active
-        class DBO(DatabaseObject):
-            anne_active = 1983
-
-        x = DBO(ddbr, debug=False)
-        assert isinstance(x.m_d, MatieresDispatcher)
+    def test_files(self, dao):
+        assert dao.files == FILES
 
     def test_RecentsItem_Clicked(self, ddbr, qtbot):
         rec1 = f_page(created=datetime.now(), td=True)

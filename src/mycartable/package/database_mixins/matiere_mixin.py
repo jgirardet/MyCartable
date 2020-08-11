@@ -1,10 +1,10 @@
 # currentMatiere
-import logging
+from loguru import logger
 
 from PySide2.QtCore import Signal, Property, Slot
 from pony.orm import db_session, ObjectNotFound
 
-LOG = logging.getLogger(__name__)
+from loguru import logger
 
 
 class MatiereMixin:
@@ -30,13 +30,13 @@ class MatiereMixin:
     def current_matiere_set(self, value):
         if self._currentMatiere != value and isinstance(value, int):
             self._currentMatiere = value
-            LOG.debug(f"current matiere set to: {self._currentMatiere}")
+            logger.debug(f"current matiere set to: {self._currentMatiere}")
             self.currentMatiereChanged.emit()
 
     @Slot(int)
     def setCurrentMatiereFromIndex(self, value):
         self.currentMatiere = self.m_d.matieres_list_id[value]
-        LOG.debug(
+        logger.debug(
             f"current matiere set with index  {value } to: {self._currentMatiere}"
         )
         self.matiereReset.emit()
@@ -46,7 +46,7 @@ class MatiereMixin:
         try:
             return self.m_d.id_index[matiere_id]
         except KeyError:
-            LOG.debug("matiere index non trouvé ou currentMatiere non settée")
+            logger.debug("matiere index non trouvé ou currentMatiere non settée")
 
     # matieresList
     @Property("QVariantList", notify=matieresListNomChanged)

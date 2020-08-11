@@ -2,13 +2,14 @@ from functools import partial
 
 from PySide2.QtCore import Slot, Signal, Property, QObject
 from PySide2.QtGui import QDesktopServices
+from loguru import logger
 from package.constantes import TITRE_TIMER_DELAY
 from package.convert import soffice_convert, escaped_filename
 from package.utils import create_singleshot
 from pony.orm import db_session, make_proxy
-import logging
+from loguru import logger
 
-LOG = logging.getLogger(__name__)
+from loguru import logger
 
 
 class PageMixin:
@@ -55,7 +56,7 @@ class PageMixin:
             return
 
         self._currentPage = new_id
-        LOG.debug(f"CurrentPage changed to {new_id}")
+        logger.debug(f"CurrentPage changed to {new_id}")
 
         if new_id:
             with db_session:
@@ -103,7 +104,7 @@ class PageMixin:
             self.currentTitreSetted.emit()
         else:
             self.currentTitreChanged.emit()
-        LOG.debug(f"nouveau titre : {self._currentTitre}")
+        logger.debug(f"nouveau titre : {self._currentTitre}")
 
     @Slot(str)
     def setCurrentTitre(self, value):

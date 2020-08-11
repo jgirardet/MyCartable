@@ -4,9 +4,9 @@ from typing import List, ClassVar
 
 from PySide2.QtCore import Qt
 
-import logging
+from loguru import logger
 
-LOG = logging.getLogger(__name__)
+from loguru import logger
 
 
 @dataclass
@@ -47,7 +47,7 @@ class TextEquation:
         self.text = event["text"]
         self.modifiers = event["modifiers"]
         self.line_active = self.lines_string[:curseur].count("\n")
-        LOG.debug(
+        logger.debug(
             f"curseur: {self.curseur}, line_active: {self.line_active}, line len: {len(self.lines[0])}\n"
             f"key: {self.key}, char: [{self.text}]"
         )
@@ -66,15 +66,15 @@ class TextEquation:
 
         assert all(len(x) == len(self.lines[0]) for x in self.lines), self.lines
         new_string = self.format_lines()
-        LOG.debug(
-            "TextEquation nouvelle string : %s",
+        log_string = (
             "\n||"
             + new_string.replace(self.BARRE, "_")
             .replace(self.FSP, "¤")
             .replace("\n", "||\n||")
             .replace(" ", ".")
-            + "||",
+            + "||"
         )
+        logger.debug(f"TextEquation nouvelle string : {log_string}",)
 
         return new_string, new_curseur
 

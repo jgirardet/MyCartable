@@ -15,9 +15,9 @@ from PySide2.QtWidgets import QApplication
 import typing
 from pony.orm import db_session, ObjectNotFound, make_proxy, flush
 from package.database import db
-import logging
+from loguru import logger
 
-LOG = logging.getLogger("__name__")
+from loguru import logger
 
 
 class PageModel(QAbstractListModel):

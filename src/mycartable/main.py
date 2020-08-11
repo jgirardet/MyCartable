@@ -1,4 +1,8 @@
+import sys
+from pathlib import Path
+
 from PySide2.QtGui import QFont, QFontDatabase
+from package import get_prod
 from package.constantes import APPNAME, ORGNAME, BASE_FONT
 from PySide2.QtCore import (
     QUrl,
@@ -12,11 +16,8 @@ from PySide2.QtCore import (
 from PySide2.QtWidgets import QApplication
 from PySide2.QtQml import QQmlApplicationEngine, qmlRegisterType
 
-import logging
+from loguru import logger
 
-LOG = logging.getLogger(__name__)
-logging.basicConfig(level=logging.DEBUG)
-from package import *
 
 import package.database
 
@@ -104,16 +105,22 @@ def setup_qml(ddb, ui_manager):
     return engine
 
 
-#
-# def create_app():
-#     app = QApplication([])
-#     return app
+def setup_logging():
+    t = Path(QStandardPaths.writableLocation(QStandardPaths.CacheLocation), APPNAME)
+    if not t.is_dir():
+        t.mkdir(parents=True)
+    logger_path = t / "mycartable_log.txt"
+    logger.add(t / logger_path, rotation="10 MB")
+    logger.info(f"logfile path : {logger_path}")
 
 
 def main(filename=None):
     prod = get_prod()
     if not prod:
         QStandardPaths.setTestModeEnabled(True)
+    setup_logging()
+
+    logger.info(f"Application en mode {'PROD' if prod else 'DEBUG'}")
 
     # global settings
     QCoreApplication.setApplicationName(APPNAME)

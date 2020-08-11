@@ -114,6 +114,7 @@ def setup_logging():
     logger.info(f"logfile path : {logger_path}")
 
 
+@logger.catch(reraise=True)
 def main(filename=None):
     prod = get_prod()
     if not prod:

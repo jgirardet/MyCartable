@@ -11,6 +11,7 @@ from factory import *
 from unittest.mock import patch, call
 from package.files_path import FILES
 from package.page import text_section
+from loguru_caplog import loguru_caplog as caplog  # used in tests
 
 
 class TestPageMixin:

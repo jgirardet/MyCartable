@@ -13,9 +13,9 @@ from PySide2.QtGui import QColor
 from PySide2.QtWidgets import QApplication
 from package.database import db
 from pony.orm import db_session, flush, make_proxy
-import logging
+from loguru import logger
 
-LOG = logging.getLogger(__name__)
+from loguru import logger
 
 
 class AnnotationModel(QAbstractListModel):

@@ -1,8 +1,7 @@
 from pathlib import Path
 
 from PySide2.QtCore import QStandardPaths
-from logging import getLogger
-LOG = getLogger(__name__)
+from loguru import logger
 from package.constantes import APPNAME
 
 
@@ -10,7 +9,7 @@ def root_data():
     r = Path(QStandardPaths.writableLocation(QStandardPaths.AppDataLocation))
     if not r.is_dir():
         r.mkdir(parents=True)
-    LOG.info('Root data set to %s', r)
+    logger.info(f"Root data set to {r}")
     return r
 
 
@@ -21,6 +20,7 @@ def files(root_d):
     f = root_d / "files"
     if not f.is_dir():
         f.mkdir(parents=True)
+    logger.info(f"Files path set to {f}")
     return f
 
 
@@ -31,6 +31,7 @@ def tmp_files():
     t = Path(QStandardPaths.writableLocation(QStandardPaths.TempLocation), APPNAME)
     if not t.is_dir():
         t.mkdir(parents=True)
+    logger.info(f"TMP path set to {t}")
     return t
 
 

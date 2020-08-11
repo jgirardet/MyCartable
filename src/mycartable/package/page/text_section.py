@@ -1,7 +1,7 @@
 import html
 import re
 from contextlib import contextmanager
-import logging
+from loguru import logger
 
 from PySide2.QtGui import (
     QTextDocument,
@@ -20,7 +20,7 @@ from pony.orm import db_session
 from package.database import db
 
 
-LOG = logging.getLogger(__name__)
+from loguru import logger
 
 RED = "#D40020"
 BLUE = "#0048BA"
@@ -392,7 +392,6 @@ class TextSectionEditor(QTextDocument):
         obj = db.Section[self.sectionId]
         new_body = TextSectionFormatter(self.toHtml()).build_body()
         obj.set(text=new_body)
-        print(obj.text)
         return new_body
 
 

@@ -1,12 +1,12 @@
 import json
 from PySide2.QtCore import Slot, Signal
-import logging
+from loguru import logger
 
 from package.page.text_section import TextSectionEditor, RED, BLUE, GREEN, BLACK
 from pony.orm import db_session
 from PySide2.QtGui import QColor
 
-LOG = logging.getLogger(__name__)
+from loguru import logger
 
 
 class TextSectionMixin:

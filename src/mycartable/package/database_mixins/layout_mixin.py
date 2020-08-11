@@ -3,9 +3,9 @@ from PySide2.QtGui import QColor
 from package.constantes import LAYOUT_SIZES, BASE_FONT
 from pony.orm import db_session, ObjectNotFound
 
-import logging
+from loguru import logger
 
-LOG = logging.getLogger(__name__)
+from loguru import logger
 
 
 class LayoutMixin:
@@ -22,12 +22,12 @@ class LayoutMixin:
                 item = self.db.Style[styleId]
                 item.set(**content)
             except ObjectNotFound as err:
-                LOG.error(
+                logger.error(
                     f"Echec de la mise à jour du style : {type(err).__name__}  {err}"
                 )
                 return
             except TypeError as err:
-                LOG.error(f"Echec de la mise à jour du style : {err}")
+                logger.error(f"Echec de la mise à jour du style : {err}")
                 return
             res = item.to_dict()
             return res

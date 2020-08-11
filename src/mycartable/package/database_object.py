@@ -1,4 +1,4 @@
-import logging
+from loguru import logger
 from PySide2.QtCore import QObject, Signal
 from package.database_mixins.dev_mixin import DevMixin
 from package.database_mixins.equation_mixin import EquationMixin
@@ -12,7 +12,7 @@ from package.database_mixins.settings_mixin import SettingsMixin
 from package.database_mixins.tableau_mixin import TableauMixin
 from package.database_mixins.text_mixin import TextSectionMixin
 
-LOG = logging.getLogger(__name__)
+from loguru import logger
 
 MIXINS = [
     PageMixin,

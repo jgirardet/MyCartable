@@ -5,7 +5,7 @@ import uuid
 from subprocess import run, CalledProcessError
 
 from pathlib import Path
-import logging
+from loguru import logger
 from typing import Tuple
 
 from PySide2.QtCore import (
@@ -36,7 +36,7 @@ from package.utils import read_qrc
 from package import LINUX, WIN
 from pony.orm import db_session
 
-LOG = logging.getLogger(__name__)
+from loguru import logger
 from package import qrc  # type: ignore
 
 from package.ui_manager import DEFAULT_ANNOTATION_CURRENT_TEXT_SIZE_FACTOR
@@ -80,10 +80,10 @@ def run_convert_pdf(pdf, png_root, prefix="xxx", resolution=200, timeout=30):
     try:
         run(cmd, timeout=timeout, check=True, capture_output=True)
     except CalledProcessError as err:
-        LOG.error(err.stderr)
+        logger.exception(err.stderr)
         return []
     except subprocess.TimeoutExpired as err:
-        LOG.error(err.stderr)
+        logger.exception(err.stderr)
         return []
 
     files = collect_files(root, pref=prefix, ext=".png")
@@ -93,7 +93,7 @@ def run_convert_pdf(pdf, png_root, prefix="xxx", resolution=200, timeout=30):
 def find_soffice(ui=None):
     if LINUX:
         if Path("/usr/bin/soffice").is_file():
-            LOG.debug(f"soffice found at '/usr/bin/soffice'")
+            logger.debug(f"soffice found at '/usr/bin/soffice'")
             return "/usr/bin/soffice"
         else:
             res = (
@@ -102,7 +102,7 @@ def find_soffice(ui=None):
                 .strip()
             )
             if res:
-                LOG.debug(f"soffice found at {res}")
+                logger.debug(f"soffice found at {res}")
                 return res
     elif WIN:  # pragma: no cover
         if Path("C:\\Program Files\\LibreOffice\\program\\soffice.exe").is_file():
@@ -117,6 +117,7 @@ def find_soffice(ui=None):
                 .strip()
             )
             if res:
+                logger.debug(f"soffice found at {res}")
                 return res
     if ui:
         ui.sendToast.emit("Libreoffice non trouvé sur le système")

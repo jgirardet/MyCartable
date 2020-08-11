@@ -1,11 +1,11 @@
 import json
 from PySide2.QtCore import Slot, Signal
-import logging
+from loguru import logger
 
 from package.operations.equation import TextEquation
 from pony.orm import db_session
 
-LOG = logging.getLogger(__name__)
+from loguru import logger
 
 
 class EquationMixin:

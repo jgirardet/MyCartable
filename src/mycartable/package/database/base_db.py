@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from loguru import logger
 from pony.orm import Database, db_session
 
 
@@ -20,14 +21,19 @@ def ensure_database_directory(loc):
 def init_bind(db, provider="sqlite", filename=":memory:", create_db=False, **kwargs):
     if filename != ":memory:":
         filename = ensure_database_directory(filename)
-    db.bind(provider=provider, filename=str(filename), create_db=create_db, **kwargs)
-    db.generate_mapping(create_tables=True)
+    logger.info(f"Database file path is {filename}")
+    try:
+        db.bind(
+            provider=provider, filename=str(filename), create_db=create_db, **kwargs
+        )
+        db.generate_mapping(create_tables=True)
+    except Exception as err:
+        logger.exception(err)
 
 
 def init_database(**kwargs):
     import package.database
 
     package.database.db = init_models()
-    # db =
     init_bind(package.database.db, **kwargs)
     return package.database.db

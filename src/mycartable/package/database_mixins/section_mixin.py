@@ -6,10 +6,10 @@ from package.convert import run_convert_pdf
 from package.files_path import FILES
 from package.exceptions import MyCartableOperationError
 from pony.orm import db_session
-import logging
+from loguru import logger
 
 
-LOG = logging.getLogger(__name__)
+from loguru import logger
 
 
 class SectionMixin:
@@ -56,7 +56,7 @@ class SectionMixin:
             try:
                 item = getattr(self.db, classtype)(page=page_id, **content)
             except MyCartableOperationError as err:
-                LOG.error(err)
+                logger.exception(err)
                 self.ui.sendToast.emit(str(err))
                 return 0
         self.sectionAdded.emit(item.position, 1)
@@ -87,7 +87,7 @@ class SectionMixin:
                 res = section.to_dict()
                 if res["classtype"] == "ImageSection":
                     res["path"] = QUrl.fromLocalFile(str(FILES / res["path"]))
-                    # LOG.debug("loading Section: %s", res)
+                logger.debug(f"loading Section: {res}")
             else:
-                LOG.error(f"La section {section_id} n'existe pas")
+                logger.error(f"La section {section_id} n'existe pas")
         return res

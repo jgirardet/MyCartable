@@ -22,13 +22,11 @@ def init_bind(db, provider="sqlite", filename=":memory:", create_db=False, **kwa
     if filename != ":memory:":
         filename = ensure_database_directory(filename)
     logger.info(f"Database file path is {filename}")
-    try:
-        db.bind(
-            provider=provider, filename=str(filename), create_db=create_db, **kwargs
-        )
-        db.generate_mapping(create_tables=True)
-    except Exception as err:
-        logger.exception(err)
+    # try:
+    db.bind(provider=provider, filename=str(filename), create_db=create_db, **kwargs)
+    db.generate_mapping(create_tables=True)
+    # except Exception as err:
+    #     logger.exception(err)
 
 
 def init_database(**kwargs):

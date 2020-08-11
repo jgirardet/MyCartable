@@ -17,4 +17,5 @@ PyPDF2
 mypy
 #briefcase
 toml
+loguru-caplog
 

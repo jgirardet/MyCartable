@@ -8,13 +8,13 @@ MenuBar {
         title: qsTr("&Fichier")
 
         Action {
-            text: qsTr("&Changer d'année")
-            onTriggered: changerAnnee.open()
+            text: qsTr("&Peupler la base")
+            onTriggered: ddb.peupler()
         }
 
         Action {
-            text: qsTr("&Peupler la base")
-            onTriggered: ddb.peupler()
+            text: qsTr("&Changer d'année")
+            onTriggered: changerAnnee.open()
         }
 
     }

@@ -17,6 +17,7 @@ class Annee(db.Entity):
     id = PrimaryKey(int)
     niveau = Optional(str)
     matieres = Set("Matiere")
+    user = Required("Utilisateur", reverse="annees")
 
     def get_matieres(self):
         return self.matieres.select()

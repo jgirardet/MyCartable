@@ -37,7 +37,7 @@ def pytest_sessionstart():
 
     # run qrc update
     orig = root / "src" / "qml.qrc"
-    dest = python_dir / "package"/ "qrc.py"
+    dest = python_dir / "package" / "qrc.py"
     command = f"pyside2-rcc {orig.absolute()} -o {dest.absolute()}"
     subprocess.run(command, cwd=root, shell=True)
 
@@ -137,10 +137,15 @@ def dao(ddbr, tmpfilename, uim):
     from package.database_object import DatabaseObject
 
     with db_session:
-        annee = ddbr.Annee(id=2019, niveau="cm2019")
+        annee = ddbr.Annee(
+            id=2019,
+            niveau="cm2019",
+            user=ddbr.Utilisateur(nom="lenom", prenom="leprenom"),
+        )
     obj = DatabaseObject(ddbr)
     obj.ui = uim
-    obj.setup_settings(annee=2019)
+    # obj.setup_settings(annee=2019)
+    obj.changeAnnee.emit(2019)
     obj.init_matieres()
     obj.settings = QSettings(str(tmpfilename.absolute()))
 

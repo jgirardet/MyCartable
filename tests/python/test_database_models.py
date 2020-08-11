@@ -1107,3 +1107,19 @@ class TestColorMixin:
         a.bgColor = [1, 1, 1]  # not supported no changed
         assert a.bgColor == QColor("blue")
         assert a._bgColor == 4278190335
+
+
+class TestUtilisateur:
+    def test_factory(self):
+        assert f_user()
+
+    def test_last_used(self, ddb):
+        u = f_user()
+        assert u.last_used == 0
+        u.last_used = 2014
+        assert u.to_dict()["last_used"] == 2014
+
+    def test_user(self, ddb):
+        u = f_user()
+        w = Utilisateur.user()
+        assert u == w

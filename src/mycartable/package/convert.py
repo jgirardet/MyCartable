@@ -30,7 +30,8 @@ from package.database.sections import (
     ImageSection,
     Annotation,
 )
-from package.database.structure import Page
+from package.database.structure import Page, Annee
+from package.database.utilisateur import Utilisateur
 from package.files_path import FILES, TMP
 from package.utils import read_qrc
 from package import LINUX, WIN
@@ -1023,7 +1024,10 @@ def build_styles() -> str:
 
 def build_master_styles() -> str:
     tmpl = templates.get_template("master-styles.xml")
-    return tmpl.render()
+    user = Utilisateur.user()
+    return tmpl.render(
+        nom=user.nom, prenom=user.prenom, classe=Annee[user.last_used].niveau
+    )
 
 
 @db_session

@@ -10,7 +10,6 @@ from package.database_mixins.page_mixin import PageMixin
 from package.database_mixins.recents_mixin import RecentsMixin
 from package.database_mixins.section_mixin import SectionMixin
 from package.database_mixins.session import SessionMixin
-from package.database_mixins.settings_mixin import SettingsMixin
 from package.database_mixins.tableau_mixin import TableauMixin
 from package.database_mixins.text_mixin import TextSectionMixin
 
@@ -26,7 +25,6 @@ MIXINS = [
     RecentsMixin,
     SectionMixin,
     ImageSectionMixin,
-    SettingsMixin,
     DevMixin,
     EquationMixin,
     TextSectionMixin,
@@ -77,6 +75,7 @@ class DatabaseObject(QObject, *MIXINS):
         self.updateRecentsAndActivites.connect(self.pagesParSectionChanged)
         self.updateRecentsAndActivites.connect(self.recentsModelChanged)
 
+        # session
         self.changeAnnee.connect(self.onChangeAnnee)
 
     def onCurrentPageChanged(self, page):

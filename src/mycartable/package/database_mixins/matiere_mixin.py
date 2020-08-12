@@ -2,7 +2,9 @@
 from loguru import logger
 
 from PySide2.QtCore import Signal, Property, Slot
-from pony.orm import db_session, ObjectNotFound
+from package.database.structure import GroupeMatiere, Matiere
+from package.default_matiere import MATIERE_GROUPE, MATIERES
+from pony.orm import db_session, ObjectNotFound, flush
 
 from loguru import logger
 
@@ -82,6 +84,17 @@ class MatiereMixin:
         with db_session:
             mat = self.db.Matiere[self.currentMatiere]
             return mat.to_dict()
+
+    @Slot(int)
+    @db_session
+    def peuplerLesMatieresParDefault(self, annee):
+        gm = [GroupeMatiere(**x) for x in MATIERE_GROUPE]
+        flush()
+        logger.info(f"{len(gm)} groupes de matières créées")
+        mat = [Matiere(**x, annee=annee) for x in MATIERES]
+        logger.info(f"{len(mat)} matières créées")
+        self.ui.sendToast.emit(f"{len(mat)} matières créées")
+        self.matieresListRefresh()
 
 
 class MatieresDispatcher:

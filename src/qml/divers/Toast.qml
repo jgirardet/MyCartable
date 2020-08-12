@@ -21,9 +21,6 @@ Popup {
         font.pointSize: 12
         color: popup.txtcolor
         text: popup.msg
-        onTextChanged: {
-            print(text);
-        }
     }
 
     Timer {

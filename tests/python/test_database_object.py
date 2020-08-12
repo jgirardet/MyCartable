@@ -282,6 +282,19 @@ class TestMatiereMixin:
         m = MatieresDispatcher(ddbr, 1954)
         assert m.annee.id == 1954
 
+    def test_peuplerLesMatieresPArDefault(self, dao):
+        with db_session:
+            assert Matiere.select().count() == 0
+            assert GroupeMatiere.select().count() == 0
+
+        dao.peuplerLesMatieresParDefault(dao.anneeActive)
+
+        with db_session:
+            assert Matiere.select().count() == len(MATIERES)
+            assert GroupeMatiere.select().count() == len(MATIERE_GROUPE)
+
+        assert len(dao.matieresList) == len(MATIERES)
+
 
 class TestRecentsMixin:
     def test_init(self, dao, ddbn):
@@ -560,48 +573,6 @@ class TestImageSectionMixin:
         assert dao.annotationTextBGOpacity == 0.5
 
 
-class TestSettingsMixin:
-    def test_determine_annee(self, dao):
-        # assert False
-        assert dao._determine_annee(day=datetime(2016, 3, 3)) == 2015
-        assert dao._determine_annee(day=datetime(2016, 9, 3)) == 2016
-        assert dao._determine_annee(day=datetime(2016, 1, 1)) == 2015
-        assert dao._determine_annee(day=datetime(2016, 8, 15)) == 2016
-        assert dao._determine_annee(day=datetime(2016, 8, 14)) == 2015
-
-    def test_get_annee_active(self, dao):
-        dao.settings.setValue("General/annee_active", 2030)
-        assert dao.get_annee_active() == 2030
-        dao.settings.clear()
-        assert dao.get_annee_active() == dao._determine_annee()
-
-    # def test_setup_settings(self, dao):
-    #     dao.settings.clear()
-    #     dao.setup_settings()
-    #     assert isinstance(dao.annee_active, int)
-
-    def test_getMenuesAnnees(self, dao):
-        check_args(dao.getMenuAnnees, None, list)
-        with db_session:
-            user = dao.db.Utilisateur.select().first()
-        for i in range(4):
-            f_annee(2016 - (i * i), user=user.id)  # pour tester l'ordre
-        assert dao.getMenuAnnees() == [
-            {"id": 2007, "niveau": "cm2007", "user": 1},
-            {"id": 2012, "niveau": "cm2012", "user": 1},
-            {"id": 2015, "niveau": "cm2015", "user": 1},
-            {"id": 2016, "niveau": "cm2016", "user": 1},
-            {
-                "id": 2019,
-                "niveau": "cm2019",
-                "user": 1,
-            },  # 2019 setté dans la fixture dao
-        ]
-
-    def test_anneActive(self, dao):
-        assert dao.anneeActive == 2019
-
-
 class TestTableauMixin:
     def test_init_datas(self, dao):
         check_args(dao.initTableauDatas, exp_args=int, exp_return_type=list)
@@ -690,6 +661,56 @@ class TestSessionMixin:
         }
         Utilisateur.user().delete()
         assert dao.init_user() == {}
+
+    def test_newUser(self, dao, qtbot):
+        check_args(dao.newUser, [str, str])
+
+        # existe déja
+        with pytest.raises(AssertionError):
+            dao.newUser(nom="oj", prenom="omj")
+
+        # n'existe pas
+        with db_session:
+            Utilisateur.user().delete()
+
+        with qtbot.waitSignal(dao.currentUserChanged):
+            dao.newUser(nom="oj", prenom="omj")
+        assert dao.currentUser == {
+            "id": 2,
+            "last_used": 0,
+            "nom": "oj",
+            "prenom": "omj",
+        }
+        assert dao.currentUser == dao.current_user
+
+    def test_newAnnee(self, dao):
+        check_args(dao.newAnnee, [int, str])
+        dao.newAnnee(2050, "ce3")
+        with db_session:
+            an = Annee[2050]
+            assert an.niveau == "ce3"
+            assert an.user == Utilisateur.user()
+
+    def test_getMenuesAnnees(self, dao):
+        check_args(dao.getMenuAnnees, None, list)
+        with db_session:
+            user = dao.db.Utilisateur.select().first()
+        for i in range(4):
+            f_annee(2016 - (i * i), user=user.id)  # pour tester l'ordre
+        assert dao.getMenuAnnees() == [
+            {"id": 2007, "niveau": "cm2007", "user": 1},
+            {"id": 2012, "niveau": "cm2012", "user": 1},
+            {"id": 2015, "niveau": "cm2015", "user": 1},
+            {"id": 2016, "niveau": "cm2016", "user": 1},
+            {
+                "id": 2019,
+                "niveau": "cm2019",
+                "user": 1,
+            },  # 2019 setté dans la fixture dao
+        ]
+
+    def test_anneActive(self, dao):
+        assert dao.anneeActive == 2019
 
 
 class TestDatabaseObject:

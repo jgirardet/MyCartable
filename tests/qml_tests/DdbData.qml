@@ -10,6 +10,8 @@ Item {
     // ne pas changer cet object (sauf adapter)
     // SECTION
     // text section
+    // session
+    //    property var anneeActive
 
     // Matiere MIXIN
     property int currentMatiere: 0
@@ -368,6 +370,12 @@ Item {
     property var _getTextSectionColor: "red"
     property var _initTableauDatas
     property var _updateCell
+    property var _newUser
+    property var currentUser: {
+    }
+    property var _newAnnee
+    property var anneeActive
+    property var _peuplerLesMatieresParDefault
 
     signal setCurrentMatiereFromIndexSignal(int index)
     signal newPageCreated(var un)
@@ -467,6 +475,18 @@ Item {
 
     function updateCell(secId, mdy, mdx, content) {
         _updateCell = [secId, mdy, mdx, content];
+    }
+
+    function newUser(nom, prenom) {
+        _newUser = [nom, prenom];
+    }
+
+    function newAnnee(annee, classe) {
+        _newAnnee = [annee, classe];
+    }
+
+    function peuplerLesMatieresParDefault(anne) {
+        _peuplerLesMatieresParDefault = [anne];
     }
 
     Component.onCompleted: {

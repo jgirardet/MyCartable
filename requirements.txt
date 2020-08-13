@@ -15,7 +15,7 @@ pytest-freezegun
 pytest-qt
 PyPDF2
 mypy
-briefcase
+briefcase==0.3.2
 toml
 loguru-caplog
 

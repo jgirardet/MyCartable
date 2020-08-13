@@ -90,6 +90,12 @@ def cmd_black(*args, **kwargs):
         runCommand("python -m black src tests")
 
 
+def cmd_create(*args, **kwargs):
+    cmd_clean()
+    cmd_make_qrc()
+    runCommand("briefcase create")
+
+
 def cmd_package(*args, **kwargs):
     cmd_make_qrc()
     runCommand("briefcase package")

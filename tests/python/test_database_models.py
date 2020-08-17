@@ -1,4 +1,5 @@
 import itertools
+from typing import List
 
 from PySide2.QtGui import QFont
 from fixtures import compare_items, check_is_range, wait
@@ -882,21 +883,6 @@ class TestTableauSection:
             "modified": item["modified"],
             "page": 1,
             "position": 0,
-            # "annotations": [],
-            # "cells": [
-            #     (1, 0, 0),
-            #     (1, 0, 1),
-            #     (1, 0, 2),
-            #     (1, 0, 3),
-            #     (1, 1, 0),
-            #     (1, 1, 1),
-            #     (1, 1, 2),
-            #     (1, 1, 3),
-            #     (1, 2, 0),
-            #     (1, 2, 1),
-            #     (1, 2, 2),
-            #     (1, 2, 3),
-            # ],
         }
 
     def test_get_par_ligne(self, ddb):
@@ -942,6 +928,223 @@ class TestTableauSection:
             TableauCell[TableauSection[1], 4, 2],
             TableauCell[TableauSection[1], 4, 3],
         ]
+
+    @staticmethod
+    def peupler_tableau_manipulation():
+        with db_session:
+            a = f_tableauSection(3, 4)  # premiere colone : 0,4,8
+            cells = a.get_cells()[:]
+            cells[0].texte = "0_0"
+            cells[0].style.underline = True
+            cells[4].texte = "1_0"
+            cells[4].style.bgColor = "yellow"
+            cells[8].texte = "2_0"
+            cells[8].style.fgColor = "blue"
+            cells = [x.to_dict(exclude=["x", "y"]) for x in cells]
+            [x["style"].pop("styleId") for x in cells]
+            return make_proxy(a), cells
+
+    def test_insert_one_line(self, ddbr):
+        a, cells = self.peupler_tableau_manipulation()
+        with db_session:
+            a.insert_one_line(1)
+        with db_session:
+            assert a.cells.count() == 16
+            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a.get_cells()[:]]
+            [x["style"].pop("styleId") for x in cells_after]
+            assert cells_after[0] == cells[0]
+            assert cells_after[8] == cells[4]
+            assert cells_after[12] == cells[8]
+            assert cells_after[4]["texte"] == ""
+            assert cells_after[4]["style"]["underline"] == False
+
+    def test_insert_one_start(self, ddbr):
+        a, cells = self.peupler_tableau_manipulation()
+        with db_session:
+            a.insert_one_line(0)
+        with db_session:
+            assert a.cells.count() == 16
+            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a.get_cells()[:]]
+            [x["style"].pop("styleId") for x in cells_after]
+            assert cells_after[4] == cells[0]
+            assert cells_after[8] == cells[4]
+            assert cells_after[12] == cells[8]
+            assert cells_after[0]["texte"] == ""
+            assert cells_after[0]["style"]["underline"] == False
+
+    def test_insert_one_avant_dernier(self, ddbr):
+        a, cells = self.peupler_tableau_manipulation()
+        with db_session:
+            a.insert_one_line(2)
+        with db_session:
+            assert a.cells.count() == 16
+            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a.get_cells()[:]]
+            [x["style"].pop("styleId") for x in cells_after]
+            assert cells_after[0] == cells[0]
+            assert cells_after[4] == cells[4]
+            assert cells_after[12] == cells[8]
+            assert cells_after[8]["texte"] == ""
+            assert cells_after[8]["style"]["underline"] == False
+
+    def test_insert_one_apres_dernier(self, ddbr):
+        a, cells = self.peupler_tableau_manipulation()
+        with db_session:
+            a.insert_one_line(3)
+        with db_session:
+            assert a.cells.count() == 16
+            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a.get_cells()[:]]
+            [x["style"].pop("styleId") for x in cells_after]
+            assert cells_after[0] == cells[0]
+            assert cells_after[4] == cells[4]
+            assert cells_after[8] == cells[8]
+            assert cells_after[12]["texte"] == ""
+            assert cells_after[12]["style"]["underline"] == False
+
+    def test_remove_line_middle(self, ddbr):
+        a, cells = self.peupler_tableau_manipulation()
+        with db_session:
+            a.remove_on_line(1)
+        with db_session:
+            assert a.cells.count() == 8
+            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a.get_cells()[:]]
+            [x["style"].pop("styleId") for x in cells_after]
+            assert cells_after[0] == cells[0]
+            assert cells_after[4] == cells[8]
+
+    def test_remove_line_last(self, ddbr):
+        a, cells = self.peupler_tableau_manipulation()
+        with db_session:
+            a.remove_one_line(2)
+        with db_session:
+            assert a.cells.count() == 8
+            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a.get_cells()[:]]
+            [x["style"].pop("styleId") for x in cells_after]
+            assert cells_after[0] == cells[0]
+            assert cells_after[4] == cells[4]
+
+    def test_remove_line_middle(self, ddbr):
+        a, cells = self.peupler_tableau_manipulation()
+        with db_session:
+            a.remove_one_line(0)
+        with db_session:
+            assert a.cells.count() == 8
+            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a.get_cells()[:]]
+            [x["style"].pop("styleId") for x in cells_after]
+            assert cells_after[0] == cells[4]
+            assert cells_after[4] == cells[8]
+
+    @staticmethod
+    def peupler_tableau_manip_colonnes():
+        with db_session:
+            a = f_tableauSection(3, 4)
+            cells = a.get_cells()[:]
+            cells[0].texte = "0_0"
+            cells[0].style.underline = True
+            cells[1].texte = "0_1"
+            cells[1].style.bgColor = "yellow"
+            cells[2].texte = "0_2"
+            cells[2].style.fgColor = "blue"
+            cells[3].texte = "0_3"
+            cells[3].style.strikeout = True
+            cells = [x.to_dict(exclude=["x", "y"]) for x in cells]
+            [x["style"].pop("styleId") for x in cells]
+            return make_proxy(a), cells
+
+    def test_insert_one_col_middle(self, ddbr):
+        a, cells = self.peupler_tableau_manip_colonnes()
+        with db_session:
+            a.insert_one_column(1)
+        with db_session:
+            assert a.cells.count() == 15
+            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a.get_cells()[:]]
+            [x["style"].pop("styleId") for x in cells_after]
+            assert cells_after[0] == cells[0]
+            assert cells_after[2] == cells[1]
+            assert cells_after[3] == cells[2]
+            assert cells_after[4] == cells[3]
+            assert cells_after[1]["texte"] == ""
+            assert cells_after[1]["style"]["bgColor"] == QColor("transparent")
+
+    def test_insert_one_col_start(self, ddbr):
+        a, cells = self.peupler_tableau_manip_colonnes()
+        with db_session:
+            a.insert_one_column(0)
+        with db_session:
+            assert a.cells.count() == 15
+            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a.get_cells()[:]]
+            [x["style"].pop("styleId") for x in cells_after]
+            assert cells_after[1] == cells[0]
+            assert cells_after[2] == cells[1]
+            assert cells_after[3] == cells[2]
+            assert cells_after[4] == cells[3]
+            assert cells_after[0]["texte"] == ""
+            assert cells_after[0]["style"]["bgColor"] == QColor("transparent")
+
+    def test_insert_one_col_avant_dernier(self, ddbr):
+        a, cells = self.peupler_tableau_manip_colonnes()
+        with db_session:
+            a.insert_one_column(3)
+        with db_session:
+            assert a.cells.count() == 15
+            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a.get_cells()[:]]
+            [x["style"].pop("styleId") for x in cells_after]
+            assert cells_after[0] == cells[0]
+            assert cells_after[1] == cells[1]
+            assert cells_after[2] == cells[2]
+            assert cells_after[4] == cells[3]
+            assert cells_after[3]["texte"] == ""
+            assert cells_after[3]["style"]["bgColor"] == QColor("transparent")
+
+    def test_insert_one_col__dernier(self, ddbr):
+        a, cells = self.peupler_tableau_manip_colonnes()
+        with db_session:
+            a.insert_one_column(4)
+        with db_session:
+            assert a.cells.count() == 15
+            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a.get_cells()[:]]
+            [x["style"].pop("styleId") for x in cells_after]
+            assert cells_after[0] == cells[0]
+            assert cells_after[1] == cells[1]
+            assert cells_after[2] == cells[2]
+            assert cells_after[3] == cells[3]
+            assert cells_after[4]["texte"] == ""
+            assert cells_after[4]["style"]["bgColor"] == QColor("transparent")
+
+    def test_remove_one_col_middle(self, ddbr):
+        a, cells = self.peupler_tableau_manip_colonnes()
+        with db_session:
+            a.remove_one_column(2)
+        with db_session:
+            assert a.cells.count() == 9
+            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a.get_cells()[:]]
+            [x["style"].pop("styleId") for x in cells_after]
+            assert cells_after[0] == cells[0]
+            assert cells_after[1] == cells[1]
+            assert cells_after[2] == cells[3]
+
+    def test_remove_one_col_start(self, ddbr):
+        a, cells = self.peupler_tableau_manip_colonnes()
+        with db_session:
+            a.remove_one_column(0)
+        with db_session:
+            assert a.cells.count() == 9
+            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a.get_cells()[:]]
+            [x["style"].pop("styleId") for x in cells_after]
+            assert cells_after[0] == cells[1]
+            assert cells_after[1] == cells[2]
+            assert cells_after[2] == cells[3]
+
+    def test_remove_one_col_end(self, ddbr):
+        a, cells = self.peupler_tableau_manip_colonnes()
+        with db_session:
+            a.remove_one_column(3)
+        with db_session:
+            assert a.cells.count() == 9
+            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a.get_cells()[:]]
+            [x["style"].pop("styleId") for x in cells_after]
+            assert cells_after[0] == cells[0]
+            assert cells_after[1] == cells[1]
+            assert cells_after[2] == cells[2]
 
 
 class TestTableauCell:

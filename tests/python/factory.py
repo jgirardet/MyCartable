@@ -324,11 +324,12 @@ def f_divisionSection(string=None, **kwargs):
     return _f_section("DivisionSection", string, **kwargs)
 
 
-def f_tableauSection(lignes=None, colonnes=None, **kwargs) -> TableauSection:
+def f_tableauSection(lignes=None, colonnes=None, modele="", **kwargs) -> TableauSection:
     lignes = lignes if lignes is not None else random.randint(0, 10)
     colonnes = colonnes if colonnes is not None else random.randint(0, 10)
-
-    return _f_section("TableauSection", lignes=lignes, colonnes=colonnes, **kwargs)
+    return _f_section(
+        "TableauSection", lignes=lignes, colonnes=colonnes, modele=modele, **kwargs
+    )
 
 
 def f_tableauCell(x=0, y=0, texte=None, style=None, tableau=None, td=False):

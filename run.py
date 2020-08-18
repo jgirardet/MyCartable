@@ -190,7 +190,13 @@ def cmd_qmlformat(*args, **kwargs):
         files = list(SRC.rglob("*.qml")) + list(
             (ROOT / "tests" / "qml_tests").rglob("*.qml")
         )
-    excluded = ["ImageSectionBase.qml", "tst_AnnotationText.qml", "tst_equation.qml"]
+    excluded = [
+        "ImageSectionBase.qml",
+        "tst_AnnotationText.qml",
+        "tst_equation.qml",
+        "TableauActions.qml",
+        "NewTableauSectionButton.qml",
+    ]
     errors = []
     for file in files:
         if file.name in excluded:

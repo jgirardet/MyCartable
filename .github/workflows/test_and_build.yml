@@ -22,7 +22,7 @@ jobs:
     strategy:
       matrix:
 #        os : [ubuntu-16.04, ubuntu-20.04]
-        os : [ubuntu-20.04, windows-2019]
+        os : [ubuntu-16.04, ubuntu-20.04, windows-2019]
 #        os : [ubuntu-latest, ubuntu-18.04, windows-2019, windows-latest]
         python: [3.8]
     env:
@@ -74,33 +74,34 @@ jobs:
 #    - name: Coverage on ${{ matrix.os }}
 #      run: |
 #        python run.py cov
-    - name: build on ${{ matrix.os }}
-      if:  matrix.os == 'ubuntu-16.04'
+    - name: write qrc
       run: |
         python run.py make_qrc
+
+    - name: briefcase create
+      if:  matrix.os != 'ubuntu-16.04'
+      run: |
+        briefcase create
+
+    - name: create on ubuntu-16.04
+      if:  matrix.os == 'ubuntu-16.04'
+      run: |
         briefcase create --no-docker
+
+    - name: build on ubuntu-16.04
+      if:  matrix.os == 'ubuntu-16.04'
+      run: |
         briefcase build --no-docker
 
     - name: build on ${{ matrix.os }}
+      if:  matrix.os != 'ubuntu-16.04'
+      run: |
+        briefcase build
+    - name: build on ${{ matrix.os }}
       if:  matrix.os == 'windows-2019'
       run: |
-        python run.py make_qrc
-        briefcase create
-        briefcase build
         briefcase package
-#    - name: build on ${{ matrix.os }}
-#      if:  matrix.os == 'ubuntu-18.04'
-#      run: |
-#        python run.py make_qrc
-#        briefcase create --no-input
-#        briefcase build --no-input
 
-    - name: build on ${{ matrix.os }}
-      if:  matrix.os == 'ubuntu-20.04'
-      run: |
-        python run.py make_qrc
-        briefcase create
-        briefcase build
 #    - name: test run on windows CMD
 #      if: runner.os == 'Windows'
 #      shell: cmd

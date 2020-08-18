@@ -591,6 +591,46 @@ class TestTableauMixin:
         with db_session:
             assert TableauCell[1, 3, 2].texte == "bla"
 
+    def test_tableaulayoutchanged(self, dao, qtbot):
+        with qtbot.waitSignal(dao.tableauChanged):
+            dao.tableauLayoutChanged.emit()
+
+    @pytest.mark.parametrize(
+        "fn, lignes, colonnes",
+        [
+            ("insertRow", 3, 2),
+            ("insertColumn", 2, 3),
+            ("removeRow", 1, 2),
+            ("removeColumn", 2, 1),
+        ],
+    )
+    def test_add_remove_row_column(self, dao, qtbot, fn, lignes, colonnes):
+        check_args(getattr(dao, fn), [int, int])
+        x = f_tableauSection(2, 2)
+        with qtbot.waitSignal(dao.tableauLayoutChanged):
+            getattr(dao, fn)(x.id, 1)
+        with db_session:
+            x = TableauSection[x.id]
+            assert x.lignes == lignes
+            assert x.colonnes == colonnes
+
+    @pytest.mark.parametrize(
+        "fn, lignes, colonnes", [("appendColumn", 2, 3), ("appendRow", 3, 2),],
+    )
+    def test_append_row_column(self, dao, qtbot, fn, lignes, colonnes):
+        check_args(getattr(dao, fn), int)
+        x = f_tableauSection(2, 2)
+        with qtbot.waitSignal(dao.tableauLayoutChanged):
+            getattr(dao, fn)(x.id)
+        with db_session:
+            x = TableauSection[x.id]
+            assert x.lignes == lignes
+            assert x.colonnes == colonnes
+
+    def test_nb_colonnes(self, dao):
+        x = f_tableauSection(2, 6)
+        assert dao.nbColonnes(x.id) == 6
+
 
 class TestTextSectionMixin:
     def test_updateTextSectionOnKey(self, dao):
@@ -737,6 +777,7 @@ class TestDatabaseObject:
             "nom": "lenom",
             "prenom": "leprenom",
         }
+
 
     def test_files(self, dao):
         assert dao.files == FILES

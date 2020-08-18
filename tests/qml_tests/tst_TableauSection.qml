@@ -1,207 +1,12 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
+import "assets/tableautestvalues.mjs" as DATA
 
 Item {
     id: item
 
-    property var cellModel: [{
-        "style": {
-            "bgColor": "red",
-            "family": "",
-            "fgColor": "black",
-            "strikeout": false,
-            "styleId": 10791,
-            "underline": false
-        },
-        "tableau": 1270,
-        "texte": "zero",
-        "x": 0,
-        "y": 0
-    }, {
-        "style": {
-            "bgColor": "blue",
-            "family": "",
-            "fgColor": "black",
-            "strikeout": false,
-            "styleId": 10792,
-            "underline": false
-        },
-        "tableau": 1270,
-        "texte": "un",
-        "x": 1,
-        "y": 0
-    }, {
-        "style": {
-            "bgColor": "blue",
-            "family": "",
-            "fgColor": "black",
-            "strikeout": false,
-            "styleId": 10793,
-            "underline": false,
-            "pointSize": 8
-        },
-        "tableau": 1270,
-        "texte": "deux\\ndeux",
-        "x": 2,
-        "y": 0
-    }, {
-        "style": {
-            "bgColor": "red",
-            "family": "",
-            "fgColor": "black",
-            "strikeout": false,
-            "styleId": 10794,
-            "underline": false
-        },
-        "tableau": 1270,
-        "texte": "trois trois",
-        "x": 0,
-        "y": 1
-    }, {
-        "style": {
-            "bgColor": "#00000000",
-            "family": "",
-            "fgColor": "red",
-            "strikeout": false,
-            "styleId": 10795,
-            "underline": false
-        },
-        "tableau": 1270,
-        "texte": "quatre",
-        "x": 1,
-        "y": 1
-    }, {
-        "style": {
-            "bgColor": "#00000000",
-            "family": "",
-            "fgColor": "black",
-            "strikeout": false,
-            "styleId": 10796,
-            "underline": false
-        },
-        "tableau": 1270,
-        "texte": "cinq",
-        "x": 2,
-        "y": 1
-    }, {
-        "style": {
-            "bgColor": "red",
-            "family": "",
-            "fgColor": "black",
-            "strikeout": false,
-            "styleId": 10797,
-            "underline": false
-        },
-        "tableau": 1270,
-        "texte": "six",
-        "x": 0,
-        "y": 2
-    }, {
-        "style": {
-            "bgColor": "#00000000",
-            "family": "",
-            "fgColor": "black",
-            "strikeout": false,
-            "styleId": 10798,
-            "underline": false
-        },
-        "tableau": 1270,
-        "texte": "sept sept sept",
-        "x": 1,
-        "y": 2
-    }, {
-        "style": {
-            "bgColor": "#00000000",
-            "family": "",
-            "fgColor": "red",
-            "strikeout": false,
-            "styleId": 10799,
-            "underline": false
-        },
-        "tableau": 1270,
-        "texte": "huit",
-        "x": 2,
-        "y": 2
-    }, {
-        "style": {
-            "bgColor": "red",
-            "family": "",
-            "fgColor": "green",
-            "strikeout": false,
-            "styleId": 10800,
-            "underline": true
-        },
-        "tableau": 1270,
-        "texte": "neuf",
-        "x": 0,
-        "y": 3
-    }, {
-        "style": {
-            "bgColor": "#00000000",
-            "family": "",
-            "fgColor": "green",
-            "strikeout": false,
-            "styleId": 10801,
-            "underline": true
-        },
-        "tableau": 1270,
-        "texte": "dix\\ndix\\ndix",
-        "x": 1,
-        "y": 3
-    }, {
-        "style": {
-            "bgColor": "#00000000",
-            "family": "",
-            "fgColor": "green",
-            "strikeout": false,
-            "styleId": 10802,
-            "underline": true
-        },
-        "tableau": 1270,
-        "texte": "onze",
-        "x": 2,
-        "y": 3
-    }, {
-        "style": {
-            "bgColor": "red",
-            "family": "",
-            "fgColor": "black",
-            "strikeout": false,
-            "styleId": 10803,
-            "underline": false
-        },
-        "tableau": 1270,
-        "texte": "doux",
-        "x": 0,
-        "y": 4
-    }, {
-        "style": {
-            "bgColor": "#00000000",
-            "family": "",
-            "fgColor": "black",
-            "strikeout": false,
-            "styleId": 10804,
-            "underline": false
-        },
-        "tableau": 1270,
-        "texte": "treize",
-        "x": 1,
-        "y": 4
-    }, {
-        "style": {
-            "bgColor": "#00000000",
-            "family": "",
-            "fgColor": "black",
-            "strikeout": false,
-            "styleId": 10805,
-            "underline": false
-        },
-        "tableau": 1270,
-        "texte": "quatorze",
-        "x": 2,
-        "y": 4
-    }]
+    property var cellModel: DATA.modelDeBase
 
     width: 400
     height: 300
@@ -221,16 +26,7 @@ Item {
         }
 
         function initPreCreate() {
-            ddb._loadSection = {
-                "classtype": "TableauSection",
-                "colonnes": 3,
-                "created": "2020-06-25T20:05:21.065677",
-                "id": 1270,
-                "lignes": 5,
-                "modified": "2020-06-25T20:07:07.635539",
-                "page": 101,
-                "position": 0
-            };
+            ddb._nbColonnes = 3;
             ddb._initTableauDatas = model;
         }
 
@@ -507,7 +303,7 @@ Item {
             verify(un.font.underline);
         }
 
-        function test_mouseClick() {
+        function test_mouseClick_style() {
             var cbBgRed = uiManager.menuFlottantTableau.contentItem.contentItem.children[0].children[0].children[1].children[0];
             var cbBlueNoUnderline = uiManager.menuFlottantTableau.contentItem.contentItem.children[3].children[0].children[1];
             var cbGreenUnderline = uiManager.menuFlottantTableau.contentItem.contentItem.children[5].children[0].children[2];
@@ -534,6 +330,72 @@ Item {
             mouseClick(cbGreenUnderline, 1, 1);
             compare(Qt.colorEqual(un.color, cbGreenUnderline.color), true);
             verify(un.font.underline);
+        }
+
+        function test_mouseClick_add_column() {
+            var but = uiManager.menuFlottantTableau.contentItem.contentItem.children[7].children[0].children[0];
+            compare(rep.count, 15);
+            ddb._nbColonnes = 4;
+            ddb._initTableauDatas = DATA.modelColonneEnPlus;
+            mouseClick(un, 1, 1, Qt.RightButton);
+            mouseClick(but, 1, 1, Qt.LeftButton);
+            compare(ddb._insertColumn, [1270, 1]);
+            compare(grid.columns, 4);
+            compare(rep.count, 20);
+        }
+
+        function test_mouseClick_remove_column() {
+            var but = uiManager.menuFlottantTableau.contentItem.contentItem.children[7].children[0].children[1];
+            compare(rep.count, 15);
+            ddb._nbColonnes = 2;
+            ddb._initTableauDatas = DATA.modelColonneEnMoins;
+            mouseClick(un, 1, 1, Qt.RightButton);
+            mouseClick(but, 1, 1, Qt.LeftButton);
+            compare(ddb._removeColumn, [1270, 1]);
+            compare(grid.columns, 2);
+            compare(rep.count, 10);
+        }
+
+        function test_mouseClick_append_column() {
+            var but = uiManager.menuFlottantTableau.contentItem.contentItem.children[7].children[0].children[2];
+            ddb._nbColonnes = 4;
+            ddb._initTableauDatas = DATA.modelColonneEnPlus;
+            mouseClick(un, 1, 1, Qt.RightButton);
+            mouseClick(but, 1, 1, Qt.LeftButton);
+            compare(ddb._appendColumn, [1270]);
+            compare(grid.columns, 4);
+            compare(rep.count, 20);
+        }
+
+        function test_mouseClick_add_row() {
+            var but = uiManager.menuFlottantTableau.contentItem.contentItem.children[7].children[0].children[3];
+            compare(rep.count, 15);
+            ddb._nbColonnes = 3;
+            ddb._initTableauDatas = DATA.modelLigneEnPlus;
+            mouseClick(un, 1, 1, Qt.RightButton);
+            mouseClick(but, 1, 1, Qt.LeftButton);
+            compare(ddb._insertRow, [1270, 0]);
+            compare(rep.count, 18);
+        }
+
+        function test_mouseClick_remove_row() {
+            var but = uiManager.menuFlottantTableau.contentItem.contentItem.children[7].children[0].children[4];
+            ddb._nbColonnes = 3;
+            ddb._initTableauDatas = DATA.modelLigneEnMoins;
+            mouseClick(un, 1, 1, Qt.RightButton);
+            mouseClick(but, 1, 1, Qt.LeftButton);
+            compare(ddb._removeRow, [1270, 0]);
+            compare(rep.count, 12);
+        }
+
+        function test_mouseClick_append_row() {
+            var but = uiManager.menuFlottantTableau.contentItem.contentItem.children[7].children[0].children[5];
+            ddb._nbColonnes = 3;
+            ddb._initTableauDatas = DATA.modelLigneEnPlus;
+            mouseClick(un, 1, 1, Qt.RightButton);
+            mouseClick(but, 1, 1, Qt.LeftButton);
+            compare(ddb._appendRow, [1270]);
+            compare(rep.count, 18);
         }
 
         function test_targetmenu_egale_grid_if_selected() {

@@ -7,7 +7,7 @@ from PySide2.QtGui import QColor
 from functools import cached_property
 from package.exceptions import MyCartableOperationError
 from package.operations.api import create_operation
-from pony.orm import Required, PrimaryKey, Optional, Set, select, count, max
+from pony.orm import Required, PrimaryKey, Optional, Set, select, count, max, flush
 from .root_db import db
 from .mixins import ColorMixin
 
@@ -390,10 +390,34 @@ class TableauSection(Section):
     colonnes = Required(int, default=0)
     cells = Set("TableauCell")
 
+    MODEL_COLOR_LINE0 = QColor("blue").lighter()
+    MODEL_COLOR_COLONNE0 = QColor("grey").lighter()
+
+    def __init__(self, *args, modele="", **kwargs):
+        self.modele = modele
+        super().__init__(*args, **kwargs)
+
     def after_insert(self):
         for r in range(self.lignes):
             for c in range(self.colonnes):
                 TableauCell(tableau=self, y=r, x=c)
+
+        self.apply_model()
+
+    def apply_model(self):
+        if self.modele == "ligne0":
+            for cel in self.get_cells_par_ligne(0):
+                cel.style.bgColor = self.MODEL_COLOR_LINE0
+        elif self.modele == "colonne0":
+            for y in range(self.lignes):
+                cel = TableauCell[self, y, 0]
+                cel.style.bgColor = self.MODEL_COLOR_COLONNE0
+        elif self.modele == "ligne0-colonne0":
+            for y in range(1, self.lignes):
+                cel = TableauCell[self, y, 0]
+                cel.style.bgColor = self.MODEL_COLOR_COLONNE0
+            for cel in self.get_cells_par_ligne(0):
+                cel.style.bgColor = self.MODEL_COLOR_LINE0
 
     def get_cells(self):
         return self.cells.select().sort_by(TableauCell.y, TableauCell.x)
@@ -403,14 +427,87 @@ class TableauSection(Section):
             row + 1, self.colonnes
         )  # page commence a 1 chez pony
 
+    def insert_one_line(self, line):
+        self.lignes = self.lignes + 1
+
+        # Ajout de la ligne
+        for c in range(self.colonnes):
+            TableauCell(tableau=self, y=self.lignes - 1, x=c)
+
+        if line < self.lignes:
+            for l in range(self.lignes - 1, line, -1):
+                for c in range(self.colonnes):
+                    TableauCell[self, l, c].set(
+                        **TableauCell[self, l - 1, c].to_dict(exclude=["x", "y"])
+                    )
+
+        # on reset les nouvelles
+        for c in range(self.colonnes):
+            cel = TableauCell[self, line, c]
+            cel.texte = ""
+            cel.style = db.Style()
+
+    def remove_one_line(self, line):
+        self.lignes = self.lignes - 1
+
+        if line < self.lignes:
+            for i in range(line, self.lignes):
+                for c in range(self.colonnes):
+                    TableauCell[self, i, c].set(
+                        **TableauCell[self, i + 1, c].to_dict(exclude=["x", "y"])
+                    )
+        for c in range(self.colonnes):
+            TableauCell[self, self.lignes, c].delete()
+
+    def insert_one_column(self, col):
+        self.colonnes = self.colonnes + 1
+
+        # Ajout de la colonnes
+        for c in range(self.lignes):
+            TableauCell(tableau=self, y=c, x=self.colonnes - 1)
+
+        if col < self.colonnes:
+            for c in range(self.colonnes - 1, col, -1):
+                for l in range(self.lignes):
+                    TableauCell[self, l, c].set(
+                        **TableauCell[self, l, c - 1].to_dict(exclude=["x", "y"])
+                    )
+
+        # on reset les nouvelles
+        for l in range(self.lignes):
+            cel = TableauCell[self, l, col]
+            cel.texte = ""
+            cel.style = db.Style()
+
+    def remove_one_column(self, col):
+        self.colonnes = self.colonnes - 1
+
+        if col < self.colonnes:
+            for c in range(col, self.colonnes):
+                for l in range(self.lignes):
+                    TableauCell[self, l, c].set(
+                        **TableauCell[self, l, c + 1].to_dict(exclude=["x", "y"])
+                    )
+        for l in range(self.lignes):
+            TableauCell[self, l, self.colonnes].delete()
+
+    def append_one_line(self):
+        self.insert_one_line(self.lignes)
+
+    def append_one_column(self):
+        self.insert_one_column(self.colonnes)
+
 
 class TableauCell(db.Entity, ColorMixin):
+    """
+    Cellule de Tableau
+    """
 
     x = Required(int)
     y = Required(int)
-    texte = Optional(str)
     tableau = Required(TableauSection)
     PrimaryKey(tableau, y, x)
+    texte = Optional(str)
     style = Optional(db.Style, default=db.Style, cascade_delete=True)
 
     def __init__(self, **kwargs):
@@ -427,7 +524,8 @@ class TableauCell(db.Entity, ColorMixin):
 
     def set(self, **kwargs):
         if "style" in kwargs:
-            style = kwargs.pop("style")
+            style: dict = kwargs.pop("style")
+            style.pop("styleId", None)
             self.style.set(**style)
         super().set(**kwargs)
         self.tableau.modified = datetime.utcnow()

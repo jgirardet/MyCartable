@@ -41,11 +41,12 @@ def main_init_database(filename=None, prod=False):
         filename=filename, create_db=create_db
     )
 
-    # if not prod:
-    #
-    #     from tests.python.factory import populate_database
-    #
-    #     populate_database()
+
+    if not prod:
+        from tests.python.factory import populate_database
+
+        populate_database()
+
     return package.database.db
 
 
@@ -73,7 +74,7 @@ def register_new_qml_type(databaseObject):
     qmlRegisterType(AnnotationModel, "MyCartable", 1, 0, "AnnotationModel")
 
 
-def create_singleton_instance():
+def create_singleton_instance(prod=False):
     # models
     from package.database_object import DatabaseObject
     from package.ui_manager import UiManager
@@ -81,6 +82,11 @@ def create_singleton_instance():
     databaseObject = DatabaseObject(package.database.db, debug=False)
     ui_manager = UiManager()
     databaseObject.ui = ui_manager
+
+    if not prod:
+        databaseObject.anneeActive = 2019
+        databaseObject.currentMatiere = 2
+
     return databaseObject, ui_manager
 
 

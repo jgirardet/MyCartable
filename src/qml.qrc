@@ -94,6 +94,9 @@
         <file alias="PageButton.qml">qml/divers/PageButton.qml</file>
         <file alias="LabeledInput.qml">qml/divers/LabeledInput.qml</file>
     </qresource>
+    <qresource prefix="/qml/actions">
+        <file alias="TableauActions.qml">qml/actions/TableauActions.qml</file>
+    </qresource>
     <qresource prefix="/icons">
         <file alias="ellipse">data/icons/base/pack/png/sphere.png</file>
         <file alias="fillrect">data/icons/base/pack/png/fillrect.png</file>
@@ -109,6 +112,12 @@
         <file alias="rotateRight">data/icons/base/perso/rotateright.png</file>
         <file alias="rect">data/icons/base/pack/png/rect.png</file>
         <file alias="trait">data/icons/base/pack/png/pencil.png</file>
+        <file alias="add-row">data/icons/base/divers/png/add-row.png</file>
+        <file alias="add-column">data/icons/base/divers/png/add-column.png</file>
+        <file alias="remove-row">data/icons/base/divers/png/remove-row.png</file>
+        <file alias="remove-column">data/icons/base/divers/png/remove-column.png</file>
+        <file alias="append-column">data/icons/base/divers/png/append-column.png</file>
+        <file alias="append-row">data/icons/base/divers/png/append-row.png</file>
 <!--        <file alias="text">data/icons/base/pack/png/sphere.png</file>-->
     </qresource>
     <qresource prefix="/fonts">

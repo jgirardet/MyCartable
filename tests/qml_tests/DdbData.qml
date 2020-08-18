@@ -376,6 +376,13 @@ Item {
     property var _newAnnee
     property var anneeActive
     property var _peuplerLesMatieresParDefault
+    property var _insertColumn
+    property var _insertRow
+    property var _removeRow
+    property var _removeColumn
+    property var _nbColonnes
+    property var _appendRow
+    property var _appendColumn
 
     signal setCurrentMatiereFromIndexSignal(int index)
     signal newPageCreated(var un)
@@ -475,6 +482,36 @@ Item {
 
     function updateCell(secId, mdy, mdx, content) {
         _updateCell = [secId, mdy, mdx, content];
+    }
+
+    function insertColumn(tab, value) {
+        _insertColumn = [tab, value];
+    }
+
+    function insertRow(tab, value) {
+        _insertRow = [tab, value];
+    }
+
+    function removeRow(tab, value) {
+        _removeRow = [tab, value];
+    }
+
+    function removeColumn(tab, value) {
+        _removeColumn = [tab, value];
+    }
+
+    function appendRow(arg) {
+        _appendRow = [arg];
+    }
+
+    function appendColumn(arg) {
+        _appendColumn = [arg];
+    }
+
+    function nbColonnes(secId) {
+        let toReturn = _nbColonnes;
+        _nbColonnes = [secId];
+        return toReturn;
     }
 
     function newUser(nom, prenom) {

@@ -1,4 +1,5 @@
 from PySide2.QtCore import Slot
+from loguru import logger
 
 
 class DevMixin:  # pragma: no cover
@@ -8,3 +9,7 @@ class DevMixin:  # pragma: no cover
 
         populate_database()
         self.changeAnnee.emit(2019)
+
+    @Slot(str)
+    def debug(self, texte):
+        logger.debug(texte)

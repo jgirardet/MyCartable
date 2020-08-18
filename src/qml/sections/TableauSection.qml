@@ -3,12 +3,13 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 
 Item {
+    //    property var tableau: sectionId ? ddb.loadSection(sectionId) : {
+    //    }
+
     id: root
 
     property int sectionId
     property var sectionItem
-    property var tableau: sectionId ? ddb.loadSection(sectionId) : {
-    }
 
     width: grid.width
     height: grid.height
@@ -18,6 +19,11 @@ Item {
 
         property var selectedCells: []
         property var currentSelectedCell: null
+
+        function reload() {
+            repeater.model = ddb.initTableauDatas(root.sectionId);
+            grid.columns = ddb.nbColonnes(root.sectionId);
+        }
 
         function selectCell(obj) {
             obj.state = obj.state == "selected" ? "" : "selected";
@@ -60,18 +66,31 @@ Item {
         }
 
         objectName: "grid"
-        columns: root.tableau.colonnes
+        columns: ddb.nbColonnes(root.sectionId) ?? 0
         columnSpacing: 3
         rowSpacing: 3
 
         Repeater {
+            //            Connections {
+            //                function onTableauLayoutChanged() {
+            //                    repeater.model = ddb.initTableauDatas(root.sectionId);
+            //                    print("hello");
+            //                }
+            //                target: ddb
+            //            }
+            //            model: root.sectionId ? ddb.initTableauDatas(root.sectionId) : 0
+
             id: repeater
 
             objectName: "repeater"
-            model: root.sectionId ? ddb.initTableauDatas(root.sectionId) : 0
+            model: root.sectionId ? grid.reload() : 0
 
             delegate: TextArea {
                 id: tx
+
+                property int colonne: modelData.x
+                property int ligne: modelData.y
+                property int tableauSection: root.sectionId
 
                 function changeCase(event) {
                     var obj;

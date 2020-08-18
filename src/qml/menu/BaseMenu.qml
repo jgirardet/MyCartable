@@ -8,6 +8,8 @@ import QtQuick 2.14
 import QtQuick.Controls 2.14
 
 Menu {
+    //    implicitWidth: contentWidth
+
     id: root
 
     property var target

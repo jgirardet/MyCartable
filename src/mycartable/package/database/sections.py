@@ -467,6 +467,12 @@ class TableauSection(Section):
         for l in range(self.lignes):
             TableauCell[self, l, self.colonnes].delete()
 
+    def append_one_line(self):
+        self.insert_one_line(self.lignes)
+
+    def append_one_column(self):
+        self.insert_one_column(self.colonnes)
+
 
 class TableauCell(db.Entity, ColorMixin):
     """

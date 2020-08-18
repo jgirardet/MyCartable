@@ -1,9 +1,12 @@
 import QtQuick 2.14
 import QtQuick.Controls 2.14
 import QtQuick.Layouts 1.12
+import "qrc:/qml/actions"
 
 BaseMenu {
     id: root
+
+    width: 241
 
     MenuItem {
         ColumnLayout {
@@ -182,6 +185,93 @@ BaseMenu {
                 shortcut: "Alt+n"
                 menu: root
                 text: "S"
+            }
+
+        }
+
+    }
+
+    MenuSeparator {
+
+        contentItem: Rectangle {
+            implicitWidth: 200
+            implicitHeight: 1
+            color: "#21be2b"
+        }
+
+    }
+
+    MenuItem {
+        id: manipulation
+
+        RowLayout {
+            spacing: 0
+            anchors.fill: parent
+
+            ToolButton {
+                icon.color: "transparent"
+                ToolTip.visible: hovered
+                ToolTip.text: "Ajouter une colone"
+
+                action: TableauActions.AddColumn {
+                    cell: root.target
+                }
+
+            }
+
+            ToolButton {
+                icon.color: "transparent"
+                ToolTip.visible: hovered
+                ToolTip.text: "Supprimer une colonne"
+
+                action: TableauActions.RemoveColumn {
+                    cell: root.target
+                }
+
+            }
+
+            ToolButton {
+                icon.color: "transparent"
+                ToolTip.visible: hovered
+                ToolTip.text: "Ajouter une colonne à la fin"
+
+                action: TableauActions.AppendColumn {
+                    cell: root.target
+                }
+
+            }
+
+            ToolButton {
+                icon.color: "transparent"
+                ToolTip.visible: hovered
+                ToolTip.text: "Ajouter une ligne"
+
+                action: TableauActions.AddRow {
+                    cell: root.target
+                }
+
+            }
+
+            ToolButton {
+                icon.color: "transparent"
+                ToolTip.visible: hovered
+                ToolTip.text: "Supprimer une ligne"
+
+                action: TableauActions.RemoveRow {
+                    cell: root.target
+                }
+
+            }
+
+            ToolButton {
+                icon.color: "transparent"
+                ToolTip.visible: hovered
+                ToolTip.text: "Ajouter une ligne à la fin"
+
+                action: TableauActions.AppendRow {
+                    cell: root.target
+                }
+
             }
 
         }

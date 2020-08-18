@@ -871,6 +871,48 @@ class TestTableauSection:
 
         b = f_tableauSection()
 
+    @pytest.mark.parametrize(
+        "modele, zero_0, zero_1, un_0, un_1",
+        [
+            (
+                "ligne0",
+                QColor("blue").lighter(),
+                QColor("blue").lighter(),
+                QColor("transparent"),
+                QColor("transparent"),
+            ),
+            (
+                "colonne0",
+                QColor("gray").lighter(),
+                QColor("transparent"),
+                QColor("gray").lighter(),
+                QColor("transparent"),
+            ),
+            (
+                "ligne0-colonne0",
+                QColor("blue").lighter(),
+                QColor("blue").lighter(),
+                QColor("gray").lighter(),
+                QColor("transparent"),
+            ),
+            (
+                "",
+                QColor("transparent"),
+                QColor("transparent"),
+                QColor("transparent"),
+                QColor("transparent"),
+            ),
+        ],
+    )
+    def test_init_with_model(self, ddbr, modele, zero_0, zero_1, un_0, un_1):
+        x = f_tableauSection(2, 2, modele)
+        with db_session:
+            a = TableauSection[x.id]
+            assert TableauCell[a, 0, 0].style.bgColor.rgba() == zero_0.rgba()
+            assert TableauCell[a, 0, 1].style.bgColor.rgba() == zero_1.rgba()
+            assert TableauCell[a, 1, 0].style.bgColor.rgba() == un_0.rgba()
+            assert TableauCell[a, 1, 1].style.bgColor.rgba() == un_1.rgba()
+
     def test_to_dict(self, ddb):
         item = f_tableauSection(lignes=3, colonnes=4, td=True)
 

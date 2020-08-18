@@ -390,10 +390,34 @@ class TableauSection(Section):
     colonnes = Required(int, default=0)
     cells = Set("TableauCell")
 
+    MODEL_COLOR_LINE0 = QColor("blue").lighter()
+    MODEL_COLOR_COLONNE0 = QColor("grey").lighter()
+
+    def __init__(self, *args, modele="", **kwargs):
+        self.modele = modele
+        super().__init__(*args, **kwargs)
+
     def after_insert(self):
         for r in range(self.lignes):
             for c in range(self.colonnes):
                 TableauCell(tableau=self, y=r, x=c)
+
+        self.apply_model()
+
+    def apply_model(self):
+        if self.modele == "ligne0":
+            for cel in self.get_cells_par_ligne(0):
+                cel.style.bgColor = self.MODEL_COLOR_LINE0
+        elif self.modele == "colonne0":
+            for y in range(self.lignes):
+                cel = TableauCell[self, y, 0]
+                cel.style.bgColor = self.MODEL_COLOR_COLONNE0
+        elif self.modele == "ligne0-colonne0":
+            for y in range(1, self.lignes):
+                cel = TableauCell[self, y, 0]
+                cel.style.bgColor = self.MODEL_COLOR_COLONNE0
+            for cel in self.get_cells_par_ligne(0):
+                cel.style.bgColor = self.MODEL_COLOR_LINE0
 
     def get_cells(self):
         return self.cells.select().sort_by(TableauCell.y, TableauCell.x)

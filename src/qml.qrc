@@ -118,6 +118,10 @@
         <file alias="remove-column">data/icons/base/divers/png/remove-column.png</file>
         <file alias="append-column">data/icons/base/divers/png/append-column.png</file>
         <file alias="append-row">data/icons/base/divers/png/append-row.png</file>
+        <file alias="modele-vide">data/icons/base/divers/png/modele-vide.png</file>
+        <file alias="modele-ligne0">data/icons/base/divers/png/modele-ligne0.png</file>
+        <file alias="modele-ligne0-colonne0">data/icons/base/divers/png/modele-ligne0-colonne0.png</file>
+        <file alias="modele-colonne0">data/icons/base/divers/png/modele-colonne0.png</file>
 <!--        <file alias="text">data/icons/base/pack/png/sphere.png</file>-->
     </qresource>
     <qresource prefix="/fonts">

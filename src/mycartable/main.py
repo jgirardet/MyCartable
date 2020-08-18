@@ -41,10 +41,12 @@ def main_init_database(filename=None, prod=False):
         filename=filename, create_db=create_db
     )
 
+
     if not prod:
         from tests.python.factory import populate_database
 
         populate_database()
+
     return package.database.db
 
 

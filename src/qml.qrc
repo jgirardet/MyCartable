@@ -94,9 +94,11 @@
         <file alias="PageButton.qml">qml/divers/PageButton.qml</file>
         <file alias="LabeledInput.qml">qml/divers/LabeledInput.qml</file>
     </qresource>
+    
     <qresource prefix="/qml/actions">
         <file alias="TableauActions.qml">qml/actions/TableauActions.qml</file>
     </qresource>
+    
     <qresource prefix="/icons">
         <file alias="ellipse">data/icons/base/pack/png/sphere.png</file>
         <file alias="fillrect">data/icons/base/pack/png/fillrect.png</file>

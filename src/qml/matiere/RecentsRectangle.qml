@@ -1,24 +1,37 @@
 import "../divers"
+import "../menu"
 import QtQuick 2.14
 import QtQuick.Controls 2.14
+import QtQuick.Layouts 1.14
 
 Rectangle {
     id: base
 
     color: ddb.colorFond
 
-    ListView {
-        id: root
+    ColumnLayout {
+        MainMenuBar {
+            id: mainmenubar
 
-        model: ddb.recentsModel
-        anchors.fill: parent
-        spacing: 5
-        clip: true
+            Layout.fillWidth: true
+            Layout.preferredHeight: 50
+        }
 
-        delegate: PageButton {
-            height: contentItem.contentHeight + 20
-            width: root.width
-            model: modelData
+        ListView {
+            id: root
+
+            Layout.preferredWidth: base.width
+            Layout.preferredHeight: base.height
+            model: ddb.recentsModel
+            spacing: 5
+            clip: true
+
+            delegate: PageButton {
+                height: contentItem.contentHeight + 20
+                width: root.width
+                model: modelData
+            }
+
         }
 
     }

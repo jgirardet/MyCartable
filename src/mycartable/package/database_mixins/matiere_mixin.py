@@ -88,10 +88,10 @@ class MatiereMixin:
     @Slot(int)
     @db_session
     def peuplerLesMatieresParDefault(self, annee):
-        gm = [GroupeMatiere(**x) for x in MATIERE_GROUPE]
+        gm = [GroupeMatiere(**x, annee=annee) for x in MATIERE_GROUPE]
         flush()
         logger.info(f"{len(gm)} groupes de matières créées")
-        mat = [Matiere(**x, annee=annee) for x in MATIERES]
+        mat = [Matiere(**x) for x in MATIERES]
         logger.info(f"{len(mat)} matières créées")
         self.ui.sendToast.emit(f"{len(mat)} matières créées")
         self.matieresListRefresh()

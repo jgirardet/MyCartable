@@ -7,6 +7,10 @@ import "matiere"
 import "page"
 
 ApplicationWindow {
+    //    header: MainMenuBar {
+    //        id: mainMenuBar
+    //    }
+
     id: root
 
     width: 800
@@ -26,7 +30,7 @@ ApplicationWindow {
         }
 
         objectName: "baseItem"
-        height: root.height - mainMenuBar.height
+        height: root.height // - mainMenuBar.height
         width: root.width
         color: ddb.colorFond
         Component.onCompleted: {
@@ -82,10 +86,6 @@ ApplicationWindow {
             id: toast
         }
 
-    }
-
-    header: MainMenuBar {
-        id: mainMenuBar
     }
 
 }

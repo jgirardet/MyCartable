@@ -54,24 +54,17 @@ def f_annee(id=2019, niveau=None, user=None, td=False):
         return an.to_dict() if td else an
 
 
-def f_groupeMatiere(nom=None):
-    noms = random.choice(["Français", "Math", "Anglais", "Histoire"])
+def f_groupeMatiere(nom=None, annee=None):
+    annee = annee or f_annee(id=annee).id
     with db_session:
-        if isinstance(nom, int):
-            return db.GroupeMatiere.get(id=nom)
-        elif isinstance(nom, str):
-            item = db.GroupeMatiere.get(nom=nom)
-            if item:
-                return item
-            else:
-                return db.GroupeMatiere(nom=nom)
-        else:
-            return db.GroupeMatiere(nom=noms)
+        if not Annee.get(id=annee):
+            f_annee(id=annee)
+    nom = nom or random.choice(["Français", "Math", "Anglais", "Histoire"])
+    with db_session:
+        return db.GroupeMatiere(nom=nom, annee=annee)
 
 
-def f_matiere(
-    nom=None, annee=None, groupe=None, _bgColor=None, _fgColor=None, td=False
-):
+def f_matiere(nom=None, groupe=None, _bgColor=None, _fgColor=None, td=False):
     nom = nom or random.choice(["Français", "Math", "Anglais", "Histoire"])
     color_codes = [
         4294967295,
@@ -89,10 +82,7 @@ def f_matiere(
         groupe = groupe.id
     # white, red, blue, green, orange, pink
     with db_session:
-        annee = f_annee(annee)
-        item = db.Matiere(
-            annee=annee, nom=nom, groupe=groupe, _fgColor=_fgColor, _bgColor=_bgColor
-        )
+        item = db.Matiere(nom=nom, groupe=groupe, _fgColor=_fgColor, _bgColor=_bgColor)
 
         return item.to_dict() if td else item
 

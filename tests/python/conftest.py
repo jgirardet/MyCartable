@@ -9,7 +9,7 @@ from PySide2.QtCore import QSettings, QStandardPaths
 from PySide2.QtGui import QTextDocument
 from PySide2.QtWidgets import QApplication
 from mimesis import Generic
-from pony.orm import db_session, delete
+from pony.orm import db_session, delete, ObjectNotFound, flush
 import subprocess
 
 generic_mimesis = Generic("fr")
@@ -101,14 +101,25 @@ def reset_db(ddbn):
 
 
 def fn_reset_db(db):
+    # try:
+    # for a in db.Annee.select():
+    #     a.delete()
     with db_session:
-        # for a in db.Annee.select():
-        #     a.delete()
         for entity in db.entities.values():
-            delete(e for e in entity)
+            for e in entity.select():
+                try:
+                    e.delete()
+                    flush()
+                # delete(e for e in entity)
+                except:
+                    continue
             db.execute(
                 f"UPDATE SQLITE_SEQUENCE  SET  SEQ = 0 WHERE NAME = '{entity._table_}';"
             )
+
+
+# except:
+#     pass
 
 
 @pytest.fixture(scope="function")

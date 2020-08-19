@@ -5,26 +5,35 @@ from PySide2.QtGui import QFont
 from fixtures import compare_items, check_is_range, wait
 from factory import *
 import pytest
+from package.database.mixins import PositionMixin
 from package.exceptions import MyCartableOperationError
 from pony.orm import flush, Database, make_proxy
 
 
 def test_creation_all(ddb):
     an = f_annee()
-    a = f_matiere(annee=an)
+    goupe = f_groupeMatiere(nom="aa", annee=an.id)
+    a = f_matiere(groupe=goupe)
     f_section()
 
 
 class TestAnnee:
-    def test_get_matieres(self, ddb):
-        an = f_annee(id=2017)
-        assert an.get_matieres()[:] == []
-        a = f_matiere(nom="a", annee=2017)
-        b = f_matiere(nom="b", annee=2017)
-        c = f_matiere(nom="c", annee=2015)
-        d = f_matiere(nom="d", annee=2017)
-        f = f_matiere(nom="e", annee=2016)
-        assert an.get_matieres()[:] == [a, b, d]
+    def test_get_matieres(self, ddbr):
+        with db_session:
+            an = f_annee(id=2017)
+            assert an.get_matieres()[:] == []
+        with db_session:
+            g1 = f_groupeMatiere(annee=2017)
+            g2 = f_groupeMatiere(annee=2017)
+            g3 = f_groupeMatiere(annee=2015)
+            g4 = f_groupeMatiere(annee=2017)
+            g5 = f_groupeMatiere(annee=2016)
+            a = f_matiere(nom="a", groupe=g1)
+            b = f_matiere(nom="b", groupe=g2)
+            c = f_matiere(nom="c", groupe=g3)
+            d = f_matiere(nom="d", groupe=g4)
+            f = f_matiere(nom="e", groupe=g5)
+            assert an.get_matieres()[:] == [a, b, d]
 
 
 class TestPage:
@@ -47,9 +56,10 @@ class TestPage:
         assert a.modified != avant
 
     def test_recents(self, ddb):
-
-        m2019 = f_matiere(annee=2019)
-        m2018 = f_matiere(annee=2018)
+        g2019 = f_groupeMatiere(annee=2019)
+        g2018 = f_groupeMatiere(annee=2018)
+        m2019 = f_matiere(groupe=g2019)
+        m2018 = f_matiere(groupe=g2018)
         for i in range(50):
             f_page(matiere=m2018.id)
             f_page(matiere=m2019.id)
@@ -58,7 +68,7 @@ class TestPage:
         assert db.Page.select().count() == 100
         recents = db.Page._query_recents(db.Page, 2019)[:]
         assert all(x.modified > datetime.utcnow() - timedelta(days=30) for x in recents)
-        assert all(x.activite.matiere.annee.id == 2019 for x in recents)
+        assert all(x.activite.matiere.groupe.annee.id == 2019 for x in recents)
         old = recents[0]
         for i in recents[1:]:
             assert old.modified > i.modified
@@ -108,23 +118,21 @@ class TestPage:
 
 
 class TestGroupeMatiere:
-    def test_factory(self, ddbr):
-        a = f_groupeMatiere(nom="bla")
-        b = f_groupeMatiere(nom="bla")
-        assert a.id == b.id
-        c = f_groupeMatiere()
-        assert c != b
+    pass
 
 
 class TestMatiere:
     def test_to_dict(self, ddb):
         f_matiere().to_dict()  # forcer une creation d'id
-        a = f_matiere(nom="Géo", annee=2019, _fgColor=4294967295, _bgColor=4294901760)
+        groupe = f_groupeMatiere(annee=2019)
+        a = f_matiere(
+            nom="Géo", groupe=groupe, _fgColor=4294967295, _bgColor=4294901760
+        )
         pages = [b_page(3, matiere=2) for x in a.activites]
         assert a.to_dict() == {
+            "position": 0,
             "id": 2,
             "nom": "Géo",
-            "annee": 2019,
             "activites": [4, 5, 6],
             "groupe": 2,
             "fgColor": QColor("white"),
@@ -135,22 +143,18 @@ class TestMatiere:
         gp = f_groupeMatiere()
         an = f_annee()
         a = ddb.Matiere(
-            nom="bla",
-            annee=an.id,
-            groupe=gp.id,
-            _fgColor=4294967295,
-            _bgColor=4294901760,
+            nom="bla", groupe=gp.id, _fgColor=4294967295, _bgColor=4294901760,
         )
-        b = ddb.Matiere(nom="bla", annee=an.id, groupe=gp.id)
+        b = ddb.Matiere(nom="bla", groupe=gp.id)
 
         # default value
         assert b._fgColor == QColor("black").rgba()
         assert b._bgColor == QColor("white").rgba()
 
         # from QColor
-        c = ddb.Matiere(nom="bla", annee=an.id, groupe=gp.id, bgColor=QColor("red"))
+        c = ddb.Matiere(nom="bla", groupe=gp.id, bgColor=QColor("red"))
         assert c._bgColor == 4294901760
-        d = ddb.Matiere(nom="bla", annee=an.id, groupe=gp.id, fgColor=QColor("blue"))
+        d = ddb.Matiere(nom="bla", groupe=gp.id, fgColor=QColor("blue"))
         assert d._fgColor == 4278190335
 
         # property
@@ -166,6 +170,18 @@ class TestMatiere:
         assert c._bgColor == 4278190335
         c.bgColor = (123, 3, 134)
         assert QColor(c._bgColor) == QColor(123, 3, 134)
+
+    def test_delete_mixin_position(self, reset_db):
+        a = f_matiere()
+        f_matiere(groupe=a.groupe)
+        with db_session:
+            assert Matiere[1].position == 0
+            assert Matiere[2].position == 1
+            Matiere[1].delete()
+        with db_session:
+            assert Matiere[2].position == 0
+
+            # a.before_delete_position = Ma
 
     def test_activite_auto_create_after_insert(self, ddb):
         a = f_matiere()
@@ -1381,6 +1397,92 @@ class TestColorMixin:
         a.bgColor = [1, 1, 1]  # not supported no changed
         assert a.bgColor == QColor("blue")
         assert a._bgColor == 4278190335
+
+
+@pytest.fixture
+def position_mixed(reset_db):
+    def setup():
+        db = Database()
+
+        class Referent(db.Entity):
+            mixeds = Set("Mixed")
+
+        class Mixed(db.Entity, PositionMixin):
+            ref = Required(Referent)
+            referent_attribute_name = "ref"
+            _position = Required(int)
+
+            def __init__(self, position=None, ref=None, **kwargs):
+                _position = self.init_position(position, ref)
+                super().__init__(ref=ref, _position=_position, **kwargs)
+
+            def before_delete(self):
+                self.before_delete_position()
+
+            def after_delete(self):
+                self.after_delete_position()
+
+        db.bind(provider="sqlite", filename=":memory:")
+        db.generate_mapping(create_tables=True)
+        with db_session:
+            rf = Referent()
+            flush()
+            x = Mixed(ref=rf)
+            flush()
+            y = Mixed(ref=rf)
+            flush()
+            z = Mixed(ref=rf)
+            return Referent, Mixed, rf, x, y, z
+
+    return setup
+
+
+class TestPositionMixin:
+    def test_create_ete_entity(self, position_mixed):
+        Referent, Mixed, ref, x, y, z = position_mixed()
+        with db_session:
+            x = Mixed[1]
+            y = Mixed[2]
+            z = Mixed[3]
+            assert x.position == 0
+            assert y.position == 1
+            assert z.position == 2
+
+    @pytest.mark.parametrize("todel, un, deux", [(1, 2, 3), (2, 1, 3), (3, 1, 2),])
+    def test_delete_recalculate(self, todel, un, deux, position_mixed):
+        Referent, Mixed, ref, x, y, z = position_mixed()
+        with db_session:
+            Mixed[todel].delete()
+
+        with db_session:
+            assert Mixed[un].position == 0
+            assert Mixed[deux].position == 1
+
+    @pytest.mark.parametrize(
+        "tomove, where, un, deux, trois",
+        [
+            (2, 0, 1, 0, 2),
+            (2, 1, 0, 1, 2),
+            (2, 2, 0, 2, 1),
+            (1, 0, 0, 1, 2),
+            (1, 1, 1, 0, 2),
+            (1, 2, 2, 0, 1),
+            (3, 0, 1, 2, 0),
+            (3, 1, 0, 2, 1),
+            (3, 2, 0, 1, 2),
+        ],
+    )
+    def test_set_position(self, tomove, where, un, deux, trois, position_mixed):
+        Referent, Mixed, ref, x, y, z = position_mixed()
+        with db_session:
+            Mixed[tomove].position = where
+            assert Mixed[1].position == un
+            assert Mixed[2].position == deux
+            assert Mixed[3].position == trois
+
+        # with db_session:
+        #     assert Mixed[1].position == 0
+        #     assert Mixed[2].position == 1
 
 
 class TestUtilisateur:

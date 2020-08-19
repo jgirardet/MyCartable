@@ -1,6 +1,9 @@
 import QtQuick 2.15
 import QtTest 1.15
 
+/* on changes:
+matiereList : annee en moins
+
 Item {
     //    print("##############  DDBDATA NON A JOURS##########")
     // PAGE

@@ -152,19 +152,11 @@ class TestPageMixin:
 
 class TestMatiereMixin:
     def create_matiere(self):
-        gp = f_groupeMatiere()
-        f_matiere(
-            "un", annee=2019, _fgColor=4294967295, _bgColor=4294901760, groupe=gp.id
-        )
-        f_matiere(
-            "deux", annee=2019, _fgColor=4294967295, _bgColor=4294901760, groupe=gp.id
-        )
-        f_matiere(
-            "trois", annee=2019, _fgColor=4294967295, _bgColor=4294901760, groupe=gp.id
-        )
-        f_matiere(
-            "quatre", annee=2019, _fgColor=4294967295, _bgColor=4294901760, groupe=gp.id
-        )
+        gp = f_groupeMatiere(annee=2019)
+        f_matiere("un", _fgColor=4294967295, _bgColor=4294901760, groupe=gp.id)
+        f_matiere("deux", _fgColor=4294967295, _bgColor=4294901760, groupe=gp.id)
+        f_matiere("trois", _fgColor=4294967295, _bgColor=4294901760, groupe=gp.id)
+        f_matiere("quatre", _fgColor=4294967295, _bgColor=4294901760, groupe=gp.id)
 
     def test_init(self, dao):
 
@@ -205,55 +197,60 @@ class TestMatiereMixin:
         reslist = [
             {
                 "activites": [1, 2, 3],
-                "annee": 2019,
                 "bgColor": QColor("red"),
                 "fgColor": QColor("white"),
                 "id": 1,
                 "groupe": 1,
                 "nom": "un",
+                "position": 0,
             },
             {
                 "activites": [4, 5, 6],
-                "annee": 2019,
                 "bgColor": QColor("red"),
                 "fgColor": QColor("white"),
                 "groupe": 1,
                 "id": 2,
                 "nom": "deux",
+                "position": 1,
             },
             {
                 "activites": [7, 8, 9],
-                "annee": 2019,
                 "bgColor": QColor("red"),
                 "fgColor": QColor("white"),
                 "groupe": 1,
                 "id": 3,
                 "nom": "trois",
+                "position": 2,
             },
             {
                 "activites": [10, 11, 12],
-                "annee": 2019,
                 "bgColor": QColor("red"),
                 "fgColor": QColor("white"),
                 "groupe": 1,
                 "id": 4,
                 "nom": "quatre",
+                "position": 3,
             },
         ]
         assert dao.matieresList == reslist
 
         # refresh
-        f_matiere("cinq", annee=2019, _fgColor=4294967295, _bgColor=4294901760)
+        f_matiere(
+            "cinq",
+            groupe=f_groupeMatiere(annee=2019),
+            _fgColor=4294967295,
+            _bgColor=4294901760,
+        )
         dao.matieresListRefresh()
         reslist.append(
             {
                 "activites": [13, 14, 15],
-                "annee": 2019,
                 "bgColor": QColor("red"),
                 "fgColor": QColor("white"),
                 "groupe": 2,
                 "id": 5,
                 "nom": "cinq",
+                "position": 0,
             }
         )
         assert dao.matieresList == reslist
@@ -778,7 +775,6 @@ class TestDatabaseObject:
             "prenom": "leprenom",
         }
 
-
     def test_files(self, dao):
         assert dao.files == FILES
 
@@ -859,7 +855,8 @@ class TestDatabaseObject:
         # setup
         assert dao.annee_active == 2019
         f_annee(2020)
-        m = f_matiere(annee=2019)
+        g = f_groupeMatiere(annee=2019)
+        m = f_matiere(groupe=g.id)
         p = f_page(matiere=m.id, created=datetime.now())
         dao.currentPage = 1
         assert dao.currentMatiere == m.id

@@ -13,6 +13,7 @@
     <qresource prefix="/qml/configuration">
         <file alias="NewUser.qml">qml/configuration/NewUser.qml</file>
         <file alias="NewAnnee.qml">qml/configuration/NewAnnee.qml</file>
+        <file alias="ChangeMatieres.qml">qml/configuration/ChangeMatieres.qml</file>
 
     </qresource>
 

@@ -10,42 +10,53 @@ from pony.orm import (
 )
 from package.constantes import ACTIVITES
 from .root_db import db
-from .mixins import ColorMixin
+from .mixins import ColorMixin, PositionMixin
 
 
 class Annee(db.Entity):
     id = PrimaryKey(int)
     niveau = Optional(str)
-    matieres = Set("Matiere")
+    groupes = Set("GroupeMatiere")
     user = Required("Utilisateur", reverse="annees")
 
     def get_matieres(self):
-        return self.matieres.select()
+        return select(
+            matiere
+            for groupe in self.groupes.select()
+            for matiere in groupe.matieres.select()
+        )
 
 
 class GroupeMatiere(db.Entity):
     id = PrimaryKey(int, auto=True)
     nom = Required(str)
+    annee = Required(Annee)
+
     matieres = Set("Matiere")
 
 
-class Matiere(db.Entity, ColorMixin):
+class Matiere(db.Entity, ColorMixin, PositionMixin):
+    referent_attribute_name = "groupe"
+
     id = PrimaryKey(int, auto=True)
     nom = Required(str)
-    annee = Required(Annee)
     activites = Set("Activite")
     groupe = Required("GroupeMatiere")
+    _position = Required(int)
     _fgColor = Required(int, size=32, unsigned=True, default=4278190080)
     fgColor = property(ColorMixin.fgColor_get, ColorMixin.fgColor_set)
     _bgColor = Optional(int, size=32, unsigned=True, default=4294967295)
     bgColor = property(ColorMixin.bgColor_get, ColorMixin.bgColor_set)
 
-    def __init__(self, bgColor=None, fgColor=None, **kwargs):
+    def __init__(
+        self, bgColor=None, fgColor=None, groupe=None, position=None, **kwargs
+    ):
         if bgColor:
             kwargs["_bgColor"] = ColorMixin.color_setter(bgColor)
         if fgColor:
             kwargs["_fgColor"] = ColorMixin.color_setter(fgColor)
-        super().__init__(**kwargs)
+        _position = self.init_position(position, groupe)
+        super().__init__(groupe=groupe, _position=_position, **kwargs)
 
     @property
     def activites_list(self):
@@ -61,6 +72,7 @@ class Matiere(db.Entity, ColorMixin):
         )
         res["fgColor"] = self.fgColor
         res["bgColor"] = self.bgColor
+        res["position"] = res.pop("_position")
         return res
 
     def pages_par_section(self):
@@ -73,6 +85,12 @@ class Matiere(db.Entity, ColorMixin):
             ]
             res.append(entry)
         return res
+
+    def before_delete(self):
+        self.before_delete_position()
+
+    def after_delete(self):
+        self.after_delete_position()
 
 
 class Activite(db.Entity):
@@ -120,7 +138,7 @@ class Page(db.Entity):
             p
             for p in Page
             if p.modified > datetime.utcnow() - timedelta(days=30)
-            and p.activite.matiere.annee.id == annee
+            and p.activite.matiere.groupe.annee.id == annee
         ).order_by(
             desc(Page.modified)
         )  # pragma: no cover_all

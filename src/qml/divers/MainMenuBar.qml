@@ -1,5 +1,5 @@
-import QtQuick 2.14
-import QtQuick.Controls 2.14
+import QtQuick 2.15
+import QtQuick.Controls 2.15
 import "qrc:/qml/configuration"
 
 MenuBar {
@@ -12,7 +12,7 @@ MenuBar {
         //            text: qsTr("&Peupler la base")
         //            onTriggered: ddb.peupler()
         //        }
-
+        //        anchors.fill: parent
         title: qsTr("&Fichier")
 
         Action {
@@ -23,6 +23,13 @@ MenuBar {
         Action {
             text: qsTr("&Ajouter les matieres par défault")
             onTriggered: repeupler_id.open()
+        }
+
+        Action {
+            text: qsTr("&Modifier les matières")
+            onTriggered: {
+                changer_matieres.open();
+            }
         }
 
     }
@@ -92,9 +99,22 @@ MenuBar {
 
     }
 
+    Dialog {
+        id: changer_matieres
+
+        anchors.centerIn: Overlay.overlay
+        height: ApplicationWindow.window.height * 0.75
+        width: ApplicationWindow.window.width * 0.9
+
+        contentItem: ChangeMatieres {
+        }
+
+    }
+
     background: Rectangle {
         anchors.fill: parent
         color: ddb.colorMainMenuBar
+        radius: 10
     }
 
 }

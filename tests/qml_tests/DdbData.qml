@@ -3,6 +3,8 @@ import QtTest 1.15
 
 /* on changes:
 matiereList : annee en moins
+              famille, actiite, position
+              */
 
 Item {
     //    print("##############  DDBDATA NON A JOURS##########")

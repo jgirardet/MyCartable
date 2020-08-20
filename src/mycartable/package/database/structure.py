@@ -8,7 +8,6 @@ from pony.orm import (
     Set,
     desc,
 )
-from package.constantes import ACTIVITES
 from .root_db import db
 from .mixins import ColorMixin, PositionMixin
 
@@ -27,15 +26,18 @@ class Annee(db.Entity):
         )
 
 
-class GroupeMatiere(db.Entity, PositionMixin):
+class GroupeMatiere(db.Entity, PositionMixin, ColorMixin):
     referent_attribute_name = "annee"
     id = PrimaryKey(int, auto=True)
     nom = Required(str)
     annee = Required(Annee)
     _position = Required(int)
+    _fgColor = Required(int, size=32, unsigned=True, default=4278190080)
+    _bgColor = Optional(int, size=32, unsigned=True, default=4294967295)
     matieres = Set("Matiere")
 
-    def __init__(self, position=None, annee=None, **kwargs):
+    def __init__(self, position=None, annee=None, bgColor=None, fgColor=None, **kwargs):
+        kwargs = self.adjust_kwargs_color(bgColor, fgColor, kwargs)
         with self.init_position(position, annee) as _position:
             super().__init__(annee=annee, _position=_position, **kwargs)
 
@@ -45,9 +47,11 @@ class GroupeMatiere(db.Entity, PositionMixin):
     def after_delete(self):
         self.after_delete_position()
 
-    def to_dict(**kwargs):
-        dico = super().to_dict(**kwargs)
+    def to_dict(self, **kwargs):
+        dico = super().to_dict(exclude=["_fgColor", "_bgColor"], **kwargs)
         dico["position"] = dico.pop("_position")
+        dico["fgColor"] = self.fgColor
+        dico["bgColor"] = self.bgColor
         return dico
 
 
@@ -60,27 +64,18 @@ class Matiere(db.Entity, ColorMixin, PositionMixin):
     groupe = Required("GroupeMatiere")
     _position = Required(int)
     _fgColor = Required(int, size=32, unsigned=True, default=4278190080)
-    fgColor = property(ColorMixin.fgColor_get, ColorMixin.fgColor_set)
     _bgColor = Optional(int, size=32, unsigned=True, default=4294967295)
-    bgColor = property(ColorMixin.bgColor_get, ColorMixin.bgColor_set)
 
     def __init__(
         self, bgColor=None, fgColor=None, groupe=None, position=None, **kwargs
     ):
-        if bgColor:
-            kwargs["_bgColor"] = ColorMixin.color_setter(bgColor)
-        if fgColor:
-            kwargs["_fgColor"] = ColorMixin.color_setter(fgColor)
+        kwargs = self.adjust_kwargs_color(bgColor, fgColor, kwargs)
         with self.init_position(position, groupe) as _position:
             super().__init__(groupe=groupe, _position=_position, **kwargs)
 
     @property
     def activites_list(self):
         return self.to_dict()["activites"]
-
-    def after_insert(self):
-        for ac in db.Activite.ACTIVITES:
-            Activite(nom=ac.nom, famille=ac.index, matiere=self)
 
     def to_dict(self, *args, **kwargs):
         res = super().to_dict(
@@ -93,7 +88,7 @@ class Matiere(db.Entity, ColorMixin, PositionMixin):
 
     def pages_par_section(self):
         res = []
-        for x in self.activites.select().order_by(Activite.famille):
+        for x in Activite.get_by_position(self.id):  # .order_by(Activite.famille):
             entry = x.to_dict()
             entry["pages"] = [
                 y.to_dict()
@@ -109,15 +104,29 @@ class Matiere(db.Entity, ColorMixin, PositionMixin):
         self.after_delete_position()
 
 
-class Activite(db.Entity):
-
-    ACTIVITES = ACTIVITES
+class Activite(db.Entity, PositionMixin):
+    referent_attribute_name = "matiere"
 
     id = PrimaryKey(int, auto=True)
     nom = Required(str)
-    famille = Required(int)
     matiere = Required(Matiere)
     pages = Set("Page")
+    _position = Required(int)
+
+    def __init__(self, position=None, matiere=None, **kwargs):
+        with self.init_position(position, matiere) as _position:
+            super().__init__(matiere=matiere, _position=_position, **kwargs)
+
+    def before_delete(self):
+        self.before_delete_position()
+
+    def after_delete(self):
+        self.after_delete_position()
+
+    def to_dict(self, **kwargs):
+        dico = super().to_dict(**kwargs)
+        dico["position"] = dico.pop("_position")
+        return dico
 
 
 class Page(db.Entity):
@@ -144,7 +153,6 @@ class Page(db.Entity):
         dico["matiereNom"] = self.activite.matiere.nom
         dico["matiereFgColor"] = self.activite.matiere.fgColor
         dico["matiereBgColor"] = self.activite.matiere.bgColor
-        dico["famille"] = self.activite.famille
         dico["created"] = self.created.isoformat()
         dico["modified"] = self.created.isoformat()
         return dico

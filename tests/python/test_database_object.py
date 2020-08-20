@@ -153,10 +153,20 @@ class TestPageMixin:
 class TestMatiereMixin:
     def create_matiere(self):
         gp = f_groupeMatiere(annee=2019)
+
+        def activ(mat):
+            f_activite(nom="un", matiere=mat)
+            f_activite(nom="deux", matiere=mat)
+            f_activite(nom="trois", matiere=mat)
+
         f_matiere("un", _fgColor=4294967295, _bgColor=4294901760, groupe=gp.id)
+        activ(1)
         f_matiere("deux", _fgColor=4294967295, _bgColor=4294901760, groupe=gp.id)
+        activ(2)
         f_matiere("trois", _fgColor=4294967295, _bgColor=4294901760, groupe=gp.id)
+        activ(3)
         f_matiere("quatre", _fgColor=4294967295, _bgColor=4294901760, groupe=gp.id)
+        activ(4)
 
     def test_init(self, dao):
 
@@ -241,6 +251,9 @@ class TestMatiereMixin:
             _fgColor=4294967295,
             _bgColor=4294901760,
         )
+        f_activite(matiere=5)
+        f_activite(matiere=5)
+        f_activite(matiere=5)
         dao.matieresListRefresh()
         reslist.append(
             {
@@ -258,13 +271,11 @@ class TestMatiereMixin:
     def test_pagesParSection(self, dao):
         assert dao.pagesParSection == []
         f_matiere()
+        b_activite(1, 3)
         p = f_page(td=True, activite=3)
         dao.currentMatiere = 1
         assert dao.pagesParSection[0]["id"] == 1
-        assert dao.pagesParSection[0]["famille"] == 0
-        assert dao.pagesParSection[1]["famille"] == 1
         assert dao.pagesParSection[1]["id"] == 2
-        assert dao.pagesParSection[2]["famille"] == 2
         assert dao.pagesParSection[2]["id"] == 3
         assert dao.pagesParSection[2]["pages"] == [p]
 
@@ -785,14 +796,14 @@ class TestDatabaseObject:
         assert d.currentPage == rec1["id"]
 
     def test_onNewPageCreated(self, ddbr, qtbot):
-        a = f_page(td=True, activite="1")
+        a = f_page(td=True)
         d = DatabaseObject(ddbr)
         d.onNewPageCreated(a)
         assert d.currentPage == a["id"]
         assert d.currentMatiere == a["matiere"]
 
     def test_onCurrentTitreSetted(self, ddbr, qtbot):
-        a = f_page(td=True, activite="1")
+        a = f_page(td=True)
         d = DatabaseObject(ddbr)
         with qtbot.wait_signals(
             [
@@ -858,7 +869,8 @@ class TestDatabaseObject:
         f_annee(2020)
         g = f_groupeMatiere(annee=2019)
         m = f_matiere(groupe=g.id)
-        p = f_page(matiere=m.id, created=datetime.now())
+        ac = f_activite(matiere=m)
+        p = f_page(activite=ac.id, created=datetime.now())
         dao.currentPage = 1
         assert dao.currentMatiere == m.id
         assert len(dao.recentsModel) == 1

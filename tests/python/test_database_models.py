@@ -60,9 +60,11 @@ class TestPage:
         g2018 = f_groupeMatiere(annee=2018)
         m2019 = f_matiere(groupe=g2019)
         m2018 = f_matiere(groupe=g2018)
+        ac2019 = f_activite(matiere=m2019.id)
+        ac2018 = f_activite(matiere=m2018.id)
         for i in range(50):
-            f_page(matiere=m2018.id)
-            f_page(matiere=m2019.id)
+            f_page(activite=ac2018.id)
+            f_page(activite=ac2019.id)
 
         # test query
         assert db.Page.select().count() == 100
@@ -75,7 +77,7 @@ class TestPage:
             old = i
 
         # formatted result
-        a = f_page(created=datetime.utcnow(), matiere=m2019.id)
+        a = f_page(created=datetime.utcnow(), activite=ac2019.id)
         res = a.to_dict()
         res["matiere"] = a.activite.matiere.id
         first_dict = db.Page.recents(2019)[0]
@@ -94,12 +96,13 @@ class TestPage:
             "matiereNom": p.activite.matiere.nom,
             "matiereBgColor": p.activite.matiere.bgColor,
             "matiereFgColor": p.activite.matiere.fgColor,
-            "famille": p.activite.famille,
             "lastPosition": p.lastPosition,
         }
 
     def test_nouvelle_page(self, ddb):
         a = f_matiere().to_dict()
+        ac = f_activite(matiere=a["id"])
+        flush()
         b = ddb.Page.new_page(activite=1, titre="bla")
         assert ddb.Page.get(id=b["id"], titre="bla", activite=1)
 
@@ -128,20 +131,39 @@ class TestGroupeMatiere:
         with db_session:
             assert GroupeMatiere[2].position == 0
 
+    def test_color_mixin(self, reset_db):
+        f_annee(id=1234)
+        with db_session:
+            GroupeMatiere(nom="bk", annee=1234)
+            GroupeMatiere(nom="bk", annee=1234, fgColor="red")
+            GroupeMatiere(nom="bk", annee=1234, bgColor="green")
+        with db_session:
+            assert GroupeMatiere[1].bgColor == QColor("white")
+            assert GroupeMatiere[1].fgColor == QColor("black")
+            assert GroupeMatiere[2].bgColor == QColor("white")
+            assert GroupeMatiere[2].fgColor == QColor("red")
+            assert GroupeMatiere[3].bgColor == QColor("green")
+            assert GroupeMatiere[3].fgColor == QColor("black")
+            assert GroupeMatiere[2].to_dict()["fgColor"] == QColor("red")
+            assert GroupeMatiere[3].to_dict()["bgColor"] == QColor("green")
+
 
 class TestMatiere:
     def test_to_dict(self, ddb):
-        f_matiere().to_dict()  # forcer une creation d'id
+        f_matiere()
         groupe = f_groupeMatiere(annee=2019)
         a = f_matiere(
             nom="Géo", groupe=groupe, _fgColor=4294967295, _bgColor=4294901760
         )
         pages = [b_page(3, matiere=2) for x in a.activites]
+        f_activite(matiere=a.id)
+        f_activite(matiere=a.id)
+        f_activite(matiere=a.id)
         assert a.to_dict() == {
             "position": 0,
             "id": 2,
             "nom": "Géo",
-            "activites": [4, 5, 6],
+            "activites": [1, 2, 3],
             "groupe": 2,
             "fgColor": QColor("white"),
             "bgColor": QColor("red"),
@@ -191,12 +213,27 @@ class TestMatiere:
 
             # a.before_delete_position = Ma
 
-    def test_activite_auto_create_after_insert(self, ddb):
-        a = f_matiere()
-        len(a.activites) == ddb.Activite.ACTIVITES
+    def test_color_mixin(self, reset_db):
+        a = f_groupeMatiere()
+        with db_session:
+            Matiere(nom="bk", groupe=1)
+            Matiere(nom="bk", groupe=1, fgColor="red")
+            Matiere(nom="bk", groupe=1, bgColor="green")
+        with db_session:
+            assert Matiere[1].bgColor == QColor("white")
+            assert Matiere[1].fgColor == QColor("black")
+            assert Matiere[2].bgColor == QColor("white")
+            assert Matiere[2].fgColor == QColor("red")
+            assert Matiere[3].bgColor == QColor("green")
+            assert Matiere[3].fgColor == QColor("black")
+            assert Matiere[2].to_dict()["fgColor"] == QColor("red")
+            assert Matiere[3].to_dict()["bgColor"] == QColor("green")
 
     def test_page_par_section(self, ddbr):
         f_matiere(nom="Math", _bgColor=4294967295, _fgColor=4294901760)
+        un = f_activite(nom="un", matiere=1)
+        deux = f_activite(nom="deux", matiere=1)
+        trois = f_activite(nom="trois", matiere=1)
         pages = [
             {
                 "created": "2019-03-14T17:35:58.111997",
@@ -242,15 +279,13 @@ class TestMatiere:
             q = mm.pages_par_section()
             assert q == [
                 {
-                    "famille": 0,
                     "id": 1,
                     "matiere": 1,
-                    "nom": "Leçons",
+                    "nom": "un",
                     "pages": [
                         {
                             "activite": 1,
                             "created": "2019-09-16T03:57:38.860509",
-                            "famille": 0,
                             "id": 5,
                             "lastPosition": None,
                             "matiere": 1,
@@ -263,7 +298,6 @@ class TestMatiere:
                         {
                             "activite": 1,
                             "created": "2019-08-17T21:33:55.644158",
-                            "famille": 0,
                             "id": 3,
                             "lastPosition": None,
                             "matiere": 1,
@@ -276,7 +310,6 @@ class TestMatiere:
                         {
                             "activite": 1,
                             "created": "2019-03-14T17:35:58.111997",
-                            "famille": 0,
                             "id": 1,
                             "lastPosition": None,
                             "matiere": 1,
@@ -287,18 +320,18 @@ class TestMatiere:
                             "matiereFgColor": QColor("red"),
                         },
                     ],
+                    "position": 0,
                 },
-                {"famille": 1, "id": 2, "matiere": 1, "nom": "Exercices", "pages": []},
+                {"id": 2, "matiere": 1, "nom": "deux", "pages": [], "position": 1},
                 {
-                    "famille": 2,
                     "id": 3,
                     "matiere": 1,
-                    "nom": "Evaluations",
+                    "nom": "trois",
+                    "position": 2,
                     "pages": [
                         {
                             "activite": 3,
                             "created": "2020-02-18T22:25:14.288186",
-                            "famille": 2,
                             "id": 4,
                             "lastPosition": None,
                             "matiere": 1,
@@ -311,7 +344,6 @@ class TestMatiere:
                         {
                             "activite": 3,
                             "created": "2019-10-30T10:54:18.834326",
-                            "famille": 2,
                             "id": 2,
                             "lastPosition": None,
                             "matiere": 1,
@@ -324,6 +356,18 @@ class TestMatiere:
                     ],
                 },
             ]
+
+
+class TestActivite:
+    def test_delete_mixin_position(self, reset_db):
+        f_matiere()
+        b_activite(1, 2)
+        with db_session:
+            assert Activite[1].position == 0
+            assert Activite[2].position == 1
+            Activite[1].delete()
+        with db_session:
+            assert Activite[2].position == 0
 
 
 class TestSection:
@@ -1379,15 +1423,24 @@ class TestEquationModel:
         assert a.set(content="1+2", curseur=9)["curseur"] == 9
 
 
-class TestColorMixin:
-    class YupMixin(ColorMixin):
-        _fgColor = None
-        fgColor = property(ColorMixin.fgColor_get, ColorMixin.fgColor_set)
-        _bgColor = None
-        bgColor = property(ColorMixin.bgColor_get, ColorMixin.bgColor_set)
+class BaseTestColorMixin:
+    def __init__(self, _bgColor=None, _fgColor=None):
+        self._fgColor = _fgColor
+        self._bgColor = _bgColor
 
+
+class YupMixin(BaseTestColorMixin, ColorMixin):
+    _fgColor = None
+    _bgColor = None
+
+    def __init__(self, bgColor=None, fgColor=None, **kwargs):
+        kwargs = self.adjust_kwargs_color(bgColor, fgColor, kwargs)
+        super().__init__(**kwargs)
+
+
+class TestColorMixin:
     def test_fgcolor_mixin(self):
-        a = self.YupMixin()
+        a = YupMixin()
 
         assert a.fgColor == QColor("transparent")
         assert a._fgColor == None
@@ -1413,7 +1466,7 @@ class TestColorMixin:
         assert a._fgColor == 4278190335
 
     def test_bgcolor_mixin(self):
-        a = self.YupMixin()
+        a = YupMixin()
 
         assert a.bgColor == QColor("transparent")
         assert a._bgColor == None
@@ -1437,6 +1490,11 @@ class TestColorMixin:
         a.bgColor = [1, 1, 1]  # not supported no changed
         assert a.bgColor == QColor("blue")
         assert a._bgColor == 4278190335
+
+    def test_adjust_kwargs(self):
+        a = YupMixin(fgColor="red", bgColor="blue")
+        assert a.fgColor == QColor("red")
+        assert a.bgColor == QColor("blue")
 
 
 @pytest.fixture

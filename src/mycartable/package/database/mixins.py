@@ -6,6 +6,24 @@ from pony.orm.core import Entity, Attribute, select, Optional, EntityProxy, max,
 
 
 class ColorMixin:
+    """
+    Mixin qui ajoute bgColor et fgColor
+
+    Dans la nouvelle classe ajouter:
+        _fgColor = Required(int, size=32, unsigned=True, default=4278190080)
+        _bgColor = Optional(int, size=32, unsigned=True, default=4294967295)
+
+        def __init__(self, bgColor=None, fgColor=None,  **kwargs):
+            kwargs = self.adjust_kwargs_color(bgColor, fgColor, kwargs)
+            super().__init__(**kwargs)
+
+        def to_dict(*kwargs)
+           res = super().to_dict(exclude=["_fgColor", "_bgColor"])
+           res["fgColor"] = self.fgColor
+           res["bgColor"] = self.bgColor
+           return res
+    """
+
     @staticmethod
     def color_getter(value):
         if value is None:
@@ -25,21 +43,32 @@ class ColorMixin:
         else:
             return None
 
-    def fgColor_get(self):
+    @property
+    def fgColor(self):
         return self.color_getter(self._fgColor)
 
-    def fgColor_set(self, value):
+    @fgColor.setter
+    def fgColor(self, value):
         res = self.color_setter(value)
         if res:
             self._fgColor = self.color_setter(value)
 
-    def bgColor_get(self):
+    @property
+    def bgColor(self):
         return self.color_getter(self._bgColor)
 
-    def bgColor_set(self, value):
+    @bgColor.setter
+    def bgColor(self, value):
         res = self.color_setter(value)
         if res:
             self._bgColor = self.color_setter(value)
+
+    def adjust_kwargs_color(self, bg, fg, kwargs):
+        if bg:
+            kwargs["_bgColor"] = self.color_setter(bg)
+        if fg:
+            kwargs["_fgColor"] = self.color_setter(fg)
+        return kwargs
 
 
 class PositionMixin:
@@ -61,12 +90,23 @@ class PositionMixin:
             def after_delete(self):
                 self.after_delete_position()
 
-            def to_dict():
+            def to_dict(**kwargs):
                 dico = super().to_dict(*args, **kwargs)
                 dico["position"] = dico.pop("_position")
                 return dico
 
             ```
+        Le test :
+            def test_delete_mixin_position(self, reset_db):
+                f_ref()
+                Activite(ref=ref)
+                Activite(ref=ref)
+                with db_session:
+                    assert Activite[1].position == 0
+                    assert Activite[2].position == 1
+                    Activite[1].delete()
+                with db_session:
+                    assert Activite[2].position == 0
 
     """
 

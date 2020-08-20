@@ -87,40 +87,30 @@ def f_matiere(nom=None, groupe=None, _bgColor=None, _fgColor=None, td=False):
         return item.to_dict() if td else item
 
 
-#
-# def f_activite(famille=None, matiere=None):
-#     activites = ((0, "Exercice"), (1, "Leçon"), (2, "Divers"))
-#     famille = famille if famille is not None else random.choice(activites)[0]
-#     nom = activites[famille][1]
-#     with db_session:
-#         matiere = matiere or f_matiere()
-#         return db.Activite(nom=nom, famille=famille, matiere=matiere)
-
-
-def f_page(
-    created=None, activite=None, titre=None, td=False, matiere=None, lastPosition=None
-):
-    """actvite int = id mais str = index"""
+def f_activite(nom=None, matiere=None, td=False):
+    nom = nom or gen.text.word()
+    matiere = matiere or f_matiere()
     with db_session:
-        created = created or f_datetime()
+        item = db.Activite(
+            nom=nom, matiere=matiere if isinstance(matiere, int) else matiere.id
+        )
+        item.flush()
+        return item.to_dict() if td else item
 
-        if matiere:
-            if activite is None:
-                activite = random.choice(db.Matiere[matiere].activites.select()[:])
-            else:
-                activite = db.Activite.get(matiere=matiere, famille=int(activite))
-        elif activite:
-            if isinstance(activite, int):
-                activite = activite
-            elif isinstance(activite, str):
-                m = f_matiere()
-                m.flush()
-                activite = m.activites_list[int(activite)]
-        else:
-            m = f_matiere()
-            m.flush()
-            activite = random.choice(m.activites.select()[:])
-        titre = titre or " ".join(gen.text.words(5))
+
+def b_activite(matiere, nb):
+    for i in range(nb):
+        f_activite(matiere=matiere)
+
+
+def f_page(created=None, activite=None, titre=None, td=False, lastPosition=None):
+    """actvite int = id mais str = index"""
+    activite = activite or f_activite()
+    if not isinstance(activite, int):
+        activite = activite.id
+    created = created or f_datetime()
+    titre = titre or " ".join(gen.text.words(5))
+    with db_session:
         item = db.Page(
             created=created, activite=activite, titre=titre, lastPosition=lastPosition
         )
@@ -136,10 +126,10 @@ def b_page(n, *args, **kwargs):
 def _f_section(
     model, *args, created=None, page=None, position=None, td=False, **kwargs,
 ):
+    page = page or f_page().id
+    created = created or f_datetime()
 
     with db_session:
-        created = created or f_datetime()
-        page = page or f_page(td=True)["id"]
         item = getattr(db, model)(
             *args, created=created, page=page, position=position, **kwargs,
         )

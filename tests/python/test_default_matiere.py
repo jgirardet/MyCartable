@@ -8,6 +8,9 @@ def test_MATIERES():
     assert build_matiere(MATIERES_BASE, MATIERE_GROUPE_BASE) == res
 
 
+# def test_get_degrade():
+
+
 MATIERE_GROUPE_BASE = [
     {
         "nom": "Mathématiques",

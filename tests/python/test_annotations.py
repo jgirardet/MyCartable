@@ -51,7 +51,7 @@ class TestAnnotationModel:
         qtmodeltester.check(a)
 
     #
-    def test_data_role(self, am):
+    def test_data_role(self, am, qtbot):
         a = am(2)
         # valid index
         assert a.data(a.index(1, 0), a.AnnotationRole)["id"] == 2
@@ -60,7 +60,7 @@ class TestAnnotationModel:
         # no good role
         assert a.data(a.index(1, 0), 99999) is None
 
-    def test_flags(self, am):
+    def test_flags(self, am, qtbot):
         x = am(1)
         assert int(x.flags(x.index(0, 0))) == 128 + 35
         assert x.flags(x.index(99, 99)) is None

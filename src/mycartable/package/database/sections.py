@@ -9,10 +9,12 @@ from package.exceptions import MyCartableOperationError
 from package.operations.api import create_operation
 from pony.orm import Required, PrimaryKey, Optional, Set, select, count, max, flush
 from .root_db import db
-from .mixins import ColorMixin
+from .mixins import ColorMixin, PositionMixin
 
 
-class Section(db.Entity):
+class Section(db.Entity, PositionMixin):
+    referent_attribute_name = "page"
+
     id = PrimaryKey(int, auto=True)
     created = Required(datetime, default=datetime.utcnow)
     modified = Optional(datetime)
@@ -20,48 +22,13 @@ class Section(db.Entity):
     _position = Required(int)
     annotations = Set("Annotation")
 
-    def __init__(self, *args, _position=None, page=None, position=None, **kwargs):
-        # breakpoint()
-        if _position is not None:  # doit être juste sinon erreur:
-            pass
-        else:
-            if isinstance(page, db.Page):
-                page = page.id
-            to_select = (  # pragma: no branch
-                s for s in db.Section if s.page.id == page
-            )
-            query = select(to_select)
-            _position = query.count()
+    def __new__(cls, *args, **kwargs):
+        cls.base_class_position = Section
+        return super().__new__(cls)
 
-            if position is not None:
-                _position = self.recalcule_position(_position, position, query=query)
-        # self.updating_position = False
-        super().__init__(*args, _position=_position, page=page, **kwargs)
-
-    @property
-    def position(self):
-        return self._position
-
-    @position.setter
-    def position(self, new):
-        self._position = self.recalcule_position(self._position, new)
-
-    def recalcule_position(self, old, new, query=None):
-        query = query if query is not None else self.page.sections
-        if new >= query.count():
-            return query.count()
-        if old == new:
-            return
-        elif old < new:
-            for sec in query:
-                if old < sec.position <= new and sec != self:
-                    sec._position -= 1
-        else:
-            # elif old > new:
-            for sec in query:
-                if new <= sec.position < old:
-                    sec._position += 1
-        return new
+    def __init__(self, *args, page=None, position=None, **kwargs):
+        with self.init_position(position, page) as _position:
+            super().__init__(*args, _position=_position, page=page, **kwargs)
 
     def to_dict(self, *args, **kwargs):
         dico = super().to_dict(*args, **kwargs)
@@ -75,28 +42,22 @@ class Section(db.Entity):
         self.page.modified = self.modified
 
     def before_update(self):
-        # if getattr(self, "updating_position", None):
-        #     self.updating_position = False
-        # else:
         self.modified = datetime.utcnow()
         self.page.reasonUpdate = True  # block page autoupdate
         self.page.modified = self.modified
 
     def before_delete(self):
         # backup la page pour after delete
-        self._page = self.page.id
+        self.before_delete_position()
 
     def after_delete(self):
-        page = db.Page.get(id=self._page)
-        n = 0
-        for s in page.content:
-            s.updating_position = True  # do not update modified on position
-            s._position = n
-            n += 1
+        page = self._positionbackup[0][self._positionbackup[1]]
+        self.after_delete_position()
         page.modified = datetime.utcnow()
 
 
 class ImageSection(Section):
+
     path = Required(str)
 
     def to_dict(self, **kwargs):

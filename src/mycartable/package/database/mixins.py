@@ -1,6 +1,8 @@
+from contextlib import contextmanager
+
 from PySide2.QtGui import QColor
 from pony.orm import Required
-from pony.orm.core import Entity, Attribute, select, Optional, EntityProxy
+from pony.orm.core import Entity, Attribute, select, Optional, EntityProxy, max, flush
 
 
 class ColorMixin:
@@ -50,8 +52,8 @@ class PositionMixin:
         - modifier les fonctions suivantes:
               ```
             def __init__(self, position=None, ref=None, **kwargs):
-                _position = self.init_position(position, ref)
-                super().__init__(ref=ref, _position=_position, **kwargs)
+                 with self.init_position(position, ref) as _position:
+                    super().__init__(ref=ref, _position=_position, **kwargs)
 
             def before_delete(self):
                 self.before_delete_position()
@@ -69,6 +71,7 @@ class PositionMixin:
     """
 
     referent_attribute_name: str
+    base_class_position: Optional(Entity) = None
 
     @property
     def position(self):
@@ -80,20 +83,24 @@ class PositionMixin:
 
     @classmethod
     def get_by_position(cls, ref_id):
+        base_class = cls.base_class_position or cls
         return select(
-            p for p in cls if getattr(p, cls.referent_attribute_name).id == ref_id
-        ).order_by(cls._position)
+            p
+            for p in base_class
+            if getattr(p, base_class.referent_attribute_name).id == ref_id
+        ).order_by(base_class._position)
 
     def get_referent(self):
         return getattr(self, self.referent_attribute_name)
 
     def _recalcule_position(self, old, new, query=None):
+        base_class = self.base_class_position or self.__class__
         if old == new:
             return new
         query = (
             query
             if query is not None
-            else self.__class__.get_by_position(self.get_referent().id)
+            else base_class.get_by_position(self.get_referent().id)
         )
         if new >= query.count():
             return query.count()
@@ -109,20 +116,36 @@ class PositionMixin:
                     sec._position += 1
         return new
 
+    @contextmanager
     def init_position(self, pos, ref):
+        base_class = self.base_class_position or self.__class__
+        if isinstance(ref, (Entity, EntityProxy)):
+            ref = ref.id
+        nb = self.get_by_position(ref).count()
         if pos is not None:
-            return pos
+            if pos >= nb:
+                yield nb
+
+            else:
+                query = select(
+                    p
+                    for p in base_class
+                    if getattr(p, self.referent_attribute_name).id == ref
+                    and p.position >= pos
+                )
+                for s in query:
+                    s._position += 1
+                yield pos
         else:
-            if isinstance(ref, (Entity, EntityProxy)):
-                ref = ref.id
 
             query = select(
                 s
-                for s in self.__class__
+                for s in base_class
                 if getattr(s, self.referent_attribute_name).id == ref
             )
             new_pos = query.count()
-            return new_pos
+            yield new_pos
+        flush()
 
     def before_delete_position(self):
         ref = self.get_referent()
@@ -132,18 +155,18 @@ class PositionMixin:
         )
 
     def after_delete_position(self):
+        base_class = self.base_class_position or self.__class__
         n = 0
-        self_class = self.__class__
+        # self_class = self.__class__
         # try:
         referent = self._positionbackup[0][self._positionbackup[1]]
         # except:
         #     return
         children = select(
             p
-            for p in self.__class__
+            for p in base_class
             if getattr(p, self.referent_attribute_name) == referent
-        ).order_by(self_class._position)
+        ).order_by(base_class._position)
         for s in children:
-            s.updating_position = True  # do not update modified on position
             s._position = n
             n += 1

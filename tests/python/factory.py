@@ -134,26 +134,14 @@ def b_page(n, *args, **kwargs):
 
 
 def _f_section(
-    model,
-    *args,
-    created=None,
-    page=None,
-    position=None,
-    _position=None,
-    td=False,
-    **kwargs,
+    model, *args, created=None, page=None, position=None, td=False, **kwargs,
 ):
 
     with db_session:
         created = created or f_datetime()
         page = page or f_page(td=True)["id"]
         item = getattr(db, model)(
-            *args,
-            created=created,
-            page=page,
-            _position=_position,
-            position=position,
-            **kwargs,
+            *args, created=created, page=page, position=position, **kwargs,
         )
         dico = item.to_dict()  # valid la création
         return dico if td else item
@@ -380,9 +368,9 @@ def populate_database(matieres_list=MATIERES, nb_page=100):
     user = db.Utilisateur(nom="Lenom", prenom="Leprenom")
     annee = Annee(id=2019, niveau="cm1", user=user)
     Annee(id=2018, niveau="ce2", user=user)
-    [db.GroupeMatiere(**x) for x in MATIERE_GROUPE]
+    [db.GroupeMatiere(**x, annee=annee.id) for x in MATIERE_GROUPE]
     flush()
-    matieres = [db.Matiere(**x, annee=annee.id) for x in matieres_list]
+    matieres = [db.Matiere(**x) for x in matieres_list]
 
 
 #

@@ -482,7 +482,6 @@ class TestSectionMixin:
             pass
         if content["path"] == "png_annot":
             content["path"] = str(png_annot)
-            # breakpoint()
         elif content["path"] == "lepdf":
             content["path"] = str(resources / "2pages.pdf")
         elif isinstance(content["path"], QUrl):
@@ -803,15 +802,17 @@ class TestDatabaseObject:
         ):
             d.currentTitreSetted.emit()
 
-    def test_onSectionAdded(self, dao, ddbn):
+    def test_onSectionAdded(self, dao, ddbn, qtbot):
         p = f_page()
         s1 = f_section(page=p.id)
         s2 = f_section(page=p.id)
         dao.pageModel.slotReset(p.id)
         assert s1.position == 0
+        assert s2.position == 1
         newid = dao.addSection(p.id, {"classtype": "TextSection"})
         with db_session:
             item = ddbn.Section[newid]
+            flush()
             assert item.position == 2
         p = dao.pageModel
         assert p.rowCount() == 3

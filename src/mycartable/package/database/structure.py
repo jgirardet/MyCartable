@@ -27,12 +27,28 @@ class Annee(db.Entity):
         )
 
 
-class GroupeMatiere(db.Entity):
+class GroupeMatiere(db.Entity, PositionMixin):
+    referent_attribute_name = "annee"
     id = PrimaryKey(int, auto=True)
     nom = Required(str)
     annee = Required(Annee)
-
+    _position = Required(int)
     matieres = Set("Matiere")
+
+    def __init__(self, position=None, annee=None, **kwargs):
+        with self.init_position(position, annee) as _position:
+            super().__init__(annee=annee, _position=_position, **kwargs)
+
+    def before_delete(self):
+        self.before_delete_position()
+
+    def after_delete(self):
+        self.after_delete_position()
+
+    def to_dict(**kwargs):
+        dico = super().to_dict(**kwargs)
+        dico["position"] = dico.pop("_position")
+        return dico
 
 
 class Matiere(db.Entity, ColorMixin, PositionMixin):
@@ -55,8 +71,8 @@ class Matiere(db.Entity, ColorMixin, PositionMixin):
             kwargs["_bgColor"] = ColorMixin.color_setter(bgColor)
         if fgColor:
             kwargs["_fgColor"] = ColorMixin.color_setter(fgColor)
-        _position = self.init_position(position, groupe)
-        super().__init__(groupe=groupe, _position=_position, **kwargs)
+        with self.init_position(position, groupe) as _position:
+            super().__init__(groupe=groupe, _position=_position, **kwargs)
 
     @property
     def activites_list(self):

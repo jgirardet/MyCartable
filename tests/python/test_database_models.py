@@ -118,7 +118,15 @@ class TestPage:
 
 
 class TestGroupeMatiere:
-    pass
+    def test_delete_mixin_position(self, reset_db):
+        a = f_groupeMatiere(annee=2019)
+        f_groupeMatiere(annee=2019)
+        with db_session:
+            assert GroupeMatiere[1].position == 0
+            assert GroupeMatiere[2].position == 1
+            GroupeMatiere[1].delete()
+        with db_session:
+            assert GroupeMatiere[2].position == 0
 
 
 class TestMatiere:
@@ -323,15 +331,26 @@ class TestSection:
         p = f_page()
         f_section(page=p.id)
         with db_session:
-            s = ddbr.Section(page=p)
+            s = ddbr.Section(page=p.id)
         with db_session:
-            x = ddbr.Section(page=p)
+            x = ddbr.Section(page=p.id)
         assert s._position == 1
         assert x._position == 2
         with db_session:
-            z = ddbr.Section(page=p, position=1)
+            z = ddbr.Section(page=p.id, position=1)
             assert ddbr.Section[s.id].position == 2
             assert ddbr.Section[x.id].position == 3
+
+    def test_delete_mixin_position(self, reset_db):
+        a = f_page()
+        f_section(page=a.id)
+        f_section(page=a.id)
+        with db_session:
+            assert Section[1].position == 0
+            assert Section[2].position == 1
+            Section[1].delete()
+        with db_session:
+            assert Section[2].position == 0
 
     def test_position_property(self, ddb):
         p = f_page()
@@ -345,6 +364,32 @@ class TestSection:
             x.position = 0
             assert z.position == 1
             assert x.position == 0
+
+    def test_inheritance_position(self, reset_db):
+        page = f_page()
+        f_section(page=page.id)
+        with db_session:
+            s = TextSection(page=page.id)
+            t = EquationSection(page=page.id)
+            u = Section(page=page.id)
+            assert s.position == 1
+            assert t.position == 2
+            assert u.position == 3
+
+    def test_inheritance_position2(self, reset_db):
+        page = f_page()
+        f_section(page=page.id)
+        with db_session:
+            s = TextSection(page=page.id)
+        with db_session:
+            t = EquationSection(page=page.id)
+        with db_session:
+            u = Section(page=page.id)
+        with db_session:
+            assert Section[1].position == 0
+            assert Section[2].position == 1
+            assert Section[3].position == 2
+            assert Section[4].position == 3
 
     def test_to_dict(self, ddbr):
         a = datetime.utcnow()
@@ -435,7 +480,7 @@ class TestSection:
         a = f_page()
         with db_session:
             for i in range(5):
-                z = ddbr.Section(page=a.id, _position=i)
+                z = ddbr.Section(page=a.id, position=i)
                 flush()
             for i in range(5):
                 assert ddbr.Section[i + 1].position == i
@@ -453,7 +498,7 @@ class TestSection:
         a = f_page()
         with db_session:
             for i in range(5):
-                z = ddbr.Section(page=a.id, _position=i)
+                z = ddbr.Section(page=a.id, position=i)
                 flush()
             for i in range(5):
                 assert ddbr.Section[i + 1].position == i
@@ -466,11 +511,6 @@ class TestSection:
             assert ddbr.Section[3].position == 3  # Section[2]
             assert ddbr.Section[4].position == 1  # Section[3]
             assert ddbr.Section[5].position == 4  # Section[5]
-
-    def test_recalcule_position_idem(self, ddb):
-        f_section()
-        x = f_section(page=1)
-        assert x.recalcule_position(1, 1) is None
 
 
 class TestImageSection:
@@ -1413,14 +1453,17 @@ def position_mixed(reset_db):
             _position = Required(int)
 
             def __init__(self, position=None, ref=None, **kwargs):
-                _position = self.init_position(position, ref)
-                super().__init__(ref=ref, _position=_position, **kwargs)
+                with self.init_position(position, ref) as _position:
+                    super().__init__(ref=ref, _position=_position, **kwargs)
 
             def before_delete(self):
                 self.before_delete_position()
 
             def after_delete(self):
                 self.after_delete_position()
+
+        class SubMixed(Mixed):
+            base_class_position = Mixed
 
         db.bind(provider="sqlite", filename=":memory:")
         db.generate_mapping(create_tables=True)
@@ -1432,14 +1475,14 @@ def position_mixed(reset_db):
             y = Mixed(ref=rf)
             flush()
             z = Mixed(ref=rf)
-            return Referent, Mixed, rf, x, y, z
+            return Referent, Mixed, SubMixed, rf, x, y, z
 
     return setup
 
 
 class TestPositionMixin:
     def test_create_ete_entity(self, position_mixed):
-        Referent, Mixed, ref, x, y, z = position_mixed()
+        Referent, Mixed, SubMixed, ref, x, y, z = position_mixed()
         with db_session:
             x = Mixed[1]
             y = Mixed[2]
@@ -1450,7 +1493,7 @@ class TestPositionMixin:
 
     @pytest.mark.parametrize("todel, un, deux", [(1, 2, 3), (2, 1, 3), (3, 1, 2),])
     def test_delete_recalculate(self, todel, un, deux, position_mixed):
-        Referent, Mixed, ref, x, y, z = position_mixed()
+        Referent, Mixed, SubMixed, ref, x, y, z = position_mixed()
         with db_session:
             Mixed[todel].delete()
 
@@ -1473,16 +1516,44 @@ class TestPositionMixin:
         ],
     )
     def test_set_position(self, tomove, where, un, deux, trois, position_mixed):
-        Referent, Mixed, ref, x, y, z = position_mixed()
+        Referent, Mixed, SubMixed, ref, x, y, z = position_mixed()
         with db_session:
             Mixed[tomove].position = where
             assert Mixed[1].position == un
             assert Mixed[2].position == deux
             assert Mixed[3].position == trois
 
-        # with db_session:
-        #     assert Mixed[1].position == 0
-        #     assert Mixed[2].position == 1
+    @pytest.mark.parametrize(
+        "where, un, deux, trois, quatre",
+        [(1, 0, 2, 3, 1), (0, 1, 2, 3, 0), (2, 0, 1, 3, 2), (20, 0, 1, 2, 3),],
+    )
+    def test_insert_at(self, position_mixed, where, un, deux, trois, quatre):
+        Referent, Mixed, SubMixed, ref, x, y, z = position_mixed()
+        with db_session:
+            a = Mixed(ref=ref.id, position=where)
+        with db_session:
+            assert Mixed[1].position == un
+            assert Mixed[2].position == deux
+            assert Mixed[3].position == trois
+            assert Mixed[4].position == quatre
+
+    def test_multiple_add_on_dame_db_session(self, position_mixed):
+        Referent, Mixed, SubMixed, ref, x, y, z = position_mixed()
+        with db_session:
+            s = Mixed(ref=ref.id)
+            t = Mixed(ref=ref.id)
+        with db_session:
+            assert s.position == 3
+            assert t.position == 4
+
+    def test_inheritance(self, position_mixed):
+        Referent, Mixed, SubMixed, ref, x, y, z = position_mixed()
+        with db_session:
+            s = SubMixed(ref=ref.id)
+            t = SubMixed(ref=ref.id)
+        with db_session:
+            assert s.position == 3
+            assert t.position == 4
 
 
 class TestUtilisateur:

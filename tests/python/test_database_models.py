@@ -360,8 +360,7 @@ class TestMatiere:
 
 class TestActivite:
     def test_delete_mixin_position(self, reset_db):
-        f_matiere()
-        b_activite(1, 2)
+        b_activite(2)
         with db_session:
             assert Activite[1].position == 0
             assert Activite[2].position == 1

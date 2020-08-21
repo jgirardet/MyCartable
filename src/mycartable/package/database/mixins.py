@@ -74,6 +74,8 @@ class ColorMixin:
 class PositionMixin:
     """Mixin qui apporte la possibilté d'ordonner la collection
 
+    Attention: toujous utiliser flush avant delete ou nouvelle db_session après  delete
+
     Dans la nouvelle classe :
         - spécifier `referent_attribute_name` comme class attribute. Correspond à
         l'autre côté de la collection.

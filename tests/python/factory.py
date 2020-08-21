@@ -64,7 +64,15 @@ def f_groupeMatiere(nom=None, annee=None):
         return db.GroupeMatiere(nom=nom, annee=annee)
 
 
-def f_matiere(nom=None, groupe=None, _bgColor=None, _fgColor=None, td=False):
+def f_matiere(
+    nom=None,
+    groupe=None,
+    bgColor=None,
+    fgColor=None,
+    _bgColor=None,
+    _fgColor=None,
+    td=False,
+):
     nom = nom or random.choice(["Français", "Math", "Anglais", "Histoire"])
     color_codes = [
         4294967295,
@@ -74,8 +82,14 @@ def f_matiere(nom=None, groupe=None, _bgColor=None, _fgColor=None, td=False):
         4294944000,
         4294951115,
     ]
-    _fgColor = _fgColor or random.choice(color_codes)
-    _bgColor = _bgColor or random.choice(color_codes)
+    if fgColor:
+        _fgColor = QColor(fgColor).rgba()
+    else:
+        _fgColor = _fgColor or random.choice(color_codes)
+    if bgColor:
+        _bgColor = QColor(bgColor).rgba()
+    else:
+        _bgColor = _bgColor or random.choice(color_codes)
     groupe = groupe or f_groupeMatiere()
     flush()
     if isinstance(groupe, db.GroupeMatiere):
@@ -85,6 +99,15 @@ def f_matiere(nom=None, groupe=None, _bgColor=None, _fgColor=None, td=False):
         item = db.Matiere(nom=nom, groupe=groupe, _fgColor=_fgColor, _bgColor=_bgColor)
 
         return item.to_dict() if td else item
+
+
+def b_matiere(nb, groupe=None, **kwargs):
+    if groupe:
+        groupe = groupe if isinstance(groupe, int) else groupe.id
+    else:
+        groupe = f_groupeMatiere()
+    for i in range(nb):
+        f_matiere(groupe=groupe, **kwargs)
 
 
 def f_activite(nom=None, matiere=None, td=False):
@@ -98,9 +121,13 @@ def f_activite(nom=None, matiere=None, td=False):
         return item.to_dict() if td else item
 
 
-def b_activite(matiere, nb):
+def b_activite(nb, matiere=None, nom=None):
+    if matiere:
+        matiere = matiere if isinstance(matiere, int) else matiere.id
+    else:
+        matiere = f_matiere()
     for i in range(nb):
-        f_activite(matiere=matiere)
+        f_activite(matiere=matiere, nom=nom)
 
 
 def f_page(created=None, activite=None, titre=None, td=False, lastPosition=None):

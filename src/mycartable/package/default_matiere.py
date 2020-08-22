@@ -62,8 +62,10 @@ MATIERE_GROUPE_BASE = [
 def build_matiere_groupe():
     groups = []
     for g in MATIERE_GROUPE_BASE:
-        cop = {k: v for k, v in g.items() if k != "bgColor"}
+        cop = {k: v for k, v in g.items()}  # if k != "bgColor"}
+        cop["bgColor"] = QColor.fromHsv(*cop["bgColor"])
         groups.append(cop)
+
     return groups
 
 

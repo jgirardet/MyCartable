@@ -13,7 +13,11 @@
     <qresource prefix="/qml/configuration">
         <file alias="NewUser.qml">qml/configuration/NewUser.qml</file>
         <file alias="NewAnnee.qml">qml/configuration/NewAnnee.qml</file>
-        <file alias="ChangeMatieres.qml">qml/configuration/ChangeMatieres.qml</file>
+        <file alias="RefColorDialog.qml">qml/configuration/RefColorDialog.qml</file>
+        <file alias="ActionButtonMatiere.qml">qml/configuration/ActionButtonMatiere.qml</file>
+        <file alias="ChangeMatiere.qml">qml/configuration/ChangeMatiere.qml</file>
+        <file alias="ChangeGroupe.qml">qml/configuration/ChangeGroupe.qml</file>
+        <file alias="ChangeActivite.qml">qml/configuration/ChangeActivite.qml</file>
 
     </qresource>
 
@@ -109,6 +113,7 @@
         <file alias="removePage">data/icons/base/divers/png/006-trash-bin.png</file>
         <file alias="newTableauSection">data/icons/base/divers/png/013-spreadsheet.png</file>
         <file alias="newOperationSection">data/icons/base/pack/png/calculator-1.png</file>
+        <file alias="less-than">data/icons/base/pack/png/is-less-than.png</file>
         <file alias="rotateLeft">data/icons/base/perso/rotateleft.png</file>
         <file alias="odt">data/icons/base/perso/odt.png</file>
         <file alias="pdf">data/icons/base/perso/pdf.png</file>
@@ -118,6 +123,7 @@
         <file alias="add-row">data/icons/base/divers/png/add-row.png</file>
         <file alias="add-column">data/icons/base/divers/png/add-column.png</file>
         <file alias="remove-row">data/icons/base/divers/png/remove-row.png</file>
+        <file alias="remove-row-red">data/icons/base/divers/png/remove-row-red.png</file>
         <file alias="remove-column">data/icons/base/divers/png/remove-column.png</file>
         <file alias="append-column">data/icons/base/divers/png/append-column.png</file>
         <file alias="append-row">data/icons/base/divers/png/append-row.png</file>
@@ -125,6 +131,9 @@
         <file alias="modele-ligne0">data/icons/base/divers/png/modele-ligne0.png</file>
         <file alias="modele-ligne0-colonne0">data/icons/base/divers/png/modele-ligne0-colonne0.png</file>
         <file alias="modele-colonne0">data/icons/base/divers/png/modele-colonne0.png</file>
+        <file alias="arrow-up">data/icons/base/arrows/png/004-up arrow.png</file>
+        <file alias="arrow-down">data/icons/base/arrows/png/003-down arrow.png</file>
+        <file alias="arrow-double">data/icons/base/arrows/png/040-left arrow.png</file>
 <!--        <file alias="text">data/icons/base/pack/png/sphere.png</file>-->
     </qresource>
     <qresource prefix="/fonts">

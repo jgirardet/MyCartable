@@ -1,10 +1,10 @@
-import QtQuick 2.15
-import QtTest 1.15
-
 /* on changes:
 matiereList : annee en moins
               famille, actiite, position
               */
+
+import QtQuick 2.15
+import QtTest 1.15
 
 Item {
     //    print("##############  DDBDATA NON A JOURS##########")
@@ -17,6 +17,94 @@ Item {
     // text section
     // session
     //    property var anneeActive
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
 
     // Matiere MIXIN
     property int currentMatiere: 0
@@ -377,6 +465,11 @@ Item {
     property var _updateCell
     property var _newUser
     property var currentUser: {
+        /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+
     }
     property var _newAnnee
     property var anneeActive
@@ -388,6 +481,15 @@ Item {
     property var _nbColonnes
     property var _appendRow
     property var _appendColumn
+    property var _getGroupeMatieres
+    property var _getMatieres
+    property var _applyGroupeDegrade
+    property var _getActivites
+    property var _moveActiviteTo
+    property var _removeActivite
+    property var _updateActiviteNom
+    property var _updateMatiereNom
+    property var _updateGroupeMatiereNom
 
     signal setCurrentMatiereFromIndexSignal(int index)
     signal newPageCreated(var un)
@@ -531,6 +633,63 @@ Item {
         _peuplerLesMatieresParDefault = [anne];
     }
 
+    function getGroupeMatieres(annee) {
+        let toReturn = _getGroupeMatieres;
+        //        _getGroupeMatieres = [annee];
+        return toReturn;
+    }
+
+    function getMatieres(matiere) {
+        let toReturn = _getMatieres;
+        //        _getMatieres = [matiere];
+        return toReturn;
+    }
+
+    function applyGroupeDegrade(id, couleur) {
+        let toReturn = _applyGroupeDegrade;
+        _applyGroupeDegrade = [id, couleur];
+        return toReturn;
+    }
+
+    function getActivites(matid) {
+        let toReturn = _getActivites;
+        //        _getActivites = [matid];
+        return toReturn;
+    }
+
+    function moveActiviteTo(id, pos) {
+        let toReturn = _moveActiviteTo;
+        _moveActiviteTo = [id, pos];
+        return toReturn;
+    }
+
+    function removeActivite(id) {
+        let toReturn = _removeActivite;
+        _removeActivite = [id];
+        return toReturn;
+    }
+
+    function updateActiviteNom(id, text) {
+        let toReturn = _updateActiviteNom;
+        _updateActiviteNom = [id, text];
+        return toReturn;
+    }
+
+    function updateMatiereNom(id, text) {
+        let toReturn = _updateMatiereNom;
+        _updateMatiereNom = [id, text];
+        return toReturn;
+    }
+
+    function updateGroupeMatiereNom(id, nom) {
+        _updateGroupeMatiereNom = [id, nom];
+    }
+
     Component.onCompleted: {
+        /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+
     }
 }

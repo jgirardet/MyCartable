@@ -762,47 +762,57 @@ class TestSessionMixin:
 class TestChangeMatieresMixin:
     def test_get_activites(self, dao):
         b_activite(3, nom="rien")
+        b_page(3, activite=1)
         assert dao.getActivites(1) == [
-            {"id": 1, "matiere": 1, "nom": "rien", "position": 0},
-            {"id": 2, "matiere": 1, "nom": "rien", "position": 1},
-            {"id": 3, "matiere": 1, "nom": "rien", "position": 2},
+            {"id": 1, "matiere": 1, "nom": "rien", "position": 0, "nbPages": 3},
+            {"id": 2, "matiere": 1, "nom": "rien", "position": 1, "nbPages": 0},
+            {"id": 3, "matiere": 1, "nom": "rien", "position": 2, "nbPages": 0},
         ]
 
     def test_moveActivite(self, dao):
         b_activite(3, nom="rien")
         assert dao.moveActiviteTo(3, 0) == [
-            {"id": 3, "matiere": 1, "nom": "rien", "position": 0},
-            {"id": 1, "matiere": 1, "nom": "rien", "position": 1},
-            {"id": 2, "matiere": 1, "nom": "rien", "position": 2},
+            {"id": 3, "matiere": 1, "nom": "rien", "position": 0, "nbPages": 0},
+            {"id": 1, "matiere": 1, "nom": "rien", "position": 1, "nbPages": 0},
+            {"id": 2, "matiere": 1, "nom": "rien", "position": 2, "nbPages": 0},
         ]
 
     def test_removeActivite(self, dao):
         b_activite(3, nom="rien")
         assert dao.removeActivite(2) == [
-            {"id": 1, "matiere": 1, "nom": "rien", "position": 0},
-            {"id": 3, "matiere": 1, "nom": "rien", "position": 1},
+            {"id": 1, "matiere": 1, "nom": "rien", "position": 0, "nbPages": 0},
+            {"id": 3, "matiere": 1, "nom": "rien", "position": 1, "nbPages": 0},
         ]
 
     def test_addActivite(self, dao):
         b_activite(3, nom="rien")
         assert dao.addActivite(1) == [
-            {"id": 1, "matiere": 1, "nom": "rien", "position": 0},
-            {"id": 2, "matiere": 1, "nom": "rien", "position": 1},
-            {"id": 3, "matiere": 1, "nom": "rien", "position": 2},
-            {"id": 4, "matiere": 1, "nom": "nouvelle", "position": 3},
+            {"id": 1, "matiere": 1, "nom": "rien", "position": 0, "nbPages": 0},
+            {"id": 2, "matiere": 1, "nom": "rien", "position": 1, "nbPages": 0},
+            {"id": 3, "matiere": 1, "nom": "rien", "position": 2, "nbPages": 0},
+            {"id": 4, "matiere": 1, "nom": "nouvelle", "position": 3, "nbPages": 0},
         ]
+
+    def test_updateActiviteNom(self, dao):
+        f_activite(nom="bla")
+        dao.updateActiviteNom(1, "meuh")
+        with db_session:
+            assert Activite[1].nom == "meuh"
 
     def test_getMatieres(self, dao):
         b_matiere(3, nom="rien", bgColor="red", fgColor="blue")
+        f_activite(matiere=1)
+        b_page(5, activite=1)
         assert dao.getMatieres(1) == [
             {
-                "activites": [],
+                "activites": [1],
                 "bgColor": QColor("red"),
                 "fgColor": QColor("blue"),
                 "groupe": 1,
                 "id": 1,
                 "nom": "rien",
                 "position": 0,
+                "nbPages": 5,
             },
             {
                 "activites": [],
@@ -812,6 +822,7 @@ class TestChangeMatieresMixin:
                 "id": 2,
                 "nom": "rien",
                 "position": 1,
+                "nbPages": 0,
             },
             {
                 "activites": [],
@@ -821,6 +832,7 @@ class TestChangeMatieresMixin:
                 "id": 3,
                 "nom": "rien",
                 "position": 2,
+                "nbPages": 0,
             },
         ]
 
@@ -835,6 +847,7 @@ class TestChangeMatieresMixin:
                 "id": 1,
                 "nom": "rien",
                 "position": 0,
+                "nbPages": 0,
             },
             {
                 "activites": [],
@@ -844,6 +857,7 @@ class TestChangeMatieresMixin:
                 "id": 3,
                 "nom": "rien",
                 "position": 1,
+                "nbPages": 0,
             },
             {
                 "activites": [],
@@ -853,6 +867,7 @@ class TestChangeMatieresMixin:
                 "id": 2,
                 "nom": "rien",
                 "position": 2,
+                "nbPages": 0,
             },
         ]
 
@@ -867,6 +882,7 @@ class TestChangeMatieresMixin:
                 "id": 1,
                 "nom": "rien",
                 "position": 0,
+                "nbPages": 0,
             },
             {
                 "activites": [],
@@ -876,6 +892,7 @@ class TestChangeMatieresMixin:
                 "id": 3,
                 "nom": "rien",
                 "position": 1,
+                "nbPages": 0,
             },
         ]
 
@@ -890,6 +907,7 @@ class TestChangeMatieresMixin:
                 "id": 1,
                 "nom": "rien",
                 "position": 0,
+                "nbPages": 0,
             },
             {
                 "activites": [],
@@ -899,6 +917,7 @@ class TestChangeMatieresMixin:
                 "id": 2,
                 "nom": "rien",
                 "position": 1,
+                "nbPages": 0,
             },
             {
                 "activites": [],
@@ -908,6 +927,7 @@ class TestChangeMatieresMixin:
                 "id": 3,
                 "nom": "rien",
                 "position": 2,
+                "nbPages": 0,
             },
             {
                 "activites": [],
@@ -917,8 +937,173 @@ class TestChangeMatieresMixin:
                 "id": 4,
                 "nom": "nouvelle",
                 "position": 3,
+                "nbPages": 0,
             },
         ]
+
+    def test_updateActiviteNom(self, dao):
+        f_matiere(nom="bla")
+        dao.updateMatiereNom(1, "meuh")
+        with db_session:
+            assert Matiere[1].nom == "meuh"
+
+    def test_getGroupeMatieres(self, dao):
+        b_groupeMatiere(3, annee=2017, nom="rien", bgColor="red", fgColor="blue")
+        assert dao.getGroupeMatieres(2017) == [
+            {
+                "annee": 2017,
+                "bgColor": QColor("red"),
+                "fgColor": QColor("blue"),
+                "id": 1,
+                "nom": "rien",
+                "position": 0,
+            },
+            {
+                "annee": 2017,
+                "bgColor": QColor("red"),
+                "fgColor": QColor("blue"),
+                "id": 2,
+                "nom": "rien",
+                "position": 1,
+            },
+            {
+                "annee": 2017,
+                "bgColor": QColor("red"),
+                "fgColor": QColor("blue"),
+                "id": 3,
+                "nom": "rien",
+                "position": 2,
+            },
+        ]
+
+    def test_removeGroupeMatiere(self, dao):
+        b_groupeMatiere(3, annee=2017, nom="rien", bgColor="red", fgColor="blue")
+        assert dao.removeGroupeMatiere(2) == [
+            {
+                "annee": 2017,
+                "bgColor": QColor("red"),
+                "fgColor": QColor("blue"),
+                "id": 1,
+                "nom": "rien",
+                "position": 0,
+            },
+            {
+                "annee": 2017,
+                "bgColor": QColor("red"),
+                "fgColor": QColor("blue"),
+                "id": 3,
+                "nom": "rien",
+                "position": 1,
+            },
+        ]
+
+    def test_moveGroupeMatiere(self, dao):
+        b_groupeMatiere(3, annee=2017, nom="rien", bgColor="red", fgColor="blue")
+        assert dao.moveGroupeMatiereTo(3, 1) == [
+            {
+                "annee": 2017,
+                "bgColor": QColor("red"),
+                "fgColor": QColor("blue"),
+                "id": 1,
+                "nom": "rien",
+                "position": 0,
+            },
+            {
+                "annee": 2017,
+                "bgColor": QColor("red"),
+                "fgColor": QColor("blue"),
+                "id": 3,
+                "nom": "rien",
+                "position": 1,
+            },
+            {
+                "annee": 2017,
+                "bgColor": QColor("red"),
+                "fgColor": QColor("blue"),
+                "id": 2,
+                "nom": "rien",
+                "position": 2,
+            },
+        ]
+
+    def test_addGroupeMatieres(self, dao):
+        b_groupeMatiere(3, annee=2017, nom="rien", bgColor="red", fgColor="blue")
+        assert dao.addGroupeMatiere(2017) == [
+            {
+                "annee": 2017,
+                "bgColor": QColor("red"),
+                "fgColor": QColor("blue"),
+                "id": 1,
+                "nom": "rien",
+                "position": 0,
+            },
+            {
+                "annee": 2017,
+                "bgColor": QColor("red"),
+                "fgColor": QColor("blue"),
+                "id": 2,
+                "nom": "rien",
+                "position": 1,
+            },
+            {
+                "annee": 2017,
+                "bgColor": QColor("red"),
+                "fgColor": QColor("blue"),
+                "id": 3,
+                "nom": "rien",
+                "position": 2,
+            },
+            {
+                "annee": 2017,
+                "bgColor": QColor("white"),
+                "fgColor": QColor("black"),
+                "id": 4,
+                "nom": "nouveau",
+                "position": 3,
+            },
+        ]
+
+    def test_applyGroupeDegrade(self, dao):
+        f_groupeMatiere()
+        b_matiere(3, groupe=1, nom="rien", bgColor="blue", fgColor="green")
+        assert dao.applyGroupeDegrade(1, QColor("red")) == [
+            {
+                "activites": [],
+                "bgColor": QColor.fromRgbF(1.000000, 0.000000, 0.000000, 1.000000),
+                "fgColor": QColor.fromRgbF(0.000000, 0.501961, 0.000000, 1.000000),
+                "groupe": 1,
+                "id": 1,
+                "nom": "rien",
+                "position": 0,
+                "nbPages": 0,
+            },
+            {
+                "activites": [],
+                "bgColor": QColor.fromRgbF(1.000000, 0.423529, 0.423529, 1.000000),
+                "fgColor": QColor.fromRgbF(0.000000, 0.501961, 0.000000, 1.000000),
+                "groupe": 1,
+                "id": 2,
+                "nom": "rien",
+                "position": 1,
+                "nbPages": 0,
+            },
+            {
+                "activites": [],
+                "bgColor": QColor.fromRgbF(1.000000, 0.847059, 0.847059, 1.000000),
+                "fgColor": QColor.fromRgbF(0.000000, 0.501961, 0.000000, 1.000000),
+                "groupe": 1,
+                "id": 3,
+                "nom": "rien",
+                "position": 2,
+                "nbPages": 0,
+            },
+        ]
+
+    def test_updateGroupeNom(self, dao):
+        f_groupeMatiere(nom="bla")
+        dao.updateGroupeMatiereNom(1, "meuh")
+        with db_session:
+            assert GroupeMatiere[1].nom == "meuh"
 
 
 class TestDatabaseObject:

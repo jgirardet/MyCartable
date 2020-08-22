@@ -104,9 +104,16 @@ MenuBar {
 
         anchors.centerIn: Overlay.overlay
         height: ApplicationWindow.window.height * 0.75
-        width: ApplicationWindow.window.width * 0.9
+        width: contentItem.width
+        //        width: ApplicationWindow.window.width * 0.5
+        onOpened: {
+            contentItem.model = ddb.getGroupeMatieres(ddb.anneeActive);
+        }
+        onClosed: {
+            contentItem.model = 0;
+        }
 
-        contentItem: ChangeMatieres {
+        contentItem: ChangeGroupe {
         }
 
     }

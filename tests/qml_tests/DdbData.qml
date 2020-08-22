@@ -105,6 +105,14 @@ matiereList : annee en moins
 matiereList : annee en moins
               famille, actiite, position
               */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
 
     // Matiere MIXIN
     property int currentMatiere: 0
@@ -490,6 +498,7 @@ matiereList : annee en moins
     property var _updateActiviteNom
     property var _updateMatiereNom
     property var _updateGroupeMatiereNom
+    property var _addActivite
 
     signal setCurrentMatiereFromIndexSignal(int index)
     signal newPageCreated(var un)
@@ -683,6 +692,12 @@ matiereList : annee en moins
 
     function updateGroupeMatiereNom(id, nom) {
         _updateGroupeMatiereNom = [id, nom];
+    }
+
+    function addActivite(acid) {
+        let toReturn = _addActivite;
+        _addActivite = [acid];
+        return toReturn;
     }
 
     Component.onCompleted: {

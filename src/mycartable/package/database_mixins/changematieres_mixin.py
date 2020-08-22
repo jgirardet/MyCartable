@@ -15,9 +15,12 @@ class ChangeMatieresMixin:
 
     @Slot(int, result="QVariantList")
     @db_session
-    def addActivite(self, matiere: int) -> List[dict]:
-        Activite(nom="nouvelle", matiere=matiere)
-        return self.get_activites(matiere)
+    def addActivite(self, activiteId: int) -> List[dict]:
+        pre = Activite[activiteId]
+        new = Activite(nom="nouvelle", matiere=pre.matiere)
+        new.position = pre.position
+
+        return self.get_activites(new.matiere.id)
 
     @Slot(int, result="QVariantList")
     @db_session

@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+import QtQuick.Window 2.15
 import "qrc:/qml/configuration"
 
 MenuBar {
@@ -102,15 +103,16 @@ MenuBar {
     Dialog {
         id: changer_matieres
 
+        objectName: "changer_matieres"
         anchors.centerIn: Overlay.overlay
-        height: ApplicationWindow.window.height * 0.75
-        width: contentItem.width
-        //        width: ApplicationWindow.window.width * 0.5
+        height: ApplicationWindow.window ? ApplicationWindow.window.height * 0.9 : 600
+        contentWidth: contentItem.width
         onOpened: {
             contentItem.model = ddb.getGroupeMatieres(ddb.anneeActive);
         }
         onClosed: {
             contentItem.model = 0;
+            ddb.changeAnnee(ddb.anneeActive);
         }
 
         contentItem: ChangeGroupe {

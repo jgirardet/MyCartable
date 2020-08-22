@@ -6,12 +6,9 @@ ListView {
 
     property alias colordialog: colordialog
 
-    anchors.centerIn: parent
-    anchors.leftMargin: 10
-    //    anchors.fill: parent
+    width: 600
     spacing: 10
     clip: true
-    width: 600
 
     RefColorDialog {
         id: colordialog

@@ -1,4 +1,6 @@
-import QtQuick 2.14
+import QtQuick 2.15
+import QtQuick.Controls 2.15
+import QtQuick.Window 2.15
 
 Item {
     id: item
@@ -7,21 +9,6 @@ Item {
     height: 200
 
     CasTest {
-        //            compare(repeupler.opened, true);
-        //            lv = changerAnnee.contentItem;
-        //            compare(lv.count, 2); // model ok
-        //            compare(lv.itemAtIndex(0).text, "mon année de ce2 en 2018/2019");
-        //            compare(lv.itemAtIndex(1).text, "mon année de cm1 en 2019/2020");
-        //            signalChecker(ddb, "changeAnnee", "mouseClick(lv.itemAtIndex(1))", [2019]);
-        //            compare(changerAnnee.opened, false);
-        //            compare(changerAnnee.opened, false);
-        //            compare(repeupler.opened, true);
-        //            repeupler.close();
-        //            changerAnnee.close();
-        // si un annee selectionne
-        //            ddb.anneeActive = 2020;
-        //            mouseClick(buttonMenu);
-
         property QtObject fichier
         property var lv
 
@@ -78,6 +65,19 @@ Item {
             compare(repeupler.opened, true);
             repeupler.accept();
             compare(ddb._peuplerLesMatieresParDefault, [2050]);
+        }
+
+        function test_change_matiere_reset_tout() {
+            var spy = getSpy(ddb, "changeAnnee");
+            ddb.currentMatiere = 4;
+            fichier.visible = true;
+            var dialog = findChild(tested, "changer_matieres");
+            dialog.height = 300;
+            var buttonMenu = tested.menus[0].itemAt(2);
+            mouseClick(buttonMenu);
+            tryCompare(dialog, "visible", true);
+            dialog.close();
+            spy.wait();
         }
 
         name: "MainMenuBar"

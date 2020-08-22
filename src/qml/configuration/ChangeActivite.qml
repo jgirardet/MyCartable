@@ -49,9 +49,7 @@ Column {
       repeater.model = ddb.addActivite(activId);
       let ac = repeater.itemAt(pos)
       ac.activitetext.selectAll()
-//      ac.activitetext.cursorPosition = 0
       ac.activitetext.forceActiveFocus()
-//      ac.focus=true
     }
 
     Repeater {

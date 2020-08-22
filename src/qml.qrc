@@ -131,6 +131,7 @@
         <file alias="modele-ligne0">data/icons/base/divers/png/modele-ligne0.png</file>
         <file alias="modele-ligne0-colonne0">data/icons/base/divers/png/modele-ligne0-colonne0.png</file>
         <file alias="modele-colonne0">data/icons/base/divers/png/modele-colonne0.png</file>
+        <file alias="plus">data/icons/base/divers/png/010-plus.png</file>
         <file alias="arrow-up">data/icons/base/arrows/png/004-up arrow.png</file>
         <file alias="arrow-down">data/icons/base/arrows/png/003-down arrow.png</file>
         <file alias="arrow-double">data/icons/base/arrows/png/040-left arrow.png</file>

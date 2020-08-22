@@ -163,7 +163,7 @@ Item {
 
         //" RAyon des activites"
 
-        function test_bsdd_properties() {
+        function test_activites_properties() {
             compare(activite0.nom, "act1")
             compare(activite0.children[0].text, "act1") // nmo
             compare(activite0.children[1].text, "0 page ") // nb page
@@ -175,9 +175,9 @@ Item {
             compare(activite0.children[3].enabled, true) // downbutton
             compare(activite1.children[3].enabled, true)
             compare(activite2.children[3].enabled, false)
-            compare(activite0.children[4].enabled, true) // ermovebutton
-            compare(activite1.children[4].enabled, false)
-            compare(activite2.children[4].enabled, false)
+            compare(activite0.children[5].enabled, true) // ermovebutton
+            compare(activite1.children[5].enabled, false)
+            compare(activite2.children[5].enabled, false)
 
         }
 
@@ -211,12 +211,22 @@ Item {
           compare(changeactivite0.model, res)
         }
 
+        function test_add_activite() {
+          changeactivite0.state = "visible"
+          tryCompare(changeactivite0.transitions[0], "running", false)
+          const res = [{"id": 6, "matiere": 1, "nom": "novonovo", "position": 0, "nbPages": 0}]
+          ddb._addActivite = res
+          mouseClick(activite0.children[4])
+          compare(ddb._addActivite, [1])
+          compare(changeactivite0.model, res)
+        }
+
         function test_remove_activite() {
         changeactivite0.state = "visible"
           tryCompare(changeactivite0.transitions[0], "running", false)
           const res = [{"id": 6, "matiere": 1, "nom": "act3", "position": 0, "nbPages": 0}]
           ddb._removeActivite = res
-          mouseClick(activite0.children[4])
+          mouseClick(activite0.children[5])
           compare(ddb._removeActivite, [1]) // attention ne pas choisir un avec nbpase > 0
           compare(changeactivite0.model, res)
         }

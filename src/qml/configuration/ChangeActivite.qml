@@ -45,6 +45,15 @@ Column {
 
     }
 
+    function addAndFocus(activId, pos) {
+      repeater.model = ddb.addActivite(activId);
+      let ac = repeater.itemAt(pos)
+      ac.activitetext.selectAll()
+//      ac.activitetext.cursorPosition = 0
+      ac.activitetext.forceActiveFocus()
+//      ac.focus=true
+    }
+
     Repeater {
         id: repeater
 
@@ -56,6 +65,7 @@ Column {
             property string nom: modelData.nom
             property int nbPages: modelData.nbPages
             property int  activiteId: modelData.id
+            property alias activitetext: activitetext
 
             TextField {
                 id: activitetext
@@ -63,6 +73,7 @@ Column {
                 width: 200
                 height: 30
                 selectByMouse: true
+                focus: true
                 function updateText(){
                   nom = text
                   ddb.updateActiviteNom(activiteId,nom)
@@ -107,6 +118,18 @@ Column {
                 ToolTip.text: "Descendre la rubrique: " + rowactivite.nom
                 onClicked: {
                     repeater.model = ddb.moveActiviteTo(activiteId, parent.Positioner.index + 1);
+                }
+            }
+
+            ActionButtonMatiere {
+                id: addactivitebutton
+
+                referent: activitetext
+                icon.source: "qrc:/icons/plus"
+                ToolTip.text: "Ajouter une rubrique"
+                onClicked: {
+                    root.addAndFocus(activiteId, parent.Positioner.index)
+
                 }
             }
 

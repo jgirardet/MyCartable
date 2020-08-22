@@ -54,14 +54,19 @@ def f_annee(id=2019, niveau=None, user=None, td=False):
         return an.to_dict() if td else an
 
 
-def f_groupeMatiere(nom=None, annee=None):
+def f_groupeMatiere(nom=None, annee=None, **kwargs):
     annee = annee or f_annee(id=annee).id
     with db_session:
         if not Annee.get(id=annee):
             f_annee(id=annee)
     nom = nom or random.choice(["Français", "Math", "Anglais", "Histoire"])
     with db_session:
-        return db.GroupeMatiere(nom=nom, annee=annee)
+        return db.GroupeMatiere(nom=nom, annee=annee, **kwargs)
+
+
+def b_groupeMatiere(nb, **kwargs):
+    for i in range(nb):
+        f_groupeMatiere(**kwargs)
 
 
 def f_matiere(
@@ -388,6 +393,11 @@ def populate_database(matieres_list=MATIERES, nb_page=100):
     [db.GroupeMatiere(**x, annee=annee.id) for x in MATIERE_GROUPE]
     flush()
     matieres = [db.Matiere(**x) for x in matieres_list]
+    flush()
+
+    for m in matieres:
+        for i in range(3):
+            f_activite(matiere=m.id)
 
 
 #

@@ -196,6 +196,8 @@ def cmd_qmlformat(*args, **kwargs):
         "tst_equation.qml",
         "TableauActions.qml",
         "NewTableauSectionButton.qml",
+        "ChangeMatiere.qml",
+        "ChangeActivite.qml",
     ]
     errors = []
     for file in files:

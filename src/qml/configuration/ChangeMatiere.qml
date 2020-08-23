@@ -15,6 +15,15 @@ ListView {
     clip: true
     property var bdd
 
+  function addAndFocus(matid, pos) {
+      model = ddb.addMatiere(matid);
+      let mat = itemAtIndex(pos)
+      if (mat) { // juste pour enlever un warining aux tests
+        mat.matieretexte.selectAll()
+        mat.matieretexte.forceActiveFocus()
+        }
+    }
+
     delegate: Column {
         id: matieredelegate
 
@@ -103,11 +112,38 @@ ListView {
             }
 
             ActionButtonMatiere {
+                id: upmatierebutton
+                referent: matieretexte
+                enabled: index > 0
+//                ToolTip.text: "monter la matière : " + nom
+                ToolTip.visible: false
+                icon.source: "qrc:/icons/arrow-up"
+                onClicked: {
+                    root.model = ddb.moveMatiereTo(matiereid, index - 1);
+                }
+            }
+
+            ActionButtonMatiere {
+                id: downlmatierebutton
+                referent: matieretexte
+                enabled: index < (root.count - 1)
+                ToolTip.visible: false
+//                ToolTip.text: "descendre la matière : " + nom // enlever car genant
+                icon.source: "qrc:/icons/arrow-down"
+                onClicked: {
+                    root.model = ddb.moveMatiereTo(matiereid, index + 1);
+                }
+            }
+            ActionButtonMatiere {
                 id: insertmatierebutton
 
                 referent: matieretexte
                 ToolTip.text: "Insérer une nouvelle matière"
                 icon.source: "qrc:/icons/add-row"
+                onClicked: {
+                    root.addAndFocus(matiereid, index)
+
+                }
             }
 
             ActionButtonMatiere {
@@ -116,6 +152,9 @@ ListView {
                 referent: matieretexte
                 ToolTip.text: "supprimer la matière : " + nom
                 icon.source: "qrc:/icons/remove-row-red"
+                onClicked: {
+                    root.model = ddb.removeMatiere(matiereid);
+                }
             }
 
         }

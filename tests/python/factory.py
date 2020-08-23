@@ -394,7 +394,7 @@ def populate_database(matieres_list=MATIERES, nb_page=100):
     flush()
     matieres = [db.Matiere(**x) for x in matieres_list]
     flush()
-
+    #
     for m in matieres:
         for i in range(3):
             f_activite(matiere=m.id)

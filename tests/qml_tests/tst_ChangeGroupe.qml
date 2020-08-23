@@ -78,6 +78,9 @@ Item {
         property var activite1
         property var activite2
         property var changeactivite0
+        property var changematiere0
+        property var mat0
+        property var mat1
 
         function initPre() {
         }
@@ -94,12 +97,17 @@ Item {
 //            tested.changematiere.model = ddb.getMatieres(1);
             un = tested.itemAtIndex(1);
             deux = tested.itemAtIndex(2);
+
+
             changeactivite0 =  tested.itemAtIndex(0).changematiere.itemAtIndex(0).children[1]
             activite0 =  tested.itemAtIndex(0).changematiere.itemAtIndex(0).children[1].children[0]
             activite1 =  tested.itemAtIndex(0).changematiere.itemAtIndex(0).children[1].children[1]
             activite2 =  tested.itemAtIndex(0).changematiere.itemAtIndex(0).children[1].children[2]
 
             waitForRendering(tested)
+            changematiere0 = tested.itemAtIndex(0).changematiere
+            mat0 = changematiere0.itemAtIndex(0).children[0]
+            mat1 = changematiere0.itemAtIndex(1).children[0]
         }
 
         function test_init() {
@@ -159,6 +167,38 @@ Item {
           mat0.children[0].text = "blabla"
           compare(mat0.parent.nom, "blabla")
           compare(ddb._updateMatiereNom, [15, "blabla"])
+        }
+
+        function test_up_matiere() {
+          const res = [ {'id': 15, 'nom': 'Physique', 'activites': [43, 44, 45], 'groupe': 6, 'fgColor': "red", 'bgColor': "blue", 'position': 0, "nbPages": 3}]
+          ddb._moveMatiereTo = res
+          mouseClick(mat1.children[3])
+          compare(ddb._moveMatiereTo, [16, 0])
+          compare(changematiere0.model, res)
+        }
+
+        function test_down_matiere() {
+          const res = [ {'id': 15, 'nom': 'Physique', 'activites': [43, 44, 45], 'groupe': 6, 'fgColor': "red", 'bgColor': "blue", 'position': 0, "nbPages": 3}]
+          ddb._moveMatiereTo = res
+          mouseClick(mat1.children[4], 1, 1)
+          compare(ddb._moveMatiereTo, [16, 2])
+          compare(changematiere0.model, res)
+        }
+
+        function test_add_matiere() {
+          const res = modelMatieres[0]
+          ddb._addMatiere = res
+          mouseClick(mat0.children[5])
+          compare(ddb._addMatiere, [15])
+          compare(changematiere0.model, res)
+        }
+        function test_remove_matiere() {
+          const res = [ {'id': 15, 'nom': 'Physique', 'activites': [43, 44, 45], 'groupe': 6, 'fgColor': "red", 'bgColor': "blue", 'position': 0, "nbPages": 3}]
+          ddb._removeMatiere = res
+          mouseClick(mat0.children[6])
+          compare(ddb._removeMatiere, [15])
+          compare(changematiere0.model, res)
+          compare(changematiere0.count, 1)
         }
 
         //" RAyon des activites"

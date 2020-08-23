@@ -21,11 +21,11 @@ ListView {
 
         property alias text: groupename
         property alias colorbutton: colorbutton
-        property color baseColor: modelData.bgColor
-        property bool firstLoad: true
         property alias changematiere: changematiere
-        property string nom: modelData.nom
+        property color baseColor: modelData.bgColor
         property int groupeid: modelData.id
+        property string nom: modelData.nom
+        property bool firstLoad: true
 
         function applyDegradeToMatiere(focus_after, reload) {
             if (reload)
@@ -160,6 +160,33 @@ ListView {
 
                 }
 
+            }
+
+            ActionButtonMatiere {
+                //                    ddb.moveMatiereTo(matiereid, index - 1);
+                //                    root.parent.applyDegradeToMatiere(undefined, true)
+
+                id: upmatierebutton
+
+                referent: groupename
+                enabled: index > 0
+                ToolTip.visible: false
+                icon.source: "qrc:/icons/arrow-up"
+                onClicked: {
+                    root.model = ddb.moveGroupeMatiereTo(groupeid, index - 1);
+                }
+            }
+
+            ActionButtonMatiere {
+                id: downlmatierebutton
+
+                referent: groupename
+                enabled: index < (root.count - 1)
+                ToolTip.visible: false
+                icon.source: "qrc:/icons/arrow-down"
+                onClicked: {
+                    root.model = ddb.moveGroupeMatiereTo(groupeid, index + 1);
+                }
             }
 
             ActionButtonMatiere {

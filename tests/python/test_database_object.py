@@ -1068,6 +1068,8 @@ class TestChangeMatieresMixin:
                 "position": 3,
             },
         ]
+        with db_session:
+            assert GroupeMatiere[4].matieres.select().first().nom == "nouvelle matière"
 
     @pytest.mark.parametrize(
         "nb, res, end_color",

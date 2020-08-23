@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 
 from PySide2.QtCore import Signal, Slot
 from PySide2.QtGui import QColor
@@ -14,13 +14,20 @@ class ChangeMatieresMixin:
     """
 
     @Slot(int, result="QVariantList")
+    @Slot(str, result="QVariantList")
     @db_session
-    def addActivite(self, activiteId: int) -> List[dict]:
-        pre = Activite[activiteId]
-        new = Activite(nom="nouvelle", matiere=pre.matiere)
-        new.position = pre.position
+    def addActivite(self, someId: Union[int, str]) -> List[dict]:
+        matiereid: int
+        if isinstance(someId, int):
+            pre = Activite[someId]
+            new = Activite(nom="nouvelle", matiere=pre.matiere)
+            new.position = pre.position
+            matiereid = new.matiere.id
+        elif isinstance(someId, str):
+            matiereid = int(someId)
+            Activite(nom="nouvelle", matiere=matiereid)
 
-        return self.get_activites(new.matiere.id)
+        return self.get_activites(matiereid)
 
     @Slot(int, result="QVariantList")
     @db_session
@@ -35,13 +42,14 @@ class ChangeMatieresMixin:
         return self.get_activites(ac.matiere.id)
 
     @Slot(int, result="QVariantList")
-    @db_session
     def removeActivite(self, activite: int) -> List[dict]:
-        ac = Activite[activite]
-        mat_id = ac.matiere.id
-        ac.delete()
-        ac.flush()
-        return self.get_activites(mat_id)
+        with db_session:
+            ac = Activite[activite]
+            mat_id = ac.matiere.id
+            ac.delete()
+        # ac.flush()
+        with db_session:
+            return self.get_activites(mat_id)
 
     def get_activites(self, matiere: int) -> List[dict]:
         res = []
@@ -81,13 +89,13 @@ class ChangeMatieresMixin:
         return self.get_matieres(mat.groupe.id)
 
     @Slot(int, result="QVariantList")
-    @db_session
     def removeMatiere(self, matiere: int) -> List[dict]:
-        ac = Matiere[matiere]
-        groupe_id = ac.groupe.id
-        ac.delete()
-        ac.flush()
-        return self.get_matieres(groupe_id)
+        with db_session:
+            ac = Matiere[matiere]
+            groupe_id = ac.groupe.id
+            ac.delete()
+        with db_session:
+            return self.get_matieres(groupe_id)
 
     @Slot(int, result="QVariantList")
     @db_session
@@ -123,13 +131,13 @@ class ChangeMatieresMixin:
         return self.get_groupe_matieres(groupe.annee.id)
 
     @Slot(int, result="QVariantList")
-    @db_session
     def removeGroupeMatiere(self, groupe_matiere: int) -> List[dict]:
-        groupe = GroupeMatiere[groupe_matiere]
-        annee_id = groupe.annee.id
-        groupe.delete()
-        groupe.flush()
-        return self.get_groupe_matieres(annee_id)
+        with db_session:
+            groupe = GroupeMatiere[groupe_matiere]
+            annee_id = groupe.annee.id
+            groupe.delete()
+        with db_session:
+            return self.get_groupe_matieres(annee_id)
 
     @Slot(int, result="QVariantList")
     @db_session

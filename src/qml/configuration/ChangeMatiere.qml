@@ -41,7 +41,7 @@ ListView {
                 id: matieretexte
 
                 height: 40
-                width: 300
+                width: 200
 
                 font.bold: true
                 font.pointSize: 12
@@ -74,7 +74,11 @@ ListView {
             }
 
             ActionButtonMatiere {
+
                                 onPressed: {
+                                    if (state == "no_activite"){
+                                    activitelist.addAndFocus(matiereid.toString(), 0)
+                                    }
                                     if (state == "toggled") {
                                         activitelist.state = "hidden";
                                         state = null;
@@ -90,15 +94,25 @@ ListView {
                 ToolTip.text: !activitelist.state ? "Afficher les rubriques" : "Masquer les rubriques"
                 icon.source: "qrc:/icons/less-than"
 
-                states: State {
+                states: [State {
                     name: "toggled"
-
                     PropertyChanges {
                         target: toggleactivitebutton
                         rotation: -90
                     }
 
+                }, State {
+                    name: "no_activite"
+                    when: !activitelist.model.length
+                    PropertyChanges {
+                        target: toggleactivitebutton
+                        icon.source: "qrc:/icons/plus"
+                        ToolTip.text: "Ajouter une rubrique"
+                    }
+
                 }
+
+                ]
 
                 transitions: Transition {
                     NumberAnimation {

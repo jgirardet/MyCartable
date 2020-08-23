@@ -68,7 +68,7 @@ Column {
             TextField {
                 id: activitetext
 
-                width: 200
+                width: 160
                 height: 30
                 selectByMouse: true
                 focus: true

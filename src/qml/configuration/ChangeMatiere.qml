@@ -44,8 +44,10 @@ ListView {
                 font.bold: true
                 font.pointSize: 12
                 function updateText(){
+                  if (text) {
                   nom = text
                   ddb.updateMatiereNom(matiereid,nom)
+                  }
                 }
                 Component.onCompleted: {
                   matieretexte.text = nom

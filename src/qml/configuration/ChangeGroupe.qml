@@ -56,8 +56,10 @@ ListView {
                 id: groupename
 
                 function updateText() {
-                    nom = text;
-                    ddb.updateGroupeMatiereNom(groupeid, nom);
+                    if (text) {
+                        nom = text;
+                        ddb.updateGroupeMatiereNom(groupeid, nom);
+                    }
                 }
 
                 Component.onCompleted: {

@@ -73,8 +73,10 @@ Column {
                 selectByMouse: true
                 focus: true
                 function updateText(){
+                  if (text) {
                   nom = text
                   ddb.updateActiviteNom(activiteId,nom)
+                  }
                 }
                 Component.onCompleted: {
                   activitetext.text = nom

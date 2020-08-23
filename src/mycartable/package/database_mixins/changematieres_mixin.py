@@ -145,6 +145,7 @@ class ChangeMatieresMixin:
         pre = GroupeMatiere[groupeid]
         new = GroupeMatiere(nom="nouveau", annee=pre.annee)
         new.position = pre.position
+        Matiere(nom="nouvelle matière", groupe=new)
 
         return self.get_groupe_matieres(new.annee.id)
 

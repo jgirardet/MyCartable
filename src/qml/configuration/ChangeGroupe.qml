@@ -195,6 +195,7 @@ ListView {
                 referent: groupename
                 icon.source: "qrc:/icons/add-row"
                 ToolTip.text: "Insérer un nouveau groupe"
+                onClicked: root.model = ddb.addGroupeMatiere(groupeid)
             }
 
             ActionButtonMatiere {
@@ -203,6 +204,7 @@ ListView {
                 referent: groupename
                 icon.source: "qrc:/icons/remove-row-red"
                 ToolTip.text: "supprimer le groupe: " + nom
+                onClicked: root.model = ddb.removeGroupeMatiere(groupeid)
             }
 
         }

@@ -165,6 +165,37 @@ Item {
           compare(ddb._moveGroupeMatiereTo, [3,2])
 
         }
+        function test_add_groupe() {
+          var res = [{
+            "id": 6,
+            "nom": "Mathématiques",
+            "annee": 2017,
+            "position": 1,
+            "fgColor": "purple",
+            "bgColor": "red"
+        }]
+          ddb._addGroupeMatiere = res
+          mouseClick(un.children[0].children[3])
+          compare(tested.model, res)
+          compare(ddb._addGroupeMatiere, [3])
+
+        }
+
+        function test_remove_groupe() {
+          var res = [{
+            "id": 6,
+            "nom": "Mathématiques",
+            "annee": 2017,
+            "position": 1,
+            "fgColor": "purple",
+            "bgColor": "green"
+        }]
+          ddb._removeGroupeMatiere = res
+          mouseClick(un.children[0].children[4])
+          compare(tested.model, res)
+          compare(ddb._removeGroupeMatiere, [3])
+
+        }
 
         // " COIN DES MATIERES
 

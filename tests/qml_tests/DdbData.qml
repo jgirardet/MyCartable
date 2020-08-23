@@ -161,6 +161,22 @@ matiereList : annee en moins
 matiereList : annee en moins
               famille, actiite, position
               */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
 
     // Matiere MIXIN
     property int currentMatiere: 0
@@ -552,6 +568,8 @@ matiereList : annee en moins
     property var _removeMatiere
     property var _reApplyGroupeDegrade
     property var _moveGroupeMatiereTo
+    property var _addGroupeMatiere
+    property var _removeGroupeMatiere
 
     signal setCurrentMatiereFromIndexSignal(int index)
     signal newPageCreated(var un)
@@ -780,6 +798,18 @@ matiereList : annee en moins
     function moveGroupeMatiereTo(id, pos) {
         let toReturn = _moveGroupeMatiereTo;
         _moveGroupeMatiereTo = [id, pos];
+        return toReturn;
+    }
+
+    function addGroupeMatiere(id) {
+        let toReturn = _addGroupeMatiere;
+        _addGroupeMatiere = [id];
+        return toReturn;
+    }
+
+    function removeGroupeMatiere(groupeid) {
+        let toReturn = _removeGroupeMatiere;
+        _removeGroupeMatiere = [groupeid];
         return toReturn;
     }
 

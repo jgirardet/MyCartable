@@ -152,14 +152,26 @@ class ChangeMatieresMixin:
     def applyGroupeDegrade(self, groupe_id: int, color: QColor) -> List[dict]:
         with db_session:
             groupe = GroupeMatiere[groupe_id]
+            matiere_count = groupe.matieres.count()
+            if not matiere_count:
+                return []
+            elif matiere_count == 1:
+                matiere_count = 2
+            groupe.bgColor = color.toRgb()
             color = color.toHsv()
             saturation = max(color.saturation(), 40)
-            ajout = (saturation - 40) / (groupe.matieres.count() - 1)
+            ajout = (saturation - 40) / (matiere_count - 1)
             for mat in Matiere.get_by_position(groupe_id):
                 mat.bgColor = color.toRgb()
                 color.setHsv(color.hue(), color.saturation() - ajout, color.value())
         with db_session:
             return self.get_matieres(groupe_id)
+
+    @Slot(int, result="QVariantList")
+    def reApplyGroupeDegrade(self, groupeid) -> List[dict]:
+        with db_session:
+            color = GroupeMatiere[groupeid].bgColor
+        return self.applyGroupeDegrade(groupeid, color)
 
     @Slot(int, str)
     @db_session

@@ -1069,10 +1069,92 @@ class TestChangeMatieresMixin:
             },
         ]
 
-    def test_applyGroupeDegrade(self, dao):
-        f_groupeMatiere()
+    @pytest.mark.parametrize(
+        "nb, res, end_color",
+        [
+            (0, [], QColor("pink")),
+            (
+                1,
+                [
+                    {
+                        "activites": [],
+                        "bgColor": QColor.fromRgbF(
+                            1.000000, 0.000000, 0.000000, 1.000000
+                        ),
+                        "fgColor": QColor.fromRgbF(
+                            0.000000, 0.501961, 0.000000, 1.000000
+                        ),
+                        "groupe": 1,
+                        "id": 1,
+                        "nom": "rien",
+                        "position": 0,
+                        "nbPages": 0,
+                    },
+                ],
+                QColor("red"),
+            ),
+            (
+                3,
+                [
+                    {
+                        "activites": [],
+                        "bgColor": QColor.fromRgbF(
+                            1.000000, 0.000000, 0.000000, 1.000000
+                        ),
+                        "fgColor": QColor.fromRgbF(
+                            0.000000, 0.501961, 0.000000, 1.000000
+                        ),
+                        "groupe": 1,
+                        "id": 1,
+                        "nom": "rien",
+                        "position": 0,
+                        "nbPages": 0,
+                    },
+                    {
+                        "activites": [],
+                        "bgColor": QColor.fromRgbF(
+                            1.000000, 0.423529, 0.423529, 1.000000
+                        ),
+                        "fgColor": QColor.fromRgbF(
+                            0.000000, 0.501961, 0.000000, 1.000000
+                        ),
+                        "groupe": 1,
+                        "id": 2,
+                        "nom": "rien",
+                        "position": 1,
+                        "nbPages": 0,
+                    },
+                    {
+                        "activites": [],
+                        "bgColor": QColor.fromRgbF(
+                            1.000000, 0.847059, 0.847059, 1.000000
+                        ),
+                        "fgColor": QColor.fromRgbF(
+                            0.000000, 0.501961, 0.000000, 1.000000
+                        ),
+                        "groupe": 1,
+                        "id": 3,
+                        "nom": "rien",
+                        "position": 2,
+                        "nbPages": 0,
+                    },
+                ],
+                QColor("red"),
+            ),
+        ],
+    )
+    def test_applyGroupeDegrade_with_color(self, dao, nb, res, end_color):
+        f_groupeMatiere(bgColor="pink")
+        b_matiere(nb, groupe=1, nom="rien", bgColor="blue", fgColor="green")
+        assert dao.applyGroupeDegrade(1, QColor("red")) == res
+
+        with db_session:
+            assert GroupeMatiere[1].bgColor == end_color
+
+    def test_reApplyGroupeDegrade(self, dao):
+        f_groupeMatiere(bgColor="red")
         b_matiere(3, groupe=1, nom="rien", bgColor="blue", fgColor="green")
-        assert dao.applyGroupeDegrade(1, QColor("red")) == [
+        assert dao.reApplyGroupeDegrade(1) == [
             {
                 "activites": [],
                 "bgColor": QColor.fromRgbF(1.000000, 0.000000, 0.000000, 1.000000),
@@ -1104,6 +1186,9 @@ class TestChangeMatieresMixin:
                 "nbPages": 0,
             },
         ]
+
+        with db_session:
+            assert GroupeMatiere[1].bgColor == QColor("red")
 
     def test_updateGroupeNom(self, dao):
         f_groupeMatiere(nom="bla")

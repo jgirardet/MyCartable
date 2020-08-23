@@ -27,13 +27,24 @@ ListView {
         property string nom: modelData.nom
         property int groupeid: modelData.id
 
+        function applyDegradeToMatiere(focus_after, reload) {
+            if (reload)
+                changematiere.model = ddb.reApplyGroupeDegrade(groupeid);
+            else
+                changematiere.model = ddb.applyGroupeDegrade(groupeid, baseColor);
+            if (focus_after != undefined) {
+                changematiere.itemAtIndex(focus_after).matieretexte.selectAll();
+                changematiere.itemAtIndex(focus_after).matieretexte.forceActiveFocus();
+            }
+        }
+
         width: root.width
         onBaseColorChanged: {
             if (firstLoad) {
                 firstLoad = false;
                 return ;
             } else {
-                changematiere.model = ddb.applyGroupeDegrade(groupeid, baseColor);
+                applyDegradeToMatiere();
             }
         }
         spacing: 10

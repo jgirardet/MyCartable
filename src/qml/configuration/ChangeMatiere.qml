@@ -16,12 +16,8 @@ ListView {
     property var bdd
 
   function addAndFocus(matid, pos) {
-      model = ddb.addMatiere(matid);
-      let mat = itemAtIndex(pos)
-      if (mat) { // juste pour enlever un warining aux tests
-        mat.matieretexte.selectAll()
-        mat.matieretexte.forceActiveFocus()
-        }
+      ddb.addMatiere(matid);
+      parent.applyDegradeToMatiere(pos, true)
     }
 
     delegate: Column {
@@ -30,6 +26,7 @@ ListView {
         property alias matieretexte: matieretexte
         property string nom: modelData.nom
         property int matiereid: modelData.id
+        property alias activitelist: activitelist
 
         Row {
             id: rowmatieretitre
@@ -133,7 +130,9 @@ ListView {
                 ToolTip.visible: false
                 icon.source: "qrc:/icons/arrow-up"
                 onClicked: {
-                    root.model = ddb.moveMatiereTo(matiereid, index - 1);
+                    ddb.moveMatiereTo(matiereid, index - 1);
+                    root.parent.applyDegradeToMatiere(undefined, true)
+
                 }
             }
 
@@ -145,7 +144,9 @@ ListView {
 //                ToolTip.text: "descendre la matière : " + nom // enlever car genant
                 icon.source: "qrc:/icons/arrow-down"
                 onClicked: {
-                    root.model = ddb.moveMatiereTo(matiereid, index + 1);
+                    ddb.moveMatiereTo(matiereid, index + 1);
+                    root.parent.applyDegradeToMatiere(undefined, true)
+
                 }
             }
             ActionButtonMatiere {
@@ -167,7 +168,8 @@ ListView {
                 ToolTip.text: "supprimer la matière : " + nom
                 icon.source: "qrc:/icons/remove-row-red"
                 onClicked: {
-                    root.model = ddb.removeMatiere(matiereid);
+                    ddb.removeMatiere(matiereid);
+                    root.parent.applyDegradeToMatiere(undefined, true)
                 }
             }
 

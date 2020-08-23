@@ -228,12 +228,17 @@ Item {
           compare(newmate0.matieretexte.activeFocus, true)
         }
         function test_remove_matiere() {
+          mat0.parent.nbPages = 0
           const res = [ {'id': 15, 'nom': 'Physique', 'activites': [43, 44, 45], 'groupe': 6, 'fgColor': "red", 'bgColor': "blue", 'position': 0, "nbPages": 3}]
           ddb._reApplyGroupeDegrade = res
           mouseClick(mat0.children[6])
           compare(ddb._removeMatiere, [15])
           var cm = tested.itemAtIndex(0).changematiere
           compare(cm.model, res)
+        }
+        function test_remove_matiere_disabled_reste_des_pages() {
+          mat0.parent.nbPages = 1
+          compare(mat0.children[6].enabled, false)
         }
 
         //" RAyon des activites"

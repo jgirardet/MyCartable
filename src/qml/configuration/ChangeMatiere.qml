@@ -27,6 +27,7 @@ ListView {
         property string nom: modelData.nom
         property int matiereid: modelData.id
         property alias activitelist: activitelist
+        property int nbPages: modelData.nbPages
 
         Row {
             id: rowmatieretitre
@@ -61,7 +62,7 @@ ListView {
             Text {
 
                 function get_text() {
-                    return modelData.activites.length.toString() + " " + (modelData.activites.length > 1 ? "rubriques" : "rubrique") + "\n" + modelData.nbPages + " " + (modelData.nbPages > 1 ? "pages" : "page");
+                    return modelData.activites.length.toString() + " " + (modelData.activites.length > 1 ? "rubriques" : "rubrique") + "\n" + nbPages + " " + (nbPages > 1 ? "pages" : "page");
                 }
 
                 anchors.verticalCenter: matieretexte.verticalCenter
@@ -163,7 +164,7 @@ ListView {
 
             ActionButtonMatiere {
                 id: delmatierebutton
-
+                enabled: nbPages == 0
                 referent: matieretexte
                 ToolTip.text: "supprimer la matière : " + nom
                 icon.source: "qrc:/icons/remove-row-red"

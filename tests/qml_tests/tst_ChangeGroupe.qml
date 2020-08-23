@@ -30,34 +30,6 @@ Item {
             "position": 2,
             "fgColor": "black",
             "bgColor": "green"
-        }, {
-            "id": 5,
-            "nom": "Langues",
-            "annee": 2019,
-            "position": 3,
-            "fgColor": "black",
-            "bgColor": "orange"
-        }, {
-            "id": 6,
-            "nom": "Sciences",
-            "annee": 2019,
-            "position": 4,
-            "fgColor": "black",
-            "bgColor": "purple"
-        }, {
-            "id": 7,
-            "nom": "Arts",
-            "annee": 2019,
-            "position": 5,
-            "fgColor": "black",
-            "bgColor": "pink"
-        }, {
-            "id": 1,
-            "nom": "Divers",
-            "annee": 2019,
-            "position": 6,
-            "fgColor": "black",
-            "bgColor": "grey"
         }]
 
         property var modelMatieres:  [
@@ -72,8 +44,10 @@ Item {
             {"id": 3, "matiere": 1, "nom": "act3", "position": 2, "nbPages": 2},
         ]
 
+        property var zero
         property var un
         property var deux
+        property var six
         property var activite0
         property var activite1
         property var activite2
@@ -95,8 +69,10 @@ Item {
             tested.height = item.height;
             tested.model = ddb.getGroupeMatieres(2019);
 //            tested.changematiere.model = ddb.getMatieres(1);
+            zero = tested.itemAtIndex(0);
             un = tested.itemAtIndex(1);
             deux = tested.itemAtIndex(2);
+            six = tested.itemAtIndex(6);
 
 
             changeactivite0 =  tested.itemAtIndex(0).changematiere.itemAtIndex(0).children[1]
@@ -150,6 +126,44 @@ Item {
           un.text.text = "blabla"
           compare(un.nom, "blabla")
           compare(ddb._updateGroupeMatiereNom, [3, "blabla"])
+        }
+
+        function test_up_groupe() {
+          //check enabled properties of button
+          compare(zero.children[0].children[1].enabled, false)
+          compare(un.children[0].children[1].enabled, true)
+
+          var res = [{
+            "id": 6,
+            "nom": "Mathématiques",
+            "annee": 2019,
+            "position": 0,
+            "fgColor": "black",
+            "bgColor": "red"
+        }]
+          ddb._moveGroupeMatiereTo = res
+          mouseClick(un.children[0].children[1])
+          compare(tested.model, res)
+          compare(ddb._moveGroupeMatiereTo, [3,0])
+
+        }
+        function test_down_groupe() {
+          compare(un.children[0].children[2].enabled, true)
+          compare(deux.children[0].children[2].enabled, false)
+
+          var res = [{
+            "id": 6,
+            "nom": "Mathématiques",
+            "annee": 2019,
+            "position": 0,
+            "fgColor": "purple",
+            "bgColor": "red"
+        }]
+          ddb._moveGroupeMatiereTo = res
+          mouseClick(un.children[0].children[2])
+          compare(tested.model, res)
+          compare(ddb._moveGroupeMatiereTo, [3,2])
+
         }
 
         // " COIN DES MATIERES

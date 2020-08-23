@@ -127,7 +127,6 @@ ListView {
                 id: upmatierebutton
                 referent: matieretexte
                 enabled: index > 0
-//                ToolTip.text: "monter la matière : " + nom
                 ToolTip.visible: false
                 icon.source: "qrc:/icons/arrow-up"
                 onClicked: {
@@ -136,13 +135,11 @@ ListView {
 
                 }
             }
-
             ActionButtonMatiere {
                 id: downlmatierebutton
                 referent: matieretexte
                 enabled: index < (root.count - 1)
                 ToolTip.visible: false
-//                ToolTip.text: "descendre la matière : " + nom // enlever car genant
                 icon.source: "qrc:/icons/arrow-down"
                 onClicked: {
                     ddb.moveMatiereTo(matiereid, index + 1);

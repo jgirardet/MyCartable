@@ -121,7 +121,14 @@ class ChangeMatieresMixin:
         return self.get_groupe_matieres(annee)
 
     def get_groupe_matieres(self, annee: int) -> List[dict]:
-        return [x.to_dict() for x in GroupeMatiere.get_by_position(annee)]
+        res = []
+        for g in GroupeMatiere.get_by_position(annee):
+            temp = g.to_dict()
+            temp["nbPages"] = sum(
+                ac.pages.count() for m in g.matieres for ac in m.activites
+            )
+            res.append(temp)
+        return res
 
     @Slot(int, int, result="QVariantList")
     @db_session

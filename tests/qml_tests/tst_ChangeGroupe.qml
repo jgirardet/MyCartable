@@ -15,21 +15,24 @@ Item {
             "annee": 2019,
             "position": 0,
             "fgColor": "black",
-            "bgColor": "red"
+            "bgColor": "red",
+            "nbPages": 0
         }, {
             "id": 3,
             "nom": "Francais",
             "annee": 2019,
             "position": 1,
             "fgColor": "black",
-            "bgColor": "blue"
+            "bgColor": "blue",
+            "nbPages": 1
         }, {
             "id": 4,
             "nom": "Histoire-Géo",
             "annee": 2019,
             "position": 2,
             "fgColor": "black",
-            "bgColor": "green"
+            "bgColor": "green",
+            "nbPages": 2
         }]
 
         property var modelMatieres:  [
@@ -146,7 +149,8 @@ Item {
             "annee": 2019,
             "position": 0,
             "fgColor": "black",
-            "bgColor": "red"
+            "bgColor": "red",
+            "nbPages": 0
         }]
           ddb._moveGroupeMatiereTo = res
           mouseClick(un.children[0].children[1])
@@ -164,7 +168,8 @@ Item {
             "annee": 2019,
             "position": 0,
             "fgColor": "purple",
-            "bgColor": "red"
+            "bgColor": "red",
+            "nbPages": 0
         }]
           ddb._moveGroupeMatiereTo = res
           mouseClick(un.children[0].children[2])
@@ -179,7 +184,8 @@ Item {
             "annee": 2017,
             "position": 1,
             "fgColor": "purple",
-            "bgColor": "red"
+            "bgColor": "red",
+            "nbPages": 0
         }]
           ddb._addGroupeMatiere = res
           mouseClick(un.children[0].children[3])
@@ -189,18 +195,22 @@ Item {
         }
 
         function test_remove_groupe() {
+        compare(zero.children[0].children[4].enabled, true)
+          compare(un.children[0].children[4].enabled, false)
+          compare(deux.children[0].children[4].enabled, false)
           var res = [{
             "id": 6,
             "nom": "Mathématiques",
             "annee": 2017,
             "position": 1,
             "fgColor": "purple",
-            "bgColor": "green"
+            "bgColor": "green",
+            "nbPages": 0
         }]
           ddb._removeGroupeMatiere = res
-          mouseClick(un.children[0].children[4])
+          mouseClick(zero.children[0].children[4])
           compare(tested.model, res)
-          compare(ddb._removeGroupeMatiere, [3])
+          compare(ddb._removeGroupeMatiere, [2])
 
         }
 

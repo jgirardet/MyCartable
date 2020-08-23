@@ -25,6 +25,7 @@ ListView {
         property color baseColor: modelData.bgColor
         property int groupeid: modelData.id
         property string nom: modelData.nom
+        property int nbPages: modelData.nbPages
         property bool firstLoad: true
 
         function applyDegradeToMatiere(focus_after, reload) {
@@ -203,6 +204,7 @@ ListView {
             ActionButtonMatiere {
                 id: delgroupebutton
 
+                enabled: !nbPages
                 referent: groupename
                 icon.source: "qrc:/icons/remove-row-red"
                 ToolTip.text: "supprimer le groupe: " + nom

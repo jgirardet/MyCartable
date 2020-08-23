@@ -955,6 +955,9 @@ class TestChangeMatieresMixin:
 
     def test_getGroupeMatieres(self, dao):
         b_groupeMatiere(3, annee=2017, nom="rien", bgColor="red", fgColor="blue")
+        f_matiere(groupe=3)
+        f_activite(matiere=1)
+        b_page(2, activite=1)
         assert dao.getGroupeMatieres(2017) == [
             {
                 "annee": 2017,
@@ -963,6 +966,7 @@ class TestChangeMatieresMixin:
                 "id": 1,
                 "nom": "rien",
                 "position": 0,
+                "nbPages": 0,
             },
             {
                 "annee": 2017,
@@ -971,6 +975,7 @@ class TestChangeMatieresMixin:
                 "id": 2,
                 "nom": "rien",
                 "position": 1,
+                "nbPages": 0,
             },
             {
                 "annee": 2017,
@@ -979,6 +984,7 @@ class TestChangeMatieresMixin:
                 "id": 3,
                 "nom": "rien",
                 "position": 2,
+                "nbPages": 2,
             },
         ]
 
@@ -992,6 +998,7 @@ class TestChangeMatieresMixin:
                 "id": 1,
                 "nom": "rien",
                 "position": 0,
+                "nbPages": 0,
             },
             {
                 "annee": 2017,
@@ -1000,6 +1007,7 @@ class TestChangeMatieresMixin:
                 "id": 3,
                 "nom": "rien",
                 "position": 1,
+                "nbPages": 0,
             },
         ]
 
@@ -1013,6 +1021,7 @@ class TestChangeMatieresMixin:
                 "id": 1,
                 "nom": "rien",
                 "position": 0,
+                "nbPages": 0,
             },
             {
                 "annee": 2017,
@@ -1021,6 +1030,7 @@ class TestChangeMatieresMixin:
                 "id": 3,
                 "nom": "rien",
                 "position": 1,
+                "nbPages": 0,
             },
             {
                 "annee": 2017,
@@ -1029,6 +1039,7 @@ class TestChangeMatieresMixin:
                 "id": 2,
                 "nom": "rien",
                 "position": 2,
+                "nbPages": 0,
             },
         ]
 
@@ -1042,6 +1053,7 @@ class TestChangeMatieresMixin:
                 "id": 1,
                 "nom": "rien",
                 "position": 0,
+                "nbPages": 0,
             },
             {
                 "annee": 2017,
@@ -1050,6 +1062,7 @@ class TestChangeMatieresMixin:
                 "id": 2,
                 "nom": "rien",
                 "position": 1,
+                "nbPages": 0,
             },
             {
                 "annee": 2017,
@@ -1058,6 +1071,7 @@ class TestChangeMatieresMixin:
                 "id": 4,
                 "nom": "nouveau",
                 "position": 2,
+                "nbPages": 0,
             },
             {
                 "annee": 2017,
@@ -1066,6 +1080,7 @@ class TestChangeMatieresMixin:
                 "id": 3,
                 "nom": "rien",
                 "position": 3,
+                "nbPages": 0,
             },
         ]
         with db_session:

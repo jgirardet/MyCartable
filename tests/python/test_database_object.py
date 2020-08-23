@@ -784,13 +784,19 @@ class TestChangeMatieresMixin:
             {"id": 3, "matiere": 1, "nom": "rien", "position": 1, "nbPages": 0},
         ]
 
-    def test_addActivite(self, dao):
+    def test_addActivite_par_activiteId(self, dao):
         b_activite(3, nom="rien")
         assert dao.addActivite(1) == [
             {"id": 4, "matiere": 1, "nom": "nouvelle", "position": 0, "nbPages": 0},
             {"id": 1, "matiere": 1, "nom": "rien", "position": 1, "nbPages": 0},
             {"id": 2, "matiere": 1, "nom": "rien", "position": 2, "nbPages": 0},
             {"id": 3, "matiere": 1, "nom": "rien", "position": 3, "nbPages": 0},
+        ]
+
+    def test_addActivite_par_matiereId(self, dao):
+        f_matiere()
+        assert dao.addActivite("1") == [
+            {"id": 1, "matiere": 1, "nom": "nouvelle", "position": 0, "nbPages": 0},
         ]
 
     def test_updateActiviteNom(self, dao):

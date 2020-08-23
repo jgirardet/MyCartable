@@ -169,6 +169,36 @@ Item {
           compare(ddb._updateMatiereNom, [15, "blabla"])
         }
 
+        function test_matiere_toggle_base() {
+          var tog = mat0.children[2]
+          compare(tog.state, "")
+          compare(tog.icon.source, "qrc:/icons/less-than")
+        }
+
+        function test_matiere_toggle_no_activite() {
+          changeactivite0.model = 0
+          var tog = mat0.children[2]
+          compare(tog.state, "no_activite")
+        }
+
+        function test_matiere_toggle_click() {
+          var tog = mat0.children[2]
+          mouseClick(tog)
+          tryCompare(tog, "rotation", -90)
+        }
+
+        function test_matiere_toggle_click_empty_activite() {
+          changeactivite0.model = 0
+          var tog = mat0.children[2]
+          ddb._addActivite = [{"id": 6, "matiere": 1, "nom": "novonovo", "position": 0, "nbPages": 0}]
+          mouseClick(tog)
+          tryCompare(tog, "rotation", -90)
+          tryCompare(changeactivite0.children[0], "nom", "novonovo")
+          tryCompare(changeactivite0.children[0].activitetext, "selectedText", "novonovo")
+          tog.state="toggled"
+
+        }
+
         function test_up_matiere() {
           const res = [ {'id': 15, 'nom': 'Physique', 'activites': [43, 44, 45], 'groupe': 6, 'fgColor': "red", 'bgColor': "blue", 'position': 0, "nbPages": 3}]
           ddb._moveMatiereTo = res

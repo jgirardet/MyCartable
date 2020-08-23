@@ -98,13 +98,20 @@ class ChangeMatieresMixin:
             return self.get_matieres(groupe_id)
 
     @Slot(int, result="QVariantList")
+    @Slot(str, result="QVariantList")
     @db_session
-    def addMatiere(self, matiereid: int) -> List[dict]:
-        pre = Matiere[matiereid]
-        new = Matiere(nom="nouvelle", groupe=pre.groupe)
-        new.position = pre.position
+    def addMatiere(self, someId: Union[int, str]) -> List[dict]:
+        groupeid: int
+        if isinstance(someId, int):
+            pre = Matiere[someId]
+            groupeid = pre.groupe.id
+            new = Matiere(nom="nouvelle", groupe=pre.groupe)
+            new.position = pre.position
+        elif isinstance(someId, str):
+            groupeid = int(someId)
+            Matiere(nom="nouvelle", groupe=groupeid)
 
-        return self.get_matieres(new.groupe.id)
+        return self.get_matieres(groupeid)
 
     @Slot(int, str)
     @db_session

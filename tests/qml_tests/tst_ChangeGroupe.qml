@@ -191,7 +191,6 @@ Item {
           mouseClick(un.children[0].children[3])
           compare(tested.model, res)
           compare(ddb._addGroupeMatiere, [3])
-
         }
 
         function test_remove_groupe() {
@@ -213,6 +212,23 @@ Item {
           compare(ddb._removeGroupeMatiere, [2])
 
         }
+
+        function test_groupe_add_matiere_quand_empty() {
+          var button = un.text.children[3]
+          compare(button.enabled, false)
+          un.changematiere.model = []
+          compare(button.enabled, true)
+
+          var res = [{'id': 18, 'nom': 'Hello', 'activites': [52, 53, 54], 'groupe': 6, 'fgColor': "red", 'bgColor': "purple", 'position': 3, "nbPages": 3}]
+          ddb._reApplyGroupeDegrade  = res
+          mouseClick(button)
+          compare(ddb._addMatiere, ["3"])
+          compare(un.changematiere.model,res)
+          var newmate0 = tested.itemAtIndex(1).changematiere.itemAtIndex(0)
+          compare(newmate0.matieretexte.selectedText, "Hello")
+          compare(newmate0.matieretexte.activeFocus, true)
+        }
+
 
         // " COIN DES MATIERES
 

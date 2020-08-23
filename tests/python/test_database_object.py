@@ -902,7 +902,7 @@ class TestChangeMatieresMixin:
             },
         ]
 
-    def test_addMatiere(self, dao):
+    def test_addMatiere_by_matiereid(self, dao):
         b_matiere(3, nom="rien", bgColor="red", fgColor="blue")
         assert dao.addMatiere(2) == [
             {
@@ -945,6 +945,21 @@ class TestChangeMatieresMixin:
                 "position": 3,
                 "nbPages": 0,
             },
+        ]
+
+    def test_addMatiere_by_groupeid(self, dao):
+        f_groupeMatiere()
+        assert dao.addMatiere("1") == [
+            {
+                "activites": [],
+                "bgColor": QColor.fromRgbF(1.000000, 1.000000, 1.000000, 1.000000),
+                "fgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 1.000000),
+                "groupe": 1,
+                "id": 1,
+                "nbPages": 0,
+                "nom": "nouvelle",
+                "position": 0,
+            }
         ]
 
     def test_updateActiviteNom(self, dao):

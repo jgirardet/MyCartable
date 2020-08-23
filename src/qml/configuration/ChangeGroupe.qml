@@ -122,14 +122,20 @@ ListView {
                 Button {
                     id: dodegradebutton
 
-                    font.pointSize: 10
-                    display: AbstractButton.TextOnly
+                    display: AbstractButton.IconOnly
                     anchors.right: parent.right
                     anchors.rightMargin: 5
                     anchors.verticalCenter: parent.verticalCenter
-                    text: "Go!"
+                    icon.source: "qrc:/icons/plus"
+                    icon.color: "transparent"
+                    enabled: !changematiere.count
+                    opacity: enabled ? 1 : 0
                     ToolTip.visible: hovered
-                    ToolTip.text: "Créer un dégradé"
+                    ToolTip.text: "Ajouter une première matière"
+                    onClicked: {
+                        ddb.addMatiere(groupeid.toString());
+                        groupe.applyDegradeToMatiere(0, true);
+                    }
 
                     background: Rectangle {
                         radius: 10
@@ -166,9 +172,6 @@ ListView {
             }
 
             ActionButtonMatiere {
-                //                    ddb.moveMatiereTo(matiereid, index - 1);
-                //                    root.parent.applyDegradeToMatiere(undefined, true)
-
                 id: upmatierebutton
 
                 referent: groupename

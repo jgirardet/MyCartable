@@ -201,34 +201,39 @@ Item {
 
         function test_up_matiere() {
           const res = [ {'id': 15, 'nom': 'Physique', 'activites': [43, 44, 45], 'groupe': 6, 'fgColor': "red", 'bgColor': "blue", 'position': 0, "nbPages": 3}]
-          ddb._moveMatiereTo = res
+          ddb._reApplyGroupeDegrade = res
           mouseClick(mat1.children[3])
           compare(ddb._moveMatiereTo, [16, 0])
-          compare(changematiere0.model, res)
+          var cm = tested.itemAtIndex(0).changematiere
+          compare(cm.model, res)
         }
 
         function test_down_matiere() {
           const res = [ {'id': 15, 'nom': 'Physique', 'activites': [43, 44, 45], 'groupe': 6, 'fgColor': "red", 'bgColor': "blue", 'position': 0, "nbPages": 3}]
-          ddb._moveMatiereTo = res
+          ddb._reApplyGroupeDegrade = res
           mouseClick(mat1.children[4], 1, 1)
           compare(ddb._moveMatiereTo, [16, 2])
-          compare(changematiere0.model, res)
+          var cm = tested.itemAtIndex(0).changematiere
+          compare(cm.model, res)
         }
 
         function test_add_matiere() {
           const res = modelMatieres[0]
-          ddb._addMatiere = res
+          ddb._reApplyGroupeDegrade = [{'id': 18, 'nom': 'SVT', 'activites': [52, 53, 54], 'groupe': 6, 'fgColor': "red", 'bgColor': "purple", 'position': 3, "nbPages": 3}]
+
           mouseClick(mat0.children[5])
-          compare(ddb._addMatiere, [15])
-          compare(changematiere0.model, res)
+          compare(ddb._reApplyGroupeDegrade, [2])
+          var newmate0 = tested.itemAtIndex(0).changematiere.itemAtIndex(0)
+          compare(newmate0.matieretexte.selectedText, "SVT")
+          compare(newmate0.matieretexte.activeFocus, true)
         }
         function test_remove_matiere() {
           const res = [ {'id': 15, 'nom': 'Physique', 'activites': [43, 44, 45], 'groupe': 6, 'fgColor': "red", 'bgColor': "blue", 'position': 0, "nbPages": 3}]
-          ddb._removeMatiere = res
+          ddb._reApplyGroupeDegrade = res
           mouseClick(mat0.children[6])
           compare(ddb._removeMatiere, [15])
-          compare(changematiere0.model, res)
-          compare(changematiere0.count, 1)
+          var cm = tested.itemAtIndex(0).changematiere
+          compare(cm.model, res)
         }
 
         //" RAyon des activites"

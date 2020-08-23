@@ -128,6 +128,13 @@ Item {
           compare(ddb._updateGroupeMatiereNom, [3, "blabla"])
         }
 
+        function test_moddif_nom_groupe_empty() {
+          un.text.text = "a"
+          compare(un.nom, "a")
+          un.text.text = ""
+          compare(un.nom, "a")
+        }
+
         function test_up_groupe() {
           //check enabled properties of button
           compare(zero.children[0].children[1].enabled, false)
@@ -212,6 +219,13 @@ Item {
           mat0.children[0].text = "blabla"
           compare(mat0.parent.nom, "blabla")
           compare(ddb._updateMatiereNom, [15, "blabla"])
+        }
+
+        function test_moddif_nom_matiere_mepty() {
+          var mat0 = tested.itemAtIndex(0).changematiere.itemAtIndex(0).children[0]
+          mat0.children[0].text = "a"
+          mat0.children[0].text = ""
+          compare(mat0.parent.nom, "a")
         }
 
         function test_matiere_toggle_base() {
@@ -360,6 +374,11 @@ Item {
           activite2.children[0].text = "blabla"
           compare(activite2.nom, "blabla")
           compare(ddb._updateActiviteNom, [3, "blabla"])
+        }
+        function test_moddif_nom_empty() {
+          activite2.children[0].text = "a"
+          activite2.children[0].text = ""
+          compare(activite2.nom, "a")
         }
 
         name: "ChangeGroupe"

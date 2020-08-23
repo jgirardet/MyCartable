@@ -9,7 +9,7 @@ Item {
     CasTest {
 
         function test_init() {
-            compare(ddb.recentsModel, tested.children[0].model);
+            compare(ddb.recentsModel, tested.children[0].children[1].model);
         }
 
         name: "RecentsRectangle"

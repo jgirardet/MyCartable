@@ -2,7 +2,16 @@ from contextlib import contextmanager
 
 from PySide2.QtGui import QColor
 from pony.orm import Required
-from pony.orm.core import Entity, Attribute, select, Optional, EntityProxy, max, flush
+from pony.orm.core import (
+    Entity,
+    Attribute,
+    select,
+    Optional,
+    EntityProxy,
+    max,
+    flush,
+    ObjectNotFound,
+)
 
 
 class ColorMixin:
@@ -199,11 +208,10 @@ class PositionMixin:
     def after_delete_position(self):
         base_class = self.base_class_position or self.__class__
         n = 0
-        # self_class = self.__class__
-        # try:
-        referent = self._positionbackup[0][self._positionbackup[1]]
-        # except:
-        #     return
+        try:
+            referent = self._positionbackup[0][self._positionbackup[1]]
+        except ObjectNotFound:
+            return  # referent deleted, classement n'a plus d'intéret
         children = select(
             p
             for p in base_class

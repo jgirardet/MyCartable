@@ -1508,6 +1508,7 @@ def position_mixed(reset_db):
             ref = Required(Referent)
             referent_attribute_name = "ref"
             _position = Required(int)
+            aaas = Set("MixedChild")
 
             def __init__(self, position=None, ref=None, **kwargs):
                 with self.init_position(position, ref) as _position:
@@ -1522,6 +1523,21 @@ def position_mixed(reset_db):
         class SubMixed(Mixed):
             base_class_position = Mixed
 
+        class MixedChild(db.Entity, PositionMixin):
+            referent_attribute_name = "aaa"
+            aaa = Required(Mixed)
+            _position = Required(int)
+
+            def __init__(self, position=None, aaa=None, **kwargs):
+                with self.init_position(position, aaa) as _position:
+                    super().__init__(aaa=aaa, _position=_position, **kwargs)
+
+            def before_delete(self):
+                self.before_delete_position()
+
+            def after_delete(self):
+                self.after_delete_position()
+
         db.bind(provider="sqlite", filename=":memory:")
         db.generate_mapping(create_tables=True)
         with db_session:
@@ -1532,14 +1548,14 @@ def position_mixed(reset_db):
             y = Mixed(ref=rf)
             flush()
             z = Mixed(ref=rf)
-            return Referent, Mixed, SubMixed, rf, x, y, z
+            return Referent, Mixed, SubMixed, MixedChild, rf, x, y, z
 
     return setup
 
 
 class TestPositionMixin:
     def test_create_ete_entity(self, position_mixed):
-        Referent, Mixed, SubMixed, ref, x, y, z = position_mixed()
+        Referent, Mixed, SubMixed, MixedChild, ref, x, y, z = position_mixed()
         with db_session:
             x = Mixed[1]
             y = Mixed[2]
@@ -1550,7 +1566,8 @@ class TestPositionMixin:
 
     @pytest.mark.parametrize("todel, un, deux", [(1, 2, 3), (2, 1, 3), (3, 1, 2),])
     def test_delete_recalculate(self, todel, un, deux, position_mixed):
-        Referent, Mixed, SubMixed, ref, x, y, z = position_mixed()
+        Referent, Mixed, SubMixed, MixedChild, ref, x, y, z = position_mixed()
+
         with db_session:
             Mixed[todel].delete()
 
@@ -1573,7 +1590,7 @@ class TestPositionMixin:
         ],
     )
     def test_set_position(self, tomove, where, un, deux, trois, position_mixed):
-        Referent, Mixed, SubMixed, ref, x, y, z = position_mixed()
+        Referent, Mixed, SubMixed, MixedChild, ref, x, y, z = position_mixed()
         with db_session:
             Mixed[tomove].position = where
             assert Mixed[1].position == un
@@ -1585,7 +1602,7 @@ class TestPositionMixin:
         [(1, 0, 2, 3, 1), (0, 1, 2, 3, 0), (2, 0, 1, 3, 2), (20, 0, 1, 2, 3),],
     )
     def test_insert_at(self, position_mixed, where, un, deux, trois, quatre):
-        Referent, Mixed, SubMixed, ref, x, y, z = position_mixed()
+        Referent, Mixed, SubMixed, MixedChild, ref, x, y, z = position_mixed()
         with db_session:
             a = Mixed(ref=ref.id, position=where)
         with db_session:
@@ -1595,7 +1612,7 @@ class TestPositionMixin:
             assert Mixed[4].position == quatre
 
     def test_multiple_add_on_dame_db_session(self, position_mixed):
-        Referent, Mixed, SubMixed, ref, x, y, z = position_mixed()
+        Referent, Mixed, SubMixed, MixedChild, ref, x, y, z = position_mixed()
         with db_session:
             s = Mixed(ref=ref.id)
             t = Mixed(ref=ref.id)
@@ -1604,13 +1621,23 @@ class TestPositionMixin:
             assert t.position == 4
 
     def test_inheritance(self, position_mixed):
-        Referent, Mixed, SubMixed, ref, x, y, z = position_mixed()
+        Referent, Mixed, SubMixed, MixedChild, ref, x, y, z = position_mixed()
         with db_session:
             s = SubMixed(ref=ref.id)
             t = SubMixed(ref=ref.id)
         with db_session:
             assert s.position == 3
             assert t.position == 4
+
+    def test_remove_with_relation(self, position_mixed):
+        Referent, Mixed, SubMixed, MixedChild, ref, x, y, z = position_mixed()
+
+        with db_session:
+            MixedChild(aaa=x.id)
+            MixedChild(aaa=x.id)
+            MixedChild(aaa=x.id)
+        with db_session:
+            Mixed[x.id].delete()
 
 
 class TestUtilisateur:

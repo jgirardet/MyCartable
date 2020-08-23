@@ -20,10 +20,8 @@ class Annee(db.Entity):
 
     def get_matieres(self):
         return select(
-            matiere
-            for groupe in self.groupes.select()
-            for matiere in groupe.matieres.select()
-        )
+            matiere for groupe in self.groupes for matiere in groupe.matieres
+        ).order_by(lambda m: (m.groupe.position, m.position))
 
 
 class GroupeMatiere(db.Entity, PositionMixin, ColorMixin):

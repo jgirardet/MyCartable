@@ -898,7 +898,7 @@ class TestChangeMatieresMixin:
 
     def test_addMatiere(self, dao):
         b_matiere(3, nom="rien", bgColor="red", fgColor="blue")
-        assert dao.addMatiere(1) == [
+        assert dao.addMatiere(2) == [
             {
                 "activites": [],
                 "bgColor": QColor("red"),
@@ -911,12 +911,22 @@ class TestChangeMatieresMixin:
             },
             {
                 "activites": [],
+                "bgColor": QColor("white"),
+                "fgColor": QColor("black"),
+                "groupe": 1,
+                "id": 4,
+                "nom": "nouvelle",
+                "position": 1,
+                "nbPages": 0,
+            },
+            {
+                "activites": [],
                 "bgColor": QColor("red"),
                 "fgColor": QColor("blue"),
                 "groupe": 1,
                 "id": 2,
                 "nom": "rien",
-                "position": 1,
+                "position": 2,
                 "nbPages": 0,
             },
             {
@@ -926,16 +936,6 @@ class TestChangeMatieresMixin:
                 "groupe": 1,
                 "id": 3,
                 "nom": "rien",
-                "position": 2,
-                "nbPages": 0,
-            },
-            {
-                "activites": [],
-                "bgColor": QColor("white"),
-                "fgColor": QColor("black"),
-                "groupe": 1,
-                "id": 4,
-                "nom": "nouvelle",
                 "position": 3,
                 "nbPages": 0,
             },
@@ -1028,7 +1028,7 @@ class TestChangeMatieresMixin:
 
     def test_addGroupeMatieres(self, dao):
         b_groupeMatiere(3, annee=2017, nom="rien", bgColor="red", fgColor="blue")
-        assert dao.addGroupeMatiere(2017) == [
+        assert dao.addGroupeMatiere(3) == [
             {
                 "annee": 2017,
                 "bgColor": QColor("red"),
@@ -1047,18 +1047,18 @@ class TestChangeMatieresMixin:
             },
             {
                 "annee": 2017,
-                "bgColor": QColor("red"),
-                "fgColor": QColor("blue"),
-                "id": 3,
-                "nom": "rien",
-                "position": 2,
-            },
-            {
-                "annee": 2017,
                 "bgColor": QColor("white"),
                 "fgColor": QColor("black"),
                 "id": 4,
                 "nom": "nouveau",
+                "position": 2,
+            },
+            {
+                "annee": 2017,
+                "bgColor": QColor("red"),
+                "fgColor": QColor("blue"),
+                "id": 3,
+                "nom": "rien",
                 "position": 3,
             },
         ]

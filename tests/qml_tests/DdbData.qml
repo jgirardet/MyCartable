@@ -113,6 +113,38 @@ matiereList : annee en moins
 matiereList : annee en moins
               famille, actiite, position
               */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
 
     // Matiere MIXIN
     property int currentMatiere: 0
@@ -499,6 +531,9 @@ matiereList : annee en moins
     property var _updateMatiereNom
     property var _updateGroupeMatiereNom
     property var _addActivite
+    property var _moveMatiereTo
+    property var _addMatiere
+    property var _removeMatiere
 
     signal setCurrentMatiereFromIndexSignal(int index)
     signal newPageCreated(var un)
@@ -697,6 +732,24 @@ matiereList : annee en moins
     function addActivite(acid) {
         let toReturn = _addActivite;
         _addActivite = [acid];
+        return toReturn;
+    }
+
+    function moveMatiereTo(id, pos) {
+        let toReturn = _moveMatiereTo;
+        _moveMatiereTo = [id, pos];
+        return toReturn;
+    }
+
+    function addMatiere(matid) {
+        let toReturn = _addMatiere;
+        _addMatiere = [matid];
+        return toReturn;
+    }
+
+    function removeMatiere(matid) {
+        let toReturn = _removeMatiere;
+        _removeMatiere = [matid];
         return toReturn;
     }
 

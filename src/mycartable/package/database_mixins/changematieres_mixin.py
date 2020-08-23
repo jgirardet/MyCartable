@@ -91,9 +91,12 @@ class ChangeMatieresMixin:
 
     @Slot(int, result="QVariantList")
     @db_session
-    def addMatiere(self, groupe: int) -> List[dict]:
-        Matiere(nom="nouvelle", groupe=groupe)
-        return self.get_matieres(groupe)
+    def addMatiere(self, matiereid: int) -> List[dict]:
+        pre = Matiere[matiereid]
+        new = Matiere(nom="nouvelle", groupe=pre.groupe)
+        new.position = pre.position
+
+        return self.get_matieres(new.groupe.id)
 
     @Slot(int, str)
     @db_session
@@ -130,9 +133,12 @@ class ChangeMatieresMixin:
 
     @Slot(int, result="QVariantList")
     @db_session
-    def addGroupeMatiere(self, annee: int) -> List[dict]:
-        GroupeMatiere(nom="nouveau", annee=annee)
-        return self.get_groupe_matieres(annee)
+    def addGroupeMatiere(self, groupeid: int) -> List[dict]:
+        pre = GroupeMatiere[groupeid]
+        new = GroupeMatiere(nom="nouveau", annee=pre.annee)
+        new.position = pre.position
+
+        return self.get_groupe_matieres(new.annee.id)
 
     @Slot(int, QColor, result="QVariantList")
     def applyGroupeDegrade(self, groupe_id: int, color: QColor) -> List[dict]:

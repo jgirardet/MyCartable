@@ -47,9 +47,16 @@ Rectangle {
                 contentItem: Text {
                     text: combo.displayText
                     color: combo.currentValue ? combo.model[combo.currentIndex].fgColor : "white"
-                    font.pointSize: 14
+                    font.pointSize: 16
+                    font.family: ddb.fontMain
+                    font.capitalization: Font.Capitalize
+                    font.bold: true
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
+                    onTextChanged: {
+                        font.pointSize = 16;
+                        while (contentWidth > (width))font.pointSize--
+                    }
                 }
 
                 background: Rectangle {

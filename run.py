@@ -115,6 +115,7 @@ def cmd_clean(*args, **kwargs):
         ".coverage",
         ROOT / "linux",
         ROOT / "windows",
+        ROOT / "Tools"
     ]
     if "-venv" in args:
         to_remove.append(VIRTUAL_ENV)
@@ -154,7 +155,12 @@ def cmd_install(*args, **kwargs):
     runCommand(f"python -m pip install -U pip")
     # runCommand("pip install https://github.com/jgirardet/briefcase/archive/docker-tty.zip")
     runCommand(f"pip install -r requirements.txt")
-    from briefcase.config import parse_config
+    try:
+        from briefcase.config import parse_config
+    except ModuleNotFoundError:
+        runCommand("python run.py install")
+        return
+
 
     with open("pyproject.toml") as ff:
         _, appconfig = parse_config(ff, sys.platform, "")

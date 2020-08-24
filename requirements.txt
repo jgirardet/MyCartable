@@ -15,7 +15,8 @@ pytest-freezegun
 pytest-qt
 PyPDF2
 mypy
-briefcase==0.3.3
+#briefcase==0.3.3
+-e git://github.com/jgirardet/briefcase.git@patch033#egg=briefcase
 toml
 loguru-caplog
 

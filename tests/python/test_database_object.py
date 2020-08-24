@@ -303,6 +303,49 @@ class TestMatiereMixin:
         assert len(dao.matieresList) == len(MATIERES)
 
 
+class TestActiviteMixin:
+    def test_getDeplacePageModel(self, dao):
+        g1 = f_groupeMatiere(annee=1900)
+        g2 = f_groupeMatiere(annee=2000)
+        m1 = f_matiere(nom="un", groupe=g1)
+        m2 = f_matiere(nom="deux", groupe=g1)
+        m3 = f_matiere(nom="trois", groupe=g2, bgColor="red")
+        m4 = f_matiere(nom="quatre", groupe=g2, bgColor="blue")
+        for i in [m1, m2, m3, m4]:
+            b_activite(3, nom="rien", matiere=i.id)
+        res = dao.getDeplacePageModel(2000)
+        assert res == [
+            {
+                "activites": [
+                    {"id": 7, "nom": "rien"},
+                    {"id": 8, "nom": "rien"},
+                    {"id": 9, "nom": "rien"},
+                ],
+                "bgColor": QColor("red"),
+                "nom": "trois",
+            },
+            {
+                "activites": [
+                    {"id": 10, "nom": "rien"},
+                    {"id": 11, "nom": "rien"},
+                    {"id": 12, "nom": "rien"},
+                ],
+                "bgColor": QColor("blue"),
+                "nom": "quatre",
+            },
+        ]
+
+    def test_changeActivite(self, dao, qtbot):
+        f_activite()
+        a = f_page()
+        with db_session:
+            assert Page[1].activite.id == 2
+        with qtbot.waitSignal(dao.pageActiviteChanged):
+            dao.changeActivite(1, 1)
+        with db_session:
+            assert Page[1].activite.id == 1
+
+
 class TestRecentsMixin:
     def test_init(self, dao, ddbn):
         a = b_page(5)
@@ -1361,3 +1404,7 @@ class TestDatabaseObject:
     def test_equation_update_update_recents_and_activite(self, dao, qtbot):
         with qtbot.waitSignal(dao.updateRecentsAndActivites):
             dao.equationChanged.emit()
+
+    def test_page_activite_changed_update_pagesParsection(self, dao, qtbot):
+        with qtbot.waitSignal(dao.pagesParSectionChanged):
+            dao.pageActiviteChanged.emit()

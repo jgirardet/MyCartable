@@ -2,6 +2,7 @@ import QtQuick 2.14
 import QtQuick.Controls 2.14
 import QtQuick.Layouts 1.14
 import "qrc:/qml/divers"
+import "qrc:/qml/menu"
 
 Rectangle {
     id: base
@@ -54,12 +55,17 @@ Rectangle {
 
             //    anchors.fill: parent
             property int commonHeight: 30
+            property alias deplacePopup: deplacePopup
 
             objectName: "lv"
             model: base.model.pages
             spacing: 3
             width: base.width
             height: lv.contentItem.childrenRect.height
+
+            DeplacePage {
+                id: deplacePopup
+            }
 
             delegate: PageButton {
                 id: but

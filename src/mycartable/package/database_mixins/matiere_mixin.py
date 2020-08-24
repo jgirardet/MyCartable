@@ -1,10 +1,12 @@
 # currentMatiere
+from typing import List
+
 from loguru import logger
 
 from PySide2.QtCore import Signal, Property, Slot
-from package.database.structure import GroupeMatiere, Matiere
+from package.database.structure import GroupeMatiere, Matiere, Activite, Annee
 from package.default_matiere import MATIERE_GROUPE, MATIERES
-from pony.orm import db_session, ObjectNotFound, flush
+from pony.orm import db_session, ObjectNotFound, flush, select
 
 from loguru import logger
 
@@ -12,6 +14,7 @@ from loguru import logger
 class MatiereMixin:
     currentMatiereChanged = Signal()
     matieresListNomChanged = Signal()
+    pagesParSectionChanged = Signal()
     setCurrentMatiereFromIndexSignal = Signal(int)
     matiereReset = Signal()
 
@@ -65,8 +68,6 @@ class MatiereMixin:
     def matieresListRefresh(self):
         self.init_matieres(annee=self.annee_active)
         self.matieresListNomChanged.emit()
-
-    pagesParSectionChanged = Signal()
 
     @Property("QVariantList", notify=pagesParSectionChanged)
     def pagesParSection(self):

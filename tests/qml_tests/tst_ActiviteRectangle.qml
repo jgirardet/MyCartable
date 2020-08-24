@@ -47,6 +47,12 @@ Item {
             compare(header.label.text, "Evaluations");
         }
 
+        function test_new_page_via_header() {
+            ddb._newPage = "xx";
+            mouseClick(header.mousearea, 0, 0, Qt.RightButton);
+            compare(ddb._newPage, 9);
+        }
+
         name: "ActiviteRectangle"
         testedNom: "qrc:/qml/matiere/ActiviteRectangle.qml"
         params: {

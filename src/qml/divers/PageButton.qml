@@ -4,6 +4,10 @@ import QtQuick 2.14
 import QtQuick.Controls 2.14
 
 RoundButton {
+    //    onPressed: {
+    //        print(event);
+    //    }
+
     id: root
 
     property var model
@@ -11,11 +15,23 @@ RoundButton {
     property var borderActivatedWidth: 3
 
     radius: 10
-    onClicked: ddb.currentPage = model.id
 
     contentItem: MovingText {
         move: hovered
         text: model ? model.titre : null
+
+        MouseArea {
+            anchors.fill: parent
+            acceptedButtons: Qt.LeftButton | Qt.RightButton
+            onPressed: {
+                if (mouse.button == Qt.LeftButton)
+                    ddb.currentPage = model.id;
+                else if (mouse.button == Qt.RightButton)
+                    root.ListView.view.deplacePopup.ouvre(modelData.id, root);
+
+            }
+        }
+
     }
 
     background: Rectangle {

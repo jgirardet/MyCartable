@@ -55,7 +55,12 @@ Rectangle {
                     horizontalAlignment: Text.AlignHCenter
                     onTextChanged: {
                         font.pointSize = 16;
-                        while (contentWidth > (width))font.pointSize--
+                        while (contentWidth > (width)) {
+                            font.pointSize--;
+                            if (font.pointSize <= 4)
+                                break;
+
+                        }
                     }
                 }
 

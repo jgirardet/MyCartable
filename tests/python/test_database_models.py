@@ -892,9 +892,10 @@ class TestAnnotations:
         with db_session:
             x = Annotation[1]
             assert not x.style.underline
-            x.set(**{"x": 0.7, "style": {"underline": True}})
+            x.set(**{"x": 0.7, "style": {"underline": True}, "attrs": {"y": "0.234"}})
             assert x.x == 0.7
             assert x.style.underline
+            assert x.y == 0.234
             x.set(**{"x": 0.9})
             assert x.x == 0.9
 
@@ -956,6 +957,19 @@ class TestAnnotations:
 
     def test_annotation_dession(self):
         an = f_annotationDessin()
+
+    def test_getitem(self, reset_db):
+        f_annotation()
+        f_annotationDessin()
+        f_annotationText()
+
+        with db_session:
+            a = Annotation[1].as_type()
+            assert isinstance(a, Annotation)
+            a = Annotation[2].as_type()
+            assert isinstance(a, AnnotationDessin)
+            a = Annotation[3].as_type()
+            assert isinstance(a, AnnotationText)
 
 
 class TestTableauSection:

@@ -9,18 +9,23 @@ Item {
     implicitHeight: height // si pas de taille, pas ed paint
 
     CasTest {
-        // en haut a gauche
-        // trou
-        // en haut a gauche
+        //                "uiManager": uiManager
 
         id: testCase
 
         property var annot
 
-        function initPreCreate() {
-        }
-
-        function initPost() {
+        // en haut a gauche
+        // trou
+        // en haut a gauche
+        function test_opacity() {
+            annot.weight = 2;
+            //            uiManager.menuFlottantAnnotationDessin = item;
+            var nt = createObj("qrc:/qml/annotations/AnnotationDessin.qml", {
+                "annot": annot,
+                "referent": item
+            });
+            compare(nt.opacity, 0.2);
         }
 
         function test_ini() {
@@ -48,47 +53,6 @@ Item {
             spy.wait();
         }
 
-        function test_draw_data() {
-            return [{
-                "tool": "trait"
-            }, {
-                "tool": "rect"
-            }, {
-                "tool": "fillrect"
-            }, {
-                "tool": "ellipse"
-            }];
-        }
-
-        function test_draw(data) {
-            // en pratique on test surtout en regression
-            var spy = getSpy(tested, "painted");
-            annot.tool = data.tool;
-            tested.requestPaint();
-            spy.wait();
-            var img = Qt.createQmlObject("import QtQuick 2.15; Image {source: 'assets/" + data.tool + ".png'}", item);
-            var c = Qt.createQmlObject("import QtQuick 2.15; Canvas {height:" + tested.height + ";width:" + tested.width + "}", item);
-            tryCompare(c, "available", true);
-            var ctx = c.getContext("2d");
-            ctx.drawImage(img, 0, 0);
-            compare(tested.toDataURL(), c.toDataURL());
-        }
-
-        function test_fillrect_opacity() {
-            var spy = getSpy(tested, "painted");
-            annot.tool = "fillrect";
-            tested.opacity = 1;
-            tested.requestPaint();
-            spy.wait();
-            compare(tested.opacity, 0.2);
-            var spy = getSpy(tested, "painted");
-            annot.tool = "rect";
-            tested.opacity = 1;
-            tested.requestPaint();
-            spy.wait();
-            compare(tested.opacity, 1);
-        }
-
         function test_checkpointis_NotDraw_data() {
             // strokeREct(24, 205, 16, 30)
             //linewidth = 12
@@ -111,6 +75,50 @@ Item {
             }];
         }
 
+        function test_checkpointis_NotDraw(data) {
+            var spy = getSpy(tested, "painted");
+            annot.tool = "rect";
+            tested.fillStyle = "transparent";
+            //            annot.Style = "transparent";
+            tested.requestPaint();
+            spy.wait();
+            compare(tested.checkPointIsNotDraw(data.mx, data.my), data.res);
+        }
+
+        function initPreCreate() {
+        }
+
+        function initPost() {
+        }
+
+        function test_draw_data() {
+            return [{
+                "tool": "trait"
+            }, {
+                "tool": "rect"
+            }, {
+                "tool": "ellipse"
+            }];
+        }
+
+        function test_draw(data) {
+            // en pratique on test surtout en regression
+            tested.fillStyle = "transparent";
+            tested.tool = data.tool;
+            var spy = getSpy(tested, "painted");
+            //            annot.tool = data.tool;
+            //            wait(10000);
+            tested.requestPaint();
+            spy.wait();
+            var img = Qt.createQmlObject("import QtQuick 2.15; Image {source: 'assets/" + data.tool + ".png'}", item);
+            var c = Qt.createQmlObject("import QtQuick 2.15; Canvas {height:" + tested.height + ";width:" + tested.width + "}", item);
+            tryCompare(c, "available", true);
+            var ctx = c.getContext("2d");
+            ctx.drawImage(img, 0, 0);
+            //            wait(1000);
+            compare(tested.toDataURL(), c.toDataURL());
+        }
+
         function initPre() {
             annot = {
                 "sectionId": 2,
@@ -126,20 +134,14 @@ Item {
                 "startX": 0.3,
                 "startY": 0.7,
                 "endX": 0.5,
-                "endY": 0.9
+                "endY": 0.9,
+                "tool": "rect",
+                "weight": 10
             };
             params = {
                 "annot": annot,
                 "referent": item
             };
-        }
-
-        function test_checkpointis_NotDraw(data) {
-            var spy = getSpy(tested, "painted");
-            annot.tool = "rect";
-            tested.requestPaint();
-            spy.wait();
-            compare(tested.checkPointIsNotDraw(data.mx, data.my), data.res);
         }
 
         name: "AnnotationDessin"

@@ -178,6 +178,16 @@ class TestAnnotationModel:
         with db_session:
             assert AnnotationText[1].text == "blabla"
 
+    def test_set_data_select_right_class_annotation(self, am):
+        a = am(1, ("d",))
+        assert a.setData(
+            a.index(0, 0),
+            QJsonDocument.fromJson(json.dumps({"id": "1", "width": 23}).encode()),
+            Qt.EditRole,
+        )
+        with db_session:
+            assert AnnotationDessin[1].width == 23
+
     def test_modif_update_recents_and_activites(self, qtbot, am, qapp):
         a = am(3)
 

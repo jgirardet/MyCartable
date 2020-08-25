@@ -308,6 +308,9 @@ class Annotation(db.Entity):
             kwargs["style"] = db.Style(**kwargs["style"])
         super().__init__(**kwargs)
 
+    def as_type(self):
+        return getattr(db, self.classtype)[self.id]
+
     def to_dict(self, **kwargs):
         dico = super().to_dict(**kwargs, related_objects=True)
         dico.update(dico.pop("style").to_dict())
@@ -317,6 +320,9 @@ class Annotation(db.Entity):
         if "style" in kwargs:
             style = kwargs.pop("style")
             self.style.set(**style)
+        for k, v in kwargs.pop("attrs", {}).items():
+            kwargs[k] = v
+
         super().set(**kwargs)
 
     def before_insert(self):
@@ -343,6 +349,7 @@ class AnnotationDessin(Annotation):
         fgColor: strokeStyle
         bgColor: fillStyle
         pointSize: lineWidth
+        weight: opacity
     """
 
 

@@ -18,15 +18,6 @@ Rectangle {
     color: "white"
 
     TextInputDelegate {
-        //    readOnly: !model.isDividendeLine(index)
-        //    readOnly: model.isRetenue(index)
-        //    onPressed: {
-        //      if (model.isRetenue(index)) {
-        //        input.focus = false
-        //        print('block', event)
-        //        event.accepted = false // block la souris pour retenues
-        //      }
-        //    }
 
         id: input
 

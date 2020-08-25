@@ -1,4 +1,5 @@
 import QtQuick 2.14
+import "qrc:/js/drawcanvas.mjs" as DrawCanvas
 
 Canvas {
     id: canvas
@@ -8,8 +9,8 @@ Canvas {
     property bool useDefaultTool: false
     property string tool: uiManager.annotationDessinCurrentTool
     property real lineWidth: uiManager.annotationDessinCurrentLineWidth
-    property color fillStyle: uiManager.annotationDessinCurrentStrokeStyle
     property color strokeStyle: uiManager.annotationDessinCurrentStrokeStyle
+    property color fillStyle: "transparent"
     property real startX
     property real startY
     property real endX
@@ -49,13 +50,15 @@ Canvas {
             "endY": nEndY / new_height,
             "width": new_width / width,
             "height": new_height / height,
-            "tool": useDefaultTool ? "fillrect" : tool,
+            "tool": tool,
             "lineWidth": lineWidth,
             "strokeStyle": strokeStyle,
-            "fillStyle": fillStyle
+            "fillStyle": fillStyle,
+            "opacity": opacity
         });
         useDefaultTool = false;
         visible = false;
+        fillStyle = "transparent";
     }
 
     visible: false
@@ -65,30 +68,22 @@ Canvas {
             return ;
 
         var ctx = canvas.getContext("2d");
+        if (!painting)
+            return ;
+
+        if (useDefaultTool)
+            uiManager.annotationDessinCurrentTool = "fillrect";
+
+        if (tool == "fillrect") {
+            canvas.opacity = 0.2;
+            uiManager.annotationDessinCurrentTool = "rect";
+            canvas.fillStyle = canvas.strokeStyle;
+        }
         ctx.lineWidth = canvas.lineWidth;
         ctx.fillStyle = canvas.fillStyle;
         ctx.strokeStyle = canvas.strokeStyle;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         visible = true;
-        if (!painting) {
-            return ;
-        } else if (useDefaultTool) {
-            canvas.opacity = 0.2;
-            ctx.fillRect(startX, startY, mouse.mouseX - startX, mouse.mouseY - startY);
-        } else if (tool == "trait") {
-            ctx.beginPath();
-            ctx.moveTo(startX, startY);
-            ctx.lineTo(mouse.mouseX, mouse.mouseY);
-            ctx.stroke();
-        } else if (tool == "rect") {
-            ctx.strokeRect(startX, startY, mouse.mouseX - startX, mouse.mouseY - startY);
-        } else if (tool == "fillrect") {
-            canvas.opacity = 0.2;
-            ctx.fillRect(startX, startY, mouse.mouseX - startX, mouse.mouseY - startY);
-        } else if (tool == "ellipse") {
-            ctx.beginPath();
-            ctx.ellipse(startX, startY, mouse.mouseX - startX, mouse.mouseY - startY);
-            ctx.stroke();
-        }
+        DrawCanvas.drawCanvas(ctx, tool, startX, startY, mouse.mouseX, mouse.mouseY);
     }
 }

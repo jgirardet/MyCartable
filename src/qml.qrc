@@ -73,6 +73,7 @@
 <!--        <file alias="MenuFlottantAnnotationText.qml">qml/menu/MenuFlottantAnnotationText.qml</file>-->
         <file alias="ColorButton.qml">qml/menu/ColorButton.qml</file>
         <file alias="PointSizeSlider.qml">qml/menu/PointSizeSlider.qml</file>
+        <file alias="OpacitySlider.qml">qml/menu/OpacitySlider.qml</file>
         <file alias="DeplacePage.qml">qml/menu/DeplacePage.qml</file>
 
     </qresource>
@@ -144,6 +145,7 @@
     </qresource>
     <qresource prefix="/js">
         <file alias="lodash.js">data/js/lodash.js</file>
+        <file alias="drawcanvas.mjs">data/js/drawcanvas.mjs</file>
     </qresource>
     <qresource prefix="/css">
         <file alias="textsection.css">data/css/textsection.css</file>

@@ -8,6 +8,8 @@ Item {
 
     CasTest {
         //      compare(editor.res.value, "#ff0000")
+        //                "attrs": {
+        //                }
 
         property var style: {
             "fgColor": "red"
@@ -29,11 +31,14 @@ Item {
             uiManager.menuTarget = editor;
             tested.menu = menu;
             mouseClick(tested);
-            compare(editor.res, {
+            var expected = {
                 "style": {
                     "fgColor": "red"
+                },
+                "attrs": {
                 }
-            });
+            };
+            compare(editor.res, expected);
         }
 
         name: "ColorButton"

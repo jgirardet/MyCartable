@@ -180,12 +180,7 @@ ListView {
             id: activitelist
             ddb: root.bdd
             model: root.bdd ?  root.bdd.getActivites(modelData.id) : 0
-//            Component.onCompleted:{
-//            print(ddb, root.bdd)
-//            print(root.bdd.getActivites(modelData.id))
-//
-//            activitelist.model = ddb.getActivites(modelData.id)
-//            }
+
         }
 
     }

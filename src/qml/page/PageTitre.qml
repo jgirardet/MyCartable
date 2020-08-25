@@ -20,9 +20,14 @@ TextArea {
     verticalAlignment: TextInput.AlignVCenter
     onTextChanged: {
         ddb.setCurrentTitre(text);
-        if (textlen < length)
-            while (contentWidth > (width) - 10)font.pointSize--;
-        else
+        if (textlen < length) {
+            while (contentWidth > (width) - 10) {
+            font.pointSize--;
+            if (font.pointSize <= 4)
+                break;
+
+        };
+        } else {
             while (font.pointSize != 16) {
             font.pointSize++;
             if (contentWidth > (width - 10)) {
@@ -30,6 +35,7 @@ TextArea {
                 return ;
             }
         };
+        }
         textlen = length;
     }
     Keys.onPressed: {

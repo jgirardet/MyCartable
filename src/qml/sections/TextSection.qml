@@ -2,18 +2,6 @@ import QtQuick 2.14
 import QtQuick.Controls 2.14
 
 TextEdit {
-    //  onSelectedTextChanged: {
-    //    if (selectedText) {
-    //      showMenuTimer.restart()
-    //    }
-    //  }
-    //  Timer {
-    //    id: showMenuTimer
-    //    interval: 500;running: false;repeat: false
-    //    onTriggered: root.showMenu()
-    //  }
-    //      print(text)
-    //      print(text)
 
     id: root
 
@@ -33,7 +21,6 @@ TextEdit {
         }
     }
 
-    //  onSelectionStartChanged: print(selectionStart)
     function showMenu() {
         var s_start = Math.min(root.selectionStart, root.selectionEnd);
         var s_end = Math.max(root.selectionEnd, root.selectionEnd);

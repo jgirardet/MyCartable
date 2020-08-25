@@ -1,27 +1,18 @@
 import QtQuick 2.14
 
 Item {
-    //  property var model: Item {
-    //    id: model
-    //    property var _addAnnotation: null
-    //    function addAnnotation(mx, my, mwidth, mheight) {
-    //      _addAnnotation = [mx, my, mwidth, mheight]
-    //    }
 
     id: item
 
     width: 200
     height: 300
 
-    //    function rowCount
-    //  }
     Component {
         id: modelComp
 
         ListModel {
             id: listmodel
 
-            ////      property int rows: 0
             property var _addAnnotation: null
 
             function addAnnotation(mx, my, mwidth, mheight) {
@@ -33,10 +24,6 @@ Item {
     }
 
     CasTest {
-        //      item.model._addAnnotation = null
-        //    function cleanup() {
-        //      tested.destroy()
-        //    }
 
         property var model
         property var canvas

@@ -9,6 +9,7 @@ Button {
     property color color
     property var menu
     property var style
+    property var attrs: Object()
 
     Layout.fillHeight: true
     Layout.fillWidth: true
@@ -20,7 +21,8 @@ Button {
 
         onTriggered: {
             uiManager.menuTarget.setStyleFromMenu({
-                "style": style
+                "style": style,
+                "attrs": attrs
             });
             menu.ferme();
         }

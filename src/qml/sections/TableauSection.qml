@@ -71,15 +71,6 @@ Item {
         rowSpacing: 3
 
         Repeater {
-            //            Connections {
-            //                function onTableauLayoutChanged() {
-            //                    repeater.model = ddb.initTableauDatas(root.sectionId);
-            //                    print("hello");
-            //                }
-            //                target: ddb
-            //            }
-            //            model: root.sectionId ? ddb.initTableauDatas(root.sectionId) : 0
-
             id: repeater
 
             objectName: "repeater"

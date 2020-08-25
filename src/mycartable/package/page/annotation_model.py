@@ -103,7 +103,7 @@ class AnnotationModel(QAbstractListModel):
             value = value.toVariant()
             annotation_id = int(value.pop("id"))
             with db_session:
-                item = self.db.Annotation[annotation_id]
+                item = self.db.Annotation[annotation_id].as_type()
                 item.set(**value)
             self.dataChanged.emit(index, index)
             return True
@@ -150,6 +150,7 @@ class AnnotationModel(QAbstractListModel):
         style["fgColor"] = (datas.pop("strokeStyle"),)
         style["bgColor"] = (datas.pop("fillStyle"),)
         style["pointSize"] = datas.pop("lineWidth")
+        style["weight"] = int(datas.pop("opacity") * 10)
         with db_session:
             item = self.db.AnnotationDessin(
                 section=self.sectionId, style=style, **datas

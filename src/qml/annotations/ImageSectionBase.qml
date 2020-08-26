@@ -55,10 +55,13 @@ Image {
         anchors.fill: root
         preventStealing: true
         acceptedButtons: Qt.LeftButton | Qt.RightButton
+
         onPressed: {
             if (pressedButtons === Qt.RightButton)  {
                 if (mouse.modifiers == Qt.ControlModifier)
+                {
                     canvas.startDraw(true);
+                }
                 else
                     uiManager.menuFlottantImage.ouvre(root);
                     }
@@ -73,9 +76,10 @@ Image {
             }
         }
         onReleased: {
-            if (canvas.painting)
+            if (canvas.painting) {
                 canvas.endDraw(root.sectionId);
-
+                cursorShape = Qt.ArrowCursor
+              }
         }
         onPositionChanged: {
             if (canvas.painting)

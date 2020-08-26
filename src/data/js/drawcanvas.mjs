@@ -33,11 +33,9 @@ function drawArrow(ctx, sx, sy, ex, ey) {
             var beta = ey - alpha * ex
 
 
-            var new_x = sx <= ex ? ex -arrowSize/2 : ex + arrowSize/2
-            var new_y = alpha*new_x + beta
-//             drawArrowhead(ctx, Qt.point(sx, sy),Qt.point(new_x, new_y), arrowSize)
+//             var new_x = sx <= ex ? ex -arrowSize/2 : ex + arrowSize/2
+//             var new_y = alpha*new_x + beta
             return  drawArrowhead(ctx, Qt.point(sx, sy),Qt.point(ex, ey), arrowSize)
-//             var points = drawArrowhead(ctx, Qt.point(new_x, new_y),Qt.point(ex, ey), arrowSize)
         }
 
 function drawArrowhead(context, from, to, radius) {

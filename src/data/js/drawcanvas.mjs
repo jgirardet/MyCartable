@@ -40,8 +40,6 @@ function drawArrow(ctx, sx, sy, ex, ey) {
 
 function drawArrowhead(context, from, to, radius) {
     // thanks to https://gist.github.com/jwir3/d797037d2e1bf78a9b04838d73436197
-//     var x_center = to.x-context.lineWidth;
-//     var x_center = to.x-context.lineWidth;
     var x_center = to.x;
     var y_center = to.y;
 
@@ -69,7 +67,6 @@ function drawArrowhead(context, from, to, radius) {
     y = radius *Math.sin(angle) + y_center;
     var point3 = Qt.point(x,y)
     context.lineTo(x, y);
-    print(point1, point2, point3)
     context.fill();
     context.closePath();
 

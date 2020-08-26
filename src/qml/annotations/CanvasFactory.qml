@@ -50,8 +50,6 @@ Canvas {
         var maxY = Math.max(startY, my, arrowPoints[0].y, arrowPoints[1].y, arrowPoints[2].y);
         var new_width = maxX - minX + lineWidth;
         var new_height = maxY - minY + lineWidth;
-        print("min et max", minX, maxX, minY, maxY);
-        print("starty-myx, height", startY - my, new_height);
         arrowPoints = [];
         var lw = lineWidth / 2;
         var newX = startX <= mx ? startX - lw : mx - lineWidth * 5;

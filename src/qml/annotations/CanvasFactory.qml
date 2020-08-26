@@ -54,8 +54,8 @@ Canvas {
         print("starty-myx, height", startY - my, new_height);
         arrowPoints = [];
         var lw = lineWidth / 2;
-        var newX = startX <= mx ? startX - lw : mx - lineWidth * 3;
-        var newY = startY <= my ? startY - lw : my - lineWidth * 3;
+        var newX = startX <= mx ? startX - lw : mx - lineWidth * 5;
+        var newY = startY <= my ? startY - lw : my - lineWidth * 5;
         var nStartX = startX - newX;
         var nStartY = startY - newY;
         var nEndX = mx - newX;

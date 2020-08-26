@@ -1,3 +1,4 @@
+import math
 import os
 import re
 import subprocess
@@ -21,6 +22,7 @@ from PySide2.QtGui import (
     QPainter,
     QColor,
     QFontDatabase,
+    QPainterPath,
 )
 from bs4 import NavigableString, BeautifulSoup
 from mako.lookup import TemplateLookup
@@ -257,21 +259,65 @@ def draw_annotation_dessin(annotation: dict, image: QImage, painter: QPainter) -
         ey += pz / 2
 
     pen = painter.pen()
-    pen.setWidth(annotation["pointSize"])
+    pen.setWidth(annotation["pointSize"] / 2)
     pen.setColor(annotation["fgColor"])
     painter.setPen(pen)
     painter.setOpacity(0.2 if annotation["tool"] == "fillrect" else 1)
+    painter.setOpacity(annotation["weight"] / 10)
     painter.setRenderHint(QPainter.Antialiasing)
     startPoint = QPoint(x + sx, y + sy)
     endPoint = QPoint(x + ex, y + ey)
     if annotation["tool"] == "trait":
         painter.drawLine(startPoint, endPoint)
-    elif annotation["tool"] == "fillrect":
-        painter.fillRect(QRect(startPoint, endPoint), annotation["bgColor"])
+    # elif annotation["tool"] == "fillrect":
+    #     painter.fillRect(QRect(startPoint, endPoint), annotation["fgColor"])
     elif annotation["tool"] == "rect":
         painter.drawRect(QRect(startPoint, endPoint))
+        painter.fillRect(QRect(startPoint, endPoint), annotation["bgColor"])
+
     elif annotation["tool"] == "ellipse":  # pragma: no branch
         painter.drawEllipse(QRect(startPoint, endPoint))
+
+    elif annotation["tool"] == "arrow":
+        path = QPainterPath()
+        path.moveTo(startPoint)
+        path.lineTo(endPoint)
+        arrowSize = pen.width() * 3
+        drawArrowhead(path, startPoint, endPoint, arrowSize)
+        painter.fillPath(path, annotation["fgColor"])
+        painter.drawPath(path)
+
+
+def drawArrowhead(path: QPainterPath, depuis: QPoint, to: QPoint, radius: int):
+    x_center = to.x()
+    y_center = to.y()
+
+    angle: float
+    x: float
+    y: float
+
+    # path.beginPath()
+
+    angle = math.atan2(to.y() - depuis.y(), to.x() - depuis.x())
+    x = radius * math.cos(angle) + x_center
+    y = radius * math.sin(angle) + y_center
+    point1 = QPoint(x, y)
+    path.moveTo(x, y)
+
+    angle += (1.0 / 3.0) * (2 * math.pi)
+    x = radius * math.cos(angle) + x_center
+    y = radius * math.sin(angle) + y_center
+    point2 = QPoint(x, y)
+    path.lineTo(x, y)
+
+    angle += (1.0 / 3.0) * (2 * math.pi)
+    x = radius * math.cos(angle) + x_center
+    y = radius * math.sin(angle) + y_center
+    point3 = QPoint(x, y)
+    path.lineTo(x, y)
+    path.lineTo(point1.x(), point1.y())
+
+    return [point1, point2, point3]
 
 
 #

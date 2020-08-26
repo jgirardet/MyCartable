@@ -238,6 +238,7 @@ class TestAnnotationModel:
                     "startY": 0.9,
                     "endX": 0.9,
                     "endY": 0.95,
+                    "opacity": 1,
                 }
             )
         with db_session:
@@ -251,8 +252,8 @@ class TestAnnotationModel:
                 "strikeout": False,
                 "styleId": 2,
                 "underline": False,
-                "weight": None,
-                "pointSize": 3,
+                "weight": 10,
+                "pointSize": 3.0,
                 "x": 0.1,
                 "y": 0.5,
                 "width": 0.3,

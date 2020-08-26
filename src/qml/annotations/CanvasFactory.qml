@@ -15,6 +15,8 @@ Canvas {
     property real startY
     property real endX
     property real endY
+    property var arrowPoints
+    property bool wasFillRect: false
 
     function startDraw(fallback) {
         useDefaultTool = fallback ? true : false;
@@ -26,6 +28,56 @@ Canvas {
 
     function endDraw(sectionId) {
         painting = false;
+        if (tool == "arrow")
+            endDrawArrow(sectionId);
+        else
+            endDrawAll(sectionId);
+        useDefaultTool = false;
+        visible = false;
+        fillStyle = "transparent";
+        if (wasFillRect) {
+            uiManager.annotationDessinCurrentTool = "fillrect";
+            wasFillRect = false;
+        }
+    }
+
+    function endDrawArrow(sectionId) {
+        var mx = mouse.mouseX;
+        var my = mouse.mouseY;
+        var minX = Math.min(startX, mx, arrowPoints[0].x, arrowPoints[1].x, arrowPoints[2].x);
+        var maxX = Math.max(startX, mx, arrowPoints[0].x, arrowPoints[1].x, arrowPoints[2].x);
+        var minY = Math.min(startY, my, arrowPoints[0].y, arrowPoints[1].y, arrowPoints[2].y);
+        var maxY = Math.max(startY, my, arrowPoints[0].y, arrowPoints[1].y, arrowPoints[2].y);
+        var new_width = maxX - minX + lineWidth;
+        var new_height = maxY - minY + lineWidth;
+        print("min et max", minX, maxX, minY, maxY);
+        print("starty-myx, height", startY - my, new_height);
+        arrowPoints = [];
+        var lw = lineWidth / 2;
+        var newX = startX <= mx ? startX - lw : mx - lineWidth * 3;
+        var newY = startY <= my ? startY - lw : my - lineWidth * 3;
+        var nStartX = startX - newX;
+        var nStartY = startY - newY;
+        var nEndX = mx - newX;
+        var nEndY = my - newY;
+        parent.model.newDessin({
+            "x": newX / width,
+            "y": newY / height,
+            "startX": nStartX / new_width,
+            "startY": nStartY / new_height,
+            "endX": nEndX / new_width,
+            "endY": nEndY / new_height,
+            "width": new_width / width,
+            "height": new_height / height,
+            "tool": tool,
+            "lineWidth": lineWidth,
+            "strokeStyle": strokeStyle,
+            "fillStyle": fillStyle,
+            "opacity": opacity
+        });
+    }
+
+    function endDrawAll(sectionId) {
         var lw = lineWidth / 2;
         var mx = mouse.mouseX;
         var my = mouse.mouseY;
@@ -56,9 +108,6 @@ Canvas {
             "fillStyle": fillStyle,
             "opacity": opacity
         });
-        useDefaultTool = false;
-        visible = false;
-        fillStyle = "transparent";
     }
 
     visible: false
@@ -76,6 +125,7 @@ Canvas {
 
         if (tool == "fillrect") {
             canvas.opacity = 0.2;
+            wasFillRect = true;
             uiManager.annotationDessinCurrentTool = "rect";
             canvas.fillStyle = canvas.strokeStyle;
         }
@@ -84,6 +134,7 @@ Canvas {
         ctx.strokeStyle = canvas.strokeStyle;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         visible = true;
-        DrawCanvas.drawCanvas(ctx, tool, startX, startY, mouse.mouseX, mouse.mouseY);
+        var tool_to_use = tool;
+        arrowPoints = DrawCanvas.drawCanvas(ctx, tool, startX, startY, mouse.mouseX, mouse.mouseY);
     }
 }

@@ -137,6 +137,7 @@
         <file alias="arrow-up">data/icons/base/arrows/png/004-up arrow.png</file>
         <file alias="arrow-down">data/icons/base/arrows/png/003-down arrow.png</file>
         <file alias="arrow-double">data/icons/base/arrows/png/040-left arrow.png</file>
+        <file alias="arrow-right">data/icons/base/arrows/png/001-right arrow.png</file>
 <!--        <file alias="text">data/icons/base/pack/png/sphere.png</file>-->
     </qresource>
     <qresource prefix="/fonts">

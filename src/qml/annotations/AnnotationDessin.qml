@@ -50,4 +50,11 @@ Canvas {
         ctx.strokeStyle = strokeStyle;
         DrawCanvas.drawCanvas(ctx, tool, startX, startY, endX, endY);
     }
+
+    Rectangle {
+        color: "red"
+        anchors.fill: parent
+        opacity: 0.2
+    }
+
 }

@@ -90,6 +90,16 @@ BaseMenu {
                 menu: menu
             }
 
+            ColorButton {
+                color: "transparent"
+                style: {
+                    "tool": "arrow"
+                }
+                icon.source: "qrc:///icons/arrow-right"
+                icon.color: "transparent"
+                menu: menu
+            }
+
         }
 
     }

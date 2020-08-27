@@ -120,6 +120,12 @@ ListView {
 
     }
 
+    footer: Rectangle {
+        height: root.height / 2
+        width: root.width
+        color: Qt.rgba(98 / 255, 105 / 255, 123 / 255, 1)
+    }
+
     delegate: BasePageDelegate {
     }
 

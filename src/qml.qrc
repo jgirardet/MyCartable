@@ -78,19 +78,7 @@
 
     </qresource>
 
-      <qresource prefix="/qml/toolbuttons">
-        <file alias="PageToolBarToolButton.qml">qml/toolbuttons/PageToolBarToolButton.qml</file>
-        <file alias="NewSectionButton.qml">qml/toolbuttons/NewSectionButton.qml</file>
-        <file alias="NewTextSectionButton.qml">qml/toolbuttons/NewTextSectionButton.qml</file>
-        <file alias="NewEquationSectionButton.qml">qml/toolbuttons/NewEquationSectionButton.qml</file>
-        <file alias="NewOperationSectionButton.qml">qml/toolbuttons/NewOperationSectionButton.qml</file>
-        <file alias="NewTableauSectionButton.qml">qml/toolbuttons/NewTableauSectionButton.qml</file>
-        <file alias="NewImageSectionButton.qml">qml/toolbuttons/NewImageSectionButton.qml</file>
-        <file alias="RemovePageButton.qml">qml/toolbuttons/RemovePageButton.qml</file>
-        <file alias="ExportPdfButton.qml">qml/toolbuttons/ExportPdfButton.qml</file>
-        <file alias="ExportOdtButton.qml">qml/toolbuttons/ExportOdtButton.qml</file>
 
-    </qresource>
 
     <qresource prefix="/qml/divers">
         <file alias="BorderRectangle.qml">qml/divers/BorderRectangle.qml</file>
@@ -104,6 +92,8 @@
     
     <qresource prefix="/qml/actions">
         <file alias="TableauActions.qml">qml/actions/TableauActions.qml</file>
+        <file alias="PageActions.qml">qml/actions/PageActions.qml</file>
+        <file alias="Buttons.qml">qml/actions/Buttons.qml</file>
     </qresource>
     
     <qresource prefix="/icons">

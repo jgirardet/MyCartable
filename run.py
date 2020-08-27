@@ -115,7 +115,7 @@ def cmd_clean(*args, **kwargs):
         ".coverage",
         ROOT / "linux",
         ROOT / "windows",
-        ROOT / "Tools"
+        ROOT / "Tools",
     ]
     if "-venv" in args:
         to_remove.append(VIRTUAL_ENV)
@@ -161,7 +161,6 @@ def cmd_install(*args, **kwargs):
         runCommand("python run.py install")
         return
 
-
     with open("pyproject.toml") as ff:
         _, appconfig = parse_config(ff, sys.platform, "")
     reqs = [f'"{r}"' for r in appconfig["mycartable"]["requires"]]
@@ -201,9 +200,11 @@ def cmd_qmlformat(*args, **kwargs):
         "tst_AnnotationText.qml",
         "tst_equation.qml",
         "TableauActions.qml",
+        "PageActions.qml",
         "NewTableauSectionButton.qml",
         "ChangeMatiere.qml",
         "ChangeActivite.qml",
+        "Buttons.qml",
     ]
     errors = []
     for file in files:

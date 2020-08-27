@@ -4,8 +4,8 @@
 //    setStyleFromMenu: implémenté par target et appelé via menu
 //    ex : menu.target.setStyleFromTarge(balbal)
 
-import QtQuick 2.14
-import QtQuick.Controls 2.14
+import QtQuick 2.15
+import QtQuick.Controls 2.15
 
 Menu {
     //    implicitWidth: contentWidth

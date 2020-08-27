@@ -1,6 +1,6 @@
-import "../toolbuttons"
-import QtQuick 2.14
-import QtQuick.Controls 2.14
+import QtQuick 2.15
+import QtQuick.Controls 2.15
+import "qrc:/qml/actions"
 
 ListView {
     id: root
@@ -89,29 +89,29 @@ ListView {
         }
 
         contentItem: Row {
-            NewTextSectionButton {
+            Buttons.NewTextSection {
                 id: newtext
 
                 targetIndex: typeof addDialog.index != "undefined" ? addDialog.index + 1 : 0
                 target: addDialog
             }
 
-            NewImageSectionButton {
+            Buttons.NewImageSection {
                 targetIndex: newtext.targetIndex
                 target: newtext.target
             }
 
-            NewEquationSectionButton {
+            Buttons.NewEquationSection {
                 targetIndex: newtext.targetIndex
                 target: newtext.target
             }
 
-            NewOperationSectionButton {
+            Buttons.NewOperationSection {
                 targetIndex: newtext.targetIndex
                 target: newtext.target
             }
 
-            NewTableauSectionButton {
+            Buttons.NewTableauSection {
                 targetIndex: newtext.targetIndex
                 target: newtext.target
             }

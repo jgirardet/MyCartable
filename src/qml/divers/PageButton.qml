@@ -1,7 +1,7 @@
 // on l'attend dans un listview avec modelData
 
-import QtQuick 2.14
-import QtQuick.Controls 2.14
+import QtQuick 2.15
+import QtQuick.Controls 2.15
 
 RoundButton {
     id: root

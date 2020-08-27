@@ -1,9 +1,7 @@
-import "../toolbuttons"
-import QtQuick 2.14
-import QtQuick.Controls 2.14
-import QtQuick.Dialogs 1.3 as Dialogs13
-//import QtQuick.Controls 1.4 as Controls1
-import QtQuick.Layouts 1.14
+import QtQuick 2.15
+import QtQuick.Controls 2.15
+import QtQuick.Layouts 1.15
+import "qrc:/qml/actions"
 
 ToolBar {
     id: root
@@ -20,38 +18,28 @@ ToolBar {
             RowLayout {
                 spacing: 0
 
-                NewTextSectionButton {
-                    targetIndex: ddb.currentPage ? ddb.pageModel.count : 0
+                Buttons.NewTextSection {
                 }
 
-                NewImageSectionButton {
-                    targetIndex: ddb.currentPage ? ddb.pageModel.count : 0
+                Buttons.NewImageSection {
                 }
 
-                NewEquationSectionButton {
-                    targetIndex: ddb.currentPage ? ddb.pageModel.count : 0
+                Buttons.NewEquationSection {
                 }
 
-                NewOperationSectionButton {
-                    targetIndex: ddb.currentPage ? ddb.pageModel.count : 0
+                Buttons.NewOperationSection {
                 }
 
-                NewTableauSectionButton {
-                    targetIndex: ddb.currentPage ? ddb.pageModel.count : 0
+                Buttons.NewTableauSection {
                 }
 
-                RemovePageButton {
-                    targetIndex: ddb.currentPage ? ddb.pageModel.count : 0
+                Buttons.RemovePage {
                 }
 
-                ExportOdtButton {
-                    //          targetIndex: ddb.currentPage ? ddb.pageModel.count : 0
-
+                Buttons.ExportOdt {
                 }
 
-                ExportPdfButton {
-                    //          targetIndex: ddb.currentPage ? ddb.pageModel.count : 0
-
+                Buttons.ExportPdf {
                 }
 
             }

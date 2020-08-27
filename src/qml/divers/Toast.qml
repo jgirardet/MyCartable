@@ -1,7 +1,7 @@
 // Popup will be closed automatically in 2 seconds after its opened
 
-import QtQuick 2.14
-import QtQuick.Controls 2.14
+import QtQuick 2.15
+import QtQuick.Controls 2.15
 
 Popup {
     id: popup

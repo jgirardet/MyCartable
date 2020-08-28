@@ -15,7 +15,6 @@ from PySide2.QtWidgets import QApplication
 import typing
 from pony.orm import db_session, ObjectNotFound, make_proxy, flush
 from package.database import db
-from loguru import logger
 
 from loguru import logger
 

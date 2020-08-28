@@ -1,3 +1,4 @@
+import uuid
 from decimal import Decimal
 from unittest.mock import patch, call
 
@@ -601,19 +602,19 @@ class TestOperationModel:
 
         OperationModel.ddb = DatabaseObject(ddbr)
         op = OperationModel()
-        op.sectionId = 1
+        op.sectionId = str(uuid.uuid4())
         assert op.sectionId is None, "should not be set if not in databse"
 
         td = f_additionSection(string="9+8", td=True)
 
         with qtbot.waitSignal(op.sectionIdChanged):
-            op.sectionId = 1
+            op.sectionId = td["id"]
 
         assert op.params == td
         assert op.datas == ["", "", "", "", "", "9", "+", "", "8", "", "", ""]
         assert op.rows == 4
         assert op.columns == 3
-        assert op.sectionId == 1
+        assert op.sectionId == td["id"]
         assert op.virgule == 0
 
     def test_cursor(self, to, qtbot):
@@ -648,13 +649,15 @@ class TestOperationModel:
     def test_setData(self, to):
         assert to.setData(to.index(11, 0), "5", Qt.EditRole)  # doit retourner True
         with db_session:
-            assert to.db.Section[1].datas[11] == "5"
+            un = str(to.db.Section.select().first().id)
+        with db_session:
+            assert to.db.Section[un].datas[11] == "5"
             assert to.datas[11] == "5"
 
         assert not to.setData(to.index(99, 0), "5", Qt.EditRole)
         assert not to.setData(to.index(11, 0), 8, Qt.DisplayRole)
         with db_session:
-            assert to.db.Section[1].datas[11] == "5"  # pas de modif
+            assert to.db.Section[un].datas[11] == "5"  # pas de modif
 
     def test_setData_changerecents(self, to, qtbot):
         with qtbot.waitSignal(to.ddb.recentsModelChanged):
@@ -1438,7 +1441,7 @@ class TestMultiplicationModel:
         a = MultiplicationModel2()
         # a.ddb = dao
         x = f_multiplicationSection()
-        a.sectionId = 1
+        a.sectionId = x.id
         with db_session:
             assert a.n_chiffres == x.n_chiffres
 
@@ -1448,7 +1451,7 @@ class TestMultiplicationModel:
 
         a = MultiplicationModel2()
         x = f_multiplicationSection(string="323*23")
-        a.sectionId = 1
+        a.sectionId = x.id
         assert a.cursor == 24
 
 

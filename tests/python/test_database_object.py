@@ -706,8 +706,14 @@ class TestTableauMixin:
 
 
 class TestTextSectionMixin:
+    def test_check_args(self, dao):
+        check_args(dao.updateTextSectionOnKey, [str, str, int, int, int, str], dict)
+        check_args(dao.updateTextSectionOnChange, [str, str, int, int, int], dict)
+        check_args(dao.updateTextSectionOnMenu, [str, str, int, int, int, dict], dict)
+        check_args(dao.loadTextSection, str, dict)
+        check_args(dao.getTextSectionColor, str, QColor)
+
     def test_updateTextSectionOnKey(self, dao):
-        check_args(dao.updateTextSectionOnKey, [int, str, int, int, int, str], dict)
         f_textSection(text="bla")
         dic_event = {"key": int(Qt.Key_B), "modifiers": int(Qt.ControlModifier)}
         event = json.dumps(dic_event)
@@ -720,7 +726,6 @@ class TestTextSectionMixin:
             assert res == m.return_value.onKey.return_value
 
     def test_updateTextSectionOnChange(self, dao, qtbot):
-        check_args(dao.updateTextSectionOnChange, [int, str, int, int, int], dict)
         f_textSection(text="bla")
         dic_event = {"key": int(Qt.Key_B), "modifiers": int(Qt.ControlModifier)}
         args = 1, "blap", 3, 3, 4
@@ -733,7 +738,6 @@ class TestTextSectionMixin:
             assert res == m.return_value.onChange.return_value
 
     def test_updateTextSectionOnMenu(self, dao):
-        check_args(dao.updateTextSectionOnMenu, [int, str, int, int, int, dict], dict)
         f_textSection()
         dic_params = {"ble": "bla"}
         # params = json.dumps(dic_params)
@@ -746,7 +750,6 @@ class TestTextSectionMixin:
             assert res == m.return_value.onMenu.return_value
 
     def test_loadTextSection(self, dao):
-        check_args(dao.loadTextSection, int, dict)
         f_textSection()
 
         with patch("package.database_mixins.text_mixin.TextSectionEditor") as m:
@@ -756,7 +759,7 @@ class TestTextSectionMixin:
             assert res == m.return_value.onLoad.return_value
 
     def test_getTextSectionColor(self, dao):
-        check_args(dao.getTextSectionColor, str, QColor)
+
         for x in ["red", "blue", "green", "black"]:
             assert dao.getTextSectionColor(x) == QColor(
                 getattr(text_section, x.upper())

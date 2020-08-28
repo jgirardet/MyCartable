@@ -68,12 +68,12 @@ class OperationModel(QAbstractListModel):
     def rows(self):
         return int(self.params["rows"])
 
-    @Property(int, notify=sectionIdChanged)
+    @Property(str, notify=sectionIdChanged)
     def sectionId(self):
         return self._sectionId
 
     @sectionId.setter
-    def sectionId_set(self, value: int):
+    def sectionId_set(self, value: str):
         self._sectionId = value
         self.sectionIdChanged.emit()
 

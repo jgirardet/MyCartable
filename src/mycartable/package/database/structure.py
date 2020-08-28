@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from uuid import UUID, uuid4
 
 from pony.orm import (
     select,
@@ -26,7 +27,7 @@ class Annee(db.Entity):
 
 class GroupeMatiere(db.Entity, PositionMixin, ColorMixin):
     referent_attribute_name = "annee"
-    id = PrimaryKey(int, auto=True)
+    id = PrimaryKey(UUID, auto=True, default=uuid4)
     nom = Required(str)
     annee = Required(Annee)
     _position = Required(int)
@@ -39,6 +40,9 @@ class GroupeMatiere(db.Entity, PositionMixin, ColorMixin):
         with self.init_position(position, annee) as _position:
             super().__init__(annee=annee, _position=_position, **kwargs)
 
+    def __repr__(self):
+        return f"Groupe[{self.nom} {self.annee.id}]"
+
     def before_delete(self):
         self.before_delete_position()
 
@@ -50,19 +54,20 @@ class GroupeMatiere(db.Entity, PositionMixin, ColorMixin):
         dico["position"] = dico.pop("_position")
         dico["fgColor"] = self.fgColor
         dico["bgColor"] = self.bgColor
+        dico["id"] = str(self.id)
         return dico
 
 
 class Matiere(db.Entity, ColorMixin, PositionMixin):
     referent_attribute_name = "groupe"
 
-    id = PrimaryKey(int, auto=True)
+    id = PrimaryKey(UUID, auto=True, default=uuid4)
     nom = Required(str)
-    activites = Set("Activite")
     groupe = Required("GroupeMatiere")
     _position = Required(int)
     _fgColor = Required(int, size=32, unsigned=True, default=4278190080)
     _bgColor = Optional(int, size=32, unsigned=True, default=4294967295)
+    activites = Set("Activite")
 
     def __init__(
         self, bgColor=None, fgColor=None, groupe=None, position=None, **kwargs
@@ -75,16 +80,24 @@ class Matiere(db.Entity, ColorMixin, PositionMixin):
     def activites_list(self):
         return self.to_dict()["activites"]
 
-    def to_dict(self, *args, **kwargs):
-        res = super().to_dict(
-            *args, with_collections=True, exclude=["_fgColor", "_bgColor"], **kwargs
+    def to_dict(self):
+        dico = super().to_dict(exclude=["_fgColor", "_bgColor", "_position"])
+        dico.update(
+            {
+                "id": str(self.id),
+                "groupe": str(self.groupe.id),
+                "fgColor": self.fgColor,
+                "bgColor": self.bgColor,
+                "position": self.position,
+                "activites": [
+                    str(x.id) for x in self.activites.order_by(lambda x: x.position)
+                ],
+            }
         )
-        res["fgColor"] = self.fgColor
-        res["bgColor"] = self.bgColor
-        res["position"] = res.pop("_position")
-        return res
+        return dico
 
     def pages_par_section(self):
+        """devrait s'appeler page par activite"""
         res = []
         for x in Activite.get_by_position(self.id):  # .order_by(Activite.famille):
             entry = x.to_dict()
@@ -105,11 +118,11 @@ class Matiere(db.Entity, ColorMixin, PositionMixin):
 class Activite(db.Entity, PositionMixin):
     referent_attribute_name = "matiere"
 
-    id = PrimaryKey(int, auto=True)
+    id = PrimaryKey(UUID, auto=True, default=uuid4)
     nom = Required(str)
     matiere = Required(Matiere)
-    pages = Set("Page")
     _position = Required(int)
+    pages = Set("Page")
 
     def __init__(self, position=None, matiere=None, **kwargs):
         with self.init_position(position, matiere) as _position:
@@ -121,20 +134,27 @@ class Activite(db.Entity, PositionMixin):
     def after_delete(self):
         self.after_delete_position()
 
-    def to_dict(self, **kwargs):
-        dico = super().to_dict(**kwargs)
-        dico["position"] = dico.pop("_position")
+    def to_dict(self,):
+        dico = super().to_dict(exclude=["_position"])
+        dico.update(
+            {
+                "id": str(self.id),
+                "position": self.position,
+                "matiere": str(self.matiere.id),
+                "pages": [str(p.id) for p in self.pages],
+            }
+        )
         return dico
 
 
 class Page(db.Entity):
-    id = PrimaryKey(int, auto=True)
+    id = PrimaryKey(UUID, auto=True, default=uuid4)
     created = Required(datetime, default=datetime.utcnow)
     modified = Optional(datetime)
     titre = Optional(str, default="")
     activite = Required("Activite")
-    sections = Set("Section")
     lastPosition = Optional(int, default=0)
+    sections = Set("Section")
 
     def before_insert(self):
         self.modified = self.created
@@ -145,14 +165,22 @@ class Page(db.Entity):
         else:
             self.modified = datetime.utcnow()
 
-    def to_dict(self, *args, **kwargs):
-        dico = super().to_dict(*args, **kwargs)
-        dico["matiere"] = self.activite.matiere.id
-        dico["matiereNom"] = self.activite.matiere.nom
-        dico["matiereFgColor"] = self.activite.matiere.fgColor
-        dico["matiereBgColor"] = self.activite.matiere.bgColor
-        dico["created"] = self.created.isoformat()
-        dico["modified"] = self.created.isoformat()
+    def to_dict(self):
+        dico = super().to_dict()
+        dico.update(
+            {
+                "id": str(self.id),
+                "created": self.created.isoformat(),
+                "modified": self.modified.isoformat(),
+                "activite": str(self.activite.id),
+                "lastPosition": self.lastPosition,
+                # "sections": [str(s.id) for s in self.sections],
+                "matiere": str(self.activite.matiere.id),
+                "matiereNom": self.activite.matiere.nom,
+                "matiereFgColor": self.activite.matiere.fgColor,
+                "matiereBgColor": self.activite.matiere.bgColor,
+            }
+        )
         return dico
 
     def _query_recents(self, annee):

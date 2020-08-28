@@ -113,9 +113,9 @@ def fn_reset_db(db):
                 # delete(e for e in entity)
                 except:
                     continue
-            db.execute(
-                f"UPDATE SQLITE_SEQUENCE  SET  SEQ = 0 WHERE NAME = '{entity._table_}';"
-            )
+            # db.execute(
+            #     f"UPDATE SQLITE_SEQUENCE  SET  SEQ = 0 WHERE NAME = '{entity._table_}';"
+            # )
 
 
 # except:

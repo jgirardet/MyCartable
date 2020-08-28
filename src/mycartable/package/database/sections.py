@@ -36,12 +36,17 @@ class Section(db.Entity, PositionMixin):
         with self.init_position(position, page) as _position:
             super().__init__(*args, _position=_position, page=page, **kwargs)
 
-    def to_dict(self, *args, **kwargs):
-        dico = super().to_dict(*args, **kwargs)
-        dico["created"] = self.created.isoformat()
-        dico["modified"] = self.modified.isoformat()
-        dico["position"] = dico.pop("_position")
-        dico["id"] = str(dico["id"])
+    def to_dict(self, **kwargs):
+        dico = super().to_dict(exclude=["_position"], **kwargs)
+        dico.update(
+            {
+                "id": str(self.id),
+                "created": self.created.isoformat(),
+                "modified": self.modified.isoformat(),
+                "position": self.position,
+                "page": str(self.page.id),
+            }
+        )
         return dico
 
     def before_insert(self):
@@ -496,6 +501,7 @@ class TableauCell(db.Entity, ColorMixin):
         dico = super().to_dict(*args, **kwargs)
         if "style" in dico:  # pragma: no branch # ne pas l'ajouter sur a été exclude
             dico["style"] = self.style.to_dict()
+        dico["tableau"] = str(self.tableau.id)
         return dico
 
     def set(self, **kwargs):

@@ -150,30 +150,36 @@ class TestPageMixin:
                 m.assert_called_with(v.return_value.as_uri())
 
 
+@pytest.fixture()
+def create_matiere(ddbr):
+    gp = f_groupeMatiere(annee=2019)
+
+    def activ(mat):
+        f_activite(nom="un", matiere=mat)
+        f_activite(nom="deux", matiere=mat)
+        f_activite(nom="trois", matiere=mat)
+
+    _mats = []
+    a = f_matiere("un", _fgColor=4294967295, _bgColor=4294901760, groupe=gp.id)
+    _mats.append(str(a.id))
+    a = f_matiere("deux", _fgColor=4294967295, _bgColor=4294901760, groupe=gp.id)
+    _mats.append(str(a.id))
+    a = f_matiere("trois", _fgColor=4294967295, _bgColor=4294901760, groupe=gp.id)
+    _mats.append(str(a.id))
+    a = f_matiere("quatre", _fgColor=4294967295, _bgColor=4294901760, groupe=gp.id)
+    _mats.append(str(a.id))
+    gp._mats = _mats
+    for m in gp._mats:
+        activ(m)
+    return gp
+
+
 class TestMatiereMixin:
-    def create_matiere(self):
-        gp = f_groupeMatiere(annee=2019)
-
-        def activ(mat):
-            f_activite(nom="un", matiere=mat)
-            f_activite(nom="deux", matiere=mat)
-            f_activite(nom="trois", matiere=mat)
-
-        f_matiere("un", _fgColor=4294967295, _bgColor=4294901760, groupe=gp.id)
-        activ(1)
-        f_matiere("deux", _fgColor=4294967295, _bgColor=4294901760, groupe=gp.id)
-        activ(2)
-        f_matiere("trois", _fgColor=4294967295, _bgColor=4294901760, groupe=gp.id)
-        activ(3)
-        f_matiere("quatre", _fgColor=4294967295, _bgColor=4294901760, groupe=gp.id)
-        activ(4)
-
     def test_init(self, dao):
 
         assert dao._currentMatiere == 0
 
-    def test_currentMatiere(self, dao, qtbot):
-        self.create_matiere()
+    def test_currentMatiere(self, dao, qtbot, create_matiere):
         dao.init_matieres()
         assert dao.currentMatiere == 0
 
@@ -199,18 +205,17 @@ class TestMatiereMixin:
         dao.currentMatiere = m["id"]
         assert dao.currentMatiereItem == m
 
-    def test_matiereList(self, dao):
-        self.create_matiere()
+    def test_matiereList(self, dao, create_matiere):
         dao.init_matieres()
-
+        x = create_matiere
         # listnom
         reslist = [
             {
                 "activites": [1, 2, 3],
                 "bgColor": QColor("red"),
                 "fgColor": QColor("white"),
-                "id": 1,
-                "groupe": 1,
+                "id": int(x._mats[0]),
+                "groupe": str(x.id),
                 "nom": "un",
                 "position": 0,
             },
@@ -218,8 +223,8 @@ class TestMatiereMixin:
                 "activites": [4, 5, 6],
                 "bgColor": QColor("red"),
                 "fgColor": QColor("white"),
-                "groupe": 1,
-                "id": 2,
+                "groupe": str(x.id),
+                "id": int(x._mats[1]),
                 "nom": "deux",
                 "position": 1,
             },
@@ -227,8 +232,8 @@ class TestMatiereMixin:
                 "activites": [7, 8, 9],
                 "bgColor": QColor("red"),
                 "fgColor": QColor("white"),
-                "groupe": 1,
-                "id": 3,
+                "groupe": str(x.id),
+                "id": int(x._mats[2]),
                 "nom": "trois",
                 "position": 2,
             },
@@ -236,8 +241,8 @@ class TestMatiereMixin:
                 "activites": [10, 11, 12],
                 "bgColor": QColor("red"),
                 "fgColor": QColor("white"),
-                "groupe": 1,
-                "id": 4,
+                "groupe": str(x.id),
+                "id": int(x._mats[3]),
                 "nom": "quatre",
                 "position": 3,
             },

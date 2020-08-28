@@ -1,9 +1,13 @@
-from pony.orm import Required, Set, Optional
+from uuid import UUID, uuid4
+
+from pony.orm import Required, Set, Optional, PrimaryKey
 
 from .root_db import db
 
 
 class Utilisateur(db.Entity):
+    id = PrimaryKey(UUID, auto=True, default=uuid4)
+
     nom = Required(str)
     prenom = Required(str)
     annees = Set("Annee")

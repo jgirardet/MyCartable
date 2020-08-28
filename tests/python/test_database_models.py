@@ -80,7 +80,7 @@ class TestPage:
         # formatted result
         a = f_page(created=datetime.utcnow(), activite=ac2019.id)
         res = a.to_dict()
-        res["matiere"] = a.activite.matiere.id
+        res["matiere"] = str(a.activite.matiere.id)
         first_dict = db.Page.recents(2019)[0]
         assert first_dict == res
 
@@ -88,12 +88,12 @@ class TestPage:
         d = datetime.utcnow()
         p = f_page(created=d, titre="bl")
         assert p.to_dict() == {
-            "id": 1,
+            "id": str(p.id),
             "created": d.isoformat(),
             "modified": d.isoformat(),
             "titre": "bl",
-            "activite": p.activite.id,
-            "matiere": p.activite.matiere.id,
+            "activite": str(p.activite.id),
+            "matiere": str(p.activite.matiere.id),
             "matiereNom": p.activite.matiere.nom,
             "matiereBgColor": p.activite.matiere.bgColor,
             "matiereFgColor": p.activite.matiere.fgColor,
@@ -104,8 +104,8 @@ class TestPage:
         a = f_matiere().to_dict()
         ac = f_activite(matiere=a["id"])
         flush()
-        b = ddb.Page.new_page(activite=1, titre="bla")
-        assert ddb.Page.get(id=b["id"], titre="bla", activite=1)
+        b = ddb.Page.new_page(activite=ac.id, titre="bla")
+        assert ddb.Page.get(id=b["id"], titre="bla", activite=ac.id)
 
     def test_content(self, ddbr):
         a = f_page()
@@ -124,29 +124,29 @@ class TestPage:
 class TestGroupeMatiere:
     def test_delete_mixin_position(self, reset_db):
         a = f_groupeMatiere(annee=2019)
-        f_groupeMatiere(annee=2019)
+        b = f_groupeMatiere(annee=2019)
         with db_session:
-            assert GroupeMatiere[1].position == 0
-            assert GroupeMatiere[2].position == 1
-            GroupeMatiere[1].delete()
+            assert GroupeMatiere[a.id].position == 0
+            assert GroupeMatiere[b.id].position == 1
+            GroupeMatiere[a.id].delete()
         with db_session:
-            assert GroupeMatiere[2].position == 0
+            assert GroupeMatiere[b.id].position == 0
 
     def test_color_mixin(self, reset_db):
         f_annee(id=1234)
         with db_session:
-            GroupeMatiere(nom="bk", annee=1234)
-            GroupeMatiere(nom="bk", annee=1234, fgColor="red")
-            GroupeMatiere(nom="bk", annee=1234, bgColor="green")
+            a = GroupeMatiere(nom="bk", annee=1234)
+            b = GroupeMatiere(nom="bk", annee=1234, fgColor="red")
+            c = GroupeMatiere(nom="bk", annee=1234, bgColor="green")
         with db_session:
-            assert GroupeMatiere[1].bgColor == QColor("white")
-            assert GroupeMatiere[1].fgColor == QColor("black")
-            assert GroupeMatiere[2].bgColor == QColor("white")
-            assert GroupeMatiere[2].fgColor == QColor("red")
-            assert GroupeMatiere[3].bgColor == QColor("green")
-            assert GroupeMatiere[3].fgColor == QColor("black")
-            assert GroupeMatiere[2].to_dict()["fgColor"] == QColor("red")
-            assert GroupeMatiere[3].to_dict()["bgColor"] == QColor("green")
+            assert GroupeMatiere[a.id].bgColor == QColor("white")
+            assert GroupeMatiere[a.id].fgColor == QColor("black")
+            assert GroupeMatiere[b.id].bgColor == QColor("white")
+            assert GroupeMatiere[b.id].fgColor == QColor("red")
+            assert GroupeMatiere[c.id].bgColor == QColor("green")
+            assert GroupeMatiere[c.id].fgColor == QColor("black")
+            assert GroupeMatiere[b.id].to_dict()["fgColor"] == QColor("red")
+            assert GroupeMatiere[c.id].to_dict()["bgColor"] == QColor("green")
 
 
 class TestMatiere:
@@ -157,15 +157,15 @@ class TestMatiere:
             nom="Géo", groupe=groupe, _fgColor=4294967295, _bgColor=4294901760
         )
         pages = [b_page(3, matiere=2) for x in a.activites]
-        f_activite(matiere=a.id)
-        f_activite(matiere=a.id)
-        f_activite(matiere=a.id)
+        x = f_activite(matiere=a.id)
+        y = f_activite(matiere=a.id)
+        z = f_activite(matiere=a.id)
         assert a.to_dict() == {
             "position": 0,
-            "id": 2,
+            "id": str(a.id),
             "nom": "Géo",
-            "activites": [1, 2, 3],
-            "groupe": 2,
+            "activites": [str(x.id), str(y.id), str(z.id)],
+            "groupe": str(groupe.id),
             "fgColor": QColor("white"),
             "bgColor": QColor("red"),
         }
@@ -204,170 +204,264 @@ class TestMatiere:
 
     def test_delete_mixin_position(self, reset_db):
         a = f_matiere()
-        f_matiere(groupe=a.groupe)
+        b = f_matiere(groupe=a.groupe)
         with db_session:
-            assert Matiere[1].position == 0
-            assert Matiere[2].position == 1
-            Matiere[1].delete()
+            assert Matiere[a.id].position == 0
+            assert Matiere[b.id].position == 1
+            Matiere[a.id].delete()
         with db_session:
-            assert Matiere[2].position == 0
+            assert Matiere[b.id].position == 0
 
             # a.before_delete_position = Ma
 
     def test_color_mixin(self, reset_db):
         a = f_groupeMatiere()
         with db_session:
-            Matiere(nom="bk", groupe=1)
-            Matiere(nom="bk", groupe=1, fgColor="red")
-            Matiere(nom="bk", groupe=1, bgColor="green")
+            z = Matiere(nom="bk", groupe=a.id)
+            b = Matiere(nom="bk", groupe=a.id, fgColor="red")
+            c = Matiere(nom="bk", groupe=a.id, bgColor="green")
         with db_session:
-            assert Matiere[1].bgColor == QColor("white")
-            assert Matiere[1].fgColor == QColor("black")
-            assert Matiere[2].bgColor == QColor("white")
-            assert Matiere[2].fgColor == QColor("red")
-            assert Matiere[3].bgColor == QColor("green")
-            assert Matiere[3].fgColor == QColor("black")
-            assert Matiere[2].to_dict()["fgColor"] == QColor("red")
-            assert Matiere[3].to_dict()["bgColor"] == QColor("green")
+            assert Matiere[z.id].bgColor == QColor("white")
+            assert Matiere[z.id].fgColor == QColor("black")
+            assert Matiere[b.id].bgColor == QColor("white")
+            assert Matiere[b.id].fgColor == QColor("red")
+            assert Matiere[c.id].bgColor == QColor("green")
+            assert Matiere[c.id].fgColor == QColor("black")
+            assert Matiere[b.id].to_dict()["fgColor"] == QColor("red")
+            assert Matiere[c.id].to_dict()["bgColor"] == QColor("green")
 
     def test_page_par_section(self, ddbr):
-        f_matiere(nom="Math", _bgColor=4294967295, _fgColor=4294901760)
-        un = f_activite(nom="un", matiere=1)
-        deux = f_activite(nom="deux", matiere=1)
-        trois = f_activite(nom="trois", matiere=1)
-        pages = [
-            {
-                "created": "2019-03-14T17:35:58.111997",
-                "modified": "2019-03-14T17:35:58.111997",
-                "titre": "quoi amener défendre charger seulement",
-                "activite": 1,
-                "lastPosition": None,
-            },
-            {
-                "created": "2019-10-30T10:54:18.834326",
-                "modified": "2019-10-30T10:54:18.834326",
-                "titre": "sujet grandir emporter monter rencontrer",
-                "activite": 3,
-                "lastPosition": None,
-            },
-            {
-                "created": "2019-08-17T21:33:55.644158",
-                "modified": "2019-08-17T21:33:55.644158",
-                "titre": "oreille blague soleil poursuivre riche",
-                "activite": 1,
-                "lastPosition": None,
-            },
-            {
-                "created": "2020-02-18T22:25:14.288186",
-                "modified": "2020-02-18T22:25:14.288186",
-                "titre": "enfer cette simple ensemble rendre",
-                "activite": 3,
-                "lastPosition": None,
-            },
-            {
-                "created": "2019-09-16T03:57:38.860509",
-                "modified": "2019-09-16T03:57:38.860509",
-                "titre": "grand-père monde cœur reposer rappeler",
-                "activite": 1,
-                "lastPosition": None,
-            },
-        ]
+        m = f_matiere(nom="Math", _bgColor=4294967295, _fgColor=4294901760)
+        un = f_activite(nom="un", matiere=m.id)
+        deux = f_activite(nom="deux", matiere=m.id)
+        trois = f_activite()
+        w = b_page(3, activite=deux, titre="pagedeux", created=datetime(1212, 12, 12))
+        x = b_page(3, activite=un, titre="pageun", created=datetime(1111, 11, 11))
+        # y = b_page(3, activite=trois, titre="âge")
+
         with db_session:
-            for p in pages:
-                ddbr.Page(**p)
-        with db_session:
-            mm = ddbr.Matiere[1]
-            q = mm.pages_par_section()
-            assert q == [
+            assert Matiere[m.id].pages_par_section() == [
                 {
-                    "id": 1,
-                    "matiere": 1,
+                    "id": str(un.id),
                     "nom": "un",
+                    "matiere": str(m.id),
                     "pages": [
                         {
-                            "activite": 1,
-                            "created": "2019-09-16T03:57:38.860509",
-                            "id": 5,
-                            "lastPosition": None,
-                            "matiere": 1,
+                            "activite": str(un.id),
+                            "created": "1111-11-11T00:00:00",
+                            "id": str(x[0].id),
                             "matiereNom": "Math",
-                            "modified": "2019-09-16T03:57:38.860509",
-                            "titre": "grand-père monde cœur reposer rappeler",
+                            "lastPosition": None,
+                            "matiere": str(m.id),
                             "matiereBgColor": QColor("white"),
                             "matiereFgColor": QColor("red"),
+                            "modified": "1111-11-11T00:00:00",
+                            "titre": "pageun",
                         },
                         {
-                            "activite": 1,
-                            "created": "2019-08-17T21:33:55.644158",
-                            "id": 3,
+                            "activite": str(un.id),
+                            "created": "1111-11-11T00:00:00",
+                            "id": str(x[1].id),
                             "lastPosition": None,
-                            "matiere": 1,
+                            "matiere": str(m.id),
                             "matiereNom": "Math",
-                            "modified": "2019-08-17T21:33:55.644158",
-                            "titre": "oreille blague soleil poursuivre riche",
                             "matiereBgColor": QColor("white"),
                             "matiereFgColor": QColor("red"),
+                            "modified": "1111-11-11T00:00:00",
+                            "titre": "pageun",
                         },
                         {
-                            "activite": 1,
-                            "created": "2019-03-14T17:35:58.111997",
-                            "id": 1,
+                            "activite": str(un.id),
+                            "created": "1111-11-11T00:00:00",
+                            "id": str(x[2].id),
                             "lastPosition": None,
-                            "matiere": 1,
+                            "matiere": str(m.id),
                             "matiereNom": "Math",
-                            "modified": "2019-03-14T17:35:58.111997",
-                            "titre": "quoi amener défendre charger seulement",
                             "matiereBgColor": QColor("white"),
                             "matiereFgColor": QColor("red"),
+                            "modified": "1111-11-11T00:00:00",
+                            "titre": "pageun",
                         },
                     ],
                     "position": 0,
                 },
-                {"id": 2, "matiere": 1, "nom": "deux", "pages": [], "position": 1},
                 {
-                    "id": 3,
-                    "matiere": 1,
-                    "nom": "trois",
-                    "position": 2,
+                    "id": str(deux.id),
+                    "nom": "deux",
+                    "matiere": str(m.id),
                     "pages": [
                         {
-                            "activite": 3,
-                            "created": "2020-02-18T22:25:14.288186",
-                            "id": 4,
+                            "activite": str(deux.id),
+                            "created": "1212-12-12T00:00:00",
+                            "id": str(w[0].id),
                             "lastPosition": None,
-                            "matiere": 1,
+                            "matiere": str(m.id),
                             "matiereNom": "Math",
-                            "modified": "2020-02-18T22:25:14.288186",
-                            "titre": "enfer cette simple ensemble rendre",
                             "matiereBgColor": QColor("white"),
                             "matiereFgColor": QColor("red"),
+                            "modified": "1212-12-12T00:00:00",
+                            "titre": "pagedeux",
                         },
                         {
-                            "activite": 3,
-                            "created": "2019-10-30T10:54:18.834326",
-                            "id": 2,
+                            "activite": str(deux.id),
+                            "created": "1212-12-12T00:00:00",
+                            "id": str(w[1].id),
                             "lastPosition": None,
-                            "matiere": 1,
+                            "matiere": str(m.id),
                             "matiereNom": "Math",
-                            "modified": "2019-10-30T10:54:18.834326",
-                            "titre": "sujet grandir emporter monter rencontrer",
                             "matiereBgColor": QColor("white"),
                             "matiereFgColor": QColor("red"),
+                            "modified": "1212-12-12T00:00:00",
+                            "titre": "pagedeux",
+                        },
+                        {
+                            "activite": str(deux.id),
+                            "created": "1212-12-12T00:00:00",
+                            "id": str(w[2].id),
+                            "lastPosition": None,
+                            "matiere": str(m.id),
+                            "matiereNom": "Math",
+                            "matiereBgColor": QColor("white"),
+                            "matiereFgColor": QColor("red"),
+                            "modified": "1212-12-12T00:00:00",
+                            "titre": "pagedeux",
                         },
                     ],
+                    "position": 1,
                 },
-            ]
+            ]  # pages = [
+        #     {
+        #         "created": "2019-03-14T17:35:58.111997",
+        #         "modified": "2019-03-14T17:35:58.111997",
+        #         "titre": "quoi amener défendre charger seulement",
+        #         "activite": str,
+        #         "lastPosition": None,
+        #     },
+        #     {
+        #         "created": "2019-10-30T10:54:18.834326",
+        #         "modified": "2019-10-30T10:54:18.834326",
+        #         "titre": "sujet grandir emporter monter rencontrer",
+        #         "activite": deux.id,
+        #         "lastPosition": None,
+        #     },
+        #     {
+        #         "created": "2019-08-17T21:33:55.644158",
+        #         "modified": "2019-08-17T21:33:55.644158",
+        #         "titre": "oreille blague soleil poursuivre riche",
+        #         "activite": trois.id,
+        #         "lastPosition": None,
+        #     },
+        #     {
+        #         "created": "2020-02-18T22:25:14.288186",
+        #         "modified": "2020-02-18T22:25:14.288186",
+        #         "titre": "enfer cette simple ensemble rendre",
+        #         "activite": 3,
+        #         "lastPosition": None,
+        #     },
+        #     {
+        #         "created": "2019-09-16T03:57:38.860509",
+        #         "modified": "2019-09-16T03:57:38.860509",
+        #         "titre": "grand-père monde cœur reposer rappeler",
+        #         "activite": 1,
+        #         "lastPosition": None,
+        #     },
+        # ]
+        # with db_session:
+        #     for p in pages:
+        #         ddbr.Page(**p)
+        # with db_session:
+        #     mm = ddbr.Matiere[m.id]
+        #     q = mm.pages_par_section()
+        #     assert q == [
+        #         {
+        #             "id": 1,
+        #             "matiere": m.id,
+        #             "nom": "un",
+        #             "pages": [
+        #                 {
+        #                     "activite": 1,
+        #                     "created": "2019-09-16T03:57:38.860509",
+        #                     "id": 5,
+        #                     "lastPosition": None,
+        #                     "matiere": m.id,
+        #                     "matiereNom": "Math",
+        #                     "modified": "2019-09-16T03:57:38.860509",
+        #                     "titre": "grand-père monde cœur reposer rappeler",
+        #                     "matiereBgColor": QColor("white"),
+        #                     "matiereFgColor": QColor("red"),
+        #                 },
+        #                 {
+        #                     "activite": 1,
+        #                     "created": "2019-08-17T21:33:55.644158",
+        #                     "id": 3,
+        #                     "lastPosition": None,
+        #                     "matiere": m.id,
+        #                     "matiereNom": "Math",
+        #                     "modified": "2019-08-17T21:33:55.644158",
+        #                     "titre": "oreille blague soleil poursuivre riche",
+        #                     "matiereBgColor": QColor("white"),
+        #                     "matiereFgColor": QColor("red"),
+        #                 },
+        #                 {
+        #                     "activite": 1,
+        #                     "created": "2019-03-14T17:35:58.111997",
+        #                     "id": 1,
+        #                     "lastPosition": None,
+        #                     "matiere": m.id,
+        #                     "matiereNom": "Math",
+        #                     "modified": "2019-03-14T17:35:58.111997",
+        #                     "titre": "quoi amener défendre charger seulement",
+        #                     "matiereBgColor": QColor("white"),
+        #                     "matiereFgColor": QColor("red"),
+        #                 },
+        #             ],
+        #             "position": 0,
+        #         },
+        #         {"id": 2, "matiere": m.id, "nom": "deux", "pages": [], "position": 1},
+        #         {
+        #             "id": 3,
+        #             "matiere": m.id,
+        #             "nom": "trois",
+        #             "position": 2,
+        #             "pages": [
+        #                 {
+        #                     "activite": 3,
+        #                     "created": "2020-02-18T22:25:14.288186",
+        #                     "id": 4,
+        #                     "lastPosition": None,
+        #                     "matiere": m.id,
+        #                     "matiereNom": "Math",
+        #                     "modified": "2020-02-18T22:25:14.288186",
+        #                     "titre": "enfer cette simple ensemble rendre",
+        #                     "matiereBgColor": QColor("white"),
+        #                     "matiereFgColor": QColor("red"),
+        #                 },
+        #                 {
+        #                     "activite": 3,
+        #                     "created": "2019-10-30T10:54:18.834326",
+        #                     "id": 2,
+        #                     "lastPosition": None,
+        #                     "matiere": m.id,
+        #                     "matiereNom": "Math",
+        #                     "modified": "2019-10-30T10:54:18.834326",
+        #                     "titre": "sujet grandir emporter monter rencontrer",
+        #                     "matiereBgColor": QColor("white"),
+        #                     "matiereFgColor": QColor("red"),
+        #                 },
+        #             ],
+        #         },
+        #     ]
 
 
 class TestActivite:
     def test_delete_mixin_position(self, reset_db):
-        b_activite(2)
+        a = b_activite(2)
         with db_session:
-            assert Activite[1].position == 0
-            assert Activite[2].position == 1
-            Activite[1].delete()
+            assert Activite[a[0].id].position == 0
+            assert Activite[a[1].id].position == 1
+            Activite[a[0].id].delete()
         with db_session:
-            assert Activite[2].position == 0
+            assert Activite[a[1].id].position == 0
 
 
 class TestSection:
@@ -596,7 +690,7 @@ class TestTableDataSection:
             "datas": ["", "", "", "", "", ""],
             "id": str(a.id),
             "modified": a.modified.isoformat(),
-            "page": 1,
+            "page": str(p.id),
             "position": 0,
             "rows": 3,
         }
@@ -604,9 +698,9 @@ class TestTableDataSection:
 
 class TestOperationSection:
     def test_init(self, ddb):
-        f_page()
+        x = f_page()
         # normal
-        a = ddb.OperationSection(string="1+2", page=1)
+        a = ddb.OperationSection(string="1+2", page=x.id)
         assert a._datas == '["", "", "", "1", "+", "2", "", ""]'
         assert a.datas == ["", "", "", "1", "+", "2", "", ""]
         assert a.rows == 4
@@ -625,10 +719,10 @@ class TestOperationSection:
             a = ddb.OperationSection(page=1)
 
     def test_to_dict(self, reset_db):
-        item = f_additionSection(string="259+135", td=True)
-        assert item == {
+        item = f_additionSection(string="259+135")
+        assert item.to_dict() == {
             "classtype": "AdditionSection",
-            "created": item["created"],
+            "created": item.created.isoformat(),
             "rows": 4,
             "columns": 4,
             "datas": [
@@ -649,9 +743,9 @@ class TestOperationSection:
                 "",
                 "",
             ],
-            "id": item["id"],
-            "modified": item["modified"],
-            "page": 1,
+            "id": str(item.id),
+            "modified": item.modified.isoformat(),
+            "page": str(item.page.id),
             "position": 0,
             "size": 16,
             "virgule": 0,
@@ -827,17 +921,17 @@ class TestDivisionSection:
     #     # '', '*', '', '',   '*', '',  '', '*', '' , //44
 
     def test_to_dict(self, reset_db):
-        x = f_divisionSection(string="5/4", td=True)
-        x.pop("created")
-        x.pop("modified")
-        assert x == {
+        x = f_divisionSection(string="5/4")
+        assert x.to_dict() == {
             "classtype": "DivisionSection",
             "columns": 12,
             "datas": ["", "5"] + [""] * 82,
             "dividende": "5",
             "diviseur": "4",
-            "id": x["id"],
-            "page": 1,
+            "id": str(x.id),
+            "page": str(x.page.id),
+            "created": x.created.isoformat(),
+            "modified": x.modified.isoformat(),
             "position": 0,
             "quotient": "",
             "rows": 7,
@@ -860,7 +954,7 @@ class TestAnnotations:
         s = f_section()
         x = ddb.Annotation(x=0.1, y=0.4, section=s.id)
         x.style.flush()
-        assert x.style.styleId == 1
+        assert isinstance(x.style.styleId, UUID)
 
     def test_factory(self, ddbr):
         a = f_annotation()
@@ -967,9 +1061,9 @@ class TestAnnotations:
 
 class TestTableauSection:
     def test_init(self, ddb):
-        f_page()
+        x = f_page()
         # normal
-        a = ddb.TableauSection(lignes=3, colonnes=4, page=1)
+        a = ddb.TableauSection(lignes=3, colonnes=4, page=x.id)
         a.flush()
         assert a.cells.count() == 12
         # si pas d'erreur c que pq ok
@@ -1020,16 +1114,16 @@ class TestTableauSection:
             assert TableauCell[a, 1, 1].style.bgColor.rgba() == un_1.rgba()
 
     def test_to_dict(self, ddb):
-        item = f_tableauSection(lignes=3, colonnes=4, td=True)
+        item = f_tableauSection(lignes=3, colonnes=4)
 
-        assert item == {
+        assert item.to_dict() == {
             "classtype": "TableauSection",
-            "created": item["created"],
+            "created": item.created.isoformat(),
             "lignes": 3,
             "colonnes": 4,
-            "id": item["id"],
-            "modified": item["modified"],
-            "page": 1,
+            "id": str(item.id),
+            "modified": item.modified.isoformat(),
+            "page": str(item.page.id),
             "position": 0,
         }
 
@@ -1346,7 +1440,7 @@ class TestTableauCell:
         b = f_tableauCell(x=2, y=0, style=s.styleId, texte="bla")
         with db_session:
             assert b.to_dict() == {
-                "tableau": b.tableau.id,
+                "tableau": str(b.tableau.id),
                 "x": 2,
                 "y": 0,
                 "texte": "bla",
@@ -1354,7 +1448,7 @@ class TestTableauCell:
                     "bgColor": QColor("red"),
                     "family": "",
                     "fgColor": QColor("black"),
-                    "styleId": 1,
+                    "styleId": str(s.styleId),
                     "pointSize": None,
                     "strikeout": False,
                     "underline": False,

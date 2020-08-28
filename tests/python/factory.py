@@ -108,7 +108,7 @@ def f_matiere(
 
 def b_matiere(nb, groupe=None, **kwargs):
     if groupe:
-        groupe = groupe if isinstance(groupe, int) else groupe.id
+        groupe = groupe if isinstance(groupe, (str, UUID)) else groupe.id
     else:
         groupe = f_groupeMatiere()
     for i in range(nb):
@@ -120,7 +120,7 @@ def f_activite(nom=None, matiere=None, td=False):
     matiere = matiere or f_matiere()
     with db_session:
         item = db.Activite(
-            nom=nom, matiere=matiere if isinstance(matiere, int) else matiere.id
+            nom=nom, matiere=matiere if isinstance(matiere, (str, UUID)) else matiere.id
         )
         item.flush()
         return item.to_dict() if td else item
@@ -128,17 +128,16 @@ def f_activite(nom=None, matiere=None, td=False):
 
 def b_activite(nb, matiere=None, nom=None):
     if matiere:
-        matiere = matiere if isinstance(matiere, int) else matiere.id
+        matiere = matiere if isinstance(matiere, (str, UUID)) else matiere.id
     else:
         matiere = f_matiere()
-    for i in range(nb):
-        f_activite(matiere=matiere, nom=nom)
+    return [f_activite(matiere=matiere, nom=nom) for i in range(nb)]
 
 
 def f_page(created=None, activite=None, titre=None, td=False, lastPosition=None):
     """actvite int = id mais str = index"""
     activite = activite or f_activite()
-    if not isinstance(activite, int):
+    if isinstance(activite, Activite):
         activite = activite.id
     created = created or f_datetime()
     titre = titre or " ".join(gen.text.words(5))
@@ -343,7 +342,7 @@ def f_tableauCell(x=0, y=0, texte=None, style=None, tableau=None, td=False):
             x=x,
             y=y,
             tableau=tableau,
-            style=style if isinstance(style, int) else style,
+            style=style if isinstance(style, (str, UUID)) else style.styleId,
             texte=texte,
         )
         item.flush()

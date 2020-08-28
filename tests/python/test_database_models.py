@@ -1,4 +1,5 @@
 import itertools
+import uuid
 from typing import List
 
 from PySide2.QtGui import QFont
@@ -384,16 +385,22 @@ class TestSection:
             assert ddbr.Section[s.id].position == 2
             assert ddbr.Section[x.id].position == 3
 
+    def test_get_with_string(self, ddbr):
+        x = f_section()
+        strid = str(x.id)
+        with db_session:
+            z = Section[strid]
+
     def test_delete_mixin_position(self, reset_db):
         a = f_page()
-        f_section(page=a.id)
-        f_section(page=a.id)
+        x = f_section(page=a.id)
+        y = f_section(page=a.id)
         with db_session:
-            assert Section[1].position == 0
-            assert Section[2].position == 1
-            Section[1].delete()
+            assert Section[x.id].position == 0
+            assert Section[y.id].position == 1
+            Section[x.id].delete()
         with db_session:
-            assert Section[2].position == 0
+            assert Section[y.id].position == 0
 
     def test_position_property(self, ddb):
         p = f_page()
@@ -421,7 +428,7 @@ class TestSection:
 
     def test_inheritance_position2(self, reset_db):
         page = f_page()
-        f_section(page=page.id)
+        r = f_section(page=page.id)
         with db_session:
             s = TextSection(page=page.id)
         with db_session:
@@ -429,10 +436,10 @@ class TestSection:
         with db_session:
             u = Section(page=page.id)
         with db_session:
-            assert Section[1].position == 0
-            assert Section[2].position == 1
-            assert Section[3].position == 2
-            assert Section[4].position == 3
+            assert Section[r.id].position == 0
+            assert Section[s.id].position == 1
+            assert Section[t.id].position == 2
+            assert Section[u.id].position == 3
 
     def test_to_dict(self, ddbr):
         a = datetime.utcnow()
@@ -519,41 +526,25 @@ class TestSection:
             # page mis à jour
             assert now < ddbr.Page[p.id].modified
 
-    def test_update_position_change_position_descend(self, ddbr):
+    @pytest.mark.parametrize(
+        "start, new_pos, poses", [(2, 3, (0, 1, 3, 2, 4)), (3, 1, (0, 2, 3, 1, 4)),]
+    )
+    def test_update_position_change_position_descend(self, ddbr, start, new_pos, poses):
         a = f_page()
+        secs = []
         with db_session:
             for i in range(5):
                 z = ddbr.Section(page=a.id, position=i)
                 flush()
-            for i in range(5):
-                assert ddbr.Section[i + 1].position == i
+                secs.append(z)
+            for i, e in enumerate(secs):
+                assert e.position == i
         with db_session:
-            x = ddbr.Section[2]
-            x.position = 3
-            # with db_session:
-            assert ddbr.Section[1].position == 0  # Section[1]
-            assert ddbr.Section[2].position == 3  # Section[3]
-            assert ddbr.Section[3].position == 1  # Section[4]
-            assert ddbr.Section[4].position == 2  # Section[2]
-            assert ddbr.Section[5].position == 4  # Section[5]
-
-    def test_update_position_change_position_remonte(self, ddbr):
-        a = f_page()
+            x = ddbr.Section[secs[start].id]
+            x.position = new_pos
         with db_session:
-            for i in range(5):
-                z = ddbr.Section(page=a.id, position=i)
-                flush()
-            for i in range(5):
-                assert ddbr.Section[i + 1].position == i
-        with db_session:
-            x = ddbr.Section[4]
-            x.position = 1
-            # with db_session:
-            assert ddbr.Section[1].position == 0  # Section[1]
-            assert ddbr.Section[2].position == 2  # Section[4]
-            assert ddbr.Section[3].position == 3  # Section[2]
-            assert ddbr.Section[4].position == 1  # Section[3]
-            assert ddbr.Section[5].position == 4  # Section[5]
+            for index, value in enumerate(poses):
+                assert ddbr.Section[secs[index].id].position == value
 
 
 class TestImageSection:
@@ -603,7 +594,7 @@ class TestTableDataSection:
             "columns": 2,
             "created": a.created.isoformat(),
             "datas": ["", "", "", "", "", ""],
-            "id": 1,
+            "id": str(a.id),
             "modified": a.modified.isoformat(),
             "page": 1,
             "position": 0,
@@ -658,7 +649,7 @@ class TestOperationSection:
                 "",
                 "",
             ],
-            "id": 1,
+            "id": item["id"],
             "modified": item["modified"],
             "page": 1,
             "position": 0,
@@ -845,7 +836,7 @@ class TestDivisionSection:
             "datas": ["", "5"] + [""] * 82,
             "dividende": "5",
             "diviseur": "4",
-            "id": 1,
+            "id": x["id"],
             "page": 1,
             "position": 0,
             "quotient": "",
@@ -873,7 +864,7 @@ class TestAnnotations:
 
     def test_factory(self, ddbr):
         a = f_annotation()
-        assert a.id == 1
+        assert isinstance(a.id, uuid.UUID)
 
     def test_init_and_to_dict(self, ddb):
         s = f_section()
@@ -883,14 +874,15 @@ class TestAnnotations:
         r = x.to_dict()
         assert r["x"] == 0.1
         assert r["y"] == 0.4
-        assert r["section"] == Section[1]
+        assert r["section"] == Section[s.id]
         assert r["bgColor"] == QColor("red")
         assert r["fgColor"] == QColor("black")
+        assert r["id"] == str(x.id)
 
     def test_set(self, ddbr):
         x = f_annotation(x=0.3)
         with db_session:
-            x = Annotation[1]
+            x = Annotation[x.id]
             assert not x.style.underline
             x.set(**{"x": 0.7, "style": {"underline": True}, "attrs": {"y": "0.234"}})
             assert x.x == 0.7
@@ -942,8 +934,8 @@ class TestAnnotations:
     def test_delete_not_fail_if_section_deleted(self, ddbr):
         a = f_annotation()
         with db_session:
-            s = ddbr.Section[1]
-            a = ddbr.Annotation[1]
+            s = ddbr.Section[a.section.id]
+            a = ddbr.Annotation[a.id]
             s.delete()
             a.delete()
 
@@ -964,11 +956,12 @@ class TestAnnotations:
         f_annotationText()
 
         with db_session:
-            a = Annotation[1].as_type()
+            annots = Annotation.select()[:]
+            a = annots[0].as_type()
             assert isinstance(a, Annotation)
-            a = Annotation[2].as_type()
+            a = annots[1].as_type()
             assert isinstance(a, AnnotationDessin)
-            a = Annotation[3].as_type()
+            a = annots[2].as_type()
             assert isinstance(a, AnnotationText)
 
 
@@ -980,7 +973,7 @@ class TestTableauSection:
         a.flush()
         assert a.cells.count() == 12
         # si pas d'erreur c que pq ok
-        assert [ddb.TableauCell[1, y, x] for y in range(3) for x in range(4)]
+        assert [ddb.TableauCell[a.id, y, x] for y in range(3) for x in range(4)]
 
         b = f_tableauSection()
 
@@ -1034,7 +1027,7 @@ class TestTableauSection:
             "created": item["created"],
             "lignes": 3,
             "colonnes": 4,
-            "id": 1,
+            "id": item["id"],
             "modified": item["modified"],
             "page": 1,
             "position": 0,
@@ -1045,43 +1038,43 @@ class TestTableauSection:
         p1 = t.get_cells_par_ligne(0)
         assert len(p1) == 4
         assert p1 == [
-            TableauCell[TableauSection[1], 0, 0],
-            TableauCell[TableauSection[1], 0, 1],
-            TableauCell[TableauSection[1], 0, 2],
-            TableauCell[TableauSection[1], 0, 3],
+            TableauCell[TableauSection[t.id], 0, 0],
+            TableauCell[TableauSection[t.id], 0, 1],
+            TableauCell[TableauSection[t.id], 0, 2],
+            TableauCell[TableauSection[t.id], 0, 3],
         ]
         p1 = t.get_cells_par_ligne(1)
         assert len(p1) == 4
         assert p1 == [
-            TableauCell[TableauSection[1], 1, 0],
-            TableauCell[TableauSection[1], 1, 1],
-            TableauCell[TableauSection[1], 1, 2],
-            TableauCell[TableauSection[1], 1, 3],
+            TableauCell[TableauSection[t.id], 1, 0],
+            TableauCell[TableauSection[t.id], 1, 1],
+            TableauCell[TableauSection[t.id], 1, 2],
+            TableauCell[TableauSection[t.id], 1, 3],
         ]
 
         p1 = t.get_cells_par_ligne(2)
         assert len(p1) == 4
         assert p1 == [
-            TableauCell[TableauSection[1], 2, 0],
-            TableauCell[TableauSection[1], 2, 1],
-            TableauCell[TableauSection[1], 2, 2],
-            TableauCell[TableauSection[1], 2, 3],
+            TableauCell[TableauSection[t.id], 2, 0],
+            TableauCell[TableauSection[t.id], 2, 1],
+            TableauCell[TableauSection[t.id], 2, 2],
+            TableauCell[TableauSection[t.id], 2, 3],
         ]
         p1 = t.get_cells_par_ligne(3)
         assert len(p1) == 4
         assert p1 == [
-            TableauCell[TableauSection[1], 3, 0],
-            TableauCell[TableauSection[1], 3, 1],
-            TableauCell[TableauSection[1], 3, 2],
-            TableauCell[TableauSection[1], 3, 3],
+            TableauCell[TableauSection[t.id], 3, 0],
+            TableauCell[TableauSection[t.id], 3, 1],
+            TableauCell[TableauSection[t.id], 3, 2],
+            TableauCell[TableauSection[t.id], 3, 3],
         ]
         p1 = t.get_cells_par_ligne(4)
         assert len(p1) == 4
         assert p1 == [
-            TableauCell[TableauSection[1], 4, 0],
-            TableauCell[TableauSection[1], 4, 1],
-            TableauCell[TableauSection[1], 4, 2],
-            TableauCell[TableauSection[1], 4, 3],
+            TableauCell[TableauSection[t.id], 4, 0],
+            TableauCell[TableauSection[t.id], 4, 1],
+            TableauCell[TableauSection[t.id], 4, 2],
+            TableauCell[TableauSection[t.id], 4, 3],
         ]
 
     @staticmethod
@@ -1350,28 +1343,29 @@ class TestTableauCell:
 
     def test_to_dict(self, reset_db):
         s = f_style(bgColor="red")
-        b = f_tableauCell(x=2, y=0, style=s.styleId, td=True, texte="bla")
-        assert b == {
-            "tableau": 1,
-            "x": 2,
-            "y": 0,
-            "texte": "bla",
-            "style": {
-                "bgColor": QColor("red"),
-                "family": "",
-                "fgColor": QColor("black"),
-                "styleId": 1,
-                "pointSize": None,
-                "strikeout": False,
-                "underline": False,
-                "weight": None,
-            },
-        }
+        b = f_tableauCell(x=2, y=0, style=s.styleId, texte="bla")
+        with db_session:
+            assert b.to_dict() == {
+                "tableau": b.tableau.id,
+                "x": 2,
+                "y": 0,
+                "texte": "bla",
+                "style": {
+                    "bgColor": QColor("red"),
+                    "family": "",
+                    "fgColor": QColor("black"),
+                    "styleId": 1,
+                    "pointSize": None,
+                    "strikeout": False,
+                    "underline": False,
+                    "weight": None,
+                },
+            }
 
     def test_set(self, ddbr):
         x = f_tableauCell(texte="bla")
         with db_session:
-            x = TableauCell[1, 0, 0]
+            x = TableauCell[x.tableau.id, 0, 0]
             assert not x.style.underline
             x.set(**{"texte": "bbb"})
             assert x.texte == "bbb"

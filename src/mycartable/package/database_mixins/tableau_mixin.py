@@ -12,24 +12,24 @@ class TableauMixin:
     def __init__(self):
         self.tableauLayoutChanged.connect(self.tableauChanged)
 
-    @Slot(int, result="QVariantList")
+    @Slot(str, result="QVariantList")
     @db_session
     def initTableauDatas(self, sectionId):
         datas = [x.to_dict() for x in self.db.TableauSection[sectionId].get_cells()]
         return datas
 
-    @Slot(int, int, int, "QVariantMap")
+    @Slot(str, int, int, "QVariantMap")
     def updateCell(self, tableau, y, x, content):
         with db_session:
             self.db.TableauCell[tableau, y, x].set(**content)
         self.tableauChanged.emit()
 
-    @Slot(int, result=int)
+    @Slot(str, result=int)
     def nbColonnes(self, tableau):
         with db_session:
             return self.db.TableauSection[tableau].colonnes
 
-    @Slot(int, int)
+    @Slot(str, int)
     def insertRow(self, tableau, value):
         with db_session:
             tab = TableauSection[tableau]
@@ -37,7 +37,7 @@ class TableauMixin:
             logger.debug(f"Row inserted in position {value} in {tab}")
         self.tableauLayoutChanged.emit()
 
-    @Slot(int)
+    @Slot(str)
     def appendRow(self, tableau):
         with db_session:
             tab = TableauSection[tableau]
@@ -45,7 +45,7 @@ class TableauMixin:
             logger.debug(f"Line appended in {tab}")
         self.tableauLayoutChanged.emit()
 
-    @Slot(int, int)
+    @Slot(str, int)
     def insertColumn(self, tableau, value):
         with db_session:
             tab = TableauSection[tableau]
@@ -53,7 +53,7 @@ class TableauMixin:
             logger.debug(f"Column inserted in position {value} in {tab}")
         self.tableauLayoutChanged.emit()
 
-    @Slot(int)
+    @Slot(str)
     def appendColumn(self, tableau):
         with db_session:
             tab = TableauSection[tableau]
@@ -61,7 +61,7 @@ class TableauMixin:
             logger.debug(f"Column appended in {tab}")
         self.tableauLayoutChanged.emit()
 
-    @Slot(int, int)
+    @Slot(str, int)
     def removeColumn(self, tableau, value):
         with db_session:
             tab = TableauSection[tableau]
@@ -69,7 +69,7 @@ class TableauMixin:
             logger.debug(f"Column removed in position {value} in {tab}")
         self.tableauLayoutChanged.emit()
 
-    @Slot(int, int)
+    @Slot(str, int)
     def removeRow(self, tableau, value):
         with db_session:
             tab = TableauSection[tableau]

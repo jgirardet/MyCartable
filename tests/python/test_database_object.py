@@ -410,10 +410,14 @@ class TestLayoutMixin:
 
 
 class TestSectionMixin:
+    def test_checkargs(self, dao):
+        check_args(dao.loadSection, str, dict)
+        check_args(dao.addSection, [str, dict], str)
+
     def test_loadsection_image(self, dao):
         s = f_imageSection(path="bla/ble.jpg")
         res = dao.loadSection(s.id)
-        assert res["id"] == 1
+        assert res["id"] == str(s.id)
         assert res["path"] == QUrl.fromLocalFile(str(FILES / "bla/ble.jpg"))
 
     def test_loadsection_image_false(self, dao):
@@ -422,13 +426,13 @@ class TestSectionMixin:
 
     def test_load_section_Operation(self, dao):
         a = f_additionSection(string="3+4")
-        assert dao.loadSection(1) == {
+        assert dao.loadSection(a.id) == {
             "classtype": "AdditionSection",
             "created": a.created.isoformat(),
             "datas": ["", "", "", "3", "+", "4", "", ""],
             "rows": 4,
             "columns": 2,
-            "id": 1,
+            "id": str(a.id),
             "modified": a.modified.isoformat(),
             "page": 1,
             "position": 0,
@@ -438,11 +442,11 @@ class TestSectionMixin:
 
     def test_load_section_tableau(self, dao):
         a = f_tableauSection(lignes=3, colonnes=3)
-        assert dao.loadSection(1) == {
+        assert dao.loadSection(a.id) == {
             "classtype": "TableauSection",
             "created": a.created.isoformat(),
             "colonnes": 3,
-            "id": 1,
+            "id": str(a.id),
             "lignes": 3,
             "modified": a.modified.isoformat(),
             "page": 1,
@@ -451,12 +455,11 @@ class TestSectionMixin:
 
     def test_loadsection_equation(self, dao):
         eq = f_equationSection(content="1+2", td=True)
-        print(eq)
-        assert dao.loadSection(1) == {
+        assert dao.loadSection(eq["id"]) == {
             "classtype": "EquationSection",
             "created": eq["created"],  # .created.isoformat(),
             "content": "1+2",
-            "id": 1,
+            "id": eq["id"],
             "modified": eq["modified"],  # a.modified.isoformat(),
             "page": 1,
             "position": 0,
@@ -492,12 +495,18 @@ class TestSectionMixin:
                 a = dao.addSection(page, content)
         else:
             a = dao.addSection(page, content)
+        with db_session:
+            if res:
+                _res = item = str(ddbn.Section.select().first().id)
+                res = _res
+            else:
+                res = ""
         assert a == res
-        if res == 0:
+        if res == "":
             return
         with db_session:
-            item = ddbn.Section[1]
-            assert item.page.id == 1
+            item = ddbn.Section.select().first()
+            assert item.page.id == x.id
             for i in content.keys():
                 if i == "string":
                     item.datas == create_operation(content["string"])
@@ -547,12 +556,19 @@ class TestSectionMixin:
                 a = dao.addSection(page, content)
         else:
             a = dao.addSection(page, content)
+
+        with db_session:
+            if res:
+                _res = item = str(ddbr.Section.select().first().id)
+                res = _res
+            else:
+                res = ""
         assert a == res
-        if res == 0:
+        if res == "":
             return
         with db_session:
-            item = ddbr.Section[1]
-            assert item.page.id == 1
+            item = ddbr.Section.select().first()
+            assert item.page.id == x.id
             for i in content.keys():
                 if i == "path":
                     assert content[i] == getattr(item, i)
@@ -623,22 +639,32 @@ class TestImageSectionMixin:
 
 
 class TestTableauMixin:
+    def test_check_args(self, dao):
+        check_args(dao.initTableauDatas, str, list)
+        check_args(dao.updateCell, [str, int, int, dict])
+        check_args(dao.nbColonnes, str, int)
+        check_args(dao.insertRow, [str, int])
+        check_args(dao.appendRow, str)
+        check_args(dao.insertColumn, [str, int])
+        check_args(dao.appendColumn, str)
+        check_args(dao.removeColumn, [str, int])
+        check_args(dao.removeRow, [str, int])
+
     def test_init_datas(self, dao):
-        check_args(dao.initTableauDatas, exp_args=int, exp_return_type=list)
-        f_tableauSection(3, 4)
+        x = f_tableauSection(3, 4)
 
         with db_session:
-            assert dao.initTableauDatas(1) == [
-                x.to_dict() for x in TableauSection[1].get_cells()
+            assert dao.initTableauDatas(str(x.id)) == [
+                x.to_dict() for x in TableauSection[x.id].get_cells()
             ]
 
     def test_updat_cell(self, dao, qtbot):
-        check_args(dao.updateCell, [int, int, int, dict])
-        f_tableauCell(x=2, y=3, texte="zer")
+        x = f_tableauCell(x=2, y=3, texte="zer")
+
         with qtbot.waitSignal(dao.tableauChanged):
-            dao.updateCell(1, 3, 2, {"texte": "bla"})
+            dao.updateCell(x.tableau.id, 3, 2, {"texte": "bla"})
         with db_session:
-            assert TableauCell[1, 3, 2].texte == "bla"
+            assert TableauCell[x.tableau.id, 3, 2].texte == "bla"
 
     def test_tableaulayoutchanged(self, dao, qtbot):
         with qtbot.waitSignal(dao.tableauChanged):
@@ -654,7 +680,6 @@ class TestTableauMixin:
         ],
     )
     def test_add_remove_row_column(self, dao, qtbot, fn, lignes, colonnes):
-        check_args(getattr(dao, fn), [int, int])
         x = f_tableauSection(2, 2)
         with qtbot.waitSignal(dao.tableauLayoutChanged):
             getattr(dao, fn)(x.id, 1)
@@ -667,7 +692,6 @@ class TestTableauMixin:
         "fn, lignes, colonnes", [("appendColumn", 2, 3), ("appendRow", 3, 2),],
     )
     def test_append_row_column(self, dao, qtbot, fn, lignes, colonnes):
-        check_args(getattr(dao, fn), int)
         x = f_tableauSection(2, 2)
         with qtbot.waitSignal(dao.tableauLayoutChanged):
             getattr(dao, fn)(x.id)
@@ -1339,7 +1363,7 @@ class TestDatabaseObject:
             assert item.position == 2
         p = dao.pageModel
         assert p.rowCount() == 3
-        assert p.data(p.index(2, 0), p.PageRole)["id"] == item.id
+        assert p.data(p.index(2, 0), p.PageRole)["id"] == str(item.id)
 
     def test_currentPageChanged(self, dao, ddbr, qtbot):
         a = f_page(td=True)

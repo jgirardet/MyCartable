@@ -2,6 +2,7 @@ import json
 from datetime import datetime
 import re
 from io import BytesIO
+from uuid import UUID, uuid4
 
 from PySide2.QtGui import QColor
 from functools import cached_property
@@ -15,12 +16,17 @@ from .mixins import ColorMixin, PositionMixin
 class Section(db.Entity, PositionMixin):
     referent_attribute_name = "page"
 
-    id = PrimaryKey(int, auto=True)
+    id = PrimaryKey(UUID, auto=True, default=uuid4)
     created = Required(datetime, default=datetime.utcnow)
     modified = Optional(datetime)
     page = Required("Page")
     _position = Required(int)
     annotations = Set("Annotation")
+
+    def __repr__(self):
+        return (
+            f"{self.__class__.__name__}[page={self.page.id}, position={self._position}]"
+        )
 
     def __new__(cls, *args, **kwargs):
         cls.base_class_position = Section
@@ -35,6 +41,7 @@ class Section(db.Entity, PositionMixin):
         dico["created"] = self.created.isoformat()
         dico["modified"] = self.modified.isoformat()
         dico["position"] = dico.pop("_position")
+        dico["id"] = str(dico["id"])
         return dico
 
     def before_insert(self):
@@ -297,7 +304,7 @@ class EquationSection(Section):
 
 
 class Annotation(db.Entity):
-    id = PrimaryKey(int, auto=True)
+    id = PrimaryKey(UUID, auto=True, default=uuid4)
     x = Required(float)
     y = Required(float)
     section = Required(Section)
@@ -314,6 +321,7 @@ class Annotation(db.Entity):
     def to_dict(self, **kwargs):
         dico = super().to_dict(**kwargs, related_objects=True)
         dico.update(dico.pop("style").to_dict())
+        dico["id"] = str(self.id)
         return dico
 
     def set(self, **kwargs):

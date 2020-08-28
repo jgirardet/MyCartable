@@ -17,15 +17,15 @@ class SectionMixin:
     sectionAdded = Signal(int, int)  # position nombre
     sectionRemoved = Signal(int)
 
-    @Slot(int, "QVariantMap", result=int)
+    @Slot(str, "QVariantMap", result=str)
     def addSection(self, page_id, content):
         classtype = content.pop("classtype", None)
         if not classtype:
-            return 0
+            return ""
 
         elif classtype == "ImageSection":
             if not "path" in content or not content["path"]:
-                return 0
+                return ""
             path = content.pop("path")
             path = (
                 Path(path.toLocalFile())
@@ -37,7 +37,7 @@ class SectionMixin:
                     return self.addSectionPDF(page_id, path)
                 content["path"] = str(self.store_new_file(path))
             else:
-                return 0
+                return ""
 
         elif classtype == "OperationSection":
             string = content["string"]
@@ -50,7 +50,7 @@ class SectionMixin:
             elif "/" in string:
                 classtype = "DivisionSection"
             else:
-                return 0
+                return ""
 
         with db_session:
             try:
@@ -58,11 +58,11 @@ class SectionMixin:
             except MyCartableOperationError as err:
                 logger.exception(err)
                 self.ui.sendToast.emit(str(err))
-                return 0
+                return ""
         self.sectionAdded.emit(item.position, 1)
-        return item.id
+        return str(item.id)
 
-    def addSectionPDF(self, page_id, path):
+    def addSectionPDF(self, page_id, path) -> str:
 
         first = None
 
@@ -76,9 +76,9 @@ class SectionMixin:
                 if not first:
                     first = item
             self.sectionAdded.emit(first.position, len(res))
-            return first.id
+            return str(first.id)
 
-    @Slot(int, result="QVariantMap")
+    @Slot(str, result="QVariantMap")
     def loadSection(self, section_id):
         res = {}
         with db_session:

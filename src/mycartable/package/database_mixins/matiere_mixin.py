@@ -1,5 +1,6 @@
 # currentMatiere
 from typing import List
+from uuid import UUID
 
 from loguru import logger
 
@@ -19,7 +20,7 @@ class MatiereMixin:
     matiereReset = Signal()
 
     def __init__(self):
-        self._currentMatiere = 0
+        self._currentMatiere = ""
         self.setCurrentMatiereFromIndexSignal.connect(self.setCurrentMatiereFromIndex)
         self.currentMatiereChanged.connect(self.pagesParSectionChanged)
 
@@ -27,13 +28,22 @@ class MatiereMixin:
         annee = annee or self.annee_active
         self.m_d = MatieresDispatcher(self.db, annee)
 
-    @Property(int, notify=currentMatiereChanged)
+    @Property(str, notify=currentMatiereChanged)
     def currentMatiere(self):
         return self._currentMatiere
 
     @currentMatiere.setter
     def current_matiere_set(self, value):
-        if self._currentMatiere != value and isinstance(value, int):
+        if isinstance(value, UUID):
+            value = str(value)
+        if self._currentMatiere != value:
+            with db_session:
+                try:
+                    Matiere[value]
+                except ValueError:
+                    return
+                except ObjectNotFound:
+                    return
             self._currentMatiere = value
             logger.debug(f"current matiere set to: {self._currentMatiere}")
             self.currentMatiereChanged.emit()
@@ -46,8 +56,9 @@ class MatiereMixin:
         )
         self.matiereReset.emit()
 
-    @Slot(int, result=int)
+    @Slot(str, result=int)
     def getMatiereIndexFromId(self, matiere_id):
+        print(self.m_d.id_index)
         if not hasattr(self, "m_d"):
             return 0
         try:
@@ -89,9 +100,12 @@ class MatiereMixin:
     @Slot(int)
     @db_session
     def peuplerLesMatieresParDefault(self, annee):
+        print(MATIERE_GROUPE)
+
         gm = [GroupeMatiere(**x, annee=annee) for x in MATIERE_GROUPE]
         flush()
         logger.info(f"{len(gm)} groupes de matières créées")
+        print(MATIERES)
         mat = [Matiere(**x) for x in MATIERES]
         logger.info(f"{len(mat)} matières créées")
         self.ui.sendToast.emit(f"{len(mat)} matières créées")

@@ -92,7 +92,7 @@ class DatabaseObject(QObject, *MIXINS):
             self.currentMatiere = page["matiere"]
 
     def onMatiereReset(self):
-        self.currentPage = 0
+        self.currentPage = ""
 
     def onNewPageCreated(self, item: dict):
         self.currentPage = item["id"]
@@ -102,8 +102,8 @@ class DatabaseObject(QObject, *MIXINS):
         self.currentMatiere = matiere
 
     def onChangeAnnee(self, value: int):
-        self.currentPage = 0
-        self.currentMatiere = 0
+        self.currentPage = ""
+        self.currentMatiere = ""
         self.anneeActive = value
         self.init_matieres(annee=value)
         self.recentsModelChanged.emit()

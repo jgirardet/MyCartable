@@ -16,8 +16,15 @@ from pony.orm import ObjectNotFound
 
 
 class TestPageMixin:
+    def test_check_args(self, dao: DatabaseObject):
+        check_args(dao.newPage, str, dict)
+        check_args(dao.removePage, str)
+        check_args(dao.setCurrentTitre, str)
+        check_args(dao.exportToPDF)
+        check_args(dao.exportToOdt)
+
     def test_init(self, dao):
-        assert dao._currentPage == 0
+        assert dao._currentPage == ""
         assert dao._currentTitre == ""
         assert dao._currentEntry == None
 
@@ -31,28 +38,30 @@ class TestPageMixin:
     def test_currentPage(self, dao, qtbot):
         a = f_page()
         b = f_page()
-        assert dao.currentPage == 0
+        assert dao.currentPage == ""
 
-        # setCurrentPage
-        dao.currentPage = 1
-        assert dao.currentPage == a.id
+        # setCurrentPage with UUID
+        dao.currentPage = a.id
+        assert dao.currentPage == str(a.id)
+
+        # Set CurrentPage with str
         with qtbot.wait_signal(dao.currentPageChanged, timeout=100):
-            dao.currentPage = 2
-        assert dao.currentPage == dao.currentPage
+            dao.currentPage = str(b.id)
+        assert dao.currentPage == str(b.id)
 
         # set currentpage do nothing if same id
         with qtbot.assertNotEmitted(dao.currentPageChanged):
-            dao.currentPage = 2
-        assert dao.currentPage == b.id
+            dao.currentPage = b.id
+        assert dao.currentPage == str(b.id)
 
         # set currentpage do nothing if same id
         with qtbot.assertNotEmitted(dao.currentPageChanged):
-            dao.currentPage = 2
-        assert dao.currentPage == b.id
+            dao.currentPage = b.id
+        assert dao.currentPage == str(b.id)
 
     def test_current_entry(self, dao):
         a = f_page()
-        dao.currentPage = 1
+        dao.currentPage = a.id
         with db_session:
             assert (
                 dao._currentEntry.titre
@@ -62,12 +71,12 @@ class TestPageMixin:
             )
 
     def test_CurrentTitreSet(self, dao):
-        b_page(2)
+        a = b_page(2)
 
         # case no current page
         dao.currentTitre = "omk"
         assert dao._currentTitre == ""
-        dao.currentPage = 1
+        dao.currentPage = a[0].id
         with patch.object(dao.timer_titre, "start") as m:
             dao.currentTitre = "mokmk"
             assert dao.currentTitre == "mokmk"
@@ -78,17 +87,17 @@ class TestPageMixin:
             assert m.call_args_list == [call(500)]
 
     def test_UnderscoreCurrentTitreSet(self, dao, qtbot):
-        f_page()
-        dao.currentPage = 1
+        a = f_page()
+        dao.currentPage = a.id
         dao.TITRE_TIMER_DELAY = 0
         with qtbot.wait_signal(dao.currentTitreChanged):
             dao.currentTitre = "aaa"
         with db_session:
-            assert dao.db.Page[1].titre == "aaa"
+            assert dao.db.Page[a.id].titre == "aaa"
 
     def test_setCurrentTitre(self, dao, qtbot):
-        f_page()
-        dao.currentPage = 1
+        a = f_page()
+        dao.currentPage = a.id
         dao.TITRE_TIMER_DELAY = 0
         with qtbot.assertNotEmitted(dao.currentTitreChanged):
             dao.setCurrentTitre("blabla")
@@ -110,43 +119,45 @@ class TestPageMixin:
             assert dao.pageModel.page.id == p1.id
 
     def test_removePAge(self, dao, qtbot):
-        f_page()
-        dao.removePage(1)
+        a = f_page()
+        dao.removePage(a.id)
         with db_session:
             assert not dao.db.Page.get(id=1)
-        assert dao.currentPage == 0
+        assert dao.currentPage == ""
 
     def test_removePAge_no_item_in_db(self, dao, qtbot):
         dao.removePage(99)
-        assert dao.currentPage == 0
+        assert dao.currentPage == ""
 
     def test_removePAge_blanck_if_currentItem(self, dao):
-        f_page()
-        dao.currentPage = 1
-        dao.removePage(1)
-        assert dao.currentPage == 0
+        a = f_page()
+        dao.currentPage = a.id
+        dao.removePage(a.id)
+        assert dao.currentPage == ""
 
-    def test_allow_currentPAge_can_be_0(self, dao):
-        f_page()
-        dao.currentPage = 1
-        dao.currentPage = 0
+    def test_allow_currentPAge_can_be_empty(self, dao):
+        a = f_page()
+        dao.currentPage = a.id
+        dao.currentPage = ""
 
     def test_exportToPdf(selfsekf, dao):
-        f_page(titre="blà")
-        dao.currentPage = 1
+        a = f_page(titre="blà")
+        dao.currentPage = a.id
         with patch("package.database_mixins.page_mixin.QDesktopServices.openUrl") as m:
             with patch("package.database_mixins.page_mixin.soffice_convert") as v:
                 dao.exportToPDF()
-                v.assert_called_with(1, "pdf:writer_pdf_Export", "bla.pdf", dao.ui)
+                v.assert_called_with(
+                    str(a.id), "pdf:writer_pdf_Export", "bla.pdf", dao.ui
+                )
                 m.assert_called_with(v.return_value.as_uri())
 
     def test_exportToOdt(selfsekf, dao):
-        f_page(titre="blà")
-        dao.currentPage = 1
+        a = f_page(titre="blà")
+        dao.currentPage = a.id
         with patch("package.database_mixins.page_mixin.QDesktopServices.openUrl") as m:
             with patch("package.database_mixins.page_mixin.soffice_convert") as v:
                 dao.exportToOdt()
-                v.assert_called_with(1, "odt", "bla.odt", dao.ui)
+                v.assert_called_with(str(a.id), "odt", "bla.odt", dao.ui)
                 m.assert_called_with(v.return_value.as_uri())
 
 
@@ -155,9 +166,11 @@ def create_matiere(ddbr):
     gp = f_groupeMatiere(annee=2019)
 
     def activ(mat):
-        f_activite(nom="un", matiere=mat)
-        f_activite(nom="deux", matiere=mat)
-        f_activite(nom="trois", matiere=mat)
+        return (
+            f_activite(nom="un", matiere=mat),
+            f_activite(nom="deux", matiere=mat),
+            f_activite(nom="trois", matiere=mat),
+        )
 
     _mats = []
     a = f_matiere("un", _fgColor=4294967295, _bgColor=4294901760, groupe=gp.id)
@@ -169,35 +182,44 @@ def create_matiere(ddbr):
     a = f_matiere("quatre", _fgColor=4294967295, _bgColor=4294901760, groupe=gp.id)
     _mats.append(str(a.id))
     gp._mats = _mats
+    gp._acts = []
     for m in gp._mats:
-        activ(m)
+        gp._acts.append(activ(m))
     return gp
 
 
 class TestMatiereMixin:
-    def test_init(self, dao):
+    def test_check_args(self, dao: DatabaseObject):
+        check_args(dao.getMatiereIndexFromId, str, int)
+        check_args(dao.matieresListRefresh)
+        check_args(dao.peuplerLesMatieresParDefault, int)
 
-        assert dao._currentMatiere == 0
+    def test_init(self, dao):
+        assert dao._currentMatiere == ""
 
     def test_currentMatiere(self, dao, qtbot, create_matiere):
+        assert dao.currentMatiere == ""
         dao.init_matieres()
-        assert dao.currentMatiere == 0
 
         # from int
+        with db_session:
+            mats = [x for x in Matiere.select()]
+        mat2 = mats[1]
         with qtbot.waitSignal(dao.currentMatiereChanged, timeout=100):
-            dao.currentMatiere = 2
-        dao.currentMatiere = 2  # same
-        assert dao.currentMatiere == 2
+            dao.currentMatiere = mat2.id
+
+        assert dao.currentMatiere == str(mat2.id)
         dao.currentMatiere = "fez"  # not in do nothing
-        assert dao.currentMatiere == 2
+        assert dao.currentMatiere == str(mat2.id)
 
         # from index
         with qtbot.waitSignal(dao.matiereReset):
             dao.setCurrentMatiereFromIndex(2)
-        assert dao.currentMatiere == 3
+        assert dao.currentMatiere == str(mats[2].id)
 
         # get index from id
-        assert dao.getMatiereIndexFromId(3) == 2
+        print(mats)
+        assert dao.getMatiereIndexFromId(mats[2].id) == 2
         assert dao.getMatiereIndexFromId(99999) is 0
 
     def test_currentMatiereItem(self, dao):
@@ -211,38 +233,54 @@ class TestMatiereMixin:
         # listnom
         reslist = [
             {
-                "activites": [1, 2, 3],
+                "activites": [
+                    str(x._acts[0][0].id),
+                    str(x._acts[0][1].id),
+                    str(x._acts[0][2].id),
+                ],
                 "bgColor": QColor("red"),
                 "fgColor": QColor("white"),
-                "id": int(x._mats[0]),
+                "id": x._mats[0],
                 "groupe": str(x.id),
                 "nom": "un",
                 "position": 0,
             },
             {
-                "activites": [4, 5, 6],
+                "activites": [
+                    str(x._acts[1][0].id),
+                    str(x._acts[1][1].id),
+                    str(x._acts[1][2].id),
+                ],
                 "bgColor": QColor("red"),
                 "fgColor": QColor("white"),
                 "groupe": str(x.id),
-                "id": int(x._mats[1]),
+                "id": x._mats[1],
                 "nom": "deux",
                 "position": 1,
             },
             {
-                "activites": [7, 8, 9],
+                "activites": [
+                    str(x._acts[2][0].id),
+                    str(x._acts[2][1].id),
+                    str(x._acts[2][2].id),
+                ],
                 "bgColor": QColor("red"),
                 "fgColor": QColor("white"),
                 "groupe": str(x.id),
-                "id": int(x._mats[2]),
+                "id": x._mats[2],
                 "nom": "trois",
                 "position": 2,
             },
             {
-                "activites": [10, 11, 12],
+                "activites": [
+                    str(x._acts[3][0].id),
+                    str(x._acts[3][1].id),
+                    str(x._acts[3][2].id),
+                ],
                 "bgColor": QColor("red"),
                 "fgColor": QColor("white"),
                 "groupe": str(x.id),
-                "id": int(x._mats[3]),
+                "id": x._mats[3],
                 "nom": "quatre",
                 "position": 3,
             },
@@ -250,23 +288,23 @@ class TestMatiereMixin:
         assert dao.matieresList == reslist
 
         # refresh
-        f_matiere(
+        cinq = f_matiere(
             "cinq",
             groupe=f_groupeMatiere(annee=2019),
             _fgColor=4294967295,
             _bgColor=4294901760,
         )
-        f_activite(matiere=5)
-        f_activite(matiere=5)
-        f_activite(matiere=5)
+        c1 = f_activite(matiere=cinq.id)
+        c2 = f_activite(matiere=cinq.id)
+        c3 = f_activite(matiere=cinq.id)
         dao.matieresListRefresh()
         reslist.append(
             {
-                "activites": [13, 14, 15],
+                "activites": [str(c1.id), str(c2.id), str(c3.id)],
                 "bgColor": QColor("red"),
                 "fgColor": QColor("white"),
-                "groupe": 2,
-                "id": 5,
+                "groupe": str(cinq.groupe.id),
+                "id": str(cinq.id),
                 "nom": "cinq",
                 "position": 0,
             }
@@ -275,12 +313,12 @@ class TestMatiereMixin:
 
     def test_pagesParSection(self, dao):
         assert dao.pagesParSection == []
-        b_activite(3)
-        p = f_page(td=True, activite=3)
-        dao.currentMatiere = 1
-        assert dao.pagesParSection[0]["id"] == 1
-        assert dao.pagesParSection[1]["id"] == 2
-        assert dao.pagesParSection[2]["id"] == 3
+        acts = b_activite(3)
+        p = f_page(td=True, activite=str(acts[2].id))
+        dao.currentMatiere = p["matiere"]
+        assert dao.pagesParSection[0]["id"] == str(acts[0].id)
+        assert dao.pagesParSection[1]["id"] == str(acts[1].id)
+        assert dao.pagesParSection[2]["id"] == str(acts[2].id)
         assert dao.pagesParSection[2]["pages"] == [p]
 
     def test_matiere_dispatch(self, ddbr):
@@ -1405,7 +1443,7 @@ class TestDatabaseObject:
         a = f_page()
         dao.currentPage = 1
         dao.matiereReset.emit()
-        assert dao.currentPage == 0
+        assert dao.currentPage == ""
 
     def test_changeAnnee(self, dao, qtbot):
         # setup
@@ -1423,7 +1461,7 @@ class TestDatabaseObject:
         with qtbot.waitSignal(dao.anneeActiveChanged):
             dao.changeAnnee.emit(2020)
             assert dao.annee_active == 2020
-            assert dao.currentPage == 0
+            assert dao.currentPage == ""
             assert dao.currentMatiere == 0
             assert dao.m_d.annee.id == 2020
             assert len(dao.recentsModel) == 0

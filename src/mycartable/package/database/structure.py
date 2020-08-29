@@ -76,6 +76,9 @@ class Matiere(db.Entity, ColorMixin, PositionMixin):
         with self.init_position(position, groupe) as _position:
             super().__init__(groupe=groupe, _position=_position, **kwargs)
 
+    def __repr__(self):
+        return f"Matiere[{self.nom}]"
+
     @property
     def activites_list(self):
         return self.to_dict()["activites"]

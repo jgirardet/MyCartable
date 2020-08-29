@@ -48,14 +48,14 @@ MATIERE_GROUPE_BASE = [
         "id": 4,
         "bgColor": (60, SATURATION_BASE, VALUE_BASE),
     },  # jaune
-    {"nom": "Langues", "id": 5, "bgColor": (0, SATURATION_BASE, VALUE_BASE)},  # Rouge
+    {"nom": "Langues", "id": 5, "bgColor": (0, SATURATION_BASE, VALUE_BASE),},  # Rouge
     {
         "nom": "Sciences",
         "id": 6,
         "bgColor": (30, SATURATION_BASE, VALUE_BASE),
     },  # orange
-    {"nom": "Arts", "id": 7, "bgColor": (270, SATURATION_BASE, VALUE_BASE)},  # violet
-    {"nom": "Divers", "id": 1, "bgColor": (110, SATURATION_BASE, VALUE_BASE)},  # vert
+    {"nom": "Arts", "id": 7, "bgColor": (270, SATURATION_BASE, VALUE_BASE),},  # violet
+    {"nom": "Divers", "id": 1, "bgColor": (110, SATURATION_BASE, VALUE_BASE),},  # vert
 ]
 
 

@@ -10,7 +10,7 @@ Item {
 
     CasTest {
         property var model: [{
-            "id": 2,
+            "id": "groupe2",
             "nom": "Mathématiques",
             "annee": 2019,
             "position": 0,
@@ -18,7 +18,7 @@ Item {
             "bgColor": "red",
             "nbPages": 0
         }, {
-            "id": 3,
+            "id": "groupe3",
             "nom": "Francais",
             "annee": 2019,
             "position": 1,
@@ -26,7 +26,7 @@ Item {
             "bgColor": "blue",
             "nbPages": 1
         }, {
-            "id": 4,
+            "id": "groupe4",
             "nom": "Histoire-Géo",
             "annee": 2019,
             "position": 2,
@@ -36,15 +36,15 @@ Item {
         }]
 
         property var modelMatieres:  [
-          {'id': 15, 'nom': 'Physique', 'activites': [43, 44, 45], 'groupe': 6, 'fgColor': "red", 'bgColor': "blue", 'position': 0, "nbPages": 3},
-          {'id': 16, 'nom': 'Chimie', 'activites': [46, 47, 48], 'groupe': 6, 'fgColor': "red", 'bgColor': "yellow", 'position': 1, "nbPages": 3},
-          {'id': 17, 'nom': 'Technologie', 'activites': [49, 50, 51], 'groupe': 6, 'fgColor': "red", 'bgColor': "orange", 'position': 2, "nbPages": 3},
-          {'id': 18, 'nom': 'SVT', 'activites': [52, 53, 54], 'groupe': 6, 'fgColor': "red", 'bgColor': "purple", 'position': 3, "nbPages": 3}]
+          {'id': "mat15", 'nom': 'Physique', 'activites': ["43", "44", "45"], 'groupe': "groupe6", 'fgColor': "red", 'bgColor': "blue", 'position': 0, "nbPages": 3},
+          {'id': "mat16", 'nom': 'Chimie', 'activites': ["46", "47", "48"], 'groupe': "groupe6", 'fgColor': "red", 'bgColor': "yellow", 'position': 1, "nbPages": 3},
+          {'id': "mat17", 'nom': 'Technologie', 'activites': ["49", "50", "51"], 'groupe': "groupe6", 'fgColor': "red", 'bgColor': "orange", 'position': 2, "nbPages": 3},
+          {'id': "mat18", 'nom': 'SVT', 'activites': ["52", "53", "54"], 'groupe': "groupe6", 'fgColor': "red", 'bgColor': "purple", 'position': 3, "nbPages": 3}]
 
         property var modelActivites: [
-            {"id": 1, "matiere": 1, "nom": "act1", "position": 0, "nbPages": 0},
-            {"id": 2, "matiere": 1, "nom": "act2", "position": 1, "nbPages": 1},
-            {"id": 3, "matiere": 1, "nom": "act3", "position": 2, "nbPages": 2},
+            {"id": "ac1", "matiere": "mat1", "nom": "act1", "position": 0, "nbPages": 0},
+            {"id": "ac2", "matiere": "mat1", "nom": "act2", "position": 1, "nbPages": 1},
+            {"id": "ac3", "matiere": "mat1", "nom": "act3", "position": 2, "nbPages": 2},
         ]
 
         property var zero
@@ -106,7 +106,7 @@ Item {
             un.baseColor = "yellow"
             verify(Qt.colorEqual(un.text.background.gradient.stops[0].color, "yellow") , `${un.text.background.gradient.stops[0].color} != ${"yellow"}`);
             verify(Qt.colorEqual(un.colorbutton.gradient.stops[0].color, "yellow") , `${un.colorbutton.gradient.stops[0].color} != ${"yellow"}`);
-            compare(ddb._applyGroupeDegrade, [3, "#ffff00"])
+            compare(ddb._applyGroupeDegrade, ["groupe3", "#ffff00"])
         }
 
         function test_change_gradient_color_reject() {
@@ -128,7 +128,7 @@ Item {
         function test_moddif_nom_groupe() {
           un.text.text = "blabla"
           compare(un.nom, "blabla")
-          compare(ddb._updateGroupeMatiereNom, [3, "blabla"])
+          compare(ddb._updateGroupeMatiereNom, ["groupe3", "blabla"])
         }
 
         function test_moddif_nom_groupe_empty() {
@@ -155,7 +155,7 @@ Item {
           ddb._moveGroupeMatiereTo = res
           mouseClick(un.children[0].children[1])
           compare(tested.model, res)
-          compare(ddb._moveGroupeMatiereTo, [3,0])
+          compare(ddb._moveGroupeMatiereTo, ["groupe3",0])
 
         }
         function test_down_groupe() {
@@ -174,7 +174,7 @@ Item {
           ddb._moveGroupeMatiereTo = res
           mouseClick(un.children[0].children[2])
           compare(tested.model, res)
-          compare(ddb._moveGroupeMatiereTo, [3,2])
+          compare(ddb._moveGroupeMatiereTo, ["groupe3",2])
 
         }
         function test_add_groupe() {
@@ -190,7 +190,7 @@ Item {
           ddb._addGroupeMatiere = res
           mouseClick(un.children[0].children[3])
           compare(tested.model, res)
-          compare(ddb._addGroupeMatiere, [3])
+          compare(ddb._addGroupeMatiere, ["groupe3"])
         }
 
         function test_remove_groupe() {
@@ -209,7 +209,7 @@ Item {
           ddb._removeGroupeMatiere = res
           mouseClick(zero.children[0].children[4])
           compare(tested.model, res)
-          compare(ddb._removeGroupeMatiere, [2])
+          compare(ddb._removeGroupeMatiere, ["groupe2"])
 
         }
 
@@ -222,7 +222,7 @@ Item {
           var res = [{'id': 18, 'nom': 'Hello', 'activites': [52, 53, 54], 'groupe': 6, 'fgColor': "red", 'bgColor': "purple", 'position': 3, "nbPages": 3}]
           ddb._reApplyGroupeDegrade  = res
           mouseClick(button)
-          compare(ddb._addMatiere, ["3"])
+          compare(ddb._addMatiere, ["groupe3", true])
           compare(un.changematiere.model,res)
           var newmate0 = tested.itemAtIndex(1).changematiere.itemAtIndex(0)
           compare(newmate0.matieretexte.selectedText, "Hello")
@@ -244,7 +244,7 @@ Item {
           var mat0 = tested.itemAtIndex(0).changematiere.itemAtIndex(0).children[0]
           mat0.children[0].text = "blabla"
           compare(mat0.parent.nom, "blabla")
-          compare(ddb._updateMatiereNom, [15, "blabla"])
+          compare(ddb._updateMatiereNom, ["mat15", "blabla"])
         }
 
         function test_moddif_nom_matiere_mepty() {
@@ -285,29 +285,29 @@ Item {
         }
 
         function test_up_matiere() {
-          const res = [ {'id': 15, 'nom': 'Physique', 'activites': [43, 44, 45], 'groupe': 6, 'fgColor': "red", 'bgColor': "blue", 'position': 0, "nbPages": 3}]
+          const res = [ {'id': "15", 'nom': 'Physique', 'activites': ["43", "44", "45"], 'groupe': "6", 'fgColor': "red", 'bgColor': "blue", 'position': 0, "nbPages": 3}]
           ddb._reApplyGroupeDegrade = res
           mouseClick(mat1.children[3])
-          compare(ddb._moveMatiereTo, [16, 0])
+          compare(ddb._moveMatiereTo, ["mat16", 0])
           var cm = tested.itemAtIndex(0).changematiere
           compare(cm.model, res)
         }
 
         function test_down_matiere() {
-          const res = [ {'id': 15, 'nom': 'Physique', 'activites': [43, 44, 45], 'groupe': 6, 'fgColor': "red", 'bgColor': "blue", 'position': 0, "nbPages": 3}]
+          const res = [ {'id': "15", 'nom': 'Physique', 'activites': ["43", "44", "45"], 'groupe': "6", 'fgColor': "red", 'bgColor': "blue", 'position': 0, "nbPages": 3}]
           ddb._reApplyGroupeDegrade = res
           mouseClick(mat1.children[4], 1, 1)
-          compare(ddb._moveMatiereTo, [16, 2])
+          compare(ddb._moveMatiereTo, ["mat16", 2])
           var cm = tested.itemAtIndex(0).changematiere
           compare(cm.model, res)
         }
 
         function test_add_matiere() {
           const res = modelMatieres[0]
-          ddb._reApplyGroupeDegrade = [{'id': 18, 'nom': 'SVT', 'activites': [52, 53, 54], 'groupe': 6, 'fgColor': "red", 'bgColor': "purple", 'position': 3, "nbPages": 3}]
+          ddb._reApplyGroupeDegrade = [{'id': "18", 'nom': 'SVT', 'activites': ["52", "53", "54"], 'groupe': "6", 'fgColor': "red", 'bgColor': "purple", 'position': 3, "nbPages": 3}]
 
           mouseClick(mat0.children[5])
-          compare(ddb._reApplyGroupeDegrade, [2])
+          compare(ddb._reApplyGroupeDegrade, ["groupe2"])
           var newmate0 = tested.itemAtIndex(0).changematiere.itemAtIndex(0)
           compare(newmate0.matieretexte.selectedText, "SVT")
           compare(newmate0.matieretexte.activeFocus, true)
@@ -317,7 +317,7 @@ Item {
           const res = [ {'id': 15, 'nom': 'Physique', 'activites': [43, 44, 45], 'groupe': 6, 'fgColor': "red", 'bgColor': "blue", 'position': 0, "nbPages": 3}]
           ddb._reApplyGroupeDegrade = res
           mouseClick(mat0.children[6])
-          compare(ddb._removeMatiere, [15])
+          compare(ddb._removeMatiere, ["mat15"])
           var cm = tested.itemAtIndex(0).changematiere
           compare(cm.model, res)
         }
@@ -362,44 +362,44 @@ Item {
           const res = [{"id": 5, "matiere": 1, "nom": "act1", "position": 0, "nbPages": 0}]
           ddb._moveActiviteTo = res
           mouseClick(activite1.children[2])
-          compare(ddb._moveActiviteTo, [2, 0])
+          compare(ddb._moveActiviteTo, ["ac2", 0])
           compare(changeactivite0.model, res)
         }
 
         function test_down_activite() {
         changeactivite0.state = "visible"
           tryCompare(changeactivite0.transitions[0], "running", false)
-          const res = [{"id": 6, "matiere": 1, "nom": "act1", "position": 0, "nbPages": 0}]
+          const res = [{"id": "6", "matiere": "1", "nom": "act1", "position": 0, "nbPages": 0}]
           ddb._moveActiviteTo = res
           mouseClick(activite0.children[3])
-          compare(ddb._moveActiviteTo, [1, 1])
+          compare(ddb._moveActiviteTo, ["ac1", 1])
           compare(changeactivite0.model, res)
         }
 
         function test_add_activite() {
           changeactivite0.state = "visible"
           tryCompare(changeactivite0.transitions[0], "running", false)
-          const res = [{"id": 6, "matiere": 1, "nom": "novonovo", "position": 0, "nbPages": 0}]
+          const res = [{"id": "6", "matiere": "1", "nom": "novonovo", "position": 0, "nbPages": 0}]
           ddb._addActivite = res
           mouseClick(activite0.children[4])
-          compare(ddb._addActivite, [1])
+          compare(ddb._addActivite, ["ac1",undefined])
           compare(changeactivite0.model, res)
         }
 
         function test_remove_activite() {
         changeactivite0.state = "visible"
           tryCompare(changeactivite0.transitions[0], "running", false)
-          const res = [{"id": 6, "matiere": 1, "nom": "act3", "position": 0, "nbPages": 0}]
+          const res = [{"id": "6", "matiere": "1", "nom": "act3", "position": 0, "nbPages": 0}]
           ddb._removeActivite = res
           mouseClick(activite0.children[5])
-          compare(ddb._removeActivite, [1]) // attention ne pas choisir un avec nbpase > 0
+          compare(ddb._removeActivite, ["ac1"]) // attention ne pas choisir un avec nbpage > 0
           compare(changeactivite0.model, res)
         }
 
         function test_moddif_nom() {
           activite2.children[0].text = "blabla"
           compare(activite2.nom, "blabla")
-          compare(ddb._updateActiviteNom, [3, "blabla"])
+          compare(ddb._updateActiviteNom, ["ac3", "blabla"])
         }
         function test_moddif_nom_empty() {
           activite2.children[0].text = "a"

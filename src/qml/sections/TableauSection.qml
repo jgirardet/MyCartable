@@ -8,7 +8,7 @@ Item {
 
     id: root
 
-    property int sectionId
+    property string sectionId
     property var sectionItem
 
     width: grid.width
@@ -81,7 +81,7 @@ Item {
 
                 property int colonne: modelData.x
                 property int ligne: modelData.y
-                property int tableauSection: root.sectionId
+                property string tableauSection: root.sectionId
 
                 function changeCase(event) {
                     var obj;

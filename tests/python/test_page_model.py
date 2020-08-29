@@ -1,7 +1,7 @@
 import pytest
 
 from PySide2.QtCore import Qt, QModelIndex
-from fixtures import check_super_init, check_begin_end
+from fixtures import check_super_init, check_begin_end, check_args
 from factory import f_page, b_section, f_section
 from package.page.page_model import PageModel
 from pony.orm import db_session, make_proxy
@@ -24,6 +24,11 @@ def pm(ddbr, qtbot):
 
 
 class TestPAgeModel:
+    def test_check_args(self, pm):
+        a = pm(1)
+        check_args(a.move, [int, int], bool)
+        check_args(a.removeSection, [int], bool)
+
     def test_base_init(self, qtbot, qtmodeltester):
         assert check_super_init("package.page.page_model.QAbstractListModel", PageModel)
         b = PageModel()

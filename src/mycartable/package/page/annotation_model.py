@@ -60,15 +60,17 @@ class AnnotationModel(QAbstractListModel):
         return default
 
     @Slot(int, result=bool)  # appel par index
-    @Slot(int, bool, result=bool)  # appel par id en mettant True
+    @Slot(str, bool, result=bool)  # appel par id en mettant True
     def removeRow(self, row, section=False):
         return self.removeRows(row, 0, parent=QModelIndex(), section=section)
 
     def removeRows(
         self, row: int, count: int, parent: QModelIndex(), section=False
     ) -> bool:
-        # count = nombre de row à supprimer en plus
-        # section: row est un sectionId, pas un index
+        """
+        count = nombre de row à supprimer en plus
+        section: row est un sectionId, pas un index
+        """
 
         with db_session:
             anots = self.section.annotations.select()[:]

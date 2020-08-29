@@ -6,6 +6,7 @@ from PySide2.QtCore import QUrl, Qt
 from fixtures import check_args
 from package import constantes
 from package.database_mixins.changematieres_mixin import ChangeMatieresMixin
+from package.database_mixins.image_section_mixin import ImageSectionMixin
 from package.database_mixins.matiere_mixin import MatieresDispatcher
 from package.database_object import DatabaseObject
 from factory import *
@@ -219,9 +220,8 @@ class TestMatiereMixin:
         assert dao.currentMatiere == str(mats[2].id)
 
         # get index from id
-        print(mats)
-        assert dao.getMatiereIndexFromId(mats[2].id) == 2
-        assert dao.getMatiereIndexFromId(99999) is 0
+        assert dao.getMatiereIndexFromId(str(mats[2].id)) == 2
+        assert dao.getMatiereIndexFromId("99999") is 0
 
     def test_currentMatiereItem(self, dao):
         m = f_matiere(td=True)
@@ -624,6 +624,10 @@ class TestSectionMixin:
 
 
 class TestEquationMixin:
+    def test_check_args(self, dao):
+        check_args(dao.updateEquation, [str, str, int, str], dict)
+        check_args(dao.isEquationFocusable, [str, int], bool)
+
     def test_update(self, dao, qtbot):
         e = f_equationSection(content=" \n1\n ")
         event = json.dumps({"key": int(Qt.Key_2), "text": "2", "modifiers": None})
@@ -637,6 +641,9 @@ class TestEquationMixin:
 
 
 class TestImageSectionMixin:
+    def test_check_args(self, dao: ImageSectionMixin):
+        check_args(dao.pivoterImage, [str, int], bool)
+
     @pytest.mark.freeze_time("2344-9-21 7:48:5")
     def test_new_image_path(self, dao):
         with patch(
@@ -893,7 +900,7 @@ class TestChangeMatieresMixin:
         check_args(dao.updateMatiereNom, [str, str])
         check_args(dao.addMatiere, [str, bool], list, slot_order=0)
         check_args(dao.addMatiere, [str], list, slot_order=1)
-        check_args(dao.getGroupeMatieres, str, list)
+        check_args(dao.getGroupeMatieres, int, list)
         check_args(dao.moveGroupeMatiereTo, [str, int], list)
         check_args(dao.removeGroupeMatiere, str, list)
         check_args(dao.updateGroupeMatiereNom, [str, str])

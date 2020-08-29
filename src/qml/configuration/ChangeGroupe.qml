@@ -23,7 +23,7 @@ ListView {
         property alias colorbutton: colorbutton
         property alias changematiere: changematiere
         property color baseColor: modelData.bgColor
-        property int groupeid: modelData.id
+        property string groupeid: modelData.id
         property string nom: modelData.nom
         property int nbPages: modelData.nbPages
         property bool firstLoad: true
@@ -133,7 +133,7 @@ ListView {
                     ToolTip.visible: hovered
                     ToolTip.text: "Ajouter une première matière"
                     onClicked: {
-                        ddb.addMatiere(groupeid.toString());
+                        ddb.addMatiere(groupeid, true);
                         groupe.applyDegradeToMatiere(0, true);
                     }
 

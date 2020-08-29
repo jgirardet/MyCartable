@@ -31,6 +31,8 @@ class PageModel(QAbstractListModel):
 
     @db_session
     def data(self, index, role: int) -> typing.Any:
+        if not self.page:
+            return
         if not index.isValid():
             return None
         elif role == self.PageRole:
@@ -152,8 +154,9 @@ class PageModel(QAbstractListModel):
 
     @Property(int, notify=lastPositionChanged)
     def lastPosition(self):
-        with db_session:
-            return self.page.lastPosition
+        if self.page:
+            with db_session:
+                return self.page.lastPosition
 
     @lastPosition.setter
     def lastPosition_set(self, value: int):

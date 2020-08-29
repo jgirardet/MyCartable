@@ -12,7 +12,7 @@ class EquationMixin:
 
     equationChanged = Signal()
 
-    @Slot(int, str, int, str, result="QVariantMap")
+    @Slot(str, str, int, str, result="QVariantMap")
     def updateEquation(self, sectionId, content, curseur, event):
         event = json.loads(event)
         new_lines, new_curseur = TextEquation(content, curseur, event)()

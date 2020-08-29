@@ -6,7 +6,7 @@ import "qrc:/qml/menu"
 Image {
     id: root
 
-    property int sectionId
+    property string sectionId
     property var sectionItem
     property var model
     property MouseArea mousearea: mousearea

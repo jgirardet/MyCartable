@@ -4,7 +4,7 @@ import QtQuick.Controls 2.15
 TextArea {
     id: root
 
-    property int sectionId
+    property string sectionId
     property var sectionItem
     property int previousCursorPosition
 

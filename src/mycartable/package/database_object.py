@@ -105,7 +105,6 @@ class DatabaseObject(QObject, *MIXINS):
     def onChangeAnnee(self, value: int):
         self.currentPage = ""
         self.currentMatiere = ""
-        print(self.currentMatiere)
         self.anneeActive = value
         self.init_matieres(annee=value)
         self.recentsModelChanged.emit()

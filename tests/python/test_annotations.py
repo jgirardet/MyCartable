@@ -46,6 +46,14 @@ def am(ddbr):
 
 
 class TestAnnotationModel:
+    def test_check_args(self, am, qtbot):
+        a = am(1)
+        check_args(a.removeRow, [str, bool], bool, slot_order=0)
+        check_args(a.removeRow, [int], bool, slot_order=1)
+        check_args(a.slotReset, [str], bool)
+        check_args(a.newDessin, dict)
+        check_args(a.addAnnotation, [float, float, float, float,])
+
     def test_base_init(self, qtbot, qtmodeltester):
         assert check_super_init(
             "package.page.page_model.QAbstractListModel", AnnotationModel
@@ -207,7 +215,6 @@ class TestAnnotationModel:
 
     def test_addannotation(self, am, qtbot):
         a = am(1)
-        check_args(a.addAnnotation, [float, float, float, float])
         with qtbot.waitSignal(a.rowsInserted):
             a.addAnnotation(0.1, 0.2, 0.3, 0.4)
         with db_session:
@@ -231,7 +238,6 @@ class TestAnnotationModel:
 
     def test_newDessin(self, am, qtbot):
         a = am(1)
-        check_args(a.newDessin, dict)
         with qtbot.waitSignal(a.rowsInserted):
             a.newDessin(
                 {

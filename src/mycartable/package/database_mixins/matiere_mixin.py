@@ -60,7 +60,6 @@ class MatiereMixin:
 
     @Slot(str, result=int)
     def getMatiereIndexFromId(self, matiere_id):
-        print(self.m_d.id_index)
         if not hasattr(self, "m_d"):
             return 0
         try:
@@ -121,13 +120,13 @@ class MatieresDispatcher:
         self.matieres_list_nom = self._build_matieres_list_nom()
 
     def _build_nom_id(self):
-        return {p.nom: p.id for p in self.query}
+        return {p.nom: str(p.id) for p in self.query}
 
     def _build_id_nom(self):
-        return {p.id: p.nom for p in self.query}
+        return {str(p.id): p.nom for p in self.query}
 
     def _build_id_index(self):
-        return {p.id: index for index, p in enumerate(self.query)}
+        return {str(p.id): index for index, p in enumerate(self.query)}
 
     def _build_matieres_list_nom(self):
         return tuple(self.nom_id.keys())

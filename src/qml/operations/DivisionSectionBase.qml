@@ -5,7 +5,7 @@ import QtQuick.Layouts 1.14
 RowLayout {
     id: root
 
-    property int sectionId
+    property string sectionId
     property var sectionItem
     property var model
 

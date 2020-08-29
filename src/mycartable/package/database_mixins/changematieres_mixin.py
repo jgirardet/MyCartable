@@ -15,8 +15,8 @@ class ChangeMatieresMixin:
     Partie Activités
     """
 
-    @Slot(str, result="QVariantList")
-    @Slot(str, bool, result="QVariantList")
+    @Slot(str, result="QVariantList")  # ajout par activite id
+    @Slot(str, bool, result="QVariantList")  # append via matiere id
     @db_session
     def addActivite(self, someId: str, append: bool = False) -> List[dict]:
         matiereid: str
@@ -55,7 +55,6 @@ class ChangeMatieresMixin:
 
     def get_activites(self, matiere: str) -> List[dict]:
         res = []
-        print(matiere)
         for x in Activite.get_by_position(matiere):
             temp = x.to_dict()
             temp["nbPages"] = len(temp.pop("pages"))  # x.pages.count()
@@ -125,9 +124,9 @@ class ChangeMatieresMixin:
     Partie GroupeMatiere
     """
 
-    @Slot(str, result="QVariantList")
+    @Slot(int, result="QVariantList")
     @db_session
-    def getGroupeMatieres(self, annee: str) -> List[dict]:
+    def getGroupeMatieres(self, annee: int) -> List[dict]:
         return self.get_groupe_matieres(annee)
 
     def get_groupe_matieres(self, annee: int) -> List[dict]:

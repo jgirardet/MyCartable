@@ -138,6 +138,8 @@ class PositionMixin:
     @classmethod
     def get_by_position(cls, ref_id):
         base_class = cls.base_class_position or cls
+        if isinstance(ref_id, str):
+            ref_id = UUID(ref_id)
         return select(
             p
             for p in base_class

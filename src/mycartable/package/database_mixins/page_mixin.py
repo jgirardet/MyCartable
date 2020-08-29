@@ -61,6 +61,7 @@ class PageMixin:
         self._currentPage = new_id
         logger.debug(f"CurrentPage changed to {new_id}")
 
+        # breakpoint()
         if new_id:
             with db_session:
                 page = self.db.Page[new_id].to_dict()

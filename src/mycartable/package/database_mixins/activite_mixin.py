@@ -20,13 +20,13 @@ class ActiviteMixin:
             new["bgColor"] = m.bgColor
             for ac in m.activites.order_by(lambda x: x.position):
                 new["activites"].append(
-                    {"nom": ac.nom, "id": ac.id,}
+                    {"nom": ac.nom, "id": str(ac.id),}
                 )
             res.append(new)
         return res
 
-    @Slot(int, int)
+    @Slot(str, str)
     @db_session
-    def changeActivite(self, pageId: int, activiteId: int):
+    def changeActivite(self, pageId: str, activiteId: str):
         Page[pageId].activite = activiteId
         self.pageActiviteChanged.emit()

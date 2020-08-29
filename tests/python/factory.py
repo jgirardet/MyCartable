@@ -43,7 +43,7 @@ def f_annee(id=2019, niveau=None, user=None, td=False):
     niveau = niveau or "cm" + str(id)
     with db_session:
         if user is not None:
-            user = user if isinstance(user, int) else user.id
+            user = user if isinstance(user, str) else str(user.id)
         else:
             user = f_user()
             # user = Utilisateur.user()
@@ -65,8 +65,8 @@ def f_groupeMatiere(nom=None, annee=None, **kwargs):
 
 
 def b_groupeMatiere(nb, **kwargs):
-    for i in range(nb):
-        f_groupeMatiere(**kwargs)
+
+    return [f_groupeMatiere(**kwargs) for i in range(nb)]
 
 
 def f_matiere(
@@ -111,8 +111,8 @@ def b_matiere(nb, groupe=None, **kwargs):
         groupe = groupe if isinstance(groupe, (str, UUID)) else groupe.id
     else:
         groupe = f_groupeMatiere()
-    for i in range(nb):
-        f_matiere(groupe=groupe, **kwargs)
+
+    return [f_matiere(groupe=groupe, **kwargs) for i in range(nb)]
 
 
 def f_activite(nom=None, matiere=None, td=False):
@@ -138,7 +138,7 @@ def f_page(created=None, activite=None, titre=None, td=False, lastPosition=None)
     """actvite int = id mais str = index"""
     activite = activite or f_activite()
     if isinstance(activite, Activite):
-        activite = activite.id
+        activite = str(activite.id)
     created = created or f_datetime()
     titre = titre or " ".join(gen.text.words(5))
     with db_session:

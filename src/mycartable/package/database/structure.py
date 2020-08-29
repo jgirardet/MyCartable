@@ -24,6 +24,11 @@ class Annee(db.Entity):
             matiere for groupe in self.groupes for matiere in groupe.matieres
         ).order_by(lambda m: (m.groupe.position, m.position))
 
+    def to_dict(self, *args, **kwargs):
+        dico = super().to_dict(*args, **kwargs)
+        dico["user"] = str(dico["user"])
+        return dico
+
 
 class GroupeMatiere(db.Entity, PositionMixin, ColorMixin):
     referent_attribute_name = "annee"

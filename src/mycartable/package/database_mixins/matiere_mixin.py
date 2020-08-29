@@ -41,8 +41,10 @@ class MatiereMixin:
                 try:
                     Matiere[value]
                 except ValueError:
+                    self._currentMatiere = ""
                     return
                 except ObjectNotFound:
+                    self._currentMatiere = ""
                     return
             self._currentMatiere = value
             logger.debug(f"current matiere set to: {self._currentMatiere}")
@@ -96,20 +98,6 @@ class MatiereMixin:
         with db_session:
             mat = self.db.Matiere[self.currentMatiere]
             return mat.to_dict()
-
-    @Slot(int)
-    @db_session
-    def peuplerLesMatieresParDefault(self, annee):
-        print(MATIERE_GROUPE)
-
-        gm = [GroupeMatiere(**x, annee=annee) for x in MATIERE_GROUPE]
-        flush()
-        logger.info(f"{len(gm)} groupes de matières créées")
-        print(MATIERES)
-        mat = [Matiere(**x) for x in MATIERES]
-        logger.info(f"{len(mat)} matières créées")
-        self.ui.sendToast.emit(f"{len(mat)} matières créées")
-        self.matieresListRefresh()
 
 
 class MatieresDispatcher:

@@ -2,7 +2,9 @@ from typing import List, Union
 
 from PySide2.QtCore import Signal, Slot
 from PySide2.QtGui import QColor
+from loguru import logger
 from package.database.structure import Activite, Matiere, GroupeMatiere
+from package.default_matiere import MATIERE_GROUPE_BASE, MATIERES_BASE
 from pony.orm import db_session, flush, sum
 
 
@@ -13,36 +15,36 @@ class ChangeMatieresMixin:
     Partie Activités
     """
 
-    @Slot(int, result="QVariantList")
     @Slot(str, result="QVariantList")
+    @Slot(str, bool, result="QVariantList")
     @db_session
-    def addActivite(self, someId: Union[int, str]) -> List[dict]:
-        matiereid: int
-        if isinstance(someId, int):
+    def addActivite(self, someId: str, append: bool = False) -> List[dict]:
+        matiereid: str
+        if not append:
             pre = Activite[someId]
             new = Activite(nom="nouvelle", matiere=pre.matiere)
             new.position = pre.position
             matiereid = new.matiere.id
-        elif isinstance(someId, str):
-            matiereid = int(someId)
+        else:
+            matiereid = someId
             Activite(nom="nouvelle", matiere=matiereid)
 
         return self.get_activites(matiereid)
 
-    @Slot(int, result="QVariantList")
+    @Slot(str, result="QVariantList")
     @db_session
-    def getActivites(self, matiere: int) -> List[dict]:
+    def getActivites(self, matiere: str) -> List[dict]:
         return self.get_activites(matiere)
 
-    @Slot(int, int, result="QVariantList")
+    @Slot(str, int, result="QVariantList")
     @db_session
-    def moveActiviteTo(self, activite: int, new_pos: int) -> List[dict]:
+    def moveActiviteTo(self, activite: str, new_pos: int) -> List[dict]:
         ac = Activite[activite]
         ac.position = new_pos
         return self.get_activites(ac.matiere.id)
 
-    @Slot(int, result="QVariantList")
-    def removeActivite(self, activite: int) -> List[dict]:
+    @Slot(str, result="QVariantList")
+    def removeActivite(self, activite: str) -> List[dict]:
         with db_session:
             ac = Activite[activite]
             mat_id = ac.matiere.id
@@ -51,26 +53,27 @@ class ChangeMatieresMixin:
         with db_session:
             return self.get_activites(mat_id)
 
-    def get_activites(self, matiere: int) -> List[dict]:
+    def get_activites(self, matiere: str) -> List[dict]:
         res = []
+        print(matiere)
         for x in Activite.get_by_position(matiere):
             temp = x.to_dict()
-            temp["nbPages"] = x.pages.count()
+            temp["nbPages"] = len(temp.pop("pages"))  # x.pages.count()
             res.append(temp)
         return res
 
-    @Slot(int, str)
+    @Slot(str, str)
     @db_session
-    def updateActiviteNom(self, activiteid: int, nom: str):
+    def updateActiviteNom(self, activiteid: str, nom: str):
         Activite[activiteid].nom = nom
 
     """
     Partie Matières
     """
 
-    @Slot(int, result="QVariantList")
+    @Slot(str, result="QVariantList")
     @db_session
-    def getMatieres(self, groupe: int) -> List[dict]:
+    def getMatieres(self, groupe: str) -> List[dict]:
         return self.get_matieres(groupe)
 
     def get_matieres(self, groupe: int) -> List[dict]:
@@ -81,15 +84,15 @@ class ChangeMatieresMixin:
             res.append(temp)
         return res
 
-    @Slot(int, int, result="QVariantList")
+    @Slot(str, int, result="QVariantList")
     @db_session
-    def moveMatiereTo(self, matiere: int, new_pos: int) -> List[dict]:
+    def moveMatiereTo(self, matiere: str, new_pos: int) -> List[dict]:
         mat = Matiere[matiere]
         mat.position = new_pos
         return self.get_matieres(mat.groupe.id)
 
-    @Slot(int, result="QVariantList")
-    def removeMatiere(self, matiere: int) -> List[dict]:
+    @Slot(str, result="QVariantList")
+    def removeMatiere(self, matiere: str) -> List[dict]:
         with db_session:
             ac = Matiere[matiere]
             groupe_id = ac.groupe.id
@@ -97,34 +100,34 @@ class ChangeMatieresMixin:
         with db_session:
             return self.get_matieres(groupe_id)
 
-    @Slot(int, result="QVariantList")
     @Slot(str, result="QVariantList")
+    @Slot(str, bool, result="QVariantList")
     @db_session
-    def addMatiere(self, someId: Union[int, str]) -> List[dict]:
-        groupeid: int
-        if isinstance(someId, int):
+    def addMatiere(self, someId: str, append: bool = False) -> List[dict]:
+        groupeid: str
+        if not append:
             pre = Matiere[someId]
             groupeid = pre.groupe.id
             new = Matiere(nom="nouvelle", groupe=pre.groupe)
             new.position = pre.position
-        elif isinstance(someId, str):
-            groupeid = int(someId)
+        else:
+            groupeid = someId
             Matiere(nom="nouvelle", groupe=groupeid)
 
         return self.get_matieres(groupeid)
 
-    @Slot(int, str)
+    @Slot(str, str)
     @db_session
-    def updateMatiereNom(self, matiereid: int, nom: str):
+    def updateMatiereNom(self, matiereid: str, nom: str):
         Matiere[matiereid].nom = nom
 
     """
     Partie GroupeMatiere
     """
 
-    @Slot(int, result="QVariantList")
+    @Slot(str, result="QVariantList")
     @db_session
-    def getGroupeMatieres(self, annee: int) -> List[dict]:
+    def getGroupeMatieres(self, annee: str) -> List[dict]:
         return self.get_groupe_matieres(annee)
 
     def get_groupe_matieres(self, annee: int) -> List[dict]:
@@ -137,15 +140,15 @@ class ChangeMatieresMixin:
             res.append(temp)
         return res
 
-    @Slot(int, int, result="QVariantList")
+    @Slot(str, int, result="QVariantList")
     @db_session
-    def moveGroupeMatiereTo(self, groupe_matiere: int, new_pos: int) -> List[dict]:
+    def moveGroupeMatiereTo(self, groupe_matiere: str, new_pos: int) -> List[dict]:
         groupe = GroupeMatiere[groupe_matiere]
         groupe.position = new_pos
         return self.get_groupe_matieres(groupe.annee.id)
 
-    @Slot(int, result="QVariantList")
-    def removeGroupeMatiere(self, groupe_matiere: int) -> List[dict]:
+    @Slot(str, result="QVariantList")
+    def removeGroupeMatiere(self, groupe_matiere: str) -> List[dict]:
         with db_session:
             groupe = GroupeMatiere[groupe_matiere]
             annee_id = groupe.annee.id
@@ -153,9 +156,9 @@ class ChangeMatieresMixin:
         with db_session:
             return self.get_groupe_matieres(annee_id)
 
-    @Slot(int, result="QVariantList")
+    @Slot(str, result="QVariantList")
     @db_session
-    def addGroupeMatiere(self, groupeid: int) -> List[dict]:
+    def addGroupeMatiere(self, groupeid: str) -> List[dict]:
         pre = GroupeMatiere[groupeid]
         new = GroupeMatiere(nom="nouveau", annee=pre.annee)
         new.position = pre.position
@@ -163,8 +166,8 @@ class ChangeMatieresMixin:
 
         return self.get_groupe_matieres(new.annee.id)
 
-    @Slot(int, QColor, result="QVariantList")
-    def applyGroupeDegrade(self, groupe_id: int, color: QColor) -> List[dict]:
+    @Slot(str, QColor, result="QVariantList")
+    def applyGroupeDegrade(self, groupe_id: str, color: QColor) -> List[dict]:
         with db_session:
             groupe = GroupeMatiere[groupe_id]
             matiere_count = groupe.matieres.count()
@@ -182,13 +185,42 @@ class ChangeMatieresMixin:
         with db_session:
             return self.get_matieres(groupe_id)
 
-    @Slot(int, result="QVariantList")
-    def reApplyGroupeDegrade(self, groupeid) -> List[dict]:
+    @Slot(str, result="QVariantList")
+    def reApplyGroupeDegrade(self, groupeid: str) -> List[dict]:
         with db_session:
             color = GroupeMatiere[groupeid].bgColor
         return self.applyGroupeDegrade(groupeid, color)
 
-    @Slot(int, str)
+    @Slot(str, str)
     @db_session
-    def updateGroupeMatiereNom(self, groupeid: int, nom: str):
+    def updateGroupeMatiereNom(self, groupeid: str, nom: str):
         GroupeMatiere[groupeid].nom = nom
+
+    @Slot(int)
+    @db_session
+    def peuplerLesMatieresParDefault(self, annee):
+        # print(MATIERE_GROUPE)
+        #
+        # gm = [GroupeMatiere(**x, annee=annee) for x in MATIERE_GROUPE]
+        # flush()
+        # print(MATIERES)
+        # mat = [Matiere(**x) for x in MATIERES]
+        groupes = []
+        compteur = 0
+        for groupe in MATIERE_GROUPE_BASE:
+            gr = GroupeMatiere(
+                annee=annee, bgColor=groupe["bgColor"], nom=groupe["nom"]
+            )
+            for mat in MATIERES_BASE:
+                if mat["groupe"] == groupe["id"]:
+                    Matiere(groupe=gr, nom=mat["nom"])
+                    compteur += 1
+            groupes.append(gr)
+
+        for groupe in groupes:
+            self.reApplyGroupeDegrade(groupe.id)
+
+        self.ui.sendToast.emit(f"{compteur} matières créées")
+        logger.info(f"{len(groupes)} groupes de matières créées")
+        logger.info(f"{compteur} matières créées")
+        self.changeMatieres.emit()

@@ -852,6 +852,8 @@ matiereList : annee en moins
     }
 
     Component.onCompleted: {
+    print("############################")
+    print("api addactivite change")
         /* on changes:
 matiereList : annee en moins
               famille, actiite, position

@@ -36,6 +36,17 @@ class TestAnnee:
             f = f_matiere(nom="e", groupe=g5)
             assert an.get_matieres()[:] == [a, b, d]
 
+    def test_to_dict(self):
+        with db_session:
+            user = Utilisateur.user()
+        a = f_annee(id=234, niveau="omjlihlm", user=user)
+        with db_session:
+            assert a.to_dict() == {
+                "id": 234,
+                "niveau": "omjlihlm",
+                "user": str(user.id),
+            }
+
 
 class TestPage:
     def test_modified(self, ddb):

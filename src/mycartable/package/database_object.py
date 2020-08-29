@@ -76,6 +76,7 @@ class DatabaseObject(QObject, *MIXINS):
         self.equationChanged.connect(self.updateRecentsAndActivites)
         self.tableauChanged.connect(self.updateRecentsAndActivites)
         self.textSectionChanged.connect(self.updateRecentsAndActivites)
+        self.changeMatieres.connect(lambda: self.onChangeAnnee(self.anneeActive))
 
         self.updateRecentsAndActivites.connect(self.pagesParSectionChanged)
         self.updateRecentsAndActivites.connect(self.recentsModelChanged)
@@ -97,13 +98,14 @@ class DatabaseObject(QObject, *MIXINS):
     def onNewPageCreated(self, item: dict):
         self.currentPage = item["id"]
 
-    def onRecentsItemClicked(self, id, matiere):
+    def onRecentsItemClicked(self, id: str, matiere: str):
         self.currentPage = id
         self.currentMatiere = matiere
 
     def onChangeAnnee(self, value: int):
         self.currentPage = ""
         self.currentMatiere = ""
+        print(self.currentMatiere)
         self.anneeActive = value
         self.init_matieres(annee=value)
         self.recentsModelChanged.emit()

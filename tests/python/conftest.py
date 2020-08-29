@@ -144,14 +144,19 @@ def uim():
 
 
 @pytest.fixture()
-def dao(ddbr, tmpfilename, uim):
+def userid():
+    return "0ca1d5b4-eddb-4afd-8b8e-1aa5e7e19d17"
+
+
+@pytest.fixture()
+def dao(ddbr, tmpfilename, uim, userid):
     from package.database_object import DatabaseObject
 
     with db_session:
         annee = ddbr.Annee(
             id=2019,
             niveau="cm2019",
-            user=ddbr.Utilisateur(nom="lenom", prenom="leprenom"),
+            user=ddbr.Utilisateur(id=userid, nom="lenom", prenom="leprenom"),
         )
     obj = DatabaseObject(ddbr)
     obj.ui = uim

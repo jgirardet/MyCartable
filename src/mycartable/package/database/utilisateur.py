@@ -17,3 +17,8 @@ class Utilisateur(db.Entity):
     def user(cls):
         assert cls.select().count() <= 1, "Only one user allowed"
         return cls.select().first()
+
+    def to_dict(self, *args, **kwargs):
+        dico = super().to_dict(*args, **kwargs)
+        dico["id"] = str(self.id)
+        return dico

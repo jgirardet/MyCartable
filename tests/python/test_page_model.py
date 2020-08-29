@@ -144,7 +144,7 @@ class TestPAgeModel:
         with qtbot.waitSignal(a.lastPositionChanged):
             a.lastPosition = 1
         with db_session:
-            assert ddbr.Page[1].lastPosition == 1
+            assert ddbr.Page[str(a.pageid)].lastPosition == 1
 
     @pytest.mark.parametrize(
         "source, target, res_fn, res_source, res_target",

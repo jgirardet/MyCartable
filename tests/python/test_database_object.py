@@ -565,7 +565,7 @@ class TestSectionMixin:
             (1, {"path": QUrl("createOne"), "classtype": "ImageSection",}, 1, True,),
             (1, {"path": None, "classtype": "ImageSection",}, 0, False,),
             (1, {"path": "my/path", "classtype": "ImageSection"}, 0, False),
-            (1, {"path": "lepdf", "classtype": "ImageSection",}, 1, True,),
+            (1, {"path": "le.pdf", "classtype": "ImageSection",}, 1, True,),
         ],
     )
     def test_addSectionFile(
@@ -588,7 +588,7 @@ class TestSectionMixin:
             pass
         if content["path"] == "png_annot":
             content["path"] = str(png_annot)
-        elif content["path"] == "lepdf":
+        elif content["path"] == "le.pdf":
             content["path"] = str(resources / "2pages.pdf")
         elif isinstance(content["path"], QUrl):
             if content["path"].toString() == "createOne":
@@ -603,7 +603,9 @@ class TestSectionMixin:
 
         with db_session:
             if res:
-                _res = item = str(ddbr.Section.select().first().id)
+                _res = str(
+                    ddbr.Section.select().order_by(lambda x: x.position).first().id
+                )
                 res = _res
             else:
                 res = ""

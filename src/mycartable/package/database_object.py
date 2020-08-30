@@ -57,7 +57,7 @@ class DatabaseObject(QObject, *MIXINS):
 
         self.setup_connections()
 
-        self.annee_active = self.initialize_session()
+        self.changeAnnee.emit(self.initialize_session())
 
     def setup_connections(self):
 
@@ -105,8 +105,9 @@ class DatabaseObject(QObject, *MIXINS):
     def onChangeAnnee(self, value: int):
         self.currentPage = ""
         self.currentMatiere = ""
-        self.anneeActive = value
-        self.init_matieres(annee=value)
+        if value:
+            self.anneeActive = value
+            self.init_matieres(annee=value)
         self.recentsModelChanged.emit()
         self.matieresListNomChanged.emit()
         self.anneeActiveChanged.emit()

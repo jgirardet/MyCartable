@@ -29,9 +29,10 @@ class SessionMixin:
     def anneeActive_set(self, value):
         self.annee_active = value
         with db_session:
-            Utilisateur.user().last_used = value
-        logger.info(f"Nouvelle année sélectionnée : {value}")
-        self.anneeActiveChanged.emit()
+            if user := Utilisateur.user():
+                user.last_used = value
+                logger.info(f"Nouvelle année sélectionnée : {value}")
+                self.anneeActiveChanged.emit()
 
     def init_user(self) -> dict:
         if user := Utilisateur.user():

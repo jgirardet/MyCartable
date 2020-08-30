@@ -8,6 +8,7 @@ from package import constantes
 from package.database_mixins.changematieres_mixin import ChangeMatieresMixin
 from package.database_mixins.image_section_mixin import ImageSectionMixin
 from package.database_mixins.matiere_mixin import MatieresDispatcher
+from package.database_mixins.session import SessionMixin
 from package.database_object import DatabaseObject
 from factory import *
 from unittest.mock import patch, call
@@ -887,6 +888,15 @@ class TestSessionMixin:
     def test_anneActive(self, dao):
         assert dao.anneeActive == 2019
 
+    def test_anneeactive_set_sans_user(self, dao, qtbot):
+        with patch(
+            "package.database_mixins.session.Utilisateur.user", return_value=None
+        ):
+            with qtbot.assertNotEmitted(dao.anneeActiveChanged):
+                dao.anneeActive = 1234
+        with db_session:
+            assert Utilisateur.user().last_used == 2019
+
 
 class TestChangeMatieresMixin:
     def test_check_args(self, dao: ChangeMatieresMixin):
@@ -1536,6 +1546,13 @@ class TestDatabaseObject:
             "nom": "lenom",
             "prenom": "leprenom",
         }
+
+    def test_init_change_annee(self, qtbot, ddbr):
+
+        a = DatabaseObject(ddbr)
+        assert a.anneeActive == None
+        assert a.currentPage == ""
+        assert a.currentMatiere == ""
 
     def test_files(self, dao):
         assert dao.files == FILES

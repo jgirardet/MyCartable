@@ -62,13 +62,21 @@ Rectangle {
 
                         }
                     }
+                    onWidthChanged: {
+                        font.pointSize = 16;
+                        while (contentWidth > (width)) {
+                            font.pointSize--;
+                            if (font.pointSize <= 4)
+                                break;
+
+                        }
+                    }
                 }
 
                 background: Rectangle {
                     color: combo.currentValue ? combo.model[combo.currentIndex].bgColor : "white"
                     radius: 15
                 }
-                //        highlightedIndex:
 
                 delegate: Button {
                     highlighted: combo ? combo.highlightedIndex === index : false

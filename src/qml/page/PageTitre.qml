@@ -22,19 +22,19 @@ TextArea {
         ddb.setCurrentTitre(text);
         if (textlen < length) {
             while (contentWidth > (width) - 10) {
-            font.pointSize--;
-            if (font.pointSize <= 4)
-                break;
+                font.pointSize--;
+                if (font.pointSize <= 4)
+                    break;
 
-        };
+            }
         } else {
             while (font.pointSize != 16) {
-            font.pointSize++;
-            if (contentWidth > (width - 10)) {
-                font.pointSize--;
-                return ;
+                font.pointSize++;
+                if (contentWidth > (width - 10)) {
+                    font.pointSize--;
+                    return ;
+                }
             }
-        };
         }
         textlen = length;
     }

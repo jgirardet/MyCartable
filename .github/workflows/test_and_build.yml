@@ -121,7 +121,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         path: |
-          windows/MyCartable-${{runner.os}}64
+          windows/MyCartable
           windows/MyCartable*.msi
 
     - name: upload  on ${{ matrix.os }} binary in artifact

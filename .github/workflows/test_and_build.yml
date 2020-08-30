@@ -154,7 +154,7 @@ jobs:
           automatic_release_tag: "latest"
           title: "MyCartable Latest"
           files: |
-            artifact/MyCartable*.msi
+            MyCartable-windows/MyCartable*.msi
 #            artifact/MyCartable*.AppImage
       - name: Display structure of downloaded files
         run: ls -R
@@ -166,7 +166,7 @@ jobs:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
           files: |
-            artifact/MyCartable*.msi
+            MyCartable-windows/MyCartable*.msi
 #            artifact/MyCartable*.AppImage
 
 #

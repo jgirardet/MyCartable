@@ -1,17 +1,38 @@
 import shutil
 from pathlib import Path
+from unittest.mock import patch
 
+import pytest
 from package.files_path import root_data, files, tmp_files
 from PySide2.QtCore import QStandardPaths
 
 
-def test_root_data():
-    appdata = Path(QStandardPaths.writableLocation(QStandardPaths.AppDataLocation))
+def test_root_data_en_test():
+    appdata = (
+        Path(QStandardPaths.writableLocation(QStandardPaths.AppDataLocation))
+        / "MyCartable"
+    )
+    # desactive en attendant la sauvegarde
+    # appdata = Path(QStandardPaths.writableLocation(QStandardPaths.AppDataLocation))
     rrr = root_data()
     assert rrr == appdata
     shutil.rmtree(rrr)
     rrr = root_data()
     assert rrr.is_dir()
+
+
+def test_root_data_en_prod():
+    with patch("package.files_path.get_prod", return_value=True):
+
+        appdata = (
+            Path(QStandardPaths.writableLocation(QStandardPaths.DocumentsLocation))
+            / "MyCartable"
+        )
+        # desactive en attendant la sauvegarde
+        # appdata = Path(QStandardPaths.writableLocation(QStandardPaths.AppDataLocation))
+        rrr = root_data(create=False)
+        print(rrr)
+        assert rrr == appdata
 
 
 def test_files():

@@ -9,6 +9,7 @@ from PySide2.QtCore import (
     QStandardPaths,
     QSettings,
     QCoreApplication,
+    QLocale,
 )
 
 # from fbs_runtime.application_context.PySide2 import ApplicationContext
@@ -133,6 +134,7 @@ def main(filename=None):
     # global settings
     QCoreApplication.setApplicationName(APPNAME)
     QCoreApplication.setOrganizationName(ORGNAME)
+    QLocale.setDefault(QLocale(QLocale.French, QLocale.France))
 
     # create de app
     app = QApplication([])
@@ -141,7 +143,7 @@ def main(filename=None):
     main_init_database(filename=filename, prod=prod)
 
     # create instance de ce qui sera des singleton dans qml
-    databaseObject, ui_manager = create_singleton_instance()
+    databaseObject, ui_manager = create_singleton_instance(prod)
     app.dao = databaseObject
 
     # register les new qml type

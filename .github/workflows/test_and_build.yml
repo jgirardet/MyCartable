@@ -22,8 +22,9 @@ jobs:
     strategy:
       matrix:
 #        os : [ubuntu-16.04, ubuntu-20.04]
-        os : [ubuntu-16.04, ubuntu-20.04, windows-2019]
-#        os : [ubuntu-16.04,  windows-2019]
+#        os : [ubuntu-16.04, ubuntu-20.04]
+#        os : [ubuntu-16.04, ubuntu-20.04, windows-2019]
+        os : [windows-2019]
 #        os : [ubuntu-latest, ubuntu-18.04, windows-2019, windows-latest]
         python: [3.8]
     env:
@@ -50,7 +51,6 @@ jobs:
       if: runner.os == 'Windows'
       run: |
         choco install libreoffice-fresh -y
-        choco install wixtoolset -y
     - name: Tests python on ${{ matrix.os }}
       run: python run.py test_python
     - name: Install Qt on Linux
@@ -108,12 +108,27 @@ jobs:
 #      if: runner.os == 'Windows'
 #      shell: cmd
 #      run: python run.py test_binary_as_dir
-    - name: upload  on ${{ matrix.os }} binary in artifact
+#    - name: upload  on ${{ matrix.os }} binary in artifact
+#      if: runner.os == 'Windows'
+#      uses: actions/upload-artifact@v1
+#      with:
+#        path: windows
+#        name: MyCartable-${{runner.os}}64
+
+    - name: upload  on Windows binary in artifact
       if: runner.os == 'Windows'
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v2
       with:
+        name: MyCartable-windows
         path: windows
-        name: MyCartable-${{runner.os}}64
+      #    - name: upload  on Windows binary in artifact
+      #      if: runner.os == 'Windows'
+#      uses: actions/upload-artifact@v2
+#      with:
+#        name: "MyCartable"
+#        path: |
+#          windows/MyCartable
+#          windows/MyCartable*.msi
 
     - name: upload  on ${{ matrix.os }} binary in artifact
       if: runner.os == 'Linux'
@@ -123,32 +138,65 @@ jobs:
         name: MyCartable-${{runner.os}}64
 
   Create_release:
-      needs: TestAndBuild
-      runs-on: ubuntu-latest
-      steps:
-        - name: Download artifact binary
-          uses: actions/download-artifact@v2
-        - name: zip release
-          run: |
-            python -m zipfile -c MyCartable-Linux64.zip MyCartable-Linux64
-            python -m zipfile -c MyCartable-Windows64.zip MyCartable-Windows64
-        - name: new latest release on master
-          uses: "marvinpinto/action-automatic-releases@latest"
-          if: github.ref == 'refs/heads/master'
-          with:
-            repo_token: "${{ secrets.GITHUB_TOKEN }}"
-            prerelease: false
-            automatic_release_tag: "latest"
-            title: "MyCartable Latest"
-            files: |
-              MyCartable-Linux64.zip
-              MyCartable-Windows64.zip
-        - name: new tag release
-          uses: "marvinpinto/action-automatic-releases@latest"
-          if: contains(github.ref, '/tags/')
-          with:
-            repo_token: "${{ secrets.GITHUB_TOKEN }}"
-            prerelease: false
-            files: |
-              MyCartable-Linux64.zip
-              MyCartable-Windows64.zip
+    needs: TestAndBuild
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifact binary
+        uses: actions/download-artifact@v2
+        with:
+          path: .
+      - name: new latest release on master
+        uses: "marvinpinto/action-automatic-releases@latest"
+        if: github.ref == 'refs/heads/master'
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
+          automatic_release_tag: "latest"
+          title: "MyCartable Latest"
+          files: |
+            MyCartable-windows/MyCartable*.msi
+#            artifact/MyCartable*.AppImage
+      - name: Display structure of downloaded files
+        run: ls -R
+        working-directory: .
+      - name: new tag release
+        uses: "marvinpinto/action-automatic-releases@latest"
+        if: contains(github.ref, '/tags/')
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
+          files: |
+            MyCartable-windows/MyCartable*.msi
+#            artifact/MyCartable*.AppImage
+
+#
+#  Create_release:
+#      needs: TestAndBuild
+#      runs-on: ubuntu-latest
+#      steps:
+#        - name: Download artifact binary
+#          uses: actions/download-artifact@v2
+#        - name: zip release
+#          run: |
+#            python -m zipfile -c MyCartable-Linux64.zip MyCartable-Linux64
+#            python -m zipfile -c MyCartable-Windows64.zip MyCartable-Windows64
+#        - name: new latest release on master
+#          uses: "marvinpinto/action-automatic-releases@latest"
+#          if: github.ref == 'refs/heads/master'
+#          with:
+#            repo_token: "${{ secrets.GITHUB_TOKEN }}"
+#            prerelease: false
+#            automatic_release_tag: "latest"
+#            title: "MyCartable Latest"
+#            files: |
+#              MyCartable-Linux64.zip
+#              MyCartable-Windows64.zip
+#        - name: new tag release
+#          uses: "marvinpinto/action-automatic-releases@latest"
+#          if: contains(github.ref, '/tags/')
+#          with:
+#            repo_token: "${{ secrets.GITHUB_TOKEN }}"
+#            prerelease: false
+#            files: |
+#              MyCartable-Linux64.zip
+#              MyCartable-Windows64.zip

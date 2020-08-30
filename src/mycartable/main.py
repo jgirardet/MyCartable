@@ -21,7 +21,7 @@ from loguru import logger
 
 
 import package.database
-from pony.orm import DBException
+from pony.orm import DBException, db_session
 
 
 def main_init_database(filename=None, prod=False):
@@ -42,10 +42,10 @@ def main_init_database(filename=None, prod=False):
         filename=filename, create_db=create_db
     )
 
-    # if not prod:
-    # from tests.python.factory import populate_database
-    #
-    # populate_database()
+    if not prod:
+        from tests.python.factory import populate_database
+
+        populate_database()
 
     return package.database.db
 
@@ -83,9 +83,10 @@ def create_singleton_instance(prod=False):
     ui_manager = UiManager()
     databaseObject.ui = ui_manager
 
-    # if not prod:
-    #     databaseObject.anneeActive = 2019
-    #     databaseObject.currentMatiere = 2
+    if not prod:
+        databaseObject.anneeActive = 2019
+        with db_session:
+            databaseObject.currentPage = databaseObject.db.Page.select().first().id
 
     return databaseObject, ui_manager
 

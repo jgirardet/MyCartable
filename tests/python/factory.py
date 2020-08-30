@@ -7,7 +7,12 @@ import random
 
 #
 from PySide2.QtGui import QColor
-from package.default_matiere import MATIERE_GROUPE, MATIERES
+from package.default_matiere import (
+    MATIERE_GROUPE,
+    MATIERES,
+    MATIERE_GROUPE_BASE,
+    MATIERES_BASE,
+)
 from pony.orm import db_session, flush
 
 #
@@ -388,15 +393,30 @@ def f_style(
 def populate_database(matieres_list=MATIERES, nb_page=100):
     user = db.Utilisateur(nom="Lenom", prenom="Leprenom")
     annee = Annee(id=2019, niveau="cm1", user=user)
-    Annee(id=2018, niveau="ce2", user=user)
-    [db.GroupeMatiere(**x, annee=annee.id) for x in MATIERE_GROUPE]
-    flush()
-    matieres = [db.Matiere(**x) for x in matieres_list]
-    flush()
-    #
-    for m in matieres:
-        for i in range(3):
-            f_activite(matiere=m.id)
+    groupes = []
+    compteur = 0
+    for groupe in MATIERE_GROUPE_BASE:
+        gr = GroupeMatiere(annee=annee, bgColor=groupe["bgColor"], nom=groupe["nom"])
+        for mat in MATIERES_BASE:
+            if mat["groupe"] == groupe["id"]:
+                m = Matiere(groupe=gr, nom=mat["nom"])
+                compteur += 1
+                ac = Activite(matiere=m, nom="mdomak")
+                page = Page(titre="mojkù", activite=ac)
+        groupes.append(gr)
+
+    # for groupe in groupes:
+    #     self.reApplyGroupeDegrade(groupe.id)
+
+    # Annee(id=2018, niveau="ce2", user=user)
+    # [db.GroupeMatiere(**x, annee=annee.id) for x in MATIERE_GROUPE]
+    # flush()
+    # matieres = [db.Matiere(**x) for x in matieres_list]
+    # flush()
+    # #
+    # for m in matieres:
+    #     for i in range(3):
+    #         f_activite(matiere=m.id)
 
 
 #

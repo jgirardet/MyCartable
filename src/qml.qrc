@@ -97,6 +97,8 @@
     </qresource>
     
     <qresource prefix="/icons">
+        <file alias="mycartable.png">data/icons/mycartable.png</file>
+        <file alias="mycartable.ico">data/icons/mycartable.ico</file>
         <file alias="ellipse">data/icons/base/pack/png/sphere.png</file>
         <file alias="fillrect">data/icons/base/pack/png/fillrect.png</file>
         <file alias="newTextSection">data/icons/base/divers/png/003-edit.png</file>

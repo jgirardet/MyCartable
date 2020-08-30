@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-from PySide2.QtGui import QFont, QFontDatabase
+from PySide2.QtGui import QFont, QFontDatabase, QIcon, QPixmap
 from package import get_prod
 from package.constantes import APPNAME, ORGNAME, BASE_FONT
 from PySide2.QtCore import (
@@ -10,6 +10,7 @@ from PySide2.QtCore import (
     QSettings,
     QCoreApplication,
     QLocale,
+    QFile,
 )
 
 # from fbs_runtime.application_context.PySide2 import ApplicationContext
@@ -154,9 +155,12 @@ def main(filename=None):
     # import qrc
 
     engine = setup_qml(databaseObject, ui_manager)
+
+    # Manifestement l'acces au qrc n'est pas immediat apres creation de l'app
+    # donc on met tout ça un peu plus "loin"
+    app.setWindowIcon(QIcon(":/icons/mycartable.png"))
     QFontDatabase.addApplicationFont(":/fonts/Verdana.ttf")
     font = QFont(BASE_FONT, 12, QFont.Normal)
-    # font = QFont('Verdana', 12, QFont.Normal)
     app.setFont(font)
 
     # run the app

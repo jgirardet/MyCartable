@@ -26,7 +26,6 @@ def root_data(create=True):
 
 
 ROOT_DATA = root_data()
-print("ROOT DATA", ROOT_DATA)
 
 
 def files(root_d):

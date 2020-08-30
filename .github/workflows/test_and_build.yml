@@ -51,7 +51,6 @@ jobs:
       if: runner.os == 'Windows'
       run: |
         choco install libreoffice-fresh -y
-        choco install wixtoolset -y
     - name: Tests python on ${{ matrix.os }}
       run: python run.py test_python
     - name: Install Qt on Linux
@@ -120,9 +119,16 @@ jobs:
       if: runner.os == 'Windows'
       uses: actions/upload-artifact@v2
       with:
-        path: |
-          windows/MyCartable
-          windows/MyCartable*.msi
+        name: MyCartable-windows
+        path: windows
+      #    - name: upload  on Windows binary in artifact
+      #      if: runner.os == 'Windows'
+#      uses: actions/upload-artifact@v2
+#      with:
+#        name: "MyCartable"
+#        path: |
+#          windows/MyCartable
+#          windows/MyCartable*.msi
 
     - name: upload  on ${{ matrix.os }} binary in artifact
       if: runner.os == 'Linux'
@@ -146,10 +152,10 @@ jobs:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
           automatic_release_tag: "latest"
-          title: "MyDevoirs Latest"
+          title: "MyCartable Latest"
           files: |
-            artifact/mydevoirs*.msi
-#            artifact/mydevoirs*.AppImage
+            artifact/MyCartable*.msi
+#            artifact/MyCartable*.AppImage
       - name: Display structure of downloaded files
         run: ls -R
         working-directory: .
@@ -160,8 +166,8 @@ jobs:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
           files: |
-            artifact/mydevoirs*.msi
-#            artifact/mydevoirs*.AppImage
+            artifact/MyCartable*.msi
+#            artifact/MyCartable*.AppImage
 
 #
 #  Create_release:

@@ -15,7 +15,6 @@ from PySide2.QtWidgets import QApplication
 import typing
 from pony.orm import db_session, ObjectNotFound, make_proxy, flush
 from package.database import db
-from loguru import logger
 
 from loguru import logger
 
@@ -32,6 +31,8 @@ class PageModel(QAbstractListModel):
 
     @db_session
     def data(self, index, role: int) -> typing.Any:
+        if not self.page:
+            return
         if not index.isValid():
             return None
         elif role == self.PageRole:
@@ -153,8 +154,9 @@ class PageModel(QAbstractListModel):
 
     @Property(int, notify=lastPositionChanged)
     def lastPosition(self):
-        with db_session:
-            return self.page.lastPosition
+        if self.page:
+            with db_session:
+                return self.page.lastPosition
 
     @lastPosition.setter
     def lastPosition_set(self, value: int):

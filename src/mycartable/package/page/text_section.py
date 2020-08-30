@@ -176,7 +176,9 @@ RE_AUTOPARAGRAPH_FIN = re.compile(r"^.+\s(#{1,6})$")
 
 
 class TextSectionEditor(QTextDocument):
-    def __init__(self, sectionId, content="", pos=0, selectionStart=0, selectionEnd=0):
+    def __init__(
+        self, sectionId: str, content="", pos=0, selectionStart=0, selectionEnd=0
+    ):
         super().__init__()
         self.sectionId = sectionId
         self.setDefaultStyleSheet(CSS)

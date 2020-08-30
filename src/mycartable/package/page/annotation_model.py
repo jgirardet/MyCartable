@@ -28,7 +28,7 @@ class AnnotationModel(QAbstractListModel):
         self.section = None
         self._sectionId = None
         self.row_count = 0
-        self.sectionIdChanged.connect(self.slotReset)
+        self.sectionIdChanged.connect(lambda: self.slotReset(self.sectionId))
 
     @db_session
     def data(self, index, role: int):
@@ -60,15 +60,17 @@ class AnnotationModel(QAbstractListModel):
         return default
 
     @Slot(int, result=bool)  # appel par index
-    @Slot(int, bool, result=bool)  # appel par id en mettant True
+    @Slot(str, bool, result=bool)  # appel par id en mettant True
     def removeRow(self, row, section=False):
         return self.removeRows(row, 0, parent=QModelIndex(), section=section)
 
     def removeRows(
         self, row: int, count: int, parent: QModelIndex(), section=False
     ) -> bool:
-        # count = nombre de row à supprimer en plus
-        # section: row est un sectionId, pas un index
+        """
+        count = nombre de row à supprimer en plus
+        section: row est un sectionId, pas un index
+        """
 
         with db_session:
             anots = self.section.annotations.select()[:]
@@ -101,7 +103,7 @@ class AnnotationModel(QAbstractListModel):
     def setData(self, index, value, role) -> bool:
         if index.isValid() and role == Qt.EditRole:
             value = value.toVariant()
-            annotation_id = int(value.pop("id"))
+            annotation_id = value.pop("id")
             with db_session:
                 item = self.db.Annotation[annotation_id].as_type()
                 item.set(**value)
@@ -109,6 +111,7 @@ class AnnotationModel(QAbstractListModel):
             return True
         return False
 
+    @Slot(str, result=bool)
     def slotReset(self, value):
         self.beginResetModel()
         with db_session:
@@ -132,14 +135,14 @@ class AnnotationModel(QAbstractListModel):
         self.rowsRemoved.connect(app.dao.updateRecentsAndActivites)
         self.rowsInserted.connect(app.dao.updateRecentsAndActivites)
 
-    sectionIdChanged = Signal(int)
+    sectionIdChanged = Signal(str)
 
-    @Property(int, notify=sectionIdChanged)
+    @Property(str, notify=sectionIdChanged)
     def sectionId(self):
         return self._sectionId
 
     @sectionId.setter
-    def sectionId_set(self, value: int):
+    def sectionId_set(self, value: str):
         self._sectionId = value
 
         self.sectionIdChanged.emit(self._sectionId)

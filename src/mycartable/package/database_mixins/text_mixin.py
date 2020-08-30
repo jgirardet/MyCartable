@@ -13,7 +13,7 @@ class TextSectionMixin:
 
     textSectionChanged = Signal()
 
-    @Slot(int, str, int, int, int, str, result="QVariantMap")
+    @Slot(str, str, int, int, int, str, result="QVariantMap")
     def updateTextSectionOnKey(
         self, sectionId, content, curseur, selectionStart, selectionEnd, event
     ):
@@ -23,7 +23,7 @@ class TextSectionMixin:
         ).onKey(event)
         return res
 
-    @Slot(int, str, int, int, int, result="QVariantMap")
+    @Slot(str, str, int, int, int, result="QVariantMap")
     def updateTextSectionOnChange(
         self, sectionId, content, curseur, selectionStart, selectionEnd
     ):
@@ -33,7 +33,7 @@ class TextSectionMixin:
         self.textSectionChanged.emit()
         return res
 
-    @Slot(int, str, int, int, int, "QVariantMap", result="QVariantMap")
+    @Slot(str, str, int, int, int, "QVariantMap", result="QVariantMap")
     def updateTextSectionOnMenu(
         self, sectionId, content, curseur, selectionStart, selectionEnd, params
     ):
@@ -41,7 +41,7 @@ class TextSectionMixin:
             sectionId, content, curseur, selectionStart, selectionEnd
         ).onMenu(**params)
 
-    @Slot(int, result="QVariantMap")
+    @Slot(str, result="QVariantMap")
     def loadTextSection(self, sectionId):
         return TextSectionEditor(sectionId).onLoad()
 

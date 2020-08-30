@@ -21,26 +21,26 @@ Item {
         function initPreCreate() {
             model = [{
                 "activites": [{
-                    "id": 7,
+                    "id": "ac7",
                     "nom": "aaa"
                 }, {
-                    "id": 8,
+                    "id": "ac8",
                     "nom": "bbb"
                 }, {
-                    "id": 9,
+                    "id": "ac9",
                     "nom": "ccc"
                 }],
                 "bgColor": "red",
                 "nom": "trois"
             }, {
                 "activites": [{
-                    "id": 10,
+                    "id": "ac10",
                     "nom": "eee"
                 }, {
-                    "id": 11,
+                    "id": "ac11",
                     "nom": "fff"
                 }, {
-                    "id": 12,
+                    "id": "ac12",
                     "nom": "ggg"
                 }],
                 "bgColor": "blue",
@@ -50,12 +50,12 @@ Item {
             ddb.anneeActive = 3000;
         }
         function initPost() {
-            tested.ouvre(3, basebutton);
+            tested.ouvre("pageid", basebutton);
             waitForRendering(item);
         }
         function test_init() {
             compare(tested.model, model);
-            compare(tested.pageId, 3);
+            compare(tested.pageId, "pageid");
             compare(ddb._getDeplacePageModel, [3000]);
         }
         function test_matiere() {
@@ -81,7 +81,7 @@ Item {
          // click
          mouseMove(mat2, 5,5)
           mouseClick(ac)
-          compare(ddb._changeActivite, [3,11])
+          compare(ddb._changeActivite, ["pageid","ac11"])
           compare(tested.visible, false)
         }
         function test_close_in_empty_space() {

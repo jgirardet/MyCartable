@@ -25,7 +25,7 @@ ListView {
 
         property alias matieretexte: matieretexte
         property string nom: modelData.nom
-        property int matiereid: modelData.id
+        property string matiereid: modelData.id
         property alias activitelist: activitelist
         property int nbPages: modelData.nbPages
 
@@ -77,7 +77,7 @@ ListView {
 
                                 onPressed: {
                                     if (state == "no_activite"){
-                                    activitelist.addAndFocus(matiereid.toString(), 0)
+                                    activitelist.addAndFocus(matiereid, 0,true)
                                     }
                                     if (state == "toggled") {
                                         activitelist.state = "hidden";

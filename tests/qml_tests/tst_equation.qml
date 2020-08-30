@@ -17,16 +17,16 @@ Item {
 
         function initPost() {
             ddb._loadSection = {
-                "id": 1,
+                "id": "sectionId",
                 "created": "2019-09-22T19:21:57.521813",
                 "modified": "2019-09-22T19:21:57.521813",
-                "page": 1,
+                "page": "pageId",
                 "position": 1,
                 "classtype": "EquationSection",
                 "content": "1     \n__ + 1\n15    ",
                 "curseur": 10
             };
-            tested.sectionId = 1;
+            tested.sectionId = "sectionId";
         }
 
         function test_init() {
@@ -47,7 +47,7 @@ Item {
             keyClick(Qt.Key_5);
             tryCompare(tested, "cursorPosition", 12);
             tryCompare(tested, "text", "1      \n__5 + 1\n15     ");
-            compare(ddb._updateEquationParams[0], 1);
+            compare(ddb._updateEquationParams[0], "sectionId");
             compare(ddb._updateEquationParams[1], "1     \n__ + 1\n15    ");
             compare(ddb._updateEquationParams[2], 10);
             compare(ddb._updateEquationParams[3], "{\"objectName\":\"\",\"key\":53,\"text\":\"5\",\"modifiers\":0,\"isAutoRepeat\":false,\"count\":65535,\"nativeScanCode\":0,\"accepted\":false}");

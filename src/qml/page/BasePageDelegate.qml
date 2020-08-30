@@ -5,7 +5,7 @@ Item {
     id: root
 
     property var listview: ListView.view
-    property int sectionId: page.id
+    property string sectionId: page.id
     property int modelIndex: typeof model !== "undefined" ? model.index : undefined
 
     focus: true

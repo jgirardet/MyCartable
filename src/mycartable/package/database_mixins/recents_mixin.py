@@ -4,7 +4,7 @@ from pony.orm import db_session
 
 class RecentsMixin:
     recentsModelChanged = Signal()
-    recentsItemClicked = Signal(int, int)
+    recentsItemClicked = Signal(str, str)
 
     @Property("QVariantList", notify=recentsModelChanged)
     def recentsModel(self):

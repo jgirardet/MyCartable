@@ -26,7 +26,7 @@ class ImageSectionMixin:
             new_file.write_bytes(filepath.read_bytes())
             return res_path
 
-    @Slot(int, int, result=bool)
+    @Slot(str, int, result=bool)
     def pivoterImage(self, sectionId, sens):
         with db_session:
             item = self.db.ImageSection[sectionId]

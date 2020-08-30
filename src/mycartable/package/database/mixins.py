@@ -1,4 +1,5 @@
 from contextlib import contextmanager
+from uuid import UUID
 
 from PySide2.QtGui import QColor
 from pony.orm import Required
@@ -137,6 +138,8 @@ class PositionMixin:
     @classmethod
     def get_by_position(cls, ref_id):
         base_class = cls.base_class_position or cls
+        if isinstance(ref_id, str):
+            ref_id = UUID(ref_id)
         return select(
             p
             for p in base_class
@@ -167,6 +170,7 @@ class PositionMixin:
             for sec in query:
                 if new <= sec.position < old:
                     sec._position += 1
+        print(new, self)
         return new
 
     @contextmanager
@@ -174,6 +178,8 @@ class PositionMixin:
         base_class = self.base_class_position or self.__class__
         if isinstance(ref, (Entity, EntityProxy)):
             ref = ref.id
+        elif isinstance(ref, str):
+            ref = UUID(ref)
         nb = self.get_by_position(ref).count()
         if pos is not None:
             if pos >= nb:

@@ -1,3 +1,4 @@
+import uuid
 from string import Template
 from unittest.mock import MagicMock
 
@@ -9,7 +10,7 @@ from factory import f_textSection, TextSection
 # from package.page.text_section import DocumentEditor, RE_AUTOPARAGRAPH
 from bs4 import BeautifulSoup
 from package.utils import KeyW
-from pony.orm.core import db_session
+from pony.orm.core import db_session, flush
 
 from package.page.text_section import (
     CSS,
@@ -208,7 +209,9 @@ def doc() -> TextSectionEditor:
     def factory(content="", pos=0, selectionStart=0, selectionEnd=0):
         selectionStart = selectionStart or pos
         selectionEnd = selectionEnd or pos
-        obj = TextSectionEditor(1, content, pos, selectionStart, selectionEnd)
+        obj = TextSectionEditor(
+            uuid.uuid4(), content, pos, selectionStart, selectionEnd
+        )
         obj._update_ddb = MagicMock()
 
         # doc.bs4 = lambda: BeautifulSoup(
@@ -283,7 +286,7 @@ def has_style_attr(html, para, span, key, value):
 class TestSectionEditor:
     def test_init(self, doc):
         d = doc("<p>acd</p>", pos=3, selectionStart=4, selectionEnd=5)
-        assert d.sectionId == 1
+        assert isinstance(d.sectionId, uuid.UUID)
         assert d.defaultStyleSheet() == CSS
         cmp_html(d.toHtml(), 0, p_span.substitute(val="acd"))
 
@@ -422,10 +425,11 @@ class TestSectionEditor:
         assert compare_char_format(d.cur.charFormat(), cfmt)
 
     def test_onLoad(self, doc, reset_db, char_fmt, block_fmt):
-        f_textSection(
+        f = f_textSection(
             text="""<body><h1>bli</h1><p>noir<span style="color:#123456;">bleu</span></p></body>"""
         )
         d = doc()
+        d.sectionId = str(f.id)
         res = d.onLoad()
         assert res["eventAccepted"] == True
         assert res["cursorPosition"] == 13
@@ -509,11 +513,12 @@ class TestSectionEditor:
         assert res["text"] == res_text
 
     def test_update_ddb(self, ddbr):
-        f_textSection(text="""<body><p>noir</p></body>""")
+        f = f_textSection(text="""<body><p>noir</p></body>""")
         d = TextSectionEditor(1, content="""<body><p>noirA</p></body>""")
+        d.sectionId = str(f.id)
         d._update_ddb()
         with db_session:
-            assert TextSection[1].text == "<body><p><span>noirA</span></p></body>"
+            assert TextSection[f.id].text == "<body><p><span>noirA</span></p></body>"
 
 
 @pytest.mark.parametrize(

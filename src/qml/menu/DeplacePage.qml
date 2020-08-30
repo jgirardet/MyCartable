@@ -6,7 +6,7 @@ Dialog {
 
     property var model
     property int cellHeight: 20
-    property int pageId
+    property string pageId
     property alias matieres: columnmatiere
 
     function ouvre(pageId, basebutton) {

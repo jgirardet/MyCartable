@@ -1,3 +1,5 @@
+from uuid import UUID, uuid4
+
 from package.database.mixins import ColorMixin
 from pony.orm import Required, Optional, Set, PrimaryKey
 
@@ -5,7 +7,7 @@ from .root_db import db
 
 
 class Style(db.Entity, ColorMixin):
-    styleId = PrimaryKey(int, auto=True)
+    styleId = PrimaryKey(UUID, auto=True, default=uuid4)
     _fgColor = Required(int, size=32, unsigned=True, default=4278190080)
     _bgColor = Required(int, size=32, unsigned=True, default=0)
     family = Optional(str)
@@ -28,6 +30,7 @@ class Style(db.Entity, ColorMixin):
         )
         dico["bgColor"] = self.bgColor
         dico["fgColor"] = self.fgColor
+        dico["styleId"] = str(self.styleId)
         return dico
 
     def set(self, **kwargs):

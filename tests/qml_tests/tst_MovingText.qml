@@ -10,6 +10,8 @@ Item {
     CasTest {
         // pour avoir le temps de tester
         //pas de latence
+        //            wait(1000);
+        // timeout pour la CI
 
         property var moveTextLeft
         property var moveTextRight
@@ -48,15 +50,21 @@ Item {
 
         function test_start_animation_and_stop() {
             tested.text = "azeraezrtrerter";
+            //            moveTextLeft.duration = 5;
             verify(tested.truncated == true);
             var oldX = tested.x;
+            print(oldX);
             tested.move = true;
             waitForRendering(tested);
             verify(moveTextLeft.running == true);
             tested.move = false;
             tryCompare(moveTextLeft, "running", false);
-            tryCompare(tested, "x", oldX, 10000); // timeout pour la CI
-            tryCompare(tested, "textInitialPosition", 0);
+            //            compare(tested.x, oldX);
+            print(oldX);
+            tryCompare(tested, "x", oldX, 10000);
+            // timeout pour la CI
+            //            tryCompare(tested, "textInitialPosition", 0);
+            compare(tested.textInitialPosition, 0);
         }
 
         name: "MovingText"

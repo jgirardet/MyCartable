@@ -2,6 +2,7 @@ import json
 from datetime import datetime
 import re
 from io import BytesIO
+from uuid import UUID, uuid4
 
 from PySide2.QtGui import QColor
 from functools import cached_property
@@ -15,12 +16,17 @@ from .mixins import ColorMixin, PositionMixin
 class Section(db.Entity, PositionMixin):
     referent_attribute_name = "page"
 
-    id = PrimaryKey(int, auto=True)
+    id = PrimaryKey(UUID, auto=True, default=uuid4)
     created = Required(datetime, default=datetime.utcnow)
     modified = Optional(datetime)
     page = Required("Page")
     _position = Required(int)
     annotations = Set("Annotation")
+
+    def __repr__(self):
+        return (
+            f"{self.__class__.__name__}[page={self.page.id}, position={self._position}]"
+        )
 
     def __new__(cls, *args, **kwargs):
         cls.base_class_position = Section
@@ -30,11 +36,17 @@ class Section(db.Entity, PositionMixin):
         with self.init_position(position, page) as _position:
             super().__init__(*args, _position=_position, page=page, **kwargs)
 
-    def to_dict(self, *args, **kwargs):
-        dico = super().to_dict(*args, **kwargs)
-        dico["created"] = self.created.isoformat()
-        dico["modified"] = self.modified.isoformat()
-        dico["position"] = dico.pop("_position")
+    def to_dict(self, **kwargs):
+        dico = super().to_dict(exclude=["_position"], **kwargs)
+        dico.update(
+            {
+                "id": str(self.id),
+                "created": self.created.isoformat(),
+                "modified": self.modified.isoformat(),
+                "position": self.position,
+                "page": str(self.page.id),
+            }
+        )
         return dico
 
     def before_insert(self):
@@ -297,7 +309,7 @@ class EquationSection(Section):
 
 
 class Annotation(db.Entity):
-    id = PrimaryKey(int, auto=True)
+    id = PrimaryKey(UUID, auto=True, default=uuid4)
     x = Required(float)
     y = Required(float)
     section = Required(Section)
@@ -314,6 +326,7 @@ class Annotation(db.Entity):
     def to_dict(self, **kwargs):
         dico = super().to_dict(**kwargs, related_objects=True)
         dico.update(dico.pop("style").to_dict())
+        dico["id"] = str(self.id)
         return dico
 
     def set(self, **kwargs):
@@ -488,6 +501,7 @@ class TableauCell(db.Entity, ColorMixin):
         dico = super().to_dict(*args, **kwargs)
         if "style" in dico:  # pragma: no branch # ne pas l'ajouter sur a été exclude
             dico["style"] = self.style.to_dict()
+        dico["tableau"] = str(self.tableau.id)
         return dico
 
     def set(self, **kwargs):

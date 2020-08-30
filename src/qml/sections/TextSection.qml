@@ -5,7 +5,7 @@ TextEdit {
 
     id: root
 
-    property int sectionId
+    property string sectionId
     property var sectionItem
     property bool doNotUpdate: false
 

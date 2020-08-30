@@ -15,7 +15,7 @@ class LayoutMixin:
     def getLayoutSizes(self, nom):
         return LAYOUT_SIZES[nom]
 
-    @Slot(int, "QVariantMap", result="QVariantMap")
+    @Slot(str, "QVariantMap", result="QVariantMap")
     def setStyle(self, styleId, content):
         with db_session:
             try:

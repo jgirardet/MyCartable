@@ -20,7 +20,7 @@ Item {
 
         function initPre() {
             params = {
-                "sectionId": 1270,
+                "sectionId": "1270",
                 "sectionItem": item
             };
         }
@@ -57,7 +57,7 @@ Item {
         }
 
         function test_init() {
-            compare(tested.sectionId, 1270);
+            compare(tested.sectionId, "1270");
             compare(rep.count, 15);
             compare(tested.width, grid.width);
             compare(tested.height, grid.height);
@@ -149,7 +149,7 @@ Item {
 
         function test_delegate_onTextChanged_and_setText() {
             un.text = "bla";
-            compare(ddb._updateCell, [1270, 0, 1, {
+            compare(ddb._updateCell, ["1270", 0, 1, {
                 "texte": "bla"
             }]);
         }
@@ -275,7 +275,7 @@ Item {
                 }
             };
             un.setStyleFromMenu(dict);
-            compare(ddb._updateCell, [1270, 0, 1, dict]);
+            compare(ddb._updateCell, ["1270", 0, 1, dict]);
             verify(Qt.colorEqual(un.color, "red"));
         }
 
@@ -287,7 +287,7 @@ Item {
                 }
             };
             un.setStyleFromMenu(dict);
-            compare(ddb._updateCell, [1270, 0, 1, dict]);
+            compare(ddb._updateCell, ["1270", 0, 1, dict]);
             verify(Qt.colorEqual(un.background.color, "red"));
         }
 
@@ -299,7 +299,7 @@ Item {
                 }
             };
             un.setStyleFromMenu(dict);
-            compare(ddb._updateCell, [1270, 0, 1, dict]);
+            compare(ddb._updateCell, ["1270", 0, 1, dict]);
             verify(un.font.underline);
         }
 
@@ -339,7 +339,7 @@ Item {
             ddb._initTableauDatas = DATA.modelColonneEnPlus;
             mouseClick(un, 1, 1, Qt.RightButton);
             mouseClick(but, 1, 1, Qt.LeftButton);
-            compare(ddb._insertColumn, [1270, 1]);
+            compare(ddb._insertColumn, ["1270", 1]);
             compare(grid.columns, 4);
             compare(rep.count, 20);
         }
@@ -351,7 +351,7 @@ Item {
             ddb._initTableauDatas = DATA.modelColonneEnMoins;
             mouseClick(un, 1, 1, Qt.RightButton);
             mouseClick(but, 1, 1, Qt.LeftButton);
-            compare(ddb._removeColumn, [1270, 1]);
+            compare(ddb._removeColumn, ["1270", 1]);
             compare(grid.columns, 2);
             compare(rep.count, 10);
         }
@@ -362,7 +362,7 @@ Item {
             ddb._initTableauDatas = DATA.modelColonneEnPlus;
             mouseClick(un, 1, 1, Qt.RightButton);
             mouseClick(but, 1, 1, Qt.LeftButton);
-            compare(ddb._appendColumn, [1270]);
+            compare(ddb._appendColumn, ["1270"]);
             compare(grid.columns, 4);
             compare(rep.count, 20);
         }
@@ -374,7 +374,7 @@ Item {
             ddb._initTableauDatas = DATA.modelLigneEnPlus;
             mouseClick(un, 1, 1, Qt.RightButton);
             mouseClick(but, 1, 1, Qt.LeftButton);
-            compare(ddb._insertRow, [1270, 0]);
+            compare(ddb._insertRow, ["1270", 0]);
             compare(rep.count, 18);
         }
 
@@ -384,7 +384,7 @@ Item {
             ddb._initTableauDatas = DATA.modelLigneEnMoins;
             mouseClick(un, 1, 1, Qt.RightButton);
             mouseClick(but, 1, 1, Qt.LeftButton);
-            compare(ddb._removeRow, [1270, 0]);
+            compare(ddb._removeRow, ["1270", 0]);
             compare(rep.count, 12);
         }
 
@@ -394,7 +394,7 @@ Item {
             ddb._initTableauDatas = DATA.modelLigneEnPlus;
             mouseClick(un, 1, 1, Qt.RightButton);
             mouseClick(but, 1, 1, Qt.LeftButton);
-            compare(ddb._appendRow, [1270]);
+            compare(ddb._appendRow, ["1270"]);
             compare(rep.count, 18);
         }
 

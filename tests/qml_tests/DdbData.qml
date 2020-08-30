@@ -201,6 +201,30 @@ matiereList : annee en moins
 matiereList : annee en moins
               famille, actiite, position
               */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
 
     // Matiere MIXIN
     property int currentMatiere: 0
@@ -791,9 +815,9 @@ matiereList : annee en moins
         _updateGroupeMatiereNom = [id, nom];
     }
 
-    function addActivite(acid) {
+    function addActivite(acid, append) {
         let toReturn = _addActivite;
-        _addActivite = [acid];
+        _addActivite = [acid, append];
         return toReturn;
     }
 
@@ -803,9 +827,9 @@ matiereList : annee en moins
         return toReturn;
     }
 
-    function addMatiere(matid) {
+    function addMatiere(matid, append) {
         let toReturn = _addMatiere;
-        _addMatiere = [matid];
+        _addMatiere = [matid, append];
         return toReturn;
     }
 

@@ -1,5 +1,6 @@
 # currentMatiere
 from typing import List
+from uuid import UUID
 
 from loguru import logger
 
@@ -19,7 +20,7 @@ class MatiereMixin:
     matiereReset = Signal()
 
     def __init__(self):
-        self._currentMatiere = 0
+        self._currentMatiere = ""
         self.setCurrentMatiereFromIndexSignal.connect(self.setCurrentMatiereFromIndex)
         self.currentMatiereChanged.connect(self.pagesParSectionChanged)
 
@@ -27,13 +28,24 @@ class MatiereMixin:
         annee = annee or self.annee_active
         self.m_d = MatieresDispatcher(self.db, annee)
 
-    @Property(int, notify=currentMatiereChanged)
+    @Property(str, notify=currentMatiereChanged)
     def currentMatiere(self):
         return self._currentMatiere
 
     @currentMatiere.setter
     def current_matiere_set(self, value):
-        if self._currentMatiere != value and isinstance(value, int):
+        if isinstance(value, UUID):
+            value = str(value)
+        if self._currentMatiere != value:
+            with db_session:
+                try:
+                    Matiere[value]
+                except ValueError:
+                    self._currentMatiere = ""
+                    return
+                except ObjectNotFound:
+                    self._currentMatiere = ""
+                    return
             self._currentMatiere = value
             logger.debug(f"current matiere set to: {self._currentMatiere}")
             self.currentMatiereChanged.emit()
@@ -46,7 +58,7 @@ class MatiereMixin:
         )
         self.matiereReset.emit()
 
-    @Slot(int, result=int)
+    @Slot(str, result=int)
     def getMatiereIndexFromId(self, matiere_id):
         if not hasattr(self, "m_d"):
             return 0
@@ -86,17 +98,6 @@ class MatiereMixin:
             mat = self.db.Matiere[self.currentMatiere]
             return mat.to_dict()
 
-    @Slot(int)
-    @db_session
-    def peuplerLesMatieresParDefault(self, annee):
-        gm = [GroupeMatiere(**x, annee=annee) for x in MATIERE_GROUPE]
-        flush()
-        logger.info(f"{len(gm)} groupes de matières créées")
-        mat = [Matiere(**x) for x in MATIERES]
-        logger.info(f"{len(mat)} matières créées")
-        self.ui.sendToast.emit(f"{len(mat)} matières créées")
-        self.matieresListRefresh()
-
 
 class MatieresDispatcher:
     def __init__(self, db, annee_active):
@@ -119,13 +120,13 @@ class MatieresDispatcher:
         self.matieres_list_nom = self._build_matieres_list_nom()
 
     def _build_nom_id(self):
-        return {p.nom: p.id for p in self.query}
+        return {p.nom: str(p.id) for p in self.query}
 
     def _build_id_nom(self):
-        return {p.id: p.nom for p in self.query}
+        return {str(p.id): p.nom for p in self.query}
 
     def _build_id_index(self):
-        return {p.id: index for index, p in enumerate(self.query)}
+        return {str(p.id): index for index, p in enumerate(self.query)}
 
     def _build_matieres_list_nom(self):
         return tuple(self.nom_id.keys())

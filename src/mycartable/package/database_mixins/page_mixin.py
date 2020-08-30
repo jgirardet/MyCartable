@@ -1,3 +1,4 @@
+import uuid
 from functools import partial
 
 from PySide2.QtCore import Slot, Signal, Property, QObject
@@ -21,7 +22,7 @@ class PageMixin:
     TITRE_TIMER_DELAY = TITRE_TIMER_DELAY
 
     def __init__(self):
-        self._currentPage = 0
+        self._currentPage = ""
         self._currentTitre = ""
         self._currentEntry = None
 
@@ -39,25 +40,28 @@ class PageMixin:
         return self._pageModel
 
     # newPage
-    @Slot(int, result="QVariantMap")
+    @Slot(str, result="QVariantMap")
     def newPage(self, activite):
         with db_session:
             new_item = self.db.Page.new_page(activite=activite)
         self.newPageCreated.emit(new_item)
 
     # currentPage
-    @Property(int, notify=currentPageChanged)
+    @Property(str, notify=currentPageChanged)
     def currentPage(self):
         return self._currentPage
 
     @currentPage.setter
     def currentPageSet(self, new_id):
+        if isinstance(new_id, uuid.UUID):
+            new_id = str(new_id)
         if self._currentPage == new_id:
             return
 
         self._currentPage = new_id
         logger.debug(f"CurrentPage changed to {new_id}")
 
+        # breakpoint()
         if new_id:
             with db_session:
                 page = self.db.Page[new_id].to_dict()
@@ -65,10 +69,10 @@ class PageMixin:
             self.setCurrentEntry()
         else:
             self._currentEntry = None
-            self._currentPage = 0
+            self._currentPage = ""
             self.currentPageChanged.emit({})
 
-    @Slot(int)
+    @Slot(str)
     def removePage(self, pageId):
 
         with db_session:
@@ -77,7 +81,7 @@ class PageMixin:
                 item.delete()
         # bien après les modifs de database pour être ne pas emmettres
         # signaux avant modif de database
-        self.currentPage = 0
+        self.currentPage = ""
 
     def setCurrentEntry(self):
         with db_session:

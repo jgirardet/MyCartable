@@ -9,6 +9,7 @@ from PySide2.QtCore import (
     QStandardPaths,
     QSettings,
     QCoreApplication,
+    QLocale,
 )
 
 # from fbs_runtime.application_context.PySide2 import ApplicationContext
@@ -133,6 +134,7 @@ def main(filename=None):
     # global settings
     QCoreApplication.setApplicationName(APPNAME)
     QCoreApplication.setOrganizationName(ORGNAME)
+    QLocale.setDefault(QLocale(QLocale.French, QLocale.France))
 
     # create de app
     app = QApplication([])

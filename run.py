@@ -205,6 +205,7 @@ def cmd_qmlformat(*args, **kwargs):
         "ChangeMatiere.qml",
         "ChangeActivite.qml",
         "Buttons.qml",
+        "BasePageDelegate.qml",
     ]
     errors = []
     for file in files:

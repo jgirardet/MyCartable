@@ -185,8 +185,7 @@ def b_section(n, *args, **kwargs):
 def f_imageSection(path=None, **kwargs):
 
     path = path or str(
-        Path(__file__).parents[4].absolute()
-        / "tests"
+        Path(__file__).parents[1]
         / "resources"
         / random.choice(["tst_AnnotableImage.png", "sc1.png"])
     )
@@ -403,6 +402,24 @@ def populate_database(matieres_list=MATIERES, nb_page=100):
                 compteur += 1
                 ac = Activite(matiere=m, nom="mdomak")
                 page = Page(titre="mojkù", activite=ac)
+                for x in range(random.randint(0, 8)):
+                    random.choice(
+                        [
+                            f_equationSection(
+                                page=page.id,
+                                # content=f"""1{TextEquation.FSP}            {TextEquation.FSP}12   1234
+                                # ―― + 13 + 3 + ――― + ―――― + 1
+                                # 15            234   789{TextEquation.FSP}    """,
+                            ),
+                            f_tableauSection(page=page.id),
+                            f_imageSection(page=page.id),
+                            f_textSection(page=page.id),
+                            f_additionSection(page=page.id),
+                            f_soustractionSection(page=page.id),
+                            f_multiplicationSection(page=page.id),
+                            f_divisionSection(page=page.id),
+                        ]
+                    )
         groupes.append(gr)
 
     # for groupe in groupes:

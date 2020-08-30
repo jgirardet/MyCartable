@@ -15,6 +15,7 @@ ListView {
 
     spacing: 10
     clip: true
+    cacheBuffer: 20000
     focus: true
     boundsBehavior: Flickable.DragOverBounds
     onCurrentIndexChanged: {

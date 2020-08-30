@@ -10,7 +10,7 @@ author_email = "ijkl@netc.fr"
 [tool.briefcase.app.mycartable]
 formal_name = "MyCartable"
 description = "Toute le travail de l'école, à un seul endroit !!"
-#icon = "src/mycartable/resources/mycartable"
+icon = "src/data/icons/appicon"
 sources = ['src/mycartable']
 requires = ['pyside2==5.15.0',
             'pony>=0.7.11,<0.8',

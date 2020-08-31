@@ -141,7 +141,7 @@ class UiManager(QObject):
 
     buzyIndicatorChanged = Signal()
 
-    @Property(bool, notify=buzyIndicatorChanged)
+    @Property(QObject, notify=buzyIndicatorChanged)
     def buzyIndicator(self):
         return self._buzyIndicator
 
@@ -150,6 +150,7 @@ class UiManager(QObject):
         self._buzyIndicator = value
         self.buzyIndicatorChanged.emit()
 
-    @Slot()
-    def unSetBuzyIndicator(self, *args, **kwargs):
-        self.buzyIndicator = False
+    # @Slot()
+    # def unSetBuzyIndicator(self, *args, **kwargs):
+    #     print(args, kwargs)
+    #     self.buzyIndicator = False

@@ -23,6 +23,15 @@ ApplicationWindow {
     onClosing: {
         baseItem.destroy(); // elmine presque tous les messages d'erreur
     }
+    Component.onCompleted: {
+        uiManager.buzyIndicator = attente;
+    }
+
+    Attente {
+        id: attente
+
+        z: running ? 10 : -5
+    }
 
     BusyIndicator {
         id: busy

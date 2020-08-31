@@ -82,9 +82,7 @@ Item {
           folder: shortcuts.pictures
           nameFilters: ["fichiers Images (*.jpg *.png *.bmp *.ppm *.gif, *.pdf)"]
           onAccepted: {
-//              uiManager.buzyIndicator.visible = true
-              uiManager.buzyIndicator = true
-//              uiManager.buzyIndicator.delay(1000)
+              uiManager.buzyIndicator.running = true
               ddb.addSection(ddb.currentPage, {
                   "path": fileUrl,
                   "classtype": nom,

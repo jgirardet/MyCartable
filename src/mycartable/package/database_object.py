@@ -16,6 +16,7 @@ from package.database_mixins.text_mixin import TextSectionMixin
 
 from loguru import logger
 from package.files_path import FILES
+from package.ui_manager import UiManager
 from pony.orm import db_session
 
 MIXINS = [
@@ -42,7 +43,7 @@ class DatabaseObject(QObject, *MIXINS):
     def __init__(self, db, ui, debug=True):
         super().__init__()
         self.db = db
-        self.ui = ui
+        self.ui: UiManager = ui
 
         for mixin in MIXINS:
             mixin.__init__(self)
@@ -68,6 +69,7 @@ class DatabaseObject(QObject, *MIXINS):
         self.newPageCreated.connect(self.onNewPageCreated)
         self.recentsItemClicked.connect(self.onRecentsItemClicked)
         self.sectionAdded.connect(self.pageModel.insertRows)
+        self.sectionAdded.connect(self.unSetBuzyIndicator)
         self.sectionRemoved.connect(self.pageModel.removeRow)
         self.pageActiviteChanged.connect(self.pagesParSectionChanged)
 
@@ -83,6 +85,9 @@ class DatabaseObject(QObject, *MIXINS):
 
         # session
         self.changeAnnee.connect(self.onChangeAnnee)
+
+    def unSetBuzyIndicator(self, *args):
+        self.ui.buzyIndicator.running = False
 
     def onCurrentPageChanged(self, page):
         if not page:

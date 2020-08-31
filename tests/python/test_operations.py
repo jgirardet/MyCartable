@@ -1,17 +1,16 @@
-import itertools
+import uuid
 from decimal import Decimal
 from unittest.mock import patch, call
 
 import pytest
 from PySide2.QtCore import Qt, Signal
 from fixtures import check_super_init, check_args, check_is_range
-from package.database.factory import (
+from factory import (
     f_additionSection,
     f_soustractionSection,
     f_multiplicationSection,
     f_divisionSection,
 )
-from package.database_object import DatabaseObject
 from package.operations.api import (
     match,
     convert_addition,
@@ -603,19 +602,19 @@ class TestOperationModel:
 
         OperationModel.ddb = DatabaseObject(ddbr)
         op = OperationModel()
-        op.sectionId = 1
+        op.sectionId = str(uuid.uuid4())
         assert op.sectionId is None, "should not be set if not in databse"
 
         td = f_additionSection(string="9+8", td=True)
 
         with qtbot.waitSignal(op.sectionIdChanged):
-            op.sectionId = 1
+            op.sectionId = td["id"]
 
         assert op.params == td
         assert op.datas == ["", "", "", "", "", "9", "+", "", "8", "", "", ""]
         assert op.rows == 4
         assert op.columns == 3
-        assert op.sectionId == 1
+        assert op.sectionId == td["id"]
         assert op.virgule == 0
 
     def test_cursor(self, to, qtbot):
@@ -641,19 +640,24 @@ class TestOperationModel:
         # unvalid role
         assert to.data(to.index(5, 0), 999999) is None
 
-    def test_flags(self, to):
-        to.flags(to.index(99, 99)) == Qt.ItemIsDropEnabled
+    def test_flags(self):
+        x = OperationModel()
+        x.rowCount = lambda x: 1
+        assert int(x.flags(x.index(0, 0))) == 128 + 35
+        assert x.flags(x.index(99, 99)) is None
 
     def test_setData(self, to):
         assert to.setData(to.index(11, 0), "5", Qt.EditRole)  # doit retourner True
         with db_session:
-            assert to.db.Section[1].datas[11] == "5"
+            un = str(to.db.Section.select().first().id)
+        with db_session:
+            assert to.db.Section[un].datas[11] == "5"
             assert to.datas[11] == "5"
 
         assert not to.setData(to.index(99, 0), "5", Qt.EditRole)
         assert not to.setData(to.index(11, 0), 8, Qt.DisplayRole)
         with db_session:
-            assert to.db.Section[1].datas[11] == "5"  # pas de modif
+            assert to.db.Section[un].datas[11] == "5"  # pas de modif
 
     def test_setData_changerecents(self, to, qtbot):
         with qtbot.waitSignal(to.ddb.recentsModelChanged):
@@ -934,6 +938,8 @@ class TestSoustractionModel:
             (43, Qt.Key_Left, 39),
             (46, Qt.Key_Left, 43),
             (49, Qt.Key_Left, 46),
+            (49, Qt.Key_Up, 49),
+            (49, Qt.Key_Down, 49),
         ],
     )
     def test_movecursor2(self, ts, index, key, res):
@@ -1417,6 +1423,37 @@ class TestMultiplicationModel:
             tm.cursor = 46
         assert tm.highLight == [33, 25]
 
+    def test_highLightProperty_simple(self, tm, qtbot):
+        tm("12*2")
+        tm.editables = {1, 10, 11}
+
+        with qtbot.waitSignal(tm.highLightChanged):
+            tm.cursor = 10
+        assert tm.highLight == [8, 4]
+        with qtbot.waitSignal(tm.highLightChanged):
+            tm.cursor = 11
+        assert tm.highLight == [8, 5]
+
+    def test_custom_params_load(self, dao):
+        class MultiplicationModel2(MultiplicationModel):
+            ddb = dao
+
+        a = MultiplicationModel2()
+        # a.ddb = dao
+        x = f_multiplicationSection()
+        a.sectionId = x.id
+        with db_session:
+            assert a.n_chiffres == x.n_chiffres
+
+    def test_get_initial_position(self, dao):
+        class MultiplicationModel2(MultiplicationModel):
+            ddb = dao
+
+        a = MultiplicationModel2()
+        x = f_multiplicationSection(string="323*23")
+        a.sectionId = x.id
+        assert a.cursor == 24
+
 
 @pytest.fixture
 def td():
@@ -1696,6 +1733,7 @@ class TestDivisionModel:
         assert td._get_last_index_filled(["", "3", "5", "", "", "", ""]) == 2
         assert td._get_last_index_filled(["1", "", "", "", "", "", ""]) == 0
         assert td._get_last_index_filled(["", "", "", "", "", "", ""]) == 6
+        assert td._get_last_index_filled(("", "", "", "", "", "", "")) == 6
 
     def test_goToResultLine(self, td):
         td("264/11")

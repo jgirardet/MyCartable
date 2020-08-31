@@ -12,7 +12,7 @@ import platform
 
 root = Path(__file__).parents[1].resolve()
 sys.path = [str(root)] + sys.path
-data = root / "src" / "data"
+binary = root / "src" / "mycartable" / "binary"
 dist = root / "dist" / "MyCartable"
 filename = "MyCartable" if sys.platform == "linux" else "MyCartable.exe"
 exe = dist / filename
@@ -28,6 +28,7 @@ DATA_DIR_INCLUDED = [data]
 
 
 def test_data_one_dir_included(path: Path):
+    """dot être fixe"""
     path = path.resolve()
     dist_data = (dist / path.name).resolve()
 

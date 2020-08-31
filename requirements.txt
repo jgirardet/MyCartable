@@ -1,19 +1,22 @@
-pyside2==5.14.1
-pony==0.7.11
-dickens==1.0.1
-pyinstaller==3.6
-Pillow==7.1.2
-mako==1.1.2
+#pyside2==5.15.0
+# pony>=0.7.13,<0.8
+#Pillow>=7.1.2,<7.2
+#mako>=1.1.2,<1.2
+#beautifulsoup4>=4.9,<4.10
 
 #dev
-coverage
-beautifulsoup4
+aqtinstall==0.9
 black
+coverage
 freezegun
+mimesis
 pytest
 pytest-freezegun
 pytest-qt
-aqtinstall==0.8
-mimesis
-jsbeautifier==1.11
+PyPDF2
+mypy
+#briefcase==0.3.3
+-e git://github.com/jgirardet/briefcase.git@patch033#egg=briefcase
+toml
+loguru-caplog
 

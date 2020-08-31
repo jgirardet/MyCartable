@@ -1,19 +1,22 @@
 import pytest
 
 from PySide2.QtCore import Qt, QModelIndex
-from fixtures import check_super_init, check_begin_end
-from package.database.factory import f_page, b_section, f_section
+from fixtures import check_super_init, check_begin_end, check_args
+from factory import f_page, b_section, f_section
 from package.page.page_model import PageModel
 from pony.orm import db_session, make_proxy
 
 
 @pytest.fixture
-def pm(ddbr):
+def pm(ddbr, qtbot):
     # return a
     def factory(nb):
         p = f_page()
         a = PageModel()
-        b_section(nb, page=p.id)
+        x = b_section(nb, page=p.id)
+        a.secids = [str(z.id) for z in x]
+        a.pageid = p.id
+        print(a.secids, a.pageid)
         a.slotReset(p.id)
         return a
 
@@ -21,6 +24,11 @@ def pm(ddbr):
 
 
 class TestPAgeModel:
+    def test_check_args(self, pm):
+        a = pm(1)
+        check_args(a.move, [int, int], bool)
+        check_args(a.removeSection, [int], bool)
+
     def test_base_init(self, qtbot, qtmodeltester):
         assert check_super_init("package.page.page_model.QAbstractListModel", PageModel)
         b = PageModel()
@@ -34,14 +42,16 @@ class TestPAgeModel:
     def test_data_role(self, pm):
         a = pm(2)
         # valid index
-        assert a.data(a.index(1, 0), a.PageRole)["id"] == 2
+        assert a.data(a.index(1, 0), a.PageRole)["id"] == a.secids[1]
         # invalid index
         assert a.data(a.index(99, 99), a.PageRole) is None
         # no good role
         assert a.data(a.index(1, 0), 99999) is None
 
-    def test_flags(self):
-        """pas compris comment tester"""
+    def test_flags(self, pm):
+        x = pm(1)
+        assert int(x.flags(x.index(0, 0))) == 128 + 35
+        assert x.flags(x.index(99, 99)) is None
 
     def test_insertRows(self, pm, qtbot):
         x = pm(2)
@@ -139,7 +149,7 @@ class TestPAgeModel:
         with qtbot.waitSignal(a.lastPositionChanged):
             a.lastPosition = 1
         with db_session:
-            assert ddbr.Page[1].lastPosition == 1
+            assert ddbr.Page[str(a.pageid)].lastPosition == 1
 
     @pytest.mark.parametrize(
         "source, target, res_fn, res_source, res_target",
@@ -149,6 +159,7 @@ class TestPAgeModel:
             (2, 0, True, 0, 1),
             (2, 1, True, 1, 2),
             (-1, 3, False, 1, 2),
+            (-1, 1, False, 1, 2),
             (1, 1, False, 1, 1),
         ],
     )
@@ -157,8 +168,8 @@ class TestPAgeModel:
         assert a.move(source, target) == res_fn
         if res_fn:
             with db_session:
-                assert ddbr.Section[source + 1].position == res_source
-                assert ddbr.Section[target + 1].position == res_target
+                assert ddbr.Section[a.secids[source]].position == res_source
+                assert ddbr.Section[a.secids[target]].position == res_target
 
     def test_move_last_position(self, pm, qtbot, ddbr):
         a = pm(3)
@@ -173,32 +184,32 @@ class TestPAgeModel:
 
         assert a.removeRows(0, 0, QModelIndex())
         assert a.rowCount() == 2
-        assert a.data(a.index(0, 0), a.PageRole)["id"] == 2
-        assert a.data(a.index(1, 0), a.PageRole)["id"] == 3
+        assert a.data(a.index(0, 0), a.PageRole)["id"] == a.secids[1]
+        assert a.data(a.index(1, 0), a.PageRole)["id"] == a.secids[2]
 
     def test_removeRows_at_1(self, pm, ddbr, qtbot):
         a = pm(3)
 
         assert a.removeRows(1, 0, QModelIndex())
         assert a.rowCount() == 2
-        assert a.data(a.index(0, 0), a.PageRole)["id"] == 1
-        assert a.data(a.index(1, 0), a.PageRole)["id"] == 3
+        assert a.data(a.index(0, 0), a.PageRole)["id"] == a.secids[0]
+        assert a.data(a.index(1, 0), a.PageRole)["id"] == a.secids[2]
 
     def test_removeRows_at_end(self, pm, ddbr, qtbot):
         a = pm(3)
 
         assert a.removeRows(2, 0, QModelIndex())
         assert a.rowCount() == 2
-        assert a.data(a.index(0, 0), a.PageRole)["id"] == 1
-        assert a.data(a.index(1, 0), a.PageRole)["id"] == 2
+        assert a.data(a.index(0, 0), a.PageRole)["id"] == a.secids[0]
+        assert a.data(a.index(1, 0), a.PageRole)["id"] == a.secids[1]
 
     def test_removeSection(self, pm, ddbr, qtbot):
         a = pm(3)
 
         assert a.removeSection(0)
         assert a.rowCount() == 2
-        assert a.data(a.index(0, 0), a.PageRole)["id"] == 2
-        assert a.data(a.index(1, 0), a.PageRole)["id"] == 3
+        assert a.data(a.index(0, 0), a.PageRole)["id"] == a.secids[1]
+        assert a.data(a.index(1, 0), a.PageRole)["id"] == a.secids[2]
 
     def test_count(self, pm, ddbr, qtbot):
         a = pm(0)

@@ -10,6 +10,17 @@
 
     </qresource>
 
+    <qresource prefix="/qml/configuration">
+        <file alias="NewUser.qml">qml/configuration/NewUser.qml</file>
+        <file alias="NewAnnee.qml">qml/configuration/NewAnnee.qml</file>
+        <file alias="RefColorDialog.qml">qml/configuration/RefColorDialog.qml</file>
+        <file alias="ActionButtonMatiere.qml">qml/configuration/ActionButtonMatiere.qml</file>
+        <file alias="ChangeMatiere.qml">qml/configuration/ChangeMatiere.qml</file>
+        <file alias="ChangeGroupe.qml">qml/configuration/ChangeGroupe.qml</file>
+        <file alias="ChangeActivite.qml">qml/configuration/ChangeActivite.qml</file>
+
+    </qresource>
+
 
     <qresource prefix="/qml/page">
         <file alias="PageToolBar.qml">qml/page/PageToolBar.qml</file>
@@ -17,7 +28,6 @@
         <file alias="BasePageDelegate.qml">qml/page/BasePageDelegate.qml</file>
         <file alias="PageRectangle.qml">qml/page/PageRectangle.qml</file>
         <file alias="PageTitre.qml">qml/page/PageTitre.qml</file>
-        <file alias="StabyloRectangle.qml">qml/page/StabyloRectangle.qml</file>
 
     </qresource>
     <qresource prefix="/qml/sections">
@@ -34,11 +44,10 @@
 
     <qresource prefix="/qml/annotations">
         <file alias="CanvasFactory.qml">qml/annotations/CanvasFactory.qml</file>
-        <file alias="CanvasPainter.qml">qml/annotations/CanvasPainter.qml</file>
+        <file alias="ImageSectionBase.qml">qml/annotations/ImageSectionBase.qml</file>
         <file alias="BaseAnnotation.qml">qml/annotations/BaseAnnotation.qml</file>
         <file alias="AnnotationDessin.qml">qml/annotations/AnnotationDessin.qml</file>
         <file alias="AnnotationText.qml">qml/annotations/AnnotationText.qml</file>
-        <file alias="AnnotationDispatcher.qml">qml/annotations/AnnotationDispatcher.qml</file>
     </qresource>
 
     <qresource prefix="/qml/operations">
@@ -64,22 +73,12 @@
 <!--        <file alias="MenuFlottantAnnotationText.qml">qml/menu/MenuFlottantAnnotationText.qml</file>-->
         <file alias="ColorButton.qml">qml/menu/ColorButton.qml</file>
         <file alias="PointSizeSlider.qml">qml/menu/PointSizeSlider.qml</file>
+        <file alias="OpacitySlider.qml">qml/menu/OpacitySlider.qml</file>
+        <file alias="DeplacePage.qml">qml/menu/DeplacePage.qml</file>
 
     </qresource>
 
-      <qresource prefix="/qml/toolbuttons">
-        <file alias="PageToolBarToolButton.qml">qml/toolbuttons/PageToolBarToolButton.qml</file>
-        <file alias="NewSectionButton.qml">qml/toolbuttons/NewSectionButton.qml</file>
-        <file alias="NewTextSectionButton.qml">qml/toolbuttons/NewTextSectionButton.qml</file>
-        <file alias="NewEquationSectionButton.qml">qml/toolbuttons/NewEquationSectionButton.qml</file>
-        <file alias="NewOperationSectionButton.qml">qml/toolbuttons/NewOperationSectionButton.qml</file>
-        <file alias="NewTableauSectionButton.qml">qml/toolbuttons/NewTableauSectionButton.qml</file>
-        <file alias="NewImageSectionButton.qml">qml/toolbuttons/NewImageSectionButton.qml</file>
-        <file alias="RemovePageButton.qml">qml/toolbuttons/RemovePageButton.qml</file>
-        <file alias="ExportPdfButton.qml">qml/toolbuttons/ExportPdfButton.qml</file>
-        <file alias="ExportOdtButton.qml">qml/toolbuttons/ExportOdtButton.qml</file>
 
-    </qresource>
 
     <qresource prefix="/qml/divers">
         <file alias="BorderRectangle.qml">qml/divers/BorderRectangle.qml</file>
@@ -88,8 +87,18 @@
         <file alias="ValueButton.qml">qml/divers/ValueButton.qml</file>
         <file alias="MovingText.qml">qml/divers/MovingText.qml</file>
         <file alias="PageButton.qml">qml/divers/PageButton.qml</file>
+        <file alias="LabeledInput.qml">qml/divers/LabeledInput.qml</file>
     </qresource>
+    
+    <qresource prefix="/qml/actions">
+        <file alias="TableauActions.qml">qml/actions/TableauActions.qml</file>
+        <file alias="PageActions.qml">qml/actions/PageActions.qml</file>
+        <file alias="Buttons.qml">qml/actions/Buttons.qml</file>
+    </qresource>
+    
     <qresource prefix="/icons">
+        <file alias="mycartable.png">data/icons/mycartable.png</file>
+        <file alias="mycartable.ico">data/icons/mycartable.ico</file>
         <file alias="ellipse">data/icons/base/pack/png/sphere.png</file>
         <file alias="fillrect">data/icons/base/pack/png/fillrect.png</file>
         <file alias="newTextSection">data/icons/base/divers/png/003-edit.png</file>
@@ -98,12 +107,29 @@
         <file alias="removePage">data/icons/base/divers/png/006-trash-bin.png</file>
         <file alias="newTableauSection">data/icons/base/divers/png/013-spreadsheet.png</file>
         <file alias="newOperationSection">data/icons/base/pack/png/calculator-1.png</file>
+        <file alias="less-than">data/icons/base/pack/png/is-less-than.png</file>
         <file alias="rotateLeft">data/icons/base/perso/rotateleft.png</file>
         <file alias="odt">data/icons/base/perso/odt.png</file>
         <file alias="pdf">data/icons/base/perso/pdf.png</file>
         <file alias="rotateRight">data/icons/base/perso/rotateright.png</file>
         <file alias="rect">data/icons/base/pack/png/rect.png</file>
         <file alias="trait">data/icons/base/pack/png/pencil.png</file>
+        <file alias="add-row">data/icons/base/divers/png/add-row.png</file>
+        <file alias="add-column">data/icons/base/divers/png/add-column.png</file>
+        <file alias="remove-row">data/icons/base/divers/png/remove-row.png</file>
+        <file alias="remove-row-red">data/icons/base/divers/png/remove-row-red.png</file>
+        <file alias="remove-column">data/icons/base/divers/png/remove-column.png</file>
+        <file alias="append-column">data/icons/base/divers/png/append-column.png</file>
+        <file alias="append-row">data/icons/base/divers/png/append-row.png</file>
+        <file alias="modele-vide">data/icons/base/divers/png/modele-vide.png</file>
+        <file alias="modele-ligne0">data/icons/base/divers/png/modele-ligne0.png</file>
+        <file alias="modele-ligne0-colonne0">data/icons/base/divers/png/modele-ligne0-colonne0.png</file>
+        <file alias="modele-colonne0">data/icons/base/divers/png/modele-colonne0.png</file>
+        <file alias="plus">data/icons/base/divers/png/010-plus.png</file>
+        <file alias="arrow-up">data/icons/base/arrows/png/004-up arrow.png</file>
+        <file alias="arrow-down">data/icons/base/arrows/png/003-down arrow.png</file>
+        <file alias="arrow-double">data/icons/base/arrows/png/040-left arrow.png</file>
+        <file alias="arrow-right">data/icons/base/arrows/png/001-right arrow.png</file>
 <!--        <file alias="text">data/icons/base/pack/png/sphere.png</file>-->
     </qresource>
     <qresource prefix="/fonts">
@@ -112,6 +138,7 @@
     </qresource>
     <qresource prefix="/js">
         <file alias="lodash.js">data/js/lodash.js</file>
+        <file alias="drawcanvas.mjs">data/js/drawcanvas.mjs</file>
     </qresource>
     <qresource prefix="/css">
         <file alias="textsection.css">data/css/textsection.css</file>

@@ -9,7 +9,7 @@ from PySide2.QtCore import QSettings, QStandardPaths
 from PySide2.QtGui import QTextDocument
 from PySide2.QtWidgets import QApplication
 from mimesis import Generic
-from pony.orm import db_session, delete
+from pony.orm import db_session, delete, ObjectNotFound, flush
 import subprocess
 
 generic_mimesis = Generic("fr")
@@ -21,10 +21,11 @@ def gen(request):
 
 
 def pytest_sessionstart():
+    QStandardPaths.setTestModeEnabled(True)
 
     # modify python path
     root = Path(__file__).parents[2]
-    python_dir = root / "src" / "python"
+    python_dir = root / "src" / "mycartable"
     sys.path.append(str(python_dir))
     sys.path.append(str(Path(__file__).parent))
 
@@ -36,15 +37,18 @@ def pytest_sessionstart():
 
     # run qrc update
     orig = root / "src" / "qml.qrc"
-    dest = python_dir / "qrc.py"
+    dest = python_dir / "package" / "qrc.py"
     command = f"pyside2-rcc {orig.absolute()} -o {dest.absolute()}"
     subprocess.run(command, cwd=root, shell=True)
 
-    # remove all FILES
-    QStandardPaths.setTestModeEnabled(True)
-    from package.files_path import ROOT_DATA
+    # import qrc
+    from package import qrc
 
-    shutil.rmtree(ROOT_DATA)
+    # remove all FILES
+
+    from package.files_path import root_data
+
+    shutil.rmtree(root_data())
 
 
 @pytest.fixture(scope="session")
@@ -97,14 +101,25 @@ def reset_db(ddbn):
 
 
 def fn_reset_db(db):
+    # try:
+    # for a in db.Annee.select():
+    #     a.delete()
     with db_session:
-        # for a in db.Annee.select():
-        #     a.delete()
         for entity in db.entities.values():
-            delete(e for e in entity)
-            db.execute(
-                f"UPDATE SQLITE_SEQUENCE  SET  SEQ = 0 WHERE NAME = '{entity._table_}';"
-            )
+            for e in entity.select():
+                try:
+                    e.delete()
+                    flush()
+                # delete(e for e in entity)
+                except:
+                    continue
+            # db.execute(
+            #     f"UPDATE SQLITE_SEQUENCE  SET  SEQ = 0 WHERE NAME = '{entity._table_}';"
+            # )
+
+
+# except:
+#     pass
 
 
 @pytest.fixture(scope="function")
@@ -129,14 +144,24 @@ def uim():
 
 
 @pytest.fixture()
-def dao(ddbr, tmpfilename, uim):
+def userid():
+    return "0ca1d5b4-eddb-4afd-8b8e-1aa5e7e19d17"
+
+
+@pytest.fixture()
+def dao(ddbr, tmpfilename, uim, userid):
     from package.database_object import DatabaseObject
 
     with db_session:
-        annee = ddbr.Annee(id=2019, niveau="cm2019")
+        annee = ddbr.Annee(
+            id=2019,
+            niveau="cm2019",
+            user=ddbr.Utilisateur(id=userid, nom="lenom", prenom="leprenom"),
+        )
     obj = DatabaseObject(ddbr)
     obj.ui = uim
-    obj.setup_settings(annee=2019)
+    # obj.setup_settings(annee=2019)
+    obj.changeAnnee.emit(2019)
     obj.init_matieres()
     obj.settings = QSettings(str(tmpfilename.absolute()))
 
@@ -146,7 +171,7 @@ def dao(ddbr, tmpfilename, uim):
 import time
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(autouse=False)
 def duree_test():
     debut = time.time()
     yield

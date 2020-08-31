@@ -1,14 +1,17 @@
 [run]
   branch = True
 source =
-	src/python
+	src/mycartable
 omit =
   */__init__.py,
   */factory.py
+  */dev_mixin.py
+  */qrc.py
 
 [report]
 ignore_errors = True
 exclude_lines =
+    pragma: no cover
     pragma: no cover_all
     pragma: no cover_linux
     def __repr__

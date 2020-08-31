@@ -1,13 +1,33 @@
-import QtQuick 2.14
+import QtQuick 2.15
+import QtQuick.Controls 2.15
 import "qrc:/qml/menu"
 
 Item {
-  /* beautify preserve:start */
-      property var menuTarget
-      property var menuFlottantText: MenuFlottantText {}
-//      property var menuFlottantStabylo: MenuFlottantStabylo {}
-      property var menuFlottantTableau: MenuFlottantTableau {}
-      property var menuFlottantImage: MenuFlottantImage {}
-      property int annotationCurrentTextSizeFactor: 15
-      /* beautify preserve:stop */
+    property var menuTarget
+    property var menuFlottantAnnotationText
+    property var menuFlottantAnnotationDessin
+    property var menuFlottantText
+    property var menuFlottantTableau
+    property var menuFlottantImage
+    property int annotationCurrentTextSizeFactor: 15
+    property string annotationDessinCurrentTool: "fillrect"
+    property real annotationDessinCurrentLineWidth: 3
+    property color annotationDessinCurrentStrokeStyle: "black"
+    property string annotationCurrentTool: "text"
+
+    menuFlottantAnnotationText: MenuFlottantAnnotationText {
+    }
+
+    menuFlottantAnnotationDessin: MenuFlottantAnnotationDessin {
+    }
+
+    menuFlottantText: MenuFlottantText {
+    }
+
+    menuFlottantTableau: MenuFlottantTableau {
+    }
+
+    menuFlottantImage: MenuFlottantImage {
+    }
+
 }

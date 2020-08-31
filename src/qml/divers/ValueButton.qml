@@ -1,8 +1,6 @@
-import QtQuick 2.14
-import QtQuick.Controls 2.14
+import QtQuick 2.15
+import QtQuick.Controls 2.15
 
 Button {
-  /* beautify preserve:start */
-  property var value
-  /* beautify preserve:end */
+    property var value
 }

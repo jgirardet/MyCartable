@@ -1,44 +1,59 @@
-import QtQuick 2.14
-import QtQuick.Controls 2.14
+import QtQuick 2.15
+import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.14
 
-TextField {
+TextArea {
+    id: root
 
-  /* beautify preserve:start */
-      property var page
-  /* beautify preserve:end */
+    property var page
+    property int textlen: 0
 
-  text: ddb.currentPage ? ddb.currentTitre : ""
-  id: root
-  readOnly: ddb.currentPage == 0 ? true : false
-  //  Layout.preferredWidth: parent.width
-  //  Layout.preferredHeight: 50
-  font.weight: Font.Bold
-  font.capitalization: Font.AllUppercase
-  color: ddb.currentMatiere ? ddb.currentMatiereItem.fgColor : "white"
-  horizontalAlignment: TextInput.AlignHCenter
-  verticalAlignment: TextInput.AlignVCenter
-  background: Rectangle {
-    color: ddb.currentMatiere ? ddb.currentMatiereItem.bgColor : ddb.colorMainMenuBar
-    radius: 10
+    text: ddb.currentPage ? ddb.currentTitre : ""
+    readOnly: ddb.currentPage == 0 ? true : false
+    //  Layout.preferredWidth: parent.width
+    //  Layout.preferredHeight: 50
+    font.bold: true
+    font.pointSize: 16
+    font.capitalization: Font.Capitalize
+    font.family: ddb.fontMain
+    horizontalAlignment: TextInput.AlignHCenter
+    verticalAlignment: TextInput.AlignVCenter
+    onTextChanged: {
+        ddb.setCurrentTitre(text);
+        if (textlen < length) {
+            while (contentWidth > (width) - 10) {
+                font.pointSize--;
+                if (font.pointSize <= 4)
+                    break;
 
-  }
-
-  onTextChanged: {
-    ddb.setCurrentTitre(text)
-  }
-
-  Keys.onPressed: {
-    if (event.key == Qt.Key_Return) {
-      if (!page.model.rowCount()) {
-        ddb.addSection(ddb.currentPage, {
-          "classtype": "TextSection"
-        })
-      }
+            }
+        } else {
+            while (font.pointSize != 16) {
+                font.pointSize++;
+                if (contentWidth > (width - 10)) {
+                    font.pointSize--;
+                    return ;
+                }
+            }
+        }
+        textlen = length;
     }
-  }
-  Component.onCompleted: {
-    ddb.newPageCreated.connect(forceActiveFocus)
-  }
+    Keys.onPressed: {
+        if (event.key == Qt.Key_Return)
+            if (!page.model.rowCount())
+            ddb.addSection(ddb.currentPage, {
+            "classtype": "TextSection"
+        });
+;
+
+    }
+    Component.onCompleted: {
+        ddb.newPageCreated.connect(forceActiveFocus);
+    }
+
+    background: Rectangle {
+        color: ddb.currentMatiere ? ddb.currentMatiereItem.bgColor : ddb.colorMainMenuBar
+        radius: 10
+    }
 
 }

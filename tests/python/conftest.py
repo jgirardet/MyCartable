@@ -56,8 +56,9 @@ def qapp():
     app = QApplication([])
     from package.database_object import DatabaseObject
     from package.database import db
+    from package.ui_manager import UiManager
 
-    app.dao = DatabaseObject(db)
+    app.dao = DatabaseObject(db, UiManager())
     yield app
 
 

@@ -71,7 +71,7 @@ def collect_files(root: Path, pref="", ext: str = ""):
     return res
 
 
-def run_convert_pdf(pdf, png_root, prefix="xxx", resolution=200, timeout=30):
+def run_convert_pdf(pdf, png_root, prefix="xxx", resolution=200, timeout=60):
     root = Path(png_root)
     if not root.is_dir():
         root.mkdir(parents=True)

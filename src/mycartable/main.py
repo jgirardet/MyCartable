@@ -80,9 +80,9 @@ def create_singleton_instance(prod=False):
     from package.database_object import DatabaseObject
     from package.ui_manager import UiManager
 
-    databaseObject = DatabaseObject(package.database.db, debug=False)
     ui_manager = UiManager()
-    databaseObject.ui = ui_manager
+    databaseObject = DatabaseObject(package.database.db, ui_manager, debug=False)
+    # databaseObject.ui = ui_manager
 
     if not prod:
         databaseObject.anneeActive = 2019

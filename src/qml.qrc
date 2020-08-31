@@ -88,6 +88,7 @@
         <file alias="MovingText.qml">qml/divers/MovingText.qml</file>
         <file alias="PageButton.qml">qml/divers/PageButton.qml</file>
         <file alias="LabeledInput.qml">qml/divers/LabeledInput.qml</file>
+        <file alias="Attente.qml">qml/divers/Attente.qml</file>
     </qresource>
     
     <qresource prefix="/qml/actions">

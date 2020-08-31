@@ -25,6 +25,7 @@ class UiManager(QObject):
         self._annotationDessinCurrentStrokeStyle = "black"
         self._annotationDessinCurrentTool = "fillrect"
         self._annotationCurrentTool = "text"
+        self._buzyIndicator = False
 
     @Property(QObject, notify=menuFlottantTextChanged)
     def menuFlottantText(self):
@@ -137,3 +138,19 @@ class UiManager(QObject):
         self.annotationCurrentToolChanged.emit()
 
     sendToast = Signal(str)
+
+    buzyIndicatorChanged = Signal()
+
+    @Property(QObject, notify=buzyIndicatorChanged)
+    def buzyIndicator(self):
+        return self._buzyIndicator
+
+    @buzyIndicator.setter
+    def buzyIndicator_set(self, value: int):
+        self._buzyIndicator = value
+        self.buzyIndicatorChanged.emit()
+
+    # @Slot()
+    # def unSetBuzyIndicator(self, *args, **kwargs):
+    #     print(args, kwargs)
+    #     self.buzyIndicator = False

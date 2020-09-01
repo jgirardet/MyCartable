@@ -159,8 +159,8 @@ def dao(ddbr, tmpfilename, uim, userid):
             niveau="cm2019",
             user=ddbr.Utilisateur(id=userid, nom="lenom", prenom="leprenom"),
         )
-    obj = DatabaseObject(ddbr)
-    obj.ui = uim
+    obj = DatabaseObject(ddbr, uim)
+    # obj.ui = uim
     # obj.setup_settings(annee=2019)
     obj.changeAnnee.emit(2019)
     obj.init_matieres()

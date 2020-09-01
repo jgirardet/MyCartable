@@ -83,6 +83,7 @@ class TestPage:
         recents = db.Page._query_recents(db.Page, 2019)[:]
         assert all(x.modified > datetime.utcnow() - timedelta(days=30) for x in recents)
         assert all(x.activite.matiere.groupe.annee.id == 2019 for x in recents)
+        print(recents)
         old = recents[0]
         for i in recents[1:]:
             assert old.modified > i.modified

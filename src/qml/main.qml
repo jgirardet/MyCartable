@@ -10,6 +10,9 @@ ApplicationWindow {
     //    header: MainMenuBar {
     //        id: mainMenuBar
     //    }
+    //    Component.onCompleted: {
+    //        uiManager.buzyIndicator = attente;
+    //    }
 
     id: root
 
@@ -20,13 +23,20 @@ ApplicationWindow {
     onClosing: {
         baseItem.destroy(); // elmine presque tous les messages d'erreur
     }
-    Component.onCompleted: {
-        uiManager.buzyIndicator = attente;
-    }
 
-    Attente {
-        id: attente
+    BusyIndicator {
+        id: busy
 
+        width: root.width / 4
+        height: width
+        anchors.centerIn: parent
+        running: uiManager.buzyIndicator ?? false
+        onRunningChanged: {
+            if (running)
+                baseItem.enabled = false;
+            else
+                baseItem.enabled = true;
+        }
         z: running ? 10 : -5
     }
 

@@ -98,7 +98,7 @@ class TestAnnotationModel:
         assert AnnotationModel.AnnotationRole in am.roleNames()
         assert am.roleNames()[AnnotationModel.AnnotationRole] == b"annot"
 
-    def test_row_count(self, am):
+    def test_row_count(self, am, qtbot):
         a = am(2)
         assert a.rowCount() == a.row_count == a.count == 2
 

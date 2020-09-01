@@ -36,15 +36,21 @@ def main_init_database(filename=None, prod=False):
         create_db = True
     else:
         QStandardPaths.setTestModeEnabled(True)
-        filename = ":memory:"
-        create_db = False
+        from package.files_path import ROOT_DATA
 
-    package.database.db = package.database.init_database(
-        filename=filename, create_db=create_db
-    )
+        filename = ROOT_DATA / "adazed.sqlite"
+        filename.unlink()
+        filename = str(filename)
+        # filename = ":memory:"
+        create_db = True
+        # create_db = False
 
-    if not prod:
-        from tests.python.factory import populate_database
+        package.database.db = package.database.init_database(
+            filename=filename, create_db=create_db
+        )
+
+        if not prod:
+            from tests.python.factory import populate_database
 
         populate_database()
 

@@ -566,7 +566,7 @@ class TestSectionMixin:
             (1, {"path": QUrl("createOne"), "classtype": "ImageSection",}, 1, True,),
             (1, {"path": None, "classtype": "ImageSection",}, 0, False,),
             (1, {"path": "my/path", "classtype": "ImageSection"}, 0, False),
-            (1, {"path": "le.pdf", "classtype": "ImageSection",}, 1, True,),
+            # (1, {"path": "le.pdf", "classtype": "ImageSection",}, 1, True,),
         ],
     )
     def test_addSectionFile(
@@ -1547,9 +1547,9 @@ class TestDatabaseObject:
             "prenom": "leprenom",
         }
 
-    def test_init_change_annee(self, qtbot, ddbr):
+    def test_init_change_annee(self, qtbot, ddbr, uim):
 
-        a = DatabaseObject(ddbr)
+        a = DatabaseObject(ddbr, uim)
         assert a.anneeActive == None
         assert a.currentPage == ""
         assert a.currentMatiere == ""
@@ -1557,23 +1557,23 @@ class TestDatabaseObject:
     def test_files(self, dao):
         assert dao.files == FILES
 
-    def test_RecentsItem_Clicked(self, ddbr, qtbot):
+    def test_RecentsItem_Clicked(self, ddbr, qtbot, uim):
         rec1 = f_page(created=datetime.now(), td=True)
-        d = DatabaseObject(ddbr)
+        d = DatabaseObject(ddbr, uim)
         d.recentsItemClicked.emit(rec1["id"], rec1["matiere"])
         assert d.currentMatiere == rec1["matiere"]
         assert d.currentPage == rec1["id"]
 
-    def test_onNewPageCreated(self, ddbr, qtbot):
+    def test_onNewPageCreated(self, ddbr, qtbot, uim):
         a = f_page(td=True)
-        d = DatabaseObject(ddbr)
+        d = DatabaseObject(ddbr, uim)
         d.onNewPageCreated(a)
         assert d.currentPage == a["id"]
         assert d.currentMatiere == a["matiere"]
 
-    def test_onCurrentTitreSetted(self, ddbr, qtbot):
+    def test_onCurrentTitreSetted(self, ddbr, qtbot, uim):
         a = f_page(td=True)
-        d = DatabaseObject(ddbr)
+        d = DatabaseObject(ddbr, uim)
         with qtbot.wait_signals(
             [
                 (d.pagesParSectionChanged, "activites"),

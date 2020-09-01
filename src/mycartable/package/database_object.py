@@ -70,7 +70,7 @@ class DatabaseObject(QObject, *MIXINS):
         self.newPageCreated.connect(self.onNewPageCreated)
         self.recentsItemClicked.connect(self.onRecentsItemClicked)
         self.sectionAdded.connect(self.pageModel.insertRows)
-        self.sectionAdded.connect(self.unSetBuzyIndicator)
+        self.sectionAdded.connect(self.ui.unSetBuzyIndicator)
         self.sectionRemoved.connect(self.pageModel.removeRow)
         self.pageActiviteChanged.connect(self.pagesParSectionChanged)
 
@@ -86,9 +86,6 @@ class DatabaseObject(QObject, *MIXINS):
 
         # session
         self.changeAnnee.connect(self.onChangeAnnee)
-
-    def unSetBuzyIndicator(self, *args):
-        self.ui.buzyIndicator.running = False
 
     def onCurrentPageChanged(self, page):
         if not page:

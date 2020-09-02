@@ -1,7 +1,5 @@
 from PySide2.QtCore import Slot, Property, Signal
 from loguru import logger
-from package.database.structure import Annee
-from package.database.utilisateur import Utilisateur
 from pony.orm import db_session
 
 
@@ -29,13 +27,13 @@ class SessionMixin:
     def anneeActive_set(self, value):
         self.annee_active = value
         with db_session:
-            if user := Utilisateur.user():
+            if user := self.db.Utilisateur.user():
                 user.last_used = value
                 logger.info(f"Nouvelle année sélectionnée : {value}")
                 self.anneeActiveChanged.emit()
 
     def init_user(self) -> dict:
-        if user := Utilisateur.user():
+        if user := self.db.Utilisateur.user():
             logger.info(f"Utilisateur {user.prenom} {user.nom} activé")
             return user.to_dict()
         else:
@@ -57,14 +55,14 @@ class SessionMixin:
     @Slot(str, str)
     def newUser(self, nom, prenom):
         with db_session:
-            assert not Utilisateur.select().count()
-            user = Utilisateur(nom=nom, prenom=prenom)
+            assert not self.db.Utilisateur.select().count()
+            user = self.db.Utilisateur(nom=nom, prenom=prenom)
             self.currentUser = user.to_dict()
 
     @Slot(int, str)
     def newAnnee(self, annee, classe):
         with db_session:
-            user = Annee(id=annee, niveau=classe, user=self.current_user["id"])
+            user = self.db.Annee(id=annee, niveau=classe, user=self.current_user["id"])
 
     @Slot(result="QVariantList")
     def getMenuAnnees(self):

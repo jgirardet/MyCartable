@@ -2,29 +2,26 @@ import typing
 from PySide2.QtCore import (
     QAbstractListModel,
     Qt,
-    QAbstractItemModel,
     QModelIndex,
     QByteArray,
     Slot,
     Signal,
     Property,
 )
-from PySide2.QtGui import QColor
-from PySide2.QtWidgets import QApplication
-from package.database import db
-from pony.orm import db_session, flush, make_proxy
-from loguru import logger
 
+from PySide2.QtWidgets import QApplication
+from package import database
+from pony.orm import db_session, flush, make_proxy
 from loguru import logger
 
 
 class AnnotationModel(QAbstractListModel):
 
-    db = db
     AnnotationRole = Qt.UserRole + 2
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
+        self.db = database.getdb()
         self.section = None
         self._sectionId = None
         self.row_count = 0
@@ -114,6 +111,7 @@ class AnnotationModel(QAbstractListModel):
     @Slot(str, result=bool)
     def slotReset(self, value):
         self.beginResetModel()
+        print("reset")
         with db_session:
             section = self.db.ImageSection.get(id=value)
             if not section:

@@ -6,8 +6,6 @@ from PySide2.QtCore import Qt
 
 from loguru import logger
 
-from loguru import logger
-
 
 @dataclass
 class Fragment:

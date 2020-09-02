@@ -6,10 +6,9 @@ from pathlib import Path
 
 from PySide2.QtCore import QSettings, QStandardPaths
 
-from PySide2.QtGui import QTextDocument
 from PySide2.QtWidgets import QApplication
 from mimesis import Generic
-from pony.orm import db_session, delete, ObjectNotFound, flush
+from pony.orm import db_session, flush, Database
 import subprocess
 
 generic_mimesis = Generic("fr")
@@ -31,9 +30,6 @@ def pytest_sessionstart():
 
     # Init database
     # from package import ROOT
-    import package.database
-
-    package.database.init_database()
 
     # run qrc update
     orig = root / "src" / "qml.qrc"
@@ -52,51 +48,58 @@ def pytest_sessionstart():
 
 
 @pytest.fixture(scope="session")
-def qapp():
-    app = QApplication([])
+def monkeypatch_session():
+    from _pytest.monkeypatch import MonkeyPatch
+
+    m = MonkeyPatch()
+    yield m
+    m.undo()
+
+
+@pytest.fixture(scope="session", autouse=True)
+def memory_db(monkeypatch_session,):
+    from package.database import init_database
+    import package.database
+
+    db = init_database(Database())
+    monkeypatch_session.setattr(package.database, "getdb", lambda: db)
+    return db
+
+
+@pytest.fixture(scope="function")
+def ddbn(memory_db, monkeypatch):
+    """database no reset"""
+    return memory_db
+
+
+@pytest.fixture(scope="function")
+def qappdao(qapp, ddbn, uim):
     from package.database_object import DatabaseObject
-    from package.database import db
 
-    app.dao = DatabaseObject(db)
-    yield app
-
-
-@pytest.fixture()
-def ddbn():
-    """database no reset"""
-    from package.database import db
-
-    return db
-
-
-@pytest.fixture(scope="session")
-def session_ddb():
-    """database no reset"""
-    from package.database import db
-
-    return db
+    qapp.dao = DatabaseObject(ddbn, uim)
+    yield qapp
 
 
 @pytest.fixture()
-def ddbr(reset_db):
+def ddbr(ddbn, reset_db):
     """database reset db"""
-    from package.database import db
-
-    return db
+    return ddbn
 
 
 @pytest.fixture()
-def ddb(ddbr, reset_db):
+def ddb(ddbr):
     """database reset with ddb_sesion"""
     db_session.__enter__()
     yield ddbr
     db_session.__exit__()
-    # reset_db(database)
 
 
 @pytest.fixture(scope="function")
-def reset_db(ddbn):
+def reset_db(ddbn, userid):
     fn_reset_db(ddbn)
+    with db_session:
+        ddbn.Utilisateur(id=userid, nom="nom", prenom="prenom")
+
     yield
 
 
@@ -153,14 +156,8 @@ def dao(ddbr, tmpfilename, uim, userid):
     from package.database_object import DatabaseObject
 
     with db_session:
-        annee = ddbr.Annee(
-            id=2019,
-            niveau="cm2019",
-            user=ddbr.Utilisateur(id=userid, nom="lenom", prenom="leprenom"),
-        )
-    obj = DatabaseObject(ddbr)
-    obj.ui = uim
-    # obj.setup_settings(annee=2019)
+        annee = ddbr.Annee(id=2019, niveau="cm2019", user=userid,)
+    obj = DatabaseObject(ddbr, uim)
     obj.changeAnnee.emit(2019)
     obj.init_matieres()
     obj.settings = QSettings(str(tmpfilename.absolute()))
@@ -176,15 +173,6 @@ def duree_test():
     debut = time.time()
     yield
     print(f"d={int((time.time()-debut)*1000)} ms")
-
-
-@pytest.fixture()
-def doc():
-    from package.page.text_section import DocumentEditor
-
-    d = DocumentEditor()
-    d._document = QTextDocument()
-    return d
 
 
 @pytest.fixture()
@@ -211,11 +199,14 @@ def png_annot(resources):
 
 @pytest.fixture()
 def resources():
+    """acces en lecture"""
     return Path(__file__).parents[1] / "resources"
 
 
 @pytest.fixture()
 def new_res(tmp_path, resources):
+    """pour acces en écriture"""
+
     def factory(name):
         file = resources / name
         new_file = tmp_path / name

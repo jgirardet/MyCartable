@@ -4,10 +4,10 @@ from loguru import logger
 from pony.orm import Database, db_session
 
 
-def init_models():
-    from package.database.models import db
+def init_models(db: Database):
+    from package.database.models import import_models
 
-    return db
+    return import_models(db)
 
 
 def ensure_database_directory(loc):
@@ -29,9 +29,7 @@ def init_bind(db, provider="sqlite", filename=":memory:", create_db=False, **kwa
     #     logger.exception(err)
 
 
-def init_database(**kwargs):
-    import package.database
-
-    package.database.db = init_models()
-    init_bind(package.database.db, **kwargs)
-    return package.database.db
+def init_database(db: Database, **kwargs):
+    activedb = init_models(db)
+    init_bind(activedb, **kwargs)
+    return activedb

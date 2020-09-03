@@ -17,7 +17,7 @@ from PySide2.QtGui import (
 from bs4 import BeautifulSoup
 from package.utils import KeyW
 from pony.orm import db_session
-from package.database import db
+from package import database
 
 
 from loguru import logger
@@ -180,6 +180,7 @@ class TextSectionEditor(QTextDocument):
         self, sectionId: str, content="", pos=0, selectionStart=0, selectionEnd=0
     ):
         super().__init__()
+        self.db = database.getdb()
         self.sectionId = sectionId
         self.setDefaultStyleSheet(CSS)
         self.setHtml(content)
@@ -211,7 +212,7 @@ class TextSectionEditor(QTextDocument):
 
     @db_session
     def onLoad(self):
-        item = db.Section[self.sectionId]
+        item = self.db.Section[self.sectionId]
         self.setHtml(item.text)
         self.setResponse(True, cur=self.len)
         return self.result
@@ -391,7 +392,7 @@ class TextSectionEditor(QTextDocument):
 
     @db_session
     def _update_ddb(self):
-        obj = db.Section[self.sectionId]
+        obj = self.db.Section[self.sectionId]
         new_body = TextSectionFormatter(self.toHtml()).build_body()
         obj.set(text=new_body)
         return new_body

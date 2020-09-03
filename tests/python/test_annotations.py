@@ -10,7 +10,6 @@ from factory import (
     f_annotationDessin,
     f_imageSection,
 )
-from package.database.sections import AnnotationText, ImageSection, AnnotationDessin
 from package.page.annotation_model import AnnotationModel
 from pony.orm import db_session
 from pony.orm.core import EntityProxy
@@ -19,7 +18,7 @@ from fixtures import check_args
 
 
 @pytest.fixture
-def am(ddbr):
+def am(ddbr, qappdao):
     def factory(nb, genre=None):
         p = f_imageSection()
         a = AnnotationModel()
@@ -39,7 +38,6 @@ def am(ddbr):
         a.f_annots = annots
         a.img_id = p.id
         a.sectionId = p.id
-
         return a
 
     return factory
@@ -166,7 +164,7 @@ class TestAnnotationModel:
         assert a.data(a.index(0, 0), a.AnnotationRole)["id"] == str(a.f_annots[0].id)
         assert a.data(a.index(1, 0), a.AnnotationRole)["id"] == str(a.f_annots[2].id)
 
-    def test_setData(self, am, qtbot):
+    def test_setData(self, am, qtbot, ddbr):
         a = am(3)
         a0 = str(a.f_annots[0].id)
         # ok to set
@@ -179,7 +177,7 @@ class TestAnnotationModel:
                 Qt.EditRole,
             )
         with db_session:
-            assert AnnotationText[a0].text == "blabla"
+            assert ddbr.AnnotationText[a0].text == "blabla"
 
         # wrong index
         with qtbot.assert_not_emitted(a.dataChanged):
@@ -191,9 +189,9 @@ class TestAnnotationModel:
                 Qt.EditRole,
             )
         with db_session:
-            assert AnnotationText[a0].text == "blabla"
+            assert ddbr.AnnotationText[a0].text == "blabla"
 
-    def test_set_data_select_right_class_annotation(self, am):
+    def test_set_data_select_right_class_annotation(self, am, ddbr):
         a = am(1, ("d",))
         a0 = str(a.f_annots[0].id)
         assert a.setData(
@@ -202,7 +200,7 @@ class TestAnnotationModel:
             Qt.EditRole,
         )
         with db_session:
-            assert AnnotationDessin[a0].width == 23
+            assert ddbr.AnnotationDessin[a0].width == 23
 
     def test_modif_update_recents_and_activites(self, qtbot, am, qapp):
         a = am(3)
@@ -213,12 +211,12 @@ class TestAnnotationModel:
         with qtbot.waitSignal(qapp.dao.updateRecentsAndActivites):
             a.insertRow(0)
 
-    def test_addannotation(self, am, qtbot):
+    def test_addannotation(self, am, qtbot, ddbr):
         a = am(1)
         with qtbot.waitSignal(a.rowsInserted):
             a.addAnnotation(0.1, 0.2, 0.3, 0.4)
         with db_session:
-            a1 = AnnotationText.select()[1:][0]
+            a1 = ddbr.AnnotationText.select()[1:][0]
             assert a1.to_dict() == {
                 "bgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 0.000000),
                 "classtype": "AnnotationText",
@@ -226,7 +224,7 @@ class TestAnnotationModel:
                 "fgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 1.000000),
                 "id": str(a1.id),
                 "pointSize": None,
-                "section": ImageSection[a.img_id],
+                "section": ddbr.ImageSection[a.img_id],
                 "strikeout": False,
                 "styleId": str(a1.style.styleId),
                 "text": None,
@@ -236,7 +234,7 @@ class TestAnnotationModel:
                 "y": 0.5,
             }
 
-    def test_newDessin(self, am, qtbot):
+    def test_newDessin(self, am, qtbot, ddbr):
         a = am(1)
         with qtbot.waitSignal(a.rowsInserted):
             a.newDessin(
@@ -258,14 +256,14 @@ class TestAnnotationModel:
             )
 
         with db_session:
-            a1 = AnnotationDessin.select().first()
+            a1 = ddbr.AnnotationDessin.select().first()
             assert a1.to_dict() == {
                 "bgColor": QColor("yellow"),
                 "classtype": "AnnotationDessin",
                 "family": "",
                 "fgColor": QColor("purple"),
                 "id": str(a1.id),
-                "section": ImageSection[a.img_id],
+                "section": ddbr.ImageSection[a.img_id],
                 "strikeout": False,
                 "styleId": str(a1.style.styleId),
                 "underline": False,

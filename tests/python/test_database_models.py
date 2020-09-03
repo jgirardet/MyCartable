@@ -2,16 +2,21 @@ import itertools
 import uuid
 from typing import List
 
-from PySide2.QtGui import QFont
+from PySide2.QtGui import QFont, QColor
 from fixtures import compare_items, check_is_range, wait
-from factory import *
+
 import pytest
-from package.database.mixins import PositionMixin
+from package.database.mixins import PositionMixin, ColorMixin
 from package.exceptions import MyCartableOperationError
-from pony.orm import flush, Database, make_proxy
+from pony.orm import flush, Database, make_proxy, Set, Required
+from factory import *
 
 
 def test_creation_all(ddb):
+
+    from factory import f_annee, f_groupeMatiere, f_matiere, f_section
+    import package.database
+
     an = f_annee()
     goupe = f_groupeMatiere(nom="aa", annee=an.id)
     a = f_matiere(groupe=goupe)
@@ -36,9 +41,9 @@ class TestAnnee:
             f = f_matiere(nom="e", groupe=g5)
             assert an.get_matieres()[:] == [a, b, d]
 
-    def test_to_dict(self):
+    def test_to_dict(self, ddbr):
         with db_session:
-            user = Utilisateur.user()
+            user = ddbr.Utilisateur.user()
         a = f_annee(id=234, niveau="omjlihlm", user=user)
         with db_session:
             assert a.to_dict() == {
@@ -79,8 +84,8 @@ class TestPage:
             f_page(activite=ac2019.id)
 
         # test query
-        assert db.Page.select().count() == 100
-        recents = db.Page._query_recents(db.Page, 2019)[:]
+        assert ddb.Page.select().count() == 100
+        recents = ddb.Page._query_recents(ddb.Page, 2019)[:]
         assert all(x.modified > datetime.utcnow() - timedelta(days=30) for x in recents)
         assert all(x.activite.matiere.groupe.annee.id == 2019 for x in recents)
         old = recents[0]
@@ -92,7 +97,7 @@ class TestPage:
         a = f_page(created=datetime.utcnow(), activite=ac2019.id)
         res = a.to_dict()
         res["matiere"] = str(a.activite.matiere.id)
-        first_dict = db.Page.recents(2019)[0]
+        first_dict = ddb.Page.recents(2019)[0]
         assert first_dict == res
 
     def test_to_dict(self, ddb):
@@ -133,7 +138,8 @@ class TestPage:
 
 
 class TestGroupeMatiere:
-    def test_delete_mixin_position(self, reset_db):
+    def test_delete_mixin_position(self, ddbr):
+        GroupeMatiere = ddbr.GroupeMatiere
         a = f_groupeMatiere(annee=2019)
         b = f_groupeMatiere(annee=2019)
         with db_session:
@@ -143,7 +149,8 @@ class TestGroupeMatiere:
         with db_session:
             assert GroupeMatiere[b.id].position == 0
 
-    def test_color_mixin(self, reset_db):
+    def test_color_mixin(self, ddbr):
+        GroupeMatiere = ddbr.GroupeMatiere
         f_annee(id=1234)
         with db_session:
             a = GroupeMatiere(nom="bk", annee=1234)
@@ -213,7 +220,8 @@ class TestMatiere:
         c.bgColor = (123, 3, 134)
         assert QColor(c._bgColor) == QColor(123, 3, 134)
 
-    def test_delete_mixin_position(self, reset_db):
+    def test_delete_mixin_position(self, ddbr):
+        Matiere = ddbr.Matiere
         a = f_matiere()
         b = f_matiere(groupe=a.groupe)
         with db_session:
@@ -225,7 +233,8 @@ class TestMatiere:
 
             # a.before_delete_position = Ma
 
-    def test_color_mixin(self, reset_db):
+    def test_color_mixin(self, ddbr):
+        Matiere = ddbr.Matiere
         a = f_groupeMatiere()
         with db_session:
             z = Matiere(nom="bk", groupe=a.id)
@@ -242,6 +251,7 @@ class TestMatiere:
             assert Matiere[c.id].to_dict()["bgColor"] == QColor("green")
 
     def test_page_par_section(self, ddbr):
+        Matiere = ddbr.Matiere
         m = f_matiere(nom="Math", _bgColor=4294967295, _fgColor=4294901760)
         un = f_activite(nom="un", matiere=m.id)
         deux = f_activite(nom="deux", matiere=m.id)
@@ -340,139 +350,18 @@ class TestMatiere:
                     ],
                     "position": 1,
                 },
-            ]  # pages = [
-        #     {
-        #         "created": "2019-03-14T17:35:58.111997",
-        #         "modified": "2019-03-14T17:35:58.111997",
-        #         "titre": "quoi amener défendre charger seulement",
-        #         "activite": str,
-        #         "lastPosition": None,
-        #     },
-        #     {
-        #         "created": "2019-10-30T10:54:18.834326",
-        #         "modified": "2019-10-30T10:54:18.834326",
-        #         "titre": "sujet grandir emporter monter rencontrer",
-        #         "activite": deux.id,
-        #         "lastPosition": None,
-        #     },
-        #     {
-        #         "created": "2019-08-17T21:33:55.644158",
-        #         "modified": "2019-08-17T21:33:55.644158",
-        #         "titre": "oreille blague soleil poursuivre riche",
-        #         "activite": trois.id,
-        #         "lastPosition": None,
-        #     },
-        #     {
-        #         "created": "2020-02-18T22:25:14.288186",
-        #         "modified": "2020-02-18T22:25:14.288186",
-        #         "titre": "enfer cette simple ensemble rendre",
-        #         "activite": 3,
-        #         "lastPosition": None,
-        #     },
-        #     {
-        #         "created": "2019-09-16T03:57:38.860509",
-        #         "modified": "2019-09-16T03:57:38.860509",
-        #         "titre": "grand-père monde cœur reposer rappeler",
-        #         "activite": 1,
-        #         "lastPosition": None,
-        #     },
-        # ]
-        # with db_session:
-        #     for p in pages:
-        #         ddbr.Page(**p)
-        # with db_session:
-        #     mm = ddbr.Matiere[m.id]
-        #     q = mm.pages_par_section()
-        #     assert q == [
-        #         {
-        #             "id": 1,
-        #             "matiere": m.id,
-        #             "nom": "un",
-        #             "pages": [
-        #                 {
-        #                     "activite": 1,
-        #                     "created": "2019-09-16T03:57:38.860509",
-        #                     "id": 5,
-        #                     "lastPosition": None,
-        #                     "matiere": m.id,
-        #                     "matiereNom": "Math",
-        #                     "modified": "2019-09-16T03:57:38.860509",
-        #                     "titre": "grand-père monde cœur reposer rappeler",
-        #                     "matiereBgColor": QColor("white"),
-        #                     "matiereFgColor": QColor("red"),
-        #                 },
-        #                 {
-        #                     "activite": 1,
-        #                     "created": "2019-08-17T21:33:55.644158",
-        #                     "id": 3,
-        #                     "lastPosition": None,
-        #                     "matiere": m.id,
-        #                     "matiereNom": "Math",
-        #                     "modified": "2019-08-17T21:33:55.644158",
-        #                     "titre": "oreille blague soleil poursuivre riche",
-        #                     "matiereBgColor": QColor("white"),
-        #                     "matiereFgColor": QColor("red"),
-        #                 },
-        #                 {
-        #                     "activite": 1,
-        #                     "created": "2019-03-14T17:35:58.111997",
-        #                     "id": 1,
-        #                     "lastPosition": None,
-        #                     "matiere": m.id,
-        #                     "matiereNom": "Math",
-        #                     "modified": "2019-03-14T17:35:58.111997",
-        #                     "titre": "quoi amener défendre charger seulement",
-        #                     "matiereBgColor": QColor("white"),
-        #                     "matiereFgColor": QColor("red"),
-        #                 },
-        #             ],
-        #             "position": 0,
-        #         },
-        #         {"id": 2, "matiere": m.id, "nom": "deux", "pages": [], "position": 1},
-        #         {
-        #             "id": 3,
-        #             "matiere": m.id,
-        #             "nom": "trois",
-        #             "position": 2,
-        #             "pages": [
-        #                 {
-        #                     "activite": 3,
-        #                     "created": "2020-02-18T22:25:14.288186",
-        #                     "id": 4,
-        #                     "lastPosition": None,
-        #                     "matiere": m.id,
-        #                     "matiereNom": "Math",
-        #                     "modified": "2020-02-18T22:25:14.288186",
-        #                     "titre": "enfer cette simple ensemble rendre",
-        #                     "matiereBgColor": QColor("white"),
-        #                     "matiereFgColor": QColor("red"),
-        #                 },
-        #                 {
-        #                     "activite": 3,
-        #                     "created": "2019-10-30T10:54:18.834326",
-        #                     "id": 2,
-        #                     "lastPosition": None,
-        #                     "matiere": m.id,
-        #                     "matiereNom": "Math",
-        #                     "modified": "2019-10-30T10:54:18.834326",
-        #                     "titre": "sujet grandir emporter monter rencontrer",
-        #                     "matiereBgColor": QColor("white"),
-        #                     "matiereFgColor": QColor("red"),
-        #                 },
-        #             ],
-        #         },
-        #     ]
+            ]
 
 
 class TestActivite:
-    def test_delete_mixin_position(self, reset_db):
+    def test_delete_mixin_position(self, ddbr):
         a = b_activite(2)
         with db_session:
-            assert Activite[a[0].id].position == 0
-            assert Activite[a[1].id].position == 1
-            Activite[a[0].id].delete()
+            assert ddbr.Activite[a[0].id].position == 0
+            assert ddbr.Activite[a[1].id].position == 1
+            ddbr.Activite[a[0].id].delete()
         with db_session:
-            assert Activite[a[1].id].position == 0
+            assert ddbr.Activite[a[1].id].position == 0
 
 
 class TestSection:
@@ -494,9 +383,10 @@ class TestSection:
         x = f_section()
         strid = str(x.id)
         with db_session:
-            z = Section[strid]
+            z = ddbr.Section[strid]
 
-    def test_delete_mixin_position(self, reset_db):
+    def test_delete_mixin_position(self, ddbr):
+        Section = ddbr.Section
         a = f_page()
         x = f_section(page=a.id)
         y = f_section(page=a.id)
@@ -520,31 +410,31 @@ class TestSection:
             assert z.position == 1
             assert x.position == 0
 
-    def test_inheritance_position(self, reset_db):
+    def test_inheritance_position(self, ddbr):
         page = f_page()
         f_section(page=page.id)
         with db_session:
-            s = TextSection(page=page.id)
-            t = EquationSection(page=page.id)
-            u = Section(page=page.id)
+            s = ddbr.TextSection(page=page.id)
+            t = ddbr.EquationSection(page=page.id)
+            u = ddbr.Section(page=page.id)
             assert s.position == 1
             assert t.position == 2
             assert u.position == 3
 
-    def test_inheritance_position2(self, reset_db):
+    def test_inheritance_position2(self, ddbr):
         page = f_page()
         r = f_section(page=page.id)
         with db_session:
-            s = TextSection(page=page.id)
+            s = ddbr.TextSection(page=page.id)
         with db_session:
-            t = EquationSection(page=page.id)
+            t = ddbr.EquationSection(page=page.id)
         with db_session:
-            u = Section(page=page.id)
+            u = ddbr.Section(page=page.id)
         with db_session:
-            assert Section[r.id].position == 0
-            assert Section[s.id].position == 1
-            assert Section[t.id].position == 2
-            assert Section[u.id].position == 3
+            assert ddbr.Section[r.id].position == 0
+            assert ddbr.Section[s.id].position == 1
+            assert ddbr.Section[t.id].position == 2
+            assert ddbr.Section[u.id].position == 3
 
     def test_to_dict(self, ddbr):
         a = datetime.utcnow()
@@ -979,7 +869,7 @@ class TestAnnotations:
         r = x.to_dict()
         assert r["x"] == 0.1
         assert r["y"] == 0.4
-        assert r["section"] == Section[s.id]
+        assert r["section"] == ddb.Section[s.id]
         assert r["bgColor"] == QColor("red")
         assert r["fgColor"] == QColor("black")
         assert r["id"] == str(x.id)
@@ -987,7 +877,7 @@ class TestAnnotations:
     def test_set(self, ddbr):
         x = f_annotation(x=0.3)
         with db_session:
-            x = Annotation[x.id]
+            x = ddbr.Annotation[x.id]
             assert not x.style.underline
             x.set(**{"x": 0.7, "style": {"underline": True}, "attrs": {"y": "0.234"}})
             assert x.x == 0.7
@@ -1055,19 +945,19 @@ class TestAnnotations:
     def test_annotation_dession(self):
         an = f_annotationDessin()
 
-    def test_getitem(self, reset_db):
+    def test_getitem(self, ddbr):
         f_annotation()
         f_annotationDessin()
         f_annotationText()
 
         with db_session:
-            annots = Annotation.select()[:]
+            annots = ddbr.Annotation.select()[:]
             a = annots[0].as_type()
-            assert isinstance(a, Annotation)
+            assert isinstance(a, ddbr.Annotation)
             a = annots[1].as_type()
-            assert isinstance(a, AnnotationDessin)
+            assert isinstance(a, ddbr.AnnotationDessin)
             a = annots[2].as_type()
-            assert isinstance(a, AnnotationText)
+            assert isinstance(a, ddbr.AnnotationText)
 
 
 class TestTableauSection:
@@ -1118,11 +1008,11 @@ class TestTableauSection:
     def test_init_with_model(self, ddbr, modele, zero_0, zero_1, un_0, un_1):
         x = f_tableauSection(2, 2, modele)
         with db_session:
-            a = TableauSection[x.id]
-            assert TableauCell[a, 0, 0].style.bgColor.rgba() == zero_0.rgba()
-            assert TableauCell[a, 0, 1].style.bgColor.rgba() == zero_1.rgba()
-            assert TableauCell[a, 1, 0].style.bgColor.rgba() == un_0.rgba()
-            assert TableauCell[a, 1, 1].style.bgColor.rgba() == un_1.rgba()
+            a = ddbr.TableauSection[x.id]
+            assert ddbr.TableauCell[a, 0, 0].style.bgColor.rgba() == zero_0.rgba()
+            assert ddbr.TableauCell[a, 0, 1].style.bgColor.rgba() == zero_1.rgba()
+            assert ddbr.TableauCell[a, 1, 0].style.bgColor.rgba() == un_0.rgba()
+            assert ddbr.TableauCell[a, 1, 1].style.bgColor.rgba() == un_1.rgba()
 
     def test_to_dict(self, ddb):
         item = f_tableauSection(lignes=3, colonnes=4)
@@ -1139,6 +1029,8 @@ class TestTableauSection:
         }
 
     def test_get_par_ligne(self, ddb):
+        TableauCell = ddb.TableauCell
+        TableauSection = ddb.TableauSection
         t = f_tableauSection(lignes=5, colonnes=4)
         p1 = t.get_cells_par_ligne(0)
         assert len(p1) == 4
@@ -1470,7 +1362,7 @@ class TestTableauCell:
     def test_set(self, ddbr):
         x = f_tableauCell(texte="bla")
         with db_session:
-            x = TableauCell[x.tableau.id, 0, 0]
+            x = ddbr.TableauCell[x.tableau.id, 0, 0]
             assert not x.style.underline
             x.set(**{"texte": "bbb"})
             assert x.texte == "bbb"
@@ -1482,7 +1374,7 @@ class TestTableauCell:
 class TestStyle:
     def test_init(self, ddb):
         # set tout
-        item = Style(
+        item = ddb.Style(
             fgColor="red",
             bgColor="blue",
             family="Verdana",
@@ -1494,7 +1386,7 @@ class TestStyle:
         assert item.fgColor == QColor("red")
         assert item.bgColor == QColor("blue")
         # uniquement par défault
-        item = Style()
+        item = ddb.Style()
         assert item.fgColor == QColor("black")
         assert item.bgColor == QColor("transparent")
         assert item.family == ""
@@ -1518,7 +1410,7 @@ class TestStyle:
 
 class TestEquationModel:
     def test_init(self, ddb):
-        a = EquationSection(page=f_page().id)
+        a = ddb.EquationSection(page=f_page().id)
         assert a.content == ""
 
     def test_factory(self, ddbr):
@@ -1765,5 +1657,5 @@ class TestUtilisateur:
 
     def test_user(self, ddb):
         u = f_user()
-        w = Utilisateur.user()
+        w = ddb.Utilisateur.user()
         assert u == w

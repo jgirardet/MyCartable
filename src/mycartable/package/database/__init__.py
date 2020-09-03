@@ -5,3 +5,7 @@ from .base_db import (
 )
 
 db = None
+
+
+def getdb():
+    return db

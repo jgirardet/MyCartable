@@ -5,7 +5,7 @@ from unittest.mock import MagicMock
 import pytest
 from PySide2.QtCore import Qt
 from PySide2.QtGui import QTextDocument, QColor, QFont, QKeyEvent, QBrush
-from factory import f_textSection, TextSection
+from factory import f_textSection
 
 # from package.page.text_section import DocumentEditor, RE_AUTOPARAGRAPH
 from bs4 import BeautifulSoup
@@ -518,7 +518,9 @@ class TestSectionEditor:
         d.sectionId = str(f.id)
         d._update_ddb()
         with db_session:
-            assert TextSection[f.id].text == "<body><p><span>noirA</span></p></body>"
+            assert (
+                ddbr.TextSection[f.id].text == "<body><p><span>noirA</span></p></body>"
+            )
 
 
 @pytest.mark.parametrize(

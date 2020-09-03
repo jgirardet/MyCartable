@@ -10,8 +10,8 @@ from PySide2.QtCore import (
     QAbstractListModel,
     Slot,
 )
+from package import database
 
-from package.database import db
 from pony.orm import db_session, make_proxy
 from functools import cached_property
 
@@ -21,13 +21,12 @@ class OperationModel(QAbstractListModel):
     cursorChanged = Signal()
     paramsChanged = Signal()
     sectionIdChanged = Signal()
-    ddb = None
 
     def __init__(self):
         super().__init__()
+        self.db = database.getdb()
         self._cursor = 0
         self.editables = []
-        self.db = db
         self.params = {"rows": 0, "columns": 0, "datas": [], "size": 0}
         self._sectionId = None
         self.sectionIdChanged.connect(self.load_params)

@@ -5,8 +5,6 @@ from uuid import UUID
 from loguru import logger
 
 from PySide2.QtCore import Signal, Property, Slot
-from package.database.structure import GroupeMatiere, Matiere, Activite, Annee
-from package.default_matiere import MATIERE_GROUPE, MATIERES
 from pony.orm import db_session, ObjectNotFound, flush, select
 
 from loguru import logger
@@ -39,7 +37,7 @@ class MatiereMixin:
         if self._currentMatiere != value:
             with db_session:
                 try:
-                    Matiere[value]
+                    self.db.Matiere[value]
                 except ValueError:
                     self._currentMatiere = ""
                     return

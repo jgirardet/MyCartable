@@ -32,12 +32,7 @@ from bs4 import NavigableString, BeautifulSoup
 from mako.lookup import TemplateLookup
 from package import get_root_binary_path
 from package.constantes import BASE_FONT, ANNOTATION_TEXT_BG_OPACITY, MONOSPACED_FONTS
-from package.database.sections import (
-    ImageSection,
-    Annotation,
-)
-from package.database.structure import Page, Annee
-from package.database.utilisateur import Utilisateur
+from package.database import getdb
 from package.files_path import FILES, TMP
 from package.utils import read_qrc
 from package import LINUX, WIN
@@ -49,6 +44,7 @@ from package import qrc  # type: ignore
 from package.ui_manager import DEFAULT_ANNOTATION_CURRENT_TEXT_SIZE_FACTOR
 import fitz
 
+db = getdb()
 
 MARGINS = {"bottom": 1, "top": 1, "left": 2, "right": 2}
 HEADER = {"height": 1}
@@ -255,7 +251,7 @@ def create_images_with_annotation(image_section, tmpdir=None):
 
     painter.begin(image)
     for annotation_id in image_section["annotations"]:
-        annotation = Annotation[annotation_id].to_dict()
+        annotation = db.Annotation[annotation_id].to_dict()
         if annotation["classtype"] == "AnnotationText":
             draw_annotation_text(annotation, image, painter)
         elif annotation["classtype"] == "AnnotationDessin":  # pragma: no branch
@@ -510,7 +506,7 @@ def get_image_size(image):
     return width, height
 
 
-def image_section(section_e: ImageSection) -> Tuple[str, str]:
+def image_section(section_e: "ImageSection") -> Tuple[str, str]:
     section = section_e.to_dict()
     image = create_images_with_annotation(section)
     width, height = get_image_size(image)
@@ -1086,7 +1082,7 @@ def equation_section(section):
 def build_body(page_id: int) -> Tuple[str, str]:
     tags = []
     automatic_res = []
-    page = Page[page_id]
+    page = db.Page[page_id]
     for section in page.content:
         new_tags = ""
         automatic_tags_style = ""
@@ -1142,9 +1138,9 @@ def build_styles() -> str:
 
 def build_master_styles() -> str:
     tmpl = templates.get_template("master-styles.xml")
-    user = Utilisateur.user()
+    user = db.Utilisateur.user()
     return tmpl.render(
-        nom=user.nom, prenom=user.prenom, classe=Annee[user.last_used].niveau
+        nom=user.nom, prenom=user.prenom, classe=db.Annee[user.last_used].niveau
     )
 
 

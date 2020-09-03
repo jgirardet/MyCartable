@@ -1,9 +1,8 @@
 import tempfile
 from pathlib import Path
 
-from PySide2.QtConcurrent import QtConcurrent
-from PySide2.QtCore import Slot, QUrl, Signal, QThread
-from package.convert import run_convert_pdf, split_pdf_to_png
+from PySide2.QtCore import Slot, QUrl, Signal
+from package.convert import run_convert_pdf
 from package.files_path import FILES
 from package.exceptions import MyCartableOperationError
 from pony.orm import db_session
@@ -11,22 +10,6 @@ from loguru import logger
 
 
 from loguru import logger
-
-
-class Executor(QThread):
-
-    excutorFinished = Signal()
-
-    def __init__(self, *args, func=None, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.func = func
-
-    def run(self):
-        self.func()
-        # self.excutorFinished.emit()
-
-
-ExecutorInstance = Executor()
 
 
 class SectionMixin:
@@ -39,6 +22,7 @@ class SectionMixin:
         classtype = content.pop("classtype", None)
         if not classtype:
             return ""
+
         elif classtype == "ImageSection":
             if not "path" in content or not content["path"]:
                 return ""
@@ -50,11 +34,7 @@ class SectionMixin:
             )
             if path.is_file():
                 if path.suffix == ".pdf":
-                    # return self.addSectionPDF(page_id, path)
-                    ExecutorInstance.func = lambda: self.addSectionPDF(page_id, path)
-                    ExecutorInstance.start()
-                    return
-                    # return self.addSectionPDF(page_id, path)
+                    return self.addSectionPDF(page_id, path)
                 content["path"] = str(self.store_new_file(path))
             else:
                 return ""
@@ -74,6 +54,8 @@ class SectionMixin:
 
         with db_session:
             try:
+                print("danse func", self.db)
+
                 item = getattr(self.db, classtype)(page=page_id, **content)
             except MyCartableOperationError as err:
                 logger.exception(err)
@@ -83,12 +65,10 @@ class SectionMixin:
         return str(item.id)
 
     def addSectionPDF(self, page_id, path) -> str:
-        first = None
 
+        first = None
         with tempfile.TemporaryDirectory() as temp_path:
-            # res = run_convert_pdf(path, temp_path)
-            res = split_pdf_to_png(path, Path(temp_path))
-            print(res)
+            res = run_convert_pdf(path, temp_path)
             for page in res:
                 content = {"classtype": "ImageSection"}
                 content["path"] = self.store_new_file(page)

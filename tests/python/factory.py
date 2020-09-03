@@ -2,46 +2,50 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 #
+from uuid import UUID
+
 import mimesis
 import random
 
 #
 from PySide2.QtGui import QColor
 from package.default_matiere import (
-    MATIERE_GROUPE,
     MATIERES,
     MATIERE_GROUPE_BASE,
     MATIERES_BASE,
 )
+from package.operations.equation import TextEquation
 from pony.orm import db_session, flush
 
 #
 gen = mimesis.Generic("fr")
 #
-from package.database import db
+def import_getdb():
+    from package.database import getdb
 
-from package.database.models import *
+    return getdb()
 
 
-def f_datetime(start=None, end=None):
+def f_datetime(start=None, end=None, **kwargs):
     end = end or datetime.utcnow()
     start = start or end - timedelta(days=400)
     now = datetime.now()
-
     while True:
         res = gen.datetime.datetime(start=start.year, end=now.year + 1)
         if start < res <= end:
             return res
 
 
-def f_user(nom="lenom", prenom="leprenom", td=False):
+def f_user(nom="lenom", prenom="leprenom", td=False, **kwargs):
+    db = import_getdb()
     with db_session:
-        user = Utilisateur.user() or Utilisateur(nom=nom, prenom=prenom)
+        user = db.Utilisateur.user() or db.Utilisateur(nom=nom, prenom=prenom)
         return user.to_dict() if td else user
 
 
 #
-def f_annee(id=2019, niveau=None, user=None, td=False):
+def f_annee(id=2019, niveau=None, user=None, td=False, **kwargs):
+    db = import_getdb()
     id = id or random.randint(2018, 2020)
     if isinstance(id, db.Annee):
         id = id.id
@@ -51,7 +55,7 @@ def f_annee(id=2019, niveau=None, user=None, td=False):
             user = user if isinstance(user, str) else str(user.id)
         else:
             user = f_user()
-            # user = Utilisateur.user()
+            # user = db.Utilisateur.user()
         if db.Annee.exists(id=id):
             an = db.Annee[id]
         else:
@@ -60,9 +64,10 @@ def f_annee(id=2019, niveau=None, user=None, td=False):
 
 
 def f_groupeMatiere(nom=None, annee=None, **kwargs):
+    db = import_getdb()
     annee = annee or f_annee(id=annee).id
     with db_session:
-        if not Annee.get(id=annee):
+        if not db.Annee.get(id=annee):
             f_annee(id=annee)
     nom = nom or random.choice(["Français", "Math", "Anglais", "Histoire"])
     with db_session:
@@ -70,7 +75,6 @@ def f_groupeMatiere(nom=None, annee=None, **kwargs):
 
 
 def b_groupeMatiere(nb, **kwargs):
-
     return [f_groupeMatiere(**kwargs) for i in range(nb)]
 
 
@@ -83,6 +87,7 @@ def f_matiere(
     _fgColor=None,
     td=False,
 ):
+    db = import_getdb()
     nom = nom or random.choice(["Français", "Math", "Anglais", "Histoire"])
     color_codes = [
         4294967295,
@@ -120,7 +125,8 @@ def b_matiere(nb, groupe=None, **kwargs):
     return [f_matiere(groupe=groupe, **kwargs) for i in range(nb)]
 
 
-def f_activite(nom=None, matiere=None, td=False):
+def f_activite(nom=None, matiere=None, td=False, **kwargs):
+    db = import_getdb()
     nom = nom or gen.text.word()
     matiere = matiere or f_matiere()
     with db_session:
@@ -131,7 +137,7 @@ def f_activite(nom=None, matiere=None, td=False):
         return item.to_dict() if td else item
 
 
-def b_activite(nb, matiere=None, nom=None):
+def b_activite(nb, matiere=None, nom=None, **kwargs):
     if matiere:
         matiere = matiere if isinstance(matiere, (str, UUID)) else matiere.id
     else:
@@ -141,8 +147,9 @@ def b_activite(nb, matiere=None, nom=None):
 
 def f_page(created=None, activite=None, titre=None, td=False, lastPosition=None):
     """actvite int = id mais str = index"""
+    db = import_getdb()
     activite = activite or f_activite()
-    if isinstance(activite, Activite):
+    if isinstance(activite, db.Activite):
         activite = str(activite.id)
     created = created or f_datetime()
     titre = titre or " ".join(gen.text.words(5))
@@ -162,6 +169,7 @@ def b_page(n, *args, **kwargs):
 def _f_section(
     model, *args, created=None, page=None, position=None, td=False, **kwargs,
 ):
+    db = import_getdb()
     page = page or f_page().id
     created = created or f_datetime()
 
@@ -222,6 +230,7 @@ def f_textSection(text=None, **kwargs):
 def f_annotation(
     x=None, y=None, section=None, style=None, td=False, classtype=None, **kwargs
 ):
+    db = import_getdb()
     x = x or random.randrange(10, 100, 10) / 100
     y = y or random.randrange(10, 100, 10) / 100
     section = section or f_section().id
@@ -234,6 +243,7 @@ def f_annotation(
 
 
 def f_annotationText(text="", **kwargs):
+    db = import_getdb()
     if text == "empty":
         text = ""
     elif not text:
@@ -251,6 +261,7 @@ def f_annotationDessin(
     endY=None,
     **kwargs,
 ):
+    db = import_getdb()
     width = width or random.randrange(10, 100, 10) / 100
     height = height or random.randrange(10, 100, 10) / 100
     tool = random.choice(["rect", "fillrect", "ellipse", "trait"])
@@ -327,7 +338,9 @@ def f_divisionSection(string=None, **kwargs):
     return _f_section("DivisionSection", string, **kwargs)
 
 
-def f_tableauSection(lignes=None, colonnes=None, modele="", **kwargs) -> TableauSection:
+def f_tableauSection(
+    lignes=None, colonnes=None, modele="", **kwargs
+) -> "db.TableauSection":
     lignes = lignes if lignes is not None else random.randint(0, 10)
     colonnes = colonnes if colonnes is not None else random.randint(0, 10)
     return _f_section(
@@ -336,6 +349,7 @@ def f_tableauSection(lignes=None, colonnes=None, modele="", **kwargs) -> Tableau
 
 
 def f_tableauCell(x=0, y=0, texte=None, style=None, tableau=None, td=False):
+    db = import_getdb()
     tableau = tableau or f_tableauSection(lignes=0, colonnes=0).id
     texte = texte or random.choice(["bla", "bli", "A", "1", "33"])
 
@@ -351,9 +365,6 @@ def f_tableauCell(x=0, y=0, texte=None, style=None, tableau=None, td=False):
         )
         item.flush()
         return item.to_dict() if td else item
-
-
-from package.database_mixins.equation_mixin import TextEquation
 
 
 def f_equationSection(
@@ -373,9 +384,10 @@ def f_style(
     td=False,
     **kwargs,
 ):
+    db = import_getdb()
 
     with db_session:
-        item = Style(
+        item = db.Style(
             fgColor=fgColor,
             bgColor=bgColor,
             family=family,
@@ -390,18 +402,20 @@ def f_style(
 
 @db_session
 def populate_database(matieres_list=MATIERES, nb_page=100):
+
+    db = import_getdb()
     user = db.Utilisateur(nom="Lenom", prenom="Leprenom")
-    annee = Annee(id=2019, niveau="cm1", user=user)
+    annee = db.Annee(id=2019, niveau="cm1", user=user)
     groupes = []
     compteur = 0
     for groupe in MATIERE_GROUPE_BASE:
-        gr = GroupeMatiere(annee=annee, bgColor=groupe["bgColor"], nom=groupe["nom"])
+        gr = db.GroupeMatiere(annee=annee, bgColor=groupe["bgColor"], nom=groupe["nom"])
         for mat in MATIERES_BASE:
             if mat["groupe"] == groupe["id"]:
-                m = Matiere(groupe=gr, nom=mat["nom"])
+                m = db.Matiere(groupe=gr, nom=mat["nom"])
                 compteur += 1
-                ac = Activite(matiere=m, nom="mdomak")
-                page = Page(titre="mojkù", activite=ac)
+                ac = db.Activite(matiere=m, nom="mdomak")
+                page = db.Page(titre="mojkù", activite=ac)
                 for x in range(random.randint(0, 8)):
                     random.choice(
                         [
@@ -425,7 +439,7 @@ def populate_database(matieres_list=MATIERES, nb_page=100):
     # for groupe in groupes:
     #     self.reApplyGroupeDegrade(groupe.id)
 
-    # Annee(id=2018, niveau="ce2", user=user)
+    # db.Annee(id=2018, niveau="ce2", user=user)
     # [db.GroupeMatiere(**x, annee=annee.id) for x in MATIERE_GROUPE]
     # flush()
     # matieres = [db.Matiere(**x) for x in matieres_list]

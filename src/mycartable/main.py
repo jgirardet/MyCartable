@@ -13,8 +13,6 @@ from PySide2.QtCore import (
     QFile,
 )
 
-# from fbs_runtime.application_context.PySide2 import ApplicationContext
-
 from PySide2.QtWidgets import QApplication
 from PySide2.QtQml import QQmlApplicationEngine, qmlRegisterType
 
@@ -22,13 +20,16 @@ from loguru import logger
 
 
 import package.database
-from pony.orm import DBException, db_session
+from pony.orm import DBException, db_session, Database
 
 
 def main_init_database(filename=None, prod=False):
     # init database first
     settings = QSettings()
     logger.info(f"ficher settings : {settings.fileName()}")
+    newdb = Database()
+    import package.database
+
     if prod:
         from package.files_path import ROOT_DATA
 
@@ -36,21 +37,15 @@ def main_init_database(filename=None, prod=False):
         create_db = True
     else:
         QStandardPaths.setTestModeEnabled(True)
-        from package.files_path import ROOT_DATA
+        filename = ":memory:"
+        create_db = False
 
-        filename = ROOT_DATA / "adazed.sqlite"
-        filename.unlink()
-        filename = str(filename)
-        # filename = ":memory:"
-        create_db = True
-        # create_db = False
+    package.database.db = newdb
 
-        package.database.db = package.database.init_database(
-            filename=filename, create_db=create_db
-        )
+    db = package.database.init_database(newdb, filename=filename, create_db=create_db)
 
-        if not prod:
-            from tests.python.factory import populate_database
+    if not prod:
+        from tests.python.factory import populate_database
 
         populate_database()
 
@@ -87,8 +82,7 @@ def create_singleton_instance(prod=False):
     from package.ui_manager import UiManager
 
     ui_manager = UiManager()
-    databaseObject = DatabaseObject(package.database.db, ui_manager, debug=False)
-    # databaseObject.ui = ui_manager
+    databaseObject = DatabaseObject(package.database.db, ui=ui_manager, debug=False)
 
     if not prod:
         databaseObject.anneeActive = 2019

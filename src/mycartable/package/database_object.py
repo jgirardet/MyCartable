@@ -68,6 +68,7 @@ class DatabaseObject(QObject, *MIXINS):
         self.newPageCreated.connect(self.onNewPageCreated)
         self.recentsItemClicked.connect(self.onRecentsItemClicked)
         self.sectionAdded.connect(self.pageModel.insertRows)
+        self.sectionAdded.connect(self.ui.unSetBuzyIndicator)
         self.sectionRemoved.connect(self.pageModel.removeRow)
         self.pageActiviteChanged.connect(self.pagesParSectionChanged)
 

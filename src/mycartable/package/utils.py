@@ -3,7 +3,7 @@ import uuid
 from dataclasses import dataclass
 from datetime import datetime
 
-from PySide2.QtCore import QTimer, QFile, QTextStream
+from PySide2.QtCore import QTimer, QFile, QTextStream, QRunnable
 from PySide2.QtWidgets import QApplication
 from package import WIN
 
@@ -73,3 +73,11 @@ def read_qrc(path, mode="t"):
         # return content.data().decode().replace("\r\n", "\n"
     else:
         raise FileNotFoundError(f"{path} n'est pas une ressource valide")
+
+
+def qrunnable(fn, *args, **kwargs):
+    class QQRunnable(QRunnable):
+        def run(self):
+            fn(*args, **kwargs)
+
+    return QQRunnable()

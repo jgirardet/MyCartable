@@ -4,16 +4,19 @@ import re
 import subprocess
 import uuid
 from subprocess import run, CalledProcessError
-
+from multiprocessing import Value, cpu_count
+from multiprocessing.context import Process
 from pathlib import Path
+import time
+import fitz
 from loguru import logger
-from typing import Tuple
+from typing import Tuple, List, Iterator, Union
 
 from PySide2.QtCore import (
     QDir,
     QPoint,
     QRect,
-    QStandardPaths,
+    Signal,
     QBuffer,
     QTemporaryFile,
 )
@@ -45,48 +48,76 @@ MARGINS = {"bottom": 1, "top": 1, "left": 2, "right": 2}
 HEADER = {"height": 1}
 
 
-def get_binary_path(name):
-    name = name + ".exe" if WIN else name
-    exec_path = get_root_binary_path() / name
-    return exec_path
+def save_pdf_pages_to_png(
+    index: int, cpu: int, filename: Union[Path, str], output_dir: Path, compteur: Value
+):
+    """
+    Convertie un portion de pdf en png
+    :param index: index de la portion
+    :param cpu: cpucount
+    :param filename: pdf source
+    :param output_dir: directory output
+    :param compteur: compteur incrémentiel
+    :return: None
+    """
+    doc = fitz.open(filename)
+    num_pages = len(doc)
+
+    # pages per segment: make sure that cpu * seg_size >= num_pages!
+    seg_size = int(num_pages / cpu + 1)
+    seg_from = index * seg_size  # our first page number
+    seg_to = min(seg_from + seg_size, num_pages)  # last page number
+    for i in range(seg_from, seg_to):  # work through our page segment
+        page = doc[i]
+        pix = page.getPixmap(
+            alpha=False, colorspace="RGB", matrix=fitz.Matrix(2, 2)
+        )  # (2,2) meilleur qualité
+        pix.writePNG(f"{ output_dir / f'{i}.png'}")
+        compteur.value += 1
 
 
-def get_command_line_pdftopng(pdf, png_root, resolution):
-    cmd = [
-        get_binary_path("pdftopng"),
-        "-r",
-        resolution,
-        pdf,
-        png_root,
-    ]
-    return [str(i) for i in cmd]
+def split_pdf_to_png(
+    filename: Union[Path, str], output_dir: Path, cpu: int = None, signal: Signal = None
+) -> List[Path]:
+    """
+    Split un pdf de n pages, n PNG.
+    :param filename: le fichier pdf source
+    :param output_dir: le répertoire d'écriture ds png créés
+    :param cpu: un nombre de cpu donné. default=multiprocessing.cpu_count
+    :param signal: le signal émis pour évaluer la progression
+    :return: une list des  fichiers PNG dans l'ordre des pages
+    """
+    cpu = cpu or cpu_count()
+    compteur = Value("i", 0)
 
+    # on crée les chunks qui seront repartis dans les process
+    # vectors = [(i, cpu, filename) for i in range(cpu)]
+    doc = fitz.open(filename)
+    nb_pages = doc.pageCount
 
-def collect_files(root: Path, pref="", ext: str = ""):
-    res = sorted(root.glob(f"{pref}*{ext}"), key=lambda p: p.name)
-    return res
+    procs = []
+    for i in range(min(cpu, nb_pages)):  # Attention si nb_cpu  > nb_pages
+        p = Process(
+            target=save_pdf_pages_to_png, args=(i, cpu, filename, output_dir, compteur)
+        )
+        p.start()
+        procs.append(p)
 
-
-def run_convert_pdf(pdf, png_root, prefix="xxx", resolution=200, timeout=30):
-    root = Path(png_root)
-    if not root.is_dir():
-        root.mkdir(parents=True)
-
-    expected_out = root / prefix
-
-    cmd = get_command_line_pdftopng(pdf, str(expected_out), resolution=resolution)
-
-    try:
-        run(cmd, timeout=timeout, check=True, capture_output=True)
-    except CalledProcessError as err:
-        logger.exception(err.stderr)
-        return []
-    except subprocess.TimeoutExpired as err:
-        logger.exception(err.stderr)
-        return []
-
-    files = collect_files(root, pref=prefix, ext=".png")
-    return files
+    # on evalue la progression, que l'on transmet via un éventuel signal
+    progression = 0
+    while progression < len(procs):
+        progression = 0
+        for i in procs:
+            if i.is_alive():
+                continue
+            else:
+                progression += 1
+        if signal:
+            signal.emit(compteur.value, nb_pages)
+        time.sleep(0.1)
+    return sorted(
+        list(output_dir.glob("*.png")), key=lambda x: int(x.name.split(".")[0])
+    )
 
 
 def find_soffice(ui=None):

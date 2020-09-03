@@ -3,6 +3,7 @@ import shutil
 import pytest
 import sys
 from pathlib import Path
+import time
 
 from PySide2.QtCore import QSettings, QStandardPaths
 
@@ -28,9 +29,6 @@ def pytest_sessionstart():
     sys.path.append(str(python_dir))
     sys.path.append(str(Path(__file__).parent))
 
-    # Init database
-    # from package import ROOT
-
     # run qrc update
     orig = root / "src" / "qml.qrc"
     dest = python_dir / "package" / "qrc.py"
@@ -41,7 +39,6 @@ def pytest_sessionstart():
     from package import qrc
 
     # remove all FILES
-
     from package.files_path import root_data
 
     shutil.rmtree(root_data())
@@ -66,10 +63,34 @@ def memory_db(monkeypatch_session,):
     return db
 
 
+@pytest.fixture(scope="session", autouse=True)
+def file_db(monkeypatch_session, tmp_path_factory):
+    from package.database import init_database
+    import package.database
+
+    tmpfilename = tmp_path_factory.mktemp("mycartablefiledb") / "bla.sqlite"
+
+    db = init_database(
+        Database(), provider="sqlite", filename=str(tmpfilename), create_db=True
+    )
+
+    return db
+
+
 @pytest.fixture(scope="function")
-def ddbn(memory_db, monkeypatch):
+def ddbn(memory_db):
     """database no reset"""
     return memory_db
+
+
+@pytest.fixture(scope="function")
+def ddbnf(file_db, monkeypatch):
+    """database no reset"""
+    import package.database
+
+    monkeypatch.setattr(package.database, "getdb", lambda: file_db)
+    yield file_db
+    # monkeypatch.undo()
 
 
 @pytest.fixture(scope="function")
@@ -80,6 +101,14 @@ def qappdao(qapp, ddbn, uim):
     yield qapp
 
 
+@pytest.fixture(scope="function")
+def qappdaof(qapp, ddbnf, uim):
+    from package.database_object import DatabaseObject
+
+    qapp.dao = DatabaseObject(ddbnf, uim)
+    yield qapp
+
+
 @pytest.fixture()
 def ddbr(ddbn, reset_db):
     """database reset db"""
@@ -87,10 +116,24 @@ def ddbr(ddbn, reset_db):
 
 
 @pytest.fixture()
+def ddbrf(ddbnf, reset_dbf):
+    """database reset db"""
+    return ddbnf
+
+
+@pytest.fixture()
 def ddb(ddbr):
     """database reset with ddb_sesion"""
     db_session.__enter__()
     yield ddbr
+    db_session.__exit__()
+
+
+@pytest.fixture()
+def ddbf(ddbrf):
+    """database reset with ddb_sesion"""
+    db_session.__enter__()
+    yield ddbrf
     db_session.__exit__()
 
 
@@ -103,26 +146,24 @@ def reset_db(ddbn, userid):
     yield
 
 
+@pytest.fixture(scope="function")
+def reset_dbf(ddbnf, userid):
+    fn_reset_db(ddbnf)
+    with db_session:
+        ddbnf.Utilisateur(id=userid, nom="nom", prenom="prenom")
+
+    yield
+
+
 def fn_reset_db(db):
-    # try:
-    # for a in db.Annee.select():
-    #     a.delete()
     with db_session:
         for entity in db.entities.values():
             for e in entity.select():
                 try:
                     e.delete()
                     flush()
-                # delete(e for e in entity)
                 except:
                     continue
-            # db.execute(
-            #     f"UPDATE SQLITE_SEQUENCE  SET  SEQ = 0 WHERE NAME = '{entity._table_}';"
-            # )
-
-
-# except:
-#     pass
 
 
 @pytest.fixture(scope="function")
@@ -165,7 +206,18 @@ def dao(ddbr, tmpfilename, uim, userid):
     return obj
 
 
-import time
+@pytest.fixture()
+def daof(ddbrf, tmpfilename, uim, userid):
+    from package.database_object import DatabaseObject
+
+    with db_session:
+        annee = ddbrf.Annee(id=2019, niveau="cm2019", user=userid,)
+    obj = DatabaseObject(ddbrf, uim)
+    obj.changeAnnee.emit(2019)
+    obj.init_matieres()
+    obj.settings = QSettings(str(tmpfilename.absolute()))
+
+    return obj
 
 
 @pytest.fixture(autouse=False)

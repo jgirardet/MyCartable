@@ -46,7 +46,6 @@ def f_user(nom="lenom", prenom="leprenom", td=False, **kwargs):
 #
 def f_annee(id=2019, niveau=None, user=None, td=False, **kwargs):
     db = import_getdb()
-    print(db)
     id = id or random.randint(2018, 2020)
     if isinstance(id, db.Annee):
         id = id.id

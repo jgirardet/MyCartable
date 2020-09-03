@@ -311,7 +311,7 @@ def class_section(
 
         def set(self, *, content, curseur, **kwargs):
             super().set(**kwargs)
-            if re.match("\s+", content):
+            if re.match(r"\s+", content):
                 self.content = self.DEFAULT_CONTENT
                 self.curseur = self.DEFAULT_CURSEUR
                 return self.to_dict()

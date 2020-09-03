@@ -111,7 +111,6 @@ class AnnotationModel(QAbstractListModel):
     @Slot(str, result=bool)
     def slotReset(self, value):
         self.beginResetModel()
-        print("reset")
         with db_session:
             section = self.db.ImageSection.get(id=value)
             if not section:

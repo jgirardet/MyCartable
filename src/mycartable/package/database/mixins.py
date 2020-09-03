@@ -170,7 +170,6 @@ class PositionMixin:
             for sec in query:
                 if new <= sec.position < old:
                     sec._position += 1
-        print(new, self)
         return new
 
     @contextmanager

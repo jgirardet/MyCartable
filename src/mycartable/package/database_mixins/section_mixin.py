@@ -34,7 +34,6 @@ class SectionMixin:
             )
             if path.is_file():
                 if path.suffix == ".pdf":
-                    print("au siffux")
                     return self.addSectionPDF(page_id, path)
                 content["path"] = str(self.store_new_file(path))
             else:
@@ -55,6 +54,8 @@ class SectionMixin:
 
         with db_session:
             try:
+                print("danse func", self.db)
+
                 item = getattr(self.db, classtype)(page=page_id, **content)
             except MyCartableOperationError as err:
                 logger.exception(err)
@@ -66,7 +67,6 @@ class SectionMixin:
     def addSectionPDF(self, page_id, path) -> str:
 
         first = None
-
         with tempfile.TemporaryDirectory() as temp_path:
             res = run_convert_pdf(path, temp_path)
             for page in res:

@@ -9,11 +9,7 @@ import pytest
 from package.database.mixins import PositionMixin, ColorMixin
 from package.exceptions import MyCartableOperationError
 from pony.orm import flush, Database, make_proxy, Set, Required
-
-print("avantimport")
 from factory import *
-
-print("apres import")
 
 
 def test_creation_all(ddb):

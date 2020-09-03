@@ -577,18 +577,20 @@ class TestSectionMixin:
         self,
         png_annot,
         resources,
-        dao,
-        ddbr,
+        daof,
+        ddbrf,
         qtbot,
         page,
         content,
         res,
         signal_emitted,
         tmpfile,
+        qappdaof,
     ):
         x = f_page()
         page = x.id
-        dao.pageModel.slotReset(x.id)
+        print("dans test", ddbrf, daof.db)
+        daof.pageModel.slotReset(x.id)
         if "path" not in content:
             pass
         if content["path"] == "png_annot":
@@ -601,15 +603,15 @@ class TestSectionMixin:
         elif content["path"] == "createOne":
             content["path"] = str(tmpfile)
         if signal_emitted:
-            with qtbot.waitSignal(dao.sectionAdded):
-                a = dao.addSection(page, content)
+            with qtbot.waitSignal(daof.sectionAdded):
+                a = daof.addSection(page, content)
         else:
-            a = dao.addSection(page, content)
+            a = daof.addSection(page, content)
 
         with db_session:
             if res:
                 _res = str(
-                    ddbr.Section.select().order_by(lambda x: x.position).first().id
+                    ddbrf.Section.select().order_by(lambda x: x.position).first().id
                 )
                 res = _res
             else:
@@ -618,7 +620,7 @@ class TestSectionMixin:
         if res == "":
             return
         with db_session:
-            item = ddbr.Section.select().first()
+            item = ddbrf.Section.select().first()
             assert item.page.id == x.id
             for i in content.keys():
                 if i == "path":

@@ -21,6 +21,7 @@ from loguru import logger
 
 import package.database
 from pony.orm import DBException, db_session, Database
+import tempfile
 
 
 def main_init_database(filename=None, prod=False):
@@ -37,8 +38,8 @@ def main_init_database(filename=None, prod=False):
         create_db = True
     else:
         QStandardPaths.setTestModeEnabled(True)
-        filename = ":memory:"
-        create_db = False
+        filename = str(Path(tempfile.gettempdir()) / "filename")
+        create_db = True
 
     package.database.db = newdb
 
@@ -47,7 +48,7 @@ def main_init_database(filename=None, prod=False):
     if not prod:
         from tests.python.factory import populate_database
 
-        populate_database()
+        # populate_database()
 
     return package.database.db
 

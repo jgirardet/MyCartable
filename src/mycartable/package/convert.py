@@ -50,50 +50,6 @@ MARGINS = {"bottom": 1, "top": 1, "left": 2, "right": 2}
 HEADER = {"height": 1}
 
 
-def get_binary_path(name):
-    name = name + ".exe" if WIN else name
-    exec_path = get_root_binary_path() / name
-    return exec_path
-
-
-def get_command_line_pdftopng(pdf, png_root, resolution):
-    cmd = [
-        get_binary_path("pdftopng"),
-        "-r",
-        resolution,
-        pdf,
-        png_root,
-    ]
-    return [str(i) for i in cmd]
-
-
-def collect_files(root: Path, pref="", ext: str = ""):
-    res = sorted(root.glob(f"{pref}*{ext}"), key=lambda p: p.name)
-    return res
-
-
-def run_convert_pdf(pdf, png_root, prefix="xxx", resolution=200, timeout=60):
-    root = Path(png_root)
-    if not root.is_dir():
-        root.mkdir(parents=True)
-
-    expected_out = root / prefix
-
-    cmd = get_command_line_pdftopng(pdf, str(expected_out), resolution=resolution)
-
-    try:
-        run(cmd, timeout=timeout, check=True, capture_output=True)
-    except CalledProcessError as err:
-        logger.exception(err.stderr)
-        return []
-    except subprocess.TimeoutExpired as err:
-        logger.exception(err.stderr)
-        return []
-
-    files = collect_files(root, pref=prefix, ext=".png")
-    return files
-
-
 def save_pdf_pages_to_png(
     index: int, cpu: int, filename: Union[Path, str], output_dir: Path, compteur: Value
 ):

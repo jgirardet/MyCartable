@@ -12,7 +12,7 @@ def pm(ddbr, qappdao):
     # return a
     def factory(nb):
         p = f_page()
-        a = PageModel()
+        a = PageModel(ddbr)
         x = b_section(nb, page=p.id)
         a.secids = [str(z.id) for z in x]
         a.pageid = p.id
@@ -29,12 +29,11 @@ class TestPAgeModel:
         check_args(a.move, [int, int], bool)
         check_args(a.removeSection, [int], bool)
 
-    def test_base_init(self, qtbot, qtmodeltester):
-        assert check_super_init("package.page.page_model.QAbstractListModel", PageModel)
-        b = PageModel()
+    def test_base_init(self, qtbot, qtmodeltester, ddbn):
+        b = PageModel(ddbn)
         assert b.row_count == 0
 
-        a = PageModel()
+        a = PageModel(ddbn)
         # a._datas = [1, 2, 4]
         qtmodeltester.check(a)
 
@@ -92,8 +91,8 @@ class TestPAgeModel:
         with check_begin_end(a, "InsertRows"):
             a.insertRows(0, 1, QModelIndex())
 
-    def test_roles(self):
-        pm = PageModel()
+    def test_roles(self, ddbn):
+        pm = PageModel(ddbn)
         assert Qt.DisplayRole in pm.roleNames()
         assert PageModel.PageRole in pm.roleNames()
         assert pm.roleNames()[PageModel.PageRole] == b"page"

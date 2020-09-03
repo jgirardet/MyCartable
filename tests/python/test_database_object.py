@@ -570,48 +570,44 @@ class TestSectionMixin:
             (1, {"path": QUrl("createOne"), "classtype": "ImageSection",}, 1, True,),
             (1, {"path": None, "classtype": "ImageSection",}, 0, False,),
             (1, {"path": "my/path", "classtype": "ImageSection"}, 0, False),
-            # (1, {"path": "le.pdf", "classtype": "ImageSection",}, 1, True,),
         ],
     )
     def test_addSectionFile(
         self,
         png_annot,
         resources,
-        daof,
-        ddbrf,
+        dao,
+        ddbr,
         qtbot,
         page,
         content,
         res,
         signal_emitted,
         tmpfile,
-        qappdaof,
+        qappdao,
     ):
         x = f_page()
         page = x.id
-        print("dans test", ddbrf, daof.db)
-        daof.pageModel.slotReset(x.id)
+        dao.pageModel.slotReset(x.id)
         if "path" not in content:
             pass
         if content["path"] == "png_annot":
             content["path"] = str(png_annot)
-        elif content["path"] == "le.pdf":
-            content["path"] = str(resources / "2pages.pdf")
         elif isinstance(content["path"], QUrl):
             if content["path"].toString() == "createOne":
                 content["path"] = QUrl.fromLocalFile(str(tmpfile))
         elif content["path"] == "createOne":
             content["path"] = str(tmpfile)
         if signal_emitted:
-            with qtbot.waitSignal(daof.sectionAdded):
-                a = daof.addSection(page, content)
+            with qtbot.waitSignal(dao.sectionAdded):
+                a = dao.addSection(page, content)
         else:
-            a = daof.addSection(page, content)
+            a = dao.addSection(page, content)
 
         with db_session:
             if res:
                 _res = str(
-                    ddbrf.Section.select().order_by(lambda x: x.position).first().id
+                    ddbr.Section.select().order_by(lambda x: x.position).first().id
                 )
                 res = _res
             else:
@@ -620,7 +616,7 @@ class TestSectionMixin:
         if res == "":
             return
         with db_session:
-            item = ddbrf.Section.select().first()
+            item = ddbr.Section.select().first()
             assert item.page.id == x.id
             for i in content.keys():
                 if i == "path":
@@ -630,6 +626,16 @@ class TestSectionMixin:
                     item.datas == create_operation(content["string"])
                 else:
                     assert content[i] == getattr(item, i)
+
+    def test_addSetion_pdf(self, ddbrf, daof, resources, qtbot, qappdaof):
+        page = f_page().id
+        daof.pageModel.slotReset(page)
+        content = {"classtype": "ImageSection"}
+        content["path"] = str(resources / "2pages.pdf")
+        with qtbot.waitSignal(daof.sectionAdded, check_params_cb=lambda x, y: (0, 2)):
+            res = daof.addSection(str(page), content)
+        with db_session:
+            item = ddbrf.Page[page].sections.count() == 2
 
 
 class TestEquationMixin:

@@ -14,7 +14,6 @@ from PySide2.QtCore import (
 from PySide2.QtWidgets import QApplication
 import typing
 from pony.orm import db_session, ObjectNotFound, make_proxy, flush
-from package import database
 
 from loguru import logger
 
@@ -23,10 +22,10 @@ class PageModel(QAbstractListModel):
 
     PageRole = Qt.UserRole + 1
 
-    def __init__(self, parent=None):
-        self.db = database.getdb()
-        self.page = None
+    def __init__(self, db, parent=None):
         super().__init__(parent=parent)
+        self.db = db
+        self.page = None
         self.row_count = 0
 
     @db_session

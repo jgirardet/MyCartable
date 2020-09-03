@@ -1,32 +1,13 @@
 import tempfile
 from pathlib import Path
 
-from PySide2.QtConcurrent import QtConcurrent
-from PySide2.QtCore import Slot, QUrl, Signal, QThread
-from package.convert import run_convert_pdf, split_pdf_to_png
+from PySide2.QtCore import Slot, QUrl, Signal, QThreadPool
+from package.convert import split_pdf_to_png
 from package.files_path import FILES
 from package.exceptions import MyCartableOperationError
+from package.utils import qrunnable
 from pony.orm import db_session
 from loguru import logger
-
-
-from loguru import logger
-
-
-class Executor(QThread):
-
-    excutorFinished = Signal()
-
-    def __init__(self, *args, func=None, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.func = func
-
-    def run(self):
-        self.func()
-        # self.excutorFinished.emit()
-
-
-ExecutorInstance = Executor()
 
 
 class SectionMixin:
@@ -50,11 +31,9 @@ class SectionMixin:
             )
             if path.is_file():
                 if path.suffix == ".pdf":
-                    # return self.addSectionPDF(page_id, path)
-                    ExecutorInstance.func = lambda: self.addSectionPDF(page_id, path)
-                    ExecutorInstance.start()
+                    runner = qrunnable(self.addSectionPDF, page_id, path)
+                    QThreadPool.globalInstance().start(runner)
                     return
-                    # return self.addSectionPDF(page_id, path)
                 content["path"] = str(self.store_new_file(path))
             else:
                 return ""
@@ -74,8 +53,6 @@ class SectionMixin:
 
         with db_session:
             try:
-                print("danse func", self.db)
-
                 item = getattr(self.db, classtype)(page=page_id, **content)
             except MyCartableOperationError as err:
                 logger.exception(err)
@@ -89,7 +66,6 @@ class SectionMixin:
         with tempfile.TemporaryDirectory() as temp_path:
             # res = run_convert_pdf(path, temp_path)
             res = split_pdf_to_png(path, Path(temp_path))
-            print(res)
             for page in res:
                 content = {"classtype": "ImageSection"}
                 content["path"] = self.store_new_file(page)
@@ -98,7 +74,6 @@ class SectionMixin:
                 if not first:
                     first = item
             self.sectionAdded.emit(first.position, len(res))
-            return str(first.id)
 
     @Slot(str, result="QVariantMap")
     def loadSection(self, section_id):

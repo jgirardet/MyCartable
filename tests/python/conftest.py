@@ -9,7 +9,7 @@ from PySide2.QtCore import QSettings, QStandardPaths
 
 from PySide2.QtWidgets import QApplication
 from mimesis import Generic
-from pony.orm import db_session, flush
+from pony.orm import db_session, flush, Database
 import subprocess
 
 generic_mimesis = Generic("fr")

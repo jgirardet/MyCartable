@@ -9,7 +9,6 @@ from time import sleep
 from unittest.mock import patch
 
 import PIL
-import PyPDF2
 import pytest
 from PySide2.QtCore import QBuffer, QByteArray, QSize, Signal, QObject
 from PySide2.QtGui import QImage, QPainter

@@ -1,4 +1,5 @@
 import sys
+import tempfile
 from pathlib import Path
 
 from PySide2.QtGui import QFont, QFontDatabase, QIcon, QPixmap
@@ -37,8 +38,8 @@ def main_init_database(filename=None, prod=False):
         create_db = True
     else:
         QStandardPaths.setTestModeEnabled(True)
-        filename = ":memory:"
-        create_db = False
+        filename = Path(tempfile.gettempdir()) / "devddbmdk.sqlite"
+        create_db = True
 
     package.database.db = newdb
 
@@ -47,7 +48,10 @@ def main_init_database(filename=None, prod=False):
     if not prod:
         from tests.python.factory import populate_database
 
-        populate_database()
+        try:
+            populate_database()
+        except:
+            pass
 
     return package.database.db
 

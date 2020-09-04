@@ -1,120 +1,81 @@
-# import base64
-# import io
-# import subprocess
-# from dataclasses import dataclass
-# from pathlib import Path
-# from subprocess import CalledProcessError
-# from time import sleep
-# from unittest.mock import patch
-#
-# import PIL
-# import PyPDF2
-# import pytest
-# from PySide2.QtCore import QBuffer, QByteArray, QSize
-# from PySide2.QtGui import QImage, QPainter
-# from package import BINARY
-# from package.convert import (
-#     get_binary_path,
-#     get_command_line_pdftopng,
-#     collect_files,
-#     run_convert_pdf,
-#     find_soffice,
-#     soffice_convert,
-#     escaped_filename,
-#     templates,
-#     draw_annotation_dessin,
-#     draw_annotation_text,
-#     create_images_with_annotation,
-#     escape,
-#     new_automatic_text,
-#     text_section,
-#     image_section,
-#     get_image_size,
-# )
-# import sys
-#
-# from package.database.factory import *
-# from package.files_path import TMP, FILES
-# from package.ui_manager import UiManager
-#
-#
-# def test_get_binary_path():
-#     if sys.platform == "linux":
-#         assert get_binary_path("bla") == BINARY / "bla"
-#     elif sys.platform == "win32":
-#         assert get_binary_path("bla") == BINARY / "bla.exe"
-#
-#
-# def test_command_line_pdftopng():
-#
-#     assert get_command_line_pdftopng("bla.pdf", "root", resolution=111) == [
-#         str(get_binary_path("pdftopng")),
-#         "-r",
-#         "111",
-#         "bla.pdf",
-#         "root",
-#     ]
-#     res = get_command_line_pdftopng(Path("bla.pdf"), Path("root"), resolution=111)
-#     assert all(isinstance(x, str) for x in res)
-#
-#
-# def test_collect_files_no_prefix(tmp_path):
-#
-#     # standard
-#     res = []
-#     for i in range(5):
-#         name = "bla000" + str(i) + ".png"
-#         p = tmp_path / name
-#         p.touch()
-#         res.append(p)
-#     assert collect_files(tmp_path, ext=".png") == res
-#     assert res[1] == tmp_path / "bla0001.png"
-#
-#
-# def test_collect_files_standard_avec_prefix(tmp_path):
-#     # standard avec prefix
-#     pref = "pref"
-#     res = []
-#     for i in range(5):
-#         name = pref + "bla000" + str(i) + ".png"
-#         p = tmp_path / name
-#         p.touch()
-#         res.append(p)
-#     assert collect_files(tmp_path, pref=pref, ext=".png") == res
-#     assert res[1] == tmp_path / "prefbla0001.png"
-#
-#
-# def test_collect_files_standard_checkordalphbetique(tmp_path):
-#
-#     # check  ordre alphabétique
-#     res = []
-#     for i in range(1, 6):
-#         name = "bla000" + str(i) + ".png"
-#         p = tmp_path / name
-#         p.touch()
-#         res.append(p)
-#
-#     name = "bla000" + str(0) + ".png"
-#     p = tmp_path / name
-#     p.touch()
-#     res = [p] + res
-#
-#     assert collect_files(tmp_path, ext=".png") == res
-#
-#
-# # @pytest.mark.skip("lent")
-# def test_convert_pdf(resources, tmp_path):
-#     res = run_convert_pdf(resources / "2pages.pdf", tmp_path / "rien")
-#     assert len(res) == 2
-#     for f in res:
-#         assert f.is_file()
-#         assert f.name.startswith("xxx")  # le default
-#
-#     assert run_convert_pdf(resources / "xxxxxx .pdf", tmp_path / "rien") == []
-#     assert (
-#         run_convert_pdf(resources / "xxxxxx .pdf", tmp_path / "rien", timeout=0) == []
-#     )
-#
+import base64
+import io
+import subprocess
+from dataclasses import dataclass
+from multiprocessing import Value
+from pathlib import Path
+from subprocess import CalledProcessError
+from time import sleep
+from unittest.mock import patch
+
+import PIL
+import pytest
+from PySide2.QtCore import QBuffer, QByteArray, QSize, Signal, QObject
+from PySide2.QtGui import QImage, QPainter
+from package.convert import (
+    find_soffice,
+    soffice_convert,
+    escaped_filename,
+    templates,
+    draw_annotation_dessin,
+    draw_annotation_text,
+    create_images_with_annotation,
+    escape,
+    new_automatic_text,
+    text_section,
+    image_section,
+    get_image_size,
+    save_pdf_pages_to_png,
+    split_pdf_to_png,
+)
+import sys
+
+from package.files_path import TMP, FILES
+from package.ui_manager import UiManager
+
+
+@pytest.mark.parametrize(
+    "index, cpu, range_res, compteur",
+    [
+        (0, 2, range(0, 4), 4),
+        (1, 2, range(4, 7), 3),
+        (1, 1, [], 0),
+        (0, 1, range(0, 7), 7),
+        (0, 3, range(0, 3), 3),
+        (1, 3, range(3, 6), 3),
+        (2, 3, range(6, 7), 1),
+    ],
+)
+def test_save_pages_to_png(tmp_path, new_res, index, cpu, range_res, compteur):
+    v = Value("i", 0)
+    save_pdf_pages_to_png(index, cpu, new_res("pdf7pages.pdf"), tmp_path, v)
+    assert set(tmp_path.glob("*.png")) == {tmp_path / f"{i}.png" for i in range_res}
+    assert v.value == compteur
+
+
+@pytest.mark.parametrize(
+    "cpu", [None, 1, 2, 4],
+)
+def test_split_pdf_to_png(tmp_path, new_res, qtbot, cpu):
+    class S(QObject):
+        s = Signal(int, int)
+
+    ss = S()
+
+    def check_cb_params(*params):
+        base = 0
+        x, y = params
+        assert base <= x <= y
+        assert y == 7
+        if x >= 7:
+            return True  # ne retourne True que quand tous les appels ont été vérifiés
+        return False
+
+    with qtbot.waitSignal(ss.s, check_params_cb=check_cb_params):
+        res = split_pdf_to_png(new_res("pdf7pages.pdf"), tmp_path, cpu, ss.s)
+    assert res == [tmp_path / f"{i}.png" for i in range(7)]
+
+
 #
 # def test_find_soffice(qtbot):
 #

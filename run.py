@@ -6,6 +6,7 @@ import subprocess
 import os
 import sys
 import time
+from multiprocessing import cpu_count
 from pathlib import Path
 
 
@@ -250,7 +251,8 @@ def cmd_test_binary_as_dir(*args, **kwargs):
 
 def cmd_test_python(*args, **kwargs):
     test_path = ROOT / "tests" / "python"
-    runCommand(f"python -m pytest -s -vvv {test_path}", sleep_time=0.001)
+    # f"python -m pytest -s -vvv -n {cpu_count()} {test_path}", sleep_time=0.001
+    runCommand(f"python -m pytest -s -vvv  {test_path}", sleep_time=0.001)
 
 
 def cmd_test_qml(*args, **kwargs):

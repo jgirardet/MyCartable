@@ -67,7 +67,7 @@ def test_split_pdf_to_png(tmp_path, new_res, qtbot, cpu):
         x, y = params
         assert base <= x <= y
         assert y == 7
-        if x == 7:
+        if x >= 7:
             return True  # ne retourne True que quand tous les appels ont été vérifiés
         return False
 

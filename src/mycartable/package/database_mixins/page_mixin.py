@@ -1,12 +1,12 @@
 import uuid
 from functools import partial
 
-from PySide2.QtCore import Slot, Signal, Property, QObject
+from PySide2.QtCore import Slot, Signal, Property, QObject, QThreadPool
 from PySide2.QtGui import QDesktopServices
 from loguru import logger
 from package.constantes import TITRE_TIMER_DELAY
 from package.convert import soffice_convert, escaped_filename
-from package.utils import create_singleshot
+from package.utils import create_singleshot, qrunnable
 from pony.orm import db_session, make_proxy
 from loguru import logger
 
@@ -120,7 +120,12 @@ class PageMixin:
 
     @Slot()
     def exportToPDF(self):
+        qrunnable(self._export_to_pdf)
+        self.ui.sendToast.emit(
+            "Export en PDF lancé, cela peut prendre plusieurs secondes"
+        )
 
+    def _export_to_pdf(self):
         filename = escaped_filename(self.currentTitre, ".pdf")
         new_file = soffice_convert(
             self.currentPage, "pdf:writer_pdf_Export", filename, self.ui
@@ -129,6 +134,13 @@ class PageMixin:
 
     @Slot()
     def exportToOdt(self):
+        qrunnable(self._export_to_odt)
+        self.ui.sendToast.emit(
+            "Export en ODT lancé, cela peut prendre plusieurs secondes"
+        )
+
+    @Slot()
+    def _export_to_odt(self):
         filename = escaped_filename(self.currentTitre, ".odt")
         new_file = soffice_convert(self.currentPage, "odt", filename, self.ui)
         QDesktopServices.openUrl(new_file.as_uri())

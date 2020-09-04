@@ -1,5 +1,6 @@
 import json
 import uuid
+from time import sleep
 
 import pytest
 from PIL import Image
@@ -147,25 +148,49 @@ class TestPageMixin:
         dao.currentPage = a.id
         dao.currentPage = ""
 
-    def test_exportToPdf(selfsekf, dao):
+    def test_export_to_pdf(selfsekf, dao):
         a = f_page(titre="blà")
         dao.currentPage = a.id
         with patch("package.database_mixins.page_mixin.QDesktopServices.openUrl") as m:
             with patch("package.database_mixins.page_mixin.soffice_convert") as v:
-                dao.exportToPDF()
+                dao._export_to_pdf()
                 v.assert_called_with(
                     str(a.id), "pdf:writer_pdf_Export", "bla.pdf", dao.ui
                 )
                 m.assert_called_with(v.return_value.as_uri())
 
-    def test_exportToOdt(selfsekf, dao):
+    def test_exportToPDf(self, dao, qtbot):
+        with patch.object(dao, "_export_to_pdf") as w:
+            with qtbot.waitSignal(
+                dao.ui.sendToast,
+                check_params_cb=lambda x: x
+                == "Export en PDF lancé, cela peut prendre plusieurs secondes",
+            ):
+                dao.exportToPDF()
+            sleep(1 / 1000)
+
+        assert w.called
+
+    def test_export_to_odt(selfsekf, dao):
         a = f_page(titre="blà")
         dao.currentPage = a.id
         with patch("package.database_mixins.page_mixin.QDesktopServices.openUrl") as m:
             with patch("package.database_mixins.page_mixin.soffice_convert") as v:
-                dao.exportToOdt()
+                dao._export_to_odt()
                 v.assert_called_with(str(a.id), "odt", "bla.odt", dao.ui)
                 m.assert_called_with(v.return_value.as_uri())
+
+    def test_exportToOdt(self, dao, qtbot):
+        with patch.object(dao, "_export_to_odt") as w:
+            with qtbot.waitSignal(
+                dao.ui.sendToast,
+                check_params_cb=lambda x: x
+                == "Export en ODT lancé, cela peut prendre plusieurs secondes",
+            ):
+
+                dao.exportToOdt()
+            sleep(1 / 1000)
+        assert w.called
 
 
 @pytest.fixture()

@@ -1036,6 +1036,9 @@ def equation_section(section):
 def build_body(page_id: int) -> Tuple[str, str]:
     tags = []
     automatic_res = []
+    from package.database import getdb
+
+    db = getdb()
     page = db.Page[page_id]
     for section in page.content:
         new_tags = ""
@@ -1092,6 +1095,7 @@ def build_styles() -> str:
 
 def build_master_styles() -> str:
     tmpl = templates.get_template("master-styles.xml")
+    db = getdb()
     user = db.Utilisateur.user()
     return tmpl.render(
         nom=user.nom, prenom=user.prenom, classe=db.Annee[user.last_used].niveau

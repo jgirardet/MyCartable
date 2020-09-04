@@ -33,7 +33,7 @@ class SectionMixin:
             if path.is_file():
                 if path.suffix == ".pdf":
                     runner = qrunnable(self.addSectionPDF, page_id, path)
-                    QThreadPool.globalInstance().start(runner)
+                    # QThreadPool.globalInstance().start(runner)
                     return
 
                 content["path"] = str(self.store_new_file(path))

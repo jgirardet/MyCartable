@@ -225,6 +225,14 @@ matiereList : annee en moins
 matiereList : annee en moins
               famille, actiite, position
               */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
 
     // Matiere MIXIN
     property int currentMatiere: 0
@@ -620,6 +628,7 @@ matiereList : annee en moins
     property var _removeGroupeMatiere
     property var _getDeplacePageModel
     property var _changeActivite
+    property var pageModel
 
     signal setCurrentMatiereFromIndexSignal(int index)
     signal newPageCreated(var un)

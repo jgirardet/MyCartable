@@ -100,6 +100,8 @@ ApplicationWindow {
 
         Toast {
             id: toast
+
+            objectName: "toast"
         }
 
     }

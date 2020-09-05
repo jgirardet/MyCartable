@@ -14,15 +14,15 @@ Item {
       property  string nom
       property string tooltip
       property var dialog
+      property bool append: true
 
       function newSection () {
-        if (!position) position = ddb.pageModel.count
-         ddb.addSection(ddb.currentPage, {
+        let newPos = append ? ddb.pageModel.count : position + 1
+        ddb.addSection(ddb.currentPage, {
                   "classtype": nom,
-                  "position": position || ddb.pageModel.count
+                  "position": newPos
               });
-         position = 0
-         }
+        }
     }
 
     component ActionToolTip : ToolTip {
@@ -83,12 +83,12 @@ Item {
           nameFilters: ["fichiers Images (*.jpg *.png *.bmp *.ppm *.gif, *.pdf)"]
           onAccepted: {
               uiManager.buzyIndicator = true
+              var newPos = append ? ddb.pageModel.count : position + 1
               ddb.addSection(ddb.currentPage, {
                   "path": fileUrl,
                   "classtype": nom,
-                  "position": position || ddb.pageModel.count
+                  "position": newPos
               });
-              position = 0
           }
         }
     }
@@ -110,9 +110,8 @@ Item {
               ddb.addSection(ddb.currentPage, {
                   "string": contentItem.text,
                   "classtype": nom,
-                  "position":position || ddb.pageModel.count
+                  "position":append ? ddb.pageModel.count : position + 1
               });
-              position + 0
               contentItem.clear();
           }
 
@@ -174,10 +173,9 @@ Item {
                 "lignes": ~~lignesSlider.value,
                 "colonnes": ~~colonneSlider.value,
                 "classtype": tableauaction.nom,
-                "position": tableauaction.position || ddb.pageModel.count,
+                "position": tableauaction.append ? ddb.pageModel.count : tableauaction.position + 1,
                 "modele": groupeModeles.checkedButton.icon.name
             })
-            tableauaction.position = 0
 
             }
 

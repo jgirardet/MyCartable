@@ -8,7 +8,7 @@ TextArea {
     property var sectionItem
     property int previousCursorPosition
 
-    width: sectionItem.width - 20
+    width: sectionItem.width - 0
     height: contentHeight + 30
     font.pointSize: 12
     onSectionIdChanged: {

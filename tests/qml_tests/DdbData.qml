@@ -233,6 +233,70 @@ matiereList : annee en moins
 matiereList : annee en moins
               famille, actiite, position
               */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
+    /* on changes:
+matiereList : annee en moins
+              famille, actiite, position
+              */
 
     // Matiere MIXIN
     property int currentMatiere: 0
@@ -629,6 +693,9 @@ matiereList : annee en moins
     property var _getDeplacePageModel
     property var _changeActivite
     property var pageModel
+    property var _removePage
+    property var _exportToOdt
+    property var _exportToPDF
 
     signal setCurrentMatiereFromIndexSignal(int index)
     signal newPageCreated(var un)
@@ -882,6 +949,18 @@ matiereList : annee en moins
         let toReturn = _changeActivite;
         _changeActivite = [page, activite];
         return toReturn;
+    }
+
+    function removePage(id) {
+        _removePage = [id];
+    }
+
+    function exportToOdt(id) {
+        _exportToOdt = ["called"];
+    }
+
+    function exportToPDF() {
+        _exportToPDF = ["called"];
     }
 
     Component.onCompleted: {

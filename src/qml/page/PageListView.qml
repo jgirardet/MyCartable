@@ -93,28 +93,38 @@ ListView {
             Buttons.NewTextSection {
                 id: newtext
 
-                targetIndex: typeof addDialog.index != "undefined" ? addDialog.index + 1 : 0
+                appendMode: false
                 target: addDialog
+                targetIndex: addDialog.index
+                Component.onCompleted: action.triggered.connect(addDialog.close)
             }
 
             Buttons.NewImageSection {
-                targetIndex: newtext.targetIndex
-                target: newtext.target
+                appendMode: false
+                target: addDialog
+                targetIndex: addDialog.index
+                Component.onCompleted: action.triggered.connect(addDialog.close)
             }
 
             Buttons.NewEquationSection {
-                targetIndex: newtext.targetIndex
-                target: newtext.target
+                appendMode: false
+                target: addDialog
+                targetIndex: addDialog.index
+                Component.onCompleted: action.triggered.connect(addDialog.close)
             }
 
             Buttons.NewOperationSection {
-                targetIndex: newtext.targetIndex
-                target: newtext.target
+                appendMode: false
+                target: addDialog
+                targetIndex: addDialog.index
+                Component.onCompleted: action.triggered.connect(addDialog.close)
             }
 
             Buttons.NewTableauSection {
-                targetIndex: newtext.targetIndex
-                target: newtext.target
+                appendMode: false
+                target: addDialog
+                targetIndex: addDialog.index
+                Component.onCompleted: action.triggered.connect(addDialog.close)
             }
 
         }

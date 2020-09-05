@@ -1,12 +1,13 @@
-import QtQuick  2.15
+import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtTest 1.14
 
-Item {
+Rectangle {
     id: item
 
     width: 800
     height: 600
+    color: "blue"
 
     Component {
         id: modelComp
@@ -66,24 +67,6 @@ Item {
     }
 
     CasTest {
-        //      tested.sectionId = 1
-        // PARTIE TEST PAGELISTVIEW
-        // positionview non testé
-        // PARTIE TEST DELEGATE
-        // JE SAIS PAS LE TESTER
-        //      ddb.currentPage = 1
-        //      mouseClick(un, 1, height - 5, Qt.RightButton, Qt.ShiftModifier)
-        //      tested.addDialog.width = item.width
-        //      var addText = tested.addDialog.contentItem.children[0]
-        //      wait(2000)
-        //      mouseClick(addText, 1, 1)
-        //      //      addText.toggle()
-        //      compare(ddb._addSection, {
-        //        "classtype": "TextSection",
-        //        "position": 3
-        //      })
-        //          wait(3000)
-
         property ListModel listmodel
         property var un
         property var deux
@@ -195,7 +178,27 @@ Item {
             compare(tested.count, 4);
         }
 
-        function test_insert_row_entre() {
+        function test_insert_row_entre_data() {
+            return [{
+                "index": 0,
+                "classType": "TextSection"
+            }, {
+                "index": 2,
+                "classType": "EquationSection"
+            }];
+        }
+
+        function test_insert_row_entre(data) {
+            ddb.currentPage = 1;
+            var inter = findChild(un, "intermousearea");
+            mouseClick(inter, undefined, undefined, Qt.RightButton, Qt.ShiftModifier);
+            wait(50);
+            mouseClick(tested.addDialog.contentItem.children[data.index]); // newtext
+            compare(tested.addDialog.visible, false);
+            compare(ddb._addSection, [1, {
+                "classtype": data.classType,
+                "position": 2
+            }]);
         }
 
         name: "PageListView"

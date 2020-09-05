@@ -19,18 +19,23 @@ ToolBar {
                 spacing: 0
 
                 Buttons.NewTextSection {
+                    appendMode: true
                 }
 
                 Buttons.NewImageSection {
+                    appendMode: true
                 }
 
                 Buttons.NewEquationSection {
+                    appendMode: true
                 }
 
                 Buttons.NewOperationSection {
+                    appendMode: true
                 }
 
                 Buttons.NewTableauSection {
+                    appendMode: true
                 }
 
                 Buttons.RemovePage {

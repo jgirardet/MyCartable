@@ -75,6 +75,7 @@ class SectionMixin:
                     item = self.db.ImageSection(page=page_id, **content)
                 if not first:
                     first = item
+            print(first.position, len(res))
             self.sectionAdded.emit(first.position, len(res))
 
     @Slot(str, result="QVariantMap")

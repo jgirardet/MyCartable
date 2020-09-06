@@ -2,7 +2,6 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 
 TextEdit {
-
     id: root
 
     property string sectionId
@@ -30,11 +29,11 @@ TextEdit {
     }
 
     font.pointSize: 20 // necéssaire pour que les taille html soient corrent == taille de p
-    height: contentHeight + 30
+    height: contentHeight + 0
     width: sectionItem.width
     textFormat: TextEdit.RichText
-    leftPadding: 10
-    rightPadding: 10
+    leftPadding: 0
+    rightPadding: 0
     selectByMouse: true
     wrapMode: TextEdit.Wrap
     Keys.onPressed: {

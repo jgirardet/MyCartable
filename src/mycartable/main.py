@@ -29,6 +29,7 @@ def main_init_database(filename=None, prod=False):
     settings = QSettings()
     logger.info(f"ficher settings : {settings.fileName()}")
     newdb = Database()
+    create_db = False
     import package.database
 
     if prod:
@@ -38,8 +39,10 @@ def main_init_database(filename=None, prod=False):
         create_db = True
     else:
         QStandardPaths.setTestModeEnabled(True)
-        filename = Path(tempfile.gettempdir()) / "devddbmdk.sqlite"
-        create_db = True
+        # filename = Path(tempfile.gettempdir()) / "devddbmdk.sqlite"
+        filename = ":memory:"
+        # filename.unlink()
+        # create_db = True
 
     package.database.db = newdb
 
@@ -90,8 +93,8 @@ def create_singleton_instance(prod=False):
 
     if not prod:
         databaseObject.anneeActive = 2019
-        with db_session:
-            databaseObject.currentPage = databaseObject.db.Page.select().first().id
+        # with db_session:
+        #     databaseObject.currentPage = databaseObject.db.Page.select().first().id
 
     return databaseObject, ui_manager
 

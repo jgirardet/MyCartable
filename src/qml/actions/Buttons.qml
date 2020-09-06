@@ -10,6 +10,7 @@ Item {
       property int targetIndex
       property var target
       property var dialog
+      property bool appendMode
 
       enabled: ddb.currentPage
       icon.color: enabled ? "transparent" : ddb.colorPageToolBar
@@ -35,6 +36,7 @@ Item {
   component NewTextSection : BaseButton {
       action: PageActions.NewTextSection {
         position: targetIndex
+        append: appendMode
       }
 
 }
@@ -42,12 +44,14 @@ Item {
   component NewEquationSection : BaseButton {
       action: PageActions.NewEquationSection {
       position: targetIndex
+        append: appendMode
       }
   }
 
   component NewImageSection : BaseButton {
       action: PageActions.NewImageSection {
       position: targetIndex
+        append: appendMode
       }
   }
 
@@ -55,6 +59,7 @@ Item {
       id : operationbutton
       action: PageActions.NewOperationSection {
       position: targetIndex
+        append: appendMode
         Component.onCompleted: action.dialog.parent = operationbutton
       }
   }
@@ -63,6 +68,7 @@ Item {
       id : tableaubutton
       action: PageActions.NewTableauSection {
       position: targetIndex
+        append: appendMode
         Component.onCompleted: action.dialog.parent = tableaubutton
       }
   }

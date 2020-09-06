@@ -1360,11 +1360,30 @@ class TestChangeMatieresMixin:
             },
         ]
 
+    def test_addGroupeMatieres_preprend(self, dao):
+        res = dao.addGroupeMatiere("annee:2019")
+        with db_session:
+            new = dao.db.GroupeMatiere.select().first()
+            assert new.matieres.count() == 1
+        assert [
+            {
+                "annee": 2019,
+                "bgColor": QColor("red"),
+                "fgColor": QColor("blue"),
+                "id": str(new.id),
+                "nom": "nouveau groupe",
+                "position": 0,
+                "nbPages": 0,
+            }
+        ]
+
     def test_addGroupeMatieres(self, dao):
         gm = b_groupeMatiere(3, annee=2017, nom="rien", bgColor="red", fgColor="blue")
         res = dao.addGroupeMatiere(str(gm[2].id))
         with db_session:
             new = dao.db.GroupeMatiere.select()[:][-1]
+            assert new.matieres.count() == 1
+
         assert [
             {
                 "annee": 2017,

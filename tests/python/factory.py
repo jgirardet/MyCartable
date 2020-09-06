@@ -406,69 +406,32 @@ def populate_database(matieres_list=MATIERES, nb_page=100):
     db = import_getdb()
     user = db.Utilisateur(nom="Lenom", prenom="Leprenom")
     annee = db.Annee(id=2019, niveau="cm1", user=user)
-    groupes = []
-    compteur = 0
-    for groupe in MATIERE_GROUPE_BASE:
-        gr = db.GroupeMatiere(annee=annee, bgColor=groupe["bgColor"], nom=groupe["nom"])
-        for mat in MATIERES_BASE:
-            if mat["groupe"] == groupe["id"]:
-                m = db.Matiere(groupe=gr, nom=mat["nom"])
-                compteur += 1
-                ac = db.Activite(matiere=m, nom="mdomak")
-                page = db.Page(titre="mojkù", activite=ac)
-                for x in range(random.randint(0, 8)):
-                    random.choice(
-                        [
-                            f_equationSection(
-                                page=page.id,
-                                # content=f"""1{TextEquation.FSP}            {TextEquation.FSP}12   1234
-                                # ―― + 13 + 3 + ――― + ―――― + 1
-                                # 15            234   789{TextEquation.FSP}    """,
-                            ),
-                            f_tableauSection(page=page.id),
-                            f_imageSection(page=page.id),
-                            f_textSection(page=page.id),
-                            f_additionSection(page=page.id),
-                            f_soustractionSection(page=page.id),
-                            f_multiplicationSection(page=page.id),
-                            f_divisionSection(page=page.id),
-                        ]
-                    )
-        groupes.append(gr)
-
-    # for groupe in groupes:
-    #     self.reApplyGroupeDegrade(groupe.id)
-
-    # db.Annee(id=2018, niveau="ce2", user=user)
-    # [db.GroupeMatiere(**x, annee=annee.id) for x in MATIERE_GROUPE]
-    # flush()
-    # matieres = [db.Matiere(**x) for x in matieres_list]
-    # flush()
-    # #
-    # for m in matieres:
-    #     for i in range(3):
-    #         f_activite(matiere=m.id)
-
-
-#
-#     activites = db.Activite.select()[:]
-#     for i in range(nb_page):
-#         a = f_page(activite=random.choice(activites))
-#         for x in range(random.randint(0, 8)):
-#             random.choice(
-#                 [
-#                     f_equationSection(
-#                         page=a.id,
-#                         # content=f"""1{TextEquation.FSP}            {TextEquation.FSP}12   1234
-#                         # ―― + 13 + 3 + ――― + ―――― + 1
-#                         # 15            234   789{TextEquation.FSP}    """,
-#                     ),
-#                     f_tableauSection(page=a.id),
-#                     f_imageSection(page=a.id),
-#                     f_textSection(page=a.id),
-#                     f_additionSection(page=a.id),
-#                     f_soustractionSection(page=a.id),
-#                     f_multiplicationSection(page=a.id),
-#                     f_divisionSection(page=a.id),
-#                 ]
-#             )
+    # groupes = []
+    # compteur = 0
+    # for groupe in MATIERE_GROUPE_BASE:
+    #     gr = db.GroupeMatiere(annee=annee, bgColor=groupe["bgColor"], nom=groupe["nom"])
+    #     for mat in MATIERES_BASE:
+    #         if mat["groupe"] == groupe["id"]:
+    #             m = db.Matiere(groupe=gr, nom=mat["nom"])
+    #             compteur += 1
+    #             ac = db.Activite(matiere=m, nom="mdomak")
+    #             page = db.Page(titre="mojkù", activite=ac)
+    #             for x in range(random.randint(0, 8)):
+    #                 random.choice(
+    #                     [
+    #                         f_equationSection(
+    #                             page=page.id,
+    #                             # content=f"""1{TextEquation.FSP}            {TextEquation.FSP}12   1234
+    #                             # ―― + 13 + 3 + ――― + ―――― + 1
+    #                             # 15            234   789{TextEquation.FSP}    """,
+    #                         ),
+    #                         f_tableauSection(page=page.id),
+    #                         f_imageSection(page=page.id),
+    #                         f_textSection(page=page.id),
+    #                         f_additionSection(page=page.id),
+    #                         f_soustractionSection(page=page.id),
+    #                         f_multiplicationSection(page=page.id),
+    #                         f_divisionSection(page=page.id),
+    #                     ]
+    #                 )
+    #     groupes.append(gr)

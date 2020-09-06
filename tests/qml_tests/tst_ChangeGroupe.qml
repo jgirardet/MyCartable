@@ -193,6 +193,16 @@ Item {
           compare(ddb._addGroupeMatiere, ["groupe3"])
         }
 
+        function test_add_groupe_if_empty_groupe() {
+          var but = findChild(tested, "initgroupeButton")
+          verify(!but.visible)
+          tested.model = []
+          verify(but.visible)
+          ddb.anneeActive = 1234
+          mouseClick(but)
+          compare(ddb._addGroupeMatiere, ["annee:1234"])
+        }
+
         function test_remove_groupe() {
         compare(zero.children[0].children[4].enabled, true)
           compare(un.children[0].children[4].enabled, false)

@@ -157,9 +157,16 @@ class ChangeMatieresMixin:
     @Slot(str, result="QVariantList")
     @db_session
     def addGroupeMatiere(self, groupeid: str) -> List[dict]:
-        pre = self.db.GroupeMatiere[groupeid]
-        new = self.db.GroupeMatiere(nom="nouveau", annee=pre.annee)
-        new.position = pre.position
+
+        if groupeid.startswith("annee"):
+            annee = groupeid.split(":")[1]
+            new = self.db.GroupeMatiere(
+                nom="nouveau groupe", annee=int(annee), position=0
+            )
+        else:
+            pre = self.db.GroupeMatiere[groupeid]
+            new = self.db.GroupeMatiere(nom="nouveau", annee=pre.annee)
+            new.position = pre.position
         self.db.Matiere(nom="nouvelle matière", groupe=new)
 
         return self.get_groupe_matieres(new.annee.id)

@@ -26,6 +26,23 @@ ListView {
     Component.onCompleted: {
         model.rowsInserted.connect(onItemAdded);
     }
+    contentItem.onChildrenRectChanged: {
+        adjustcachebuffer.restart();
+    }
+
+    Timer {
+        id: adjustcachebuffer
+
+        running: false
+        interval: 300
+        onTriggered: {
+            var cHeight = root.contentItem.childrenRect.height;
+            var bufferMax = Math.max(20000, cHeight + (cHeight / 2));
+            if (root.cacheBuffer != bufferMax)
+                root.cacheBuffer = bufferMax;
+
+        }
+    }
 
     Connections {
 

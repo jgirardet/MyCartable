@@ -67,6 +67,11 @@ Rectangle {
     }
 
     CasTest {
+        //            print(tested.contentItem.childrenRect.height, newheight);
+        //            compare(tested.cacheBuffer, );
+        //38298
+        //            tryCompare(tested, "cacheBuffer", 45798);
+
         property ListModel listmodel
         property var un
         property var deux
@@ -199,6 +204,36 @@ Rectangle {
                 "classtype": data.classType,
                 "position": 2
             }]);
+        }
+
+        function test_adapt_cacheBufffer_superieur_a_2000() {
+            compare(tested.cacheBuffer, 20000);
+            var ch = tested.contentItem.childrenRect.height; //580
+            var h_un = un.height;
+            var others = ch - h_un;
+            un.height = 20000;
+            var newheight = ch - h_un + un.height;
+            tryCompare(tested.contentItem.childrenRect, "height", newheight);
+            tryCompare(tested, "cacheBuffer", newheight + (newheight / 2)); //38298
+        }
+
+        function test_adapt_cacheBufffer_tres_superieur_a_2000() {
+            compare(tested.cacheBuffer, 20000);
+            var ch = tested.contentItem.childrenRect.height;
+            var h_un = un.height;
+            var others = ch - h_un;
+            un.height = 30000;
+            var newheight = ch - h_un + un.height;
+            tryCompare(tested.contentItem.childrenRect, "height", newheight);
+            tryCompare(tested, "cacheBuffer", newheight + (newheight / 2));
+        }
+
+        function test_adapt_cacheBufffer_inferieur_a_2000() {
+            compare(tested.cacheBuffer, 20000);
+            un.height = 10000;
+            var newheight = 10532;
+            tryCompare(tested.contentItem.childrenRect, "height", newheight);
+            tryCompare(tested, "cacheBuffer", 20000);
         }
 
         name: "PageListView"

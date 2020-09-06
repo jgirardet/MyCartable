@@ -21,6 +21,22 @@ ApplicationWindow {
         baseItem.destroy(); // elmine presque tous les messages d'erreur
     }
 
+    BusyIndicator {
+        id: busy
+
+        width: root.width / 4
+        height: width
+        anchors.centerIn: parent
+        running: uiManager.buzyIndicator ?? false
+        onRunningChanged: {
+            if (running)
+                baseItem.enabled = false;
+            else
+                baseItem.enabled = true;
+        }
+        z: running ? 10 : -5
+    }
+
     Rectangle {
         id: baseItem
 
@@ -84,6 +100,8 @@ ApplicationWindow {
 
         Toast {
             id: toast
+
+            objectName: "toast"
         }
 
     }

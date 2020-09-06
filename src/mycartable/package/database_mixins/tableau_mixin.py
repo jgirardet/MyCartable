@@ -1,5 +1,4 @@
 from PySide2.QtCore import Slot, Signal
-from package.database.sections import TableauSection
 from pony.orm import db_session
 from loguru import logger
 
@@ -32,7 +31,7 @@ class TableauMixin:
     @Slot(str, int)
     def insertRow(self, tableau, value):
         with db_session:
-            tab = TableauSection[tableau]
+            tab = self.db.TableauSection[tableau]
             tab.insert_one_line(value)
             logger.debug(f"Row inserted in position {value} in {tab}")
         self.tableauLayoutChanged.emit()
@@ -40,7 +39,7 @@ class TableauMixin:
     @Slot(str)
     def appendRow(self, tableau):
         with db_session:
-            tab = TableauSection[tableau]
+            tab = self.db.TableauSection[tableau]
             tab.append_one_line()
             logger.debug(f"Line appended in {tab}")
         self.tableauLayoutChanged.emit()
@@ -48,7 +47,7 @@ class TableauMixin:
     @Slot(str, int)
     def insertColumn(self, tableau, value):
         with db_session:
-            tab = TableauSection[tableau]
+            tab = self.db.TableauSection[tableau]
             tab.insert_one_column(value)
             logger.debug(f"Column inserted in position {value} in {tab}")
         self.tableauLayoutChanged.emit()
@@ -56,7 +55,7 @@ class TableauMixin:
     @Slot(str)
     def appendColumn(self, tableau):
         with db_session:
-            tab = TableauSection[tableau]
+            tab = self.db.TableauSection[tableau]
             tab.append_one_column()
             logger.debug(f"Column appended in {tab}")
         self.tableauLayoutChanged.emit()
@@ -64,7 +63,7 @@ class TableauMixin:
     @Slot(str, int)
     def removeColumn(self, tableau, value):
         with db_session:
-            tab = TableauSection[tableau]
+            tab = self.db.TableauSection[tableau]
             tab.remove_one_column(value)
             logger.debug(f"Column removed in position {value} in {tab}")
         self.tableauLayoutChanged.emit()
@@ -72,7 +71,7 @@ class TableauMixin:
     @Slot(str, int)
     def removeRow(self, tableau, value):
         with db_session:
-            tab = TableauSection[tableau]
+            tab = self.db.TableauSection[tableau]
             tab.remove_one_line(value)
             logger.debug(f"Line removed in position {value} in {tab}")
         self.tableauLayoutChanged.emit()

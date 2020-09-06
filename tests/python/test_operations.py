@@ -581,10 +581,10 @@ def ta():
 
 
 class TestOperationModel:
-    def test_base_init(self, qtmodeltester, qtbot, ddbr):
+    def test_base_init(self, qtmodeltester, qtbot, ddbr, uim):
         from package.database_object import DatabaseObject
 
-        OperationModel.ddb = DatabaseObject(ddbr)
+        OperationModel.ddb = DatabaseObject(ddbr, uim)
         op = OperationModel()
 
         assert check_super_init(
@@ -597,10 +597,10 @@ class TestOperationModel:
         assert op.cursor == 0
         assert op._sectionId is None
 
-    def test_load_params(self, ddbr, qtbot):
+    def test_load_params(self, ddbr, qtbot, uim):
         from package.database_object import DatabaseObject
 
-        OperationModel.ddb = DatabaseObject(ddbr)
+        OperationModel.ddb = DatabaseObject(ddbr, uim)
         op = OperationModel()
         op.sectionId = str(uuid.uuid4())
         assert op.sectionId is None, "should not be set if not in databse"

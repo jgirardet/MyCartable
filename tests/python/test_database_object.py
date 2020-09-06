@@ -1,4 +1,6 @@
+import json
 import uuid
+from time import sleep
 
 import pytest
 from PIL import Image
@@ -12,7 +14,10 @@ from package.database_mixins.session import SessionMixin
 from package.database_object import DatabaseObject
 from factory import *
 from unittest.mock import patch, call
+
+from package.default_matiere import MATIERE_GROUPE
 from package.files_path import FILES
+from package.operations.api import create_operation
 from package.page import text_section
 from loguru_caplog import loguru_caplog as caplog  # used in tests
 from pony.orm import ObjectNotFound
@@ -33,7 +38,7 @@ class TestPageMixin:
 
         assert dao.timer_titre.isSingleShot()
 
-    def test_newPage(self, dao, qtbot):
+    def test_newPage(self, dao, qtbot, qappdao):
         f = f_page()  # pour avoir plusieurs dans le resultats
         with qtbot.wait_signal(dao.newPageCreated, timeout=100):
             r = dao.newPage(f.activite.id)
@@ -143,25 +148,49 @@ class TestPageMixin:
         dao.currentPage = a.id
         dao.currentPage = ""
 
-    def test_exportToPdf(selfsekf, dao):
+    def test_export_to_pdf(selfsekf, dao):
         a = f_page(titre="blà")
         dao.currentPage = a.id
         with patch("package.database_mixins.page_mixin.QDesktopServices.openUrl") as m:
             with patch("package.database_mixins.page_mixin.soffice_convert") as v:
-                dao.exportToPDF()
+                dao._export_to_pdf()
                 v.assert_called_with(
                     str(a.id), "pdf:writer_pdf_Export", "bla.pdf", dao.ui
                 )
                 m.assert_called_with(v.return_value.as_uri())
 
-    def test_exportToOdt(selfsekf, dao):
+    def test_exportToPDf(self, dao, qtbot):
+        with patch.object(dao, "_export_to_pdf") as w:
+            with qtbot.waitSignal(
+                dao.ui.sendToast,
+                check_params_cb=lambda x: x
+                == "Export en PDF lancé, cela peut prendre plusieurs secondes",
+            ):
+                dao.exportToPDF()
+            sleep(1 / 1000)
+
+        assert w.called
+
+    def test_export_to_odt(selfsekf, dao):
         a = f_page(titre="blà")
         dao.currentPage = a.id
         with patch("package.database_mixins.page_mixin.QDesktopServices.openUrl") as m:
             with patch("package.database_mixins.page_mixin.soffice_convert") as v:
-                dao.exportToOdt()
+                dao._export_to_odt()
                 v.assert_called_with(str(a.id), "odt", "bla.odt", dao.ui)
                 m.assert_called_with(v.return_value.as_uri())
+
+    def test_exportToOdt(self, dao, qtbot):
+        with patch.object(dao, "_export_to_odt") as w:
+            with qtbot.waitSignal(
+                dao.ui.sendToast,
+                check_params_cb=lambda x: x
+                == "Export en ODT lancé, cela peut prendre plusieurs secondes",
+            ):
+
+                dao.exportToOdt()
+            sleep(1 / 1000)
+        assert w.called
 
 
 @pytest.fixture()
@@ -206,7 +235,7 @@ class TestMatiereMixin:
 
         # from int
         with db_session:
-            mats = [x for x in Matiere.select()]
+            mats = [x for x in dao.db.Matiere.select()]
         mat2 = mats[1]
         with qtbot.waitSignal(dao.currentMatiereChanged, timeout=100):
             dao.currentMatiere = mat2.id
@@ -377,11 +406,11 @@ class TestActiviteMixin:
         a = f_page()
         with db_session:
             actt = a.activite.id
-            assert Page[a.id].activite.id == actt
+            assert dao.db.Page[a.id].activite.id == actt
         with qtbot.waitSignal(dao.pageActiviteChanged):
             dao.changeActivite(a.id, s.id)
         with db_session:
-            assert Page[a.id].activite.id == s.id
+            assert dao.db.Page[a.id].activite.id == s.id
 
 
 class TestRecentsMixin:
@@ -497,7 +526,7 @@ class TestSectionMixin:
     def test_loadsection_equation(self, dao):
         eq = f_equationSection(content="1+2", td=True)
         with db_session:
-            pageid = str(EquationSection[eq["id"]].page.id)
+            pageid = str(dao.db.EquationSection[eq["id"]].page.id)
         assert dao.loadSection(eq["id"]) == {
             "classtype": "EquationSection",
             "created": eq["created"],  # .created.isoformat(),
@@ -566,46 +595,45 @@ class TestSectionMixin:
             (1, {"path": QUrl("createOne"), "classtype": "ImageSection",}, 1, True,),
             (1, {"path": None, "classtype": "ImageSection",}, 0, False,),
             (1, {"path": "my/path", "classtype": "ImageSection"}, 0, False),
-            (1, {"path": "le.pdf", "classtype": "ImageSection",}, 1, True,),
         ],
     )
     def test_addSectionFile(
         self,
         png_annot,
         resources,
-        dao,
-        ddbr,
+        daof,
+        ddbrf,
         qtbot,
         page,
         content,
         res,
         signal_emitted,
         tmpfile,
+        qappdaof,
     ):
         x = f_page()
         page = x.id
-        dao.pageModel.slotReset(x.id)
+        print("dans test", ddbrf, daof.db)
+        daof.pageModel.slotReset(x.id)
         if "path" not in content:
             pass
         if content["path"] == "png_annot":
             content["path"] = str(png_annot)
-        elif content["path"] == "le.pdf":
-            content["path"] = str(resources / "2pages.pdf")
         elif isinstance(content["path"], QUrl):
             if content["path"].toString() == "createOne":
                 content["path"] = QUrl.fromLocalFile(str(tmpfile))
         elif content["path"] == "createOne":
             content["path"] = str(tmpfile)
         if signal_emitted:
-            with qtbot.waitSignal(dao.sectionAdded):
-                a = dao.addSection(page, content)
+            with qtbot.waitSignal(daof.sectionAdded):
+                a = daof.addSection(page, content)
         else:
-            a = dao.addSection(page, content)
+            a = daof.addSection(page, content)
 
         with db_session:
             if res:
                 _res = str(
-                    ddbr.Section.select().order_by(lambda x: x.position).first().id
+                    ddbrf.Section.select().order_by(lambda x: x.position).first().id
                 )
                 res = _res
             else:
@@ -614,7 +642,7 @@ class TestSectionMixin:
         if res == "":
             return
         with db_session:
-            item = ddbr.Section.select().first()
+            item = ddbrf.Section.select().first()
             assert item.page.id == x.id
             for i in content.keys():
                 if i == "path":
@@ -624,6 +652,16 @@ class TestSectionMixin:
                     item.datas == create_operation(content["string"])
                 else:
                     assert content[i] == getattr(item, i)
+
+    def test_addSetion_pdf(self, ddbrf, daof, resources, qtbot, qappdaof):
+        page = f_page().id
+        daof.pageModel.slotReset(page)
+        content = {"classtype": "ImageSection"}
+        content["path"] = str(resources / "2pages.pdf")
+        with qtbot.waitSignal(daof.sectionAdded, check_params_cb=lambda x, y: (0, 2)):
+            res = daof.addSection(str(page), content)
+        with db_session:
+            item = ddbrf.Page[page].sections.count() == 2
 
 
 class TestEquationMixin:
@@ -709,7 +747,7 @@ class TestTableauMixin:
 
         with db_session:
             assert dao.initTableauDatas(str(x.id)) == [
-                x.to_dict() for x in TableauSection[x.id].get_cells()
+                x.to_dict() for x in dao.db.TableauSection[x.id].get_cells()
             ]
 
     def test_updat_cell(self, dao, qtbot):
@@ -718,7 +756,7 @@ class TestTableauMixin:
         with qtbot.waitSignal(dao.tableauChanged):
             dao.updateCell(x.tableau.id, 3, 2, {"texte": "bla"})
         with db_session:
-            assert TableauCell[x.tableau.id, 3, 2].texte == "bla"
+            assert dao.db.TableauCell[x.tableau.id, 3, 2].texte == "bla"
 
     def test_tableaulayoutchanged(self, dao, qtbot):
         with qtbot.waitSignal(dao.tableauChanged):
@@ -738,7 +776,7 @@ class TestTableauMixin:
         with qtbot.waitSignal(dao.tableauLayoutChanged):
             getattr(dao, fn)(x.id, 1)
         with db_session:
-            x = TableauSection[x.id]
+            x = dao.db.TableauSection[x.id]
             assert x.lignes == lignes
             assert x.colonnes == colonnes
 
@@ -750,7 +788,7 @@ class TestTableauMixin:
         with qtbot.waitSignal(dao.tableauLayoutChanged):
             getattr(dao, fn)(x.id)
         with db_session:
-            x = TableauSection[x.id]
+            x = dao.db.TableauSection[x.id]
             assert x.lignes == lignes
             assert x.colonnes == colonnes
 
@@ -827,16 +865,16 @@ class TestSessionMixin:
         check_args(dao.getMenuAnnees, None, list)
 
     @db_session
-    def test_init_user(self, dao):
+    def test_init_user(self, dao, userid):
         with db_session:
-            user = Utilisateur.select().first()
+            user = dao.db.Utilisateur.select().first()
         assert dao.init_user() == {
-            "id": str(user.id),
+            "id": userid,
             "last_used": 2019,
-            "nom": "lenom",
-            "prenom": "leprenom",
+            "nom": "nom",
+            "prenom": "prenom",
         }
-        Utilisateur.user().delete()
+        dao.db.Utilisateur.user().delete()
         assert dao.init_user() == {}
 
     def test_newUser(self, dao, qtbot):
@@ -847,12 +885,12 @@ class TestSessionMixin:
 
         # n'existe pas
         with db_session:
-            Utilisateur.user().delete()
+            dao.db.Utilisateur.user().delete()
 
         with qtbot.waitSignal(dao.currentUserChanged):
             dao.newUser(nom="oj", prenom="omj")
         with db_session:
-            user = Utilisateur.select().first()
+            user = dao.db.Utilisateur.select().first()
         assert dao.currentUser == {
             "id": str(user.id),
             "last_used": 0,
@@ -864,9 +902,9 @@ class TestSessionMixin:
     def test_newAnnee(self, dao):
         dao.newAnnee(2050, "ce3")
         with db_session:
-            an = Annee[2050]
+            an = dao.db.Annee[2050]
             assert an.niveau == "ce3"
-            assert an.user == Utilisateur.user()
+            assert an.user == dao.db.Utilisateur.user()
 
     def test_getMenuesAnnees(self, dao):
         with db_session:
@@ -889,13 +927,11 @@ class TestSessionMixin:
         assert dao.anneeActive == 2019
 
     def test_anneeactive_set_sans_user(self, dao, qtbot):
-        with patch(
-            "package.database_mixins.session.Utilisateur.user", return_value=None
-        ):
+        with patch.object(dao.db.Utilisateur, "user", return_value=None):
             with qtbot.assertNotEmitted(dao.anneeActiveChanged):
                 dao.anneeActive = 1234
         with db_session:
-            assert Utilisateur.user().last_used == 2019
+            assert dao.db.Utilisateur.user().last_used == 2019
 
 
 class TestChangeMatieresMixin:
@@ -997,12 +1033,12 @@ class TestChangeMatieresMixin:
             },
         ]
 
-    def test_addActivite(self, dao):
+    def test_addActivite(self, dao, ddbr):
         m = f_matiere()
         acts = b_activite(3, nom="bidet", matiere=m)
         res = dao.addActivite(str(acts[0].id))
         with db_session:
-            new = Activite.select()[:][-1]
+            new = ddbr.Activite.select()[:][-1]
 
         assert res == [
             {
@@ -1035,11 +1071,11 @@ class TestChangeMatieresMixin:
             },
         ]
 
-    def test_addActivite_append(self, dao):
+    def test_addActivite_append(self, dao, ddbr):
         m = f_matiere()
         res = dao.addActivite(str(m.id), True)
         with db_session:
-            new = Activite.select()[:][-1]
+            new = ddbr.Activite.select()[:][-1]
         assert res == [
             {
                 "id": str(new.id),
@@ -1054,7 +1090,7 @@ class TestChangeMatieresMixin:
         f_activite(nom="bla")
         dao.updateActiviteNom(1, "meuh")
         with db_session:
-            assert Activite[1].nom == "meuh"
+            assert dao.db.Activite[1].nom == "meuh"
 
     def test_getMatieres(self, dao):
         groupe = f_groupeMatiere()
@@ -1232,7 +1268,7 @@ class TestChangeMatieresMixin:
         m = f_matiere(nom="bla")
         dao.updateMatiereNom(str(m.id), "meuh")
         with db_session:
-            assert Matiere[str(m.id)].nom == "meuh"
+            assert dao.db.Matiere[str(m.id)].nom == "meuh"
 
     def test_getGroupeMatieres(self, dao):
         gm = b_groupeMatiere(3, annee=2017, nom="rien", bgColor="red", fgColor="blue")
@@ -1324,11 +1360,30 @@ class TestChangeMatieresMixin:
             },
         ]
 
+    def test_addGroupeMatieres_preprend(self, dao):
+        res = dao.addGroupeMatiere("annee:2019")
+        with db_session:
+            new = dao.db.GroupeMatiere.select().first()
+            assert new.matieres.count() == 1
+        assert [
+            {
+                "annee": 2019,
+                "bgColor": QColor("red"),
+                "fgColor": QColor("blue"),
+                "id": str(new.id),
+                "nom": "nouveau groupe",
+                "position": 0,
+                "nbPages": 0,
+            }
+        ]
+
     def test_addGroupeMatieres(self, dao):
         gm = b_groupeMatiere(3, annee=2017, nom="rien", bgColor="red", fgColor="blue")
         res = dao.addGroupeMatiere(str(gm[2].id))
         with db_session:
-            new = GroupeMatiere.select()[:][-1]
+            new = dao.db.GroupeMatiere.select()[:][-1]
+            assert new.matieres.count() == 1
+
         assert [
             {
                 "annee": 2017,
@@ -1369,7 +1424,7 @@ class TestChangeMatieresMixin:
         ]
         with db_session:
             assert (
-                GroupeMatiere[str(new.id)].matieres.select().first().nom
+                dao.db.GroupeMatiere[str(new.id)].matieres.select().first().nom
                 == "nouvelle matière"
             )
 
@@ -1458,7 +1513,7 @@ class TestChangeMatieresMixin:
         assert pre_res == res
 
         with db_session:
-            assert GroupeMatiere[str(gm.id)].bgColor == end_color
+            assert dao.db.GroupeMatiere[str(gm.id)].bgColor == end_color
 
     def test_reApplyGroupeDegrade(self, dao):
         gm = f_groupeMatiere(bgColor="red")
@@ -1500,24 +1555,24 @@ class TestChangeMatieresMixin:
         ]
 
         with db_session:
-            assert GroupeMatiere[str(gm.id)].bgColor == QColor("red")
+            assert dao.db.GroupeMatiere[str(gm.id)].bgColor == QColor("red")
 
     def test_updateGroupeNom(self, dao):
         gm = f_groupeMatiere(nom="bla")
         dao.updateGroupeMatiereNom(str(gm.id), "meuh")
         with db_session:
-            assert GroupeMatiere[str(gm.id)].nom == "meuh"
+            assert dao.db.GroupeMatiere[str(gm.id)].nom == "meuh"
 
     def test_peuplerLesMatieresPArDefault(self, dao):
         with db_session:
-            assert Matiere.select().count() == 0
-            assert GroupeMatiere.select().count() == 0
+            assert dao.db.Matiere.select().count() == 0
+            assert dao.db.GroupeMatiere.select().count() == 0
 
         dao.peuplerLesMatieresParDefault(dao.anneeActive)
 
         with db_session:
-            assert Matiere.select().count() == len(MATIERES)
-            assert GroupeMatiere.select().count() == len(MATIERE_GROUPE)
+            assert dao.db.Matiere.select().count() == len(MATIERES)
+            assert dao.db.GroupeMatiere.select().count() == len(MATIERE_GROUPE)
 
         assert len(dao.matieresList) == len(MATIERES)
 
@@ -1543,13 +1598,13 @@ class TestDatabaseObject:
         assert dao.currentUser == {
             "id": userid,
             "last_used": 0,
-            "nom": "lenom",
-            "prenom": "leprenom",
+            "nom": "nom",
+            "prenom": "prenom",
         }
 
-    def test_init_change_annee(self, qtbot, ddbr):
+    def test_init_change_annee(self, qtbot, ddbr, uim):
 
-        a = DatabaseObject(ddbr)
+        a = DatabaseObject(ddbr, uim)
         assert a.anneeActive == None
         assert a.currentPage == ""
         assert a.currentMatiere == ""
@@ -1557,23 +1612,23 @@ class TestDatabaseObject:
     def test_files(self, dao):
         assert dao.files == FILES
 
-    def test_RecentsItem_Clicked(self, ddbr, qtbot):
+    def test_RecentsItem_Clicked(self, ddbr, qtbot, uim):
         rec1 = f_page(created=datetime.now(), td=True)
-        d = DatabaseObject(ddbr)
+        d = DatabaseObject(ddbr, uim)
         d.recentsItemClicked.emit(rec1["id"], rec1["matiere"])
         assert d.currentMatiere == rec1["matiere"]
         assert d.currentPage == rec1["id"]
 
-    def test_onNewPageCreated(self, ddbr, qtbot):
+    def test_onNewPageCreated(self, ddbr, qtbot, uim):
         a = f_page(td=True)
-        d = DatabaseObject(ddbr)
+        d = DatabaseObject(ddbr, uim)
         d.onNewPageCreated(a)
         assert d.currentPage == a["id"]
         assert d.currentMatiere == a["matiere"]
 
-    def test_onCurrentTitreSetted(self, ddbr, qtbot):
+    def test_onCurrentTitreSetted(self, ddbr, qtbot, uim):
         a = f_page(td=True)
-        d = DatabaseObject(ddbr)
+        d = DatabaseObject(ddbr, uim)
         with qtbot.wait_signals(
             [
                 (d.pagesParSectionChanged, "activites"),
@@ -1665,3 +1720,10 @@ class TestDatabaseObject:
     def test_page_activite_changed_update_pagesParsection(self, dao, qtbot):
         with qtbot.waitSignal(dao.pagesParSectionChanged):
             dao.pageActiviteChanged.emit()
+
+    def test_section_added_disable_busyindicator(self, dao, qtbot):
+        f = f_page()
+        dao.pageModel.slotReset(f.id)
+        dao.ui.buzyIndicator = True
+        dao.sectionAdded.emit(0, 0)
+        assert not dao.ui.buzyIndicator

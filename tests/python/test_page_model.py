@@ -8,7 +8,7 @@ from pony.orm import db_session, make_proxy
 
 
 @pytest.fixture
-def pm(ddbr, qtbot):
+def pm(ddbr, qappdao):
     # return a
     def factory(nb):
         p = f_page()

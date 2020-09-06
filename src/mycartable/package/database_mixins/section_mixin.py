@@ -1,14 +1,12 @@
 import tempfile
 from pathlib import Path
 
-from PySide2.QtCore import Slot, QUrl, Signal
-from package.convert import run_convert_pdf
+from PySide2.QtCore import Slot, QUrl, Signal, QThreadPool
+from package.convert import split_pdf_to_png
 from package.files_path import FILES
 from package.exceptions import MyCartableOperationError
+from package.utils import qrunnable
 from pony.orm import db_session
-from loguru import logger
-
-
 from loguru import logger
 
 
@@ -34,8 +32,10 @@ class SectionMixin:
             )
             if path.is_file():
                 if path.suffix == ".pdf":
-                    print("au siffux")
-                    return self.addSectionPDF(page_id, path)
+                    runner = qrunnable(self.addSectionPDF, page_id, path)
+                    # QThreadPool.globalInstance().start(runner)
+                    return
+
                 content["path"] = str(self.store_new_file(path))
             else:
                 return ""
@@ -66,9 +66,8 @@ class SectionMixin:
     def addSectionPDF(self, page_id, path) -> str:
 
         first = None
-
         with tempfile.TemporaryDirectory() as temp_path:
-            res = run_convert_pdf(path, temp_path)
+            res = split_pdf_to_png(path, Path(temp_path))
             for page in res:
                 content = {"classtype": "ImageSection"}
                 content["path"] = self.store_new_file(page)
@@ -76,8 +75,8 @@ class SectionMixin:
                     item = self.db.ImageSection(page=page_id, **content)
                 if not first:
                     first = item
+            print(first.position, len(res))
             self.sectionAdded.emit(first.position, len(res))
-            return str(first.id)
 
     @Slot(str, result="QVariantMap")
     def loadSection(self, section_id):

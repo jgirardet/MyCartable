@@ -1,6 +1,5 @@
 from loguru import logger
 from PySide2.QtCore import QObject, Signal
-from package.database.utilisateur import Utilisateur
 from package.database_mixins.activite_mixin import ActiviteMixin
 from package.database_mixins.changematieres_mixin import ChangeMatieresMixin
 from package.database_mixins.dev_mixin import DevMixin
@@ -40,9 +39,10 @@ class DatabaseObject(QObject, *MIXINS):
 
     updateRecentsAndActivites = Signal()
 
-    def __init__(self, db, debug=True):
+    def __init__(self, db, ui, debug=True):
         super().__init__()
         self.db = db
+        self.ui = ui
 
         for mixin in MIXINS:
             mixin.__init__(self)
@@ -68,6 +68,7 @@ class DatabaseObject(QObject, *MIXINS):
         self.newPageCreated.connect(self.onNewPageCreated)
         self.recentsItemClicked.connect(self.onRecentsItemClicked)
         self.sectionAdded.connect(self.pageModel.insertRows)
+        self.sectionAdded.connect(self.ui.unSetBuzyIndicator)
         self.sectionRemoved.connect(self.pageModel.removeRow)
         self.pageActiviteChanged.connect(self.pagesParSectionChanged)
 

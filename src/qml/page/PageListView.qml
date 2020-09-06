@@ -26,6 +26,23 @@ ListView {
     Component.onCompleted: {
         model.rowsInserted.connect(onItemAdded);
     }
+    contentItem.onChildrenRectChanged: {
+        adjustcachebuffer.restart();
+    }
+
+    Timer {
+        id: adjustcachebuffer
+
+        running: false
+        interval: 300
+        onTriggered: {
+            var cHeight = root.contentItem.childrenRect.height;
+            var bufferMax = Math.max(20000, cHeight + (cHeight / 2));
+            if (root.cacheBuffer != bufferMax)
+                root.cacheBuffer = bufferMax;
+
+        }
+    }
 
     Connections {
 
@@ -93,28 +110,38 @@ ListView {
             Buttons.NewTextSection {
                 id: newtext
 
-                targetIndex: typeof addDialog.index != "undefined" ? addDialog.index + 1 : 0
+                appendMode: false
                 target: addDialog
+                targetIndex: addDialog.index
+                Component.onCompleted: action.triggered.connect(addDialog.close)
             }
 
             Buttons.NewImageSection {
-                targetIndex: newtext.targetIndex
-                target: newtext.target
+                appendMode: false
+                target: addDialog
+                targetIndex: addDialog.index
+                Component.onCompleted: action.triggered.connect(addDialog.close)
             }
 
             Buttons.NewEquationSection {
-                targetIndex: newtext.targetIndex
-                target: newtext.target
+                appendMode: false
+                target: addDialog
+                targetIndex: addDialog.index
+                Component.onCompleted: action.triggered.connect(addDialog.close)
             }
 
             Buttons.NewOperationSection {
-                targetIndex: newtext.targetIndex
-                target: newtext.target
+                appendMode: false
+                target: addDialog
+                targetIndex: addDialog.index
+                Component.onCompleted: action.triggered.connect(addDialog.close)
             }
 
             Buttons.NewTableauSection {
-                targetIndex: newtext.targetIndex
-                target: newtext.target
+                appendMode: false
+                target: addDialog
+                targetIndex: addDialog.index
+                Component.onCompleted: action.triggered.connect(addDialog.close)
             }
 
         }

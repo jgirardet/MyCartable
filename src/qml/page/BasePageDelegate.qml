@@ -19,7 +19,7 @@ Item {
     }
     onActiveFocusChanged: {
         if (activeFocus)
-            loader.item.forceActiveFocus();
+            loader.item ? loader.item.forceActiveFocus(): null;
 
     }
     ListView.onAdd: {
@@ -119,6 +119,7 @@ Item {
     }
 
     MouseArea {
+        objectName: "intermousearea"
         height: listview.spacing
         width: root.width
         //    color: "green"

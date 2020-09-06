@@ -14,6 +14,9 @@ Item {
     property real annotationDessinCurrentLineWidth: 3
     property color annotationDessinCurrentStrokeStyle: "black"
     property string annotationCurrentTool: "text"
+    property bool buzyIndicator: false
+
+    signal sendToast(string msg)
 
     menuFlottantAnnotationText: MenuFlottantAnnotationText {
     }

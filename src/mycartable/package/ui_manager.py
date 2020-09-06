@@ -18,6 +18,7 @@ class UiManager(QObject):
         super().__init__()
         self._menuTarget = None
         self._toast = None
+        self._buzyIndicator = False
         self._annotationCurrentTextSizeFactor = (
             DEFAULT_ANNOTATION_CURRENT_TEXT_SIZE_FACTOR
         )
@@ -137,3 +138,18 @@ class UiManager(QObject):
         self.annotationCurrentToolChanged.emit()
 
     sendToast = Signal(str)
+
+    buzyIndicatorChanged = Signal()
+
+    @Property(bool, notify=buzyIndicatorChanged)
+    def buzyIndicator(self):
+        return self._buzyIndicator
+
+    @buzyIndicator.setter
+    def buzyIndicator_set(self, value: int):
+        self._buzyIndicator = value
+        self.buzyIndicatorChanged.emit()
+
+    @Slot()
+    def unSetBuzyIndicator(self, *args, **kwargs):
+        self.buzyIndicator = False

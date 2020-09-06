@@ -16,6 +16,13 @@ ListView {
         modality: Qt.WindowModal
     }
 
+    Button {
+        objectName: "initgroupeButton"
+        text: "créer un premier groupe"
+        onClicked: root.model = ddb.addGroupeMatiere("annee:" + ddb.anneeActive)
+        visible: root.count == 0
+    }
+
     delegate: Column {
         id: groupe
 

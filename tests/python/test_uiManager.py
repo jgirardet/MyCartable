@@ -77,3 +77,15 @@ class TestUiManager:
         with qtbot.waitSignal(uiman.annotationCurrentToolChanged):
             uiman.annotationCurrentTool = "red"
         assert uiman.annotationCurrentTool == "red"
+
+    def test_buzyIndicator(self, uiman: UiManager, qtbot):
+        assert uiman.buzyIndicator == False
+        with qtbot.waitSignal(uiman.buzyIndicatorChanged):
+            uiman.buzyIndicator = True
+        assert uiman.buzyIndicator == True
+        assert uiman._buzyIndicator == True
+
+        with qtbot.waitSignal(uiman.buzyIndicatorChanged):
+            uiman.unSetBuzyIndicator()
+        assert uiman.buzyIndicator == False
+        uiman.unSetBuzyIndicator(1, 324, 432)  # accepts args if connected to signal

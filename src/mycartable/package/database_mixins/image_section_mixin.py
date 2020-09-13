@@ -26,14 +26,6 @@ class ImageSectionMixin:
             new_file.write_bytes(filepath.read_bytes())
             return res_path
 
-    def create_empty_image(self, width: int, height: int) -> str:
-        im = Image.new("RGBA", (width, height), "white")
-        res_path = self.get_new_image_path(".png")
-        new_file = self.files / res_path
-        new_file.parent.mkdir(parents=True, exist_ok=True)
-        im.save(new_file)
-        return str(res_path)
-
     @Slot(str, int, result=bool)
     def pivoterImage(self, sectionId, sens):
         with db_session:

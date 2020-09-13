@@ -1018,7 +1018,6 @@ def equation_section(section):
     for f in QFontDatabase().families():
         if f in MONOSPACED_FONTS:
             font = f
-            break
     if not font:
         raise SystemError("Pas de Font mono retrouvée")
 

@@ -39,10 +39,10 @@ def main_init_database(filename=None, prod=False):
         create_db = True
     else:
         QStandardPaths.setTestModeEnabled(True)
-        # filename = Path(tempfile.gettempdir()) / "devddbmdk.sqlite"
-        filename = ":memory:"
-        # filename.unlink()
-        # create_db = True
+        filename = Path(tempfile.gettempdir()) / "devddbmdk.sqlite"
+        # filename = ":memory:"
+        filename.unlink()
+        create_db = True
 
     package.database.db = newdb
 

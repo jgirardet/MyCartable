@@ -12,6 +12,7 @@ Item {
 
         property var newtext
         property var newimage
+        property var newimagevide
         property var newequation
         property var newoperation
         property var newtableau
@@ -33,12 +34,13 @@ Item {
             var toolbar = tested.children[0].children[0].children[0].children[0].children[0];
             newtext = toolbar.children[0];
             newimage = toolbar.children[1];
-            newequation = toolbar.children[2];
-            newoperation = toolbar.children[3];
-            newtableau = toolbar.children[4];
-            removepage = toolbar.children[5];
-            exportodt = toolbar.children[6];
-            exportpdf = toolbar.children[7];
+            newimagevide = toolbar.children[2];
+            newequation = toolbar.children[3];
+            newoperation = toolbar.children[4];
+            newtableau = toolbar.children[5];
+            removepage = toolbar.children[6];
+            exportodt = toolbar.children[7];
+            exportpdf = toolbar.children[8];
         }
 
         function test_init() {
@@ -69,6 +71,18 @@ Item {
                 "classtype": "ImageSection",
                 "position": 4
             }]);
+        }
+
+        function test_newimagevide() {
+            mouseClick(newimagevide);
+            let ct = newimagevide.action.dialog.contentItem;
+            mouseClick(ct, ct.width - 5, ct.height - 5);
+            compare(ddb._addSection, [1, {
+                "width": 1280,
+                "height": 1200,
+                "classtype": "ImageSectionVide",
+                "position": 4
+            }], JSON.stringify(ddb._addSection));
         }
 
         function test_newoperation() {

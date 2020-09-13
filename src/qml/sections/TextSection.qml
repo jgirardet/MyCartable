@@ -28,7 +28,7 @@ TextEdit {
         root.moveCursorSelection(s_end, TextEdit.SelectCharacters);
     }
 
-    font.pointSize: 20 // necéssaire pour que les taille html soient corrent == taille de p
+    font.pointSize: 16 // necéssaire pour que les taille html soient corrent == taille de p
     height: contentHeight + 0
     width: sectionItem.width
     textFormat: TextEdit.RichText
@@ -38,6 +38,7 @@ TextEdit {
     wrapMode: TextEdit.Wrap
     Keys.onPressed: {
         var res = ddb.updateTextSectionOnKey(sectionId, text, cursorPosition, selectionStart, selectionEnd, JSON.stringify(event));
+        print(res["text"]);
         event.accepted = res["eventAccepted"];
         if (event.accepted == false) {
             return ;

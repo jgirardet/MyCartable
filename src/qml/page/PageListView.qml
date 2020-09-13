@@ -123,6 +123,14 @@ ListView {
                 Component.onCompleted: action.triggered.connect(addDialog.close)
             }
 
+            Buttons.NewImageSectionVide {
+                visible: false
+                appendMode: false
+                target: addDialog
+                targetIndex: addDialog.index
+                Component.onCompleted: action.triggered.connect(addDialog.close)
+            }
+
             Buttons.NewEquationSection {
                 appendMode: false
                 target: addDialog

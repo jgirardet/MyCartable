@@ -94,7 +94,6 @@
         <file alias="TableauActions.qml">qml/actions/TableauActions.qml</file>
         <file alias="PageActions.qml">qml/actions/PageActions.qml</file>
         <file alias="Buttons.qml">qml/actions/Buttons.qml</file>
-        <file alias="ImageVideButton.qml">qml/actions/ImageVideButton.qml</file>
     </qresource>
     
     <qresource prefix="/icons">
@@ -104,7 +103,6 @@
         <file alias="fillrect">data/icons/base/pack/png/fillrect.png</file>
         <file alias="newTextSection">data/icons/base/divers/png/003-edit.png</file>
         <file alias="newImageSection">data/icons/base/divers/png/002-photo-1.png</file>
-        <file alias="newImageSectionVide">data/icons/base/pack/png/pencil.png</file>
         <file alias="newEquationSection">data/icons/base/perso/equation.png</file>
         <file alias="removePage">data/icons/base/divers/png/006-trash-bin.png</file>
         <file alias="newTableauSection">data/icons/base/divers/png/013-spreadsheet.png</file>
@@ -136,8 +134,6 @@
     </qresource>
     <qresource prefix="/fonts">
         <file alias="Verdana.ttf">data/fonts/Verdana.ttf</file>
-        <file alias="Code New Roman.otf">data/fonts/Code New Roman.otf</file>
-        <file alias="LiberationMono-Regular.ttf">data/fonts/LiberationMono-Regular.ttf</file>
         <file alias="Waker.ttf">data/fonts/Waker.ttf</file>
     </qresource>
     <qresource prefix="/js">

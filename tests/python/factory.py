@@ -407,31 +407,31 @@ def populate_database(matieres_list=MATIERES, nb_page=100):
     user = db.Utilisateur(nom="Lenom", prenom="Leprenom")
     annee = db.Annee(id=2019, niveau="cm1", user=user)
     # groupes = []
-    compteur = 0
-    for groupe in MATIERE_GROUPE_BASE:
-        gr = db.GroupeMatiere(annee=annee, bgColor=groupe["bgColor"], nom=groupe["nom"])
-        for mat in MATIERES_BASE:
-            if mat["groupe"] == groupe["id"]:
-                m = db.Matiere(groupe=gr, nom=mat["nom"])
-                compteur += 1
-                ac = db.Activite(matiere=m, nom="mdomak")
-                page = db.Page(titre="mojkù", activite=ac)
-                for x in range(random.randint(0, 8)):
-                    random.choice(
-                        [
-                            # f_equationSection(
-                            #     page=page.id,
-                            #     # content=f"""1{TextEquation.FSP}            {TextEquation.FSP}12   1234
-                            #     # ―― + 13 + 3 + ――― + ―――― + 1
-                            #     # 15            234   789{TextEquation.FSP}    """,
-                            # ),
-                            #     f_tableauSection(page=page.id),
-                            #     f_imageSection(page=page.id),
-                            f_textSection(page=page.id),
-                            #     f16_additionSection(page=page.id),
-                            #     f_soustractionSection(page=page.id),
-                            #     f_multiplicationSection(page=page.id),
-                            #     f_divisionSection(page=page.id),
-                        ]
-                    )
-        # groupes.append(gr)
+    # compteur = 0
+    # for groupe in MATIERE_GROUPE_BASE:
+    #     gr = db.GroupeMatiere(annee=annee, bgColor=groupe["bgColor"], nom=groupe["nom"])
+    #     for mat in MATIERES_BASE:
+    #         if mat["groupe"] == groupe["id"]:
+    #             m = db.Matiere(groupe=gr, nom=mat["nom"])
+    #             compteur += 1
+    #             ac = db.Activite(matiere=m, nom="mdomak")
+    #             page = db.Page(titre="mojkù", activite=ac)
+    #             for x in range(random.randint(0, 8)):
+    #                 random.choice(
+    #                     [
+    #                         f_equationSection(
+    #                             page=page.id,
+    #                             # content=f"""1{TextEquation.FSP}            {TextEquation.FSP}12   1234
+    #                             # ―― + 13 + 3 + ――― + ―――― + 1
+    #                             # 15            234   789{TextEquation.FSP}    """,
+    #                         ),
+    #                         f_tableauSection(page=page.id),
+    #                         f_imageSection(page=page.id),
+    #                         f_textSection(page=page.id),
+    #                         f_additionSection(page=page.id),
+    #                         f_soustractionSection(page=page.id),
+    #                         f_multiplicationSection(page=page.id),
+    #                         f_divisionSection(page=page.id),
+    #                     ]
+    #                 )
+    #     groupes.append(gr)

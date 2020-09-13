@@ -54,14 +54,6 @@ Item {
         append: appendMode
       }
   }
-  component NewImageSectionVide : BaseButton {
-      id: imagesectionvidebutton
-      action: PageActions.NewImageSectionVide {
-      position: targetIndex
-        append: appendMode
-        Component.onCompleted: action.dialog.parent = imagesectionvidebutton
-      }
-  }
 
   component NewOperationSection : BaseButton {
       id : operationbutton

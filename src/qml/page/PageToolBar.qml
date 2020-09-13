@@ -26,10 +26,6 @@ ToolBar {
                     appendMode: true
                 }
 
-                Buttons.NewImageSectionVide {
-                    appendMode: true
-                }
-
                 Buttons.NewEquationSection {
                     appendMode: true
                 }

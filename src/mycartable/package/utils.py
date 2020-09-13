@@ -27,10 +27,10 @@ def get_new_filename(ext):
 
 
 KEYS = {
-    "KEY_1": [10, 2],
-    "KEY_2": [11, 3],
-    "KEY_3": [12, 4],
-    "KEY_4": [13, 5],
+    "KEY_1": [10, 3],
+    "KEY_2": [11, 4],
+    "KEY_3": [12, 5],
+    "KEY_4": [13, 6],
 }
 
 # 1 pour windows 0 pour linux

@@ -3,7 +3,7 @@ import uuid
 from time import sleep
 
 import pytest
-from PIL import Image
+from PIL import Image, ImageChops
 from PySide2.QtCore import QUrl, Qt
 from fixtures import check_args
 from package import constantes
@@ -557,6 +557,7 @@ class TestSectionMixin:
             (1, {"classtype": "OperationSection", "string": "4/3"}, 1, True),
             (1, {"classtype": "OperationSection", "string": "4/a"}, 0, False),
             (1, {"classtype": "TableauSection", "lignes": 3, "colonnes": 2}, 1, True),
+            (1, {"classtype": "ImageSectionVide", "width": 10, "height": 20}, 1, True),
         ],
     )
     def test_addSection(self, dao, ddbn, qtbot, page, content, res, signal_emitted):
@@ -653,7 +654,14 @@ class TestSectionMixin:
                 else:
                     assert content[i] == getattr(item, i)
 
-    def test_addSetion_pdf(self, ddbrf, daof, resources, qtbot, qappdaof):
+    def test_addSetion_create_empty_image(self, ddbr, dao, qtbot, qappdao):
+        page = f_page().id
+        dao.pageModel.slotReset(page)
+        content = {"classtype": "ImageSectionVide", "height": 20, "width": 10}
+        with qtbot.waitSignal(dao.sectionAdded):
+            res = dao.addSection(str(page), content)
+
+    def test_addSetion_emptyimage(self, ddbrf, daof, resources, qtbot, qappdaof):
         page = f_page().id
         daof.pageModel.slotReset(page)
         content = {"classtype": "ImageSection"}
@@ -709,6 +717,14 @@ class TestImageSectionMixin:
         obj = resources / "sc1.png"
         res = dao.store_new_file(str(obj))
         assert (dao.files / res).read_bytes() == obj.read_bytes()
+
+    def test_create_empty_image(
+        self, dao,
+    ):
+        res = dao.create_empty_image(300, 500)
+        im = Image.new("RGBA", (300, 500), "white")
+        saved = Image.open(dao.files / res)
+        assert list(im.getdata()) == list(saved.getdata())
 
     def test_pivoter_image(self, new_res, dao, qtbot):
         file = new_res("test_pivoter.png")

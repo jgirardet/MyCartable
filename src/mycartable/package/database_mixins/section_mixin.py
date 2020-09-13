@@ -33,12 +33,17 @@ class SectionMixin:
             if path.is_file():
                 if path.suffix == ".pdf":
                     runner = qrunnable(self.addSectionPDF, page_id, path)
-                    # QThreadPool.globalInstance().start(runner)
                     return
 
                 content["path"] = str(self.store_new_file(path))
             else:
                 return ""
+        elif classtype == "ImageSectionVide":
+            classtype = "ImageSection"
+            new_image = self.create_empty_image(
+                content.pop("width"), content.pop("height")
+            )
+            content["path"] = new_image
 
         elif classtype == "OperationSection":
             string = content["string"]

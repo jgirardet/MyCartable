@@ -19,7 +19,7 @@ TextArea {
     onCursorPositionChanged: {
         previousCursorPosition = cursorPosition;
     }
-    font.family: "Courier"
+    font.family: "Code New Roman"
     Keys.onPressed: {
         var new_data = ddb.updateEquation(sectionId, text, cursorPosition, JSON.stringify(event));
         root.text = new_data.content;

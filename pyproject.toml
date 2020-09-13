@@ -1,7 +1,7 @@
 [tool.briefcase]
 project_name = "MyCartable"
 bundle = "coding.cacahuete"
-version = "1.2.0"
+version = "1.2.2"
 url = "https://github.com/jgirardet/MyCartable"
 license = "GNU General Public License v3 (GPLv3)"
 author = 'Jimmy Girardet'

@@ -419,16 +419,16 @@ def populate_database(matieres_list=MATIERES, nb_page=100):
                 for x in range(random.randint(0, 8)):
                     random.choice(
                         [
-                            f_equationSection(
-                                page=page.id,
-                                # content=f"""1{TextEquation.FSP}            {TextEquation.FSP}12   1234
-                                # ―― + 13 + 3 + ――― + ―――― + 1
-                                # 15            234   789{TextEquation.FSP}    """,
-                            ),
+                            # f_equationSection(
+                            #     page=page.id,
+                            #     # content=f"""1{TextEquation.FSP}            {TextEquation.FSP}12   1234
+                            #     # ―― + 13 + 3 + ――― + ―――― + 1
+                            #     # 15            234   789{TextEquation.FSP}    """,
+                            # ),
                             #     f_tableauSection(page=page.id),
                             #     f_imageSection(page=page.id),
-                            #     f_textSection(page=page.id),
-                            #     f_additionSection(page=page.id),
+                            f_textSection(page=page.id),
+                            #     f16_additionSection(page=page.id),
                             #     f_soustractionSection(page=page.id),
                             #     f_multiplicationSection(page=page.id),
                             #     f_divisionSection(page=page.id),

@@ -134,6 +134,8 @@
     </qresource>
     <qresource prefix="/fonts">
         <file alias="Verdana.ttf">data/fonts/Verdana.ttf</file>
+        <file alias="Code New Roman.otf">data/fonts/Code New Roman.otf</file>
+        <file alias="LiberationMono-Regular.ttf">data/fonts/LiberationMono-Regular.ttf</file>
         <file alias="Waker.ttf">data/fonts/Waker.ttf</file>
     </qresource>
     <qresource prefix="/js">

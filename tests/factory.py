@@ -36,16 +36,16 @@ def f_datetime(start=None, end=None, **kwargs):
             return res
 
 
-def f_user(nom="lenom", prenom="leprenom", td=False, **kwargs):
-    db = import_getdb()
+def f_user(nom="lenom", prenom="leprenom", td=False, db=None, **kwargs):
+    db = db or import_getdb()
     with db_session:
         user = db.Utilisateur.user() or db.Utilisateur(nom=nom, prenom=prenom)
         return user.to_dict() if td else user
 
 
 #
-def f_annee(id=2019, niveau=None, user=None, td=False, **kwargs):
-    db = import_getdb()
+def f_annee(id=2019, niveau=None, user=None, td=False, db=None, **kwargs):
+    db = db or import_getdb()
     id = id or random.randint(2018, 2020)
     if isinstance(id, db.Annee):
         id = id.id
@@ -63,8 +63,8 @@ def f_annee(id=2019, niveau=None, user=None, td=False, **kwargs):
         return an.to_dict() if td else an
 
 
-def f_groupeMatiere(nom=None, annee=None, **kwargs):
-    db = import_getdb()
+def f_groupeMatiere(nom=None, annee=None, db=None, **kwargs):
+    db = db or import_getdb()
     annee = annee or f_annee(id=annee).id
     with db_session:
         if not db.Annee.get(id=annee):
@@ -86,8 +86,9 @@ def f_matiere(
     _bgColor=None,
     _fgColor=None,
     td=False,
+    db=None,
 ):
-    db = import_getdb()
+    db = db or import_getdb()
     nom = nom or random.choice(["Français", "Math", "Anglais", "Histoire"])
     color_codes = [
         4294967295,
@@ -125,8 +126,8 @@ def b_matiere(nb, groupe=None, **kwargs):
     return [f_matiere(groupe=groupe, **kwargs) for i in range(nb)]
 
 
-def f_activite(nom=None, matiere=None, td=False, **kwargs):
-    db = import_getdb()
+def f_activite(nom=None, matiere=None, td=False, db=None, **kwargs):
+    db = db or import_getdb()
     nom = nom or gen.text.word()
     matiere = matiere or f_matiere()
     with db_session:
@@ -137,7 +138,7 @@ def f_activite(nom=None, matiere=None, td=False, **kwargs):
         return item.to_dict() if td else item
 
 
-def b_activite(nb, matiere=None, nom=None, **kwargs):
+def b_activite(nb, matiere=None, nom=None, db=None, **kwargs):
     if matiere:
         matiere = matiere if isinstance(matiere, (str, UUID)) else matiere.id
     else:
@@ -145,9 +146,11 @@ def b_activite(nb, matiere=None, nom=None, **kwargs):
     return [f_activite(matiere=matiere, nom=nom) for i in range(nb)]
 
 
-def f_page(created=None, activite=None, titre=None, td=False, lastPosition=None):
+def f_page(
+    created=None, activite=None, titre=None, td=False, lastPosition=None, db=None
+):
     """actvite int = id mais str = index"""
-    db = import_getdb()
+    db = db or import_getdb()
     activite = activite or f_activite()
     if isinstance(activite, db.Activite):
         activite = str(activite.id)
@@ -167,15 +170,19 @@ def b_page(n, *args, **kwargs):
 
 
 def _f_section(
-    model, *args, created=None, page=None, position=None, td=False, **kwargs,
+    model, *args, created=None, page=None, position=None, td=False, db=None, **kwargs
 ):
-    db = import_getdb()
+    db = db or import_getdb()
     page = page or f_page().id
     created = created or f_datetime()
 
     with db_session:
         item = getattr(db, model)(
-            *args, created=created, page=page, position=position, **kwargs,
+            *args,
+            created=created,
+            page=page,
+            position=position,
+            **kwargs,
         )
         dico = item.to_dict()  # valid la création
         return dico if td else item
@@ -228,9 +235,16 @@ def f_textSection(text=None, **kwargs):
 
 
 def f_annotation(
-    x=None, y=None, section=None, style=None, td=False, classtype=None, **kwargs
+    x=None,
+    y=None,
+    section=None,
+    style=None,
+    td=False,
+    classtype=None,
+    db=None,
+    **kwargs,
 ):
-    db = import_getdb()
+    db = db or import_getdb()
     x = x or random.randrange(10, 100, 10) / 100
     y = y or random.randrange(10, 100, 10) / 100
     section = section or f_section().id
@@ -242,8 +256,8 @@ def f_annotation(
         return item.to_dict() if td else item
 
 
-def f_annotationText(text="", **kwargs):
-    db = import_getdb()
+def f_annotationText(text="", db=None, **kwargs):
+    db = db or import_getdb()
     if text == "empty":
         text = ""
     elif not text:
@@ -259,9 +273,10 @@ def f_annotationDessin(
     startY=None,
     endX=None,
     endY=None,
+    db=None,
     **kwargs,
 ):
-    db = import_getdb()
+    db = db or import_getdb()
     width = width or random.randrange(10, 100, 10) / 100
     height = height or random.randrange(10, 100, 10) / 100
     tool = random.choice(["rect", "fillrect", "ellipse", "trait"])
@@ -332,7 +347,16 @@ def f_divisionSection(string=None, **kwargs):
     string = (
         string
         if string
-        else random.choice(["3/2", "251/14", "251/1,4", "13/6", "3458/82", "345,8/82",])
+        else random.choice(
+            [
+                "3/2",
+                "251/14",
+                "251/1,4",
+                "13/6",
+                "3458/82",
+                "345,8/82",
+            ]
+        )
     )
 
     return _f_section("DivisionSection", string, **kwargs)
@@ -348,8 +372,8 @@ def f_tableauSection(
     )
 
 
-def f_tableauCell(x=0, y=0, texte=None, style=None, tableau=None, td=False):
-    db = import_getdb()
+def f_tableauCell(x=0, y=0, texte=None, style=None, tableau=None, td=False, db=None):
+    db = db or import_getdb()
     tableau = tableau or f_tableauSection(lignes=0, colonnes=0).id
     texte = texte or random.choice(["bla", "bli", "A", "1", "33"])
 
@@ -382,9 +406,10 @@ def f_style(
     strikeout=False,
     weight=None,
     td=False,
+    db=None,
     **kwargs,
 ):
-    db = import_getdb()
+    db = db or import_getdb()
 
     with db_session:
         item = db.Style(
@@ -401,9 +426,9 @@ def f_style(
 
 
 @db_session
-def populate_database(matieres_list=MATIERES, nb_page=100):
+def populate_database(db):
 
-    db = import_getdb()
+    db = db or import_getdb()
     user = db.Utilisateur(nom="Lenom", prenom="Leprenom")
     annee = db.Annee(id=2019, niveau="cm1", user=user)
     # groupes = []
@@ -435,3 +460,72 @@ def populate_database(matieres_list=MATIERES, nb_page=100):
                         ]
                     )
         # groupes.append(gr)
+
+
+class Faker:
+    def __init__(self, db):
+
+        self.db = db
+
+    def f_datetime(self, **kwargs):
+        return f_datetime(**kwargs)
+
+    def f_user(self, **kwargs):
+        return f_user(db=self.db, **kwargs)
+
+    def f_annee(self, **kwargs):
+        return f_annee(db=self.db, **kwargs)
+
+    def f_groupeMatiere(self, **kwargs):
+        return f_groupeMatiere(db=self.db, **kwargs)
+
+    def f_matiere(self, **kwargs):
+        return f_matiere(db=self.db, **kwargs)
+
+    def f_activite(self, **kwargs):
+        return f_activite(db=self.db, **kwargs)
+
+    def f_page(self, **kwargs):
+        return f_page(db=self.db, **kwargs)
+
+    def f_section(self, **kwargs):
+        return _f_section(db=self.db, **kwargs)
+
+    def f_imageSection(self, **kwargs):
+        return f_imageSection(db=self.db, **kwargs)
+
+    def f_textSection(self, **kwargs):
+        return f_section(db=self.db, **kwargs)
+
+    def f_annotation(self, **kwargs):
+        return f_annotationDessin(db=self.db, **kwargs)
+
+    def f_annotationText(self, **kwargs):
+        return f_annotationText(db=self.db, **kwargs)
+
+    def f_annotationDessin(self, **kwargs):
+        return f_annotationDessin(db=self.db, **kwargs)
+
+    def f_additionSection(self, **kwargs):
+        return f_additionSection(db=self.db, **kwargs)
+
+    def f_soustractionSection(self, **kwargs):
+        return f_soustractionSection(db=self.db, **kwargs)
+
+    def f_multiplicationSection(self, **kwargs):
+        return f_multiplicationSection(db=self.db, **kwargs)
+
+    def f_divisionSection(self, **kwargs):
+        return f_divisionSection(db=self.db, **kwargs)
+
+    def f_tableauSection(self, **kwargs):
+        return f_tableauSection(db=self.db, **kwargs)
+
+    def f_tableauCell(self, **kwargs):
+        return f_tableauCell(db=self.db, **kwargs)
+
+    def f_equationSection(self, **kwargs):
+        return f_equationSection(db=self.db, **kwargs)
+
+    def f_style(self, **kwargs):
+        return f_style(db=self.db, **kwargs)

@@ -14,7 +14,7 @@ Text {
     property int referentiel: parent.width
     property int trajet: contentWidth - referentiel + 10
 
-    font.family: ddb.fontMain
+    font.family: ddb ? ddb.fontMain : "Verdana"
     elide: Text.ElideRight
     onMoveChanged: {
         if (!truncated && !textInitialPosition)

@@ -49,12 +49,12 @@ def main_init_database(filename=None, prod=False):
     db = package.database.init_database(newdb, filename=filename, create_db=create_db)
 
     if not prod:
-        from tests.python.factory import populate_database
+        from tests.factory import populate_database
 
         # try:
         # populate_database(db)
         # except:
-            # pass
+        # pass
 
     return package.database.db
 

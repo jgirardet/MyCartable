@@ -19,7 +19,7 @@ Item {
     }
     onActiveFocusChanged: {
         if (activeFocus)
-            loader.item ? loader.item.forceActiveFocus(): null;
+            loader.item ? loader.item.forceActiveFocus() : null;
 
     }
     ListView.onAdd: {

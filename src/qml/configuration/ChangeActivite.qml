@@ -8,6 +8,13 @@ Column {
     property alias model: repeater.model
     property var ddb
 
+    function addAndFocus(activId, pos, append) {
+        repeater.model = ddb.addActivite(activId, append);
+        let ac = repeater.itemAt(pos);
+        ac.activitetext.selectAll();
+        ac.activitetext.forceActiveFocus();
+    }
+
     spacing: 3
     width: parent.width
     anchors.left: parent.left
@@ -36,52 +43,38 @@ Column {
         }
     ]
 
-    transitions: Transition {
-        NumberAnimation {
-            properties: "height, opacity"
-            duration: 200
-            easing.type: Easing.InOutQuad
-        }
-
-    }
-
-    function addAndFocus(activId, pos, append) {
-      repeater.model = ddb.addActivite(activId, append);
-      let ac = repeater.itemAt(pos)
-      ac.activitetext.selectAll()
-      ac.activitetext.forceActiveFocus()
-    }
-
     Repeater {
         id: repeater
 
         delegate: Row {
             id: rowactivite
 
-            spacing: 5
-
             property string nom: modelData.nom
             property int nbPages: modelData.nbPages
-            property string  activiteId: modelData.id
+            property string activiteId: modelData.id
             property alias activitetext: activitetext
+
+            spacing: 5
 
             TextField {
                 id: activitetext
+
+                function updateText() {
+                    if (text) {
+                        nom = text;
+                        ddb.updateActiviteNom(activiteId, nom);
+                    }
+                }
 
                 width: 160
                 height: 30
                 selectByMouse: true
                 focus: true
-                function updateText(){
-                  if (text) {
-                  nom = text
-                  ddb.updateActiviteNom(activiteId,nom)
-                  }
-                }
                 Component.onCompleted: {
-                  activitetext.text = nom
-                  activitetext.onTextChanged.connect(activitetext.updateText)
+                    activitetext.text = nom;
+                    activitetext.onTextChanged.connect(activitetext.updateText);
                 }
+
                 background: Rectangle {
                     radius: 10
                     color: "lightcyan"
@@ -128,8 +121,7 @@ Column {
                 icon.source: "qrc:/icons/plus"
                 ToolTip.text: "Ajouter une rubrique"
                 onClicked: {
-                    root.addAndFocus(activiteId, parent.Positioner.index)
-
+                    root.addAndFocus(activiteId, parent.Positioner.index);
                 }
             }
 
@@ -149,6 +141,13 @@ Column {
 
     }
 
+    transitions: Transition {
+        NumberAnimation {
+            properties: "height, opacity"
+            duration: 200
+            easing.type: Easing.InOutQuad
+        }
 
+    }
 
 }

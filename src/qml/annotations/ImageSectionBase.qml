@@ -55,17 +55,13 @@ Image {
         anchors.fill: root
         preventStealing: true
         acceptedButtons: Qt.LeftButton | Qt.RightButton
-
         onPressed: {
-            if (pressedButtons === Qt.RightButton)  {
+            if (pressedButtons === Qt.RightButton) {
                 if (mouse.modifiers == Qt.ControlModifier)
-                {
                     canvas.startDraw(true);
-                }
                 else
                     uiManager.menuFlottantImage.ouvre(root);
-                    }
-            else if (pressedButtons === Qt.LeftButton) {
+            } else if (pressedButtons === Qt.LeftButton) {
                 if (mouse.modifiers == Qt.ControlModifier)
                     root.model.addAnnotation(mouse.x, mouse.y, root.width, root.height);
                 else if (uiManager.annotationCurrentTool == "text")
@@ -78,8 +74,8 @@ Image {
         onReleased: {
             if (canvas.painting) {
                 canvas.endDraw(root.sectionId);
-                cursorShape = Qt.ArrowCursor
-              }
+                cursorShape = Qt.ArrowCursor;
+            }
         }
         onPositionChanged: {
             if (canvas.painting)

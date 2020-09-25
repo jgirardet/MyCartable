@@ -3,9 +3,14 @@ import QtQuick.Controls 2.15
 import QtQuick.Dialogs 1.3
 
 ListView {
-
-
     id: root
+
+    property var bdd
+
+    function addAndFocus(matid, pos) {
+        ddb.addMatiere(matid);
+        parent.applyDegradeToMatiere(pos, true);
+    }
 
     width: parent.width
     anchors.leftMargin: 20
@@ -13,12 +18,6 @@ ListView {
     spacing: 5
     height: childrenRect.height
     clip: true
-    property var bdd
-
-  function addAndFocus(matid, pos) {
-      ddb.addMatiere(matid);
-      parent.applyDegradeToMatiere(pos, true)
-    }
 
     delegate: Column {
         id: matieredelegate
@@ -38,20 +37,20 @@ ListView {
             TextField {
                 id: matieretexte
 
+                function updateText() {
+                    if (text) {
+                        nom = text;
+                        ddb.updateMatiereNom(matiereid, nom);
+                    }
+                }
+
                 height: 40
                 width: 200
-
                 font.bold: true
                 font.pointSize: 12
-                function updateText(){
-                  if (text) {
-                  nom = text
-                  ddb.updateMatiereNom(matiereid,nom)
-                  }
-                }
                 Component.onCompleted: {
-                  matieretexte.text = nom
-                  matieretexte.onTextChanged.connect(matieretexte.updateText)
+                    matieretexte.text = nom;
+                    matieretexte.onTextChanged.connect(matieretexte.updateText);
                 }
 
                 background: Rectangle {
@@ -62,7 +61,6 @@ ListView {
             }
 
             Text {
-
                 function get_text() {
                     return modelData.activites.length.toString() + " " + (modelData.activites.length > 1 ? "rubriques" : "rubrique") + "\n" + nbPages + " " + (nbPages > 1 ? "pages" : "page");
                 }
@@ -74,44 +72,44 @@ ListView {
             }
 
             ActionButtonMatiere {
-
-                                onPressed: {
-                                    if (state == "no_activite"){
-                                    activitelist.addAndFocus(matiereid, 0,true)
-                                    }
-                                    if (state == "toggled") {
-                                        activitelist.state = "hidden";
-                                        state = null;
-                                    } else {
-                                        activitelist.state = "visible";
-                                        state = "toggled";
-                                    }
-                                }
-
                 id: toggleactivitebutton
 
+                onPressed: {
+                    if (state == "no_activite")
+                        activitelist.addAndFocus(matiereid, 0, true);
+
+                    if (state == "toggled") {
+                        activitelist.state = "hidden";
+                        state = null;
+                    } else {
+                        activitelist.state = "visible";
+                        state = "toggled";
+                    }
+                }
                 referent: matieretexte
                 ToolTip.text: !activitelist.state ? "Afficher les rubriques" : "Masquer les rubriques"
                 icon.source: "qrc:/icons/less-than"
+                states: [
+                    State {
+                        name: "toggled"
 
-                states: [State {
-                    name: "toggled"
-                    PropertyChanges {
-                        target: toggleactivitebutton
-                        rotation: -90
+                        PropertyChanges {
+                            target: toggleactivitebutton
+                            rotation: -90
+                        }
+
+                    },
+                    State {
+                        name: "no_activite"
+                        when: !activitelist.model.length
+
+                        PropertyChanges {
+                            target: toggleactivitebutton
+                            icon.source: "qrc:/icons/plus"
+                            ToolTip.text: "Ajouter une rubrique"
+                        }
+
                     }
-
-                }, State {
-                    name: "no_activite"
-                    when: !activitelist.model.length
-                    PropertyChanges {
-                        target: toggleactivitebutton
-                        icon.source: "qrc:/icons/plus"
-                        ToolTip.text: "Ajouter une rubrique"
-                    }
-
-                }
-
                 ]
 
                 transitions: Transition {
@@ -127,28 +125,30 @@ ListView {
 
             ActionButtonMatiere {
                 id: upmatierebutton
+
                 referent: matieretexte
                 enabled: index > 0
                 ToolTip.visible: false
                 icon.source: "qrc:/icons/arrow-up"
                 onClicked: {
                     ddb.moveMatiereTo(matiereid, index - 1);
-                    root.parent.applyDegradeToMatiere(undefined, true)
-
+                    root.parent.applyDegradeToMatiere(undefined, true);
                 }
             }
+
             ActionButtonMatiere {
                 id: downlmatierebutton
+
                 referent: matieretexte
                 enabled: index < (root.count - 1)
                 ToolTip.visible: false
                 icon.source: "qrc:/icons/arrow-down"
                 onClicked: {
                     ddb.moveMatiereTo(matiereid, index + 1);
-                    root.parent.applyDegradeToMatiere(undefined, true)
-
+                    root.parent.applyDegradeToMatiere(undefined, true);
                 }
             }
+
             ActionButtonMatiere {
                 id: insertmatierebutton
 
@@ -156,31 +156,30 @@ ListView {
                 ToolTip.text: "Insérer une nouvelle matière"
                 icon.source: "qrc:/icons/add-row"
                 onClicked: {
-                    root.addAndFocus(matiereid, index)
-
+                    root.addAndFocus(matiereid, index);
                 }
             }
 
             ActionButtonMatiere {
                 id: delmatierebutton
+
                 enabled: nbPages == 0
                 referent: matieretexte
                 ToolTip.text: "supprimer la matière : " + nom
                 icon.source: "qrc:/icons/remove-row-red"
                 onClicked: {
                     ddb.removeMatiere(matiereid);
-                    root.parent.applyDegradeToMatiere(undefined, true)
+                    root.parent.applyDegradeToMatiere(undefined, true);
                 }
             }
 
         }
 
         ChangeActivite {
-
             id: activitelist
-            ddb: root.bdd
-            model: root.bdd ?  root.bdd.getActivites(modelData.id) : 0
 
+            ddb: root.bdd
+            model: root.bdd ? root.bdd.getActivites(modelData.id) : 0
         }
 
     }

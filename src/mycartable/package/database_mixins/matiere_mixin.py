@@ -92,10 +92,12 @@ class MatiereMixin:
 
     @Property("QVariantMap", notify=CurrentMatiereItemChanged)
     def currentMatiereItem(self):
-        with db_session:
-            mat = self.db.Matiere[self.currentMatiere]
-            return mat.to_dict()
-
+        if self.currentMatiere:
+            with db_session:
+                mat = self.db.Matiere[self.currentMatiere]
+                return mat.to_dict()
+        else:
+            return {}
 
 class MatieresDispatcher:
     def __init__(self, db, annee_active):

@@ -13,7 +13,6 @@ Rectangle {
     height: lv.height + header.height + 10
 
     Column {
-        //    anchors.fill: parent
         spacing: 5
 
         Rectangle {
@@ -24,7 +23,7 @@ Rectangle {
 
             objectName: "header"
             height: 30
-            color: ddb.currentMatiereItem.bgColor
+            color: ddb ? ddb.currentMatiereItem.bgColor : "transparent"
             radius: 10
             width: base.width
 
@@ -32,7 +31,6 @@ Rectangle {
                 id: headerLabel
 
                 text: base.model.nom
-                //        text: "modelData.nom"
                 anchors.centerIn: parent
             }
 
@@ -43,7 +41,9 @@ Rectangle {
                 anchors.fill: parent
                 onPressed: {
                     if (mouse.buttons == Qt.RightButton)
+                    {
                         ddb.newPage(model.id);
+                    }
 
                 }
             }
@@ -53,7 +53,6 @@ Rectangle {
         ListView {
             id: lv
 
-            //    anchors.fill: parent
             property int commonHeight: 30
             property alias deplacePopup: deplacePopup
 
@@ -65,6 +64,7 @@ Rectangle {
 
             DeplacePage {
                 id: deplacePopup
+                objectName: "deplacepage"
             }
 
             delegate: PageButton {

@@ -44,6 +44,8 @@ class PageMixin:
     def newPage(self, activite):
         with db_session:
             new_item = self.db.Page.new_page(activite=activite)
+        logger.debug(f'New Page "{new_item["id"]}" created in activite')
+
         self.newPageCreated.emit(new_item)
 
     # currentPage

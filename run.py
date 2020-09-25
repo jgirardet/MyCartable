@@ -188,7 +188,6 @@ def cmd_dev(*args, **kwargs):
 
 def cmd_qmlformat(*args, **kwargs):
     # qmlformat pas encore très stable donc on verifie nous même
-    command_line = f"qmlformat -i "
     files = []
     if filedir := kwargs.get("input", None):
         files.append(Path(filedir))
@@ -197,16 +196,9 @@ def cmd_qmlformat(*args, **kwargs):
             (ROOT / "tests" / "qml_tests").rglob("*.qml")
         )
     excluded = [
-        "ImageSectionBase.qml",
-        "tst_AnnotationText.qml",
-        "tst_equation.qml",
-        "TableauActions.qml",
-        "PageActions.qml",
-        "NewTableauSectionButton.qml",
-        "ChangeMatiere.qml",
-        "ChangeActivite.qml",
-        "Buttons.qml",
-        "BasePageDelegate.qml",
+        "TableauActions.qml",  # https://bugreports.qt.io/browse/QTBUG-86979
+        "PageActions.qml",  # https://bugreports.qt.io/browse/QTBUG-86979
+        "Buttons.qml",  # https://bugreports.qt.io/browse/QTBUG-86979
     ]
     errors = []
     for file in files:

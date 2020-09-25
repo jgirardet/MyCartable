@@ -20,6 +20,7 @@ jobs:
   TestAndBuild:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
 #        os : [ubuntu-16.04, ubuntu-20.04]
 #        os : [ubuntu-16.04, ubuntu-20.04]
@@ -52,7 +53,9 @@ jobs:
       run: |
         choco install libreoffice-fresh -y
     - name: Tests python on ${{ matrix.os }}
-      run: python run.py test_python
+      run: |
+        python run.py test_python
+        python run.py test_qml_pytest
     - name: Install Qt on Linux
       if: runner.os == 'Linux'
       uses: jurplel/install-qt-action@v2

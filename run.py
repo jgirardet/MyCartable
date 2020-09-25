@@ -250,9 +250,10 @@ def cmd_test_binary_as_dir(*args, **kwargs):
 
 
 def cmd_test_python(*args, **kwargs):
+    capture = "-s --no-qt-log" if "capture" in args else ""
     test_path = ROOT / "tests" / "python"
     # f"python -m pytest -s -vvv -n {cpu_count()} {test_path}", sleep_time=0.001
-    runCommand(f"python -m pytest -s -vvv  {test_path}", sleep_time=0.001)
+    runCommand(f"python -m pytest -vv {capture} {test_path} -color", sleep_time=0.001)
 
 
 def cmd_test_qml(*args, **kwargs):
@@ -287,15 +288,23 @@ def cmd_test_qml_reset(*args, **kwargs):
     cmd_setup_qml()
     cmd_test_qml(*args, **kwargs)
 
+
+def cmd_test_qml_pytest(*args, **kwargs):
+    capture = "-s --no-qt-log" if "capture" in args else ""
+    test_path = ROOT / "tests" / "qml"
+    # f"python -m pytest -s -vvv -n {cpu_count()} {test_path}", sleep_time=0.001
+    runCommand(f"python -m pytest -vv -color {capture} {test_path} ", sleep_time=0.001)
+
+
 def cmd_upgrade_qt(old, new, *args, **kwargs):
     files = [
-        ROOT /".github" / "workflows" /"test_and_build.yml",
+        ROOT / ".github" / "workflows" / "test_and_build.yml",
         ROOT / "run.py",
-        ROOT / "pyproject.toml"
-
+        ROOT / "pyproject.toml",
     ]
     for file in files:
         file.write_text(file.read_text().replace(old, new))
+
 
 def build_commands(*args, **kwargs):
     res = {}

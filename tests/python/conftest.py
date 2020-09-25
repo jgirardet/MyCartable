@@ -1,8 +1,13 @@
+import sys
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).parents[1]))
+from common import fn_reset_db, setup_session
+
+
 import shutil
 
 import pytest
-import sys
-from pathlib import Path
 import time
 
 from PySide2.QtCore import QSettings, QStandardPaths
@@ -21,22 +26,22 @@ def gen(request):
 
 
 def pytest_sessionstart():
-    QStandardPaths.setTestModeEnabled(True)
+    # QStandardPaths.setTestModeEnabled(True)
 
     # modify python path
-    root = Path(__file__).parents[2]
-    python_dir = root / "src" / "mycartable"
-    sys.path.append(str(python_dir))
-    sys.path.append(str(Path(__file__).parent))
+    # root = Path(__file__).parents[2]
+    # python_dir = root / "src" / "mycartable"
+    # sys.path.append(str(python_dir))
+    setup_session()
 
     # run qrc update
-    orig = root / "src" / "qml.qrc"
-    dest = python_dir / "package" / "qrc.py"
-    command = f"pyside2-rcc {orig.absolute()} -o {dest.absolute()}"
-    subprocess.run(command, cwd=root, shell=True)
+    # orig = root / "src" / "qml.qrc"
+    # dest = python_dir / "package" / "qrc.py"
+    # command = f"pyside2-rcc {orig.absolute()} -o {dest.absolute()}"
+    # subprocess.run(command, cwd=root, shell=True)
 
     # import qrc
-    from package import qrc
+    # from package import qrc
 
     # remove all FILES
     from package.files_path import root_data
@@ -54,7 +59,9 @@ def monkeypatch_session():
 
 
 @pytest.fixture(scope="session", autouse=True)
-def memory_db(monkeypatch_session,):
+def memory_db(
+    monkeypatch_session,
+):
     from package.database import init_database
     import package.database
 
@@ -155,17 +162,6 @@ def reset_dbf(ddbnf, userid):
     yield
 
 
-def fn_reset_db(db):
-    with db_session:
-        for entity in db.entities.values():
-            for e in entity.select():
-                try:
-                    e.delete()
-                    flush()
-                except:
-                    continue
-
-
 @pytest.fixture(scope="function")
 def tmpfile(request, tmp_path, gen):
     """tempfile which exists"""
@@ -197,7 +193,11 @@ def dao(ddbr, tmpfilename, uim, userid):
     from package.database_object import DatabaseObject
 
     with db_session:
-        annee = ddbr.Annee(id=2019, niveau="cm2019", user=userid,)
+        annee = ddbr.Annee(
+            id=2019,
+            niveau="cm2019",
+            user=userid,
+        )
     obj = DatabaseObject(ddbr, uim)
     obj.changeAnnee.emit(2019)
     obj.init_matieres()
@@ -211,7 +211,11 @@ def daof(ddbrf, tmpfilename, uim, userid):
     from package.database_object import DatabaseObject
 
     with db_session:
-        annee = ddbrf.Annee(id=2019, niveau="cm2019", user=userid,)
+        annee = ddbrf.Annee(
+            id=2019,
+            niveau="cm2019",
+            user=userid,
+        )
     obj = DatabaseObject(ddbrf, uim)
     obj.changeAnnee.emit(2019)
     obj.init_matieres()
@@ -230,7 +234,8 @@ def duree_test():
 @pytest.fixture()
 def check_simple_property(doc, qtbot):
     def check_simple_property(
-        name, value,
+        name,
+        value,
     ):
         """ test simplement le getter, le setter, les paramtres du setter et le signal"""
         check_params_cb = None if value is None else lambda x: x == value

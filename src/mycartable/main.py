@@ -41,8 +41,8 @@ def main_init_database(filename=None, prod=False):
         QStandardPaths.setTestModeEnabled(True)
         filename = Path(tempfile.gettempdir()) / "devddbmdk.sqlite"
         # filename = ":memory:"
-        filename.unlink()
-        create_db = True
+        # filename.unlink(missing_ok=True)
+        # create_db = True
 
     package.database.db = newdb
 
@@ -51,10 +51,10 @@ def main_init_database(filename=None, prod=False):
     if not prod:
         from tests.python.factory import populate_database
 
-        try:
-            populate_database()
-        except:
-            pass
+        # try:
+        # populate_database(db)
+        # except:
+            # pass
 
     return package.database.db
 
@@ -93,8 +93,8 @@ def create_singleton_instance(prod=False):
 
     if not prod:
         databaseObject.anneeActive = 2019
-        with db_session:
-            databaseObject.currentPage = databaseObject.db.Page.select().first().id
+        # with db_session:
+        #     databaseObject.currentPage = databaseObject.db.Page.select().first().id
 
     return databaseObject, ui_manager
 

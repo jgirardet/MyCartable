@@ -11,7 +11,7 @@ from pathlib import Path
 
 
 PACKAGE = "MyCartable"
-QT_VERSION = "5.15.0"
+QT_VERSION = "5.15.1"
 ROOT = Path(__file__).parent.resolve()
 SRC = ROOT / "src"
 VIRTUAL_ENV = ROOT / ".venv"
@@ -287,6 +287,15 @@ def cmd_test_qml_reset(*args, **kwargs):
     cmd_setup_qml()
     cmd_test_qml(*args, **kwargs)
 
+def cmd_upgrade_qt(old, new, *args, **kwargs):
+    files = [
+        ROOT /".github" / "workflows" /"test_and_build.yml",
+        ROOT / "run.py",
+        ROOT / "pyproject.toml"
+
+    ]
+    for file in files:
+        file.write_text(file.read_text().replace(old, new))
 
 def build_commands(*args, **kwargs):
     res = {}

@@ -15,4 +15,4 @@ mypy
 -e git://github.com/jgirardet/briefcase.git@patch033#egg=briefcase
 toml
 loguru-caplog
-
+pdbpp

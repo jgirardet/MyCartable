@@ -43,6 +43,11 @@
 
     </qresource>
 
+    <qresource prefix="/qml/frise">
+        <file alias="CorpsFrise.qml">qml/frise/CorpsFrise.qml</file>
+        <file alias="ZoneFrise.qml">qml/frise/ZoneFrise.qml</file>
+    </qresource>
+
     <qresource prefix="/qml/annotations">
         <file alias="CanvasFactory.qml">qml/annotations/CanvasFactory.qml</file>
         <file alias="ImageSectionBase.qml">qml/annotations/ImageSectionBase.qml</file>

@@ -4,7 +4,6 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).parents[1]))
 from common import fn_reset_db, setup_session
-from factory import Faker
 
 
 import shutil
@@ -228,11 +227,15 @@ def daof(ddbrf, tmpfilename, uim, userid):
 
 @pytest.fixture()
 def fk(ddbr):
+    from factory import Faker
+
     return Faker(ddbr)
 
 
 @pytest.fixture()
 def fkf(ddbrf):
+    from factory import Faker
+
     return Faker(ddbrf)
 
 

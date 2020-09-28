@@ -67,7 +67,6 @@ class Faker:
                 self.f_annee(id=annee)
         nom = nom or random.choice(["Français", "Math", "Anglais", "Histoire"])
         with db_session:
-            print("fgroupe", nom, annee, kwargs),
             return self.db.GroupeMatiere(nom=nom, annee=annee, **kwargs)
 
     def b_groupeMatiere(self, nb, **kwargs):
@@ -104,7 +103,6 @@ class Faker:
         groupe = groupe or self.f_groupeMatiere()
         # breakpoint()
         flush()
-        print(groupe, type(groupe), isinstance(groupe, self.db.GroupeMatiere))
         if isinstance(groupe, self.db.GroupeMatiere):
             groupe = groupe.id
         # white, red, blue, green, orange, pink

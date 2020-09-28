@@ -1,6 +1,7 @@
 # Here start usual imports
 from PySide2.QtCore import QObject, Slot
 from PySide2.QtGui import QColor, QGuiApplication
+from PySide2.QtQml import qmlRegisterType
 from pony.orm import Database, db_session
 
 # Add common to path
@@ -8,10 +9,16 @@ import sys
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).parents[1]))
+sys.path.append(str(Path(__file__).parents[2] / "src"))
 from common import fn_reset_db, setup_session
+
+from mycartable.package.page.frise_model import FriseModel
+
+qmlRegisterType(FriseModel, "MyCartable", 1, 0, "FriseModel")
 
 
 def pytest_sessionstart():
+
     setup_session()
 
 
@@ -51,19 +58,13 @@ class FakerHelper(QObject):
 def pytest_qml_context_properties() -> dict:
     # init database
     from package.database import init_database
-    from package.database import init_database
     from package.database_object import DatabaseObject
     from package.ui_manager import UiManager
     import package.database
 
-    # db = init_database(Database())
-    # monkeypatch_session.setattr(package.database, "getdb", lambda: db)
-    # return db
-    import package.database
-
     # tmpfilename = tmp_path_factory.mktemp("mycartablefiledb") / "bla.sqlite"
     db = init_database(Database(), create_db=True)
-    package.database.getdb = lambda: db
+    # package.database.getdb = lambda: db
     # from python.factory import populate_database
     #
     # populate_database(db)

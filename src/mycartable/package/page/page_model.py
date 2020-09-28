@@ -23,10 +23,10 @@ class PageModel(QAbstractListModel):
 
     PageRole = Qt.UserRole + 1
 
-    def __init__(self, parent=None):
-        self.db = database.getdb()
-        self.page = None
+    def __init__(self, db, parent=None):
         super().__init__(parent=parent)
+        self.page = None
+        self.db = db
         self.row_count = 0
 
     @db_session
@@ -77,7 +77,11 @@ class PageModel(QAbstractListModel):
             end = target + 1
 
         self.beginMoveRows(
-            QModelIndex(), source, source, QModelIndex(), end,
+            QModelIndex(),
+            source,
+            source,
+            QModelIndex(),
+            end,
         )
 
         with db_session:

@@ -1,8 +1,10 @@
 import sys
 from pathlib import Path
 
+
 sys.path.append(str(Path(__file__).parents[1]))
 from common import fn_reset_db, setup_session
+from factory import Faker
 
 
 import shutil
@@ -222,6 +224,16 @@ def daof(ddbrf, tmpfilename, uim, userid):
     obj.settings = QSettings(str(tmpfilename.absolute()))
 
     return obj
+
+
+@pytest.fixture()
+def fk(ddbr):
+    return Faker(ddbr)
+
+
+@pytest.fixture()
+def fkf(ddbrf):
+    return Faker(ddbrf)
 
 
 @pytest.fixture(autouse=False)

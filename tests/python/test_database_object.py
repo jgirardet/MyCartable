@@ -1,10 +1,12 @@
 import json
 import uuid
+from datetime import datetime
 from time import sleep
 
 import pytest
 from PIL import Image, ImageChops
 from PySide2.QtCore import QUrl, Qt
+from PySide2.QtGui import QColor
 from fixtures import check_args
 from package import constantes
 from package.database_mixins.changematieres_mixin import ChangeMatieresMixin
@@ -12,15 +14,14 @@ from package.database_mixins.image_section_mixin import ImageSectionMixin
 from package.database_mixins.matiere_mixin import MatieresDispatcher
 from package.database_mixins.session import SessionMixin
 from package.database_object import DatabaseObject
-from factory import *
 from unittest.mock import patch, call
 
-from package.default_matiere import MATIERE_GROUPE
+from package.default_matiere import MATIERE_GROUPE, MATIERES
 from package.files_path import FILES
 from package.operations.api import create_operation
 from package.page import text_section
 from loguru_caplog import loguru_caplog as caplog  # used in tests
-from pony.orm import ObjectNotFound
+from pony.orm import ObjectNotFound, db_session
 
 
 class TestPageMixin:
@@ -38,14 +39,14 @@ class TestPageMixin:
 
         assert dao.timer_titre.isSingleShot()
 
-    def test_newPage(self, dao, qtbot, qappdao):
-        f = f_page()  # pour avoir plusieurs dans le resultats
+    def test_newPage(self, fk, dao, qtbot, qappdao):
+        f = fk.f_page()  # pour avoir plusieurs dans le resultats
         with qtbot.wait_signal(dao.newPageCreated, timeout=100):
             r = dao.newPage(f.activite.id)
 
-    def test_currentPage(self, dao, qtbot):
-        a = f_page()
-        b = f_page()
+    def test_currentPage(self, fk, dao, qtbot):
+        a = fk.f_page()
+        b = fk.f_page()
         assert dao.currentPage == ""
 
         # setCurrentPage with UUID
@@ -67,8 +68,8 @@ class TestPageMixin:
             dao.currentPage = b.id
         assert dao.currentPage == str(b.id)
 
-    def test_current_entry(self, dao):
-        a = f_page()
+    def test_current_entry(self, dao, fk):
+        a = fk.f_page()
         dao.currentPage = a.id
         with db_session:
             assert (
@@ -78,8 +79,8 @@ class TestPageMixin:
                 == dao.currentTitre
             )
 
-    def test_CurrentTitreSet(self, dao):
-        a = b_page(2)
+    def test_CurrentTitreSet(self, fk, dao):
+        a = fk.b_page(2)
 
         # case no current page
         dao.currentTitre = "omk"
@@ -94,8 +95,8 @@ class TestPageMixin:
             dao.currentTitre = "mokmk"
             assert m.call_args_list == [call(500)]
 
-    def test_UnderscoreCurrentTitreSet(self, dao, qtbot):
-        a = f_page()
+    def test_UnderscoreCurrentTitreSet(self, fk, dao, qtbot):
+        a = fk.f_page()
         dao.currentPage = a.id
         dao.TITRE_TIMER_DELAY = 0
         with qtbot.wait_signal(dao.currentTitreChanged):
@@ -103,8 +104,8 @@ class TestPageMixin:
         with db_session:
             assert dao.db.Page[a.id].titre == "aaa"
 
-    def test_setCurrentTitre(self, dao, qtbot):
-        a = f_page()
+    def test_setCurrentTitre(self, dao, qtbot, fk):
+        a = fk.f_page()
         dao.currentPage = a.id
         dao.TITRE_TIMER_DELAY = 0
         with qtbot.assertNotEmitted(dao.currentTitreChanged):
@@ -119,15 +120,15 @@ class TestPageMixin:
         with qtbot.assertNotEmitted(dao.currentTitreSetted):
             dao.setCurrentTitre("blabla")
 
-    def test_on_pagechanged_reset_model(self, dao):
-        p1 = f_page()
-        f_section(page=p1.id)
+    def test_on_pagechanged_reset_model(self, dao, fk):
+        p1 = fk.f_page()
+        fk.f_section(page=p1.id)
         dao.currentPage = p1.id
         with db_session:
             assert dao.pageModel.page.id == p1.id
 
-    def test_removePAge(self, dao, qtbot):
-        a = f_page()
+    def test_removePAge(self, dao, qtbot, fk):
+        a = fk.f_page()
         dao.removePage(a.id)
         with db_session:
             assert not dao.db.Page.get(id=1)
@@ -137,19 +138,19 @@ class TestPageMixin:
         dao.removePage(99)
         assert dao.currentPage == ""
 
-    def test_removePAge_blanck_if_currentItem(self, dao):
-        a = f_page()
+    def test_removePAge_blanck_if_currentItem(self, dao, fk):
+        a = fk.f_page()
         dao.currentPage = a.id
         dao.removePage(a.id)
         assert dao.currentPage == ""
 
-    def test_allow_currentPAge_can_be_empty(self, dao):
-        a = f_page()
+    def test_allow_currentPAge_can_be_empty(self, dao, fk):
+        a = fk.f_page()
         dao.currentPage = a.id
         dao.currentPage = ""
 
-    def test_export_to_pdf(selfsekf, dao):
-        a = f_page(titre="blà")
+    def test_export_to_pdf(selfsekf, dao, fk):
+        a = fk.f_page(titre="blà")
         dao.currentPage = a.id
         with patch("package.database_mixins.page_mixin.QDesktopServices.openUrl") as m:
             with patch("package.database_mixins.page_mixin.soffice_convert") as v:
@@ -171,8 +172,8 @@ class TestPageMixin:
 
         assert w.called
 
-    def test_export_to_odt(selfsekf, dao):
-        a = f_page(titre="blà")
+    def test_export_to_odt(selfsekf, dao, fk):
+        a = fk.f_page(titre="blà")
         dao.currentPage = a.id
         with patch("package.database_mixins.page_mixin.QDesktopServices.openUrl") as m:
             with patch("package.database_mixins.page_mixin.soffice_convert") as v:
@@ -194,24 +195,26 @@ class TestPageMixin:
 
 
 @pytest.fixture()
-def create_matiere(ddbr):
-    gp = f_groupeMatiere(annee=2019)
+def create_matiere(
+    fk,
+):
+    gp = fk.f_groupeMatiere(annee=2019)
 
     def activ(mat):
         return (
-            f_activite(nom="un", matiere=mat),
-            f_activite(nom="deux", matiere=mat),
-            f_activite(nom="trois", matiere=mat),
+            fk.f_activite(nom="un", matiere=mat),
+            fk.f_activite(nom="deux", matiere=mat),
+            fk.f_activite(nom="trois", matiere=mat),
         )
 
     _mats = []
-    a = f_matiere("un", _fgColor=4294967295, _bgColor=4294901760, groupe=gp.id)
+    a = fk.f_matiere("un", _fgColor=4294967295, _bgColor=4294901760, groupe=gp.id)
     _mats.append(str(a.id))
-    a = f_matiere("deux", _fgColor=4294967295, _bgColor=4294901760, groupe=gp.id)
+    a = fk.f_matiere("deux", _fgColor=4294967295, _bgColor=4294901760, groupe=gp.id)
     _mats.append(str(a.id))
-    a = f_matiere("trois", _fgColor=4294967295, _bgColor=4294901760, groupe=gp.id)
+    a = fk.f_matiere("trois", _fgColor=4294967295, _bgColor=4294901760, groupe=gp.id)
     _mats.append(str(a.id))
-    a = f_matiere("quatre", _fgColor=4294967295, _bgColor=4294901760, groupe=gp.id)
+    a = fk.f_matiere("quatre", _fgColor=4294967295, _bgColor=4294901760, groupe=gp.id)
     _mats.append(str(a.id))
     gp._mats = _mats
     gp._acts = []
@@ -253,12 +256,17 @@ class TestMatiereMixin:
         assert dao.getMatiereIndexFromId(str(mats[2].id)) == 2
         assert dao.getMatiereIndexFromId("99999") is 0
 
-    def test_currentMatiereItem(self, dao):
-        m = f_matiere(td=True)
+    def test_currentMatiereItem(self, fk, dao):
+        m = fk.f_matiere(td=True)
         dao.currentMatiere = m["id"]
         assert dao.currentMatiereItem == m
 
-    def test_matiereList(self, dao, create_matiere):
+    def test_matiereList(
+        self,
+        dao,
+        create_matiere,
+        fk,
+    ):
         dao.init_matieres()
         x = create_matiere
         # listnom
@@ -319,15 +327,15 @@ class TestMatiereMixin:
         assert dao.matieresList == reslist
 
         # refresh
-        cinq = f_matiere(
+        cinq = fk.f_matiere(
             "cinq",
-            groupe=f_groupeMatiere(annee=2019),
+            groupe=fk.f_groupeMatiere(annee=2019),
             _fgColor=4294967295,
             _bgColor=4294901760,
         )
-        c1 = f_activite(matiere=cinq.id)
-        c2 = f_activite(matiere=cinq.id)
-        c3 = f_activite(matiere=cinq.id)
+        c1 = fk.f_activite(matiere=cinq.id)
+        c2 = fk.f_activite(matiere=cinq.id)
+        c3 = fk.f_activite(matiere=cinq.id)
         dao.matieresListRefresh()
         reslist.append(
             {
@@ -342,25 +350,25 @@ class TestMatiereMixin:
         )
         assert dao.matieresList == reslist
 
-    def test_pagesParSection(self, dao):
+    def test_pagesParSection(self, fk, dao):
         assert dao.pagesParSection == []
-        acts = b_activite(3)
-        p = f_page(td=True, activite=str(acts[2].id))
+        acts = fk.b_activite(3)
+        p = fk.f_page(td=True, activite=str(acts[2].id))
         dao.currentMatiere = p["matiere"]
         assert dao.pagesParSection[0]["id"] == str(acts[0].id)
         assert dao.pagesParSection[1]["id"] == str(acts[1].id)
         assert dao.pagesParSection[2]["id"] == str(acts[2].id)
         assert dao.pagesParSection[2]["pages"] == [p]
 
-    def test_matiere_dispatch(self, ddbr):
+    def test_matiere_dispatch(self, fk):
         # anne n'exist pas
         with pytest.raises(ObjectNotFound):
-            MatieresDispatcher(ddbr, 2000)
+            MatieresDispatcher(fk.db, 2000)
         # assert m.annee.id == 2000
 
         # anne existe
-        f_annee(1954)
-        m = MatieresDispatcher(ddbr, 1954)
+        fk.f_annee(1954)
+        m = MatieresDispatcher(fk.db, 1954)
         assert m.annee.id == 1954
 
 
@@ -369,16 +377,16 @@ class TestActiviteMixin:
         check_args(dao.getDeplacePageModel, int, list)
         check_args(dao.changeActivite, [str, str])
 
-    def test_getDeplacePageModel(self, dao):
-        g1 = f_groupeMatiere(annee=1900)
-        g2 = f_groupeMatiere(annee=2000)
-        m1 = f_matiere(nom="un", groupe=g1)
-        m2 = f_matiere(nom="deux", groupe=g1)
-        m3 = f_matiere(nom="trois", groupe=g2, bgColor="red")
-        m4 = f_matiere(nom="quatre", groupe=g2, bgColor="blue")
+    def test_getDeplacePageModel(self, fk, dao):
+        g1 = fk.f_groupeMatiere(annee=1900)
+        g2 = fk.f_groupeMatiere(annee=2000)
+        m1 = fk.f_matiere(nom="un", groupe=g1)
+        m2 = fk.f_matiere(nom="deux", groupe=g1)
+        m3 = fk.f_matiere(nom="trois", groupe=g2, bgColor="red")
+        m4 = fk.f_matiere(nom="quatre", groupe=g2, bgColor="blue")
         acs = []
         for i in [m1, m2, m3, m4]:
-            acs = acs + [*b_activite(3, nom="rien", matiere=i.id)]
+            acs = acs + [*fk.b_activite(3, nom="rien", matiere=i.id)]
         res = dao.getDeplacePageModel(2000)
         assert res == [
             {
@@ -401,9 +409,9 @@ class TestActiviteMixin:
             },
         ]
 
-    def test_changeActivite(self, dao, qtbot):
-        s = f_activite()
-        a = f_page()
+    def test_changeActivite(self, fk, dao, qtbot):
+        s = fk.f_activite()
+        a = fk.f_page()
         with db_session:
             actt = a.activite.id
             assert dao.db.Page[a.id].activite.id == actt
@@ -414,8 +422,8 @@ class TestActiviteMixin:
 
 
 class TestRecentsMixin:
-    def test_init(self, dao, ddbn):
-        a = b_page(5)
+    def test_init(self, fk, dao, ddbn):
+        a = fk.b_page(5)
         with db_session:
             ddbn.Page.recents == dao.recentsModel
 
@@ -431,8 +439,8 @@ class TestLayoutMixin:
             == constantes.preferredCentralWidth
         )
 
-    def test_setStyle(self, dao: DatabaseObject, caplog):
-        a = f_style()
+    def test_setStyle(self, fk, dao: DatabaseObject, caplog):
+        a = fk.f_style()
 
         # normal
         r = dao.setStyle(a.styleId, {"underline": True, "bgColor": "red"})
@@ -484,8 +492,8 @@ class TestSectionMixin:
         check_args(dao.loadSection, str, dict)
         check_args(dao.addSection, [str, dict], str)
 
-    def test_loadsection_image(self, dao):
-        s = f_imageSection(path="bla/ble.jpg")
+    def test_loadsection_image(self, fk, dao):
+        s = fk.f_imageSection(path="bla/ble.jpg")
         res = dao.loadSection(s.id)
         assert res["id"] == str(s.id)
         assert res["path"] == QUrl.fromLocalFile(str(FILES / "bla/ble.jpg"))
@@ -494,8 +502,8 @@ class TestSectionMixin:
         res = dao.loadSection(99999)
         assert res == {}
 
-    def test_load_section_Operation(self, dao):
-        a = f_additionSection(string="3+4")
+    def test_load_section_Operation(self, fk, dao):
+        a = fk.f_additionSection(string="3+4")
         assert dao.loadSection(a.id) == {
             "classtype": "AdditionSection",
             "created": a.created.isoformat(),
@@ -510,8 +518,8 @@ class TestSectionMixin:
             "virgule": 0,
         }
 
-    def test_load_section_tableau(self, dao):
-        a = f_tableauSection(lignes=3, colonnes=3)
+    def test_load_section_tableau(self, fk, dao):
+        a = fk.f_tableauSection(lignes=3, colonnes=3)
         assert dao.loadSection(a.id) == {
             "classtype": "TableauSection",
             "created": a.created.isoformat(),
@@ -523,8 +531,8 @@ class TestSectionMixin:
             "position": 0,
         }
 
-    def test_loadsection_equation(self, dao):
-        eq = f_equationSection(content="1+2", td=True)
+    def test_loadsection_equation(self, fk, dao):
+        eq = fk.f_equationSection(content="1+2", td=True)
         with db_session:
             pageid = str(dao.db.EquationSection[eq["id"]].page.id)
         assert dao.loadSection(eq["id"]) == {
@@ -560,8 +568,8 @@ class TestSectionMixin:
             (1, {"classtype": "ImageSectionVide", "width": 10, "height": 20}, 1, True),
         ],
     )
-    def test_addSection(self, dao, ddbn, qtbot, page, content, res, signal_emitted):
-        x = f_page()
+    def test_addSection(self, fk, dao, ddbn, qtbot, page, content, res, signal_emitted):
+        x = fk.f_page()
         page = x.id
         dao.pageModel.slotReset(x.id)
         if signal_emitted:
@@ -590,11 +598,51 @@ class TestSectionMixin:
     @pytest.mark.parametrize(
         "page, content, res, signal_emitted",
         [
-            (1, {"path": "png_annot", "classtype": "ImageSection",}, 1, True,),
-            (1, {"path": QUrl("no/existe"), "classtype": "ImageSection",}, 0, False,),
-            (1, {"path": "createOne", "classtype": "ImageSection",}, 1, True,),
-            (1, {"path": QUrl("createOne"), "classtype": "ImageSection",}, 1, True,),
-            (1, {"path": None, "classtype": "ImageSection",}, 0, False,),
+            (
+                1,
+                {
+                    "path": "png_annot",
+                    "classtype": "ImageSection",
+                },
+                1,
+                True,
+            ),
+            (
+                1,
+                {
+                    "path": QUrl("no/existe"),
+                    "classtype": "ImageSection",
+                },
+                0,
+                False,
+            ),
+            (
+                1,
+                {
+                    "path": "createOne",
+                    "classtype": "ImageSection",
+                },
+                1,
+                True,
+            ),
+            (
+                1,
+                {
+                    "path": QUrl("createOne"),
+                    "classtype": "ImageSection",
+                },
+                1,
+                True,
+            ),
+            (
+                1,
+                {
+                    "path": None,
+                    "classtype": "ImageSection",
+                },
+                0,
+                False,
+            ),
             (1, {"path": "my/path", "classtype": "ImageSection"}, 0, False),
         ],
     )
@@ -603,7 +651,7 @@ class TestSectionMixin:
         png_annot,
         resources,
         daof,
-        ddbrf,
+        fkf,
         qtbot,
         page,
         content,
@@ -612,9 +660,10 @@ class TestSectionMixin:
         tmpfile,
         qappdaof,
     ):
-        x = f_page()
+
+        x = fkf.f_page()
         page = x.id
-        print("dans test", ddbrf, daof.db)
+        print("dans test", fkf.db, daof.db)
         daof.pageModel.slotReset(x.id)
         if "path" not in content:
             pass
@@ -634,7 +683,7 @@ class TestSectionMixin:
         with db_session:
             if res:
                 _res = str(
-                    ddbrf.Section.select().order_by(lambda x: x.position).first().id
+                    fkf.db.Section.select().order_by(lambda x: x.position).first().id
                 )
                 res = _res
             else:
@@ -643,7 +692,7 @@ class TestSectionMixin:
         if res == "":
             return
         with db_session:
-            item = ddbrf.Section.select().first()
+            item = fkf.db.Section.select().first()
             assert item.page.id == x.id
             for i in content.keys():
                 if i == "path":
@@ -654,22 +703,22 @@ class TestSectionMixin:
                 else:
                     assert content[i] == getattr(item, i)
 
-    def test_addSetion_create_empty_image(self, ddbr, dao, qtbot, qappdao):
-        page = f_page().id
+    def test_addSetion_create_empty_image(self, fk, dao, qtbot, qappdao):
+        page = fk.f_page().id
         dao.pageModel.slotReset(page)
         content = {"classtype": "ImageSectionVide", "height": 20, "width": 10}
         with qtbot.waitSignal(dao.sectionAdded):
             res = dao.addSection(str(page), content)
 
-    def test_addSetion_emptyimage(self, ddbrf, daof, resources, qtbot, qappdaof):
-        page = f_page().id
+    def test_addSetion_emptyimage(self, fkf, daof, resources, qtbot, qappdaof):
+        page = fkf.f_page().id
         daof.pageModel.slotReset(page)
         content = {"classtype": "ImageSection"}
         content["path"] = str(resources / "2pages.pdf")
         with qtbot.waitSignal(daof.sectionAdded, check_params_cb=lambda x, y: (0, 2)):
             res = daof.addSection(str(page), content)
         with db_session:
-            item = ddbrf.Page[page].sections.count() == 2
+            item = fkf.db.Page[page].sections.count() == 2
 
 
 class TestEquationMixin:
@@ -677,8 +726,8 @@ class TestEquationMixin:
         check_args(dao.updateEquation, [str, str, int, str], dict)
         check_args(dao.isEquationFocusable, [str, int], bool)
 
-    def test_update(self, dao, qtbot):
-        e = f_equationSection(content=" \n1\n ")
+    def test_update(self, dao, fk, qtbot):
+        e = fk.f_equationSection(content=" \n1\n ")
         event = json.dumps({"key": int(Qt.Key_2), "text": "2", "modifiers": None})
         with qtbot.waitSignal(dao.equationChanged):
             res = dao.updateEquation(e.id, " \n1\n ", 3, event)
@@ -719,20 +768,21 @@ class TestImageSectionMixin:
         assert (dao.files / res).read_bytes() == obj.read_bytes()
 
     def test_create_empty_image(
-        self, dao,
+        self,
+        dao,
     ):
         res = dao.create_empty_image(300, 500)
         im = Image.new("RGBA", (300, 500), "white")
         saved = Image.open(dao.files / res)
         assert list(im.getdata()) == list(saved.getdata())
 
-    def test_pivoter_image(self, new_res, dao, qtbot):
+    def test_pivoter_image(self, new_res, fk, dao, qtbot):
         file = new_res("test_pivoter.png")
         img = Image.open(file)
         assert img.height == 124
         assert img.width == 673
 
-        f = f_imageSection(path=str(file))
+        f = fk.f_imageSection(path=str(file))
         with qtbot.waitSignal(dao.imageChanged):
             dao.pivoterImage(f.id, 1)
         img = Image.open(file)
@@ -758,16 +808,16 @@ class TestTableauMixin:
         check_args(dao.removeColumn, [str, int])
         check_args(dao.removeRow, [str, int])
 
-    def test_init_datas(self, dao):
-        x = f_tableauSection(3, 4)
+    def test_init_datas(self, dao, fk):
+        x = fk.f_tableauSection(3, 4)
 
         with db_session:
             assert dao.initTableauDatas(str(x.id)) == [
                 x.to_dict() for x in dao.db.TableauSection[x.id].get_cells()
             ]
 
-    def test_updat_cell(self, dao, qtbot):
-        x = f_tableauCell(x=2, y=3, texte="zer")
+    def test_updat_cell(self, dao, qtbot, fk):
+        x = fk.f_tableauCell(x=2, y=3, texte="zer")
 
         with qtbot.waitSignal(dao.tableauChanged):
             dao.updateCell(x.tableau.id, 3, 2, {"texte": "bla"})
@@ -787,8 +837,8 @@ class TestTableauMixin:
             ("removeColumn", 2, 1),
         ],
     )
-    def test_add_remove_row_column(self, dao, qtbot, fn, lignes, colonnes):
-        x = f_tableauSection(2, 2)
+    def test_add_remove_row_column(self, fk, dao, qtbot, fn, lignes, colonnes):
+        x = fk.f_tableauSection(2, 2)
         with qtbot.waitSignal(dao.tableauLayoutChanged):
             getattr(dao, fn)(x.id, 1)
         with db_session:
@@ -797,10 +847,14 @@ class TestTableauMixin:
             assert x.colonnes == colonnes
 
     @pytest.mark.parametrize(
-        "fn, lignes, colonnes", [("appendColumn", 2, 3), ("appendRow", 3, 2),],
+        "fn, lignes, colonnes",
+        [
+            ("appendColumn", 2, 3),
+            ("appendRow", 3, 2),
+        ],
     )
-    def test_append_row_column(self, dao, qtbot, fn, lignes, colonnes):
-        x = f_tableauSection(2, 2)
+    def test_append_row_column(self, fk, dao, qtbot, fn, lignes, colonnes):
+        x = fk.f_tableauSection(2, 2)
         with qtbot.waitSignal(dao.tableauLayoutChanged):
             getattr(dao, fn)(x.id)
         with db_session:
@@ -808,8 +862,8 @@ class TestTableauMixin:
             assert x.lignes == lignes
             assert x.colonnes == colonnes
 
-    def test_nb_colonnes(self, dao):
-        x = f_tableauSection(2, 6)
+    def test_nb_colonnes(self, fk, dao):
+        x = fk.f_tableauSection(2, 6)
         assert dao.nbColonnes(x.id) == 6
 
 
@@ -821,8 +875,8 @@ class TestTextSectionMixin:
         check_args(dao.loadTextSection, str, dict)
         check_args(dao.getTextSectionColor, str, QColor)
 
-    def test_updateTextSectionOnKey(self, dao):
-        f_textSection(text="bla")
+    def test_updateTextSectionOnKey(self, fk, dao):
+        fk.f_textSection(text="bla")
         dic_event = {"key": int(Qt.Key_B), "modifiers": int(Qt.ControlModifier)}
         event = json.dumps(dic_event)
         args = 1, "bla", 3, 3, 3
@@ -833,8 +887,8 @@ class TestTextSectionMixin:
             m.return_value.onKey.assert_called_with(dic_event)
             assert res == m.return_value.onKey.return_value
 
-    def test_updateTextSectionOnChange(self, dao, qtbot):
-        f_textSection(text="bla")
+    def test_updateTextSectionOnChange(self, fk, dao, qtbot):
+        fk.f_textSection(text="bla")
         dic_event = {"key": int(Qt.Key_B), "modifiers": int(Qt.ControlModifier)}
         args = 1, "blap", 3, 3, 4
 
@@ -845,8 +899,8 @@ class TestTextSectionMixin:
             m.return_value.onChange.assert_called_with()
             assert res == m.return_value.onChange.return_value
 
-    def test_updateTextSectionOnMenu(self, dao):
-        f_textSection()
+    def test_updateTextSectionOnMenu(self, fk, dao):
+        fk.f_textSection()
         dic_params = {"ble": "bla"}
         # params = json.dumps(dic_params)
         args = 1, "bla", 3, 3, 3
@@ -857,8 +911,8 @@ class TestTextSectionMixin:
             m.return_value.onMenu.assert_called_with(ble="bla")
             assert res == m.return_value.onMenu.return_value
 
-    def test_loadTextSection(self, dao):
-        f_textSection()
+    def test_loadTextSection(self, fk, dao):
+        fk.f_textSection()
 
         with patch("package.database_mixins.text_mixin.TextSectionEditor") as m:
             res = dao.loadTextSection(1)
@@ -922,11 +976,11 @@ class TestSessionMixin:
             assert an.niveau == "ce3"
             assert an.user == dao.db.Utilisateur.user()
 
-    def test_getMenuesAnnees(self, dao):
+    def test_getMenuesAnnees(self, fk, dao):
         with db_session:
             user = dao.db.Utilisateur.select().first()
         for i in range(4):
-            f_annee(2016 - (i * i), user=str(user.id))  # pour tester l'ordre
+            fk.f_annee(2016 - (i * i), user=str(user.id))  # pour tester l'ordre
         assert dao.getMenuAnnees() == [
             {"id": 2007, "niveau": "cm2007", "user": str(user.id)},
             {"id": 2012, "niveau": "cm2012", "user": str(user.id)},
@@ -972,10 +1026,10 @@ class TestChangeMatieresMixin:
         check_args(dao.applyGroupeDegrade, [str, QColor], list)
         check_args(dao.reApplyGroupeDegrade, str, list)
 
-    def test_get_activites(self, dao):
-        m = f_matiere()
-        acs = b_activite(3, nom="machoire", matiere=m)
-        b_page(3, activite=acs[0])
+    def test_get_activites(self, fk, dao):
+        m = fk.f_matiere()
+        acs = fk.b_activite(3, nom="machoire", matiere=m)
+        fk.b_page(3, activite=acs[0])
 
         assert dao.getActivites(str(m.id)) == [
             {
@@ -1001,9 +1055,9 @@ class TestChangeMatieresMixin:
             },
         ]
 
-    def test_moveActivite(self, dao):
-        m = f_matiere()
-        acs = b_activite(3, nom="essetoto", matiere=m)
+    def test_moveActivite(self, fk, dao):
+        m = fk.f_matiere()
+        acs = fk.b_activite(3, nom="essetoto", matiere=m)
         assert dao.moveActiviteTo(str(acs[2].id), 0) == [
             {
                 "id": str(acs[2].id),
@@ -1028,9 +1082,9 @@ class TestChangeMatieresMixin:
             },
         ]
 
-    def test_removeActivite(self, dao):
-        m = f_matiere()
-        acts = b_activite(3, nom="les bizards", matiere=m.id)
+    def test_removeActivite(self, fk, dao):
+        m = fk.f_matiere()
+        acts = fk.b_activite(3, nom="les bizards", matiere=m.id)
 
         assert dao.removeActivite(str(acts[1].id)) == [
             {
@@ -1049,9 +1103,9 @@ class TestChangeMatieresMixin:
             },
         ]
 
-    def test_addActivite(self, dao, ddbr):
-        m = f_matiere()
-        acts = b_activite(3, nom="bidet", matiere=m)
+    def test_addActivite(self, dao, fk, ddbr):
+        m = fk.f_matiere()
+        acts = fk.b_activite(3, nom="bidet", matiere=m)
         res = dao.addActivite(str(acts[0].id))
         with db_session:
             new = ddbr.Activite.select()[:][-1]
@@ -1087,11 +1141,11 @@ class TestChangeMatieresMixin:
             },
         ]
 
-    def test_addActivite_append(self, dao, ddbr):
-        m = f_matiere()
+    def test_addActivite_append(self, dao, fk):
+        m = fk.f_matiere()
         res = dao.addActivite(str(m.id), True)
         with db_session:
-            new = ddbr.Activite.select()[:][-1]
+            new = fk.db.Activite.select()[:][-1]
         assert res == [
             {
                 "id": str(new.id),
@@ -1102,17 +1156,19 @@ class TestChangeMatieresMixin:
             },
         ]
 
-    def test_updateActiviteNom(self, dao):
-        f_activite(nom="bla")
+    def test_updateActiviteNom(self, fk, dao):
+        fk.f_activite(nom="bla")
         dao.updateActiviteNom(1, "meuh")
         with db_session:
             assert dao.db.Activite[1].nom == "meuh"
 
-    def test_getMatieres(self, dao):
-        groupe = f_groupeMatiere()
-        mats = b_matiere(3, nom="picotin", bgColor="red", fgColor="blue", groupe=groupe)
-        ac = f_activite(matiere=mats[0].id)
-        pages = b_page(5, activite=ac.id)
+    def test_getMatieres(self, fk, dao):
+        groupe = fk.f_groupeMatiere()
+        mats = fk.b_matiere(
+            3, nom="picotin", bgColor="red", fgColor="blue", groupe=groupe
+        )
+        ac = fk.f_activite(matiere=mats[0].id)
+        pages = fk.b_page(5, activite=ac.id)
         assert dao.getMatieres(str(groupe.id)) == [
             {
                 "activites": [str(ac.id)],
@@ -1146,9 +1202,9 @@ class TestChangeMatieresMixin:
             },
         ]
 
-    def test_moveMatiere(self, dao):
-        groupe = f_groupeMatiere()
-        mats = b_matiere(
+    def test_moveMatiere(self, fk, dao):
+        groupe = fk.f_groupeMatiere()
+        mats = fk.b_matiere(
             3, nom="cacahuete coding", bgColor="red", fgColor="blue", groupe=groupe
         )
         assert dao.moveMatiereTo(str(mats[2].id), 1) == [
@@ -1184,9 +1240,9 @@ class TestChangeMatieresMixin:
             },
         ]
 
-    def test_removeMatieres(self, dao):
-        groupe = f_groupeMatiere()
-        mats = b_matiere(
+    def test_removeMatieres(self, fk, dao):
+        groupe = fk.f_groupeMatiere()
+        mats = fk.b_matiere(
             3, nom="cerf-vollant", bgColor="red", fgColor="blue", groupe=groupe
         )
         assert dao.removeMatiere(str(mats[1].id)) == [
@@ -1212,9 +1268,9 @@ class TestChangeMatieresMixin:
             },
         ]
 
-    def test_addMatiere(self, dao):
-        groupe = f_groupeMatiere()
-        mats = b_matiere(3, nom="rien", bgColor="red", fgColor="blue", groupe=groupe)
+    def test_addMatiere(self, fk, dao):
+        groupe = fk.f_groupeMatiere()
+        mats = fk.b_matiere(3, nom="rien", bgColor="red", fgColor="blue", groupe=groupe)
         res = dao.addMatiere(str(mats[1].id))
         with db_session:
             new = groupe.matieres.select()[:][-1]
@@ -1261,8 +1317,8 @@ class TestChangeMatieresMixin:
             },
         ]
 
-    def test_addMatiere_appendd(self, dao):
-        groupe = f_groupeMatiere()
+    def test_addMatiere_appendd(self, fk, dao):
+        groupe = fk.f_groupeMatiere()
         res = dao.addMatiere(str(groupe.id), True)
 
         with db_session:
@@ -1280,17 +1336,19 @@ class TestChangeMatieresMixin:
             }
         ]
 
-    def test_updateActiviteNom(self, dao):
-        m = f_matiere(nom="bla")
+    def test_updateActiviteNom(self, fk, dao):
+        m = fk.f_matiere(nom="bla")
         dao.updateMatiereNom(str(m.id), "meuh")
         with db_session:
             assert dao.db.Matiere[str(m.id)].nom == "meuh"
 
-    def test_getGroupeMatieres(self, dao):
-        gm = b_groupeMatiere(3, annee=2017, nom="rien", bgColor="red", fgColor="blue")
-        m = f_matiere(groupe=gm[2])
-        ac = f_activite(matiere=m)
-        pages = b_page(2, activite=ac)
+    def test_getGroupeMatieres(self, fk, dao):
+        gm = fk.b_groupeMatiere(
+            3, annee=2017, nom="rien", bgColor="red", fgColor="blue"
+        )
+        m = fk.f_matiere(groupe=gm[2])
+        ac = fk.f_activite(matiere=m)
+        pages = fk.b_page(2, activite=ac)
         assert dao.getGroupeMatieres(2017) == [
             {
                 "annee": 2017,
@@ -1321,8 +1379,10 @@ class TestChangeMatieresMixin:
             },
         ]
 
-    def test_removeGroupeMatiere(self, dao):
-        gm = b_groupeMatiere(3, annee=2017, nom="rien", bgColor="red", fgColor="blue")
+    def test_removeGroupeMatiere(self, fk, dao):
+        gm = fk.b_groupeMatiere(
+            3, annee=2017, nom="rien", bgColor="red", fgColor="blue"
+        )
         assert dao.removeGroupeMatiere(str(gm[1].id)) == [
             {
                 "annee": 2017,
@@ -1344,8 +1404,10 @@ class TestChangeMatieresMixin:
             },
         ]
 
-    def test_moveGroupeMatiere(self, dao):
-        gm = b_groupeMatiere(3, annee=2017, nom="rien", bgColor="red", fgColor="blue")
+    def test_moveGroupeMatiere(self, fk, dao):
+        gm = fk.b_groupeMatiere(
+            3, annee=2017, nom="rien", bgColor="red", fgColor="blue"
+        )
         assert dao.moveGroupeMatiereTo(str(gm[2].id), 1) == [
             {
                 "annee": 2017,
@@ -1376,7 +1438,7 @@ class TestChangeMatieresMixin:
             },
         ]
 
-    def test_addGroupeMatieres_preprend(self, dao):
+    def test_addGroupeMatieres_preprend(self, fk, dao):
         res = dao.addGroupeMatiere("annee:2019")
         with db_session:
             new = dao.db.GroupeMatiere.select().first()
@@ -1393,8 +1455,10 @@ class TestChangeMatieresMixin:
             }
         ]
 
-    def test_addGroupeMatieres(self, dao):
-        gm = b_groupeMatiere(3, annee=2017, nom="rien", bgColor="red", fgColor="blue")
+    def test_addGroupeMatieres(self, fk, dao):
+        gm = fk.b_groupeMatiere(
+            3, annee=2017, nom="rien", bgColor="red", fgColor="blue"
+        )
         res = dao.addGroupeMatiere(str(gm[2].id))
         with db_session:
             new = dao.db.GroupeMatiere.select()[:][-1]
@@ -1518,10 +1582,12 @@ class TestChangeMatieresMixin:
             ),
         ],
     )
-    def test_applyGroupeDegrade_with_color(self, dao, nb, res, end_color):
-        gm = f_groupeMatiere(id="bf44711d-1c0f-444a-af48-869f62974696", bgColor="pink")
+    def test_applyGroupeDegrade_with_color(self, fk, dao, nb, res, end_color):
+        gm = fk.f_groupeMatiere(
+            id="bf44711d-1c0f-444a-af48-869f62974696", bgColor="pink"
+        )
         print(gm.id)
-        b_matiere(nb, groupe=str(gm.id), nom="rien", bgColor="blue", fgColor="green")
+        fk.b_matiere(nb, groupe=str(gm.id), nom="rien", bgColor="blue", fgColor="green")
         pre_res = dao.applyGroupeDegrade(str(gm.id), QColor("red"))
         for mat in pre_res:
             mat["id"] = "xx"
@@ -1531,9 +1597,11 @@ class TestChangeMatieresMixin:
         with db_session:
             assert dao.db.GroupeMatiere[str(gm.id)].bgColor == end_color
 
-    def test_reApplyGroupeDegrade(self, dao):
-        gm = f_groupeMatiere(bgColor="red")
-        mats = b_matiere(3, groupe=gm.id, nom="rien", bgColor="blue", fgColor="green")
+    def test_reApplyGroupeDegrade(self, fk, dao):
+        gm = fk.f_groupeMatiere(bgColor="red")
+        mats = fk.b_matiere(
+            3, groupe=gm.id, nom="rien", bgColor="blue", fgColor="green"
+        )
         pre_res = dao.reApplyGroupeDegrade(str(gm.id))
         for mat in pre_res:
             mat["id"] = "xx"
@@ -1573,8 +1641,8 @@ class TestChangeMatieresMixin:
         with db_session:
             assert dao.db.GroupeMatiere[str(gm.id)].bgColor == QColor("red")
 
-    def test_updateGroupeNom(self, dao):
-        gm = f_groupeMatiere(nom="bla")
+    def test_updateGroupeNom(self, fk, dao):
+        gm = fk.f_groupeMatiere(nom="bla")
         dao.updateGroupeMatiereNom(str(gm.id), "meuh")
         with db_session:
             assert dao.db.GroupeMatiere[str(gm.id)].nom == "meuh"
@@ -1594,20 +1662,20 @@ class TestChangeMatieresMixin:
 
 
 class TestDatabaseObject:
-    # def test_init_settings(self, ddbr, dao):
+    # def test_init_settings(self, fk, dao):
     #     # settings pas inité en mode debug (default
     #     assert DatabaseObject(ddbr).annee_active is None
     #
     #     # settings inités en non debug
     #     with patch.object(DatabaseObject, "setup_settings") as m:
-    #         DatabaseObject(ddbr, debug=False)
+    #         DatabaseObject(fk, debug=False)
     #         assert m.call_args_list == [call()]
     #
     #     # init matiere dsi annee_active
     #     class DBO(DatabaseObject):
     #         anne_active = 1983
     #
-    #     x = DBO(ddbr, debug=False)
+    #     x = DBO(fk, debug=False)
 
     def test_initialize_session(self, dao, userid):
         assert dao.annee_active == 2019
@@ -1618,9 +1686,9 @@ class TestDatabaseObject:
             "prenom": "prenom",
         }
 
-    def test_init_change_annee(self, qtbot, ddbr, uim):
+    def test_init_change_annee(self, fk, uim):
 
-        a = DatabaseObject(ddbr, uim)
+        a = DatabaseObject(fk.db, uim)
         assert a.anneeActive == None
         assert a.currentPage == ""
         assert a.currentMatiere == ""
@@ -1628,23 +1696,23 @@ class TestDatabaseObject:
     def test_files(self, dao):
         assert dao.files == FILES
 
-    def test_RecentsItem_Clicked(self, ddbr, qtbot, uim):
-        rec1 = f_page(created=datetime.now(), td=True)
-        d = DatabaseObject(ddbr, uim)
+    def test_RecentsItem_Clicked(self, fk, qappdao, uim):
+        rec1 = fk.f_page(created=datetime.now(), td=True)
+        d = qappdao.dao
         d.recentsItemClicked.emit(rec1["id"], rec1["matiere"])
         assert d.currentMatiere == rec1["matiere"]
         assert d.currentPage == rec1["id"]
 
-    def test_onNewPageCreated(self, ddbr, qtbot, uim):
-        a = f_page(td=True)
-        d = DatabaseObject(ddbr, uim)
+    def test_onNewPageCreated(self, fk, qappdao, uim):
+        a = fk.f_page(td=True)
+        d = qappdao.dao
         d.onNewPageCreated(a)
         assert d.currentPage == a["id"]
         assert d.currentMatiere == a["matiere"]
 
-    def test_onCurrentTitreSetted(self, ddbr, qtbot, uim):
-        a = f_page(td=True)
-        d = DatabaseObject(ddbr, uim)
+    def test_onCurrentTitreSetted(self, fk, qappdao, qtbot, uim):
+        a = fk.f_page(td=True)
+        d = qappdao.dao
         with qtbot.wait_signals(
             [
                 (d.pagesParSectionChanged, "activites"),
@@ -1653,24 +1721,24 @@ class TestDatabaseObject:
         ):
             d.currentTitreSetted.emit()
 
-    def test_onSectionAdded(self, dao, ddbn, qtbot):
-        p = f_page()
-        s1 = f_section(page=p.id)
-        s2 = f_section(page=p.id)
+    def test_onSectionAdded(self, dao, fk, ddbn, qtbot):
+        p = fk.f_page()
+        s1 = fk.f_section(page=p.id)
+        s2 = fk.f_section(page=p.id)
         dao.pageModel.slotReset(p.id)
         assert s1.position == 0
         assert s2.position == 1
         newid = dao.addSection(p.id, {"classtype": "TextSection"})
         with db_session:
             item = ddbn.Section[newid]
-            flush()
+            item.flush()
             assert item.position == 2
         p = dao.pageModel
         assert p.rowCount() == 3
         assert p.data(p.index(2, 0), p.PageRole)["id"] == str(item.id)
 
-    def test_currentPageChanged(self, dao, ddbr, qtbot):
-        a = f_page(td=True)
+    def test_currentPageChanged(self, dao, fk, qtbot):
+        a = fk.f_page(td=True)
         with qtbot.wait_signals(
             [
                 (dao.pageModel.modelReset, "model"),
@@ -1682,8 +1750,8 @@ class TestDatabaseObject:
             dao.currentPage = str(a["id"])
         assert dao.currentMatiere == a["matiere"]
 
-    def test_currentPageChanged_With_ZERO(self, dao, ddbr, qtbot):
-        a = f_page(td=True)
+    def test_currentPageChanged_With_ZERO(self, dao, fk, qtbot):
+        a = fk.f_page(td=True)
         dao._currentPage = "mk"
 
         with qtbot.waitSignal(dao.updateRecentsAndActivites):
@@ -1696,21 +1764,21 @@ class TestDatabaseObject:
         with qtbot.waitSignals([dao.recentsModelChanged, dao.pagesParSectionChanged]):
             dao.updateRecentsAndActivites.emit()
 
-    def test_currentMaterieResed(self, dao):
-        m = f_matiere()
-        a = f_page()
+    def test_currentMaterieResed(self, fk, dao):
+        m = fk.f_matiere()
+        a = fk.f_page()
         dao.currentPage = str(a.id)
         dao.matiereReset.emit()
         assert dao.currentPage == ""
 
-    def test_changeAnnee(self, dao, qtbot):
+    def test_changeAnnee(self, dao, fk, qtbot):
         # setup
         assert dao.annee_active == 2019
-        f_annee(2020)
-        g = f_groupeMatiere(annee=2019)
-        m = f_matiere(groupe=g.id)
-        ac = f_activite(matiere=m)
-        p = f_page(activite=ac.id, created=datetime.now())
+        fk.f_annee(2020)
+        g = fk.f_groupeMatiere(annee=2019)
+        m = fk.f_matiere(groupe=g.id)
+        ac = fk.f_activite(matiere=m)
+        p = fk.f_page(activite=ac.id, created=datetime.now())
         dao.currentPage = str(p.id)
         assert dao.currentMatiere == str(m.id)
         assert len(dao.recentsModel) == 1
@@ -1737,8 +1805,8 @@ class TestDatabaseObject:
         with qtbot.waitSignal(dao.pagesParSectionChanged):
             dao.pageActiviteChanged.emit()
 
-    def test_section_added_disable_busyindicator(self, dao, qtbot):
-        f = f_page()
+    def test_section_added_disable_busyindicator(self, fk, dao, qtbot):
+        f = fk.f_page()
         dao.pageModel.slotReset(f.id)
         dao.ui.buzyIndicator = True
         dao.sectionAdded.emit(0, 0)

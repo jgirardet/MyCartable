@@ -52,7 +52,7 @@ def class_structure(
                 super().__init__(annee=annee, _position=_position, **kwargs)
 
         def __repr__(self):
-            return f"Groupe[{self.nom} {self.annee.id}]"
+            return f"GroupeMatiere[{self.nom} {self.annee.id}]"
 
         def before_delete(self):
             self.before_delete_position()
@@ -146,7 +146,9 @@ def class_structure(
         def after_delete(self):
             self.after_delete_position()
 
-        def to_dict(self,):
+        def to_dict(
+            self,
+        ):
             dico = super().to_dict(exclude=["_position"])
             dico.update(
                 {

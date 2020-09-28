@@ -39,6 +39,7 @@
         <file alias="SoustractionSection.qml">qml/sections/SoustractionSection.qml</file>
         <file alias="TableauSection.qml">qml/sections/TableauSection.qml</file>
         <file alias="TextSection.qml">qml/sections/TextSection.qml</file>
+        <file alias="FriseSection.qml">qml/sections/FriseSection.qml</file>
 
     </qresource>
 

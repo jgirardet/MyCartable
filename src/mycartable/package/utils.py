@@ -1,3 +1,4 @@
+import collections
 import sys
 import uuid
 from dataclasses import dataclass
@@ -86,3 +87,55 @@ def qrunnable(fn: Callable, *args, run=True, **kwargs) -> QRunnable:
         QThreadPool.globalInstance().start(runner)
 
     return runner
+
+
+class WDict(collections.UserDict):
+    def __init__(self, *args, **kwargs):
+        """permet d'initialiser un dict sous forme nested
+        WDict("aaa.bbb.ccc", 2) => {"aaa":{"bbb":{"ccc":2}}}
+        """
+        if len(args) >= 2 and isinstance(args[0], str):
+            value = args[1]
+            for key in reversed(args[0].split(".")):
+                value = {key: value}
+            self.data = value
+        else:
+            super().__init__(*args, **kwargs)
+
+    def update(self, other):
+        """
+        Recursively update nested dict
+        :param other: some Mapping
+        :return: self, updated
+        """
+        for k, v in other.items():
+            if isinstance(v, collections.abc.Mapping):
+                self[k] = WDict.update(self.get(k, {}), v)
+            else:
+                self[k] = v
+        return self
+
+
+def shift_list(l, idx, count, target):
+    """
+    Move count element from index idx to index target. target index means "before"
+    the move.
+    :param l: Iterable
+    :param idx: int
+    :param count: int
+    :param target: int
+    :return: list
+    """
+    if idx == target:
+        return l
+    elif idx < target:
+        # cas où déplacement n'aurait aucun effet
+        if idx <= target <= idx + count:
+            return l
+
+        sl = l[idx : idx + count]
+        for n, it in enumerate(sl):
+            l.insert(n + target, it)
+        return l[:idx] + l[idx + count :]
+    else:
+        return l[:target] + l[idx : idx + count :] + l[target:idx] + l[idx + count :]

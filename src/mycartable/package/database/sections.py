@@ -523,6 +523,66 @@ def class_section(
             super().set(**kwargs)
             self.tableau.modified = datetime.utcnow()
 
+    class FriseSection(Section):
+        height = Required(int)
+        zones = Set("ZoneFrise")
+        titre = Optional(str)
+
+        def to_dict(self, **kwargs):
+            dico = super().to_dict(**kwargs)
+            dico["zones"] = [
+                x.to_dict() for x in self.zones.order_by(lambda x: x.position)
+            ]
+            return dico
+
+    class ZoneFrise(db.Entity, PositionMixin):
+        """
+        ZoneFrise
+        """
+
+        referent_attribute_name = "frise"
+        id = PrimaryKey(UUID, auto=True, default=uuid4)
+        frise = Required(FriseSection)
+        _position = Required(int)
+        ratio = Required(float)
+        texte = Optional(str)
+        style = Optional(db.Style, default=db.Style, cascade_delete=True)
+
+        def __init__(self, position=None, frise=None, **kwargs):
+
+            if "style" in kwargs and isinstance(kwargs["style"], dict):
+                kwargs["style"] = db.Style(**kwargs["style"])
+            with self.init_position(position, frise) as _position:
+                super().__init__(frise=frise, _position=_position, **kwargs)
+
+        def before_delete(self):
+            self.before_delete_position()
+
+        def after_delete(self):
+            self.after_delete_position()
+
+        def to_dict(self, *args, **kwargs):
+            dico = super().to_dict(*args, **kwargs)
+            dico["position"] = dico.pop("_position")
+            if (
+                "style" in dico
+            ):  # pragma: no branch # ne pas l'ajouter sur a été exclude
+                dico["style"] = self.style.to_dict()
+            dico["frise"] = str(self.frise.id)
+            dico["id"] = str(self.id)
+            return dico
+
+        #
+        def set(self, **kwargs):
+            if "style" in kwargs:
+                style: dict = kwargs.pop("style")
+                style.pop("styleId", None)
+                self.style.set(**style)
+            if pos := kwargs.pop("position", None):
+                self.position = pos
+            super().set(**kwargs)
+            self.frise.modified = datetime.utcnow()
+
     return (
         Section,
         ImageSection,

@@ -405,6 +405,24 @@ class Faker:
             )
             return item.to_dict() if td else item
 
+    def f_friseSection(self, height=None, titre="", **kwargs):
+        height = height or 400
+        return self._f_section("FriseSection", titre=titre, height=height, **kwargs)
+
+    def f_zoneFrise(self, ratio=None, frise=None, texte=None, td=False, **kwargs):
+        ratio = ratio or 0.2
+        texte = texte or gen.text.word()
+        if frise:
+            frise = frise if isinstance(frise, UUID) else frise.id
+        else:
+            frise = self.f_friseSection().id
+        with db_session:
+            item = self.db.ZoneFrise(ratio=ratio, frise=frise, texte=texte, **kwargs)
+            return item.to_dict() if td else item
+
+    def b_zoneFrise(self, n, **kwargs):
+        return [self.f_zoneFrise(**kwargs) for i in range(n)]
+
     @db_session
     def populate_database(self):
 

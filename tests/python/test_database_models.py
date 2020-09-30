@@ -1717,3 +1717,112 @@ class TestUtilisateur:
         u = fk.f_user()
         w = ddb.Utilisateur.user()
         assert u == w
+
+
+class TestFrise:
+    def test_factory(self, fk):
+        f = fk.f_friseSection()
+        assert f.height == 400
+        g = fk.f_zoneFrise(frise=f.id)
+        assert g.ratio == 0.2
+        assert g.position == 0
+        h = fk.f_zoneFrise(frise=f.id)
+        assert h.position == 1
+
+    def test_delete_mixin_position(self, fk):
+        frise = fk.f_friseSection()
+        ZoneFrise = fk.db.ZoneFrise
+        g = fk.f_zoneFrise(frise=frise.id)
+        h = fk.f_zoneFrise(frise=frise.id)
+
+        with db_session:
+            assert ZoneFrise[g.id].position == 0
+            assert ZoneFrise[h.id].position == 1
+            ZoneFrise[g.id].delete()
+        with db_session:
+            assert ZoneFrise[h.id].position == 0
+
+    def test_zonefrise_init_set_to_dict(self, fk):
+        ph = fk.f_friseSection()
+
+        with db_session:
+            # test _init
+            f = fk.db.ZoneFrise(
+                frise=ph.id, ratio=0.2, style={"bgColor": "blue"}, texte="bla"
+            )
+            assert f.style.bgColor == "blue"
+            # test set
+            f.set(ratio=0.5, style={"bgColor": "green"})
+            assert f.style.bgColor == "green"
+            assert f.ratio == 0.5
+            assert f.to_dict() == {
+                "frise": str(ph.id),
+                "id": str(f.id),
+                "position": 0,
+                "ratio": 0.5,
+                "texte": "bla",
+                "style": {
+                    "bgColor": QColor("green"),
+                    "family": "",
+                    "fgColor": QColor("black"),
+                    "pointSize": None,
+                    "strikeout": False,
+                    "styleId": str(f.style.styleId),
+                    "underline": False,
+                    "weight": None,
+                },
+            }
+
+    def test_FriseSection_to_dict(self, fk):
+        f = fk.f_friseSection(titre="une frise", height=300)
+        g = fk.f_zoneFrise(texte="aaa", frise=f)
+        h = fk.f_zoneFrise(texte="bbb", frise=f)
+        with db_session:
+            item = fk.db.FriseSection[f.id]
+            dico = item.to_dict()
+            dico.pop("modified")
+            assert dico == {
+                "classtype": "FriseSection",
+                "created": f.created.isoformat(),
+                "height": 300,
+                "id": str(f.id),
+                "page": str(item.page.id),
+                "position": 0,
+                "titre": "une frise",
+                "zones": [
+                    {
+                        "frise": str(f.id),
+                        "id": str(g.id),
+                        "position": 0,
+                        "ratio": 0.2,
+                        "style": {
+                            "bgColor": QColor.fromRgbF(0, 0, 0, 0),
+                            "family": "",
+                            "fgColor": QColor.fromRgbF(0, 0, 0, 1),
+                            "pointSize": None,
+                            "strikeout": False,
+                            "styleId": str(g.style.styleId),
+                            "underline": False,
+                            "weight": None,
+                        },
+                        "texte": "aaa",
+                    },
+                    {
+                        "frise": str(f.id),
+                        "id": str(h.id),
+                        "position": 1,
+                        "ratio": 0.2,
+                        "style": {
+                            "bgColor": QColor.fromRgbF(0, 0, 0, 0),
+                            "family": "",
+                            "fgColor": QColor.fromRgbF(0, 0, 0, 1),
+                            "pointSize": None,
+                            "strikeout": False,
+                            "styleId": str(h.style.styleId),
+                            "underline": False,
+                            "weight": None,
+                        },
+                        "texte": "bbb",
+                    },
+                ],
+            }

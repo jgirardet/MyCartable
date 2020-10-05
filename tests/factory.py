@@ -413,7 +413,13 @@ class Faker:
         ratio = ratio or 0.2
         texte = texte or gen.text.word()
         if frise:
-            frise = frise if isinstance(frise, UUID) else frise.id
+            frise = (
+                frise
+                if isinstance(frise, UUID)
+                else frise
+                if isinstance(frise, str)
+                else frise.id
+            )
         else:
             frise = self.f_friseSection().id
         with db_session:

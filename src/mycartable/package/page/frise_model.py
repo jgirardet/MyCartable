@@ -1,5 +1,3 @@
-from pprint import pprint
-
 from PySide2.QtCore import (
     QAbstractListModel,
     Qt,
@@ -20,6 +18,8 @@ from pony.orm import db_session
 class FriseModel(QAbstractListModel):
 
     RatioRole = Qt.UserRole + 1
+    SeparatorPositionRole = Qt.UserRole + 2
+    SeparatorTextRole = Qt.UserRole + 3
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
@@ -36,19 +36,24 @@ class FriseModel(QAbstractListModel):
         default = super().roleNames()
         default[self.RatioRole] = QByteArray(b"ratio")
         default[Qt.BackgroundRole] = QByteArray(b"backgroundColor")
+        default[self.SeparatorPositionRole] = QByteArray(b"separatorPosition")
+        default[self.SeparatorTextRole] = QByteArray(b"separatorText")
         return default
 
     def data(self, index, role: int) -> typing.Any:
-        if not self.rowCount():
+        if not self.rowCount() or not index.isValid():
             return None
-        elif not index.isValid():
-            return None
-        elif role == Qt.DisplayRole:
-            return self.zones[index.row()]["texte"]
+        row = self.zones[index.row()]
+        if role == Qt.DisplayRole:
+            return row["texte"]
         elif role == Qt.BackgroundRole:
-            return self.zones[index.row()]["style"]["bgColor"]
+            return row["style"]["bgColor"]
         elif role == self.RatioRole:
-            return self.zones[index.row()]["ratio"]
+            return row["ratio"]
+        elif role == self.SeparatorPositionRole:
+            return row["style"]["strikeout"]
+        elif role == self.SeparatorTextRole:
+            return row["separatorText"]
         else:
             return None
 
@@ -56,12 +61,14 @@ class FriseModel(QAbstractListModel):
         Qt.EditRole: "texte",
         RatioRole: "ratio",
         Qt.BackgroundRole: "style.bgColor",
+        SeparatorPositionRole: "style.strikeout",
+        SeparatorTextRole: "separatorText",
     }
 
     def setData(self, index, value, role) -> bool:
         if not index.isValid() or role not in self.ROLES:
             return False
-
+        # print(index, value, role)
         zone: dict = self.zones[index.row()]
         data = WDict(self.ROLES[role], value)
         if self.dao.setDB("ZoneFrise", zone["id"], data):
@@ -94,7 +101,7 @@ class FriseModel(QAbstractListModel):
                         "frise": self.sectionId,
                         "texte": "new",
                         "ratio": 0.2,
-                        "style": {"bgColor": QColor("purple")},
+                        "style": {"bgColor": QColor("lightgoldenrodyellow")},
                         "position": pos,
                     },
                 )
@@ -109,11 +116,10 @@ class FriseModel(QAbstractListModel):
     @Slot(int, int, result=bool)
     def move(self, source: int, target: int):
         """Slot to move a single row from source to target"""
-        return self.moveRow(QModelIndex(), source, QModelIndex(), target)
+        return self.moveRow(source, target)
 
     def moveRow(self, sourceRow, destinationChild) -> bool:
         """Move a single row"""
-        print("plok", sourceRow, destinationChild)
         return self.moveRows(
             QModelIndex(), sourceRow, 0, QModelIndex(), destinationChild
         )
@@ -121,26 +127,21 @@ class FriseModel(QAbstractListModel):
     def moveRows(
         self, sourceParent, sourceRow, count, destinationParent, destinationChild
     ) -> bool:
-        """Move n rows (n=1+ count)  from sourceRow to destinationChild"""
+        """Move n rows (n=1+ count)  from sourceRow to destinationChild
+        destinationChild index is the "before moving. So to move row 0 to row1
+        destination child should be 2
+        """
         if sourceRow == destinationChild:
             return False
-
-        elif sourceRow > destinationChild:
-            end = destinationChild
-
-        else:
-            end = destinationChild + 1
 
         self.beginMoveRows(
             QModelIndex(),
             sourceRow,
             sourceRow + count,
             QModelIndex(),
-            end,
+            destinationChild,
         )
-
         self.zones = shift_list(self.zones, sourceRow, 1 + count, destinationChild)
-
         with db_session:
             for n, zo in enumerate(self.zones):
                 item = self.dao.setDB(
@@ -153,7 +154,6 @@ class FriseModel(QAbstractListModel):
                 if not item:
                     break
         self.resetInternalData()
-        # end database work
 
         self.endMoveRows()
         return True
@@ -183,7 +183,7 @@ class FriseModel(QAbstractListModel):
     @Slot(result=bool)
     def reset(self):
         self.beginResetModel()
-        self.resetInternalData()  # should work without calling it ?
+        self.resetInternalData()
         self.endResetModel()
         self.titreChanged.emit()
         self.heightChanged.emit()
@@ -223,8 +223,9 @@ class FriseModel(QAbstractListModel):
 
     @sectionId.setter
     def sectionId_set(self, value: str):
-        self._sectionId = value
-        self.sectionIdChanged.emit()
+        if value:
+            self._sectionId = value
+            self.sectionIdChanged.emit()
 
     titreChanged = Signal()
 

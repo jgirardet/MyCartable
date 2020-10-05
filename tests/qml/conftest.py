@@ -2,7 +2,7 @@
 from PySide2.QtCore import QObject, Slot
 from PySide2.QtGui import QColor, QGuiApplication
 from PySide2.QtQml import qmlRegisterType
-from pony.orm import Database, db_session
+from pony.orm import Database, db_session, flush
 
 # Add common to path
 import sys
@@ -10,6 +10,8 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).parents[1]))
 sys.path.append(str(Path(__file__).parents[2] / "src"))
+sys.path.append(str(Path(__file__).parents[2] / "src" / "mycartable"))
+print(sys.path)
 from common import fn_reset_db, setup_session
 
 from mycartable.package.page.frise_model import FriseModel
@@ -39,20 +41,16 @@ class FakerHelper(QObject):
     @Slot()
     def resetDB(self):
         """reset database"""
-        with db_session:
-            for entity in self.db.entities.values():
-                # if entity.__name__ in ["Annee", "Utilisateur"]:
-                #     print(entity.__name__)
-                #     continue
-                for e in entity.select():
-                    try:
-                        e.delete()
-                        flush()
-                    except:
-                        continue
+        fn_reset_db(self.db)
         user = self.f("user", {"id": "0ca1d5b4-eddb-4afd-8b8e-1aa5e7e19d17"})
         self.f("annee", {"id": 2019, "niveau": "cm2019", "user": user["id"]})
         # dao.anneeActive = 2019
+
+    @Slot(str, str, result="QVariantMap")
+    def getItem(self, entity: str, id: str):
+        with db_session:
+            item = getattr(self.db, entity)[id].to_dict()
+            return item
 
 
 def pytest_qml_context_properties() -> dict:

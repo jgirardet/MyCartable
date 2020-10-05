@@ -36,6 +36,8 @@ def class_section(
     "AnnotationDessin",
     "TableauSection",
     "TableauCell",
+    "FriseSection",
+    "ZoneFrise",
 ]:
     class Section(db.Entity, PositionMixin):
         referent_attribute_name = "page"
@@ -547,6 +549,8 @@ def class_section(
         ratio = Required(float)
         texte = Optional(str)
         style = Optional(db.Style, default=db.Style, cascade_delete=True)
+        # on utilise style.strikeout pour la position du separator True = "up", False = ""
+        separatorText = Optional(str)
 
         def __init__(self, position=None, frise=None, **kwargs):
 
@@ -599,4 +603,6 @@ def class_section(
         AnnotationDessin,
         TableauSection,
         TableauCell,
+        FriseSection,
+        ZoneFrise,
     )

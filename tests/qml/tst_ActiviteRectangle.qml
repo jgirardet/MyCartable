@@ -4,8 +4,8 @@ import QtQuick.Controls 2.15
 Item {
     id: item
 
-    width: 400
-    height: 400
+    width: 600
+    height: 500
 
     CasTest {
         property var lv

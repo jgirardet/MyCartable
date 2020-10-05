@@ -50,13 +50,17 @@ def test_init(fk, qtbot, dao):
 
 def test_data(fm):
     a = fm(3)
-    print(a._zones)
     a.zones[0]["style"]["bgColor"] = "blue"
     a.zones[2]["ratio"] = 0.45
+    a.zones[1]["style"]["strikeout"] = True
+    a.zones[2]["separatorText"] = "un époque"
     assert a.data(a.index(1, 0), Qt.DisplayRole) == a._zones[1]["texte"]
     assert a.data(a.index(5, 0), Qt.DisplayRole) is None
     assert a.data(a.index(0, 0), Qt.BackgroundRole) == QColor("blue")
     assert a.data(a.index(2, 0), a.RatioRole) == 0.45
+    assert a.data(a.index(2, 0), a.SeparatorPositionRole) is False
+    assert a.data(a.index(1, 0), a.SeparatorPositionRole) is True
+    assert a.data(a.index(2, 0), a.SeparatorTextRole) == "un époque"
 
 
 def test_set_data(fm, ddbr):
@@ -67,16 +71,22 @@ def test_set_data(fm, ddbr):
     a.setData(a.index(5, 0), "hehe", Qt.DisplayRole)
     a.setData(a.index(0, 0), QColor("purple"), Qt.BackgroundRole)
     a.setData(a.index(2, 0), 0.99, a.RatioRole)
+    a.setData(a.index(2, 0), True, a.SeparatorPositionRole)
+    a.setData(a.index(2, 0), "blabla", a.SeparatorTextRole)
 
     assert a.data(a.index(1, 0), Qt.DisplayRole) == "blabla"
     assert a.data(a.index(5, 0), Qt.DisplayRole) is None
     assert a.data(a.index(0, 0), Qt.BackgroundRole) == QColor("purple")
     assert a.data(a.index(2, 0), a.RatioRole) == 0.99
+    assert a.data(a.index(2, 0), a.SeparatorPositionRole) is True
+    assert a.data(a.index(2, 0), a.SeparatorTextRole) == "blabla"
 
     with db_session:
         assert ddbr.ZoneFrise[a.zones[1]["id"]].texte == "blabla"
         assert ddbr.ZoneFrise[a.zones[0]["id"]].style.bgColor == QColor("purple")
         assert ddbr.ZoneFrise[a.zones[2]["id"]].ratio == 0.99
+        assert ddbr.ZoneFrise[a.zones[2]["id"]].style.strikeout is True
+        assert ddbr.ZoneFrise[a.zones[2]["id"]].separatorText == "blabla"
 
 
 def test_insert_rows(fm, qtbot):
@@ -151,6 +161,17 @@ def test_move_rows(fm, qtbot):
     assert a.zones[2]["id"] == a._zones[1]["id"]
     assert a.zones[3]["id"] == a._zones[2]["id"]
     assert a.zones[4]["id"] == a._zones[4]["id"]
+
+
+def test_move_rows(fm, qtbot):
+    a = fm(3)
+    with qtbot.waitSignals([a.rowsAboutToBeMoved, a.rowsMoved]):
+        assert a.moveRows(QModelIndex(), 0, 0, QModelIndex(), 2)
+    assert a.zones[0]["id"] == a._zones[1]["id"]
+    assert a.zones[1]["id"] == a._zones[0]["id"]
+    assert a.zones[2]["id"] == a._zones[2]["id"]
+    # assert a.zones[3]["id"] == a._zones[2]["id"]
+    # assert a.zones[4]["id"] == a._zones[4]["id"]
 
 
 def test_move_rows_ends(fm, qtbot):

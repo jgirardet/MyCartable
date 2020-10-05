@@ -46,6 +46,7 @@
     <qresource prefix="/qml/frise">
         <file alias="CorpsFrise.qml">qml/frise/CorpsFrise.qml</file>
         <file alias="ZoneFrise.qml">qml/frise/ZoneFrise.qml</file>
+        <file alias="Separator.qml">qml/frise/Separator.qml</file>
     </qresource>
 
     <qresource prefix="/qml/annotations">
@@ -94,6 +95,8 @@
         <file alias="MovingText.qml">qml/divers/MovingText.qml</file>
         <file alias="PageButton.qml">qml/divers/PageButton.qml</file>
         <file alias="LabeledInput.qml">qml/divers/LabeledInput.qml</file>
+        <file alias="ColorGrid.qml">qml/divers/ColorGrid.qml</file>
+        <file alias="ColorPicker.qml">qml/divers/ColorPicker.qml</file>
     </qresource>
     
     <qresource prefix="/qml/actions">

@@ -20,6 +20,8 @@ class FriseModel(QAbstractListModel):
     RatioRole = Qt.UserRole + 1
     SeparatorPositionRole = Qt.UserRole + 2
     SeparatorTextRole = Qt.UserRole + 3
+    LegendesRole = Qt.UserRole + 4
+    ZoneIdRole = Qt.UserRole + 5
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
@@ -38,6 +40,8 @@ class FriseModel(QAbstractListModel):
         default[Qt.BackgroundRole] = QByteArray(b"backgroundColor")
         default[self.SeparatorPositionRole] = QByteArray(b"separatorPosition")
         default[self.SeparatorTextRole] = QByteArray(b"separatorText")
+        default[self.LegendesRole] = QByteArray(b"legendes")
+        default[self.ZoneIdRole] = QByteArray(b"zoneId")
         return default
 
     def data(self, index, role: int) -> typing.Any:
@@ -54,6 +58,10 @@ class FriseModel(QAbstractListModel):
             return row["style"]["strikeout"]
         elif role == self.SeparatorTextRole:
             return row["separatorText"]
+        elif role == self.LegendesRole:
+            return row["legendes"]
+        elif role == self.ZoneIdRole:
+            return row["id"]
         else:
             return None
 
@@ -68,7 +76,6 @@ class FriseModel(QAbstractListModel):
     def setData(self, index, value, role) -> bool:
         if not index.isValid() or role not in self.ROLES:
             return False
-        # print(index, value, role)
         zone: dict = self.zones[index.row()]
         data = WDict(self.ROLES[role], value)
         if self.dao.setDB("ZoneFrise", zone["id"], data):
@@ -103,6 +110,15 @@ class FriseModel(QAbstractListModel):
                         "ratio": 0.2,
                         "style": {"bgColor": QColor("lightgoldenrodyellow")},
                         "position": pos,
+                    },
+                )
+                self.dao.addDB(
+                    "FriseLegende",
+                    {
+                        "zone": item["id"],
+                        "texte": "",
+                        "relativeX": 1,
+                        "side": False,
                     },
                 )
                 if not item:

@@ -1,14 +1,26 @@
+import PyTest 1.0
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
-import PyTest 1.0
 
 TestCase {
+    //    function cleanup() {
+    ////        if (tested)
+    ////            tested.destroy();
+    //        params = backupParams; //restore deafaut params if modified
+    //    }
+    //    Component {
+    //        id: compspyc
+    //        SignalSpy {
+    //        }
+    //    }
+    //         print(JSON.stringify(kwargs))
+
     id: testcase
 
     property var tested
-//    property var ddb
-//    property var uiManager
+    //    property var ddb
+    //    property var uiManager
     property var testedNom
     property var params
     property var backupParams
@@ -17,10 +29,10 @@ TestCase {
     function init() {
         backupParams = params;
         initPre();
-//        ddb = createTemporaryObject(Qt.createComponent("DdbData.qml"), testcase.parent);
-//        uiManager = createTemporaryObject(Qt.createComponent("UiManager.qml"), testcase.parent, {
-//            "ddb": ddb
-//        });
+        //        ddb = createTemporaryObject(Qt.createComponent("DdbData.qml"), testcase.parent);
+        //        uiManager = createTemporaryObject(Qt.createComponent("UiManager.qml"), testcase.parent, {
+        //            "ddb": ddb
+        //        });
         initPreCreate();
         tested = createObj(testedNom, params);
         initPost();
@@ -35,21 +47,14 @@ TestCase {
     function initPost() {
     }
 
-//    function cleanup() {
-////        if (tested)
-////            tested.destroy();
-//
-//        params = backupParams; //restore deafaut params if modified
-//    }
-
     function createObj(nom, rabParams, parentItem) {
-        var kwargs = {}
-//            "ddb": ddb,
-//            "uiManager": uiManager
-//        };
+        var kwargs = {
+        };
+        //            "ddb": ddb,
+        //            "uiManager": uiManager
+        //        };
         if (rabParams)
-        Object.assign(kwargs, rabParams);
-//         print(JSON.stringify(kwargs))
+            Object.assign(kwargs, rabParams);
 
         var comp = Qt.createComponent(nom);
         if (comp.status != 1)
@@ -95,14 +100,11 @@ TestCase {
         return itm;
     }
 
+    function clickAndWrite(_obj, seq = "Ctrl+a,b,c,d") {
+        // click select all erase
+        mouseClick(_obj);
+        keySequence(seq);
+    }
+
     when: windowShown
-
-//    Component {
-//        id: compspyc
-//
-//        SignalSpy {
-//        }
-
-//    }
-
 }

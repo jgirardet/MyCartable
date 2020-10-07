@@ -429,6 +429,18 @@ class Faker:
     def b_zoneFrise(self, n, **kwargs):
         return [self.f_zoneFrise(**kwargs) for i in range(n)]
 
+    def f_friseLegende(
+        self, texte=None, relativeX=None, side=False, zone=None, td=False
+    ):
+        texte = texte or gen.text.word()
+        relativeX = relativeX or random.random()
+        zone = zone or self.f_zoneFrise().id
+        with db_session:
+            item = self.db.FriseLegende(
+                texte=texte, relativeX=relativeX, side=side, zone=zone
+            )
+            return item.to_dict() if td else item
+
     @db_session
     def populate_database(self):
 

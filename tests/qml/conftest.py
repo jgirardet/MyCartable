@@ -11,7 +11,6 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parents[1]))
 sys.path.append(str(Path(__file__).parents[2] / "src"))
 sys.path.append(str(Path(__file__).parents[2] / "src" / "mycartable"))
-print(sys.path)
 from common import fn_reset_db, setup_session
 
 from mycartable.package.page.frise_model import FriseModel

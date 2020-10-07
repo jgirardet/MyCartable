@@ -8,21 +8,10 @@ Item {
     height: 600
 
     CasTest {
-        // le dragY est disabled
-        //collé contre l'autre qui s'est replacé
-        // collé après les autres
-        //        function test_xx_right_border_drag() {
-        //            wait(10000);
-        //        }
-        //        function test_wheldown() {
-        //            let s = un.separator;
-        //            compare(s.y, 0);
-        //            compare(s.height, corps.height + s.rab);
-        //            compare(s.legende.y, s.height + 10);
-        //        }
-        //            wait(10000);
-        //            s.state = "up";
-        //            wait(30000);
+        //            obj.destroy() // avoid warning
+        //          wait(8000)
+        //            leg0.destroy(); // avoid warning
+        //            wait(8000);
 
         property var corps
         property QtObject zero
@@ -30,6 +19,13 @@ Item {
         property QtObject deux
         property var z1
         property var z0
+        property var l0
+        property var l1
+        property Item zone0
+        property Item zone1
+        property Item zone2
+        property Item leg0
+        property Item leg1
 
         function initPre() {
             fk.resetDB();
@@ -67,6 +63,19 @@ Item {
                     "bgColor": "green"
                 }
             });
+            // Création des légendes
+            l0 = fk.f("friseLegende", {
+                "zone": z2.id,
+                "texte": "legende 0 gauche bas",
+                "relativeX": 0.3,
+                "side": false
+            });
+            l1 = fk.f("friseLegende", {
+                "zone": z2.id,
+                "texte": "legende 1 au droit haut",
+                "relativeX": 0.7,
+                "side": true
+            });
             params = {
                 "sectionId": fr.id
             };
@@ -78,6 +87,16 @@ Item {
             un = corps.itemAtIndex(1);
             deux = corps.itemAtIndex(2);
             corps.displaced.animations = [];
+            zone0 = zero.zone;
+            zone1 = un.zone;
+            zone2 = deux.zone;
+            if (zone2.legendeItems.get(0).legendeId === l0.id) {
+                leg0 = zone2.legendeItems.get(0);
+                leg1 = zone2.legendeItems.get(1);
+            } else {
+                leg0 = zone2.legendeItems.get(1);
+                leg1 = zone2.legendeItems.get(0);
+            }
         }
 
         //should pass without failing
@@ -95,8 +114,10 @@ Item {
         function test_add_zone() {
             mouseClick(corps, corps.width - 5, undefined);
             compare(corps.count, 4);
-            compare(corps.itemAtIndex(3).zone.texte.text, "new");
-            fuzzyCompare(corps.itemAtIndex(3).zone.color, "lightgoldenrodyellow", 0);
+            let new3 = corps.itemAtIndex(3);
+            compare(new3.zone.texte.text, "new");
+            fuzzyCompare(new3.zone.color, "lightgoldenrodyellow", 0);
+            compare(new3.zone.legendeItems.get(0).x, new3.zone.width); // auto new legende created
         }
 
         function test_move_zone_une_case() {
@@ -132,17 +153,6 @@ Item {
             fuzzyCompare(fk.getItem("ZoneFrise", z0.id).ratio, ratio, 0.001);
         }
 
-        function test_separator_legende_up_down() {
-            let s = zero.separator;
-            compare(s.y, 0);
-            compare(s.height, corps.height + s.rab);
-            compare(s.legende.y, s.height + 10);
-            mouseWheel(s, 1, 1, 0, 1);
-            compare(s.y, -20);
-            compare(s.legende.y, -10 - s.legende.height);
-            compare(fk.getItem("ZoneFrise", z0.id).style.strikeout, true);
-        }
-
         function test_color_dialog() {
             mouseClick(un.zone, 1, 1, Qt.RightButton);
             let cp = findChild(un, "colordialog");
@@ -151,20 +161,71 @@ Item {
             fuzzyCompare(fk.getItem("ZoneFrise", z1.id).style.bgColor, "purple", 0);
         }
 
-        function test_separator_position_text_modif() {
-            let s = zero.separator;
-            compare(s.legende.text, "-10 av JC");
-            s.legende.text = "mais après Francis";
-            compare(fk.getItem("ZoneFrise", z0.id).separatorText, "mais après Francis");
+        function test_legende_init() {
+            print(leg1.legende.text, "kklk");
+            compare(leg1.state, "up");
+            compare(leg1.y + leg1.languette.y, -10);
+            compare(leg1.legende.text, "legende 1 au droit haut");
+            compare(leg1.x, 147.7);
         }
 
-        function test_se() {
+        function test_legende_update() {
+            // va en bas
+            mouseWheel(leg0.legende, 1, 1, 0, -1);
+            compare(leg0.y, leg0.parent.height);
+            compare(leg0.legende.y, 10);
+            compare(fk.getItem("FriseLegende", l0.id).side, false);
+            // Va en haut
+            mouseWheel(leg0.legende, 1, 1, 0, 1);
+            compare(leg0.y, 0);
+            compare(leg0.languette.y, -10);
+            compare(leg0.legende.y + leg0.legende.height, leg0.languette.y);
+            compare(fk.getItem("FriseLegende", l0.id).side, true);
+            //Text
+            clickAndWrite(leg0.legende);
+            compare(fk.getItem("FriseLegende", l0.id).texte, "bcd");
+            // relative X
+            print(leg1.x);
+            mouseDrag(leg1.languette, 1, 1, 40, 0);
+            print(leg1.x);
+            fuzzyCompare(leg1.x, 187, 10); // 147+40
+            fuzzyCompare(fk.getItem("FriseLegende", l1.id).relativeX, 187 / leg1.parent.width, 0.1);
+        }
+
+        function test_legende_ajout() {
+            let zo1 = un.zone;
+            let childs = zo1.children.length;
+            print(childs);
+            mouseClick(un, 1, un.height);
+            compare(fk.getItem("ZoneFrise", z1.id).legendes.length, 1);
+            mouseClick(un, 10, un.height);
+            compare(fk.getItem("ZoneFrise", z1.id).legendes.length, 2);
+            compare(zo1.children.length, childs + 2);
+            let last = zo1.children[zo1.children.length - 2]; // on décompte repeater
+            compare(last.x, 10);
+            verify(last.legende.activeFocus);
+        }
+
+        function test_legende_remove() {
+            let rep = deux.zone.legendeItems;
+            print(rep.get(0).legende);
+            mouseClick(rep.get(0).legende, 1, 1, Qt.MiddleButton);
+            compare(rep.count, 1);
         }
 
         params: {
         }
         testedNom: "qrc:/qml/sections/FriseSection.qml"
         name: "FriseSection"
+
+        Item {
+            id: parent100
+
+            // dumy item with with 100, easier for relativeX
+            width: 100
+            height: 100
+        }
+
     }
 
 }

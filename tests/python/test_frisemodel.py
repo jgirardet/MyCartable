@@ -48,12 +48,13 @@ def test_init(fk, qtbot, dao):
     assert a.zones == zz
 
 
-def test_data(fm):
+def test_data(fm, fk):
     a = fm(3)
     a.zones[0]["style"]["bgColor"] = "blue"
     a.zones[2]["ratio"] = 0.45
     a.zones[1]["style"]["strikeout"] = True
     a.zones[2]["separatorText"] = "un époque"
+    a.zones[2]["legendes"] = [fk.f_friseLegende(td=True, texte="bla")]
     assert a.data(a.index(1, 0), Qt.DisplayRole) == a._zones[1]["texte"]
     assert a.data(a.index(5, 0), Qt.DisplayRole) is None
     assert a.data(a.index(0, 0), Qt.BackgroundRole) == QColor("blue")
@@ -61,6 +62,8 @@ def test_data(fm):
     assert a.data(a.index(2, 0), a.SeparatorPositionRole) is False
     assert a.data(a.index(1, 0), a.SeparatorPositionRole) is True
     assert a.data(a.index(2, 0), a.SeparatorTextRole) == "un époque"
+    assert a.data(a.index(2, 0), a.LegendesRole)[0]["texte"] == "bla"
+    assert a.data(a.index(2, 0), a.ZoneIdRole) == a.zones[2]["id"]
 
 
 def test_set_data(fm, ddbr):

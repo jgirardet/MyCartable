@@ -38,6 +38,7 @@ def class_section(
     "TableauCell",
     "FriseSection",
     "ZoneFrise",
+    "FriseLegende",
 ]:
     class Section(db.Entity, PositionMixin):
         referent_attribute_name = "page"
@@ -551,6 +552,7 @@ def class_section(
         style = Optional(db.Style, default=db.Style, cascade_delete=True)
         # on utilise style.strikeout pour la position du separator True = "up", False = ""
         separatorText = Optional(str)
+        legendes = Set("FriseLegende")
 
         def __init__(self, position=None, frise=None, **kwargs):
 
@@ -574,6 +576,7 @@ def class_section(
                 dico["style"] = self.style.to_dict()
             dico["frise"] = str(self.frise.id)
             dico["id"] = str(self.id)
+            dico["legendes"] = [p.to_dict() for p in self.legendes]
             return dico
 
         #
@@ -586,6 +589,19 @@ def class_section(
                 self.position = pos
             super().set(**kwargs)
             self.frise.modified = datetime.utcnow()
+
+    class FriseLegende(db.Entity):
+        id = PrimaryKey(UUID, auto=True, default=uuid4)
+        texte = Optional(str)
+        relativeX = Required(float)
+        side = Required(bool, sql_default=False)
+        zone = Required(ZoneFrise)
+
+        def to_dict(self, **kwargs):
+            dico = super().to_dict(**kwargs)
+            dico["zone"] = str(dico["zone"])
+            dico["id"] = str(dico["id"])
+            return dico
 
     return (
         Section,
@@ -605,4 +621,5 @@ def class_section(
         TableauCell,
         FriseSection,
         ZoneFrise,
+        FriseLegende,
     )

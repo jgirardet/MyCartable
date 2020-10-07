@@ -1750,6 +1750,7 @@ class TestFrise:
             f = fk.db.ZoneFrise(
                 frise=ph.id, ratio=0.2, style={"bgColor": "blue"}, texte="bla"
             )
+            l = fk.f_friseLegende(texte="aa", relativeX="0.3", side=True, zone=f.id)
             assert f.style.bgColor == "blue"
             # test set
             f.set(ratio=0.5, style={"bgColor": "green"})
@@ -1761,6 +1762,16 @@ class TestFrise:
                 "position": 0,
                 "ratio": 0.5,
                 "texte": "bla",
+                "separatorText": "",
+                "legendes": [
+                    {
+                        "id": str(l.id),
+                        "relativeX": 0.3,
+                        "side": True,
+                        "texte": "aa",
+                        "zone": str(f.id),
+                    }
+                ],
                 "style": {
                     "bgColor": QColor("green"),
                     "family": "",
@@ -1795,6 +1806,8 @@ class TestFrise:
                         "id": str(g.id),
                         "position": 0,
                         "ratio": 0.2,
+                        "separatorText": "",
+                        "legendes": [],
                         "style": {
                             "bgColor": QColor.fromRgbF(0, 0, 0, 0),
                             "family": "",
@@ -1812,6 +1825,8 @@ class TestFrise:
                         "id": str(h.id),
                         "position": 1,
                         "ratio": 0.2,
+                        "separatorText": "",
+                        "legendes": [],
                         "style": {
                             "bgColor": QColor.fromRgbF(0, 0, 0, 0),
                             "family": "",

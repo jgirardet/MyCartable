@@ -251,6 +251,6 @@ class FriseModel(QAbstractListModel):
 
     @titre.setter
     def titre_set(self, value: int):
-        if self.dao.setDB(self.sectionId, {"titre": value}):
+        if self.dao.setDB("FriseSection", self.sectionId, {"titre": value}):
             self._sectionItem["titre"] = value
             self.titreChanged.emit()

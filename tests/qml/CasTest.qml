@@ -27,6 +27,7 @@ TestCase {
     property var ddbData
 
     function init() {
+        fk.resetDB();
         backupParams = params;
         initPre();
         //        ddb = createTemporaryObject(Qt.createComponent("DdbData.qml"), testcase.parent);

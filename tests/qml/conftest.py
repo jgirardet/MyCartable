@@ -1,8 +1,11 @@
 # Here start usual imports
+from typing import List
+from unittest.mock import MagicMock
+
 from PySide2.QtCore import QObject, Slot
 from PySide2.QtGui import QColor, QGuiApplication
 from PySide2.QtQml import qmlRegisterType
-from pony.orm import Database, db_session, flush
+from pony.orm import Database, db_session, flush, ObjectNotFound
 
 # Add common to path
 import sys
@@ -46,10 +49,47 @@ class FakerHelper(QObject):
         # dao.anneeActive = 2019
 
     @Slot(str, str, result="QVariantMap")
-    def getItem(self, entity: str, id: str):
+    def getItem(self, entity: str, id: str) -> dict:
         with db_session:
-            item = getattr(self.db, entity)[id].to_dict()
-            return item
+            try:
+                item = getattr(self.db, entity)[id]
+            except ObjectNotFound:
+                item = {}
+            return item.to_dict() if item else item
+
+    @db_session
+    @Slot(str, str, str, result="QVariantList")
+    def getSet(self, entity: str, id: str, setname: str) -> List[dict]:
+        item = getattr(self.db, entity)[id]
+        collection = [el.to_dict() for el in getattr(item, setname).select()]
+        return collection
+
+
+class TestHelper(QObject):
+    def __init__(self, dao):
+        super().__init__()
+        self.dao = dao
+
+    @Slot(str)
+    def mock(self, method: str):
+        setattr(self.dao, "xxx" + method, getattr(self.dao, method))
+        setattr(self.dao, method, MagicMock())
+
+    @Slot(str)
+    def unmock(self, method: str):
+        setattr(self.dao, method, getattr(self.dao, "xxx" + method))
+
+    @Slot(str, result=bool)
+    def mock_called(self, method: str):
+        return getattr(self.dao, method).called
+
+    @Slot(str, result=bool)
+    def mock_called(self, method: str):
+        return getattr(self.dao, method).called
+
+    @Slot(str, result="QVariantList")
+    def mock_call_args_list(self, method: str):
+        return [list(call.args) for call in getattr(self.dao, method).call_args_list]
 
 
 def pytest_qml_context_properties() -> dict:
@@ -68,6 +108,10 @@ def pytest_qml_context_properties() -> dict:
 
     uim = UiManager()
     dao = DatabaseObject(db, uim)
+
+    # Mocking som method
+    # dao.exportToPDF = MagicMock()
+
     app = QGuiApplication.instance() or QGuiApplication([])
     app.dao = dao
     fk = FakerHelper(db)
@@ -78,4 +122,13 @@ def pytest_qml_context_properties() -> dict:
     dao.anneeActive = 2019
     # with db_session:
     #     dao.currentMatiere = db.Matiere.select().first().id
-    return {"ddb": dao, "uiManager": uim, "fk": fk}
+
+    th = TestHelper(dao)
+
+    return {"ddb": dao, "uiManager": uim, "fk": fk, "th": th}
+
+
+def pytest_qml_applicationAvailable(app: QGuiApplication):
+    app.setApplicationName("TestApp")
+    app.setOrganizationName("OrgName")
+    app.setOrganizationName("ARgDomain")

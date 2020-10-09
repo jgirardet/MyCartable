@@ -14,6 +14,7 @@ from pony.orm import (
     Optional,
     Set,
     Database,
+    ObjectNotFound,
 )
 from .mixins import ColorMixin, PositionMixin
 
@@ -88,7 +89,10 @@ def class_section(
             self.before_delete_position()
 
         def after_delete(self):
-            page = self._positionbackup[0][self._positionbackup[1]]
+            try:
+                page = self._positionbackup[0][self._positionbackup[1]]
+            except ObjectNotFound:
+                return  # should not fail if page aldready deleted
             self.after_delete_position()
             page.modified = datetime.utcnow()
 

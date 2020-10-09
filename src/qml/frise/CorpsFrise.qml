@@ -3,8 +3,6 @@ import QtQuick.Controls 2.15
 import "qrc:/qml/frise"
 
 ListView {
-    //    spacing: 20
-
     id: root
 
     property int bottomBorderWidth: 5

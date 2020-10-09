@@ -6,13 +6,6 @@ import QtQuick.Shapes 1.15
 import "qrc:/qml/frise"
 
 Rectangle {
-    //    property alias repeater: repeater
-    //    model:
-    //    Rectangle {
-    //        anchors.fill: parent
-    //        border.width: 1
-    //    }
-
     id: root
 
     //    property alias listmodel: listmodel
@@ -22,9 +15,15 @@ Rectangle {
     property QtObject model
     property alias titre: titre
 
+    //    property alias repeater: repeater
+    //    model:
+    //    Rectangle {
+    //        anchors.fill: parent
+    //        border.width: 1
+    //    }
+    width: sectionItem.width
     height: model ? model.height : 0
     color: "white"
-    width: parent.width
 
     TextEdit {
         id: titre
@@ -32,20 +31,26 @@ Rectangle {
         text: root.model ? root.model.titre : ""
         font.pointSize: 16
         anchors.horizontalCenter: parent.horizontalCenter
+        Component.onCompleted: {
+            onTextChanged.connect(() => {
+                return root.model.titre = text;
+            });
+        }
     }
 
     CorpsFrise {
         id: corps
 
         model: root.model
+        height: 100
 
         anchors {
             left: root.left
             right: root.right
             top: root.top
-            bottom: root.bottom
-            topMargin: 150
-            bottomMargin: 150
+            //            bottom: root.bottom
+            topMargin: root.height / 2 - height / 2
+            //            bottomMargin: 150
             leftMargin: 30
             rightMargin: 50
         }

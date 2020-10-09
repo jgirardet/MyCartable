@@ -118,6 +118,7 @@
         <file alias="newImageSection">data/icons/base/divers/png/002-photo-1.png</file>
         <file alias="newImageSectionVide">data/icons/base/pack/png/pencil.png</file>
         <file alias="newEquationSection">data/icons/base/perso/equation.png</file>
+        <file alias="newFriseSection">data/icons/base/perso/frise.png</file>
         <file alias="removePage">data/icons/base/divers/png/006-trash-bin.png</file>
         <file alias="newTableauSection">data/icons/base/divers/png/013-spreadsheet.png</file>
         <file alias="newOperationSection">data/icons/base/pack/png/calculator-1.png</file>

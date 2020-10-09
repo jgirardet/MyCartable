@@ -1,40 +1,6 @@
-//TextArea {
-//    id: legende
-//    height: Math.max(contentHeight + 10, 10)
-//    width: Math.max(contentWidth + 20, 40)
-//    anchors.bottomMargin: 10
-//    anchors.topMargin: 10
-//    anchors.horizontalCenter: separator.horizontalCenter
-//    anchors.top: separator.bottom
-//    state: separator.state
-//    horizontalAlignment: TextEdit.AlignHCenter
-//    verticalAlignment: TextEdit.AlignVCenter
-//    text: separatorText
-//    Component.onCompleted: {
-//        onTextChanged.connect(function() {
-//            separatorText = text;
-//        });
-//    }
-//    states: [
-//        State {
-//            name: "up"
-//            AnchorChanges {
-//                target: legende
-//                anchors.bottom: separator.top
-//                anchors.top: undefined
-//            }
-//        }
-//    ]
-//    background: Rectangle {
-//        anchors.fill: parent
-//        border.width: 1
-//        border.color: "black"
-//    }
-
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 
-//}
 Item {
     id: root
 
@@ -79,7 +45,6 @@ Item {
         }
     ]
 
-    //    property
     TextArea {
         id: legende
 
@@ -99,6 +64,10 @@ Item {
             anchors.fill: parent
             acceptedButtons: Qt.MiddleButton
             onWheel: {
+                if (!legende.focus)
+                    return ;
+
+                //prevent moving legend when scrolling
                 if (wheel.angleDelta.y > 0)
                     root.state = "up";
                 else
@@ -128,14 +97,13 @@ Item {
         height: 10
         color: "black"
 
-        //        states
         MouseArea {
             anchors.fill: parent
             cursorShape: Qt.SizeHorCursor
             drag.target: root
             drag.axis: Drag.XAxis
             drag.minimumX: 5
-            //drag.maximumX: root.parent.width - 5
+            drag.maximumX: root.parent.width
             drag.threshold: 0
         }
 

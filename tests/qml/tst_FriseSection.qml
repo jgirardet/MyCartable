@@ -8,11 +8,7 @@ Item {
     height: 600
 
     CasTest {
-        //            obj.destroy() // avoid warning
-        //          wait(8000)
-        //            leg0.destroy(); // avoid warning
-        //            wait(8000);
-
+        property var friseSection
         property var corps
         property QtObject zero
         property QtObject un
@@ -27,17 +23,13 @@ Item {
         property Item leg0
         property Item leg1
 
-        function initPre() {
-            fk.resetDB();
-        }
-
         function initPreCreate() {
-            let fr = fk.f("friseSection", {
+            friseSection = fk.f("friseSection", {
                 "height": 424,
                 "titre": "ma frise"
             });
             z0 = fk.f("zoneFrise", {
-                "frise": fr.id,
+                "frise": friseSection.id,
                 "texte": "zone1",
                 "ratio": 0.1,
                 "separatorText": "-10 av JC",
@@ -47,7 +39,7 @@ Item {
             });
             // on l'utilise en property pour le réutiliser
             z1 = fk.f("zoneFrise", {
-                "frise": fr.id,
+                "frise": friseSection.id,
                 "texte": "zone2",
                 "ratio": 0.2,
                 "style": {
@@ -56,7 +48,7 @@ Item {
                 }
             });
             let z2 = fk.f("zoneFrise", {
-                "frise": fr.id,
+                "frise": friseSection.id,
                 "texte": "zone3",
                 "ratio": 0.3,
                 "style": {
@@ -77,7 +69,8 @@ Item {
                 "side": true
             });
             params = {
-                "sectionId": fr.id
+                "sectionId": friseSection.id,
+                "sectionItem": item
             };
         }
 
@@ -162,7 +155,6 @@ Item {
         }
 
         function test_legende_init() {
-            print(leg1.legende.text, "kklk");
             compare(leg1.state, "up");
             compare(leg1.y + leg1.languette.y, -10);
             compare(leg1.legende.text, "legende 1 au droit haut");
@@ -176,6 +168,7 @@ Item {
             compare(leg0.legende.y, 10);
             compare(fk.getItem("FriseLegende", l0.id).side, false);
             // Va en haut
+            mouseClick(leg0.legende);
             mouseWheel(leg0.legende, 1, 1, 0, 1);
             compare(leg0.y, 0);
             compare(leg0.languette.y, -10);
@@ -185,9 +178,7 @@ Item {
             clickAndWrite(leg0.legende);
             compare(fk.getItem("FriseLegende", l0.id).texte, "bcd");
             // relative X
-            print(leg1.x);
             mouseDrag(leg1.languette, 1, 1, 40, 0);
-            print(leg1.x);
             fuzzyCompare(leg1.x, 187, 10); // 147+40
             fuzzyCompare(fk.getItem("FriseLegende", l1.id).relativeX, 187 / leg1.parent.width, 0.1);
         }
@@ -195,7 +186,6 @@ Item {
         function test_legende_ajout() {
             let zo1 = un.zone;
             let childs = zo1.children.length;
-            print(childs);
             mouseClick(un, 1, un.height);
             compare(fk.getItem("ZoneFrise", z1.id).legendes.length, 1);
             mouseClick(un, 10, un.height);
@@ -208,13 +198,17 @@ Item {
 
         function test_legende_remove() {
             let rep = deux.zone.legendeItems;
-            print(rep.get(0).legende);
             mouseClick(rep.get(0).legende, 1, 1, Qt.MiddleButton);
             compare(rep.count, 1);
         }
 
-        params: {
+        function test_update_titre() {
+            compare(tested.titre.text, "ma frise");
+            clickAndWrite(tested.titre);
+            compare(tested.titre.text, "bcd");
+            compare(fk.getItem("FriseSection", friseSection.id).titre, "bcd");
         }
+
         testedNom: "qrc:/qml/sections/FriseSection.qml"
         name: "FriseSection"
 

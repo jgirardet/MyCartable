@@ -149,7 +149,7 @@ Rectangle {
             width: 2
             color: "black"
             anchors.top: parent.bottom
-            visible: borderinfmouse.containsMouse
+            visible: borderinfmouse.containsMouse && !borderinfmouse.pressed
             x: Math.max(borderinfmouse.mouseX, 5)
             y: borderinfmouse.mouseY
         }

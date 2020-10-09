@@ -7,6 +7,7 @@ Item {
     property var listview: ListView.view
     property string sectionId: page.id
     property int modelIndex: typeof model !== "undefined" ? model.index : undefined
+    property alias dragarea: dragArea
 
     focus: true
     width: listview.width
@@ -82,6 +83,7 @@ Item {
 
         property bool held: false
 
+        objectName: "pageDragArea"
         anchors.fill: parent
         height: loader.height
         drag.target: held ? dragitem : undefined
@@ -108,7 +110,10 @@ Item {
         id: droparea
 
         onEntered: {
-            listview.model.move(drag.source.parent.modelIndex, index);
+            if (drag.source.parent.modelIndex != index && drag.source.objectName == dragArea.objectName)
+                listview.model.move(drag.source.parent.modelIndex, index);
+            else
+                drag.accepted = false;
         }
 
         anchors {

@@ -5,6 +5,7 @@ from multiprocessing import Value
 
 import pytest
 from PySide2.QtCore import QObject, Signal
+from PySide2.QtGui import QImage
 from package import convert
 from package.convert import split_pdf_to_png, save_pdf_pages_to_png
 from package.convertion.grabber import Grabber
@@ -70,6 +71,10 @@ class Test_Wimage:
         onlybytes = base64.b64decode(b64)
         newImg = WImage.fromData(onlybytes)
         assert img == newImg
+
+    def test_eq(self, resources):
+        img = WImage(str(resources / "test_pivoter.png"))
+        assert img == img.convertToFormat(QImage.Format_RGBX8888)
 
 
 @pytest.mark.usefixtures("qapp")

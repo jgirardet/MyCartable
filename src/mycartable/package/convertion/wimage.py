@@ -12,3 +12,8 @@ class WImage(QImage):
         imb_b64 = ba.toBase64().data()
         bu.close()
         return imb_b64
+
+    def __eq__(self, other):
+        if isinstance(other, QImage) and self.format() != other.format():
+            other = other.convertToFormat(self.format())
+        return super().__eq__(other)

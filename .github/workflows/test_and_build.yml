@@ -20,7 +20,7 @@ jobs:
   TestAndBuild:
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
 #        os : [ubuntu-16.04, ubuntu-20.04]
 #        os : [ubuntu-16.04, ubuntu-20.04]

@@ -89,6 +89,7 @@ Item {
         drag.target: held ? dragitem : undefined
         drag.axis: Drag.YAxis
         acceptedButtons: Qt.LeftButton | Qt.MiddleButton
+        cursorShape: Qt.NoCursor
         onPressed: {
             if ((mouse.button == Qt.LeftButton) && (mouse.modifiers & Qt.ShiftModifier)) {
                 held = true;

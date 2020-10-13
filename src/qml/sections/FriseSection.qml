@@ -10,10 +10,10 @@ Rectangle {
 
     //    property alias listmodel: listmodel
     property alias corps: corps
+    property alias titre: titre
     property string sectionId
     property var sectionItem
     property QtObject model
-    property alias titre: titre
 
     //    property alias repeater: repeater
     //    model:

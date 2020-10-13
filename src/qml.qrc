@@ -163,6 +163,7 @@
     </qresource>
     <qresource prefix="/tests">
         <file alias="tst_AnnotableImage.png">../tests/resources/tst_AnnotableImage.png</file>
+        <file alias="Dummy.qml">../tests/resources/convert/Dummy.qml</file>
     </qresource>
 
     <qresource prefix="/templates">

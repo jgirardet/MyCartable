@@ -73,10 +73,11 @@ Rectangle {
         verticalAlignment: TextEdit.AlignVCenter
         width: parent.width * 0.8
         height: Math.min(contentHeight + 5, parent.height - 5)
-        font.pointSize: 12
+        font.pointSize: Math.max(ApplicationWindow.window.page.width / 100, 10) //12
         text: display
         wrapMode: Text.Wrap
         Component.onCompleted: {
+            print(ApplicationWindow.window.page.width);
             onTextChanged.connect(function() {
                 model.edit = text;
             });

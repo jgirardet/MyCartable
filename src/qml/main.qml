@@ -13,6 +13,8 @@ ApplicationWindow {
 
     id: root
 
+    property alias page: _pageRectangle
+
     width: 800
     height: 600
     visible: true

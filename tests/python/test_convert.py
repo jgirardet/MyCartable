@@ -218,6 +218,7 @@ class TestExportToOdt:
         height = pixel_to_mm(f1.height)
         img = resources / "convert" / "frisesection.png"
         img = base64.b64encode(img.read_bytes())
+        print(img)
         control = f"""<text:p text:style-name="Standard">
     <draw:frame draw:style-name="fr1" draw:name="{"1"*32}" text:anchor-type="paragraph" svg:width="{width}mm"  svg:height="{height}mm" draw:z-index="0">
         <draw:image loext:mime-type="image/png">

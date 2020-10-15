@@ -14,6 +14,9 @@ class WImage(QImage):
         return imb_b64
 
     def __eq__(self, other):
+        print(self, other)
+        print("eq", isinstance(other, QImage), self.format(), other.format())
         if isinstance(other, QImage) and self.format() != other.format():
             other = other.convertToFormat(self.format())
+            print("other apres", other)
         return super().__eq__(other)

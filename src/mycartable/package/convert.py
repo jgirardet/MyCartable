@@ -1057,9 +1057,10 @@ def grab_section(section, initial_prop={}):
             url=f":/qml/sections/{section.classtype}.qml",
             initial_prop=base_prop,
         )
+    print(img)
     width = img.widthMM()
     height = img.heightMM()
-    img.save("/tmp/odtfrise.png")
+    # img.save("/tmp/odtfrise.png")
     res = f"""<text:p text:style-name="Standard">
     <draw:frame draw:style-name="fr1" draw:name="{uuid.uuid4().hex}" text:anchor-type="paragraph" svg:width="{int(width)}mm"  svg:height="{int(height)}mm" draw:z-index="0">
         <draw:image loext:mime-type="image/png">

@@ -51,10 +51,10 @@ jobs:
       if: runner.os == 'Windows'
       run: |
         choco install libreoffice-fresh -y
-    - name: Tests python on ${{ matrix.os }}
-      run: |
-        python run.py test_python
-        python run.py test_qml_pytest
+    - name: Tests python test on ${{ matrix.os }}
+      run: python run.py test_python
+    - name: Tests python/qml  test on ${{ matrix.os }}
+      run: python run.py test_qml_pytest
     - name: Install Qt on Linux
       if: runner.os == 'Linux'
       uses: jurplel/install-qt-action@v2

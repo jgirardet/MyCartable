@@ -72,7 +72,7 @@ Rectangle {
         horizontalAlignment: TextEdit.AlignHCenter
         verticalAlignment: TextEdit.AlignVCenter
         width: parent.width * 0.8
-        height: Math.min(contentHeight + 5, parent.height - 5)
+        height: Math.min(contentHeight + 15, parent.height - 5)
         font.pointSize: Math.max(dragParent.width / 100, 10)
         text: display
         wrapMode: Text.Wrap

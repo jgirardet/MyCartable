@@ -55,7 +55,7 @@ Item {
         }
         anchors.horizontalCenter: languette.horizontalCenter
         anchors.top: languette.bottom
-        height: Math.max(contentHeight + 10, 10)
+        height: Math.max(contentHeight + 15, 15)
         width: Math.max(contentWidth + 20, 40)
         horizontalAlignment: TextEdit.AlignHCenter
         verticalAlignment: TextEdit.AlignVCenter

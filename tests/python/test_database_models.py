@@ -1,7 +1,7 @@
 import itertools
 import uuid
 from typing import List
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
 from PySide2.QtGui import QFont, QColor
 from fixtures import compare_items, check_is_range, wait
@@ -1717,6 +1717,42 @@ class TestUtilisateur:
         u = fk.f_user()
         w = ddb.Utilisateur.user()
         assert u == w
+
+
+class TestConfiguration:
+    def test_get_field(self, ddb):
+        c = ddb.Configuration
+        assert c._get_field("a") == "str_value"
+        assert c._get_field(12) == "int_value"
+        assert c._get_field(12.12) == "float_value"
+        assert c._get_field(datetime.now()) == "datetime_value"
+        assert c._get_field(date.today()) == "date_value"
+        assert c._get_field(uuid.uuid4()) == "uuid_value"
+        assert c._get_field([1, 2, 3]) == "json_value"
+        assert c._get_field({"234": 234}) == "json_value"
+
+    def test_add_option(self, ddb):
+        c = ddb.Configuration
+        # add part
+        c.add("string", "value")
+        assert c.option("string") == "value"
+        c.add("int", 1)
+        assert c.option("int") == 1
+        c.add("float", 1.1)
+        assert c.option("float") == 1.1
+        d = datetime.now()
+        c.add("datetime", d)
+        assert c.option("datetime") == d
+        dt = date.today()
+        c.add("date", dt)
+        assert c.option("date") == dt
+        c.add("list", [1, 2, 3])
+        assert c.option("list") == [1, 2, 3]
+        c.add("dict", {"kj": "okmlj"})
+        assert c.option("dict") == {"kj": "okmlj"}
+        u = uuid.uuid4()
+        c.add("uuid", u)
+        assert c.option("uuid") == u
 
 
 class TestFrise:

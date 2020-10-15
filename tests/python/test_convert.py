@@ -176,13 +176,15 @@ class TestGrabber:
         with Grabber() as g:
             g.context.setContextProperty("aaa", "hello")
             img1 = g.comp_to_image(data=self.QML_CONTEXT.encode())
-        assert img1 == img_control
+        # assert img1 == img_control
+        assert img_control == img1
 
         # version context init de l'instance
         with Grabber(context_dict={"aaa": "hello"}) as f:
             # f.context.setContextProperty("aaa", "hello")
             img2 = f.comp_to_image(data=self.QML_CONTEXT.encode())
-        assert img2 == img_control
+        assert img_control == img2
+        # assert img2 == img_control
 
     def test_comp_to_image_with_width_height(self, resources):
         with Grabber() as f:
@@ -218,7 +220,7 @@ class TestExportToOdt:
         height = pixel_to_mm(f1.height)
         img = resources / "convert" / "frisesection.png"
         img = base64.b64encode(img.read_bytes())
-        print(img)
+        print("img dans test", img)
         control = f"""<text:p text:style-name="Standard">
     <draw:frame draw:style-name="fr1" draw:name="{"1"*32}" text:anchor-type="paragraph" svg:width="{width}mm"  svg:height="{height}mm" draw:z-index="0">
         <draw:image loext:mime-type="image/png">

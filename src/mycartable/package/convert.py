@@ -1057,7 +1057,7 @@ def grab_section(section, initial_prop={}):
             url=f":/qml/sections/{section.classtype}.qml",
             initial_prop=base_prop,
         )
-    print(img)
+    print("img dans grabsecion", img)
     width = img.widthMM()
     height = img.heightMM()
     # img.save("/tmp/odtfrise.png")

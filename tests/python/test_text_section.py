@@ -5,7 +5,6 @@ from unittest.mock import MagicMock
 import pytest
 from PySide2.QtCore import Qt
 from PySide2.QtGui import QTextDocument, QColor, QFont, QKeyEvent, QBrush
-from factory import f_textSection
 
 # from package.page.text_section import DocumentEditor, RE_AUTOPARAGRAPH
 from bs4 import BeautifulSoup
@@ -403,10 +402,30 @@ class TestSectionEditor:
     @pytest.mark.parametrize(
         "key, text, scancode, color",
         [
-            (Qt.Key_1, "1", KeyW.KEY_1, BLACK,),
-            (Qt.Key_2, "2", KeyW.KEY_2, BLUE,),
-            (Qt.Key_3, "3", KeyW.KEY_3, GREEN,),
-            (Qt.Key_4, "4", KeyW.KEY_4, RED,),
+            (
+                Qt.Key_1,
+                "1",
+                KeyW.KEY_1,
+                BLACK,
+            ),
+            (
+                Qt.Key_2,
+                "2",
+                KeyW.KEY_2,
+                BLUE,
+            ),
+            (
+                Qt.Key_3,
+                "3",
+                KeyW.KEY_3,
+                GREEN,
+            ),
+            (
+                Qt.Key_4,
+                "4",
+                KeyW.KEY_4,
+                RED,
+            ),
         ],
     )
     def test_onKey_Number_ctrl_modifier(
@@ -424,8 +443,8 @@ class TestSectionEditor:
         cfmt.setForeground(QBrush(QColor(color)))
         assert compare_char_format(d.cur.charFormat(), cfmt)
 
-    def test_onLoad(self, doc, reset_db, char_fmt, block_fmt):
-        f = f_textSection(
+    def test_onLoad(self, doc, fk, char_fmt, block_fmt):
+        f = fk.f_textSection(
             text="""<body><h1>bli</h1><p>noir<span style="color:#123456;">bleu</span></p></body>"""
         )
         d = doc()
@@ -512,14 +531,14 @@ class TestSectionEditor:
         assert res["cursorPosition"] == 3
         assert res["text"] == res_text
 
-    def test_update_ddb(self, ddbr):
-        f = f_textSection(text="""<body><p>noir</p></body>""")
+    def test_update_ddb(self, fk):
+        f = fk.f_textSection(text="""<body><p>noir</p></body>""")
         d = TextSectionEditor(1, content="""<body><p>noirA</p></body>""")
         d.sectionId = str(f.id)
         d._update_ddb()
         with db_session:
             assert (
-                ddbr.TextSection[f.id].text == "<body><p><span>noirA</span></p></body>"
+                fk.db.TextSection[f.id].text == "<body><p><span>noirA</span></p></body>"
             )
 
 
@@ -531,10 +550,22 @@ class TestSectionEditor:
             """<p><span style=" color:#123456;">noir</p>""",
             """<body><p><span style=" color:#123456;">noir</span></p></body>""",
         ),
-        ("""<h1>noir</h1>""", """<body><h1>noir</h1></body>""",),
-        ("""<h2>noir</h2>""", """<body><h2>noir</h2></body>""",),
-        ("""<h3>noir</h3>""", """<body><h3>noir</h3></body>""",),
-        ("""<h4>noir</h4>""", """<body><h4>noir</h4></body>""",),
+        (
+            """<h1>noir</h1>""",
+            """<body><h1>noir</h1></body>""",
+        ),
+        (
+            """<h2>noir</h2>""",
+            """<body><h2>noir</h2></body>""",
+        ),
+        (
+            """<h3>noir</h3>""",
+            """<body><h3>noir</h3></body>""",
+        ),
+        (
+            """<h4>noir</h4>""",
+            """<body><h4>noir</h4></body>""",
+        ),
         (
             """<h1>noir</h1><p><span style=" color:#123456;">noir</p><h2>noir</h2>""",
             """<body><h1>noir</h1><p><span style=" color:#123456;">noir</span></p><h2>noir</h2></body>""",

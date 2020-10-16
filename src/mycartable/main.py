@@ -41,20 +41,21 @@ def main_init_database(filename=None, prod=False):
         QStandardPaths.setTestModeEnabled(True)
         filename = Path(tempfile.gettempdir()) / "devddbmdk.sqlite"
         # filename = ":memory:"
-        # filename.unlink(missing_ok=True)
-        # create_db = True
+        filename.unlink(missing_ok=True)
+        create_db = True
 
     package.database.db = newdb
 
     db = package.database.init_database(newdb, filename=filename, create_db=create_db)
 
     if not prod:
-        from tests.factory import populate_database
+        from tests.factory import Faker
 
-        # try:
-        # populate_database(db)
-        # except:
-        # pass
+        faker = Faker(db)
+        try:
+            faker.populate_database()
+        except:
+            pass
 
     return package.database.db
 
@@ -75,12 +76,15 @@ def register_new_qml_type(databaseObject):
     MultiplicationModel.ddb = databaseObject
     DivisionModel.ddb = databaseObject
 
+    from package.page.frise_model import FriseModel
+
     # qmlRegisterType(DocumentEditor, "DocumentEditor", 1, 0, "DocumentEditor")
     qmlRegisterType(AdditionModel, "MyCartable", 1, 0, "AdditionModel")
     qmlRegisterType(SoustractionModel, "MyCartable", 1, 0, "SoustractionModel")
     qmlRegisterType(MultiplicationModel, "MyCartable", 1, 0, "MultiplicationModel")
     qmlRegisterType(DivisionModel, "MyCartable", 1, 0, "DivisionModel")
     qmlRegisterType(AnnotationModel, "MyCartable", 1, 0, "AnnotationModel")
+    qmlRegisterType(FriseModel, "MyCartable", 1, 0, "FriseModel")
 
 
 def create_singleton_instance(prod=False):

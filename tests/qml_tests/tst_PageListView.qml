@@ -149,6 +149,7 @@ Rectangle {
         }
 
         function test_pagebasedelegate_mousearea_click_modifier_deplace() {
+            listmodel._move = [];
             ddb._updateEquation = {
                 "content": "",
                 "curseur": 1
@@ -158,12 +159,20 @@ Rectangle {
             mousePress(un, 1, 1, Qt.LeftButton, Qt.ShiftModifier);
             keyClick(Qt.Key_3); // sans effet sur le résultat
             compare(ddb._updateEquationParams, []); //non transmis plus bas
-            compare(listmodel._move, [1, 1]); // move appelé
+            compare(listmodel._move, []); // move non appelé car même index
         }
 
         function test_move_delegate() {
             mouseDrag(un, 1, un.height, 0, un.height * 2, Qt.LeftButton, Qt.ShiftModifier);
             compare(listmodel._move, [1, 2]); // move appelé
+        }
+
+        function test_move_delegate_fail_not_accepted() {
+            listmodel._move = [];
+            compare(un.dragarea.objectName, "pageDragArea");
+            un.dragarea.objectName = "aaa";
+            mouseDrag(un, 1, un.height, 0, un.height * 2, Qt.LeftButton, Qt.ShiftModifier);
+            compare(listmodel._move, []); // move pas  appelé
         }
 
         function test_move_delegate_state() {

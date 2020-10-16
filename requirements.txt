@@ -8,11 +8,11 @@ mimesis
 pytest
 pytest-freezegun
 pytest-qt
-pytest-qml
+-e git://github.com/jgirardet/pytest-qml.git#egg=pytest-qml
 PyPDF2
 mypy
 #briefcase==0.3.3
 -e git://github.com/jgirardet/briefcase.git@patch033#egg=briefcase
 toml
 loguru-caplog
-
+pdbpp

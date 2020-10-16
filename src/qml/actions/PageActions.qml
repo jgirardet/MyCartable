@@ -16,12 +16,14 @@ Item {
       property var dialog
       property bool append: true
 
-      function newSection () {
+      function newSection (kwargs={}) {
         let newPos = append ? ddb.pageModel.count : position + 1
-        ddb.addSection(ddb.currentPage, {
+        let params  = {
                   "classtype": nom,
-                  "position": newPos
-              });
+                  "position": newPos,
+              }
+        Object.assign(params,kwargs)
+        ddb.addSection(ddb.currentPage, params );
         }
     }
 
@@ -298,6 +300,14 @@ Item {
             }
 
         }
+
+    }
+
+    component NewFriseSection : BasePageAction {
+        nom: "FriseSection"
+        icon.source: "qrc:///icons/newFriseSection"
+        onTriggered: newSection({"height":300, "titre":"Frise"})
+        tooltip: "Ajouter un frise"
 
     }
 

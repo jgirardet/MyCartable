@@ -42,6 +42,10 @@ ToolBar {
                     appendMode: true
                 }
 
+                Buttons.NewFriseSection {
+                    appendMode: true
+                }
+
                 Buttons.RemovePage {
                 }
 

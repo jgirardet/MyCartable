@@ -1,6 +1,7 @@
 import itertools
 import uuid
 from typing import List
+from datetime import datetime, timedelta, date
 
 from PySide2.QtGui import QFont, QColor
 from fixtures import compare_items, check_is_range, wait
@@ -8,43 +9,38 @@ from fixtures import compare_items, check_is_range, wait
 import pytest
 from package.database.mixins import PositionMixin, ColorMixin
 from package.exceptions import MyCartableOperationError
-from pony.orm import flush, Database, make_proxy, Set, Required
-from factory import *
+from pony.orm import flush, Database, make_proxy, Set, Required, db_session
 
 
-def test_creation_all(ddb):
-
-    from factory import f_annee, f_groupeMatiere, f_matiere, f_section
-    import package.database
-
-    an = f_annee()
-    goupe = f_groupeMatiere(nom="aa", annee=an.id)
-    a = f_matiere(groupe=goupe)
-    f_section()
+def test_creation_all(fk):
+    an = fk.f_annee()
+    goupe = fk.f_groupeMatiere(nom="aa", annee=an.id)
+    a = fk.f_matiere(groupe=goupe)
+    fk.f_section()
 
 
 class TestAnnee:
-    def test_get_matieres(self, ddbr):
+    def test_get_matieres(self, fk):
         with db_session:
-            an = f_annee(id=2017)
+            an = fk.f_annee(id=2017)
             assert an.get_matieres()[:] == []
         with db_session:
-            g1 = f_groupeMatiere(annee=2017)
-            g2 = f_groupeMatiere(annee=2017)
-            g3 = f_groupeMatiere(annee=2015)
-            g4 = f_groupeMatiere(annee=2017)
-            g5 = f_groupeMatiere(annee=2016)
-            a = f_matiere(nom="a", groupe=g1)
-            b = f_matiere(nom="b", groupe=g2)
-            c = f_matiere(nom="c", groupe=g3)
-            d = f_matiere(nom="d", groupe=g4)
-            f = f_matiere(nom="e", groupe=g5)
+            g1 = fk.f_groupeMatiere(annee=2017)
+            g2 = fk.f_groupeMatiere(annee=2017)
+            g3 = fk.f_groupeMatiere(annee=2015)
+            g4 = fk.f_groupeMatiere(annee=2017)
+            g5 = fk.f_groupeMatiere(annee=2016)
+            a = fk.f_matiere(nom="a", groupe=g1)
+            b = fk.f_matiere(nom="b", groupe=g2)
+            c = fk.f_matiere(nom="c", groupe=g3)
+            d = fk.f_matiere(nom="d", groupe=g4)
+            f = fk.f_matiere(nom="e", groupe=g5)
             assert an.get_matieres()[:] == [a, b, d]
 
-    def test_to_dict(self, ddbr):
+    def test_to_dict(self, fk):
         with db_session:
-            user = ddbr.Utilisateur.user()
-        a = f_annee(id=234, niveau="omjlihlm", user=user)
+            user = fk.db.Utilisateur.user()
+        a = fk.f_annee(id=234, niveau="omjlihlm", user=user)
         with db_session:
             assert a.to_dict() == {
                 "id": 234,
@@ -54,10 +50,10 @@ class TestAnnee:
 
 
 class TestPage:
-    def test_modified(self, ddb):
+    def test_modified(self, ddb, fk):
         avant = datetime.utcnow()
         wait()
-        s = f_page(created=datetime.utcnow())
+        s = fk.f_page(created=datetime.utcnow())
         s.to_dict()  # flush
 
         wait()
@@ -65,23 +61,23 @@ class TestPage:
         assert s.created == s.modified
         assert avant < s.created < apres
 
-    def test_update_modified_when_updated(self, ddb):
-        a = f_page()
+    def test_update_modified_when_updated(self, ddb, fk):
+        a = fk.f_page()
         avant = a.modified
         a.titre = "omkmo"
         flush()
         assert a.modified != avant
 
-    def test_recents(self, ddb):
-        g2019 = f_groupeMatiere(annee=2019)
-        g2018 = f_groupeMatiere(annee=2018)
-        m2019 = f_matiere(groupe=g2019)
-        m2018 = f_matiere(groupe=g2018)
-        ac2019 = f_activite(matiere=m2019.id)
-        ac2018 = f_activite(matiere=m2018.id)
+    def test_recents(self, ddb, fk):
+        g2019 = fk.f_groupeMatiere(annee=2019)
+        g2018 = fk.f_groupeMatiere(annee=2018)
+        m2019 = fk.f_matiere(groupe=g2019)
+        m2018 = fk.f_matiere(groupe=g2018)
+        ac2019 = fk.f_activite(matiere=m2019.id)
+        ac2018 = fk.f_activite(matiere=m2018.id)
         for i in range(50):
-            f_page(activite=ac2018.id)
-            f_page(activite=ac2019.id)
+            fk.f_page(activite=ac2018.id)
+            fk.f_page(activite=ac2019.id)
 
         # test query
         assert ddb.Page.select().count() == 100
@@ -94,15 +90,15 @@ class TestPage:
             old = i
 
         # formatted result
-        a = f_page(created=datetime.utcnow(), activite=ac2019.id)
+        a = fk.f_page(created=datetime.utcnow(), activite=ac2019.id)
         res = a.to_dict()
         res["matiere"] = str(a.activite.matiere.id)
         first_dict = ddb.Page.recents(2019)[0]
         assert first_dict == res
 
-    def test_to_dict(self, ddb):
+    def test_to_dict(self, ddb, fk):
         d = datetime.utcnow()
-        p = f_page(created=d, titre="bl")
+        p = fk.f_page(created=d, titre="bl")
         assert p.to_dict() == {
             "id": str(p.id),
             "created": d.isoformat(),
@@ -116,17 +112,21 @@ class TestPage:
             "lastPosition": p.lastPosition,
         }
 
-    def test_nouvelle_page(self, ddb):
-        a = f_matiere().to_dict()
-        ac = f_activite(matiere=a["id"])
+    def test_nouvelle_page(
+        self,
+        ddb,
+        fk,
+    ):
+        a = fk.f_matiere().to_dict()
+        ac = fk.f_activite(matiere=a["id"])
         flush()
         b = ddb.Page.new_page(activite=ac.id, titre="bla")
         assert ddb.Page.get(id=b["id"], titre="bla", activite=ac.id)
 
-    def test_content(self, ddbr):
-        a = f_page()
-        sections = b_section(10, page=a.id)
-        others = b_section(10)
+    def test_content(self, fk):
+        a = fk.f_page()
+        sections = fk.b_section(10, page=a.id)
+        others = fk.b_section(10)
         with db_session:
             compare_items(a.content, sections)
         prev = None
@@ -138,10 +138,10 @@ class TestPage:
 
 
 class TestGroupeMatiere:
-    def test_delete_mixin_position(self, ddbr):
-        GroupeMatiere = ddbr.GroupeMatiere
-        a = f_groupeMatiere(annee=2019)
-        b = f_groupeMatiere(annee=2019)
+    def test_delete_mixin_position(self, fk):
+        GroupeMatiere = fk.db.GroupeMatiere
+        a = fk.f_groupeMatiere(annee=2019)
+        b = fk.f_groupeMatiere(annee=2019)
         with db_session:
             assert GroupeMatiere[a.id].position == 0
             assert GroupeMatiere[b.id].position == 1
@@ -149,9 +149,9 @@ class TestGroupeMatiere:
         with db_session:
             assert GroupeMatiere[b.id].position == 0
 
-    def test_color_mixin(self, ddbr):
-        GroupeMatiere = ddbr.GroupeMatiere
-        f_annee(id=1234)
+    def test_color_mixin(self, fk):
+        GroupeMatiere = fk.db.GroupeMatiere
+        fk.f_annee(id=1234)
         with db_session:
             a = GroupeMatiere(nom="bk", annee=1234)
             b = GroupeMatiere(nom="bk", annee=1234, fgColor="red")
@@ -168,16 +168,16 @@ class TestGroupeMatiere:
 
 
 class TestMatiere:
-    def test_to_dict(self, ddb):
-        f_matiere()
-        groupe = f_groupeMatiere(annee=2019)
-        a = f_matiere(
+    def test_to_dict(self, ddb, fk):
+        fk.f_matiere()
+        groupe = fk.f_groupeMatiere(annee=2019)
+        a = fk.f_matiere(
             nom="Géo", groupe=groupe, _fgColor=4294967295, _bgColor=4294901760
         )
-        pages = [b_page(3, matiere=2) for x in a.activites]
-        x = f_activite(matiere=a.id)
-        y = f_activite(matiere=a.id)
-        z = f_activite(matiere=a.id)
+        pages = [fk.b_page(3, matiere=2) for x in a.activites]
+        x = fk.f_activite(matiere=a.id)
+        y = fk.f_activite(matiere=a.id)
+        z = fk.f_activite(matiere=a.id)
         assert a.to_dict() == {
             "position": 0,
             "id": str(a.id),
@@ -188,11 +188,14 @@ class TestMatiere:
             "bgColor": QColor("red"),
         }
 
-    def test_init(self, ddb):
-        gp = f_groupeMatiere()
-        an = f_annee()
+    def test_init(self, ddb, fk):
+        gp = fk.f_groupeMatiere()
+        an = fk.f_annee()
         a = ddb.Matiere(
-            nom="bla", groupe=gp.id, _fgColor=4294967295, _bgColor=4294901760,
+            nom="bla",
+            groupe=gp.id,
+            _fgColor=4294967295,
+            _bgColor=4294901760,
         )
         b = ddb.Matiere(nom="bla", groupe=gp.id)
 
@@ -220,10 +223,10 @@ class TestMatiere:
         c.bgColor = (123, 3, 134)
         assert QColor(c._bgColor) == QColor(123, 3, 134)
 
-    def test_delete_mixin_position(self, ddbr):
-        Matiere = ddbr.Matiere
-        a = f_matiere()
-        b = f_matiere(groupe=a.groupe)
+    def test_delete_mixin_position(self, fk):
+        Matiere = fk.db.Matiere
+        a = fk.f_matiere()
+        b = fk.f_matiere(groupe=a.groupe.id)
         with db_session:
             assert Matiere[a.id].position == 0
             assert Matiere[b.id].position == 1
@@ -233,9 +236,9 @@ class TestMatiere:
 
             # a.before_delete_position = Ma
 
-    def test_color_mixin(self, ddbr):
-        Matiere = ddbr.Matiere
-        a = f_groupeMatiere()
+    def test_color_mixin(self, fk):
+        Matiere = fk.db.Matiere
+        a = fk.f_groupeMatiere()
         with db_session:
             z = Matiere(nom="bk", groupe=a.id)
             b = Matiere(nom="bk", groupe=a.id, fgColor="red")
@@ -250,15 +253,16 @@ class TestMatiere:
             assert Matiere[b.id].to_dict()["fgColor"] == QColor("red")
             assert Matiere[c.id].to_dict()["bgColor"] == QColor("green")
 
-    def test_page_par_section(self, ddbr):
-        Matiere = ddbr.Matiere
-        m = f_matiere(nom="Math", _bgColor=4294967295, _fgColor=4294901760)
-        un = f_activite(nom="un", matiere=m.id)
-        deux = f_activite(nom="deux", matiere=m.id)
-        trois = f_activite()
-        w = b_page(3, activite=deux, titre="pagedeux", created=datetime(1212, 12, 12))
-        x = b_page(3, activite=un, titre="pageun", created=datetime(1111, 11, 11))
-        # y = b_page(3, activite=trois, titre="âge")
+    def test_page_par_section(self, fk):
+        Matiere = fk.db.Matiere
+        m = fk.f_matiere(nom="Math", _bgColor=4294967295, _fgColor=4294901760)
+        un = fk.f_activite(nom="un", matiere=m.id)
+        deux = fk.f_activite(nom="deux", matiere=m.id)
+        trois = fk.f_activite()
+        w = fk.b_page(
+            3, activite=deux, titre="pagedeux", created=datetime(1212, 12, 12)
+        )
+        x = fk.b_page(3, activite=un, titre="pageun", created=datetime(1111, 11, 11))
 
         with db_session:
             assert Matiere[m.id].pages_par_section() == [
@@ -354,42 +358,42 @@ class TestMatiere:
 
 
 class TestActivite:
-    def test_delete_mixin_position(self, ddbr):
-        a = b_activite(2)
+    def test_delete_mixin_position(self, fk):
+        a = fk.b_activite(2)
         with db_session:
-            assert ddbr.Activite[a[0].id].position == 0
-            assert ddbr.Activite[a[1].id].position == 1
-            ddbr.Activite[a[0].id].delete()
+            assert fk.db.Activite[a[0].id].position == 0
+            assert fk.db.Activite[a[1].id].position == 1
+            fk.db.Activite[a[0].id].delete()
         with db_session:
-            assert ddbr.Activite[a[1].id].position == 0
+            assert fk.db.Activite[a[1].id].position == 0
 
 
 class TestSection:
-    def test_init(self, ddbr):
-        p = f_page()
-        f_section(page=p.id)
+    def test_init(self, fk):
+        p = fk.f_page()
+        fk.f_section(page=p.id)
         with db_session:
-            s = ddbr.Section(page=p.id)
+            s = fk.db.Section(page=p.id)
         with db_session:
-            x = ddbr.Section(page=p.id)
+            x = fk.db.Section(page=p.id)
         assert s._position == 1
         assert x._position == 2
         with db_session:
-            z = ddbr.Section(page=p.id, position=1)
-            assert ddbr.Section[s.id].position == 2
-            assert ddbr.Section[x.id].position == 3
+            z = fk.db.Section(page=p.id, position=1)
+            assert fk.db.Section[s.id].position == 2
+            assert fk.db.Section[x.id].position == 3
 
-    def test_get_with_string(self, ddbr):
-        x = f_section()
+    def test_get_with_string(self, fk):
+        x = fk.f_section()
         strid = str(x.id)
         with db_session:
-            z = ddbr.Section[strid]
+            z = fk.db.Section[strid]
 
-    def test_delete_mixin_position(self, ddbr):
-        Section = ddbr.Section
-        a = f_page()
-        x = f_section(page=a.id)
-        y = f_section(page=a.id)
+    def test_delete_mixin_position(self, fk):
+        Section = fk.db.Section
+        a = fk.f_page()
+        x = fk.f_section(page=a.id)
+        y = fk.f_section(page=a.id)
         with db_session:
             assert Section[x.id].position == 0
             assert Section[y.id].position == 1
@@ -397,12 +401,12 @@ class TestSection:
         with db_session:
             assert Section[y.id].position == 0
 
-    def test_position_property(self, ddb):
-        p = f_page()
+    def test_position_property(self, ddb, fk):
+        p = fk.f_page()
         with db_session:
-            z = f_section(page=p.id)
+            z = fk.f_section(page=p.id)
             flush()
-            x = f_section(page=p.id)
+            x = fk.f_section(page=p.id)
             flush()
             assert z.position == 0
             assert x.position == 1
@@ -410,65 +414,65 @@ class TestSection:
             assert z.position == 1
             assert x.position == 0
 
-    def test_inheritance_position(self, ddbr):
-        page = f_page()
-        f_section(page=page.id)
+    def test_inheritance_position(self, fk):
+        page = fk.f_page()
+        fk.f_section(page=page.id)
         with db_session:
-            s = ddbr.TextSection(page=page.id)
-            t = ddbr.EquationSection(page=page.id)
-            u = ddbr.Section(page=page.id)
+            s = fk.db.TextSection(page=page.id)
+            t = fk.db.EquationSection(page=page.id)
+            u = fk.db.Section(page=page.id)
             assert s.position == 1
             assert t.position == 2
             assert u.position == 3
 
-    def test_inheritance_position2(self, ddbr):
-        page = f_page()
-        r = f_section(page=page.id)
+    def test_inheritance_position2(self, fk):
+        page = fk.f_page()
+        r = fk.f_section(page=page.id)
         with db_session:
-            s = ddbr.TextSection(page=page.id)
+            s = fk.db.TextSection(page=page.id)
         with db_session:
-            t = ddbr.EquationSection(page=page.id)
+            t = fk.db.EquationSection(page=page.id)
         with db_session:
-            u = ddbr.Section(page=page.id)
+            u = fk.db.Section(page=page.id)
         with db_session:
-            assert ddbr.Section[r.id].position == 0
-            assert ddbr.Section[s.id].position == 1
-            assert ddbr.Section[t.id].position == 2
-            assert ddbr.Section[u.id].position == 3
+            assert fk.db.Section[r.id].position == 0
+            assert fk.db.Section[s.id].position == 1
+            assert fk.db.Section[t.id].position == 2
+            assert fk.db.Section[u.id].position == 3
 
-    def test_to_dict(self, ddbr):
+    def test_to_dict(self, fk):
         a = datetime.utcnow()
-        x = f_section(created=a, td=True)
+        x = fk.f_section(created=a, td=True)
         assert x["created"] == a.isoformat()
         assert x["modified"] == a.isoformat()
 
-    def test_before_insert_no_position(self, ddb):
+    def test_before_insert_no_position(self, ddb, fk):
         """"remember factory are flushed"""
-        a = f_page()
-        b = f_section(page=a.id)
+        a = fk.f_page()
+        b = fk.f_section(page=a.id)
         flush()
         assert b.position == 0
-        c = f_section(page=a.id)
-        flush()
-        assert b.position == 0
-        assert c.position == 1
-
-    def test_before_insert_position_to_high(self, ddb):
-        a = f_page()
-        b = f_section(page=a.id)
-        flush()
-        assert b.position == 0
-        c = f_section(page=a.id, position=3)
+        c = fk.f_section(page=a.id)
         flush()
         assert b.position == 0
         assert c.position == 1
 
-    def test_update_position(self, ddb):
-        a = f_page()
-        b = b_section(5, page=a.id)
+    def test_before_insert_position_to_high(self, ddb, fk):
+        a = fk.f_page()
+        b = fk.f_section(page=a.id)
+        flush()
+        assert b.position == 0
+        c = fk.f_section(page=a.id, position=3)
+        flush()
+        assert b.position == 0
+        assert c.position == 1
+
+    def test_update_position(self, ddb, fk):
+        a = fk.f_page()
+        b = fk.b_section(5, page=a.id)
         modified_item = b[0].modified
         flush()
-        c = f_section(page=a.id, position=3)
+        c = fk.f_section(page=a.id, position=3)
         flush()
         # test new item
         assert c.position == 3
@@ -479,12 +483,12 @@ class TestSection:
         # inflence l date de modif de page
         page_modified = a.modified
         wait()
-        f_section(page=a.id, created=datetime.utcnow())
+        fk.f_section(page=a.id, created=datetime.utcnow())
         assert page_modified < a.modified
 
-    def test_before_update(self, reset_db):
+    def test_before_update(self, fk):
         with db_session:
-            a = make_proxy(f_section())
+            a = make_proxy(fk.f_section())
             b = a.modified
         with db_session:
             a.created = datetime.utcnow()
@@ -492,95 +496,99 @@ class TestSection:
             assert a.modified > b
             assert a.page.modified == a.modified
 
-    def test_before_insert(self, ddbr):
+    def test_before_insert(self, fk):
         avant = datetime.utcnow()
         wait()
-        s = f_section(created=datetime.utcnow())
+        s = fk.f_section(created=datetime.utcnow())
         wait()
         apres = datetime.utcnow()
         assert avant < s.created < apres
         assert s.created == s.modified
         with db_session:
-            assert ddbr.Page[s.page.id].modified >= s.modified
+            assert fk.db.Page[s.page.id].modified >= s.modified
 
-    def test_update_position__and_time_on_delete(self, ddbr):
-        p = f_page()
-        s0 = f_section(page=p.id)
-        s1 = f_section(page=p.id)
-        s2 = f_section(page=p.id)
+    def test_update_position__and_time_on_delete(self, fk):
+        p = fk.f_page()
+        s0 = fk.f_section(page=p.id)
+        s1 = fk.f_section(page=p.id)
+        s2 = fk.f_section(page=p.id)
 
         with db_session:
-            now = ddbr.Page[p.id].modified
+            now = fk.db.Page[p.id].modified
             wait()
-            ddbr.Section[s0.id].delete()
+            fk.db.Section[s0.id].delete()
 
         with db_session:
             # resultat avec décalage
-            assert ddbr.Section[s1.id].position == 0
-            assert ddbr.Section[s2.id].position == 1
+            assert fk.db.Section[s1.id].position == 0
+            assert fk.db.Section[s2.id].position == 1
             # page mis à jour
-            assert now < ddbr.Page[p.id].modified
+            assert now < fk.db.Page[p.id].modified
 
     @pytest.mark.parametrize(
-        "start, new_pos, poses", [(2, 3, (0, 1, 3, 2, 4)), (3, 1, (0, 2, 3, 1, 4)),]
+        "start, new_pos, poses",
+        [
+            (2, 3, (0, 1, 3, 2, 4)),
+            (3, 1, (0, 2, 3, 1, 4)),
+        ],
     )
-    def test_update_position_change_position_descend(self, ddbr, start, new_pos, poses):
-        a = f_page()
+    def test_update_position_change_position_descend(self, fk, start, new_pos, poses):
+        a = fk.f_page()
         secs = []
         with db_session:
             for i in range(5):
-                z = ddbr.Section(page=a.id, position=i)
+                z = fk.db.Section(page=a.id, position=i)
                 flush()
                 secs.append(z)
             for i, e in enumerate(secs):
                 assert e.position == i
         with db_session:
-            x = ddbr.Section[secs[start].id]
+            x = fk.db.Section[secs[start].id]
             x.position = new_pos
         with db_session:
             for index, value in enumerate(poses):
-                assert ddbr.Section[secs[index].id].position == value
+                assert fk.db.Section[secs[index].id].position == value
 
 
 class TestImageSection:
-    def test_factory(self):
-        a = f_imageSection(path="mon/path")
+    def test_factory(self, fk):
+        a = fk.f_imageSection(path="mon/path")
         assert a.path == "mon/path"
 
-    def test_to_dict(self):
-        a = f_imageSection(path="mon/path", td=True)
+    def test_to_dict(self, fk):
+        a = fk.f_imageSection(path="mon/path", td=True)
         assert a["path"] == "mon/path"
         assert a["annotations"] == []
 
 
 class TestTextSection:
-    def test_factory(self):
-        assert f_textSection(text="bla").text == "bla"
+    def test_factory(self, fk):
+        assert fk.f_textSection(text="bla").text == "bla"
 
-    def test_default_is_empty_string(self, ddb):
-        p = f_page()
+    def test_default_is_empty_string(self, ddb, fk):
+        p = fk.f_page()
         tex = ddb.TextSection(page=p.id)
         assert tex.text == "<body></body>"
 
 
 class TestTableDataSection:
-    def test_datas(self, ddb):
-        p = f_page()
+    def test_datas(self, ddb, fk):
+        p = fk.f_page()
         a = ddb.TableDataSection(
             _datas='["", "", "", "", "", ""]', rows=3, columns=2, page=p.id
         )
         assert a.datas == ["", "", "", "", "", ""]
 
-    def test_update_datas(self, ddb):
-        p = f_page()
+    def test_update_datas(self, ddb, fk):
+        p = fk.f_page()
         a = ddb.TableDataSection(
             _datas='["", "", "", "", "", ""]', rows=3, columns=2, page=p.id
         )
         a.update_datas(4, "g")
         assert a.datas == ["", "", "", "", "g", ""]
 
-    def test_to_dict(self, ddb):
-        p = f_page()
+    def test_to_dict(self, ddb, fk):
+        p = fk.f_page()
         a = ddb.TableDataSection(
             _datas='["", "", "", "", "", ""]', rows=3, columns=2, page=p.id
         )
@@ -598,8 +606,8 @@ class TestTableDataSection:
 
 
 class TestOperationSection:
-    def test_init(self, ddb):
-        x = f_page()
+    def test_init(self, ddb, fk):
+        x = fk.f_page()
         # normal
         a = ddb.OperationSection(string="1+2", page=x.id)
         assert a._datas == '["", "", "", "1", "+", "2", "", ""]'
@@ -607,20 +615,20 @@ class TestOperationSection:
         assert a.rows == 4
         assert a.columns == 2
 
-    def test_error_in_init(self, ddb):
+    def test_error_in_init(self, ddb, fk):
         with pytest.raises(MyCartableOperationError) as err:
             ddb.OperationSection(string="1(2")
         assert str(err.value) == "1(2 est une entrée invalide"
 
-    def test_datas(self, ddb):
-        f_page()
+    def test_datas(self, ddb, fk):
+        fk.f_page()
 
         # do not use content if None
         with pytest.raises(TypeError):
             a = ddb.OperationSection(page=1)
 
-    def test_to_dict(self, reset_db):
-        item = f_additionSection(string="259+135")
+    def test_to_dict(self, fk):
+        item = fk.f_additionSection(string="259+135")
         assert item.to_dict() == {
             "classtype": "AdditionSection",
             "created": item.created.isoformat(),
@@ -652,18 +660,18 @@ class TestOperationSection:
             "virgule": 0,
         }
 
-    def test_update_datas(self, ddbr: Database):
-        item = f_additionSection(string="259+135")
+    def test_update_datas(self, fk):
+        item = fk.f_additionSection(string="259+135")
         with db_session:
-            ddbr.Section[item.id].update_datas(15, 4)
+            fk.db.Section[item.id].update_datas(15, 4)
 
         with db_session:
-            assert ddbr.Section[item.id].datas[15] == 4
+            assert fk.db.Section[item.id].datas[15] == 4
 
 
 class TestAddditionSection:
-    def test_factory(self):
-        assert f_additionSection(string="15+3").datas == [
+    def test_factory(self, fk):
+        assert fk.f_additionSection(string="15+3").datas == [
             "",
             "",
             "",
@@ -678,7 +686,7 @@ class TestAddditionSection:
             "",
         ]
 
-        f_additionSection()
+        fk.f_additionSection()
 
     @pytest.mark.parametrize(
         "string, res",
@@ -690,24 +698,48 @@ class TestAddditionSection:
             ("1,1+1", {1, 13, 15}),
         ],
     )
-    def test_get_editables(self, ddb, string, res):
-        x = f_additionSection(string=string)
+    def test_get_editables(self, ddb, string, res, fk):
+        x = fk.f_additionSection(string=string)
         assert x.get_editables() == res
 
 
 class TestSoustractionSection:
-    def test_factory(self):
+    def test_factory(self, fk):
         res = (
-            ["", "", "1", "", "", "5", "", "-", "",]
-            + ["", "", "", "3", "", "", "", "",]
-            + ["", "", "", "",]
+            [
+                "",
+                "",
+                "1",
+                "",
+                "",
+                "5",
+                "",
+                "-",
+                "",
+            ]
+            + [
+                "",
+                "",
+                "",
+                "3",
+                "",
+                "",
+                "",
+                "",
+            ]
+            + [
+                "",
+                "",
+                "",
+                "",
+            ]
         )
-        assert f_soustractionSection(string="15-3").datas == res
+        assert fk.f_soustractionSection(string="15-3").datas == res
 
-        f_soustractionSection()
+        fk.f_soustractionSection()
 
-    def test_lines(self, ddb):
-        a = f_soustractionSection(string="24-13")
+    def test_lines(self, ddb, fk):
+        a = fk.f_soustractionSection(string="24-13")
         # ['', '', '2', '', '', '4', '', '-', '', '1', '', '', '3', '', '', '', '', '', '', '', ''] 7 3
         assert a.line_0 == ["", "", "2", "", "", "4", ""]
         assert a.line_1 == [
@@ -732,14 +764,14 @@ class TestSoustractionSection:
             ("2,2-1,1", {18, 22}),
         ],
     )
-    def test_get_editables(self, ddb, string, res):
-        x = f_soustractionSection(string=string)
+    def test_get_editables(self, ddb, string, res, fk):
+        x = fk.f_soustractionSection(string=string)
         assert x.get_editables() == res
 
 
 class TestMultiplicationSection:
-    def test_factory(self):
-        assert f_multiplicationSection(string="1*2").datas == [
+    def test_factory(self, fk):
+        assert fk.f_multiplicationSection(string="1*2").datas == [
             "",
             "",
             "",
@@ -750,10 +782,10 @@ class TestMultiplicationSection:
             "",
         ]
 
-        f_multiplicationSection()
+        fk.f_multiplicationSection()
 
-    def test_properties(self, ddb):
-        a = f_multiplicationSection(string="12*34")
+    def test_properties(self, ddb, fk):
+        a = fk.f_multiplicationSection(string="12*34")
         assert a.n_chiffres == 2
         assert a.line_0 == ["", "", "3", "4"]
         assert a.line_1 == ["x", "", "1", "2"]
@@ -771,7 +803,10 @@ class TestMultiplicationSection:
                 "22*55",
                 {3, 8, 21, 22, 23, 24, 26, 27, 28, 29, 31, 32, 33, 34, 36, 37, 38, 39},
             ),
-            ("2,2*5,5", {3, 9} | set(range(25, 48)) - set(range(24, 48, 6)),),
+            (
+                "2,2*5,5",
+                {3, 9} | set(range(25, 48)) - set(range(24, 48, 6)),
+            ),
             (
                 "325,12*99,153",
                 set(
@@ -783,34 +818,37 @@ class TestMultiplicationSection:
             ),
         ],
     )
-    def test_get_editables(self, ddb, string, res):
-        x = f_multiplicationSection(string=string)
+    def test_get_editables(self, ddb, string, res, fk):
+        x = fk.f_multiplicationSection(string=string)
         assert x.get_editables() == res
 
 
 class TestDivisionSection:
-    def test_factory(self, ddb):
-        x = f_divisionSection(string="34/3")
+    def test_factory(self, ddb, fk):
+        x = fk.f_divisionSection(string="34/3")
         assert x.dividende == "34"
         assert x.diviseur == "3"
 
-    def test_is_ligne_dividende(self):
-        tm = f_divisionSection("264/11")
+    def test_is_ligne_dividende(self, fk):
+        tm = fk.f_divisionSection("264/11")
         check_is_range(tm, "is_ligne_dividende", range(9))
 
-    def test_is_ligne_last(self):
-        tm = f_divisionSection("264/11")
+    def test_is_ligne_last(self, fk):
+        tm = fk.f_divisionSection("264/11")
         check_is_range(tm, "is_ligne_last", range(36, 45))
 
     @pytest.mark.parametrize(
         "string, res",
         [
             # ("5/4", set(range(84)) - {1}),
-            ("264/11", {10, 13, 16, 19, 22, 25} | {28, 31, 34, 37, 40, 43},),
+            (
+                "264/11",
+                {10, 13, 16, 19, 22, 25} | {28, 31, 34, 37, 40, 43},
+            ),
         ],
     )
-    def test_get_editables(self, string, res):
-        x = f_divisionSection(string=string)
+    def test_get_editables(self, string, res, fk):
+        x = fk.f_divisionSection(string=string)
         assert x.get_editables() == res
 
     #     # 'rows': 5, 'columns': 9, '
@@ -821,8 +859,8 @@ class TestDivisionSection:
     #     # '', '*', '*', '',  '*', '*', '', '*', '', // 35
     #     # '', '*', '', '',   '*', '',  '', '*', '' , //44
 
-    def test_to_dict(self, reset_db):
-        x = f_divisionSection(string="5/4")
+    def test_to_dict(self, fk):
+        x = fk.f_divisionSection(string="5/4")
         assert x.to_dict() == {
             "classtype": "DivisionSection",
             "columns": 12,
@@ -840,29 +878,29 @@ class TestDivisionSection:
             "virgule": 0,
         }
 
-    def test_as_num(self):
-        x = f_divisionSection(string="5/4")
+    def test_as_num(self, fk):
+        x = fk.f_divisionSection(string="5/4")
         assert x.diviseur_as_num == 4
         assert x.dividende_as_num == 5
 
-        x = f_divisionSection(string="5,333333/4,1")
+        x = fk.f_divisionSection(string="5,333333/4,1")
         assert x.diviseur_as_num == 4.1
         assert x.dividende_as_num == 5.333333
 
 
 class TestAnnotations:
-    def test_init(self, ddb):
-        s = f_section()
+    def test_init(self, ddb, fk):
+        s = fk.f_section()
         x = ddb.Annotation(x=0.1, y=0.4, section=s.id)
         x.style.flush()
-        assert isinstance(x.style.styleId, UUID)
+        assert isinstance(x.style.styleId, uuid.UUID)
 
-    def test_factory(self, ddbr):
-        a = f_annotation()
+    def test_factory(self, fk):
+        a = fk.f_annotation()
         assert isinstance(a.id, uuid.UUID)
 
-    def test_init_and_to_dict(self, ddb):
-        s = f_section()
+    def test_init_and_to_dict(self, ddb, fk):
+        s = fk.f_section()
         x = ddb.Annotation(x=0.1, y=0.4, section=s.id, style={"bgColor": "red"})
         assert x.style.bgColor == QColor("red")
 
@@ -874,10 +912,10 @@ class TestAnnotations:
         assert r["fgColor"] == QColor("black")
         assert r["id"] == str(x.id)
 
-    def test_set(self, ddbr):
-        x = f_annotation(x=0.3)
+    def test_set(self, fk):
+        x = fk.f_annotation(x=0.3)
         with db_session:
-            x = ddbr.Annotation[x.id]
+            x = fk.db.Annotation[x.id]
             assert not x.style.underline
             x.set(**{"x": 0.7, "style": {"underline": True}, "attrs": {"y": "0.234"}})
             assert x.x == 0.7
@@ -886,17 +924,17 @@ class TestAnnotations:
             x.set(**{"x": 0.9})
             assert x.x == 0.9
 
-    def test_add_modify_section_and_page_modified_attribute(self, ddbr):
-        p = f_page()
+    def test_add_modify_section_and_page_modified_attribute(self, fk):
+        p = fk.f_page()
         before_p = p.modified
-        s = f_section(page=p.id, created=datetime.utcnow())
+        s = fk.f_section(page=p.id, created=datetime.utcnow())
         before = s.modified
 
         wait()
-        a = f_annotation(section=s.id)
+        a = fk.f_annotation(section=s.id)
 
         with db_session:
-            n = ddbr.Section[s.id]
+            n = fk.db.Section[s.id]
             after = n.modified
             wait()
             after_p = n.page.modified
@@ -905,64 +943,64 @@ class TestAnnotations:
         assert before_p < after_p
 
     #
-    def test_delete_modify_section_and_page_modified_attribute(self, ddbr):
-        p = f_page()
-        s = f_section(page=p.id, created=datetime.utcnow())
-        a = f_annotation(section=s.id)
+    def test_delete_modify_section_and_page_modified_attribute(self, fk):
+        p = fk.f_page()
+        s = fk.f_section(page=p.id, created=datetime.utcnow())
+        a = fk.f_annotation(section=s.id)
         wait()
         with db_session:
-            n = ddbr.Section[s.id]
+            n = fk.db.Section[s.id]
             before = n.modified
             before_p = n.page.modified
         wait()
         with db_session:
-            ddbr.Annotation[a.id].delete()
+            fk.db.Annotation[a.id].delete()
 
         with db_session:
-            n = ddbr.Section[s.id]
+            n = fk.db.Section[s.id]
             after = n.modified
             after_p = n.page.modified
 
         assert before < after
         assert before_p < after_p
 
-    def test_delete_not_fail_if_section_deleted(self, ddbr):
-        a = f_annotation()
+    def test_delete_not_fail_if_section_deleted(self, fk):
+        a = fk.f_annotation()
         with db_session:
-            s = ddbr.Section[a.section.id]
-            a = ddbr.Annotation[a.id]
+            s = fk.db.Section[a.section.id]
+            a = fk.db.Annotation[a.id]
             s.delete()
             a.delete()
 
-    def test_annotation_text(self):
-        an = f_annotationText(text=" jihkujgy ")
+    def test_annotation_text(self, fk):
+        an = fk.f_annotationText(text=" jihkujgy ")
         assert an.text == " jihkujgy "
 
-    def test_annotation_dessin(self):
-        an = f_annotationText(text=" jihkujgy ")
+    def test_annotation_dessin(self, fk):
+        an = fk.f_annotationText(text=" jihkujgy ")
         assert an.text == " jihkujgy "
 
-    def test_annotation_dession(self):
-        an = f_annotationDessin()
+    def test_annotation_dession(self, fk):
+        an = fk.f_annotationDessin()
 
-    def test_getitem(self, ddbr):
-        f_annotation()
-        f_annotationDessin()
-        f_annotationText()
+    def test_getitem(self, fk):
+        fk.f_annotation()
+        fk.f_annotationDessin()
+        fk.f_annotationText()
 
         with db_session:
-            annots = ddbr.Annotation.select()[:]
+            annots = fk.db.Annotation.select()[:]
             a = annots[0].as_type()
-            assert isinstance(a, ddbr.Annotation)
+            assert isinstance(a, fk.db.Annotation)
             a = annots[1].as_type()
-            assert isinstance(a, ddbr.AnnotationDessin)
+            assert isinstance(a, fk.db.AnnotationDessin)
             a = annots[2].as_type()
-            assert isinstance(a, ddbr.AnnotationText)
+            assert isinstance(a, fk.db.AnnotationText)
 
 
 class TestTableauSection:
-    def test_init(self, ddb):
-        x = f_page()
+    def test_init(self, ddb, fk):
+        x = fk.f_page()
         # normal
         a = ddb.TableauSection(lignes=3, colonnes=4, page=x.id)
         a.flush()
@@ -970,7 +1008,7 @@ class TestTableauSection:
         # si pas d'erreur c que pq ok
         assert [ddb.TableauCell[a.id, y, x] for y in range(3) for x in range(4)]
 
-        b = f_tableauSection()
+        b = fk.f_tableauSection()
 
     @pytest.mark.parametrize(
         "modele, zero_0, zero_1, un_0, un_1",
@@ -1005,17 +1043,17 @@ class TestTableauSection:
             ),
         ],
     )
-    def test_init_with_model(self, ddbr, modele, zero_0, zero_1, un_0, un_1):
-        x = f_tableauSection(2, 2, modele)
+    def test_init_with_model(self, fk, modele, zero_0, zero_1, un_0, un_1):
+        x = fk.f_tableauSection(2, 2, modele)
         with db_session:
-            a = ddbr.TableauSection[x.id]
-            assert ddbr.TableauCell[a, 0, 0].style.bgColor.rgba() == zero_0.rgba()
-            assert ddbr.TableauCell[a, 0, 1].style.bgColor.rgba() == zero_1.rgba()
-            assert ddbr.TableauCell[a, 1, 0].style.bgColor.rgba() == un_0.rgba()
-            assert ddbr.TableauCell[a, 1, 1].style.bgColor.rgba() == un_1.rgba()
+            a = fk.db.TableauSection[x.id]
+            assert fk.db.TableauCell[a, 0, 0].style.bgColor.rgba() == zero_0.rgba()
+            assert fk.db.TableauCell[a, 0, 1].style.bgColor.rgba() == zero_1.rgba()
+            assert fk.db.TableauCell[a, 1, 0].style.bgColor.rgba() == un_0.rgba()
+            assert fk.db.TableauCell[a, 1, 1].style.bgColor.rgba() == un_1.rgba()
 
-    def test_to_dict(self, ddb):
-        item = f_tableauSection(lignes=3, colonnes=4)
+    def test_to_dict(self, ddb, fk):
+        item = fk.f_tableauSection(lignes=3, colonnes=4)
 
         assert item.to_dict() == {
             "classtype": "TableauSection",
@@ -1028,10 +1066,10 @@ class TestTableauSection:
             "position": 0,
         }
 
-    def test_get_par_ligne(self, ddb):
+    def test_get_par_ligne(self, ddb, fk):
         TableauCell = ddb.TableauCell
         TableauSection = ddb.TableauSection
-        t = f_tableauSection(lignes=5, colonnes=4)
+        t = fk.f_tableauSection(lignes=5, colonnes=4)
         p1 = t.get_cells_par_ligne(0)
         assert len(p1) == 4
         assert p1 == [
@@ -1075,22 +1113,26 @@ class TestTableauSection:
         ]
 
     @staticmethod
-    def peupler_tableau_manipulation():
-        with db_session:
-            a = f_tableauSection(3, 4)  # premiere colone : 0,4,8
-            cells = a.get_cells()[:]
-            cells[0].texte = "0_0"
-            cells[0].style.underline = True
-            cells[4].texte = "1_0"
-            cells[4].style.bgColor = "yellow"
-            cells[8].texte = "2_0"
-            cells[8].style.fgColor = "blue"
-            cells = [x.to_dict(exclude=["x", "y"]) for x in cells]
-            [x["style"].pop("styleId") for x in cells]
-            return make_proxy(a), cells
+    @pytest.fixture()
+    def peupler_tableau_manipulation(fk):
+        def wraped():
+            with db_session:
+                a = fk.f_tableauSection(3, 4)  # premiere colone : 0,4,8
+                cells = a.get_cells()[:]
+                cells[0].texte = "0_0"
+                cells[0].style.underline = True
+                cells[4].texte = "1_0"
+                cells[4].style.bgColor = "yellow"
+                cells[8].texte = "2_0"
+                cells[8].style.fgColor = "blue"
+                cells = [x.to_dict(exclude=["x", "y"]) for x in cells]
+                [x["style"].pop("styleId") for x in cells]
+                return make_proxy(a), cells
 
-    def test_insert_one_line(self, ddbr):
-        a, cells = self.peupler_tableau_manipulation()
+        return wraped
+
+    def test_insert_one_line(self, peupler_tableau_manipulation):
+        a, cells = peupler_tableau_manipulation()
         with db_session:
             a.insert_one_line(1)
         with db_session:
@@ -1103,8 +1145,8 @@ class TestTableauSection:
             assert cells_after[4]["texte"] == ""
             assert cells_after[4]["style"]["underline"] == False
 
-    def test_insert_one_line_start(self, ddbr):
-        a, cells = self.peupler_tableau_manipulation()
+    def test_insert_one_line_start(self, peupler_tableau_manipulation):
+        a, cells = peupler_tableau_manipulation()
         with db_session:
             a.insert_one_line(0)
         with db_session:
@@ -1117,8 +1159,8 @@ class TestTableauSection:
             assert cells_after[0]["texte"] == ""
             assert cells_after[0]["style"]["underline"] == False
 
-    def test_insert_one_avant_line_dernier(self, ddbr):
-        a, cells = self.peupler_tableau_manipulation()
+    def test_insert_one_avant_line_dernier(self, peupler_tableau_manipulation):
+        a, cells = peupler_tableau_manipulation()
         with db_session:
             a.insert_one_line(2)
         with db_session:
@@ -1131,8 +1173,8 @@ class TestTableauSection:
             assert cells_after[8]["texte"] == ""
             assert cells_after[8]["style"]["underline"] == False
 
-    def test_insert_one_apres_dernier(self, ddbr):
-        a, cells = self.peupler_tableau_manipulation()
+    def test_insert_one_apres_dernier(self, peupler_tableau_manipulation):
+        a, cells = peupler_tableau_manipulation()
         with db_session:
             a.insert_one_line(3)
         with db_session:
@@ -1145,8 +1187,8 @@ class TestTableauSection:
             assert cells_after[12]["texte"] == ""
             assert cells_after[12]["style"]["underline"] == False
 
-    def test_insert_append_one_line(self, ddbr):
-        a, cells = self.peupler_tableau_manipulation()
+    def test_insert_append_one_line(self, peupler_tableau_manipulation):
+        a, cells = peupler_tableau_manipulation()
         with db_session:
             a.append_one_line()
         with db_session:
@@ -1159,8 +1201,8 @@ class TestTableauSection:
             assert cells_after[12]["texte"] == ""
             assert cells_after[12]["style"]["underline"] == False
 
-    def test_remove_line_middle(self, ddbr):
-        a, cells = self.peupler_tableau_manipulation()
+    def test_remove_line_middle(self, peupler_tableau_manipulation):
+        a, cells = peupler_tableau_manipulation()
         with db_session:
             a.remove_on_line(1)
         with db_session:
@@ -1170,8 +1212,8 @@ class TestTableauSection:
             assert cells_after[0] == cells[0]
             assert cells_after[4] == cells[8]
 
-    def test_remove_line_last(self, ddbr):
-        a, cells = self.peupler_tableau_manipulation()
+    def test_remove_line_last(self, peupler_tableau_manipulation):
+        a, cells = peupler_tableau_manipulation()
         with db_session:
             a.remove_one_line(2)
         with db_session:
@@ -1181,8 +1223,8 @@ class TestTableauSection:
             assert cells_after[0] == cells[0]
             assert cells_after[4] == cells[4]
 
-    def test_remove_line_middle(self, ddbr):
-        a, cells = self.peupler_tableau_manipulation()
+    def test_remove_line_middle(self, peupler_tableau_manipulation):
+        a, cells = peupler_tableau_manipulation()
         with db_session:
             a.remove_one_line(0)
         with db_session:
@@ -1193,24 +1235,28 @@ class TestTableauSection:
             assert cells_after[4] == cells[8]
 
     @staticmethod
-    def peupler_tableau_manip_colonnes():
-        with db_session:
-            a = f_tableauSection(3, 4)
-            cells = a.get_cells()[:]
-            cells[0].texte = "0_0"
-            cells[0].style.underline = True
-            cells[1].texte = "0_1"
-            cells[1].style.bgColor = "yellow"
-            cells[2].texte = "0_2"
-            cells[2].style.fgColor = "blue"
-            cells[3].texte = "0_3"
-            cells[3].style.strikeout = True
-            cells = [x.to_dict(exclude=["x", "y"]) for x in cells]
-            [x["style"].pop("styleId") for x in cells]
-            return make_proxy(a), cells
+    @pytest.fixture()
+    def peupler_tableau_manip_colonnes(fk):
+        def wrap():
+            with db_session:
+                a = fk.f_tableauSection(3, 4)
+                cells = a.get_cells()[:]
+                cells[0].texte = "0_0"
+                cells[0].style.underline = True
+                cells[1].texte = "0_1"
+                cells[1].style.bgColor = "yellow"
+                cells[2].texte = "0_2"
+                cells[2].style.fgColor = "blue"
+                cells[3].texte = "0_3"
+                cells[3].style.strikeout = True
+                cells = [x.to_dict(exclude=["x", "y"]) for x in cells]
+                [x["style"].pop("styleId") for x in cells]
+                return make_proxy(a), cells
 
-    def test_insert_one_col_middle(self, ddbr):
-        a, cells = self.peupler_tableau_manip_colonnes()
+        return wrap
+
+    def test_insert_one_col_middle(self, peupler_tableau_manip_colonnes):
+        a, cells = peupler_tableau_manip_colonnes()
         with db_session:
             a.insert_one_column(1)
         with db_session:
@@ -1224,8 +1270,8 @@ class TestTableauSection:
             assert cells_after[1]["texte"] == ""
             assert cells_after[1]["style"]["bgColor"] == QColor("transparent")
 
-    def test_insert_one_col_start(self, ddbr):
-        a, cells = self.peupler_tableau_manip_colonnes()
+    def test_insert_one_col_start(self, peupler_tableau_manip_colonnes):
+        a, cells = peupler_tableau_manip_colonnes()
         with db_session:
             a.insert_one_column(0)
         with db_session:
@@ -1239,8 +1285,8 @@ class TestTableauSection:
             assert cells_after[0]["texte"] == ""
             assert cells_after[0]["style"]["bgColor"] == QColor("transparent")
 
-    def test_insert_one_col_avant_dernier(self, ddbr):
-        a, cells = self.peupler_tableau_manip_colonnes()
+    def test_insert_one_col_avant_dernier(self, peupler_tableau_manip_colonnes):
+        a, cells = peupler_tableau_manip_colonnes()
         with db_session:
             a.insert_one_column(3)
         with db_session:
@@ -1254,8 +1300,8 @@ class TestTableauSection:
             assert cells_after[3]["texte"] == ""
             assert cells_after[3]["style"]["bgColor"] == QColor("transparent")
 
-    def test_insert_one_col__dernier(self, ddbr):
-        a, cells = self.peupler_tableau_manip_colonnes()
+    def test_insert_one_col__dernier(self, peupler_tableau_manip_colonnes):
+        a, cells = peupler_tableau_manip_colonnes()
         with db_session:
             a.insert_one_column(4)
         with db_session:
@@ -1269,8 +1315,8 @@ class TestTableauSection:
             assert cells_after[4]["texte"] == ""
             assert cells_after[4]["style"]["bgColor"] == QColor("transparent")
 
-    def test_insert_append_colonne(self, ddbr):
-        a, cells = self.peupler_tableau_manip_colonnes()
+    def test_insert_append_colonne(self, peupler_tableau_manip_colonnes):
+        a, cells = peupler_tableau_manip_colonnes()
         with db_session:
             a.append_one_column()
         with db_session:
@@ -1284,8 +1330,8 @@ class TestTableauSection:
             assert cells_after[4]["texte"] == ""
             assert cells_after[4]["style"]["bgColor"] == QColor("transparent")
 
-    def test_remove_one_col_middle(self, ddbr):
-        a, cells = self.peupler_tableau_manip_colonnes()
+    def test_remove_one_col_middle(self, peupler_tableau_manip_colonnes):
+        a, cells = peupler_tableau_manip_colonnes()
         with db_session:
             a.remove_one_column(2)
         with db_session:
@@ -1296,8 +1342,8 @@ class TestTableauSection:
             assert cells_after[1] == cells[1]
             assert cells_after[2] == cells[3]
 
-    def test_remove_one_col_start(self, ddbr):
-        a, cells = self.peupler_tableau_manip_colonnes()
+    def test_remove_one_col_start(self, peupler_tableau_manip_colonnes):
+        a, cells = peupler_tableau_manip_colonnes()
         with db_session:
             a.remove_one_column(0)
         with db_session:
@@ -1308,8 +1354,8 @@ class TestTableauSection:
             assert cells_after[1] == cells[2]
             assert cells_after[2] == cells[3]
 
-    def test_remove_one_col_end(self, ddbr):
-        a, cells = self.peupler_tableau_manip_colonnes()
+    def test_remove_one_col_end(self, peupler_tableau_manip_colonnes):
+        a, cells = peupler_tableau_manip_colonnes()
         with db_session:
             a.remove_one_column(3)
         with db_session:
@@ -1322,9 +1368,9 @@ class TestTableauSection:
 
 
 class TestTableauCell:
-    def test_init(self, ddb):
+    def test_init(self, ddb, fk):
         # simple
-        t = f_tableauSection(lignes=0)
+        t = fk.f_tableauSection(lignes=0)
         a = ddb.TableauCell(tableau=t, x=0, y=0)
         assert a.x == 0
         assert a.y == 0
@@ -1333,14 +1379,14 @@ class TestTableauCell:
         b = ddb.TableauCell(tableau=t, x=0, y=1, style={"bgColor": "red"})
         assert b.style._bgColor == 4294901760
 
-    def test_factory(self, reset_db):
-        t = f_tableauSection(lignes=0, colonnes=0)
-        f_tableauCell(tableau=t.id)
-        f_tableauCell(x=1, tableau=t.id)
+    def test_factory(self, fk):
+        t = fk.f_tableauSection(lignes=0, colonnes=0)
+        fk.f_tableauCell(tableau=t.id)
+        fk.f_tableauCell(x=1, tableau=t.id)
 
-    def test_to_dict(self, reset_db):
-        s = f_style(bgColor="red")
-        b = f_tableauCell(x=2, y=0, style=s.styleId, texte="bla")
+    def test_to_dict(self, fk):
+        s = fk.f_style(bgColor="red")
+        b = fk.f_tableauCell(x=2, y=0, style=s.styleId, texte="bla")
         with db_session:
             assert b.to_dict() == {
                 "tableau": str(b.tableau.id),
@@ -1359,10 +1405,10 @@ class TestTableauCell:
                 },
             }
 
-    def test_set(self, ddbr):
-        x = f_tableauCell(texte="bla")
+    def test_set(self, fk):
+        x = fk.f_tableauCell(texte="bla")
         with db_session:
-            x = ddbr.TableauCell[x.tableau.id, 0, 0]
+            x = fk.db.TableauCell[x.tableau.id, 0, 0]
             assert not x.style.underline
             x.set(**{"texte": "bbb"})
             assert x.texte == "bbb"
@@ -1372,7 +1418,7 @@ class TestTableauCell:
 
 
 class TestStyle:
-    def test_init(self, ddb):
+    def test_init(self, ddb, fk):
         # set tout
         item = ddb.Style(
             fgColor="red",
@@ -1395,10 +1441,10 @@ class TestStyle:
         assert item.strikeout == False
         assert item.weight == None
 
-    def test_factory(self):
-        item = f_style()
+    def test_factory(self, fk):
+        item = fk.f_style()
 
-    def test_set(self, ddb):
+    def test_set(self, ddb, fk):
         item = ddb.Style()
         item.set(**{"underline": True})
         assert item.underline
@@ -1409,18 +1455,18 @@ class TestStyle:
 
 
 class TestEquationModel:
-    def test_init(self, ddb):
-        a = ddb.EquationSection(page=f_page().id)
+    def test_init(self, ddb, fk):
+        a = ddb.EquationSection(page=fk.f_page().id)
         assert a.content == ""
 
-    def test_factory(self, ddbr):
-        a = f_equationSection(content="1\u2000    \n__ + 1\n15    ")
+    def test_factory(self, fk):
+        a = fk.f_equationSection(content="1\u2000    \n__ + 1\n15    ")
         assert a.content == "1\u2000    \n__ + 1\n15    ", "1/15 + 1"
-        a = f_equationSection(content="     \n1 + 1\n     ")
+        a = fk.f_equationSection(content="     \n1 + 1\n     ")
         assert a.content == "     \n1 + 1\n     "
 
-    def test_set(self, ddb):
-        a = f_equationSection()
+    def test_set(self, ddb, fk):
+        a = fk.f_equationSection()
         assert a.set(content="   ", curseur=1)["content"] == ""
         assert a.set(content="   ", curseur=3)["curseur"] == 0
         assert a.set(content="1+2", curseur=2)["content"] == "1+2"
@@ -1502,7 +1548,7 @@ class TestColorMixin:
 
 
 @pytest.fixture
-def position_mixed(reset_db):
+def position_mixed(fk):
     def setup():
         db = Database()
 
@@ -1569,7 +1615,14 @@ class TestPositionMixin:
             assert y.position == 1
             assert z.position == 2
 
-    @pytest.mark.parametrize("todel, un, deux", [(1, 2, 3), (2, 1, 3), (3, 1, 2),])
+    @pytest.mark.parametrize(
+        "todel, un, deux",
+        [
+            (1, 2, 3),
+            (2, 1, 3),
+            (3, 1, 2),
+        ],
+    )
     def test_delete_recalculate(self, todel, un, deux, position_mixed):
         Referent, Mixed, SubMixed, MixedChild, ref, x, y, z = position_mixed()
 
@@ -1604,7 +1657,12 @@ class TestPositionMixin:
 
     @pytest.mark.parametrize(
         "where, un, deux, trois, quatre",
-        [(1, 0, 2, 3, 1), (0, 1, 2, 3, 0), (2, 0, 1, 3, 2), (20, 0, 1, 2, 3),],
+        [
+            (1, 0, 2, 3, 1),
+            (0, 1, 2, 3, 0),
+            (2, 0, 1, 3, 2),
+            (20, 0, 1, 2, 3),
+        ],
     )
     def test_insert_at(self, position_mixed, where, un, deux, trois, quatre):
         Referent, Mixed, SubMixed, MixedChild, ref, x, y, z = position_mixed()
@@ -1646,16 +1704,176 @@ class TestPositionMixin:
 
 
 class TestUtilisateur:
-    def test_factory(self):
-        assert f_user()
+    def test_factory(self, fk):
+        assert fk.f_user()
 
-    def test_last_used(self, ddb):
-        u = f_user()
+    def test_last_used(self, ddb, fk):
+        u = fk.f_user()
         assert u.last_used == 0
         u.last_used = 2014
         assert u.to_dict()["last_used"] == 2014
 
-    def test_user(self, ddb):
-        u = f_user()
+    def test_user(self, ddb, fk):
+        u = fk.f_user()
         w = ddb.Utilisateur.user()
         assert u == w
+
+
+class TestConfiguration:
+    def test_get_field(self, ddb):
+        c = ddb.Configuration
+        assert c._get_field("a") == "str_value"
+        assert c._get_field(12) == "int_value"
+        assert c._get_field(12.12) == "float_value"
+        assert c._get_field(datetime.now()) == "datetime_value"
+        assert c._get_field(date.today()) == "date_value"
+        assert c._get_field(uuid.uuid4()) == "uuid_value"
+        assert c._get_field([1, 2, 3]) == "json_value"
+        assert c._get_field({"234": 234}) == "json_value"
+
+    def test_add_option(self, ddb):
+        c = ddb.Configuration
+        # add part
+        c.add("string", "value")
+        assert c.option("string") == "value"
+        c.add("int", 1)
+        assert c.option("int") == 1
+        c.add("float", 1.1)
+        assert c.option("float") == 1.1
+        d = datetime.now()
+        c.add("datetime", d)
+        assert c.option("datetime") == d
+        dt = date.today()
+        c.add("date", dt)
+        assert c.option("date") == dt
+        c.add("list", [1, 2, 3])
+        assert c.option("list") == [1, 2, 3]
+        c.add("dict", {"kj": "okmlj"})
+        assert c.option("dict") == {"kj": "okmlj"}
+        u = uuid.uuid4()
+        c.add("uuid", u)
+        assert c.option("uuid") == u
+
+
+class TestFrise:
+    def test_factory(self, fk):
+        f = fk.f_friseSection()
+        assert f.height == 400
+        g = fk.f_zoneFrise(frise=f.id)
+        assert g.ratio == 0.2
+        assert g.position == 0
+        h = fk.f_zoneFrise(frise=f.id)
+        assert h.position == 1
+
+    def test_delete_mixin_position(self, fk):
+        frise = fk.f_friseSection()
+        ZoneFrise = fk.db.ZoneFrise
+        g = fk.f_zoneFrise(frise=frise.id)
+        h = fk.f_zoneFrise(frise=frise.id)
+
+        with db_session:
+            assert ZoneFrise[g.id].position == 0
+            assert ZoneFrise[h.id].position == 1
+            ZoneFrise[g.id].delete()
+        with db_session:
+            assert ZoneFrise[h.id].position == 0
+
+    def test_zonefrise_init_set_to_dict(self, fk):
+        ph = fk.f_friseSection()
+
+        with db_session:
+            # test _init
+            f = fk.db.ZoneFrise(
+                frise=ph.id, ratio=0.2, style={"bgColor": "blue"}, texte="bla"
+            )
+            l = fk.f_friseLegende(texte="aa", relativeX="0.3", side=True, zone=f.id)
+            assert f.style.bgColor == "blue"
+            # test set
+            f.set(ratio=0.5, style={"bgColor": "green"})
+            assert f.style.bgColor == "green"
+            assert f.ratio == 0.5
+            assert f.to_dict() == {
+                "frise": str(ph.id),
+                "id": str(f.id),
+                "position": 0,
+                "ratio": 0.5,
+                "texte": "bla",
+                "separatorText": "",
+                "legendes": [
+                    {
+                        "id": str(l.id),
+                        "relativeX": 0.3,
+                        "side": True,
+                        "texte": "aa",
+                        "zone": str(f.id),
+                    }
+                ],
+                "style": {
+                    "bgColor": QColor("green"),
+                    "family": "",
+                    "fgColor": QColor("black"),
+                    "pointSize": None,
+                    "strikeout": False,
+                    "styleId": str(f.style.styleId),
+                    "underline": False,
+                    "weight": None,
+                },
+            }
+
+    def test_FriseSection_to_dict(self, fk):
+        f = fk.f_friseSection(titre="une frise", height=300)
+        g = fk.f_zoneFrise(texte="aaa", frise=f)
+        h = fk.f_zoneFrise(texte="bbb", frise=f)
+        with db_session:
+            item = fk.db.FriseSection[f.id]
+            dico = item.to_dict()
+            dico.pop("modified")
+            assert dico == {
+                "classtype": "FriseSection",
+                "created": f.created.isoformat(),
+                "height": 300,
+                "id": str(f.id),
+                "page": str(item.page.id),
+                "position": 0,
+                "titre": "une frise",
+                "zones": [
+                    {
+                        "frise": str(f.id),
+                        "id": str(g.id),
+                        "position": 0,
+                        "ratio": 0.2,
+                        "separatorText": "",
+                        "legendes": [],
+                        "style": {
+                            "bgColor": QColor.fromRgbF(0, 0, 0, 0),
+                            "family": "",
+                            "fgColor": QColor.fromRgbF(0, 0, 0, 1),
+                            "pointSize": None,
+                            "strikeout": False,
+                            "styleId": str(g.style.styleId),
+                            "underline": False,
+                            "weight": None,
+                        },
+                        "texte": "aaa",
+                    },
+                    {
+                        "frise": str(f.id),
+                        "id": str(h.id),
+                        "position": 1,
+                        "ratio": 0.2,
+                        "separatorText": "",
+                        "legendes": [],
+                        "style": {
+                            "bgColor": QColor.fromRgbF(0, 0, 0, 0),
+                            "family": "",
+                            "fgColor": QColor.fromRgbF(0, 0, 0, 1),
+                            "pointSize": None,
+                            "strikeout": False,
+                            "styleId": str(h.style.styleId),
+                            "underline": False,
+                            "weight": None,
+                        },
+                        "texte": "bbb",
+                    },
+                ],
+            }

@@ -2,18 +2,17 @@ import pytest
 
 from PySide2.QtCore import Qt, QModelIndex
 from fixtures import check_super_init, check_begin_end, check_args
-from factory import f_page, b_section, f_section
 from package.page.page_model import PageModel
 from pony.orm import db_session, make_proxy
 
 
 @pytest.fixture
-def pm(ddbr, qappdao):
+def pm(fk, qappdao):
     # return a
     def factory(nb):
-        p = f_page()
-        a = PageModel()
-        x = b_section(nb, page=p.id)
+        p = fk.f_page()
+        a = PageModel(fk.db)
+        x = fk.b_section(nb, page=p.id)
         a.secids = [str(z.id) for z in x]
         a.pageid = p.id
         print(a.secids, a.pageid)
@@ -29,12 +28,11 @@ class TestPAgeModel:
         check_args(a.move, [int, int], bool)
         check_args(a.removeSection, [int], bool)
 
-    def test_base_init(self, qtbot, qtmodeltester):
-        assert check_super_init("package.page.page_model.QAbstractListModel", PageModel)
-        b = PageModel()
+    def test_base_init(self, ddbr, qtbot, qtmodeltester):
+        b = PageModel(ddbr)
         assert b.row_count == 0
 
-        a = PageModel()
+        a = PageModel(ddbr)
         # a._datas = [1, 2, 4]
         qtmodeltester.check(a)
 
@@ -53,7 +51,7 @@ class TestPAgeModel:
         assert int(x.flags(x.index(0, 0))) == 128 + 35
         assert x.flags(x.index(99, 99)) is None
 
-    def test_insertRows(self, pm, qtbot):
+    def test_insertRows(self, fk, pm, qtbot):
         x = pm(2)
 
         def util(x, y, z):
@@ -65,24 +63,25 @@ class TestPAgeModel:
         assert x.count == 2
 
         with db_session:
-            d = b_section(3, page=x.page.id)
+            d = fk.b_section(3, page=x.page.id)
         with qtbot.waitSignal(
-            x.rowsInserted, check_params_cb=util,
+            x.rowsInserted,
+            check_params_cb=util,
         ):
             assert x.insertRows(d[0].position, len(d))
         assert x.count == 5
         assert x.lastPosition == 2
 
-    def test_insertRow(self, pm):
+    def test_insertRow(self, pm, fk):
         """cela test aussi insertion en dernière place
-            et les defautls arguments.
+        et les defautls arguments.
         """
         x = pm(1)
 
         assert x.row_count == 1
 
         with db_session:
-            d = f_section(page=x.page.id)
+            d = fk.f_section(page=x.page.id)
         assert x.insertRow(1)
         assert x.row_count == 2
         assert x.lastPosition == 1
@@ -92,8 +91,8 @@ class TestPAgeModel:
         with check_begin_end(a, "InsertRows"):
             a.insertRows(0, 1, QModelIndex())
 
-    def test_roles(self):
-        pm = PageModel()
+    def test_roles(self, ddbr):
+        pm = PageModel(ddbr)
         assert Qt.DisplayRole in pm.roleNames()
         assert PageModel.PageRole in pm.roleNames()
         assert pm.roleNames()[PageModel.PageRole] == b"page"
@@ -134,22 +133,22 @@ class TestPAgeModel:
         with db_session:
             assert a.page.lastPosition == 2
 
-    def test_property_last_position_set_ddb(self, pm, ddbr, qtbot):
+    def test_property_last_position_set_ddb(self, pm, fk, qtbot):
         a = pm(0)
         # section do not exists
         with qtbot.waitSignal(a.lastPositionChanged):
             a.lastPosition = 999
 
         # cas ou ça va
-        p = f_page(lastPosition=2)
-        b_section(3, page=p.id)
+        p = fk.f_page(lastPosition=2)
+        fk.b_section(3, page=p.id)
         a.page_id = p.id
         with db_session:
-            a._page = make_proxy(ddbr.Page[p.id])
+            a._page = make_proxy(fk.db.Page[p.id])
         with qtbot.waitSignal(a.lastPositionChanged):
             a.lastPosition = 1
         with db_session:
-            assert ddbr.Page[str(a.pageid)].lastPosition == 1
+            assert fk.db.Page[str(a.pageid)].lastPosition == 1
 
     @pytest.mark.parametrize(
         "source, target, res_fn, res_source, res_target",
@@ -211,13 +210,13 @@ class TestPAgeModel:
         assert a.data(a.index(0, 0), a.PageRole)["id"] == a.secids[1]
         assert a.data(a.index(1, 0), a.PageRole)["id"] == a.secids[2]
 
-    def test_count(self, pm, ddbr, qtbot):
+    def test_count(self, pm, fk, qtbot):
         a = pm(0)
         assert a.count == 0
         b = pm(3)
         assert b.count == 3
-        x = f_page()
-        b_section(2, page=x.id)
+        x = fk.f_page()
+        fk.b_section(2, page=x.id)
         with qtbot.waitSignal(b.countChanged):
             b.slotReset(x.id)
         assert b.count == 2

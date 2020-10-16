@@ -3,34 +3,32 @@ import os
 import re
 import subprocess
 import uuid
-from subprocess import run, CalledProcessError
 from multiprocessing import Value, cpu_count
 from multiprocessing.context import Process
 from pathlib import Path
 import time
 import fitz
-from loguru import logger
-from typing import Tuple, List, Iterator, Union
+from PySide2.QtQuick import QQuickItem
+from typing import Tuple, List
 
 from PySide2.QtCore import (
     QDir,
     QPoint,
     QRect,
     Signal,
-    QBuffer,
     QTemporaryFile,
 )
 from PySide2.QtGui import (
-    QImage,
     QPainter,
     QColor,
     QFontDatabase,
     QPainterPath,
+    QGuiApplication,
 )
 from bs4 import NavigableString, BeautifulSoup
 from mako.lookup import TemplateLookup
-from package import get_root_binary_path
 from package.constantes import BASE_FONT, ANNOTATION_TEXT_BG_OPACITY, MONOSPACED_FONTS
+from package.convertion.grabber import Grabber
 from package.database import getdb
 from package.files_path import FILES, TMP
 from package.utils import read_qrc
@@ -41,6 +39,12 @@ from loguru import logger
 from package import qrc  # type: ignore
 
 from package.ui_manager import DEFAULT_ANNOTATION_CURRENT_TEXT_SIZE_FACTOR
+
+from typing import Union
+
+from PySide2.QtCore import QBuffer
+from PySide2.QtGui import QImage
+
 
 db = getdb()
 
@@ -127,7 +131,10 @@ def find_soffice(ui=None):
             return "/usr/bin/soffice"
         else:
             res = (
-                subprocess.run(["which", "soffice"], capture_output=True,)
+                subprocess.run(
+                    ["which", "soffice"],
+                    capture_output=True,
+                )
                 .stdout.decode()
                 .strip()
             )
@@ -251,7 +258,8 @@ def draw_annotation_text(annotation: dict, image: QImage, painter: QPainter):
     painter.setOpacity(1)
 
     painter.drawText(
-        rect, annotation["text"],
+        rect,
+        annotation["text"],
     )
 
 
@@ -1034,6 +1042,34 @@ def equation_section(section):
     return res, auto_style
 
 
+def frise_section(section):
+    return grab_section(section)
+
+
+def grab_section(section, initial_prop={}):
+    section_dict = section.to_dict()
+    sectionItem = QQuickItem(width=1181)
+    base_prop = {"sectionItem": sectionItem, "sectionId": section_dict["id"]}
+    base_prop.update(initial_prop)
+    app = QGuiApplication.instance()
+    with Grabber(context_dict={"ddb": app.dao}) as grab:
+        img = grab.comp_to_image(
+            url=f":/qml/sections/{section.classtype}.qml",
+            initial_prop=base_prop,
+        )
+    width = img.widthMM()
+    height = img.heightMM()
+    # img.save("/tmp/odtfrise.png")
+    res = f"""<text:p text:style-name="Standard">
+    <draw:frame draw:style-name="fr1" draw:name="{uuid.uuid4().hex}" text:anchor-type="paragraph" svg:width="{int(width)}mm"  svg:height="{int(height)}mm" draw:z-index="0">
+        <draw:image loext:mime-type="image/png">
+            <office:binary-data>{img.to_base64().decode()}</office:binary-data>
+        </draw:image>
+    </draw:frame>
+</text:p>"""
+    return res, ""
+
+
 def build_body(page_id: int) -> Tuple[str, str]:
     tags = []
     automatic_res = []
@@ -1067,6 +1103,9 @@ def build_body(page_id: int) -> Tuple[str, str]:
 
         elif section.classtype == "EquationSection":
             new_tags, automatic_tags_style = equation_section(section)
+
+        elif section.classtype == "FriseSection":
+            new_tags, automatic_tags_style = frise_section(section)
 
         if automatic_tags_style:
             automatic_res.append(automatic_tags_style)
@@ -1118,237 +1157,3 @@ def build_odt(page_id: int) -> str:
         styles=styles,
     )
     return res
-
-
-#
-# from package.database import init_database
-
-# QGuiApplication([])
-# init_database()
-# page = f_page()
-#
-# eq = f_equationSection(page=page.id)
-#
-# sec = f_textSection(
-#     page=page.id,
-#     text="""<body><p><span>ligne\nnormale</span></p><h1>t   itre</h1><h2>titre seconde</h2><p><span>de but de ligne </span><span style=" color:#ff0000;">rou\tge</span><span> suite de ligne</span></p><h3>titre seconde</h3><h4>titre seconde</h4><p><span>du</span><span style=" text-decoration:underline; color:#0048ba;"> style en fin </span><span>de </span><span style=" color:#800080;">lingne</span></p><p><span>debu</span><span style=" text-decoration:underline; color:#006a4e;">t de ligne </span><span style=" text-decoration:underline; color:#006a4e;">rou</span><span style=" color:#ff0000;">ge</span><span> suite de ligne</span></p></body>""",
-# )
-#
-# f_equationSection(
-#     page=page.id,
-#     content=f"""1{TextEquation.FSP}            {TextEquation.FSP}12   1234
-# ―― + 13 + 3 + ――― + ―――― + 1
-# 15            234   789{TextEquation.FSP}    """,
-# ),
-# img = f_imageSection(page=page.id)
-# img = f_imageSection(page=page.id)
-# with db_session:
-#     aa = f_additionSection(string="234+123", page=page.id)
-#     aa._datas = json.dumps(
-#         ["", "2", "", "3", "", "2", "3", "4", "+", "1", "2", "3", "", "2", "3", "1",]
-#     )
-#
-# from PySide2.QtGui import QColor
-#
-# cells = [
-#     {
-#         "x": 0,
-#         "y": 0,
-#         "content": {
-#             "texte": "",
-#             "style": {
-#                 "family": "",
-#                 "underline": False,
-#                 "pointSize": None,
-#                 "strikeout": False,
-#                 "weight": None,
-#                 "bgColor": QColor.fromRgbF(1.000000, 0.498039, 0.498039, 1.000000),
-#                 "fgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 1.000000),
-#             },
-#         },
-#     },
-#     {
-#         "x": 0,
-#         "y": 1,
-#         "content": {
-#             "texte": "",
-#             "style": {
-#                 "family": "",
-#                 "underline": False,
-#                 "pointSize": None,
-#                 "strikeout": False,
-#                 "weight": None,
-#                 "bgColor": QColor.fromRgbF(1.000000, 0.498039, 0.498039, 1.000000),
-#                 "fgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 1.000000),
-#             },
-#         },
-#     },
-#     {
-#         "x": 0,
-#         "y": 2,
-#         "content": {
-#             "texte": "",
-#             "style": {
-#                 "family": "",
-#                 "underline": False,
-#                 "pointSize": None,
-#                 "strikeout": False,
-#                 "weight": None,
-#                 "bgColor": QColor.fromRgbF(1.000000, 0.498039, 0.498039, 1.000000),
-#                 "fgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 1.000000),
-#             },
-#         },
-#     },
-#     {
-#         "x": 0,
-#         "y": 3,
-#         "content": {
-#             "texte": "",
-#             "style": {
-#                 "family": "",
-#                 "underline": False,
-#                 "pointSize": None,
-#                 "strikeout": False,
-#                 "weight": None,
-#                 "bgColor": QColor.fromRgbF(1.000000, 0.498039, 0.498039, 1.000000),
-#                 "fgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 1.000000),
-#             },
-#         },
-#     },
-#     {
-#         "x": 1,
-#         "y": 1,
-#         "content": {
-#             "texte": "fze",
-#             "style": {
-#                 "family": "",
-#                 "underline": False,
-#                 "pointSize": 36.0,
-#                 "strikeout": False,
-#                 "weight": None,
-#                 "bgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 0.000000),
-#                 "fgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 1.000000),
-#             },
-#         },
-#     },
-#     {
-#         "x": 1,
-#         "y": 0,
-#         "content": {
-#             "texte": "fezf",
-#             "style": {
-#                 "family": "",
-#                 "underline": True,
-#                 "pointSize": None,
-#                 "strikeout": False,
-#                 "weight": None,
-#                 "bgColor": QColor.fromRgbF(0.498039, 0.498039, 1.000000, 1.000000),
-#                 "fgColor": QColor.fromRgbF(0.000000, 0.501961, 0.000000, 1.000000),
-#             },
-#         },
-#     },
-#     {
-#         "x": 1,
-#         "y": 3,
-#         "content": {
-#             "texte": "ezf",
-#             "style": {
-#                 "family": "",
-#                 "underline": False,
-#                 "pointSize": 6.0,
-#                 "strikeout": False,
-#                 "weight": None,
-#                 "bgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 0.000000),
-#                 "fgColor": QColor.fromRgbF(1.000000, 0.000000, 0.000000, 1.000000),
-#             },
-#         },
-#     },
-#     {
-#         "x": 2,
-#         "y": 0,
-#         "content": {
-#             "texte": "",
-#             "style": {
-#                 "family": "",
-#                 "underline": False,
-#                 "pointSize": None,
-#                 "strikeout": False,
-#                 "weight": None,
-#                 "bgColor": QColor.fromRgbF(0.498039, 0.498039, 1.000000, 1.000000),
-#                 "fgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 1.000000),
-#             },
-#         },
-#     },
-#     {
-#         "x": 2,
-#         "y": 2,
-#         "content": {
-#             "texte": "fzefzef\nzefzefzef",
-#             "style": {
-#                 "family": "",
-#                 "underline": True,
-#                 "pointSize": None,
-#                 "strikeout": False,
-#                 "weight": None,
-#                 "bgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 0.000000),
-#                 "fgColor": QColor.fromRgbF(1.000000, 0.000000, 0.000000, 1.000000),
-#             },
-#         },
-#     },
-#     {
-#         "x": 2,
-#         "y": 3,
-#         "content": {
-#             "texte": "fz   efzefze\tfzef",
-#             "style": {
-#                 "family": "",
-#                 "underline": True,
-#                 "pointSize": None,
-#                 "strikeout": False,
-#                 "weight": None,
-#                 "bgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 0.000000),
-#                 "fgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 1.000000),
-#             },
-#         },
-#     },
-#     {
-#         "x": 4,
-#         "y": 4,
-#         "content": {
-#             "texte": "fzefzefefzefezf",
-#             "style": {
-#                 "family": "",
-#                 "underline": True,
-#                 "pointSize": None,
-#                 "strikeout": False,
-#                 "weight": None,
-#                 "bgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 0.000000),
-#                 "fgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 1.000000),
-#             },
-#         },
-#     },
-# ]
-# from package.database import db
-#
-# with db_session:
-#     t = f_tableauSection(lignes=5, colonnes=7, page=page.id)
-#     t.flush()
-#     for c in cells:
-#         db.TableauCell[t.id, c["y"], c["x"]].set(**c["content"])
-#
-# aa = f_additionSection(string="234,34+123,1", page=page.id)
-# sous = f_soustractionSection(string="234-123", page=page.id)
-# f_soustractionSection("1234253-342545", page=page.id)
-# sous = f_soustractionSection(string="234,23-123,1", page=page.id)
-#
-# mul = f_multiplicationSection(string="234*123", page=page.id)
-# mul = f_multiplicationSection(string="234,23*123,234", page=page.id)
-#
-# with db_session:
-#     dd = f_divisionSection(string="34555/23", page=page.id)
-#     dd.quotient = "234"
-#
-# res = merge_all_xml(page.id)
-# import subprocess
-#
-# subprocess.run(["xdg-open", str(res)])

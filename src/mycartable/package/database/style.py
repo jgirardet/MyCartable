@@ -18,7 +18,8 @@ def class_style(db: Database) -> "Style":
         # penser à ajouter dans to_dict
         annotation = Optional("Annotation")
         tableau_cell = Optional("TableauCell")
-        linked_objs = ["annotation", "tableau_cell"]
+        zone_frise = Optional("ZoneFrise")
+        linked_objs = ["annotation", "tableau_cell", "zone_frise"]
 
         def __init__(self, **kwargs):
             super().__init__(**self.adjust_kwargs(**kwargs))

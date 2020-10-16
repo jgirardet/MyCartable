@@ -5,11 +5,6 @@ import pytest
 from PySide2.QtCore import Qt, QModelIndex, QJsonDocument
 from PySide2.QtGui import QColor
 from fixtures import check_super_init
-from factory import (
-    f_annotationText,
-    f_annotationDessin,
-    f_imageSection,
-)
 from package.page.annotation_model import AnnotationModel
 from pony.orm import db_session
 from pony.orm.core import EntityProxy
@@ -18,22 +13,22 @@ from fixtures import check_args
 
 
 @pytest.fixture
-def am(ddbr, qappdao):
+def am(fk, qappdao):
     def factory(nb, genre=None):
-        p = f_imageSection()
+        p = fk.f_imageSection()
         a = AnnotationModel()
         annots = []
         if isinstance(genre, tuple):
             for i in genre:
                 if i == "t":
-                    x = f_annotationText(section=p.id)
+                    x = fk.f_annotationText(section=p.id)
                     annots.append(x)
                 elif i == "d":
-                    x = f_annotationDessin(section=p.id)
+                    x = fk.f_annotationDessin(section=p.id)
                     annots.append(x)
         else:
             for i in range(nb):
-                x = f_annotationText(section=p.id)
+                x = fk.f_annotationText(section=p.id)
                 annots.append(x)
         a.f_annots = annots
         a.img_id = p.id
@@ -50,7 +45,15 @@ class TestAnnotationModel:
         check_args(a.removeRow, [int], bool, slot_order=1)
         check_args(a.slotReset, [str], bool)
         check_args(a.newDessin, dict)
-        check_args(a.addAnnotation, [float, float, float, float,])
+        check_args(
+            a.addAnnotation,
+            [
+                float,
+                float,
+                float,
+                float,
+            ],
+        )
 
     def test_base_init(self, qtbot, qtmodeltester):
         assert check_super_init(
@@ -78,15 +81,15 @@ class TestAnnotationModel:
         assert int(x.flags(x.index(0, 0))) == 128 + 35
         assert x.flags(x.index(99, 99)) is None
 
-    def test_insertRows_and_row(self, am, qtbot):
+    def test_insertRows_and_row(self, am, qtbot, fk):
         x = am(2)
         assert x.rowCount() == 2
 
-        f_annotationText(section=x.sectionId)
+        fk.f_annotationText(section=x.sectionId)
         assert x.insertRows(1, 0)
         assert x.rowCount() == 3
 
-        f_annotationText(section=x.sectionId)
+        fk.f_annotationText(section=x.sectionId)
         assert x.insertRow(1)
         assert x.rowCount() == 4
 
@@ -106,7 +109,7 @@ class TestAnnotationModel:
             a.count = 3
         assert a.rowCount() == a.row_count == a.count == 3
 
-    def test_sloot_reset(self, ddbr, qtbot):
+    def test_sloot_reset(self, fk, qtbot):
         a = AnnotationModel()
 
         # section does not exists
@@ -115,8 +118,8 @@ class TestAnnotationModel:
             assert a.section is None
             assert a.sectionId == 0
 
-        f = f_imageSection()
-        f_annotationDessin(section=f.id)
+        f = fk.f_imageSection()
+        fk.f_annotationDessin(section=f.id)
         with qtbot.waitSignal(a.modelReset):
             assert a.slotReset(f.id)
 

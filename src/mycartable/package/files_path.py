@@ -26,6 +26,7 @@ def root_data(create=True):
 
 
 ROOT_DATA = root_data()
+DEFAULT_DDB = ROOT_DATA / "mycartable.ddb"
 
 
 def files(root_d):

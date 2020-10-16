@@ -1,6 +1,8 @@
 import sys
 from pathlib import Path
 
+from PySide2.QtQml import qmlRegisterType
+
 sys.path.append(str(Path(__file__).parents[1]))
 from common import fn_reset_db, setup_session
 
@@ -100,11 +102,19 @@ def ddbnf(file_db, monkeypatch):
     # monkeypatch.undo()
 
 
+@pytest.fixture(scope="session", autouse=True)
+def register_qml_types():
+    from package.page.frise_model import FriseModel
+
+    qmlRegisterType(FriseModel, "MyCartable", 1, 0, "FriseModel")
+
+
 @pytest.fixture(scope="function")
 def qappdao(qapp, ddbn, uim):
     from package.database_object import DatabaseObject
 
-    qapp.dao = DatabaseObject(ddbn, uim)
+    dao = DatabaseObject(ddbn, uim)
+    qapp.dao = dao
     yield qapp
 
 
@@ -222,6 +232,20 @@ def daof(ddbrf, tmpfilename, uim, userid):
     obj.settings = QSettings(str(tmpfilename.absolute()))
 
     return obj
+
+
+@pytest.fixture()
+def fk(ddbr):
+    from factory import Faker
+
+    return Faker(ddbr)
+
+
+@pytest.fixture()
+def fkf(ddbrf):
+    from factory import Faker
+
+    return Faker(ddbrf)
 
 
 @pytest.fixture(autouse=False)

@@ -1,7 +1,6 @@
 from PySide2.QtCore import QObject, Property, Signal, Slot
 from PySide2.QtGui import QColor
 
-
 DEFAULT_ANNOTATION_CURRENT_TEXT_SIZE_FACTOR = 15
 
 

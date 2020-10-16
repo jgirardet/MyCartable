@@ -33,7 +33,7 @@ class PageMixin:
 
         from package.page.page_model import PageModel
 
-        self._pageModel = PageModel()
+        self._pageModel = PageModel(self.db)
 
     @Property(QObject, notify=currentPageChanged)
     def pageModel(self):

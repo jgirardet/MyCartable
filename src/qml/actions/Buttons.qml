@@ -19,7 +19,7 @@ Item {
       PageActions.ActionToolTip {
           visible: hovered
           text: action.tooltip
-          shortcut: action.shortcut
+          shortcut:  action.shortcut ?? ""
       }
 
       background: Rectangle {
@@ -80,6 +80,15 @@ Item {
         Component.onCompleted: action.dialog.parent = tableaubutton
       }
   }
+
+    component NewFriseSection : BaseButton {
+      action: PageActions.NewFriseSection {
+        position: targetIndex
+        append: appendMode
+      }
+
+}
+
 
   component RemovePage : BaseButton {
       action: PageActions.RemovePage {

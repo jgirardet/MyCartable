@@ -235,7 +235,7 @@ class Faker:
         x=None,
         y=None,
         section=None,
-        style=None,
+        # style=None,
         td=False,
         classtype=None,
         **kwargs,
@@ -247,8 +247,8 @@ class Faker:
         classtype = classtype or self.db.Annotation
         with db_session:
             item = classtype(x=x, y=y, section=section, **kwargs)
-            if style:
-                item.style = self.db.Style[style]
+            # if style:
+            #     item.style = self.db.Style[style]
             return item.to_dict() if td else item
 
     def f_annotationText(self, text="", **kwargs):

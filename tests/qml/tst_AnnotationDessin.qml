@@ -9,8 +9,6 @@ Item {
     implicitHeight: height // si pas de taille, pas ed paint
 
     CasTest {
-        //                "uiManager": uiManager
-
         id: testCase
 
         property var annot

@@ -6,38 +6,27 @@ Item {
     property var currentAnnotation: null
     property Item model
 
-    model: Item {
-        property int _removeRow
-
-        function removeRow(idx) {
-            return item._removeRow;
-        }
-
-    }
-
     width: 320
     height: 200
     implicitWidth: width
     implicitHeight: height
+
     CasTest {
+        //        "height": 0.8
+
         property var annot
         property int index: 1
         property var edit
 
         function initPre() {
-            //        "height": 0.8
-
             //      params = {
             item.currentAnnotation = null;
             item.model._removeRow = 0;
             edit = null;
-            annot = {
-                "sectionId": 2,
-                "classtype": "AnnotationText",
+            annot = fk.f("annotationText", {
                 "x": 0.4,
-                "y": 0.2,
-                "id": 34
-            };
+                "y": 0.2
+            });
             params = {
                 "annot": annot,
                 "referent": item,
@@ -66,11 +55,8 @@ Item {
             compare(item.currentAnnotation, tested);
         }
 
-        function test_middle_button_remove_annot() {
-            mouseClick(tested, 0, 0, Qt.MiddleButton);
-        }
-
         function test_right_button_show_menu() {
+            uiManager.menuFlottantAnnotationText = createObj("qrc:/qml/menu/MenuFlottantAnnotationText.qml");
             verify(!tested.item.menu.visible);
             mouseClick(tested, 0, 0, Qt.RightButton);
             verify(tested.item.menu.visible);
@@ -81,7 +67,7 @@ Item {
             mouseDrag(tested, 0, 0, 16, 20, Qt.LeftButton, Qt.ControlModifier);
             verify(!tested.held);
             compare(edit, {
-                "id": 34,
+                "id": annot.id,
                 "x": 0.45,
                 "y": 0.3
             });
@@ -92,7 +78,7 @@ Item {
             tested.anchors.leftMargin = 0.5;
             tested.anchors.topMargin = 0.4;
             compare(edit, {
-                "id": 34,
+                "id": annot.id,
                 "x": 0.5,
                 "y": 0.4
             });
@@ -103,13 +89,22 @@ Item {
                 "color": "red"
             });
             compare(edit, {
-                "id": 34,
+                "id": annot.id,
                 "color": "red"
             });
         }
 
         name: "BaseAnnotation"
         testedNom: "qrc:/qml/annotations/BaseAnnotation.qml"
+    }
+
+    model: Item {
+        property int _removeRow
+
+        function removeRow(idx) {
+            return item._removeRow;
+        }
+
     }
 
 }

@@ -15,6 +15,9 @@ class UiManager(QObject):
 
     def __init__(self):
         super().__init__()
+        self.set_default()
+
+    def set_default(self):
         self._menuTarget = None
         self._toast = None
         self._buzyIndicator = False
@@ -27,6 +30,10 @@ class UiManager(QObject):
         self._annotationCurrentTool = "text"
         self._menuFlottantAnnotationText = None
         self._menuFlottantAnnotationDessin = None
+
+    @Slot()
+    def resetUiManager(self):
+        self.set_default()
 
     @Property(QObject, notify=menuFlottantTextChanged)
     def menuFlottantText(self):

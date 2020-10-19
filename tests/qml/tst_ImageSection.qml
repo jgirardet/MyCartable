@@ -66,7 +66,7 @@ Item {
         function test_right_click_ctrl_modifier_add_fillrect() {
             uiManager.annotationCurrentTool = "text";
             mouseDrag(tested, 3, 10, 10, 10, Qt.RightButton, Qt.ControlModifier);
-            compare(tested.annotations.itemAt(0).item.tool, "rect");
+            compare(tested.annotations.itemAt(0).item.tool, "fillrect");
         }
 
         function test_left_press_currentool_is_not_text() {
@@ -159,6 +159,26 @@ Item {
             compare(uiManager.annotationDessinCurrentStrokeStyle, "#ffffff");
             compare(uiManager.annotationCurrentTool, "rect");
             compare(uiManager.annotationDessinCurrentTool, "trait");
+        }
+
+        function test_annotation_text_removed_if_empty() {
+            uiManager.annotationCurrentTool = "text";
+            mouseClick(tested);
+            compare(tested.annotations.count, 1);
+            let timer = findChild(tested.annotations.itemAt(0), "timerRemove");
+            compare(timer.running, true);
+            timer.stop();
+            timer.interval = 0;
+            timer.start();
+            tryCompare(tested.annotations, "count", 0);
+        }
+
+        function test_baseannotation_removed_if_middle_click() {
+            uiManager.annotationCurrentTool = "text";
+            mouseClick(tested);
+            compare(tested.annotations.count, 1);
+            mouseClick(tested.annotations.itemAt(0), 1, 1, Qt.MiddleButton);
+            compare(tested.annotations.count, 0);
         }
 
         name: "ImageSection"

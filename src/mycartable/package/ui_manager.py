@@ -25,6 +25,8 @@ class UiManager(QObject):
         self._annotationDessinCurrentStrokeStyle = "black"
         self._annotationDessinCurrentTool = "fillrect"
         self._annotationCurrentTool = "text"
+        self._menuFlottantAnnotationText = None
+        self._menuFlottantAnnotationDessin = None
 
     @Property(QObject, notify=menuFlottantTextChanged)
     def menuFlottantText(self):

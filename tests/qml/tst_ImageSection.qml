@@ -8,6 +8,8 @@ Item {
     height: 600
 
     CasTest {
+        // onPaint called
+
         property var model
         property var canvas
         property var imgsection
@@ -45,27 +47,26 @@ Item {
         function test_left_click_no_modifier_currenttool_is_text() {
             uiManager.annotationCurrentTool = "text";
             mouseClick(tested, 3, 10, Qt.LeftButton);
-            compare(model._addAnnotation, [3, 10, 200, 174]);
+            verify(tested.annotations.itemAt(0).item.toString().substr("AnnotationText"));
         }
 
         function test_left_click_no_modifier_currenttool_is_not_text() {
             uiManager.annotationCurrentTool = "rect";
-            mouseClick(tested, 3, 10, Qt.LeftButton);
-            compare(model._addAnnotation, null);
+            uiManager.annotationDessinCurrentTool = "rect";
+            mouseDrag(tested, 3, 10, 10, 10, Qt.LeftButton);
+            compare(tested.annotations.itemAt(0).item.tool, "rect");
         }
 
-        function test_left_click_ctrl_modifier() {
+        function test_left_click_ctrl_modifier_add_text() {
             uiManager.annotationCurrentTool = "rect";
             mouseClick(tested, 3, 10, Qt.LeftButton, Qt.ControlModifier);
-            compare(model._addAnnotation, [3, 10, 200, 174]);
+            verify(tested.annotations.itemAt(0).item.toString().substr("AnnotationText"));
         }
 
-        function test_right_click_ctrl_modifier() {
+        function test_right_click_ctrl_modifier_add_fillrect() {
             uiManager.annotationCurrentTool = "text";
-            mousePress(tested, 3, 10, Qt.RightButton, Qt.ControlModifier);
-            compare(model._addAnnotation, null);
-            verify(canvas.painting); // painting True == startDraw called
-            verify(canvas.useDefaultTool);
+            mouseDrag(tested, 3, 10, 10, 10, Qt.RightButton, Qt.ControlModifier);
+            compare(tested.annotations.itemAt(0).item.tool, "rect");
         }
 
         function test_left_press_currentool_is_not_text() {
@@ -88,24 +89,26 @@ Item {
             mousePress(tested, 3, 10, Qt.RightButton, Qt.ControlModifier);
             verify(!canvas.visible);
             mouseMove(tested, 33, 100);
-            waitForRendering(canvas);
-            verify(canvas.visible); // onPaint called
+            tryCompare(canvas, "visible", true);
         }
 
         function test_right_click_affiche_menu() {
+            uiManager.menuFlottantImage = createObj("qrc:/qml/menu/MenuFlottantImage.qml");
             compare(uiManager.menuFlottantImage.visible, false);
-            mouseClick(tested, 0, 0, Qt.RightButton);
+            mouseClick(tested, 1, 1, Qt.RightButton);
             compare(uiManager.menuFlottantImage.visible, true);
         }
 
         function test_annotation_repeter() {
             var rep = findChild(tested, "repeater");
             compare(rep.count, 0);
-            fk.f("annotationText", {
-                "section": imgsection.id
+            tested.model.addAnnotation("AnnotationText", {
+                "x": 100,
+                "y": 100,
+                "width": item.width,
+                "height": item.height
             });
-            tested.model.addAnnoation(100, 100, item.width, item.height);
-            wait(2000);
+            //            wait(2000);
             compare(rep.count, 1);
         }
 

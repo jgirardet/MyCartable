@@ -15,6 +15,7 @@ from pony.orm import (
     Set,
     Database,
     ObjectNotFound,
+    Json,
 )
 from .mixins import ColorMixin, PositionMixin
 
@@ -101,7 +102,9 @@ def class_section(
         path = Required(str)
 
         def to_dict(self, **kwargs):
-            return super().to_dict(with_collections=True)
+            dico = super().to_dict()
+            dico["annotations"] = [annot.to_dict() for annot in self.annotations]
+            return dico
 
     class TextSection(Section):
         text = Optional(str, default="<body></body>")
@@ -376,6 +379,7 @@ def class_section(
         startY = Required(float)
         endX = Required(float)
         endY = Required(float)
+        points = Optional(str)
         """style : 
             fgColor: strokeStyle
             bgColor: fillStyle

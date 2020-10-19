@@ -12,6 +12,7 @@ Image {
     property var model
     property MouseArea mousearea: mousearea
     property var currentAnnotation
+    property Item annotations: repeater
 
     function reloadImage() {
         // not tested

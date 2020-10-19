@@ -5,6 +5,7 @@ from PySide2.QtCore import (
     Signal,
     Property,
     QObject,
+    Qt,
 )
 
 
@@ -30,6 +31,11 @@ class DaoListModel(QAbstractListModel):
         super().__init__(parent=parent)
         self.dao: "DatabaseObject" = None
         self.triggerInit.connect(lambda: self.reset())
+
+    def flags(self, index):
+        if not index.isValid():
+            return
+        return super().flags(index) | Qt.ItemIsEditable
 
     @Slot(result=bool)
     def append(self) -> bool:

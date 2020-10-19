@@ -2,40 +2,24 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 
 Item {
-
     id: item
 
     width: 200
-    height: 300
-
-    Component {
-        id: modelComp
-
-        ListModel {
-            id: listmodel
-
-            property var _addAnnotation: null
-
-            function addAnnotation(mx, my, mwidth, mheight) {
-                _addAnnotation = [mx, my, mwidth, mheight];
-            }
-
-        }
-
-    }
+    height: 600
 
     CasTest {
-
         property var model
         property var canvas
+        property var imgsection
 
         function initPre() {
-            model = createTemporaryObject(modelComp, item);
+            imgsection = fk.f("imageSection", {
+                "path": "tst_AnnotableImage.png"
+            });
             params = {
-                "sectionId": 3796,
-                "sectionItem": item,
-                "model": model
-            }; // 767 x 669}
+                "sectionId": imgsection.id,
+                "sectionItem": item
+            };
         }
 
         function initPost() {
@@ -48,7 +32,7 @@ Item {
         }
 
         function test_img_load_init() {
-            compare(tested.source, "qrc:/tests/tst_AnnotableImage.png");
+            verify(tested.source.toString().endsWith("tst_AnnotableImage.png"));
             compare(tested.width, 200);
             compare(tested.height, 174); // 669 * item.width / 767
         }
@@ -117,12 +101,11 @@ Item {
         function test_annotation_repeter() {
             var rep = findChild(tested, "repeater");
             compare(rep.count, 0);
-            model.append({
-                "annot": {
-                    "sectionId": 2,
-                    "classtype": "AnnotationText"
-                }
+            fk.f("annotationText", {
+                "section": imgsection.id
             });
+            tested.model.addAnnoation(100, 100, item.width, item.height);
+            wait(2000);
             compare(rep.count, 1);
         }
 
@@ -176,7 +159,7 @@ Item {
         }
 
         name: "ImageSection"
-        testedNom: "qrc:/qml/annotations/ImageSectionBase.qml"
+        testedNom: "qrc:/qml/sections/ImageSection.qml"
         params: {
         }
     }

@@ -190,14 +190,20 @@ class Faker:
         return [self.f_section(*args, **kwargs) for x in range(n)]
 
     def f_imageSection(self, path=None, **kwargs):
+        basepath = Path(__file__).parents[1] / "tests" / "resources"
+        if path in ["tst_AnnotableImage.png", "sc1.png"]:
+            path = basepath / path
+        elif path:
+            path = path
+        else:
+            path = (
+                Path(__file__).parents[1]
+                / "tests"
+                / "resources"
+                / random.choice(["tst_AnnotableImage.png", "sc1.png"])
+            )
 
-        path = path or str(
-            Path(__file__).parents[1]
-            / "resources"
-            / random.choice(["tst_AnnotableImage.png", "sc1.png"])
-        )
-
-        return self._f_section("ImageSection", path=path, **kwargs)
+        return self._f_section("ImageSection", path=str(path), **kwargs)
 
     HTML = """
     <body>
@@ -468,8 +474,8 @@ class Faker:
                                 #     # 15            234   789{TextEquation.FSP}    """,
                                 # ),
                                 #     f_tableauSection(page=page.id),
-                                #     f_imageSection(page=page.id),
-                                self.f_textSection(page=page.id),
+                                self.f_imageSection(page=page.id),
+                                # self.f_textSection(page=page.id),
                                 #     f16_additionSection(page=page.id),
                                 #     f_soustractionSection(page=page.id),
                                 #     f_multiplicationSection(page=page.id),

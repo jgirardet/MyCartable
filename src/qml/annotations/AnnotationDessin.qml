@@ -38,16 +38,20 @@ Canvas {
     onFillStyleChanged: requestPaint()
     onLineWidthChanged: requestPaint()
     onPaint: {
-        var lw = lineWidth / 2;
-        var startX = annot.startX * width;
-        var startY = annot.startY * height;
-        var endX = annot.endX * width;
-        var endY = annot.endY * height;
         var ctx = canvas.getContext("2d");
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.lineWidth = lineWidth;
         ctx.fillStyle = fillStyle;
         ctx.strokeStyle = strokeStyle;
-        DrawCanvas.drawCanvas(ctx, tool, startX, startY, endX, endY);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (tool == "point") {
+            DrawCanvas.drawPoints(ctx, JSON.parse(annot.points), lineWidth, width, height);
+        } else {
+            var lw = lineWidth / 2;
+            var startX = annot.startX * width;
+            var startY = annot.startY * height;
+            var endX = annot.endX * width;
+            var endY = annot.endY * height;
+            DrawCanvas.drawCanvas(ctx, tool, startX, startY, endX, endY);
+        }
     }
 }

@@ -98,8 +98,8 @@ class SectionMixin:
         return res
 
     @db_session
-    @Slot(str, str, "QVariantMap", result=bool)
-    def setDB(self, entity: str, sectionId: str, params: dict) -> bool:
+    @Slot(str, str, "QVariantMap", result="QVariantMap")
+    def setDB(self, entity: str, sectionId: str, params: dict) -> dict:
         """
         Modify a row in database.
         :param entity: str. Entity Name
@@ -110,8 +110,8 @@ class SectionMixin:
         if entity := getattr(self.db, entity):  # pragma: no branch
             if item := entity.get(id=sectionId):  # pragma: no branch
                 item.set(**params)
-                return True
-        return False
+                return item.to_dict()
+        return {}
 
     @db_session
     @Slot(str, "QVariantMap", result="QVariantMap")

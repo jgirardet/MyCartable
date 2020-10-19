@@ -2,8 +2,6 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 
 Loader {
-    //    root.setSource(`qrc:/qml/annotations/${annot.classtype}.qml`, {
-
     id: root
 
     property var referent
@@ -73,7 +71,7 @@ Loader {
                 return ;
             }
             if (mouse.buttons === Qt.MiddleButton) {
-                root.parent.model.removeRow(index);
+                root.parent.model.remove(index);
             } else if (mouse.buttons === Qt.RightButton) {
                 root.item.menu.ouvre(root);
                 mouse.accepted = true;

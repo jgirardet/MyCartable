@@ -126,6 +126,7 @@
         <file alias="rotateLeft">data/icons/base/perso/rotateleft.png</file>
         <file alias="odt">data/icons/base/perso/odt.png</file>
         <file alias="pdf">data/icons/base/perso/pdf.png</file>
+        <file alias="abcd">data/icons/base/perso/abcd.png</file>
         <file alias="rotateRight">data/icons/base/perso/rotateright.png</file>
         <file alias="rect">data/icons/base/pack/png/rect.png</file>
         <file alias="trait">data/icons/base/pack/png/pencil.png</file>

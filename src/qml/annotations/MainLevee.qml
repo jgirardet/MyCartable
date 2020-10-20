@@ -23,7 +23,7 @@ Canvas {
     }
 
     function saveDraw() {
-        parent.model.newDessin({
+        let res = {
             "x": 0,
             "y": 0,
             "startX": 0,
@@ -38,7 +38,8 @@ Canvas {
             "strokeStyle": strokeStyle,
             "fillStyle": strokeStyle,
             "opacity": opacity
-        });
+        };
+        parent.model.addAnnotation("AnnotationDessin", res);
     }
 
     visible: false

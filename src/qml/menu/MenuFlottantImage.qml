@@ -36,68 +36,89 @@ BaseMenu {
     }
 
     MenuItem {
-        RowLayout {
-            anchors.fill: parent
-            spacing: 0
+        height: 80
 
-            ColorButton {
-                color: "transparent"
-                style: {
-                    "tool": "text"
+        ColumnLayout {
+            //            Layout.fillHeight: true
+
+            RowLayout {
+                spacing: 0
+
+                ColorButton {
+                    color: "transparent"
+                    style: {
+                        "tool": "text"
+                    }
+                    icon.source: "qrc:///icons/abcd"
+                    icon.color: "transparent"
+                    menu: menu
                 }
-                icon.source: "qrc:///icons/newTextSection"
-                icon.color: "transparent"
-                menu: menu
+
+                ColorButton {
+                    color: "transparent"
+                    style: {
+                        "tool": "trait"
+                    }
+                    icon.source: "qrc:///icons/trait"
+                    icon.color: "transparent"
+                    menu: menu
+                }
+
+                ColorButton {
+                    color: "transparent"
+                    style: {
+                        "tool": "rect"
+                    }
+                    icon.source: "qrc:///icons/rect"
+                    icon.color: "transparent"
+                    menu: menu
+                }
+
             }
 
-            ColorButton {
-                color: "transparent"
-                style: {
-                    "tool": "trait"
-                }
-                icon.source: "qrc:///icons/trait"
-                icon.color: "transparent"
-                menu: menu
-            }
+            RowLayout {
+                spacing: 0
 
-            ColorButton {
-                color: "transparent"
-                style: {
-                    "tool": "rect"
+                ColorButton {
+                    color: "transparent"
+                    style: {
+                        "tool": "fillrect"
+                    }
+                    icon.source: "qrc:///icons/fillrect"
+                    icon.color: "transparent"
+                    menu: menu
                 }
-                icon.source: "qrc:///icons/rect"
-                icon.color: "transparent"
-                menu: menu
-            }
 
-            ColorButton {
-                color: "transparent"
-                style: {
-                    "tool": "fillrect"
+                ColorButton {
+                    color: "transparent"
+                    style: {
+                        "tool": "ellipse"
+                    }
+                    icon.source: "qrc:///icons/ellipse"
+                    icon.color: "transparent"
+                    menu: menu
                 }
-                icon.source: "qrc:///icons/fillrect"
-                icon.color: "transparent"
-                menu: menu
-            }
 
-            ColorButton {
-                color: "transparent"
-                style: {
-                    "tool": "ellipse"
+                ColorButton {
+                    color: "transparent"
+                    style: {
+                        "tool": "arrow"
+                    }
+                    icon.source: "qrc:///icons/arrow-right"
+                    icon.color: "transparent"
+                    menu: menu
                 }
-                icon.source: "qrc:///icons/ellipse"
-                icon.color: "transparent"
-                menu: menu
-            }
 
-            ColorButton {
-                color: "transparent"
-                style: {
-                    "tool": "arrow"
+                ColorButton {
+                    color: "transparent"
+                    style: {
+                        "tool": "point"
+                    }
+                    icon.source: "qrc:///icons/newTextSection"
+                    icon.color: "transparent"
+                    menu: menu
                 }
-                icon.source: "qrc:///icons/arrow-right"
-                icon.color: "transparent"
-                menu: menu
+
             }
 
         }

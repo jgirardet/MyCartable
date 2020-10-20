@@ -1,4 +1,5 @@
 import QtQuick 2.15
+import "assets/annotationsValues.mjs" as AssetAnnot
 
 Item {
     id: item
@@ -8,7 +9,32 @@ Item {
     implicitWidth: width
     implicitHeight: height // si pas de taille, pas ed paint
 
+    Item {
+        id: item2
+
+        width: 200
+        height: 200
+    }
+
     CasTest {
+        //                "points": JSON.stringify(AssetAnnot.pointsMainLevee)
+        //        function test_draw_point() {
+        //            // en pratique on test surtout en regression
+        //            annot.points = JSON.stringify(AssetAnnot.pointsMainLevee);
+        //            tested.fillStyle = "transparent";
+        //            tested.tool = "point";
+        //            var spy = getSpy(tested, "painted");
+        //            tested.requestPaint();
+        //            spy.wait();
+        //            var img = Qt.createQmlObject("import QtQuick 2.15; Image {source: 'assets/" + tested.tool + ".png'}", item2);
+        //            var c = Qt.createQmlObject("import QtQuick 2.15; Canvas {height:" + tested.height + ";width:" + tested.width + "}", item2);
+        //            tryCompare(c, "available", true);
+        //            var ctx = c.getContext("2d");
+        //            ctx.drawImage(img, 0, 0);
+        //            wait(2000);
+        //            compare(tested.toDataURL(), c.toDataURL());
+        //        }
+
         id: testCase
 
         property var annot
@@ -81,12 +107,6 @@ Item {
             tested.requestPaint();
             spy.wait();
             compare(tested.checkPointIsNotDraw(data.mx, data.my), data.res);
-        }
-
-        function initPreCreate() {
-        }
-
-        function initPost() {
         }
 
         function test_draw_data() {

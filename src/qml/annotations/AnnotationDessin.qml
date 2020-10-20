@@ -2,10 +2,10 @@ import QtQuick 2.15
 import "qrc:/js/drawcanvas.mjs" as DrawCanvas
 
 Canvas {
-    //      canvas.save("tests/qml_tests/assets/trait.png") // pour tests
-    //      canvas.save("tests/qml_tests/assets/rect.png") // pour tests
-    //      canvas.save("tests/qml_tests/assets/fillrect.png") // pour tests
-    //      canvas.save("tests/qml_tests/assets/ellipse.png") // pour tests
+    //      canvas.save("tests/qml/assets/trait.png") // pour tests
+    //      canvas.save("tests/qml/assets/rect.png") // pour tests
+    //      canvas.save("tests/qml/assets/fillrect.png") // pour tests
+    //      canvas.save("tests/qml/assets/ellipse.png") // pour tests
 
     id: canvas
 

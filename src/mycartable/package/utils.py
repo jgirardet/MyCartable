@@ -1,9 +1,11 @@
 import collections
+import re
 import sys
 import uuid
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Callable
+from packaging.version import Version as PackagingVersion
 
 from PySide2.QtCore import QTimer, QFile, QTextStream, QRunnable, QThreadPool
 from PySide2.QtWidgets import QApplication
@@ -139,3 +141,25 @@ def shift_list(l, idx, count, target):
         return l[:idx] + l[idx + count :]
     else:
         return l[:target] + l[idx : idx + count :] + l[target:idx] + l[idx + count :]
+
+
+class Version(PackagingVersion):
+    re_version = re.compile(r"(\d?\d)(\d\d)(\d\d)")
+
+    def __init__(self, version):
+        if isinstance(version, int):
+            version = self.parse_int(version)
+        super().__init__(version)
+
+    def parse_int(self, version: int) -> str:
+        """
+        Parse une version Mmmuu ou MMmmuu
+        """
+        try:
+            major, minor, micro = self.re_version.search(str(version)).groups()
+        except AttributeError:  # groups failed
+            return "0"
+        major = int(major)
+        minor = int(minor)
+        micro = int(micro)
+        return f"{major}.{minor}.{micro}"

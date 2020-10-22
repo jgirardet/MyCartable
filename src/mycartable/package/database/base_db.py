@@ -1,6 +1,9 @@
+import io
 from pathlib import Path
+from typing import Union, List
 
 from loguru import logger
+from package.utils import Version
 from pony.orm import Database, db_session
 
 
@@ -33,3 +36,51 @@ def init_database(db: Database, **kwargs):
     activedb = init_models(db)
     init_bind(activedb, **kwargs)
     return activedb
+
+
+class Schema:
+    def __init__(
+        self, data: Union[str, Path] = None, file: Union[str, Path, Database] = None
+    ):
+        if all([data, file]):
+            raise ValueError("Schema data et file ne peuvent être spécifiés ensemble")
+        self.schema: str = ""
+
+        if data:
+            if isinstance(data, str):
+                self.schema = data
+            elif isinstance(data, Path):
+                self.schema = data.read_text()
+        else:
+            if not isinstance(file, Database):
+                file = Database(provider="sqlite", filename=str(file))
+            self.db = file
+            self.schema = self.get_schema()
+
+    def get_schema(self):
+        query = "select * from sqlite_master"
+        query_result: List
+        with db_session:
+            query_result = self.db.execute(query).fetchall()
+        lines = io.StringIO()
+
+        for i in query_result:
+            if i[4]:
+                print(i[4], file=lines)
+        lines.seek(0)
+        schem = lines.read().replace(
+            "\nCREATE", ";\nCREATE"
+        )  # easier to test or execute
+        return schem
+
+    def in_memory(self):
+        db = Database(provider="sqlite", filename=":memory:")
+        with db_session:
+            for cmd in self.schema.split(";"):
+                db.execute(cmd)
+        return db
+
+    def get_version(self):
+        with db_session:
+            v_int = self.db.execute("PRAGMA user_version").fetchone()[0]
+        return Version(v_int)

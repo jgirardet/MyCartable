@@ -64,6 +64,16 @@ def test_get_schema_actual_schema(ddbr):
         "1.2.2",
     ],
 )
-def test_get_version(resources, version):
+def test_version_get(resources, version):
     base = resources / "db_version" / f"{version}.sqlite"
-    assert Schema(file=base).get_version() == Version(version)
+    assert Schema(file=base).version == Version(version)
+
+
+def test_version_set():
+    db = Database(provider="sqlite", filename=":memory:")
+    s = Schema(file=db)
+    assert s.version == Version("0")
+    s.version = Version("12.34.56")
+    with db_session:
+        assert s.db.execute("PRAGMA user_version").fetchone()[0] == 123456
+    assert s.version == Version("12.34.56")

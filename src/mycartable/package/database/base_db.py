@@ -80,11 +80,13 @@ class Schema:
                 db.execute(cmd)
         return db
 
-    def get_version(self) -> Version:
+    @property
+    def version(self) -> Version:
         with db_session:
             v_int = self.db.execute("PRAGMA user_version").fetchone()[0]
         return Version(v_int)
 
-    def apply_version(self, version: Version):
+    @version.setter
+    def version(self, version: Version):
         with db_session:
-            self.db.execute("PRAGMA user_version")
+            self.db.execute(f"PRAGMA user_version({version.to_int()})")

@@ -16,6 +16,7 @@ from package.utils import (
     read_qrc,
     WDict,
     shift_list,
+    Version,
 )
 
 
@@ -132,3 +133,31 @@ def test_shift_list():
     for inp, out in props:
         res = shift_list(a(), *inp)
         assert list(res) == list(out)
+
+
+versions_values = [
+    (34543453, "0"),
+    (0, "0"),
+    (12342, "1.23.42"),
+    (912342, "91.23.42"),
+    (10302, "1.03.02"),
+    (100302, "10.03.02"),
+    (100300, "10.03.0"),
+    (100001, "10.00.01"),
+    (1, "0.0.1"),
+    (12, "0.0.12"),
+    (1232, "0.12.32"),
+    (132, "0.1.32"),
+    (1002, "0.10.2"),
+]
+
+
+class TestVersion:
+    def test_parse_int(self):
+        for v_int, v_str in versions_values:
+            assert Version(v_int) == Version(v_str)
+
+    def test_parse_int(self):
+        for v_int, v_str in versions_values[1:]:
+            assert Version(v_str).to_int() == v_int
+        assert Version("123.123.123").to_int() == 0

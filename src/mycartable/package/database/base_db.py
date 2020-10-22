@@ -57,7 +57,7 @@ class Schema:
             self.db = file
             self.schema = self.get_schema()
 
-    def get_schema(self):
+    def get_schema(self) -> str:
         query = "select * from sqlite_master"
         query_result: List
         with db_session:
@@ -73,14 +73,18 @@ class Schema:
         )  # easier to test or execute
         return schem
 
-    def in_memory(self):
+    def in_memory(self) -> Database:
         db = Database(provider="sqlite", filename=":memory:")
         with db_session:
             for cmd in self.schema.split(";"):
                 db.execute(cmd)
         return db
 
-    def get_version(self):
+    def get_version(self) -> Version:
         with db_session:
             v_int = self.db.execute("PRAGMA user_version").fetchone()[0]
         return Version(v_int)
+
+    def apply_version(self, version: Version):
+        with db_session:
+            self.db.execute("PRAGMA user_version")

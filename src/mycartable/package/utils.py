@@ -143,9 +143,11 @@ def shift_list(l, idx, count, target):
         return l[:target] + l[idx : idx + count :] + l[target:idx] + l[idx + count :]
 
 
-class Version(PackagingVersion):
-    re_version = re.compile(r"(\d?\d)(\d\d)(\d\d)")
+re_version34 = re.compile(r"(\d?\d)(\d\d)")
+re_version56 = re.compile(r"(\d?\d)(\d\d)(\d\d)")
 
+
+class Version(PackagingVersion):
     def __init__(self, version):
         if isinstance(version, int):
             version = self.parse_int(version)
@@ -155,11 +157,36 @@ class Version(PackagingVersion):
         """
         Parse une version Mmmuu ou MMmmuu
         """
-        try:
-            major, minor, micro = self.re_version.search(str(version)).groups()
-        except AttributeError:  # groups failed
+        v_str = str(version)
+        if len(v_str) <= 2:
+            return "0.0." + v_str
+        elif len(v_str) <= 4:
+            try:
+                major = "0"
+                minor, micro = re_version34.search(v_str).groups()
+            except AttributeError:  # groups failed
+                return "0"
+        elif len(v_str) <= 6:
+            try:
+                major, minor, micro = re_version56.search(v_str).groups()
+            except AttributeError:  # groups failed
+                return "0"
+        else:
             return "0"
+
+        # transforme 01 en 1
         major = int(major)
         minor = int(minor)
         micro = int(micro)
         return f"{major}.{minor}.{micro}"
+
+    def to_int(self):
+        try:
+            major, minor, micro = self.base_version.split(".")
+        except ValueError:
+            return 0
+        if any(len(x) > 2 for x in (major, minor, micro)):
+            return 0
+        minor = minor if len(minor) == 2 else "0" + minor
+        micro = micro if len(micro) == 2 else "0" + micro
+        return int(major + minor + micro)

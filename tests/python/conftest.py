@@ -307,3 +307,8 @@ def export_schemas(resources):
         sql = sch / (sq.stem + ".sql")
         if not sql.is_file():
             sql.write_text(Schema(file=sq).schema)
+
+
+@pytest.fixture()
+def mdb():
+    return Database(provider="sqlite", filename=":memory:")

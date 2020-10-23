@@ -6,6 +6,8 @@ from .sections import class_section
 from .utilisateur import class_utilisateur
 from .style import class_style
 
+__version__ = "1.2.3"
+
 
 def import_models(db: Database):
     class_style(db)

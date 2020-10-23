@@ -34,7 +34,7 @@ def get_db_version(file: Union[Database, str, Path]):
         return version
 
 
-migrations = {"1.3.0": ["ALTER TABLE Annotation ADD points TEXT"]}
+# migrations = {"1.3.0": ["ALTER TABLE Annotation ADD points TEXT"]}
 
 
 class Migrator:

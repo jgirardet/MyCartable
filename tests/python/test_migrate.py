@@ -157,7 +157,7 @@ class TestMakeMigrations:
         m = mm(Version("1.0.1"), {})
         assert (
             m._backup_name()
-            == "mycartable_backup-from_0.0.0-to_1.0.1-2017-05-21T12:12:12"
+            == "mycartable_backup-from_0.0.0-to_1.0.1-2017-05-21T12_12_12"
         )
 
     def test_migration_check_fail(self, tmpfile, caplogger):

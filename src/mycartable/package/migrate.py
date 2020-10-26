@@ -143,7 +143,7 @@ class MakeMigrations:
         old_schema = Schema(file=self.old_file)
         backup_name = (
             f"mycartable_backup-from_{old_schema.version}"
-            f"-to_{self.actual_version}-{datetime.now().isoformat()}"
+            f"-to_{self.actual_version}-{datetime.now().isoformat().replace(':','_')}"
         )
         return backup_name
 

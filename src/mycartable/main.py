@@ -46,6 +46,8 @@ def main_init_database(filename=None, prod=False):
 
     package.database.db = newdb
 
+    make_migrations(filename)
+
     db = package.database.init_database(newdb, filename=filename, create_db=create_db)
 
     if not prod:

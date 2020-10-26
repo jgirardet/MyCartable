@@ -1,3 +1,4 @@
+import io
 import sys
 from pathlib import Path
 
@@ -312,3 +313,19 @@ def export_schemas(resources):
 @pytest.fixture()
 def mdb():
     return Database(provider="sqlite", filename=":memory:")
+
+
+@pytest.fixture()
+def caplogger():
+    from loguru import logger
+
+    class Ios(io.StringIO):
+        def read(self, *args, **kwargs):
+            self.seek(0)
+            return super().read(*args, **kwargs)
+
+    log = Ios()
+    lid = logger.add(log, level="DEBUG")
+
+    yield log
+    logger.remove(lid)

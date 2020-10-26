@@ -18,6 +18,7 @@ from package.utils import (
     shift_list,
     Version,
 )
+from packaging.version import InvalidVersion
 
 
 def test_create_single_shot():
@@ -149,15 +150,29 @@ versions_values = [
     (1232, "0.12.32"),
     (132, "0.1.32"),
     (1002, "0.10.2"),
+    (30000, "3.0.0"),
+    (30000, "3"),
+    (30300, "3.3"),
 ]
 
 
 class TestVersion:
+    def test_init(self):
+        assert Version("3") == Version("3.0.0")
+        assert Version("30") == Version("30.0.0")
+        assert Version("0") == Version("0.0.0")
+        assert Version("3.2") == Version("3.2.0")
+        assert Version("30.2") == Version("30.2.0")
+        assert Version("30.20") == Version("30.20.0")
+
+        for v in ["333", "1.333", "123.1", "123.23.23", "12.233.23", "12.23.323"]:
+            with pytest.raises(InvalidVersion):
+                Version(v)
+
     def test_parse_int(self):
         for v_int, v_str in versions_values:
             assert Version(v_int) == Version(v_str)
 
-    def test_parse_int(self):
+    def test_to_int(self):
         for v_int, v_str in versions_values[1:]:
             assert Version(v_str).to_int() == v_int
-        assert Version("123.123.123").to_int() == 0

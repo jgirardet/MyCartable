@@ -40,7 +40,9 @@ def init_database(db: Database, **kwargs):
 
 class Schema:
     def __init__(
-        self, data: Union[str, Path] = None, file: Union[str, Path, Database] = None
+        self,
+        file: Union[str, Path, Database] = None,
+        data: Union[str, Path] = None,
     ):
         if all([data, file]):
             raise ValueError("Schema data et file ne peuvent être spécifiés ensemble")
@@ -87,6 +89,8 @@ class Schema:
         return Version(v_int)
 
     @version.setter
-    def version(self, version: Version):
+    def version(self, version: Union[Version, int, str]):
+        if isinstance(version, (int, str)):
+            version = Version(version)
         with db_session:
             self.db.execute(f"PRAGMA user_version({version.to_int()})")

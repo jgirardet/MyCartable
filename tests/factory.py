@@ -447,6 +447,13 @@ class Faker:
             )
             return item.to_dict() if td else item
 
+    def f_configuration(self, key=None, value=None, td=False):
+        key = key or gen.text.word()
+        value = value or gen.text.word()
+        with db_session:
+            item = self.db.Configuration.add(key, value)
+            return item.to_dict() if td else item
+
     @db_session
     def populate_database(self):
 

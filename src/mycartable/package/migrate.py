@@ -9,10 +9,10 @@ from pathlib import Path
 from typing import Union, Callable, List
 
 from loguru import logger
-from package.database.base_db import Schema, init_database, init_models
+from package.database.base_db import Schema, init_database, init_models, db_session
 from package.database.models import schema_version
 from package.utils import Version
-from pony.orm import Database, db_session
+from pony.orm import Database
 
 """
 type:
@@ -28,15 +28,15 @@ type:
 # migrations_list = {"1.3.0": {"type": "1.1"}}
 
 
-def get_db_version(file: Union[Database, str, Path]):
-    schema = Schema(file=file)
-    version = schema.version
-    if version == Version(
-        "0"
-    ):  # absence de version on considère 1.2.2 (début migration)
-        return Version("1.2.2")
-    else:
-        return version
+# def get_db_version(file: Union[Database, str, Path]):
+#     schema = Schema(file=file)
+#     version = schema.version
+#     if version == Version(
+#         "0"
+#     ):  # absence de version on considère 1.2.2 (début migration)
+#         return Version("1.2.2")
+#     else:
+#         return version
 
 
 # migrations = {"1.3.0": ["ALTER TABLE Annotation ADD points TEXT"]}
@@ -69,8 +69,8 @@ class Migrator:
         return selected
 
     def process_one(self, line: str):
-        with db_session:
-            self.db.execute(line)
+        with db_session(self.db) as db:
+            db.execute(line)
 
     def process_migrations(self, mig_list: list):
         for mig in mig_list:

@@ -2,9 +2,11 @@ import io
 from pathlib import Path
 from typing import Union, List
 
+from decorator import contextmanager
 from loguru import logger
 from package.utils import Version
-from pony.orm import Database, db_session
+from pony.orm import Database
+from pony.orm import db_session as pony_db_session
 
 
 def init_models(db: Database):
@@ -38,31 +40,38 @@ def init_database(db: Database, **kwargs):
     return activedb
 
 
+# @contextmanager
+# def temp_database(**kwargs):
+#     db = Database(**kwargs)
+#     yield db
+#     db.disconnect()
+#     del db
+
+
+@contextmanager
+def db_session(db: Database, **kwargs):
+    with pony_db_session(**kwargs):
+        yield db
+    db.disconnect()
+
+
 class Schema:
     def __init__(
         self,
         file: Union[str, Path, Database] = None,
-        data: Union[str, Path] = None,
     ):
-        if all([data, file]):
-            raise ValueError("Schema data et file ne peuvent être spécifiés ensemble")
-        self.schema: str = ""
 
-        if data:
-            if isinstance(data, str):
-                self.schema = data
-            elif isinstance(data, Path):
-                self.schema = data.read_text()
-        else:
-            if not isinstance(file, Database):
-                file = Database(provider="sqlite", filename=str(file))
-            self.db = file
-            self.schema = self.get_schema()
+        if not isinstance(file, Database):
+            file = Database(provider="sqlite", filename=str(file))
+        self.db = file
+        self.db.disconnect()
+        # self.schema = self.get_schema()
 
-    def get_schema(self) -> str:
+    @property
+    def schema(self) -> str:
         query = "select * from sqlite_master"
         query_result: List
-        with db_session:
+        with db_session(self.db):
             query_result = self.db.execute(query).fetchall()
         lines = io.StringIO()
 
@@ -77,14 +86,14 @@ class Schema:
 
     def in_memory(self) -> Database:
         db = Database(provider="sqlite", filename=":memory:")
-        with db_session:
+        with db_session(self.db):
             for cmd in self.schema.split(";"):
                 db.execute(cmd)
         return db
 
     @property
     def version(self) -> Version:
-        with db_session:
+        with db_session(self.db):
             v_int = self.db.execute("PRAGMA user_version").fetchone()[0]
         return Version(v_int)
 
@@ -92,5 +101,5 @@ class Schema:
     def version(self, version: Union[Version, int, str]):
         if isinstance(version, (int, str)):
             version = Version(version)
-        with db_session:
+        with db_session(self.db):
             self.db.execute(f"PRAGMA user_version({version.to_int()})")

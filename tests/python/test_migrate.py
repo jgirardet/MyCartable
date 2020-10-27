@@ -1,7 +1,7 @@
 import pytest
 from package.database import init_database
 from package.database.base_db import Schema
-from package.migrate import get_db_version, Migrator, MakeMigrations
+from package.migrate import Migrator, MakeMigrations
 from package.utils import Version
 from pony.orm import Database, PrimaryKey, Required, Optional, db_session
 
@@ -20,11 +20,12 @@ def test_122_to_130(resources):
         assert zf.style is not None
 
 
-def test_get_db_version(mdb):
-    assert get_db_version(mdb) == Version("1.2.2")
-    s = Schema(file=mdb)
-    s.version = Version("3.5.4")
-    assert get_db_version(mdb) == Version("3.5.4")
+#
+# def test_get_db_version(mdb):
+#     assert get_db_version(mdb) == Version("1.2.2")
+#     s = Schema(file=mdb)
+#     s.version = Version("3.5.4")
+#     assert get_db_version(mdb) == Version("3.5.4")
 
 
 def init_onetable(ddb):
@@ -185,7 +186,9 @@ class TestMakeMigrations:
     def test_migration_check_success(self, tmpfile, caplogger):
         ddb = Database(provider="sqlite", filename=str(tmpfile))
         init_onetable(ddb)
-        Schema(ddb).version = "0.5.0"
+        s1 = Schema(ddb)
+        s1.version = "0.5.0"
+        v1 = s1.schema
 
         def check_cb(check_db):
             with db_session:
@@ -200,7 +203,10 @@ class TestMakeMigrations:
 
         ddb2 = Database(provider="sqlite", filename=str(tmpfile))
         s2 = Schema(ddb2)
-        assert len(Schema(ddb).schema) < len(s2.schema)
+        assert (
+            s2.schema
+            == """CREATE TABLE "bla" ("key" TEXT NOT NULL PRIMARY KEY, "texta" TEXT, "textb" TEXT, "textc" TEXT)\n"""
+        )
         assert s2.version == Version("1.3.2")
 
     def test_restore_backup(self, tmpfile):

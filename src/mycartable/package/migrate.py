@@ -105,11 +105,11 @@ class MakeMigrations:
         # _, tmp = tempfile.mkstemp(suffix=".sqlite")
         tmp = tempfile.NamedTemporaryFile(suffix=".sqlite", delete=False)
         tmp.close()
-        self.tmp_file = Path(tmp)
+        self.tmp_file = Path(tmp.name)
         shutil.copy(self.old_file, self.tmp_file)  # duplication de la DDB
 
         # outils pour migrations
-        self.tmp_db = Database(provider="sqlite", filename=tmp)
+        self.tmp_db = Database(provider="sqlite", filename=tmp.name)
         self.schema = Schema(file=self.tmp_db)
         self.migrator = Migrator(self.tmp_db, actual_version, migrations)
         logger.info(

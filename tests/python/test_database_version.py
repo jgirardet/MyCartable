@@ -28,7 +28,6 @@ def generate_items(db: Database):
 def test_get_schema(resources, version):
     base = resources / "db_version" / f"{version}.sqlite"
     s = Schema(file=base)
-    db = s.in_memory()
 
     # on verifie par rapport au schema ancien stocké
     assert (base.parent / (version + ".sql")).read_text() == s.schema
@@ -45,16 +44,17 @@ def test_get_schema_version(resources, version):
     s = Schema(file=base)
     s.file = base
 
-    db = s.in_memory()
-
     # on verifie par rapport au schema ancien stocké
-    assert (base.parent / (version + ".sql")).read_text() == s.schema == s.get_schema()
+    assert (base.parent / (version + ".sql")).read_text() == s.schema
 
 
-def test_get_schema_actual_schema(ddbr):
+def test_get_schema_actual_schema(ddbr, mdb):
     s = Schema(file=ddbr)
-    db = s.in_memory()
-    generate_items(db)
+    schema = s.schema
+    with db_session:
+        for cmd in schema.split(";"):
+            mdb.execute(cmd)
+    generate_items(mdb)
 
 
 @pytest.mark.parametrize(

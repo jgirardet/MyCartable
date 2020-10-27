@@ -28,17 +28,6 @@ type:
 # migrations_list = {"1.3.0": {"type": "1.1"}}
 
 
-# def get_db_version(file: Union[Database, str, Path]):
-#     schema = Schema(file=file)
-#     version = schema.version
-#     if version == Version(
-#         "0"
-#     ):  # absence de version on considère 1.2.2 (début migration)
-#         return Version("1.2.2")
-#     else:
-#         return version
-
-
 # migrations = {"1.3.0": ["ALTER TABLE Annotation ADD points TEXT"]}
 
 

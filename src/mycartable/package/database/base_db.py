@@ -40,14 +40,6 @@ def init_database(db: Database, **kwargs):
     return activedb
 
 
-# @contextmanager
-# def temp_database(**kwargs):
-#     db = Database(**kwargs)
-#     yield db
-#     db.disconnect()
-#     del db
-
-
 @contextmanager
 def db_session(db: Database, **kwargs):
     with pony_db_session(**kwargs):
@@ -65,7 +57,6 @@ class Schema:
             file = Database(provider="sqlite", filename=str(file))
         self.db = file
         self.db.disconnect()
-        # self.schema = self.get_schema()
 
     @property
     def schema(self) -> str:
@@ -83,13 +74,6 @@ class Schema:
             "\nCREATE", ";\nCREATE"
         )  # easier to test or execute
         return schem
-
-    def in_memory(self) -> Database:
-        db = Database(provider="sqlite", filename=":memory:")
-        with db_session(self.db):
-            for cmd in self.schema.split(";"):
-                db.execute(cmd)
-        return db
 
     @property
     def version(self) -> Version:

@@ -20,14 +20,6 @@ def test_122_to_130(resources):
         assert zf.style is not None
 
 
-#
-# def test_get_db_version(mdb):
-#     assert get_db_version(mdb) == Version("1.2.2")
-#     s = Schema(file=mdb)
-#     s.version = Version("3.5.4")
-#     assert get_db_version(mdb) == Version("3.5.4")
-
-
 def init_onetable(ddb):
     with db_session:
         ddb.execute("""CREATE TABLE "bla" ("key" TEXT NOT NULL PRIMARY KEY);""")

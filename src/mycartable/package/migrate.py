@@ -131,6 +131,7 @@ class MakeMigrations:
         shutil.copy(self.tmp_file, f.name)
         check_db = Database(provider="sqlite", filename=f.name)
         res = check_cb(check_db)
+        check_db.disconnect()  # sinon unlink fail on windows
         os.unlink(f.name)
         return res
 
@@ -142,6 +143,7 @@ class MakeMigrations:
         logger.info("Generating new mapping...")
         generate_cb(self.tmp_db)
         self.tmp_db.generate_mapping(create_tables=True)
+        self.tmp_db.disconnect()
 
     def _backup_name(self):
 

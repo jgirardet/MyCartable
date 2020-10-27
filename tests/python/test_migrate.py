@@ -212,6 +212,7 @@ class TestMakeMigrations:
     def test_restore_backup(self, tmpfile):
         ddb = Database(provider="sqlite", filename=str(tmpfile))
         init_onetable(ddb)
+        ddb.disconnect()
         bck_db = tmpfile.read_bytes()
         m = MakeMigrations(tmpfile, Version("1.3.2"), {"1.3.2": "AZEZRT ERTERT"})
         assert not m(lambda x: True, lambda x: True)

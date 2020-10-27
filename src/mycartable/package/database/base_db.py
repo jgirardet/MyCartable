@@ -1,8 +1,8 @@
 import io
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Union, List
 
-from decorator import contextmanager
 from loguru import logger
 from package.utils import Version
 from pony.orm import Database

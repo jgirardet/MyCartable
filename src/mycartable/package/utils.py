@@ -1,9 +1,11 @@
 import collections
+import re
 import sys
 import uuid
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Callable
+from packaging.version import Version as PackagingVersion, InvalidVersion
 
 from PySide2.QtCore import QTimer, QFile, QTextStream, QRunnable, QThreadPool
 from PySide2.QtWidgets import QApplication
@@ -139,3 +141,80 @@ def shift_list(l, idx, count, target):
         return l[:idx] + l[idx + count :]
     else:
         return l[:target] + l[idx : idx + count :] + l[target:idx] + l[idx + count :]
+
+
+re_version34 = re.compile(r"(\d?\d)(\d\d)")
+re_version56 = re.compile(r"(\d?\d)(\d\d)(\d\d)")
+
+
+class Version(PackagingVersion):
+    """
+    Fork of packaging.version
+    - always convert to maj.min.micro ex : "3" --> "3.0.0"
+    - import from an int
+    - export to int
+    """
+
+    def __init__(self, version):
+        # parse int
+        if isinstance(version, int):
+            version = self.parse_int(version)
+        # convert to maj_min_micro
+        if "." not in version:
+            if 0 < len(version) <= 2:
+                version += ".0.0"
+            else:
+                raise InvalidVersion("Invalid version: '{0}'".format(version))
+        elif version.count(".") == 1:
+            major, minor = version.split(".")
+            if 0 < len(major) <= 2 and 0 < len(minor) <= 2:
+                version += ".0"
+            else:
+                raise InvalidVersion("Invalid version: '{0}'".format(version))
+        elif version.count(".") == 2:
+            major, minor, micro = version.split(".")
+            if 0 < len(major) <= 2 and 0 < len(minor) <= 2 and 0 < len(micro) <= 2:
+                pass  # ok
+            else:
+                raise InvalidVersion("Invalid version: '{0}'".format(version))
+
+        super().__init__(version)
+
+    def parse_int(self, version: int) -> str:
+        """
+        Parse une version Mmmuu ou MMmmuu
+        """
+        v_str = str(version)
+        if len(v_str) <= 2:
+            return "0.0." + v_str
+        elif len(v_str) <= 4:
+            try:
+                major = "0"
+                minor, micro = re_version34.search(v_str).groups()
+            except AttributeError:  # groups failed
+                return "0"
+        elif len(v_str) <= 6:
+            try:
+                major, minor, micro = re_version56.search(v_str).groups()
+            except AttributeError:  # groups failed
+                return "0"
+        else:
+            return "0"
+
+        # transforme 01 en 1
+        major = int(major)
+        minor = int(minor)
+        micro = int(micro)
+        return f"{major}.{minor}.{micro}"
+
+    def to_int(self):
+
+        try:
+            major, minor, micro = self.base_version.split(".")
+        except ValueError:
+            return 0
+        if any(len(x) > 2 for x in (major, minor, micro)):
+            return 0
+        minor = minor if len(minor) == 2 else "0" + minor
+        micro = micro if len(micro) == 2 else "0" + micro
+        return int(major + minor + micro)

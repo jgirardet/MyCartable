@@ -1,6 +1,7 @@
 """
 Ici sont expliquées les migrations chaque changement dans la ddb.
 """
+import os
 import shutil
 import tempfile
 from datetime import datetime
@@ -101,7 +102,9 @@ class MakeMigrations:
         self.old_file = Path(filename)  # ddb à faire migrer
 
         # création d'une base temporaire pour effectuer les migrations
-        _, tmp = tempfile.mkstemp(suffix=".sqlite")
+        # _, tmp = tempfile.mkstemp(suffix=".sqlite")
+        tmp = tempfile.NamedTemporaryFile(suffix=".sqlite", delete=False)
+        tmp.close()
         self.tmp_file = Path(tmp)
         shutil.copy(self.old_file, self.tmp_file)  # duplication de la DDB
 
@@ -123,11 +126,13 @@ class MakeMigrations:
         :return: True if success
         """
         logger.info("Checking migrations...")
-        with tempfile.NamedTemporaryFile() as f:
-            f.close()
-            shutil.copy(self.tmp_file, f.name)
-            check_db = Database(provider="sqlite", filename=f.name)
-            return check_cb(check_db)
+        f = tempfile.NamedTemporaryFile(delete=False)
+        f.close()
+        shutil.copy(self.tmp_file, f.name)
+        check_db = Database(provider="sqlite", filename=f.name)
+        res = check_cb(check_db)
+        os.unlink(f.name)
+        return res
 
     def generate_new_mapping(self, generate_cb: Callable):
         """

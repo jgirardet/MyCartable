@@ -1,6 +1,6 @@
 import pytest
-from package.database import ensure_database_directory, init_bind, init_database
-from pony.orm import Database, db_session
+from package.database import init_bind
+from pony.orm import Database
 
 
 def test_init_bind_memory():

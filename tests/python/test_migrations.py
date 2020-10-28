@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 from package.database.base_db import init_models, Schema
-from package.database.migrations import migrations_history, check_1_3_0
+from migrations import migrations_history, check_1_3_0
 from package.database.models import schema_version
 from package.migrate import MakeMigrations
 from pony.orm import Database

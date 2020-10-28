@@ -298,19 +298,6 @@ def new_res(tmp_path, resources):
     return factory
 
 
-#
-# @pytest.fixture(scope="session", autouse=True)
-# def export_schemas(resources):
-#     from package.database.base_db import Schema
-#
-#     sch = resources / "db_version"
-#     sqlites = sch.glob("*.sqlite")
-#     for sq in sqlites:
-#         sql = sch / (sq.stem + ".sql")
-#         if not sql.is_file():
-#             sql.write_text(Schema(file=sq).schema)
-
-
 @pytest.fixture()
 def mdb():
     return Database(provider="sqlite", filename=":memory:")

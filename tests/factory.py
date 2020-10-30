@@ -191,7 +191,7 @@ class Faker:
 
     def f_imageSection(self, path=None, **kwargs):
         basepath = Path(__file__).parents[1] / "tests" / "resources"
-        if path in ["tst_AnnotableImage.png", "sc1.png"]:
+        if path in ["tst_AnnotableImage.png", "sc1.png", "floodfill.png"]:
             path = basepath / path
         elif path:
             path = path

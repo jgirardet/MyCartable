@@ -1,12 +1,13 @@
 import json
+import shutil
 import uuid
 from datetime import datetime
 from time import sleep
 
 import pytest
 from PIL import Image, ImageChops
-from PySide2.QtCore import QUrl, Qt
-from PySide2.QtGui import QColor
+from PySide2.QtCore import QUrl, Qt, QPoint
+from PySide2.QtGui import QColor, QImage
 from fixtures import check_args
 from package import constantes
 from package.database_mixins.changematieres_mixin import ChangeMatieresMixin
@@ -830,6 +831,20 @@ class TestImageSectionMixin:
 
     def test_annotationTextBGOpacity(self, dao):
         assert dao.annotationTextBGOpacity == 0.5
+
+    @pytest.mark.parametrize(
+        "pos, img_res",
+        [
+            (QPoint(10, 10), "floodfill_blanc_en_bleu.png"),
+            (QPoint(80, 80), "floodfill_rouge_en_bleu.png"),
+        ],
+    )
+    def test_flood_fill(self, fk, dao, resources, tmp_path, pos, img_res):
+        fp = tmp_path / "f1.png"
+        shutil.copy(resources / "floodfill.png", fp)
+        f = fk.f_imageSection(path=str(fp))
+        assert dao.floodFill(f.id, QColor("blue"), pos)
+        assert QImage(str(dao.files / f.path)) == QImage(str(resources / img_res))
 
 
 class TestTableauMixin:

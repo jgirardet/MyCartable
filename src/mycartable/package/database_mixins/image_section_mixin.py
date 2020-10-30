@@ -1,8 +1,10 @@
 from pathlib import Path
 
-from PySide2.QtCore import Property
+from PySide2.QtCore import Property, QPoint
 from PySide2.QtCore import Slot, Signal
+from PySide2.QtGui import QColor
 from package.constantes import ANNOTATION_TEXT_BG_OPACITY
+from package.convertion.wimage import WImage
 from package.utils import get_new_filename
 from pony.orm import db_session
 from PIL import Image
@@ -50,3 +52,13 @@ class ImageSectionMixin:
     @Property(float, notify=annotationTextBGOpacityChanged)
     def annotationTextBGOpacity(self):
         return ANNOTATION_TEXT_BG_OPACITY
+
+    @Slot(str, QColor, QPoint, result=bool)
+    def floodFill(self, sectionId: str, color: QColor, point: QPoint):
+        with db_session:
+            item = self.db.ImageSection[sectionId]
+            file = self.files / item.path
+        im = WImage(str(file))
+        im.flood_fill(color, point)
+
+        return im.save(str(file))

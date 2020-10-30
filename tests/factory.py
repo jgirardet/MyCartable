@@ -273,7 +273,7 @@ class Faker:
 
         width = width or random.randrange(10, 100, 10) / 100
         height = height or random.randrange(10, 100, 10) / 100
-        tool = random.choice(["rect", "fillrect", "ellipse", "trait"])
+        tool = tool or random.choice(["rect", "fillrect", "ellipse", "trait"])
         startX = startX or random.randrange(10, 100, 10) / 100
         startY = startY or random.randrange(10, 100, 10) / 100
         endX = endX or random.randrange(10, 100, 10) / 100

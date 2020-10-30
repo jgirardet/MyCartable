@@ -44,7 +44,7 @@ Canvas {
         ctx.strokeStyle = strokeStyle;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         if (tool == "point") {
-            DrawCanvas.drawPoints(ctx, JSON.parse(annot.points), lineWidth, width, height);
+            DrawCanvas.drawPoints(ctx, JSON.parse(annot.points), lineWidth /2, width, height);
         } else {
             var lw = lineWidth / 2;
             var startX = annot.startX * width;

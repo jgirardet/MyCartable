@@ -1,3 +1,4 @@
+import json
 import math
 import os
 import re
@@ -17,6 +18,7 @@ from PySide2.QtCore import (
     QRect,
     Signal,
     QTemporaryFile,
+    QPointF,
 )
 from PySide2.QtGui import (
     QPainter,
@@ -38,7 +40,7 @@ from pony.orm import db_session
 from loguru import logger
 from package import qrc  # type: ignore
 
-from package.ui_manager import DEFAULT_ANNOTATION_CURRENT_TEXT_SIZE_FACTOR
+from package.ui_manager import DEFAULT_ANNOTATION_CURRENT_TEXT_SIZE_FACTOR, UiManager
 
 from typing import Union
 
@@ -212,7 +214,7 @@ def create_images_with_annotation(image_section, tmpdir=None):
 
     painter.begin(image)
     for annotation_id in image_section["annotations"]:
-        annotation = db.Annotation[annotation_id].to_dict()
+        annotation = db.Annotation[annotation_id["id"]].to_dict()
         if annotation["classtype"] == "AnnotationText":
             draw_annotation_text(annotation, image, painter)
         elif annotation["classtype"] == "AnnotationDessin":  # pragma: no branch
@@ -316,6 +318,16 @@ def draw_annotation_dessin(annotation: dict, image: QImage, painter: QPainter) -
         drawArrowhead(path, startPoint, endPoint, arrowSize)
         painter.fillPath(path, annotation["fgColor"])
         painter.drawPath(path)
+
+    elif annotation["tool"] == "point":
+        points = [
+            QPointF(p["x"] * width, p["y"] * height)
+            for p in json.loads(annotation["points"])
+        ]
+        pen = painter.pen()
+        pen.setWidth(pen.width() * 4)
+        painter.setPen(pen)
+        painter.drawPolyline(points)
 
 
 def drawArrowhead(path: QPainterPath, depuis: QPoint, to: QPoint, radius: int):
@@ -1057,16 +1069,7 @@ def grab_section(section, initial_prop={}):
             url=f":/qml/sections/{section.classtype}.qml",
             initial_prop=base_prop,
         )
-    width = img.widthMM()
-    height = img.heightMM()
-    # img.save("/tmp/odtfrise.png")
-    res = f"""<text:p text:style-name="Standard">
-    <draw:frame draw:style-name="fr1" draw:name="{uuid.uuid4().hex}" text:anchor-type="paragraph" svg:width="{int(width)}mm"  svg:height="{int(height)}mm" draw:z-index="0">
-        <draw:image loext:mime-type="image/png">
-            <office:binary-data>{img.to_base64().decode()}</office:binary-data>
-        </draw:image>
-    </draw:frame>
-</text:p>"""
+    res = img.to_odf()
     return res, ""
 
 

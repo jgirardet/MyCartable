@@ -1,11 +1,23 @@
-from PySide2.QtCore import QObject, QSize, QUrl, QByteArray
+from PySide2.QtCore import (
+    QObject,
+    QSize,
+    QUrl,
+    QByteArray,
+    QCoreApplication,
+    QEventLoop,
+)
 from PySide2.QtGui import (
     QSurfaceFormat,
     QOpenGLContext,
     QOffscreenSurface,
     QOpenGLFramebufferObject,
 )
-from PySide2.QtQml import QQmlComponent, QQmlEngine
+from PySide2.QtQml import (
+    QQmlComponent,
+    QQmlEngine,
+    QQmlIncubator,
+    QQmlIncubationController,
+)
 from PySide2.QtQuick import QQuickItem, QQuickRenderControl, QQuickWindow
 from package.convertion.wimage import WImage
 
@@ -39,10 +51,9 @@ class Grabber(QObject):
             self.context.setContextProperty(k, v)
 
         # needed for async load
+        self.incubationController = QQmlIncubationController()
         if not self.m_qmlEngine.incubationController():
-            self.m_qmlEngine.setIncubationController(
-                self.m_quickWindow.incubationController()
-            )
+            self.m_qmlEngine.setIncubationController(self.incubationController)
 
     def load_component(
         self,
@@ -55,17 +66,29 @@ class Grabber(QObject):
         self.qml_comp = QQmlComponent(self.m_qmlEngine)
         if url:
             self.qml_comp.loadUrl(
-                QUrl.fromLocalFile(url), QQmlComponent.PreferSynchronous
+                QUrl.fromLocalFile(url),
+                QQmlComponent.Asynchronous,
             )
         elif data:
             self.qml_comp.setData(QByteArray(data), QUrl(url))
 
-        self.rootItem = self.qml_comp.createWithInitialProperties(initial_prop)
+        while self.qml_comp.isLoading():
+            QCoreApplication.processEvents(QEventLoop.AllEvents, 50)
 
         if self.qml_comp.isError():
             raise Exception(self.qml_comp.errorString())
+
+        self.incubator = QQmlIncubator()
+        self.incubator.setInitialProperties(initial_prop)
+
+        self.qml_comp.create(self.incubator)
+        self.incubationController.incubateFor(1000)
+        self.rootItem = self.incubator.object()
+
+        # synchronous way
+        # self.rootItem = self.qml_comp.createWithInitialProperties(initial_prop)
+
         self._set_size(width, height)
-        self._render_component()
 
     def to_image(self) -> WImage:
         img = self.m_renderControl.grab()
@@ -76,10 +99,10 @@ class Grabber(QObject):
         :param kwargs: see load_component
         """
         self.load_component(**kwargs)
-        self._render_component()
+        self.render_component()
         return self.to_image()
 
-    def _render_component(self):
+    def render_component(self):
         self.rootItem.setParentItem(self.m_quickWindow.contentItem())
         self.m_renderControl.polishItems()
         self.m_renderControl.sync()

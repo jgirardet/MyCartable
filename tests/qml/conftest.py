@@ -85,10 +85,6 @@ class TestHelper(QObject):
     def mock_called(self, method: str):
         return getattr(self.dao, method).called
 
-    @Slot(str, result=bool)
-    def mock_called(self, method: str):
-        return getattr(self.dao, method).called
-
     @Slot(str, result="QVariantList")
     def mock_call_args_list(self, method: str):
         return [list(call.args) for call in getattr(self.dao, method).call_args_list]

@@ -5,15 +5,6 @@ import "qrc:/qml/annotations"
 import "qrc:/qml/menu"
 
 Image {
-    //        ddb.setImageSectionCursor(mousearea);
-    //        height = implicitHeight;
-    //        var oldSource = root.source;
-    //        root.source = "";
-    //        root.source = oldSource;
-    //        while (progress != 1)
-    //            print("prof", progress);
-    //        height = undefined;
-
     id: root
 
     property string sectionId

@@ -181,6 +181,40 @@ Item {
             compare(tested.annotations.count, 0);
         }
 
+        function test_floodfill() {
+            uiManager.annotationCurrentTool = "floodfill";
+            uiManager.annotationDessinCurrentStrokeStyle = "blue";
+            let mname = "floodFill";
+            th.mock(mname);
+            mouseClick(tested, 34, 54);
+            verify(th.mock_called(mname));
+            let args = th.mock_call_args_list(mname);
+            compare(args[0], [tested.sectionId, "#0000ff", Qt.point(34 / tested.width, 54 / tested.height)]);
+            th.unmock(mname);
+        }
+
+        function test_cursor_move() {
+            uiManager.annotationCurrentTool = "floodfill";
+            uiManager.annotationDessinCurrentStrokeStyle = "blue";
+            let mname = "setImageSectionCursor";
+            th.mock(mname);
+            mouseMove(tested, 1, 1);
+            verify(th.mock_called(mname));
+            th.unmock(mname);
+        }
+
+        function test_cursor_toolchanged() {
+            let mname = "setImageSectionCursor";
+            th.mock(mname);
+            tested.setStyleFromMenu({
+                "style": {
+                    "tool": "trait"
+                }
+            });
+            verify(th.mock_called(mname));
+            th.unmock(mname);
+        }
+
         name: "ImageSection"
         testedNom: "qrc:/qml/sections/ImageSection.qml"
         params: {

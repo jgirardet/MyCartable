@@ -76,6 +76,22 @@ class Test_Wimage:
         img = WImage(str(resources / "test_pivoter.png"))
         assert img == img.convertToFormat(QImage.Format_RGBX8888)
 
+    def test_floodfill(self):
+        """cf databaose mixin"""
+
+    def test_change_color(self):
+        w = WImage(2, 2, QImage.Format_ARGB32)
+        w.setPixelColor(0, 0, QColor("transparent"))
+        w.setPixelColor(0, 1, QColor("blue"))
+        w.setPixelColor(1, 0, QColor("red"))
+        w.setPixelColor(1, 1, QColor("transparent"))
+
+        w.change_color(QColor("purple"))
+        assert w.pixelColor(0, 0) == "transparent"
+        assert w.pixelColor(0, 1) == QColor("purple")
+        assert w.pixelColor(1, 0) == QColor("purple")
+        assert w.pixelColor(1, 1) == "transparent"
+
 
 @pytest.mark.usefixtures("qapp")
 class TestGrabber:

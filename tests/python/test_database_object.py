@@ -5,15 +5,16 @@ from datetime import datetime
 from time import sleep
 
 import pytest
-from PIL import Image, ImageChops
-from PySide2.QtCore import QUrl, Qt, QPoint
-from PySide2.QtGui import QColor, QImage
+from PIL import Image
+from PySide2.QtCore import QUrl, Qt, QPointF
+from PySide2.QtGui import QColor, QImage, QCursor
+from PySide2.QtQuick import QQuickItem
+from package.cursors import build_one_image_cursor
 from fixtures import check_args
 from package import constantes
 from package.database_mixins.changematieres_mixin import ChangeMatieresMixin
 from package.database_mixins.image_section_mixin import ImageSectionMixin
 from package.database_mixins.matiere_mixin import MatieresDispatcher
-from package.database_mixins.session import SessionMixin
 from package.database_object import DatabaseObject
 from unittest.mock import patch, call
 
@@ -21,7 +22,6 @@ from package.default_matiere import MATIERE_GROUPE, MATIERES
 from package.files_path import FILES
 from package.operations.api import create_operation
 from package.page import text_section
-from loguru_caplog import loguru_caplog as caplog  # used in tests
 from pony.orm import ObjectNotFound, db_session
 
 
@@ -711,7 +711,7 @@ class TestSectionMixin:
         with qtbot.waitSignal(dao.sectionAdded):
             res = dao.addSection(str(page), content)
 
-    def test_addSetion_emptyimage(self, fkf, daof, resources, qtbot, qappdaof):
+    def test_addSection_pdf(self, fkf, daof, resources, qtbot, qappdaof):
         page = fkf.f_page().id
         daof.pageModel.slotReset(page)
         content = {"classtype": "ImageSection"}
@@ -835,8 +835,8 @@ class TestImageSectionMixin:
     @pytest.mark.parametrize(
         "pos, img_res",
         [
-            (QPoint(10, 10), "floodfill_blanc_en_bleu.png"),
-            (QPoint(80, 80), "floodfill_rouge_en_bleu.png"),
+            (QPointF(0.10, 0.10), "floodfill_blanc_en_bleu.png"),
+            (QPointF(0.80, 0.80), "floodfill_rouge_en_bleu.png"),
         ],
     )
     def test_flood_fill(self, fk, dao, resources, tmp_path, pos, img_res):
@@ -845,6 +845,45 @@ class TestImageSectionMixin:
         f = fk.f_imageSection(path=str(fp))
         assert dao.floodFill(f.id, QColor("blue"), pos)
         assert QImage(str(dao.files / f.path)) == QImage(str(resources / img_res))
+
+    def test_image_selection_curosr(self, dao, qtbot):
+        qk = QQuickItem()
+
+        # defaut
+        dao.setImageSectionCursor(qk)
+        assert (
+            qk.cursor().pixmap().toImage()
+            == build_one_image_cursor("text").pixmap().toImage()
+        )
+        # color
+        dao.ui.annotationDessinCurrentStrokeStyle = QColor("blue")
+        dao.setImageSectionCursor(
+            qk,
+        )
+        # qk.cursor().pixmap().toImage().save("/tmp/aa1.png")
+        # build_one_image_cursor("text", QColor("blue")).pixmap().toImage().save(
+        #     "/tmp/aa2.png"
+        # )
+        assert (
+            qk.cursor().pixmap().toImage()
+            == build_one_image_cursor("text", QColor("blue")).pixmap().toImage()
+        )
+
+        # with tool
+        dao.ui.annotationDessinCurrentStrokeStyle = QColor("red")
+        dao.setImageSectionCursor(qk, "fillrect")
+        assert (
+            qk.cursor().pixmap().toImage()
+            == build_one_image_cursor("fillrect", QColor("red")).pixmap().toImage()
+        )
+
+        # default
+        dao.setImageSectionCursor(qk, "default")
+        assert qk.cursor() == QCursor(Qt.ArrowCursor)
+
+        # dragmove
+        dao.setImageSectionCursor(qk, "dragmove")
+        assert qk.cursor() == QCursor(Qt.DragMoveCursor)
 
 
 class TestTableauMixin:

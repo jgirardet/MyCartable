@@ -67,3 +67,9 @@ class WImage(QImage):
             if get_pixel(x, y) == target_color:
                 p.drawPoint(QPoint(x, y))
                 queue.extend(get_cardinal_points(have_seen, (x, y)))
+
+    def change_color(self, after: QColor):
+        for x in range(self.width()):
+            for y in range(self.height()):
+                if self.pixelColor(x, y).alpha():
+                    self.setPixelColor(x, y, after)

@@ -52,8 +52,12 @@ Loader {
     ]
 
     MouseArea {
+        //            }
+        //            ddb.setImageSectionCursor(mousearea, "text");
+
         id: mousearea
 
+        cursorShape: Qt.NoCursor
         anchors.fill: parent
         z: 1
         acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
@@ -61,7 +65,19 @@ Loader {
         onEntered: {
             root.parent.currentAnnotation = root;
         }
-        //    property point startPosition
+        onExited: {
+            ddb.setImageSectionCursor(mousearea);
+        }
+        onPositionChanged: {
+            let tool = "";
+            if (!root.item.checkPointIsNotDraw(mouse.x, mouse.y)) {
+                if (mouse.modifiers & Qt.ControlModifier)
+                    tool = "dragmove";
+                else
+                    tool = "default";
+            }
+            ddb.setImageSectionCursor(mousearea, tool);
+        }
         preventStealing: true
         onPressed: {
             // check coordonnate

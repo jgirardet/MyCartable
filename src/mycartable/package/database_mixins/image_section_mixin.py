@@ -1,8 +1,10 @@
 from pathlib import Path
 
-from PySide2.QtCore import Property, QPoint
+from PySide2.QtCore import Property, QPoint, QPointF, Qt
 from PySide2.QtCore import Slot, Signal
-from PySide2.QtGui import QColor
+from PySide2.QtGui import QColor, QCursor
+from PySide2.QtQuick import QQuickItem
+from package.cursors import build_one_image_cursor
 from package.constantes import ANNOTATION_TEXT_BG_OPACITY
 from package.convertion.wimage import WImage
 from package.utils import get_new_filename
@@ -53,12 +55,29 @@ class ImageSectionMixin:
     def annotationTextBGOpacity(self):
         return ANNOTATION_TEXT_BG_OPACITY
 
-    @Slot(str, QColor, QPoint, result=bool)
-    def floodFill(self, sectionId: str, color: QColor, point: QPoint):
+    @Slot(str, QColor, QPointF, result=bool)
+    def floodFill(self, sectionId: str, color: QColor, point: QPointF):
         with db_session:
             item = self.db.ImageSection[sectionId]
             file = self.files / item.path
         im = WImage(str(file))
+        point = QPoint(point.x() * im.width(), point.y() * im.height())
         im.flood_fill(color, point)
-
         return im.save(str(file))
+
+    @Slot(QQuickItem, str)
+    @Slot(QQuickItem)
+    def setImageSectionCursor(self, qk: QQuickItem, tool: str = ""):
+        tool = tool or self.ui.annotationCurrentTool
+        if tool == "default":
+            qk.setCursor(QCursor(Qt.ArrowCursor))
+            return
+        elif tool == "dragmove":
+            qk.setCursor(QCursor(Qt.DragMoveCursor))
+            return
+        color = QColor(self.ui.annotationDessinCurrentStrokeStyle)
+        if color != "black":
+            cur = build_one_image_cursor(tool, color)
+        else:
+            cur = self.ui.image_cursors[tool]
+        qk.setCursor(cur)

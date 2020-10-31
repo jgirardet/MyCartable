@@ -5,7 +5,10 @@ import uuid
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Callable
-from packaging.version import Version as PackagingVersion, InvalidVersion
+from setuptools._vendor.packaging.version import (
+    Version as PackagingVersion,
+    InvalidVersion,
+)
 
 from PySide2.QtCore import QTimer, QFile, QTextStream, QRunnable, QThreadPool
 from PySide2.QtWidgets import QApplication

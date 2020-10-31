@@ -127,6 +127,7 @@
         <file alias="odt">data/icons/base/perso/odt.png</file>
         <file alias="pdf">data/icons/base/perso/pdf.png</file>
         <file alias="abcd">data/icons/base/perso/abcd.png</file>
+        <file alias="target">data/icons/base/perso/target.png</file>
         <file alias="rotateRight">data/icons/base/perso/rotateright.png</file>
         <file alias="rect">data/icons/base/pack/png/rect.png</file>
         <file alias="trait">data/icons/base/pack/png/pencil.png</file>
@@ -146,6 +147,7 @@
         <file alias="arrow-down">data/icons/base/arrows/png/003-down arrow.png</file>
         <file alias="arrow-double">data/icons/base/arrows/png/040-left arrow.png</file>
         <file alias="arrow-right">data/icons/base/arrows/png/001-right arrow.png</file>
+        <file alias="floodfill">data/icons/base/gimp/gimp-tool-bucket-fill.svg</file>
 <!--        <file alias="text">data/icons/base/pack/png/sphere.png</file>-->
     </qresource>
     <qresource prefix="/fonts">

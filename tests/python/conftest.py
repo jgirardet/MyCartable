@@ -188,7 +188,7 @@ def tmpfilename(request, tmp_path, gen):
 
 
 @pytest.fixture()
-def uim():
+def uim(qapp):
     from package.ui_manager import UiManager
 
     return UiManager()

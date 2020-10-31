@@ -5,6 +5,15 @@ import "qrc:/qml/annotations"
 import "qrc:/qml/menu"
 
 Image {
+    //        ddb.setImageSectionCursor(mousearea);
+    //        height = implicitHeight;
+    //        var oldSource = root.source;
+    //        root.source = "";
+    //        root.source = oldSource;
+    //        while (progress != 1)
+    //            print("prof", progress);
+    //        height = undefined;
+
     id: root
 
     property string sectionId
@@ -16,9 +25,10 @@ Image {
 
     function reloadImage() {
         // not tested
-        var oldSource = root.source;
-        root.source = "";
-        root.source = oldSource;
+        //        print(implicitHeight);
+        //        let oldheight = height;
+        sourceClipRect = root.childrenRect;
+        sourceClipRect = undefined;
     }
 
     function setStyleFromMenu(datas) {
@@ -36,6 +46,7 @@ Image {
                     uiManager.annotationDessinCurrentTool = "fillrect";
                 else
                     uiManager.annotationDessinCurrentTool = newTool;
+                ddb.setImageSectionCursor(mousearea);
             }
         }
     }
@@ -67,12 +78,17 @@ Image {
     }
 
     MouseArea {
+        //                cursorShape = Qt.ArrowCursor;
+        //                cursorShape = Qt.ArrowCursor;
+
         id: mousearea
 
         objectName: "mousearea"
         anchors.fill: root
         preventStealing: true
         acceptedButtons: Qt.LeftButton | Qt.RightButton
+        hoverEnabled: true
+        onEntered: ddb.setImageSectionCursor(mousearea)
         onPressed: {
             if (pressedButtons === Qt.RightButton) {
                 if (mouse.modifiers == Qt.ControlModifier)
@@ -80,29 +96,34 @@ Image {
                 else
                     uiManager.menuFlottantImage.ouvre(root);
             } else if (pressedButtons === Qt.LeftButton) {
-                if (mouse.modifiers == Qt.ControlModifier)
+                if (mouse.modifiers == Qt.ControlModifier) {
                     root.addAnnotationText(mouse);
-                else if (uiManager.annotationCurrentTool == "text")
+                } else if (uiManager.annotationCurrentTool == "text") {
                     root.addAnnotationText(mouse);
-                else
+                } else if (uiManager.annotationCurrentTool == "floodfill") {
+                    let fillColor = uiManager.annotationDessinCurrentStrokeStyle;
+                    let point = Qt.point(mouse.x / width, mouse.y / height);
+                    let res = ddb.floodFill(root.sectionId, fillColor, point);
+                    root.reloadImage();
+                } else {
                     root.startDraw();
+                }
                 mouse.accepted = true;
             }
         }
         onReleased: {
-            if (canvas.painting) {
+            if (canvas.painting)
                 canvas.endDraw(root.sectionId);
-                cursorShape = Qt.ArrowCursor;
-            } else if (mainlevee.painting) {
+            else if (mainlevee.painting)
                 mainlevee.endDraw();
-                cursorShape = Qt.ArrowCursor;
-            }
         }
         onPositionChanged: {
-            if (canvas.painting)
-                canvas.requestPaint();
-            else if (mainlevee.painting)
-                mainlevee.requestPaint();
+            if (pressed) {
+                if (canvas.painting)
+                    canvas.requestPaint();
+                else if (mainlevee.painting)
+                    mainlevee.requestPaint();
+            }
         }
     }
 

@@ -1,3 +1,6 @@
+import shutil
+import tempfile
+import uuid
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -22,6 +25,8 @@ gen = mimesis.Generic("fr")
 class Faker:
     def __init__(self, db: Database):
         self.db = db
+        self.tmpdir = Path(tempfile.gettempdir()) / "mkdbdev"
+        self.tmpdir.mkdir(exist_ok=True)
 
     def f_datetime(self, start=None, end=None, **kwargs):
         end = end or datetime.utcnow()
@@ -190,6 +195,7 @@ class Faker:
         return [self.f_section(*args, **kwargs) for x in range(n)]
 
     def f_imageSection(self, path=None, **kwargs):
+        tmp = None
         basepath = Path(__file__).parents[1] / "tests" / "resources"
         if path in ["tst_AnnotableImage.png", "sc1.png", "floodfill.png"]:
             path = basepath / path
@@ -202,7 +208,9 @@ class Faker:
                 / "resources"
                 / random.choice(["tst_AnnotableImage.png", "sc1.png"])
             )
-
+            tmp = self.tmpdir / (str(uuid.uuid4()) + path.suffix)
+            shutil.copy(path, tmp)
+        path = tmp if tmp else path
         return self._f_section("ImageSection", path=str(path), **kwargs)
 
     HTML = """

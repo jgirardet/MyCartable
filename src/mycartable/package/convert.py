@@ -95,7 +95,6 @@ def split_pdf_to_png(
     """
     cpu = cpu or cpu_count()
     compteur = Value("i", 0)
-
     # on crée les chunks qui seront repartis dans les process
     # vectors = [(i, cpu, filename) for i in range(cpu)]
     doc = fitz.open(filename)

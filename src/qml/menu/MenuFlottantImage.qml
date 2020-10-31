@@ -74,11 +74,6 @@ BaseMenu {
                     menu: menu
                 }
 
-            }
-
-            RowLayout {
-                spacing: 0
-
                 ColorButton {
                     color: "transparent"
                     style: {
@@ -88,6 +83,11 @@ BaseMenu {
                     icon.color: "transparent"
                     menu: menu
                 }
+
+            }
+
+            RowLayout {
+                spacing: 0
 
                 ColorButton {
                     color: "transparent"
@@ -115,6 +115,16 @@ BaseMenu {
                         "tool": "point"
                     }
                     icon.source: "qrc:///icons/newTextSection"
+                    icon.color: "transparent"
+                    menu: menu
+                }
+
+                ColorButton {
+                    color: "transparent"
+                    style: {
+                        "tool": "floodfill"
+                    }
+                    icon.source: "qrc:///icons/floodfill"
                     icon.color: "transparent"
                     menu: menu
                 }

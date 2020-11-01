@@ -248,9 +248,9 @@ def cmd_tag(*args, **kwargs):
         raise SystemError("Un tag ne peut être créé que sur master")
     version = "v" + toml.load("pyproject.toml")["tool"]["briefcase"]["version"]
 
-    repo.create_tag(version)
     runCommand(f"git add pyproject.toml")
     runCommand(f'git commit -m "version {version}"')
+    repo.create_tag(version)
     runCommand(f"git push origin {version}")
 
 

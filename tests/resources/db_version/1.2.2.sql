@@ -1,15 +1,3 @@
-CREATE TABLE "Configuration" (
-  "key" TEXT NOT NULL PRIMARY KEY,
-  "field" TEXT NOT NULL,
-  "str_value" TEXT NOT NULL,
-  "int_value" INTEGER,
-  "bool_value" BOOLEAN,
-  "float_value" REAL,
-  "uuid_value" UUID,
-  "datetime_value" DATETIME,
-  "date_value" DATE,
-  "json_value" JSON NOT NULL
-);
 CREATE TABLE "Utilisateur" (
   "id" UUID NOT NULL PRIMARY KEY,
   "nom" TEXT NOT NULL,
@@ -76,9 +64,7 @@ CREATE TABLE "Section" (
   "content" TEXT,
   "curseur" INTEGER,
   "lignes" INTEGER,
-  "colonnes" INTEGER,
-  "height" INTEGER,
-  "titre" TEXT
+  "colonnes" INTEGER
 );
 CREATE INDEX "idx_section__page" ON "Section" ("page");
 CREATE TABLE "TableauCell" (
@@ -88,23 +74,6 @@ CREATE TABLE "TableauCell" (
   "texte" TEXT NOT NULL,
   PRIMARY KEY ("tableau", "y", "x")
 );
-CREATE TABLE "ZoneFrise" (
-  "id" UUID NOT NULL PRIMARY KEY,
-  "frise" UUID NOT NULL REFERENCES "Section" ("id") ON DELETE CASCADE,
-  "_position" INTEGER NOT NULL,
-  "ratio" REAL NOT NULL,
-  "texte" TEXT NOT NULL,
-  "separatorText" TEXT NOT NULL
-);
-CREATE INDEX "idx_zonefrise__frise" ON "ZoneFrise" ("frise");
-CREATE TABLE "FriseLegende" (
-  "id" UUID NOT NULL PRIMARY KEY,
-  "texte" TEXT NOT NULL,
-  "relativeX" REAL NOT NULL,
-  "side" BOOLEAN NOT NULL,
-  "zone" UUID NOT NULL REFERENCES "ZoneFrise" ("id") ON DELETE CASCADE
-);
-CREATE INDEX "idx_friselegende__zone" ON "FriseLegende" ("zone");
 CREATE TABLE "Style" (
   "styleId" UUID NOT NULL PRIMARY KEY,
   "_fgColor" INTEGER UNSIGNED NOT NULL,
@@ -117,11 +86,9 @@ CREATE TABLE "Style" (
   "tableau_cell_tableau" UUID,
   "tableau_cell_y" INTEGER,
   "tableau_cell_x" INTEGER,
-  "zone_frise" UUID REFERENCES "ZoneFrise" ("id") ON DELETE CASCADE,
   FOREIGN KEY ("tableau_cell_tableau", "tableau_cell_y", "tableau_cell_x") REFERENCES "TableauCell" ("tableau", "y", "x") ON DELETE CASCADE
 );
 CREATE INDEX "idx_style__tableau_cell_tableau_tableau_cell_y_tableau_cell_x" ON "Style" ("tableau_cell_tableau", "tableau_cell_y", "tableau_cell_x");
-CREATE INDEX "idx_style__zone_frise" ON "Style" ("zone_frise");
 CREATE TABLE "Annotation" (
   "id" UUID NOT NULL PRIMARY KEY,
   "x" REAL NOT NULL,

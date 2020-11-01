@@ -16,7 +16,6 @@ export function drawCanvas (ctx, tool, startX, startY, endX, endY) {
         ctx.stroke();
     } else if (tool == "arrow") {
         return drawArrow(ctx, startX, startY, endX, endY)
-
     }
 }
 
@@ -72,4 +71,31 @@ function drawArrowhead(context, from, to, radius) {
 
     return [point1, point2,point3]
 
+}
+
+
+export function drawPoints(ctx, points, lineWidth, width, height) {
+  let lastPoint = Qt.point(points[0].x*width, points[0].y*height)
+  for (const po of points.slice(1,points.length)) {
+        let newPoint = Qt.point(po.x*width, po.y*height);
+        drawBetweenPoints(ctx, lastPoint, newPoint)
+        lastPoint = newPoint;
+    }
+}
+
+export function drawBetweenPoints(ctx, start, end) {
+  let diff = ctx.lineWidth / 2;
+  let baseLineWidth = ctx.lineWidth
+  //draw line
+  ctx.beginPath();
+  ctx.moveTo(start.x, start.y);
+  ctx.lineWidth = baseLineWidth * 2;
+  ctx.lineTo(end.x, end.y);
+  ctx.stroke();
+  //draw ellipse
+  ctx.beginPath();
+  ctx.lineWidth = baseLineWidth;
+  ctx.ellipse(end.x - diff, end.y - diff, ctx.lineWidth, ctx.lineWidth);
+  ctx.fill();
+  ctx.stroke();
 }

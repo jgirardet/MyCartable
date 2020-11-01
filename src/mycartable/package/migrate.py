@@ -7,28 +7,11 @@ import tempfile
 from datetime import datetime
 from pathlib import Path
 from typing import Union, Callable, List
-
 from loguru import logger
 from package.database.base_db import Schema, init_database, init_models, db_session
 from package.database.models import schema_version
 from package.utils import Version
 from pony.orm import Database
-
-"""
-type:
-    1 ajout d'une foreignKey : Optional <=> Optional:
-        1 Si nouvelle table : ajouter la relation dans la nouvelle table via:
-        new_field_de_new_class =  Optional("OldClasse", column="new_field_de_new_class")
-        Du coup rien à faire de plus
-        - Si 2 anciennes table: ???
-        
-"""
-
-
-# migrations_list = {"1.3.0": {"type": "1.1"}}
-
-
-# migrations = {"1.3.0": ["ALTER TABLE Annotation ADD points TEXT"]}
 
 
 class Migrator:
@@ -82,16 +65,21 @@ class MakeMigrations:
     def __init__(
         self,
         filename: Union[str, Path],  # chemin vers la ddb
-        actual_version: Version = None,  # version actuelle (dans les sources)
+        actual_version: Union[
+            Version, str
+        ] = None,  # version actuelle (dans les sources)
         migrations: dict = None,  # pool de migrations
     ):
-        migrations = migrations
-        self.actual_version = actual_version or Version(schema_version)
+        # migrations = migrations
+        self.actual_version = (
+            actual_version
+            if isinstance(actual_version, Version)
+            else Version(actual_version)
+        )
 
         self.old_file = Path(filename)  # ddb à faire migrer
 
         # création d'une base temporaire pour effectuer les migrations
-        # _, tmp = tempfile.mkstemp(suffix=".sqlite")
         tmp = tempfile.NamedTemporaryFile(suffix=".sqlite", delete=False)
         tmp.close()
         self.tmp_file = Path(tmp.name)
@@ -100,7 +88,7 @@ class MakeMigrations:
         # outils pour migrations
         self.tmp_db = Database(provider="sqlite", filename=tmp.name)
         self.schema = Schema(file=self.tmp_db)
-        self.migrator = Migrator(self.tmp_db, actual_version, migrations)
+        self.migrator = Migrator(self.tmp_db, self.actual_version, migrations)
         logger.info(
             f"starting migrations from version {self.schema.version} to {self.actual_version}"
         )
@@ -114,6 +102,8 @@ class MakeMigrations:
         Test are done on another Database
         :return: True if success
         """
+        if not check_cb:
+            return True
         logger.info("Checking migrations...")
         f = tempfile.NamedTemporaryFile(delete=False)
         f.close()
@@ -129,6 +119,8 @@ class MakeMigrations:
         Generate new mapping using pony models, and apply some more migrations.
         On compte sur exceptions en cas d'erreur
         """
+        if not generate_cb:
+            return
         logger.info("Generating new mapping...")
         generate_cb(self.tmp_db)
         self.tmp_db.generate_mapping(create_tables=True)
@@ -157,7 +149,7 @@ class MakeMigrations:
             self.old_file.replace(self.old_file.parent / fail_name)
         backup_file.replace(self.old_file)
 
-    def __call__(self, check_cb: Callable, generate_cb: Callable) -> bool:
+    def __call__(self, check_cb: Callable = None, generate_cb: Callable = None) -> bool:
         """
         check_cb: voir check_migrations
         generate_db: voir generate_new_mapping
@@ -175,7 +167,6 @@ class MakeMigrations:
             self.generate_new_mapping(generate_cb)
             self.check_migrations(check_cb)
             self.move_tmp_to_old()
-
         except Exception as err:
             logger.exception(err)
             self.restore_backup(backup_file)

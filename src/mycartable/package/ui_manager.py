@@ -1,5 +1,6 @@
 from PySide2.QtCore import QObject, Property, Signal, Slot
 from PySide2.QtGui import QColor
+from package.cursors import build_all_image_cursor
 
 DEFAULT_ANNOTATION_CURRENT_TEXT_SIZE_FACTOR = 15
 
@@ -15,6 +16,10 @@ class UiManager(QObject):
 
     def __init__(self):
         super().__init__()
+        self.set_default()
+        self.image_cursors = build_all_image_cursor()
+
+    def set_default(self):
         self._menuTarget = None
         self._toast = None
         self._buzyIndicator = False
@@ -22,9 +27,15 @@ class UiManager(QObject):
             DEFAULT_ANNOTATION_CURRENT_TEXT_SIZE_FACTOR
         )
         self._annotationDessinCurrentLineWidth = 3
-        self._annotationDessinCurrentStrokeStyle = "black"
+        self._annotationDessinCurrentStrokeStyle = QColor("black")
         self._annotationDessinCurrentTool = "fillrect"
         self._annotationCurrentTool = "text"
+        self._menuFlottantAnnotationText = None
+        self._menuFlottantAnnotationDessin = None
+
+    @Slot()
+    def resetUiManager(self):
+        self.set_default()
 
     @Property(QObject, notify=menuFlottantTextChanged)
     def menuFlottantText(self):

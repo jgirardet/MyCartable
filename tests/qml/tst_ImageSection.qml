@@ -2,40 +2,26 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 
 Item {
-
     id: item
 
     width: 200
-    height: 300
-
-    Component {
-        id: modelComp
-
-        ListModel {
-            id: listmodel
-
-            property var _addAnnotation: null
-
-            function addAnnotation(mx, my, mwidth, mheight) {
-                _addAnnotation = [mx, my, mwidth, mheight];
-            }
-
-        }
-
-    }
+    height: 600
 
     CasTest {
+        // onPaint called
 
         property var model
         property var canvas
+        property var imgsection
 
         function initPre() {
-            model = createTemporaryObject(modelComp, item);
+            imgsection = fk.f("imageSection", {
+                "path": "tst_AnnotableImage.png"
+            });
             params = {
-                "sectionId": 3796,
-                "sectionItem": item,
-                "model": model
-            }; // 767 x 669}
+                "sectionId": imgsection.id,
+                "sectionItem": item
+            };
         }
 
         function initPost() {
@@ -48,7 +34,7 @@ Item {
         }
 
         function test_img_load_init() {
-            compare(tested.source, "qrc:/tests/tst_AnnotableImage.png");
+            verify(tested.source.toString().endsWith("tst_AnnotableImage.png"));
             compare(tested.width, 200);
             compare(tested.height, 174); // 669 * item.width / 767
         }
@@ -61,27 +47,26 @@ Item {
         function test_left_click_no_modifier_currenttool_is_text() {
             uiManager.annotationCurrentTool = "text";
             mouseClick(tested, 3, 10, Qt.LeftButton);
-            compare(model._addAnnotation, [3, 10, 200, 174]);
+            verify(tested.annotations.itemAt(0).item.toString().substr("AnnotationText"));
         }
 
         function test_left_click_no_modifier_currenttool_is_not_text() {
             uiManager.annotationCurrentTool = "rect";
-            mouseClick(tested, 3, 10, Qt.LeftButton);
-            compare(model._addAnnotation, null);
+            uiManager.annotationDessinCurrentTool = "rect";
+            mouseDrag(tested, 3, 10, 10, 10, Qt.LeftButton);
+            compare(tested.annotations.itemAt(0).item.tool, "rect");
         }
 
-        function test_left_click_ctrl_modifier() {
+        function test_left_click_ctrl_modifier_add_text() {
             uiManager.annotationCurrentTool = "rect";
             mouseClick(tested, 3, 10, Qt.LeftButton, Qt.ControlModifier);
-            compare(model._addAnnotation, [3, 10, 200, 174]);
+            verify(tested.annotations.itemAt(0).item.toString().substr("AnnotationText"));
         }
 
-        function test_right_click_ctrl_modifier() {
+        function test_right_click_ctrl_modifier_add_fillrect() {
             uiManager.annotationCurrentTool = "text";
-            mousePress(tested, 3, 10, Qt.RightButton, Qt.ControlModifier);
-            compare(model._addAnnotation, null);
-            verify(canvas.painting); // painting True == startDraw called
-            verify(canvas.useDefaultTool);
+            mouseDrag(tested, 3, 10, 10, 10, Qt.RightButton, Qt.ControlModifier);
+            compare(tested.annotations.itemAt(0).item.tool, "fillrect");
         }
 
         function test_left_press_currentool_is_not_text() {
@@ -104,25 +89,26 @@ Item {
             mousePress(tested, 3, 10, Qt.RightButton, Qt.ControlModifier);
             verify(!canvas.visible);
             mouseMove(tested, 33, 100);
-            waitForRendering(canvas);
-            verify(canvas.visible); // onPaint called
+            tryCompare(canvas, "visible", true);
         }
 
         function test_right_click_affiche_menu() {
+            uiManager.menuFlottantImage = createObj("qrc:/qml/menu/MenuFlottantImage.qml");
             compare(uiManager.menuFlottantImage.visible, false);
-            mouseClick(tested, 0, 0, Qt.RightButton);
+            mouseClick(tested, 1, 1, Qt.RightButton);
             compare(uiManager.menuFlottantImage.visible, true);
         }
 
         function test_annotation_repeter() {
             var rep = findChild(tested, "repeater");
             compare(rep.count, 0);
-            model.append({
-                "annot": {
-                    "sectionId": 2,
-                    "classtype": "AnnotationText"
-                }
+            tested.model.addAnnotation("AnnotationText", {
+                "x": 100,
+                "y": 100,
+                "width": item.width,
+                "height": item.height
             });
+            //            wait(2000);
             compare(rep.count, 1);
         }
 
@@ -175,8 +161,62 @@ Item {
             compare(uiManager.annotationDessinCurrentTool, "trait");
         }
 
+        function test_annotation_text_removed_if_empty() {
+            uiManager.annotationCurrentTool = "text";
+            mouseClick(tested);
+            compare(tested.annotations.count, 1);
+            let timer = findChild(tested.annotations.itemAt(0), "timerRemove");
+            compare(timer.running, true);
+            timer.stop();
+            timer.interval = 0;
+            timer.start();
+            tryCompare(tested.annotations, "count", 0);
+        }
+
+        function test_baseannotation_removed_if_middle_click() {
+            uiManager.annotationCurrentTool = "text";
+            mouseClick(tested);
+            compare(tested.annotations.count, 1);
+            mouseClick(tested.annotations.itemAt(0), 1, 1, Qt.MiddleButton);
+            compare(tested.annotations.count, 0);
+        }
+
+        function test_floodfill() {
+            uiManager.annotationCurrentTool = "floodfill";
+            uiManager.annotationDessinCurrentStrokeStyle = "blue";
+            let mname = "floodFill";
+            th.mock(mname);
+            mouseClick(tested, 34, 54);
+            verify(th.mock_called(mname));
+            let args = th.mock_call_args_list(mname);
+            compare(args[0], [tested.sectionId, "#0000ff", Qt.point(34 / tested.width, 54 / tested.height)]);
+            th.unmock(mname);
+        }
+
+        function test_cursor_move() {
+            uiManager.annotationCurrentTool = "floodfill";
+            uiManager.annotationDessinCurrentStrokeStyle = "blue";
+            let mname = "setImageSectionCursor";
+            th.mock(mname);
+            mouseMove(tested, 1, 1);
+            verify(th.mock_called(mname));
+            th.unmock(mname);
+        }
+
+        function test_cursor_toolchanged() {
+            let mname = "setImageSectionCursor";
+            th.mock(mname);
+            tested.setStyleFromMenu({
+                "style": {
+                    "tool": "trait"
+                }
+            });
+            verify(th.mock_called(mname));
+            th.unmock(mname);
+        }
+
         name: "ImageSection"
-        testedNom: "qrc:/qml/annotations/ImageSectionBase.qml"
+        testedNom: "qrc:/qml/sections/ImageSection.qml"
         params: {
         }
     }

@@ -246,7 +246,9 @@ def cmd_test_python(*args, **kwargs):
     capture = "-s --no-qt-log" if "capture" in args else ""
     test_path = ROOT / "tests" / "python"
     # f"python -m pytest -s -vvv -n {cpu_count()} {test_path}", sleep_time=0.001
-    runCommand(f"python -m pytest -vv {capture} {test_path} -color", sleep_time=0.001)
+    runCommand(
+        f"python -m pytest -vv  --color=yes {capture} {test_path}", sleep_time=0.001
+    )
 
 
 def cmd_test_qml(*args, **kwargs):
@@ -286,7 +288,9 @@ def cmd_test_qml_pytest(*args, **kwargs):
     capture = "-s --no-qt-log" if "capture" in args else ""
     test_path = ROOT / "tests" / "qml"
     # f"python -m pytest -s -vvv -n {cpu_count()} {test_path}", sleep_time=0.001
-    runCommand(f"python -m pytest -vv -color {capture} {test_path} ", sleep_time=0.001)
+    runCommand(
+        f"python -m pytest -vv --color=yes {capture} {test_path} ", sleep_time=0.001
+    )
 
 
 def cmd_upgrade_qt(old, new, *args, **kwargs):

@@ -39,23 +39,29 @@ def main_init_database(filename=None, prod=False):
         create_db = True
     else:
         QStandardPaths.setTestModeEnabled(True)
-        filename = Path(tempfile.gettempdir()) / "devddbmdk.sqlite"
+        # filename = Path(tempfile.gettempdir()) / "devddbmdk.sqlite"
+        filename = "/home/jimmy/Documents/MyCartable/mycartable.ddb"
         # filename = ":memory:"
-        filename.unlink(missing_ok=True)
+        # filename.unlink()
         create_db = True
 
-    package.database.db = newdb
+    from migrations import make_migrations
 
-    # make_migrations(filename)
+    migrate_res = make_migrations(filename)
+    if not migrate_res:
+        from package.files_path import LOGFILE
+
+        raise SystemError(f"voir dans {LOGFILE}")
+
+    package.database.db = newdb
 
     db = package.database.init_database(newdb, filename=filename, create_db=create_db)
 
     if not prod:
-        from tests.factory import Faker
+        from tests.python.factory import populate_database
 
-        faker = Faker(db)
         try:
-            faker.populate_database()
+            populate_database()
         except:
             pass
 
@@ -72,13 +78,12 @@ def register_new_qml_type(databaseObject):
 
     # from package.page.text_section import DocumentEditor
     from package.page.annotation_model import AnnotationModel
+    from package.page.frise_model import FriseModel
 
     AdditionModel.ddb = databaseObject
     SoustractionModel.ddb = databaseObject
     MultiplicationModel.ddb = databaseObject
     DivisionModel.ddb = databaseObject
-
-    from package.page.frise_model import FriseModel
 
     # qmlRegisterType(DocumentEditor, "DocumentEditor", 1, 0, "DocumentEditor")
     qmlRegisterType(AdditionModel, "MyCartable", 1, 0, "AdditionModel")
@@ -99,8 +104,8 @@ def create_singleton_instance(prod=False):
 
     if not prod:
         databaseObject.anneeActive = 2019
-        # with db_session:
-        #     databaseObject.currentPage = databaseObject.db.Page.select().first().id
+        with db_session:
+            databaseObject.currentPage = databaseObject.db.Page.select().first().id
 
     return databaseObject, ui_manager
 
@@ -129,12 +134,10 @@ def setup_qml(ddb, ui_manager):
 
 
 def setup_logging():
-    t = Path(QStandardPaths.writableLocation(QStandardPaths.CacheLocation), APPNAME)
-    if not t.is_dir():
-        t.mkdir(parents=True)
-    logger_path = t / "mycartable_log.txt"
-    logger.add(t / logger_path, rotation="10 MB")
-    logger.info(f"logfile path : {logger_path}")
+    from package.files_path import LOGFILE
+
+    logger.add(LOGFILE, rotation="10 MB")
+    logger.info(f"logfile path : {LOGFILE}")
 
 
 @logger.catch(reraise=True)
@@ -143,7 +146,6 @@ def main(filename=None):
     if not prod:
         QStandardPaths.setTestModeEnabled(True)
     setup_logging()
-
     logger.info(f"Application en mode {'PROD' if prod else 'DEBUG'}")
 
     # global settings

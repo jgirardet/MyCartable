@@ -2,33 +2,31 @@ import json
 
 import pytest
 
-from PySide2.QtCore import Qt, QModelIndex, QJsonDocument
+from PySide2.QtCore import Qt, QJsonDocument
 from PySide2.QtGui import QColor
 from fixtures import check_super_init
 from package.page.annotation_model import AnnotationModel
 from pony.orm import db_session
-from pony.orm.core import EntityProxy
-
-from fixtures import check_args
 
 
 @pytest.fixture
-def am(fk, qappdao):
+def am(fk, dao):
     def factory(nb, genre=None):
         p = fk.f_imageSection()
         a = AnnotationModel()
+        a.dao = dao
         annots = []
         if isinstance(genre, tuple):
             for i in genre:
                 if i == "t":
-                    x = fk.f_annotationText(section=p.id)
+                    x = fk.f_annotationText(section=p.id, td=True)
                     annots.append(x)
                 elif i == "d":
-                    x = fk.f_annotationDessin(section=p.id)
+                    x = fk.f_annotationDessin(section=p.id, td=True)
                     annots.append(x)
         else:
             for i in range(nb):
-                x = fk.f_annotationText(section=p.id)
+                x = fk.f_annotationText(section=p.id, td=True)
                 annots.append(x)
         a.f_annots = annots
         a.img_id = p.id
@@ -39,28 +37,12 @@ def am(fk, qappdao):
 
 
 class TestAnnotationModel:
-    def test_check_args(self, am, qtbot):
-        a = am(1)
-        check_args(a.removeRow, [str, bool], bool, slot_order=0)
-        check_args(a.removeRow, [int], bool, slot_order=1)
-        check_args(a.slotReset, [str], bool)
-        check_args(a.newDessin, dict)
-        check_args(
-            a.addAnnotation,
-            [
-                float,
-                float,
-                float,
-                float,
-            ],
-        )
-
     def test_base_init(self, qtbot, qtmodeltester):
         assert check_super_init(
             "package.page.page_model.QAbstractListModel", AnnotationModel
         )
         b = AnnotationModel()
-        assert b.row_count == 0
+        assert b.rowCount() == 0
 
         a = AnnotationModel()
         # a._datas = [1, 2, 4]
@@ -70,7 +52,7 @@ class TestAnnotationModel:
     def test_data_role(self, am, qtbot):
         a = am(2)
         # valid index
-        assert a.data(a.index(1, 0), a.AnnotationRole)["id"] == str(a.f_annots[1].id)
+        assert a.data(a.index(1, 0), a.AnnotationRole) == a.annotations[1]
         # invalid index
         assert a.data(a.index(99, 99), a.AnnotationRole) is None
         # no good role
@@ -81,95 +63,71 @@ class TestAnnotationModel:
         assert int(x.flags(x.index(0, 0))) == 128 + 35
         assert x.flags(x.index(99, 99)) is None
 
-    def test_insertRows_and_row(self, am, qtbot, fk):
-        x = am(2)
-        assert x.rowCount() == 2
-
-        fk.f_annotationText(section=x.sectionId)
-        assert x.insertRows(1, 0)
-        assert x.rowCount() == 3
-
-        fk.f_annotationText(section=x.sectionId)
-        assert x.insertRow(1)
-        assert x.rowCount() == 4
-
     def test_roles(self):
         am = AnnotationModel()
         assert Qt.DisplayRole in am.roleNames()
         assert AnnotationModel.AnnotationRole in am.roleNames()
         assert am.roleNames()[AnnotationModel.AnnotationRole] == b"annot"
 
+    def test_addAnnotation_AnnotationText(self, am, qtbot, fk):
+        x = am(2)
+        assert x.rowCount() == 2
+        # assert x.insertRows(1, 0)
+
+        with qtbot.waitSignal(x.rowsInserted):
+            x.addAnnotation(
+                "AnnotationText", {"x": 3, "y": 5, "width": 100, "height": 300}
+            )
+        assert x.annotations[-1]["x"] == 3 / 100
+        assert x.rowCount() == 3
+
+    def test_addAnnotation_AnnotationDessin(self, am, qtbot, fk):
+        x = am(2)
+        x.addAnnotation(
+            "AnnotationDessin",
+            {
+                "endX": 0.9571428571428572,
+                "endY": 0.9583333333333334,
+                "fillStyle": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 0.000000),
+                "height": 0.09473684210526316,
+                "lineWidth": 3.0,
+                "opacity": 1.0,
+                "startX": 0.04285714285714286,
+                "startY": 0.041666666666666664,
+                "strokeStyle": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 1.000000),
+                "tool": "trait",
+                "width": 0.08027522935779817,
+                "x": 0.24426605504587157,
+                "y": 0.2644736842105263,
+            },
+        )
+
+        assert x.rowCount() == 3
+        assert x.annotations[-1]["x"] == 0.24426605504587157
+
     def test_row_count(self, am):
         a = am(2)
-        assert a.rowCount() == a.row_count == a.count == 2
-
-    def test_count(self, am, qtbot):
-        a = am(1)
-        with qtbot.waitSignal(a.countChanged):
-            a.count = 3
-        assert a.rowCount() == a.row_count == a.count == 3
-
-    def test_sloot_reset(self, fk, qtbot):
-        a = AnnotationModel()
-
-        # section does not exists
-        with qtbot.waitSignal(a.modelReset):
-            assert a.slotReset(99) is None
-            assert a.section is None
-            assert a.sectionId == 0
-
-        f = fk.f_imageSection()
-        fk.f_annotationDessin(section=f.id)
-        with qtbot.waitSignal(a.modelReset):
-            assert a.slotReset(f.id)
-
-        with db_session:
-            assert a.section.id == f.id
-            assert isinstance(a.section, EntityProxy)
-            assert a.sectionId == f.id
-            assert a.count == 1
-
-    def test_removeRows_at_0(self, am, ddbr, qtbot):
-        a = am(3)
-
-        assert a.removeRows(0, 0, QModelIndex())
         assert a.rowCount() == 2
-        assert a.data(a.index(0, 0), a.AnnotationRole)["id"] == str(a.f_annots[1].id)
-        assert a.data(a.index(1, 0), a.AnnotationRole)["id"] == str(a.f_annots[2].id)
 
-    def test_removeRows_at_1(self, am, ddbr, qtbot):
+    def test_reset(self, fk, am, qtbot):
+        a = am(2)
+        newAnot = fk.f_annotationDessin(section=a.sectionId, td=True)
+        a._reset()
+        assert a.rowCount() == 3
+        assert newAnot["id"] in [x["id"] for x in a.annotations]
+
+    def test_remove(self, am, ddbr, qtbot):
         a = am(3)
-
-        assert a.removeRows(1, 0, QModelIndex())
+        ids = [anot["id"] for anot in a.annotations]
+        assert a.remove(0)
         assert a.rowCount() == 2
-        assert a.data(a.index(0, 0), a.AnnotationRole)["id"] == str(a.f_annots[0].id)
-        assert a.data(a.index(1, 0), a.AnnotationRole)["id"] == str(a.f_annots[2].id)
 
-    def test_removeRows_at_end(self, am, ddbr, qtbot):
-        a = am(3)
-
-        assert a.removeRows(2, 0, QModelIndex())
-        assert a.rowCount() == 2
-        assert a.data(a.index(0, 0), a.AnnotationRole)["id"] == str(a.f_annots[0].id)
-        assert a.data(a.index(1, 0), a.AnnotationRole)["id"] == str(a.f_annots[1].id)
-
-    def test_removeRow(self, am, ddbr, qtbot):
-        a = am(3)
-        assert a.removeRow(0)
-        assert a.rowCount() == 2
-        assert a.data(a.index(0, 0), a.AnnotationRole)["id"] == str(a.f_annots[1].id)
-        assert a.data(a.index(1, 0), a.AnnotationRole)["id"] == str(a.f_annots[2].id)
-
-    def test_removeRow_by_id(self, am, ddbr, qtbot):
-        a = am(3)
-        assert a.removeRow(str(a.f_annots[1].id), True)
-        assert a.rowCount() == 2
-        assert a.data(a.index(0, 0), a.AnnotationRole)["id"] == str(a.f_annots[0].id)
-        assert a.data(a.index(1, 0), a.AnnotationRole)["id"] == str(a.f_annots[2].id)
+        assert a.data(a.index(0, 0), a.AnnotationRole)["id"] in ids
+        assert a.data(a.index(1, 0), a.AnnotationRole)["id"] in ids
 
     def test_setData(self, am, qtbot, ddbr):
         a = am(3)
-        a0 = str(a.f_annots[0].id)
+        a0 = str(a.f_annots[0]["id"])
         # ok to set
         with qtbot.waitSignal(a.dataChanged):
             assert a.setData(
@@ -196,7 +154,7 @@ class TestAnnotationModel:
 
     def test_set_data_select_right_class_annotation(self, am, ddbr):
         a = am(1, ("d",))
-        a0 = str(a.f_annots[0].id)
+        a0 = str(a.f_annots[0]["id"])
         assert a.setData(
             a.index(0, 0),
             QJsonDocument.fromJson(json.dumps({"id": a0, "width": 23}).encode()),
@@ -205,80 +163,11 @@ class TestAnnotationModel:
         with db_session:
             assert ddbr.AnnotationDessin[a0].width == 23
 
-    def test_modif_update_recents_and_activites(self, qtbot, am, qapp):
+    def test_modif_update_recents_and_activites(self, qtbot, am):
         a = am(3)
 
-        with qtbot.waitSignal(qapp.dao.updateRecentsAndActivites):
+        with qtbot.waitSignal(a.dao.updateRecentsAndActivites):
             a.removeRow(0)
 
-        with qtbot.waitSignal(qapp.dao.updateRecentsAndActivites):
+        with qtbot.waitSignal(a.dao.updateRecentsAndActivites):
             a.insertRow(0)
-
-    def test_addannotation(self, am, qtbot, ddbr):
-        a = am(1)
-        with qtbot.waitSignal(a.rowsInserted):
-            a.addAnnotation(0.1, 0.2, 0.3, 0.4)
-        with db_session:
-            a1 = ddbr.AnnotationText.select()[1:][0]
-            assert a1.to_dict() == {
-                "bgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 0.000000),
-                "classtype": "AnnotationText",
-                "family": "",
-                "fgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 1.000000),
-                "id": str(a1.id),
-                "pointSize": None,
-                "section": ddbr.ImageSection[a.img_id],
-                "strikeout": False,
-                "styleId": str(a1.style.styleId),
-                "text": None,
-                "underline": False,
-                "weight": None,
-                "x": 0.1 / 0.3,
-                "y": 0.5,
-            }
-
-    def test_newDessin(self, am, qtbot, ddbr):
-        a = am(1)
-        with qtbot.waitSignal(a.rowsInserted):
-            a.newDessin(
-                {
-                    "fillStyle": QColor("yellow"),
-                    "strokeStyle": QColor("purple"),
-                    "lineWidth": 3,
-                    "x": 0.1,
-                    "y": 0.5,
-                    "width": 0.3,
-                    "height": 0.4,
-                    "tool": "trait",
-                    "startX": 0.8,
-                    "startY": 0.9,
-                    "endX": 0.9,
-                    "endY": 0.95,
-                    "opacity": 1,
-                }
-            )
-
-        with db_session:
-            a1 = ddbr.AnnotationDessin.select().first()
-            assert a1.to_dict() == {
-                "bgColor": QColor("yellow"),
-                "classtype": "AnnotationDessin",
-                "family": "",
-                "fgColor": QColor("purple"),
-                "id": str(a1.id),
-                "section": ddbr.ImageSection[a.img_id],
-                "strikeout": False,
-                "styleId": str(a1.style.styleId),
-                "underline": False,
-                "weight": 10,
-                "pointSize": 3.0,
-                "x": 0.1,
-                "y": 0.5,
-                "width": 0.3,
-                "height": 0.4,
-                "tool": "trait",
-                "startX": 0.8,
-                "startY": 0.9,
-                "endX": 0.9,
-                "endY": 0.95,
-            }

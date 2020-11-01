@@ -69,7 +69,6 @@ class SectionMixin:
         return str(item.id)
 
     def addSectionPDF(self, page_id, path) -> str:
-
         first = None
         with tempfile.TemporaryDirectory() as temp_path:
             res = split_pdf_to_png(path, Path(temp_path))
@@ -80,7 +79,6 @@ class SectionMixin:
                     item = self.db.ImageSection(page=page_id, **content)
                 if not first:
                     first = item
-            print(first.position, len(res))
             self.sectionAdded.emit(first.position, len(res))
 
     @Slot(str, result="QVariantMap")
@@ -98,8 +96,8 @@ class SectionMixin:
         return res
 
     @db_session
-    @Slot(str, str, "QVariantMap", result=bool)
-    def setDB(self, entity: str, sectionId: str, params: dict) -> bool:
+    @Slot(str, str, "QVariantMap", result="QVariantMap")
+    def setDB(self, entity: str, sectionId: str, params: dict) -> dict:
         """
         Modify a row in database.
         :param entity: str. Entity Name
@@ -110,8 +108,8 @@ class SectionMixin:
         if entity := getattr(self.db, entity):  # pragma: no branch
             if item := entity.get(id=sectionId):  # pragma: no branch
                 item.set(**params)
-                return True
-        return False
+                return item.to_dict()
+        return {}
 
     @db_session
     @Slot(str, "QVariantMap", result="QVariantMap")

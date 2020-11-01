@@ -37,7 +37,12 @@ def test_init(fk, qtbot, dao):
     fr = fk.f_friseSection(titre="azerty", height=200)
     zz = fk.b_zoneFrise(2, frise=fr, td=True)
     with qtbot.waitSignals(
-        [a.sectionIdChanged, a.modelReset, a.titreChanged, a.heightChanged]
+        [
+            (a.sectionIdChanged, "id"),
+            (a.modelReset, "reset"),
+            (a.titreChanged, "titre"),
+            (a.heightChanged, "heieght"),
+        ]
     ):
         a.sectionId = str(fr.id)
 

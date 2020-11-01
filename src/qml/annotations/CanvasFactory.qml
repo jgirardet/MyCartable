@@ -58,7 +58,7 @@ Canvas {
         var nStartY = startY - newY;
         var nEndX = mx - newX;
         var nEndY = my - newY;
-        parent.model.newDessin({
+        parent.model.addAnnotation("AnnotationDessin", {
             "x": newX / width,
             "y": newY / height,
             "startX": nStartX / new_width,
@@ -91,7 +91,7 @@ Canvas {
         var nStartY = startY - newY;
         var nEndX = mx - newX;
         var nEndY = my - newY;
-        parent.model.newDessin({
+        parent.model.addAnnotation("AnnotationDessin", {
             "x": newX / width,
             "y": newY / height,
             "startX": nStartX / new_width,

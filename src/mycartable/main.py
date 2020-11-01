@@ -41,21 +41,18 @@ def main_init_database(filename=None, prod=False):
         QStandardPaths.setTestModeEnabled(True)
         filename = Path(tempfile.gettempdir()) / "devddbmdk.sqlite"
         # filename = ":memory:"
-        filename.unlink(missing_ok=True)
+        filename.unlink()
         create_db = True
 
     package.database.db = newdb
-
-    # make_migrations(filename)
-
+    print(filename)
     db = package.database.init_database(newdb, filename=filename, create_db=create_db)
 
     if not prod:
-        from tests.factory import Faker
+        from tests.python.factory import populate_database
 
-        faker = Faker(db)
         try:
-            faker.populate_database()
+            populate_database()
         except:
             pass
 
@@ -78,15 +75,12 @@ def register_new_qml_type(databaseObject):
     MultiplicationModel.ddb = databaseObject
     DivisionModel.ddb = databaseObject
 
-    from package.page.frise_model import FriseModel
-
     # qmlRegisterType(DocumentEditor, "DocumentEditor", 1, 0, "DocumentEditor")
     qmlRegisterType(AdditionModel, "MyCartable", 1, 0, "AdditionModel")
     qmlRegisterType(SoustractionModel, "MyCartable", 1, 0, "SoustractionModel")
     qmlRegisterType(MultiplicationModel, "MyCartable", 1, 0, "MultiplicationModel")
     qmlRegisterType(DivisionModel, "MyCartable", 1, 0, "DivisionModel")
     qmlRegisterType(AnnotationModel, "MyCartable", 1, 0, "AnnotationModel")
-    qmlRegisterType(FriseModel, "MyCartable", 1, 0, "FriseModel")
 
 
 def create_singleton_instance(prod=False):
@@ -99,8 +93,8 @@ def create_singleton_instance(prod=False):
 
     if not prod:
         databaseObject.anneeActive = 2019
-        # with db_session:
-        #     databaseObject.currentPage = databaseObject.db.Page.select().first().id
+        with db_session:
+            databaseObject.currentPage = databaseObject.db.Page.select().first().id
 
     return databaseObject, ui_manager
 

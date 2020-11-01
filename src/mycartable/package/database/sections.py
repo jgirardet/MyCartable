@@ -557,7 +557,9 @@ def class_section(
         _position = Required(int)
         ratio = Required(float)
         texte = Optional(str)
-        style = Optional(db.Style, default=db.Style, cascade_delete=True)
+        style = Optional(
+            db.Style, default=db.Style, cascade_delete=True, column="style"
+        )
         # on utilise style.strikeout pour la position du separator True = "up", False = ""
         separatorText = Optional(str)
         legendes = Set("FriseLegende")

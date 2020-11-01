@@ -1,4 +1,5 @@
 import datetime
+from typing import Tuple
 from uuid import UUID, uuid4
 
 from pony.orm import (
@@ -11,7 +12,7 @@ from pony.orm import (
 )
 
 
-def class_utilisateur(db: Database):  # -> "Utilisateur":
+def class_utilisateur(db: Database) -> Tuple["Utilisateur", "Configuration"]:
     class Utilisateur(db.Entity):
         id = PrimaryKey(UUID, auto=True, default=uuid4)
 
@@ -73,4 +74,4 @@ def class_utilisateur(db: Database):  # -> "Utilisateur":
                 raise ValueError("Le type d'option est inconnu")
             return res + "_value"
 
-    return Utilisateur, Configuration
+    return (Utilisateur, Configuration)

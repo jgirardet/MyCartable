@@ -76,6 +76,10 @@ class Schema:
         return schem
 
     @property
+    def framgments(self):
+        return set(self.schema.replace("\n", "").replace("  ", " ").split(";"))
+
+    @property
     def version(self) -> Version:
         with db_session(self.db):
             v_int = self.db.execute("PRAGMA user_version").fetchone()[0]

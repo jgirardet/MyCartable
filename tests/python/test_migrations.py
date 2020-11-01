@@ -4,9 +4,8 @@ from pathlib import Path
 
 import pytest
 from package.database.base_db import init_models, Schema
-from migrations import migrations_history, check_1_3_0
+from migrations import make_migrations
 from package.database.models import schema_version
-from package.migrate import MakeMigrations
 from pony.orm import Database
 
 from factory import Faker
@@ -78,6 +77,8 @@ class GenerateDatabase:
 @pytest.fixture(scope="session", autouse=True)
 def check_generate_database_version(resources):
     dest_path = resources / "db_version"
+    p = dest_path / "1.2.2.sqlite"
+    Schema(p).to_file(p.parent / "1.2.2.sql")
     gd = GenerateDatabase(schema_version, dest_path)
     if gd.sqlite_and_sql:
         gd.compare_schema()
@@ -85,14 +86,13 @@ def check_generate_database_version(resources):
         gd()
 
 
-def test_122_to_130(resources, tmpfilename, caplogger):
-    """testé à la main sur 1.2.2"""
+@pytest.mark.parametrize("version", ["1.2.2"])
+def test_depuis_version(resources, tmpfilename, caplogger, version):
 
-    base = resources / "db_version" / "1.2.2.sqlite"
+    base = resources / "db_version" / f"{version}.sqlite"
     shutil.copy(base, tmpfilename)
-    mk = MakeMigrations(tmpfilename, "1.3.0", migrations_history)
-    assert mk(check_1_3_0), caplogger.read()
+    assert make_migrations(tmpfilename), caplogger.read()
     assert (
-        Schema(tmpfilename).formatted
-        == Schema(resources / "db_version" / "1.3.0.sqlite").formatted
+        Schema(tmpfilename).framgments
+        == Schema(resources / "db_version" / f"{schema_version}.sqlite").framgments
     )

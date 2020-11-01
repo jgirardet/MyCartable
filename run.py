@@ -243,7 +243,7 @@ def cmd_tag(*args, **kwargs):
     import git
 
     repo = git.Repo(".")
-    branch = repo.active_branch
+    branch = repo.active_branch.name
     if branch != "master":
         raise SystemError("Un tag ne peut être créé que sur master")
     version = "v" + toml.load("pyproject.toml")["tool"]["briefcase"]["version"]

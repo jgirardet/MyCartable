@@ -42,6 +42,8 @@ def test_get_schema_version(resources, version):
 )
 def test_version_get(resources, version):
     base = resources / "db_version" / f"{version}.sqlite"
+    if version == "1.2.2":  # exception pour la premiere
+        version = "0"
     assert Schema(file=base).version == Version(version)
 
 

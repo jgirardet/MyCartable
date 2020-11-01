@@ -440,7 +440,7 @@ class TestLayoutMixin:
             == constantes.preferredCentralWidth
         )
 
-    def test_setStyle(self, fk, dao: DatabaseObject, caplog):
+    def test_setStyle(self, fk, dao: DatabaseObject, caplogger):
         a = fk.f_style()
 
         # normal
@@ -463,9 +463,10 @@ class TestLayoutMixin:
 
         # bad params
         r = dao.setStyle(a.styleId, {"badparam": True})
-        assert "Unknown attribute 'badparam'" in caplog.records[0].msg
-        assert caplog.records[0].levelname == "ERROR"
-        caplog.clear()
+        # breakpoint()
+        assert "Unknown attribute 'badparam'" in caplogger.records[0][2]
+        assert caplogger.records[0][1].replace(" ", "") == "ERROR"
+        caplogger.truncate(0)
 
         # style does not exists
         with db_session:
@@ -474,10 +475,10 @@ class TestLayoutMixin:
 
         r = dao.setStyle(a.styleId, {"underline": True})
         assert (
-            caplog.records[0].msg
+            caplogger.records[0][2][52:]  # Horrible  à refaire avec caplogger
             == f"Echec de la mise à jour du style : ObjectNotFound  Style[{repr(a.styleId)}]"
         )
-        assert caplog.records[0].levelname == "ERROR"
+        assert caplogger.records[0][1].replace(" ", "") == "ERROR"
 
     def test_color_property(self, dao):
         assert dao.colorFond == QColor(130, 134, 138)

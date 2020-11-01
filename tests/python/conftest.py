@@ -1,4 +1,5 @@
 import io
+import re
 import sys
 from pathlib import Path
 
@@ -311,6 +312,14 @@ def caplogger():
         def read(self, *args, **kwargs):
             self.seek(0)
             return super().read(*args, **kwargs)
+
+        @property
+        def records(self):
+            res = []
+            self.seek(0)
+            for line in self.readlines():
+                res.append(re.search(r"(.+)\|(.+)\|(.+$)", line).groups())
+            return res
 
     log = Ios()
     lid = logger.add(log, level="DEBUG")

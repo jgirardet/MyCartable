@@ -16,3 +16,4 @@ mypy
 toml
 loguru-caplog
 pdbpp
+gitpython

@@ -717,7 +717,7 @@ class TestSectionMixin:
         daof.pageModel.slotReset(page)
         content = {"classtype": "ImageSection"}
         content["path"] = str(resources / "2pages.pdf")
-        with qtbot.waitSignal(daof.sectionAdded, check_params_cb=lambda x, y: (0, 2)):
+        with qtbot.waitSignal(daof.sectionAdded):
             res = daof.addSection(str(page), content)
         with db_session:
             item = fkf.db.Page[page].sections.count() == 2

@@ -49,3 +49,16 @@ def tmp_files():
 
 
 TMP = tmp_files()
+
+
+def cache_files():
+    t = Path(QStandardPaths.writableLocation(QStandardPaths.CacheLocation), APPNAME)
+    if not t.is_dir():
+        t.mkdir(parents=True)
+    logger.info(f"CACHE path set to {t}")
+    return t
+
+
+CACHE = cache_files()
+
+LOGFILE = CACHE / "mycartable_log.txt"

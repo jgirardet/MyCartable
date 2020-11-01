@@ -39,13 +39,22 @@ def main_init_database(filename=None, prod=False):
         create_db = True
     else:
         QStandardPaths.setTestModeEnabled(True)
-        filename = Path(tempfile.gettempdir()) / "devddbmdk.sqlite"
+        # filename = Path(tempfile.gettempdir()) / "devddbmdk.sqlite"
+        filename = "/home/jimmy/Documents/MyCartable/mycartable.ddb"
         # filename = ":memory:"
-        filename.unlink()
+        # filename.unlink()
         create_db = True
 
+    from migrations import make_migrations
+
+    migrate_res = make_migrations(filename)
+    if not migrate_res:
+        from package.files_path import LOGFILE
+
+        raise SystemError(f"voir dans {LOGFILE}")
+
     package.database.db = newdb
-    print(filename)
+
     db = package.database.init_database(newdb, filename=filename, create_db=create_db)
 
     if not prod:
@@ -69,6 +78,7 @@ def register_new_qml_type(databaseObject):
 
     # from package.page.text_section import DocumentEditor
     from package.page.annotation_model import AnnotationModel
+    from package.page.frise_model import FriseModel
 
     AdditionModel.ddb = databaseObject
     SoustractionModel.ddb = databaseObject
@@ -81,6 +91,7 @@ def register_new_qml_type(databaseObject):
     qmlRegisterType(MultiplicationModel, "MyCartable", 1, 0, "MultiplicationModel")
     qmlRegisterType(DivisionModel, "MyCartable", 1, 0, "DivisionModel")
     qmlRegisterType(AnnotationModel, "MyCartable", 1, 0, "AnnotationModel")
+    qmlRegisterType(FriseModel, "MyCartable", 1, 0, "FriseModel")
 
 
 def create_singleton_instance(prod=False):
@@ -123,12 +134,10 @@ def setup_qml(ddb, ui_manager):
 
 
 def setup_logging():
-    t = Path(QStandardPaths.writableLocation(QStandardPaths.CacheLocation), APPNAME)
-    if not t.is_dir():
-        t.mkdir(parents=True)
-    logger_path = t / "mycartable_log.txt"
-    logger.add(t / logger_path, rotation="10 MB")
-    logger.info(f"logfile path : {logger_path}")
+    from package.files_path import LOGFILE
+
+    logger.add(LOGFILE, rotation="10 MB")
+    logger.info(f"logfile path : {LOGFILE}")
 
 
 @logger.catch(reraise=True)
@@ -137,7 +146,6 @@ def main(filename=None):
     if not prod:
         QStandardPaths.setTestModeEnabled(True)
     setup_logging()
-
     logger.info(f"Application en mode {'PROD' if prod else 'DEBUG'}")
 
     # global settings

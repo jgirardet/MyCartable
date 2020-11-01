@@ -1,3 +1,4 @@
+import os
 from unittest.mock import patch
 from uuid import UUID
 import base64
@@ -38,6 +39,11 @@ def test_save_pages_to_png(tmp_path, new_res, index, cpu, range_res, compteur):
     [None, 1, 2, 4],
 )
 def test_split_pdf_to_png(tmp_path, new_res, qtbot, cpu):
+
+    # skip in CI
+    if os.environ.get("CI", None) and cpu is None:
+        return True
+
     class S(QObject):
         s = Signal(int, int)
 

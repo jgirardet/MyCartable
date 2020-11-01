@@ -238,6 +238,20 @@ def cmd_setup_qml(*args, **kwargs):
     runCommand(com)
 
 
+def cmd_tag(*args, **kwargs):
+    import toml
+    import git
+
+    repo = git.Repo(".")
+    branch = repo.active_branch
+    if branch != "master":
+        raise SystemError("Un tag ne peut être créé que sur master")
+    version = "v" + toml.load("pyproject.toml")["tool"]["briefcase"]["version"]
+
+    repo.create_tag("v" + version)
+    runCommand(f"git push origin {version}")
+
+
 def cmd_test_binary_as_dir(*args, **kwargs):
     runCommand("python scripts/test_build_dir.py", with_env=False)
 
@@ -328,7 +342,6 @@ if __name__ == "__main__":
         if com not in commands:
             print(f"commandes possible : {list(commands.keys())}")
             sys.exit(1)
-        print(arguments)
         commands[com](*arguments, input=args.input)
     except KeyboardInterrupt:
         currentProccess.terminate()

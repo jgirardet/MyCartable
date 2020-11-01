@@ -5,7 +5,7 @@ import uuid
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Callable
-from setuptools._vendor.packaging.version import (
+from packaging.version import (
     Version as PackagingVersion,
     InvalidVersion,
 )

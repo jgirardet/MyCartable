@@ -20,7 +20,7 @@ requires = ['pyside2==5.15.1',
             'beautifulsoup4',
             'loguru',
             "PyMuPDF==1.17.6",
-            "setuptools"
+            "packaging"
             ]
 
 

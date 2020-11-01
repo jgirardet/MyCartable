@@ -18,7 +18,7 @@ from package.utils import (
     shift_list,
     Version,
 )
-from setuptools._vendor.packaging.version import InvalidVersion
+from packaging.version import InvalidVersion
 
 
 def test_create_single_shot():

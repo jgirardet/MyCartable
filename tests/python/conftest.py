@@ -1,4 +1,5 @@
 import io
+import re
 import sys
 from pathlib import Path
 
@@ -188,7 +189,7 @@ def tmpfilename(request, tmp_path, gen):
 
 
 @pytest.fixture()
-def uim():
+def uim(qapp):
     from package.ui_manager import UiManager
 
     return UiManager()
@@ -298,18 +299,6 @@ def new_res(tmp_path, resources):
     return factory
 
 
-@pytest.fixture(scope="session", autouse=True)
-def export_schemas(resources):
-    from package.database.base_db import Schema
-
-    sch = resources / "db_version"
-    sqlites = sch.glob("*.sqlite")
-    for sq in sqlites:
-        sql = sch / (sq.stem + ".sql")
-        if not sql.is_file():
-            sql.write_text(Schema(file=sq).schema)
-
-
 @pytest.fixture()
 def mdb():
     return Database(provider="sqlite", filename=":memory:")
@@ -323,6 +312,14 @@ def caplogger():
         def read(self, *args, **kwargs):
             self.seek(0)
             return super().read(*args, **kwargs)
+
+        @property
+        def records(self):
+            res = []
+            self.seek(0)
+            for line in self.readlines():
+                res.append(re.search(r"(.+)\|(.+)\|(.+$)", line).groups())
+            return res
 
     log = Ios()
     lid = logger.add(log, level="DEBUG")

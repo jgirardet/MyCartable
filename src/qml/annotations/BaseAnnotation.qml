@@ -2,8 +2,6 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 
 Loader {
-    //    root.setSource(`qrc:/qml/annotations/${annot.classtype}.qml`, {
-
     id: root
 
     property var referent
@@ -54,8 +52,12 @@ Loader {
     ]
 
     MouseArea {
+        //            }
+        //            ddb.setImageSectionCursor(mousearea, "text");
+
         id: mousearea
 
+        cursorShape: Qt.NoCursor
         anchors.fill: parent
         z: 1
         acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
@@ -63,7 +65,19 @@ Loader {
         onEntered: {
             root.parent.currentAnnotation = root;
         }
-        //    property point startPosition
+        onExited: {
+            ddb.setImageSectionCursor(mousearea);
+        }
+        onPositionChanged: {
+            let tool = "";
+            if (!root.item.checkPointIsNotDraw(mouse.x, mouse.y)) {
+                if (mouse.modifiers & Qt.ControlModifier)
+                    tool = "dragmove";
+                else
+                    tool = "default";
+            }
+            ddb.setImageSectionCursor(mousearea, tool);
+        }
         preventStealing: true
         onPressed: {
             // check coordonnate
@@ -73,7 +87,7 @@ Loader {
                 return ;
             }
             if (mouse.buttons === Qt.MiddleButton) {
-                root.parent.model.removeRow(index);
+                root.parent.model.remove(index);
             } else if (mouse.buttons === Qt.RightButton) {
                 root.item.menu.ouvre(root);
                 mouse.accepted = true;

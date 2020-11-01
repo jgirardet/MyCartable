@@ -17,8 +17,10 @@ sys.path.append(str(Path(__file__).parents[2] / "src" / "mycartable"))
 from common import fn_reset_db, setup_session
 
 from mycartable.package.page.frise_model import FriseModel
+from mycartable.package.page.annotation_model import AnnotationModel
 
 qmlRegisterType(FriseModel, "MyCartable", 1, 0, "FriseModel")
+qmlRegisterType(AnnotationModel, "MyCartable", 1, 0, "AnnotationModel")
 
 
 def pytest_sessionstart():
@@ -78,10 +80,6 @@ class TestHelper(QObject):
     @Slot(str)
     def unmock(self, method: str):
         setattr(self.dao, method, getattr(self.dao, "xxx" + method))
-
-    @Slot(str, result=bool)
-    def mock_called(self, method: str):
-        return getattr(self.dao, method).called
 
     @Slot(str, result=bool)
     def mock_called(self, method: str):

@@ -45,7 +45,6 @@ ListView {
     }
 
     Connections {
-
         function onModelReset() {
             if (currentIndex != model.lastPosition)
                 currentIndex = model.lastPosition;
@@ -146,6 +145,13 @@ ListView {
             }
 
             Buttons.NewTableauSection {
+                appendMode: false
+                target: addDialog
+                targetIndex: addDialog.index
+                Component.onCompleted: action.triggered.connect(addDialog.close)
+            }
+
+            Buttons.NewFriseSection {
                 appendMode: false
                 target: addDialog
                 targetIndex: addDialog.index

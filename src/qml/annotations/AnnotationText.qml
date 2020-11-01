@@ -2,9 +2,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 
 TextArea {
-    // other atributes
-    //uiManager.annotationCurrentTextSizeFactor
-    //  toujours curseur à la fin quand focus
+    // casse le binding mais evite le loop, donc on laisse pour le moment
 
     id: root
 
@@ -23,13 +21,21 @@ TextArea {
             parent.move(0, -moveStep);
         else if (key == Qt.Key_Down)
             parent.move(0, moveStep);
-
     }
 
     function checkPointIsNotDraw(mx, my) {
         return false;
     }
 
+    // other atributes
+    //uiManager.annotationCurrentTextSizeFactor
+    //  toujours curseur à la fin quand focus
+    onTextChanged: {
+        edit = {
+            "id": annot.id,
+            "text": text
+        };
+    }
     //size and pos
     height: contentHeight
     padding: 0
@@ -37,16 +43,20 @@ TextArea {
     focus: parent.focus
     color: annot.fgColor ? annot.fgColor : "black"
     font.underline: annot.underline ? annot.underline : false
-    text: annot.text ? annot.text : ""
     font.pixelSize: (referent.height / fontSizeFactor) | 0
     selectByMouse: true
     Component.onCompleted: {
         if (!annot.pointSize)
             fontSizeFactor = uiManager.annotationCurrentTextSizeFactor;
 
-        // casse le binding mais evite le loop, donc on laisse pour le moment
         forceActiveFocus();
-        // donc création
+        root.text = annot.text;
+        onTextChanged.connect(() => {
+            return edit = {
+                "id": annot.id,
+                "text": text
+            };
+        });
         timerRemove.running = true;
     }
     onFontSizeFactorChanged: {
@@ -64,7 +74,6 @@ TextArea {
             cursorPosition = text.length;
         else if (!text)
             timerRemove.running = true;
-
     }
     Keys.onPressed: {
         if ((event.key == Qt.Key_Plus) && (event.modifiers & Qt.ControlModifier)) {
@@ -78,12 +87,6 @@ TextArea {
             event.accepted = true;
         }
     }
-    onTextChanged: {
-        edit = {
-            "id": annot.id,
-            "text": text
-        };
-    }
 
     Timer {
         id: timerRemove
@@ -94,7 +97,7 @@ TextArea {
         repeat: false
         onTriggered: {
             if (text == "")
-                root.referent.model.removeRow(annot.id, true);
+                root.referent.model.remove(index);
 
         }
     }

@@ -76,6 +76,10 @@ class Schema:
         return schem
 
     @property
+    def framgments(self):
+        return set(self.schema.replace("\n", "").replace("  ", " ").split(";"))
+
+    @property
     def version(self) -> Version:
         with db_session(self.db):
             v_int = self.db.execute("PRAGMA user_version").fetchone()[0]
@@ -87,3 +91,14 @@ class Schema:
             version = Version(version)
         with db_session(self.db):
             self.db.execute(f"PRAGMA user_version({version.to_int()})")
+
+    def to_file(self, path: Path):
+        path.write_text(self.schema)
+
+    @property
+    def formatted(self):
+        """
+        format le schéma pour comparaison
+        """
+        schema = self.schema.replace("\n", "").replace(";", ";\n").replace("  ", " ")
+        return schema

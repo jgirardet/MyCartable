@@ -28,6 +28,7 @@ TestCase {
 
     function init() {
         fk.resetDB();
+        uiManager.resetUiManager();
         backupParams = params;
         initPre();
         //        ddb = createTemporaryObject(Qt.createComponent("DdbData.qml"), testcase.parent);
@@ -108,4 +109,13 @@ TestCase {
     }
 
     when: windowShown
+
+    Component {
+        id: compspyc
+
+        SignalSpy {
+        }
+
+    }
+
 }

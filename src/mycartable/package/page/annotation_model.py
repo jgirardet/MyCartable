@@ -9,156 +9,81 @@ from PySide2.QtCore import (
     Property,
 )
 
-from PySide2.QtWidgets import QApplication
-from package import database
-from pony.orm import db_session, flush, make_proxy
-from loguru import logger
+from package.page.basemodel import SectionDetailModel
 
 
-class AnnotationModel(QAbstractListModel):
+class AnnotationModel(SectionDetailModel):
 
     AnnotationRole = Qt.UserRole + 2
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
-        self.db = database.getdb()
         self.section = None
-        self._sectionId = None
-        self.row_count = 0
-        self.sectionIdChanged.connect(lambda: self.slotReset(self.sectionId))
+        self.annotations = []
 
-    @db_session
+    def rowCount(self, parent=QModelIndex()):
+        return len(self.annotations)
+
     def data(self, index, role: int):
         if not index.isValid():
             return None
 
         elif role == self.AnnotationRole:
-            res = self.section.annotations.select()[:][index.row()].to_dict()
-            return res
-
-    def flags(self, index):
-        if not index.isValid():
-            return
-        return super().flags(index) | Qt.ItemIsEditable
-
-    def insertRow(self, value) -> bool:
-        return self.insertRows(value, 0)
-
-    def insertRows(self, row: int, value, index=QModelIndex()) -> bool:
-        self.beginInsertRows(QModelIndex(), row, row + value)
-        with db_session:
-            self.count = self.section.annotations.count()
-        self.endInsertRows()
-        return True
+            return self.annotations[index.row()]
 
     def roleNames(self) -> typing.Dict:
         default = super().roleNames()
         default[self.AnnotationRole] = QByteArray(b"annot")
         return default
 
-    @Slot(int, result=bool)  # appel par index
-    @Slot(str, bool, result=bool)  # appel par id en mettant True
-    def removeRow(self, row, section=False):
-        return self.removeRows(row, 0, parent=QModelIndex(), section=section)
-
-    def removeRows(
-        self, row: int, count: int, parent: QModelIndex(), section=False
-    ) -> bool:
-        """
-        count = nombre de row à supprimer en plus
-        section: row est un sectionId, pas un index
-        """
-
-        with db_session:
-            anots = self.section.annotations.select()[:]
-            if section:
-                item = self.db.Annotation[row]
-                row = anots.index(item)
-            else:
-                item = anots[row]
-            self.beginRemoveRows(QModelIndex(), row, row + count)
-            item.delete()
-            flush()  # bien garder pour le count d'apres
-            self.count = self.section.annotations.count()
-        self.endRemoveRows()
-        return True
-
-    def rowCount(self, parent=QModelIndex()) -> int:
-        return self.row_count
-
-    countChanged = Signal()
-
-    @Property(int, notify=countChanged)
-    def count(self):
-        return self.row_count
-
-    @count.setter
-    def count_set(self, value: int):
-        self.row_count = value
-        self.countChanged.emit()
+    def _removeRows(self, row: int, count: int):
+        for idx, d in enumerate(self.annotations[row : row + count + 1], row):
+            if self.dao.delDB(d["classtype"], d["id"]):
+                self.annotations.pop(idx)
 
     def setData(self, index, value, role) -> bool:
         if index.isValid() and role == Qt.EditRole:
             value = value.toVariant()
             annotation_id = value.pop("id")
-            with db_session:
-                item = self.db.Annotation[annotation_id].as_type()
-                item.set(**value)
-            self.dataChanged.emit(index, index)
+            cls_type = self.annotations[index.row()]["classtype"]
+            res = self.dao.setDB(cls_type, annotation_id, value)
+            if res:
+                self.annotations[index.row()].update(res)
+                self.dataChanged.emit(index, index, [self.AnnotationRole])
             return True
         return False
 
-    @Slot(str, result=bool)
-    def slotReset(self, value):
-        self.beginResetModel()
-        with db_session:
-            section = self.db.ImageSection.get(id=value)
-            if not section:
-                self.section = None
-                self._sectionId = 0
-                self.endResetModel()
-                return
-            self.section = make_proxy(section)
-            if self.sectionId != self.section.id:
-                self._sectionId = self.section.id
-            self.count = self.section.annotations.count()
-        self.endResetModel()
-        self.onModelReset()
-        return True
+    def _reset(self):
+        sectionItem = self.dao.loadSection(self.sectionId)
+        self.annotations = [z for z in sectionItem["annotations"]]
 
-    #
-    def onModelReset(self):
-        app = QApplication.instance()
-        self.rowsRemoved.connect(app.dao.updateRecentsAndActivites)
-        self.rowsInserted.connect(app.dao.updateRecentsAndActivites)
+    def _after_reset(self):
+        self.rowsRemoved.connect(self.dao.updateRecentsAndActivites)
+        self.rowsInserted.connect(self.dao.updateRecentsAndActivites)
 
-    sectionIdChanged = Signal(str)
-
-    @Property(str, notify=sectionIdChanged)
-    def sectionId(self):
-        return self._sectionId
-
-    @sectionId.setter
-    def sectionId_set(self, value: str):
-        self._sectionId = value
-
-        self.sectionIdChanged.emit(self._sectionId)
-
-    @Slot("QVariantMap")
-    def newDessin(self, datas):
-        style = {}
-        style["fgColor"] = (datas.pop("strokeStyle"),)
-        style["bgColor"] = (datas.pop("fillStyle"),)
-        style["pointSize"] = datas.pop("lineWidth")
-        style["weight"] = int(datas.pop("opacity") * 10)
-        with db_session:
-            item = self.db.AnnotationDessin(
-                section=self.sectionId, style=style, **datas
+    @Slot(str, "QVariantMap")
+    def addAnnotation(self, classtype: str, content: dict = {}):
+        new_anot: dict = {}
+        if classtype == "AnnotationText":
+            x = content["x"] / content["width"]
+            y = content["y"] / content["height"]
+            new_anot = self.dao.addDB(
+                "AnnotationText",
+                {"x": x, "y": y, "section": self.sectionId, "text": ""},
             )
-        self.insertRow(self.count)
+        elif classtype == "AnnotationDessin":
+            style = {}
+            style["fgColor"] = (content.pop("strokeStyle"),)
+            style["bgColor"] = (content.pop("fillStyle"),)
+            style["pointSize"] = content.pop("lineWidth")
+            style["weight"] = int(content.pop("opacity") * 10)
+            new_anot = self.dao.addDB(
+                "AnnotationDessin",
+                {"section": self.sectionId, "style": style, **content},
+            )
 
-    @Slot(float, float, float, float)
-    def addAnnotation(self, x, y, width, height):
-        with db_session:
-            self.db.AnnotationText(x=x / width, y=y / height, section=self.sectionId)
-        self.insertRow(self.count)
+        if new_anot:
+            self.annotations.append(new_anot)
+            self.insertRow(
+                self.rowCount() - 1
+            )  # on décale de 1 car maj de annotations déjà faite

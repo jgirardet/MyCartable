@@ -1,3 +1,6 @@
+import shutil
+import tempfile
+import uuid
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -22,6 +25,8 @@ gen = mimesis.Generic("fr")
 class Faker:
     def __init__(self, db: Database):
         self.db = db
+        self.tmpdir = Path(tempfile.gettempdir()) / "mkdbdev"
+        self.tmpdir.mkdir(exist_ok=True)
 
     def f_datetime(self, start=None, end=None, **kwargs):
         end = end or datetime.utcnow()
@@ -190,14 +195,23 @@ class Faker:
         return [self.f_section(*args, **kwargs) for x in range(n)]
 
     def f_imageSection(self, path=None, **kwargs):
-
-        path = path or str(
-            Path(__file__).parents[1]
-            / "resources"
-            / random.choice(["tst_AnnotableImage.png", "sc1.png"])
-        )
-
-        return self._f_section("ImageSection", path=path, **kwargs)
+        tmp = None
+        basepath = Path(__file__).parents[1] / "tests" / "resources"
+        if path in ["tst_AnnotableImage.png", "sc1.png", "floodfill.png"]:
+            path = basepath / path
+        elif path:
+            path = path
+        else:
+            path = (
+                Path(__file__).parents[1]
+                / "tests"
+                / "resources"
+                / random.choice(["tst_AnnotableImage.png", "sc1.png"])
+            )
+            tmp = self.tmpdir / (str(uuid.uuid4()) + path.suffix)
+            shutil.copy(path, tmp)
+        path = tmp if tmp else path
+        return self._f_section("ImageSection", path=str(path), **kwargs)
 
     HTML = """
     <body>
@@ -229,7 +243,7 @@ class Faker:
         x=None,
         y=None,
         section=None,
-        style=None,
+        # style=None,
         td=False,
         classtype=None,
         **kwargs,
@@ -241,8 +255,8 @@ class Faker:
         classtype = classtype or self.db.Annotation
         with db_session:
             item = classtype(x=x, y=y, section=section, **kwargs)
-            if style:
-                item.style = self.db.Style[style]
+            # if style:
+            #     item.style = self.db.Style[style]
             return item.to_dict() if td else item
 
     def f_annotationText(self, text="", **kwargs):
@@ -267,7 +281,7 @@ class Faker:
 
         width = width or random.randrange(10, 100, 10) / 100
         height = height or random.randrange(10, 100, 10) / 100
-        tool = random.choice(["rect", "fillrect", "ellipse", "trait"])
+        tool = tool or random.choice(["rect", "fillrect", "ellipse", "trait"])
         startX = startX or random.randrange(10, 100, 10) / 100
         startY = startY or random.randrange(10, 100, 10) / 100
         endX = endX or random.randrange(10, 100, 10) / 100
@@ -475,8 +489,8 @@ class Faker:
                                 #     # 15            234   789{TextEquation.FSP}    """,
                                 # ),
                                 #     f_tableauSection(page=page.id),
-                                #     f_imageSection(page=page.id),
-                                self.f_textSection(page=page.id),
+                                self.f_imageSection(page=page.id),
+                                # self.f_textSection(page=page.id),
                                 #     f16_additionSection(page=page.id),
                                 #     f_soustractionSection(page=page.id),
                                 #     f_multiplicationSection(page=page.id),

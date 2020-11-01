@@ -1,22 +1,7 @@
-import sqlite3
-
 import pytest
-from package.database.base_db import init_models, Schema
+from package.database.base_db import Schema
 from package.utils import Version
 from pony.orm import Database, db_session
-
-from tests.factory import Faker
-
-
-def generate_items(db: Database):
-    """genere au moins 1 élément de chaque table"""
-    init_models(db)
-    db.generate_mapping()
-    f = Faker(db)
-    f.f_annotationDessin()  # User, Annee,  GroupeMatiere, Matiere, ACtivite, Section, Page , Annotation
-    f.f_tableauCell()  # TableauSection, TableauCell
-    f.f_friseLegende()  # FriseSection, ZoneFrise, FriseLegende
-    f.f_configuration()  # configuration
 
 
 @pytest.mark.parametrize(
@@ -48,15 +33,6 @@ def test_get_schema_version(resources, version):
     assert (base.parent / (version + ".sql")).read_text() == s.schema
 
 
-def test_get_schema_actual_schema(ddbr, mdb):
-    s = Schema(file=ddbr)
-    schema = s.schema
-    with db_session:
-        for cmd in schema.split(";"):
-            mdb.execute(cmd)
-    generate_items(mdb)
-
-
 @pytest.mark.parametrize(
     "version",
     [
@@ -66,6 +42,8 @@ def test_get_schema_actual_schema(ddbr, mdb):
 )
 def test_version_get(resources, version):
     base = resources / "db_version" / f"{version}.sqlite"
+    if version == "1.2.2":  # exception pour la premiere
+        version = "0"
     assert Schema(file=base).version == Version(version)
 
 

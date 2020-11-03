@@ -5,16 +5,18 @@ import pytest
 from PySide2.QtCore import Qt, QJsonDocument
 from PySide2.QtGui import QColor
 from fixtures import check_super_init
+from mycartable.types.dtb import DTB
 from package.page.annotation_model import AnnotationModel
 from pony.orm import db_session
 
 
 @pytest.fixture
-def am(fk, dao):
+def am(fk, ddbr, dao):
     def factory(nb, genre=None):
         p = fk.f_imageSection()
         a = AnnotationModel()
         a.dao = dao
+        a.dtb = DTB(ddbr)
         annots = []
         if isinstance(genre, tuple):
             for i in genre:

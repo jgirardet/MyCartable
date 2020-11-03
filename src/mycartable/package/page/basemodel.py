@@ -8,6 +8,8 @@ from PySide2.QtCore import (
     Qt,
 )
 
+from mycartable.types.dtb import DTB
+
 
 class DaoListModel(QAbstractListModel):
     """
@@ -30,7 +32,8 @@ class DaoListModel(QAbstractListModel):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.dao: "DatabaseObject" = None
-        self.triggerInit.connect(lambda: self.reset())
+        self.dtb: DTB = None
+        self.triggerInit.connect(self.reset)
 
     def flags(self, index):
         if not index.isValid():
@@ -142,6 +145,17 @@ class DaoListModel(QAbstractListModel):
     def dao_set(self, value: int):
         self._dao = value
         self.daoChanged.emit()
+
+    dtbChanged = Signal()
+
+    @Property(QObject, notify=dtbChanged)
+    def dtb(self):
+        return self._dtb
+
+    @dtb.setter
+    def dtb_set(self, value: int):
+        self._dtb = value
+        self.dtbChanged.emit()
 
 
 class SectionDetailModel(DaoListModel):

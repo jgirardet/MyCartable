@@ -2,7 +2,6 @@ from loguru import logger
 from PySide2.QtCore import QObject, Signal
 from package.database_mixins.activite_mixin import ActiviteMixin
 from package.database_mixins.changematieres_mixin import ChangeMatieresMixin
-from package.database_mixins.dev_mixin import DevMixin
 from package.database_mixins.equation_mixin import EquationMixin
 from package.database_mixins.image_section_mixin import ImageSectionMixin
 from package.database_mixins.layout_mixin import LayoutMixin
@@ -26,7 +25,6 @@ MIXINS = [
     RecentsMixin,
     SectionMixin,
     ImageSectionMixin,
-    DevMixin,
     EquationMixin,
     TextSectionMixin,
     TableauMixin,

@@ -722,42 +722,6 @@ class TestSectionMixin:
         with db_session:
             item = fkf.db.Page[page].sections.count() == 2
 
-    def test_setDB_frise(self, fk, dao):
-        zone = fk.f_zoneFrise()
-        assert dao.setDB(
-            "ZoneFrise",
-            str(zone.id),
-            {"texte": "blabla", "style": {"bgColor": "purple"}},
-        )
-        with db_session:
-            it = fk.db.ZoneFrise.get(id=zone.id)
-            assert it.texte == "blabla"
-            assert it.style.bgColor == "purple"
-
-    def test_addDB_frise(self, fk, dao):
-        frise = fk.f_friseSection()
-        item = dao.addDB(
-            "ZoneFrise",
-            {
-                "frise": str(frise.id),
-                "texte": "new",
-                "ratio": 0.34,
-                "style": {"bgColor": QColor("purple")},
-                "position": 1,
-            },
-        )
-        with db_session:
-            it = fk.db.ZoneFrise.select().first()
-            assert it.texte == "new" == item["texte"]
-            assert it.style.bgColor == "purple" == item["style"]["bgColor"]
-            assert it.ratio == 0.34 == item["ratio"]
-            assert str(it.frise.id) == str(frise.id) == item["frise"]
-
-    def test_delDB_zonefrise(self, fk, dao):
-        z = fk.f_zoneFrise()
-        assert dao.delDB("ZoneFrise", str(z.id))
-        assert not dao.delDB("ZoneFrise", str(uuid.uuid4()))
-
 
 class TestEquationMixin:
     def test_check_args(self, dao):

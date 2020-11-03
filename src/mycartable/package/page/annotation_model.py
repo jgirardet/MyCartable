@@ -9,7 +9,7 @@ from PySide2.QtCore import (
     Property,
 )
 
-from package.page.basemodel import SectionDetailModel
+from mycartable.package.page.basemodel import SectionDetailModel
 
 
 class AnnotationModel(SectionDetailModel):
@@ -38,7 +38,7 @@ class AnnotationModel(SectionDetailModel):
 
     def _removeRows(self, row: int, count: int):
         for idx, d in enumerate(self.annotations[row : row + count + 1], row):
-            if self.dao.delDB(d["classtype"], d["id"]):
+            if self.dtb.delDB(d["classtype"], d["id"]):
                 self.annotations.pop(idx)
 
     def setData(self, index, value, role) -> bool:
@@ -46,7 +46,7 @@ class AnnotationModel(SectionDetailModel):
             value = value.toVariant()
             annotation_id = value.pop("id")
             cls_type = self.annotations[index.row()]["classtype"]
-            res = self.dao.setDB(cls_type, annotation_id, value)
+            res = self.dtb.setDB(cls_type, annotation_id, value)
             if res:
                 self.annotations[index.row()].update(res)
                 self.dataChanged.emit(index, index, [self.AnnotationRole])
@@ -54,7 +54,7 @@ class AnnotationModel(SectionDetailModel):
         return False
 
     def _reset(self):
-        sectionItem = self.dao.loadSection(self.sectionId)
+        sectionItem = self.dtb.getDB("ImageSection", self.sectionId)
         self.annotations = [z for z in sectionItem["annotations"]]
 
     def _after_reset(self):
@@ -67,7 +67,7 @@ class AnnotationModel(SectionDetailModel):
         if classtype == "AnnotationText":
             x = content["x"] / content["width"]
             y = content["y"] / content["height"]
-            new_anot = self.dao.addDB(
+            new_anot = self.dtb.addDB(
                 "AnnotationText",
                 {"x": x, "y": y, "section": self.sectionId, "text": ""},
             )
@@ -77,7 +77,7 @@ class AnnotationModel(SectionDetailModel):
             style["bgColor"] = (content.pop("fillStyle"),)
             style["pointSize"] = content.pop("lineWidth")
             style["weight"] = int(content.pop("opacity") * 10)
-            new_anot = self.dao.addDB(
+            new_anot = self.dtb.addDB(
                 "AnnotationDessin",
                 {"section": self.sectionId, "style": style, **content},
             )

@@ -5,6 +5,7 @@ from unittest.mock import MagicMock
 from PySide2.QtCore import QObject, Slot
 from PySide2.QtGui import QColor, QGuiApplication
 from PySide2.QtQml import qmlRegisterType
+from mycartable.types.dtb import DTB
 from pony.orm import Database, db_session, flush, ObjectNotFound
 
 # Add common to path
@@ -106,6 +107,7 @@ def pytest_qml_context_properties() -> dict:
 
     uim = UiManager()
     dao = DatabaseObject(db, uim)
+    dtb = DTB(db)
 
     # Mocking som method
     # dao.exportToPDF = MagicMock()
@@ -123,7 +125,7 @@ def pytest_qml_context_properties() -> dict:
 
     th = TestHelper(dao)
 
-    return {"ddb": dao, "uiManager": uim, "fk": fk, "th": th}
+    return {"ddb": dao, "uiManager": uim, "c_dtb": dtb, "fk": fk, "th": th}
 
 
 def pytest_qml_applicationAvailable(app: QGuiApplication):

@@ -74,7 +74,7 @@ class FriseModel(SectionDetailModel):
             return False
         zone: dict = self.zones[index.row()]
         data = WDict(self.ROLES[role], value)
-        if self.dao.setDB("ZoneFrise", zone["id"], data):
+        if self.dtb.setDB("ZoneFrise", zone["id"], data):
             zone.update(data)
             self.dataChanged.emit(index, index)
             return True
@@ -85,7 +85,7 @@ class FriseModel(SectionDetailModel):
         # start datanase work
         with db_session:
             for pos in range(row, row + count + 1):
-                item = self.dao.addDB(
+                item = self.dtb.addDB(
                     "ZoneFrise",
                     {
                         "frise": self.sectionId,
@@ -95,7 +95,7 @@ class FriseModel(SectionDetailModel):
                         "position": pos,
                     },
                 )
-                self.dao.addDB(
+                self.dtb.addDB(
                     "FriseLegende",
                     {
                         "zone": item["id"],
@@ -113,7 +113,7 @@ class FriseModel(SectionDetailModel):
         self.zones = shift_list(self.zones, sourceRow, 1 + count, destinationChild)
         with db_session:
             for n, zo in enumerate(self.zones):
-                item = self.dao.setDB(
+                item = self.dtb.setDB(
                     "ZoneFrise",
                     zo["id"],
                     {
@@ -126,7 +126,7 @@ class FriseModel(SectionDetailModel):
 
     def _removeRows(self, row: int, count: int):
         for d in self.zones[row : row + count + 1]:
-            self.dao.delDB("ZoneFrise", d["id"])
+            self.dtb.delDB("ZoneFrise", d["id"])
         self._reset()
 
     @Slot(result=bool)
@@ -139,7 +139,7 @@ class FriseModel(SectionDetailModel):
         return True
 
     def _reset(self):
-        self._sectionItem = self.dao.loadSection(self.sectionId)
+        self._sectionItem = self.dtb.getDB("FriseSection", self.sectionId)
         self.zones = [WDict(z) for z in self._sectionItem["zones"]]
 
     def _after_reset(self):
@@ -167,6 +167,6 @@ class FriseModel(SectionDetailModel):
 
     @titre.setter
     def titre_set(self, value: int):
-        if self.dao.setDB("FriseSection", self.sectionId, {"titre": value}):
+        if self.dtb.setDB("FriseSection", self.sectionId, {"titre": value}):
             self._sectionItem["titre"] = value
             self.titreChanged.emit()

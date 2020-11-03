@@ -3,6 +3,11 @@ import QtQuick 2.15
 import "assets/annotationsValues.mjs" as AssetAnnot
 
 Item {
+    //        Component.onCompleted: {
+    //            print(item.section);
+    //            sectionId = item.section;
+    //        }
+
     id: item
 
     property var points: AssetAnnot.pointsMainLevee
@@ -21,6 +26,7 @@ Item {
         }
 
         function initPost() {
+            item.model.sectionId = section.id;
         }
 
         function test_init() {
@@ -69,8 +75,9 @@ Item {
     }
 
     model: AnnotationModel {
-        sectionId: dao && item.section ? item.section.id : ""
+        //        sectionId: dao && item.section ? item.section.id : ""
         dao: ddb
+        dtb: c_dtb
     }
 
 }

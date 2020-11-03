@@ -1,6 +1,7 @@
 import pytest
 from PySide2.QtCore import Qt, QModelIndex
 from PySide2.QtGui import QColor
+from mycartable.types.dtb import DTB
 from package.page.frise_model import FriseModel
 from pony.orm import db_session
 
@@ -9,9 +10,10 @@ from pony.orm import db_session
 def fm(fk, dao):
     def wrapped(nb):
         f = FriseModel()
+        f.dao = dao
+        f.dtb = DTB(fk.db)
         f._frise = fk.f_friseSection()
         f._zones = fk.b_zoneFrise(nb, frise=f._frise, td=True)
-        f.dao = dao
         f.sectionId = f._frise.id
         return f
 
@@ -32,6 +34,8 @@ def test_init(fk, qtbot, dao):
     a = FriseModel()
     with qtbot.waitSignal(a.daoChanged):
         a.dao = dao
+    with qtbot.waitSignal(a.dtbChanged):
+        a.dtb = DTB(fk.db)
 
     # setup
     fr = fk.f_friseSection(titre="azerty", height=200)

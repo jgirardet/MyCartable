@@ -27,10 +27,10 @@ def setup_session():
 
     # modify path
     root = Path(__file__).parents[1]
+    python_dir = root / "src"
+    sys.path.append(str(python_dir))
     python_dir = root / "src" / "mycartable"
     sys.path.append(str(python_dir))
-    # python_dir = root / "src"
-    # sys.path.append(str(python_dir))
 
     # setup qrc
     orig = root / "src" / "qml.qrc"

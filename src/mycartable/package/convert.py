@@ -29,6 +29,7 @@ from PySide2.QtGui import (
 )
 from bs4 import NavigableString, BeautifulSoup
 from mako.lookup import TemplateLookup
+from mycartable.types.dtb import DTB
 from package.constantes import BASE_FONT, ANNOTATION_TEXT_BG_OPACITY, MONOSPACED_FONTS
 from package.convertion.grabber import Grabber
 from package.database import getdb
@@ -1063,7 +1064,8 @@ def grab_section(section, initial_prop={}):
     base_prop = {"sectionItem": sectionItem, "sectionId": section_dict["id"]}
     base_prop.update(initial_prop)
     app = QGuiApplication.instance()
-    with Grabber(context_dict={"ddb": app.dao}) as grab:
+    dtb = DTB(app.dao.db)
+    with Grabber(context_dict={"ddb": app.dao, "c_dtb": dtb}) as grab:
         img = grab.comp_to_image(
             url=f":/qml/sections/{section.classtype}.qml",
             initial_prop=base_prop,

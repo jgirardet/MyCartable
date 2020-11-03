@@ -3,6 +3,7 @@ import tempfile
 from pathlib import Path
 
 from PySide2.QtGui import QFont, QFontDatabase, QIcon, QPixmap
+from mycartable.types.dtb import DTB
 from package import get_prod
 from package.constantes import APPNAME, ORGNAME, BASE_FONT
 from PySide2.QtCore import (
@@ -57,13 +58,13 @@ def main_init_database(filename=None, prod=False):
 
     db = package.database.init_database(newdb, filename=filename, create_db=create_db)
 
-    if not prod:
-        from tests.python.factory import populate_database
-
-        try:
-            populate_database()
-        except:
-            pass
+    # if not prod:
+    #     from tests.python.factory import populate_database
+    #
+    #     try:
+    #         populate_database()
+    #     except:
+    #         pass
 
     return package.database.db
 
@@ -102,15 +103,16 @@ def create_singleton_instance(prod=False):
     ui_manager = UiManager()
     databaseObject = DatabaseObject(package.database.db, ui=ui_manager, debug=False)
 
-    if not prod:
-        databaseObject.anneeActive = 2019
-        with db_session:
-            databaseObject.currentPage = databaseObject.db.Page.select().first().id
+    # if not prod:
+    #     databaseObject.anneeActive = 2019
+    #     with db_session:
+    #         databaseObject.currentPage = databaseObject.db.Page.select().first().id
+    dtb = DTB(package.database.db)
 
-    return databaseObject, ui_manager
+    return databaseObject, ui_manager, dtb
 
 
-def setup_qml(ddb, ui_manager):
+def setup_qml(ddb, ui_manager, dtb):
     # import ressources
 
     # # set env : why ???
@@ -122,6 +124,7 @@ def setup_qml(ddb, ui_manager):
     # register property instance
     engine.rootContext().setContextProperty("ddb", ddb)
     engine.rootContext().setContextProperty("uiManager", ui_manager)
+    engine.rootContext().setContextProperty("c_dtb", dtb)
 
     # load main
     engine.load(QUrl("qrc:///qml/main.qml"))
@@ -160,7 +163,7 @@ def main(filename=None):
     main_init_database(filename=filename, prod=prod)
 
     # create instance de ce qui sera des singleton dans qml
-    databaseObject, ui_manager = create_singleton_instance(prod)
+    databaseObject, ui_manager, dtb = create_singleton_instance(prod)
     app.dao = databaseObject
 
     # register les new qml type
@@ -169,7 +172,7 @@ def main(filename=None):
     # setup le qml et retourne l'engine
     # import qrc
 
-    engine = setup_qml(databaseObject, ui_manager)
+    engine = setup_qml(databaseObject, ui_manager, dtb)
 
     # Manifestement l'acces au qrc n'est pas immediat apres creation de l'app
     # donc on met tout ça un peu plus "loin"

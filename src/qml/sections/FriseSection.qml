@@ -8,19 +8,12 @@ import "qrc:/qml/frise"
 Rectangle {
     id: root
 
-    //    property alias listmodel: listmodel
     property alias corps: corps
     property alias titre: titre
     property string sectionId
     property var sectionItem
     property QtObject model
 
-    //    property alias repeater: repeater
-    //    model:
-    //    Rectangle {
-    //        anchors.fill: parent
-    //        border.width: 1
-    //    }
     width: sectionItem.width
     height: model ? model.height : 0
     color: "white"
@@ -28,14 +21,11 @@ Rectangle {
     TextEdit {
         id: titre
 
-        text: root.model ? root.model.titre : ""
+        onTextChanged: {
+            return root.model.titre = titre.text;
+        }
         font.pointSize: 16
         anchors.horizontalCenter: parent.horizontalCenter
-        Component.onCompleted: {
-            onTextChanged.connect(() => {
-                return root.model.titre = text;
-            });
-        }
     }
 
     CorpsFrise {
@@ -48,9 +38,7 @@ Rectangle {
             left: root.left
             right: root.right
             top: root.top
-            //            bottom: root.bottom
             topMargin: root.height / 2 - height / 2
-            //            bottomMargin: 150
             leftMargin: 30
             rightMargin: 50
         }
@@ -89,8 +77,12 @@ Rectangle {
     }
 
     model: FriseModel {
-        sectionId: dao ? root.sectionId : ""
         dao: ddb
+        dtb: c_dtb
+        Component.onCompleted: {
+            sectionId = root.sectionId;
+            root.titre.text = model.titre;
+        }
     }
 
 }

@@ -4,22 +4,6 @@ import QtQuick.Controls 2.15
 import "qrc:/qml/divers"
 
 Rectangle {
-    //        repeater.model.splice(index, 1);
-    //     {
-    //        id: listlegendes
-    //        Component.onCompleted: {
-    //            for (const el of legendes) {
-    //      ListModel          append(el);
-    //            }
-    //        }
-    //    }
-    //    function remove_legende(index) {
-    //        let modd = repeater.model;
-    //        modd.splice(index, 1);
-    //        repeater.model = modd;
-    //        listlegendes.remove(index);
-    //    }
-
     id: root
 
     property int modelIndex
@@ -134,7 +118,7 @@ Rectangle {
             anchors.fill: parent
             cursorShape: Qt.BlankCursor
             onClicked: {
-                let newL = ddb.addDB("FriseLegende", {
+                let newL = c_dtb.addDB("FriseLegende", {
                     "relativeX": mouse.x / width,
                     "texte": "",
                     "zone": zoneId,
@@ -161,10 +145,10 @@ Rectangle {
 
         onItemAdded: item.legende.forceActiveFocus()
         onItemRemoved: {
-            ddb.delDB("FriseLegende", item.legendeId);
+            c_dtb.delDB("FriseLegende", item.legendeId);
         }
         onItemSet: {
-            ddb.setDB("FriseLegende", item.legendeId, dict);
+            c_dtb.setDB("FriseLegende", item.legendeId, dict);
         }
         modelObject: legendes
 

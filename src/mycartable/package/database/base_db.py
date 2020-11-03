@@ -5,8 +5,9 @@ from typing import Union, List
 
 from loguru import logger
 from package.utils import Version
-from pony.orm import Database
+from pony.orm import Database, ObjectNotFound
 from pony.orm import db_session as pony_db_session
+from pony.orm.core import Entity
 
 
 def init_models(db: Database):

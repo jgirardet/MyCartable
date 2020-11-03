@@ -5,6 +5,14 @@ import "qrc:/qml/annotations"
 import "qrc:/qml/menu"
 
 Image {
+    //        Binding {
+    //            target: root.model
+    //            when: rot.model.modelReady
+    //            property: "sectionId"
+    //            value: root.sectionId
+    //        }
+    //        sectionId: root.sectionId ? root.sectionId : ""
+
     id: root
 
     property string sectionId
@@ -154,8 +162,9 @@ Image {
     }
 
     model: AnnotationModel {
-        sectionId: dao ? root.sectionId : ""
         dao: ddb
+        dtb: c_dtb
+        Component.onCompleted: sectionId = root.sectionId
     }
 
 }

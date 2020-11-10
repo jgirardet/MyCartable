@@ -5,7 +5,6 @@ from unittest.mock import MagicMock
 from PySide2.QtCore import QObject, Slot
 from PySide2.QtGui import QColor, QGuiApplication
 from PySide2.QtQml import qmlRegisterType
-from mycartable.types.dtb import DTB
 from pony.orm import Database, db_session, flush, ObjectNotFound
 
 # Add common to path
@@ -17,6 +16,7 @@ sys.path.append(str(Path(__file__).parents[2] / "src"))
 sys.path.append(str(Path(__file__).parents[2] / "src" / "mycartable"))
 from common import fn_reset_db, setup_session
 
+from mycartable.types.dtb import DTB
 from mycartable.package.page.frise_model import FriseModel
 from mycartable.package.page.annotation_model import AnnotationModel
 
@@ -48,7 +48,7 @@ class FakerHelper(QObject):
         """reset database"""
         fn_reset_db(self.db)
         user = self.f("user", {"id": "0ca1d5b4-eddb-4afd-8b8e-1aa5e7e19d17"})
-        self.f("annee", {"id": 2019, "niveau": "cm2019", "user": user["id"]})
+        self.f("annee", {"id": 2019, "niveau": "cm1", "user": user["id"]})
         # dao.anneeActive = 2019
 
     @Slot(str, str, result="QVariantMap")
@@ -118,7 +118,7 @@ def pytest_qml_context_properties() -> dict:
 
     # pre setup dao needed often
     user = fk.f("user", {"id": "0ca1d5b4-eddb-4afd-8b8e-1aa5e7e19d17"})
-    fk.f("annee", {"id": 2019, "niveau": "cm2019", "user": user["id"]})
+    fk.f("annee", {"id": 2019, "niveau": "cm1", "user": user["id"]})
     dao.anneeActive = 2019
     # with db_session:
     #     dao.currentMatiere = db.Matiere.select().first().id

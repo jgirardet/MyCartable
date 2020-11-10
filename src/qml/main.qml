@@ -1,24 +1,28 @@
+import Qt.labs.qmlmodels 1.0
+import Qt.labs.qmlmodels 1.0
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Window 2.15
-import "divers"
-import "matiere"
-import "page"
+import "qrc:/qml/divers"
+import "qrc:/qml/layouts"
 
 ApplicationWindow {
-    //    header: MainMenuBar {
-    //        id: mainMenuBar
+    //    menuBar: MainMenuBar {
+    //        id: mainmenubar
     //    }
 
     id: root
+
+    property alias mainItem: mainitem
+    property alias toast: toast
 
     width: 800
     height: 600
     visible: true
     title: "MyCartable: année " + ddb.anneeActive + "/" + (ddb.anneeActive + 1)
     onClosing: {
-        baseItem.destroy(); // elmine presque tous les messages d'erreur
+        mainitem.destroy(); // elmine presque tous les messages d'erreur
     }
 
     BusyIndicator {
@@ -26,82 +30,73 @@ ApplicationWindow {
 
         width: root.width / 4
         height: width
-        anchors.centerIn: parent
+        anchors.centerIn: mainitem
         running: uiManager.buzyIndicator ?? false
         onRunningChanged: {
             if (running)
-                baseItem.enabled = false;
+                mainitem.enabled = false;
             else
-                baseItem.enabled = true;
+                mainitem.enabled = true;
         }
         z: running ? 10 : -5
     }
 
-    Rectangle {
-        id: baseItem
+    Toast {
+        id: toast
 
         function showToast(message) {
+            // pas compris le bug
+            //pas possible de bouger dans la déclaration
+            if (root === null)
+                return ;
+
             toast.msg = message;
             toast.open();
         }
 
-        objectName: "baseItem"
-        height: root.height // - mainMenuBar.height
-        width: root.width
-        color: ddb.colorFond
         Component.onCompleted: {
-            uiManager.sendToast.connect(showToast);
+            uiManager.sendToast.connect(toast.showToast);
         }
+    }
 
-        RowLayout {
-            anchors.fill: parent
-            spacing: 10
+    MainMenuBar {
+        id: mainmenubar
 
-            // margin left
-            Rectangle {
-                Layout.fillHeight: true
-            }
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+    }
 
-            RecentsRectangle {
-                id: _recentsRectangle
+    SplitLayout {
+        //        {
+        //            "type": "pagelayout"
+        //        }, {
+        //            "type": "pagelayout"
+        //        }
 
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                Layout.preferredWidth: ddb.getLayoutSizes("preferredSideWidth")
-                Layout.maximumWidth: ddb.getLayoutSizes("maximumSideWidth")
-                Layout.minimumWidth: ddb.getLayoutSizes("minimumSideWidth")
-            }
+        id: mainitem
 
-            PageRectangle {
-                id: _pageRectangle
-
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                Layout.preferredWidth: ddb.getLayoutSizes("preferredCentralWidth")
-                Layout.minimumWidth: ddb.getLayoutSizes("minimumCentralWidth")
-            }
-
-            MatiereRectangle {
-                id: _matiereRectangle
-
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                Layout.preferredWidth: ddb.getLayoutSizes("preferredSideWidth")
-                Layout.maximumWidth: ddb.getLayoutSizes("maximumSideWidth")
-                Layout.minimumWidth: ddb.getLayoutSizes("minimumSideWidth")
-            }
-            // margin left
-
-            Rectangle {
-                Layout.fillHeight: true
-            }
-
+        orientation: Qt.Vertical
+        anchors.top: mainmenubar.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        componentKeys: {
+            "pagelayout": pagelayout
         }
+        initModel: [{
+            "type": "pagelayout"
+        }, {
+            "type": "pagelayout"
+        }]
 
-        Toast {
-            id: toast
+        Component {
+            id: pagelayout
 
-            objectName: "toast"
+            PageLayout {
+                view: mainitem
+            }
+
         }
 
     }

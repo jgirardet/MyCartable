@@ -9,11 +9,6 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 
 Repeater {
-    //    function remove(index, count = 1) {
-    //        print(index, count);
-    //        listmodel.remove(index, count);
-    //    }
-    //        after_remove(index, count)
     id: root
 
     property var modelObject: []
@@ -57,13 +52,17 @@ Repeater {
         listmodel.remove(index, count);
     }
 
+    function populate() {
+        for (const el of root.modelObject) {
+            append(el);
+        }
+    }
+
     model: ListModel {
         id: listmodel
 
         Component.onCompleted: {
-            for (const el of root.modelObject) {
-                append(el);
-            }
+            populate();
         }
     }
 

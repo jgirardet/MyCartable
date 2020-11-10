@@ -40,31 +40,35 @@ def main_init_database(filename=None, prod=False):
         create_db = True
     else:
         QStandardPaths.setTestModeEnabled(True)
-        # filename = Path(tempfile.gettempdir()) / "devddbmdk.sqlite"
-        filename = "/home/jimmy/Documents/MyCartable/mycartable.ddb"
-        # filename = ":memory:"
         # filename.unlink()
+        filename = Path(tempfile.gettempdir()) / "devddbmdk.sqlite"
+
+        # filename = "/home/jimmy/Documents/MyCartable/mycartable.ddb"
+        # filename = ":memory:"
+        # filename = ":memory:"
         create_db = True
 
     from migrations import make_migrations
 
-    migrate_res = make_migrations(filename)
-    if not migrate_res:
-        from package.files_path import LOGFILE
+    if filename != ":memory:" and Path(filename).is_file():
+        migrate_res = make_migrations(filename)
+        if not migrate_res:
+            from package.files_path import LOGFILE
 
-        raise SystemError(f"voir dans {LOGFILE}")
+            raise SystemError(f"voir dans {LOGFILE}")
 
     package.database.db = newdb
 
     db = package.database.init_database(newdb, filename=filename, create_db=create_db)
 
-    # if not prod:
-    #     from tests.python.factory import populate_database
-    #
-    #     try:
-    #         populate_database()
-    #     except:
-    #         pass
+    if not prod:
+        from tests.factory import Faker
+
+        try:
+            f = Faker(db)
+            f.f_textSection()
+        except:
+            pass
 
     return package.database.db
 

@@ -197,13 +197,10 @@ def class_structure(
             return dico
 
         def _query_recents(self, annee):
-            query = select(
-                p
-                for p in Page
-                if p.modified > datetime.utcnow() - timedelta(days=30)
-                and p.activite.matiere.groupe.annee.id == annee
-            ).order_by(
-                desc(Page.modified)
+            query = (
+                select(p for p in Page if p.activite.matiere.groupe.annee.id == annee)
+                .order_by(desc(Page.modified))
+                .limit(50)
             )  # pragma: no cover_all
             return query
 

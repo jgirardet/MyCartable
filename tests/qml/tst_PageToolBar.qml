@@ -9,29 +9,6 @@ Item {
     height: 200
 
     CasTest {
-        //            wait(3000);
-        //        function test_newfrise() {
-        //            mouseClick(newfrise);
-        //            compare(ddb._addSection, [1, {
-        //                "classtype": "TextSection",
-        //                "position": 3
-        //            }]);
-        //        }
-        //        function test_newtext() {
-        //            mouseClick(newtext);
-        //            compare_new_section("TextSection");
-        //        }
-        //            compare(ddb._exportToPDF, ["called"]);
-        //        function test_exportpdf() {
-        //        }
-        //        function test_exportodt() {
-        //            th.mock("exportToOdt");
-        //            mouseClick(exportodt);
-        //            verify(th.mock_called("exportToOdt"));
-        //            th.unmock("exportToOdt");
-        //        }
-        //            compare(fk.getItem("Page", page.id), null);
-
         id: testcase
 
         property var newtext
@@ -75,7 +52,6 @@ Item {
         }
 
         function test_init() {
-            print(tested.width);
             verify(tested.visible);
         }
 

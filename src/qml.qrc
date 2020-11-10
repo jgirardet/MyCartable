@@ -51,6 +51,13 @@
         <file alias="LegendesContainer.qml">qml/frise/LegendesContainer.qml</file>
     </qresource>
 
+    <qresource prefix="/qml/layouts">
+        <file alias="PageLayout.qml">qml/layouts/PageLayout.qml</file>
+        <file alias="Bread.qml">qml/layouts/Bread.qml</file>
+        <file alias="SandwichLayout.qml">qml/layouts/SandwichLayout.qml</file>
+        <file alias="SplitLayout.qml">qml/layouts/SplitLayout.qml</file>
+    </qresource>
+
     <qresource prefix="/qml/annotations">
         <file alias="CanvasFactory.qml">qml/annotations/CanvasFactory.qml</file>
         <file alias="MainLevee.qml">qml/annotations/MainLevee.qml</file>

@@ -25,6 +25,7 @@ TestCase {
     property var params
     property var backupParams
     property var ddbData
+    property bool autocreate: true
 
     function init() {
         fk.resetDB();
@@ -36,7 +37,9 @@ TestCase {
         //            "ddb": ddb
         //        });
         initPreCreate();
-        tested = createObj(testedNom, params);
+        if (autocreate)
+            tested = createObj(testedNom, params);
+
         initPost();
     }
 

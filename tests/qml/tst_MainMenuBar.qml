@@ -17,6 +17,8 @@ Item {
 
         function initPost() {
             fichier = tested.menus[0];
+            tested.heightAnimation.duration = 0;
+            tested.hideTimer.interval = 0;
         }
 
         function test_fichier() {
@@ -25,6 +27,15 @@ Item {
         }
 
         function test_changer_annee() {
+            fk.resetDB();
+            fk.f("annee", {
+                "id": 2018,
+                "niveau": "ce2"
+            });
+            fk.f("annee", {
+                "id": 2019,
+                "niveau": "cm1"
+            });
             fichier.visible = true;
             var buttonMenu = tested.menus[0].itemAt(0);
             var changerAnnee = findChild(tested, "changerAnnee");
@@ -39,7 +50,36 @@ Item {
             compare(changerAnnee.opened, false);
         }
 
+        function test_change_matiere_reset_tout() {
+            var spy = getSpy(ddb, "changeAnnee");
+            ddb.currentMatiere = 4;
+            fichier.visible = true;
+            var dialog = findChild(tested, "changer_matieres");
+            dialog.height = 300;
+            var buttonMenu = tested.menus[0].itemAt(2);
+            mouseClick(buttonMenu);
+            tryCompare(dialog, "visible", true);
+            dialog.close();
+            spy.wait();
+        }
+
+        function test_ajouter_matieres() {
+            fichier.visible = true;
+            var buttonMenu = tested.menus[0].itemAt(1);
+            var repeupler = findChild(tested, "repeupler");
+            var changerAnnee = findChild(tested, "changerAnnee");
+            ddb.anneeActive = 2019;
+            compare(repeupler.opened, false);
+            mouseClick(buttonMenu);
+            compare(changerAnnee.opened, false);
+            compare(repeupler.opened, true);
+            let spy = getSpy(ddb, "changeMatieres");
+            repeupler.accept(); // émis par chargeMatireParDefault
+            spy.wait();
+        }
+
         function test_ajouter_matieres_sans_annee() {
+            ddb.anneeActive = 0;
             fichier.visible = true;
             var buttonMenu = tested.menus[0].itemAt(1);
             var repeupler = findChild(tested, "repeupler");
@@ -53,31 +93,19 @@ Item {
             changerAnnee.close();
         }
 
-        function test_ajouter_matieres() {
-            fichier.visible = true;
-            var buttonMenu = tested.menus[0].itemAt(1);
-            var repeupler = findChild(tested, "repeupler");
-            var changerAnnee = findChild(tested, "changerAnnee");
-            ddb.anneeActive = 2050;
-            compare(repeupler.opened, false);
-            mouseClick(buttonMenu);
-            compare(changerAnnee.opened, false);
-            compare(repeupler.opened, true);
-            repeupler.accept();
-            compare(ddb._peuplerLesMatieresParDefault, [2050]);
-        }
-
-        function test_change_matiere_reset_tout() {
-            var spy = getSpy(ddb, "changeAnnee");
-            ddb.currentMatiere = 4;
-            fichier.visible = true;
-            var dialog = findChild(tested, "changer_matieres");
-            dialog.height = 300;
-            var buttonMenu = tested.menus[0].itemAt(2);
-            mouseClick(buttonMenu);
-            tryCompare(dialog, "visible", true);
-            dialog.close();
-            spy.wait();
+        function test_showhide() {
+            //mouse in and out
+            compare(tested.height, 2);
+            mouseMove(tested, 1, 1);
+            compare(tested.height, 50);
+            mouseMove(tested, -1, -1);
+            compare(tested.height, 2);
+            // don't hide if menu visible
+            tested.state = "expanded";
+            tested.menus[0].visible = true;
+            compare(tested.height, 50);
+            tested.hideTimer.start();
+            compare(tested.height, 50);
         }
 
         name: "MainMenuBar"

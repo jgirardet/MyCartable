@@ -4,16 +4,49 @@ import QtQuick.Window 2.15
 import "qrc:/qml/configuration"
 
 MenuBar {
-    id: mainMenuBar
+    id: root
 
     property alias changerAnnee: changerAnnee_id
+    property alias heightAnimation: height_animation
+    property alias hideTimer: timer_hide
+
+    height: 2 // juste pour trigger le hover
+    onHoveredChanged: {
+        if (hovered) {
+            root.state = "expanded";
+            timer_hide.restart();
+        }
+    }
+    hoverEnabled: true
+    states: [
+        State {
+            name: "expanded"
+
+            PropertyChanges {
+                target: root
+                height: 50
+            }
+
+        }
+    ]
+
+    Timer {
+        id: timer_hide
+
+        running: false
+        repeat: false
+        interval: 2000
+        onTriggered: () => {
+            if (root.hovered || menu.visible)
+                timer_hide.restart();
+            else
+                return root.state = "";
+        }
+    }
 
     Menu {
-        //        Action {
-        //            text: qsTr("&Peupler la base")
-        //            onTriggered: ddb.peupler()
-        //        }
-        //        anchors.fill: parent
+        id: menu
+
         title: qsTr("&Fichier")
 
         Action {
@@ -116,6 +149,15 @@ MenuBar {
         }
 
         contentItem: ChangeGroupe {
+        }
+
+    }
+
+    Behavior on height {
+        NumberAnimation {
+            id: height_animation
+
+            duration: 300
         }
 
     }

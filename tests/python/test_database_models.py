@@ -82,7 +82,7 @@ class TestPage:
         # test query
         assert ddb.Page.select().count() == 100
         recents = ddb.Page._query_recents(ddb.Page, 2019)[:]
-        assert all(x.modified > datetime.utcnow() - timedelta(days=30) for x in recents)
+        assert len(recents) == 50
         assert all(x.activite.matiere.groupe.annee.id == 2019 for x in recents)
         old = recents[0]
         for i in recents[1:]:

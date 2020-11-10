@@ -3,12 +3,11 @@ from functools import partial
 
 from PySide2.QtCore import Slot, Signal, Property, QObject, QThreadPool
 from PySide2.QtGui import QDesktopServices
-from loguru import logger
+
 from package.constantes import TITRE_TIMER_DELAY
 from package.convert import soffice_convert, escaped_filename
 from package.utils import create_singleshot, qrunnable
 from pony.orm import db_session, make_proxy
-from loguru import logger
 
 from loguru import logger
 

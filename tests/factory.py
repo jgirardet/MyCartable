@@ -64,7 +64,7 @@ class Faker:
                 an = self.db.Annee(id=id, niveau=niveau, user=user)
             return an.to_dict() if td else an
 
-    def f_groupeMatiere(self, nom=None, annee=None, **kwargs):
+    def f_groupeMatiere(self, nom=None, annee=None, td=False, **kwargs):
 
         annee = annee or self.f_annee(id=annee).id
         with db_session:
@@ -72,7 +72,8 @@ class Faker:
                 self.f_annee(id=annee)
         nom = nom or random.choice(["Français", "Math", "Anglais", "Histoire"])
         with db_session:
-            return self.db.GroupeMatiere(nom=nom, annee=annee, **kwargs)
+            item = self.db.GroupeMatiere(nom=nom, annee=annee, **kwargs)
+            return item.to_dict() if td else item
 
     def b_groupeMatiere(self, nb, **kwargs):
         return [self.f_groupeMatiere(**kwargs) for i in range(nb)]
@@ -154,6 +155,8 @@ class Faker:
         if isinstance(activite, self.db.Activite):
             activite = str(activite.id)
         created = created or self.f_datetime()
+        if isinstance(created, str):
+            created = datetime.fromisoformat(created)
         titre = titre or " ".join(gen.text.words(5))
         with db_session:
             item = self.db.Page(
@@ -490,9 +493,9 @@ class Faker:
                                 # ),
                                 #     f_tableauSection(page=page.id),
                                 self.f_imageSection(page=page.id),
-                                # self.f_textSection(page=page.id),
-                                #     f16_additionSection(page=page.id),
-                                #     f_soustractionSection(page=page.id),
+                                self.f_textSection(page=page.id),
+                                # f16_additionSection(page=page.id),
+                                # f_soustractionSection(page=page.id),
                                 #     f_multiplicationSection(page=page.id),
                                 #     f_divisionSection(page=page.id),
                             ]

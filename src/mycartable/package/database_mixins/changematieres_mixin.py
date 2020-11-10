@@ -204,12 +204,6 @@ class ChangeMatieresMixin:
     @Slot(int)
     @db_session
     def peuplerLesMatieresParDefault(self, annee):
-        # print(MATIERE_GROUPE)
-        #
-        # gm = [GroupeMatiere(**x, annee=annee) for x in MATIERE_GROUPE]
-        # flush()
-        # print(MATIERES)
-        # mat = [Matiere(**x) for x in MATIERES]
         groupes = []
         compteur = 0
         for groupe in MATIERE_GROUPE_BASE:

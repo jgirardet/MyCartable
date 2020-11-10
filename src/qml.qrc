@@ -155,6 +155,8 @@
         <file alias="arrow-double">data/icons/base/arrows/png/040-left arrow.png</file>
         <file alias="arrow-right">data/icons/base/arrows/png/001-right arrow.png</file>
         <file alias="floodfill">data/icons/base/gimp/gimp-tool-bucket-fill.svg</file>
+        <file alias="split_horizontal">data/icons/base/visualpharm/Split_Horizontal-595b40b65ba036ed117d3405.svg</file>
+        <file alias="split_vertical">data/icons/base/visualpharm/Split_Vertical-595b40b65ba036ed117d3406.svg</file>
 <!--        <file alias="text">data/icons/base/pack/png/sphere.png</file>-->
     </qresource>
     <qresource prefix="/fonts">

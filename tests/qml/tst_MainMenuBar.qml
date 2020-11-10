@@ -1,22 +1,57 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Window 2.15
+import "qrc:/qml/layouts"
 
 Item {
     id: item
 
-    width: 200
-    height: 200
+    width: 800
+    height: 400
+
+    Component {
+        id: splitcomp
+
+        SplitLayout {
+            componentKeys: {
+                "rect": rect
+            }
+            initModel: [{
+                "type": "rect"
+            }]
+
+            Component {
+                id: rect
+
+                Rectangle {
+                    anchors.fill: parent
+                    color: "blue"
+                }
+
+            }
+
+        }
+
+    }
 
     CasTest {
         property QtObject fichier
+        property Item hoributton
+        property Item vertibutton
         property var lv
+        property SplitLayout splitobj
 
         function initPre() {
+            splitobj = splitcomp.createObject(item);
+            params = {
+                "mainItem": splitobj
+            };
         }
 
         function initPost() {
-            fichier = tested.menus[0];
+            fichier = tested.contentItem.children[0].menus[0];
+            hoributton = tested.contentItem.children[1];
+            vertibutton = tested.contentItem.children[2];
             tested.heightAnimation.duration = 0;
             tested.hideTimer.interval = 0;
         }
@@ -37,7 +72,7 @@ Item {
                 "niveau": "cm1"
             });
             fichier.visible = true;
-            var buttonMenu = tested.menus[0].itemAt(0);
+            var buttonMenu = fichier.itemAt(0);
             var changerAnnee = findChild(tested, "changerAnnee");
             compare(changerAnnee.opened, false);
             mouseClick(buttonMenu);
@@ -56,7 +91,7 @@ Item {
             fichier.visible = true;
             var dialog = findChild(tested, "changer_matieres");
             dialog.height = 300;
-            var buttonMenu = tested.menus[0].itemAt(2);
+            var buttonMenu = fichier.itemAt(2);
             mouseClick(buttonMenu);
             tryCompare(dialog, "visible", true);
             dialog.close();
@@ -65,7 +100,7 @@ Item {
 
         function test_ajouter_matieres() {
             fichier.visible = true;
-            var buttonMenu = tested.menus[0].itemAt(1);
+            var buttonMenu = fichier.itemAt(1);
             var repeupler = findChild(tested, "repeupler");
             var changerAnnee = findChild(tested, "changerAnnee");
             ddb.anneeActive = 2019;
@@ -81,7 +116,7 @@ Item {
         function test_ajouter_matieres_sans_annee() {
             ddb.anneeActive = 0;
             fichier.visible = true;
-            var buttonMenu = tested.menus[0].itemAt(1);
+            var buttonMenu = fichier.itemAt(1);
             var repeupler = findChild(tested, "repeupler");
             var changerAnnee = findChild(tested, "changerAnnee");
             // si pas d'année selectionnée
@@ -102,10 +137,47 @@ Item {
             compare(tested.height, 2);
             // don't hide if menu visible
             tested.state = "expanded";
-            tested.menus[0].visible = true;
+            fichier.visible = true;
             compare(tested.height, 50);
             tested.hideTimer.start();
             compare(tested.height, 50);
+        }
+
+        function test_split_buttons() {
+            // un seul
+            compare(splitobj.count, 1);
+            compare(splitobj.orientation, Qt.Horizontal);
+            // hori
+            mouseClick(hoributton);
+            compare(splitobj.count, 2);
+            compare(splitobj.orientation, Qt.Horizontal);
+            // retour
+            mouseClick(hoributton);
+            compare(splitobj.count, 1);
+            compare(splitobj.orientation, Qt.Horizontal);
+            // verti
+            mouseClick(vertibutton);
+            compare(splitobj.count, 2);
+            compare(splitobj.orientation, Qt.Vertical);
+            // retour
+            mouseClick(vertibutton);
+            compare(splitobj.count, 1);
+            compare(splitobj.orientation, Qt.Vertical);
+            // hori to verti
+            mouseClick(hoributton);
+            compare(splitobj.count, 2);
+            compare(splitobj.orientation, Qt.Horizontal);
+            mouseClick(vertibutton);
+            compare(splitobj.count, 2);
+            compare(splitobj.orientation, Qt.Vertical);
+            // verti to hori
+            mouseClick(hoributton);
+            compare(splitobj.count, 2);
+            compare(splitobj.orientation, Qt.Horizontal);
+            // retour
+            mouseClick(hoributton);
+            compare(splitobj.count, 1);
+            compare(splitobj.orientation, Qt.Horizontal);
         }
 
         name: "MainMenuBar"

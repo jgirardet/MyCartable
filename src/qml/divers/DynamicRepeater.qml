@@ -52,6 +52,11 @@ Repeater {
         listmodel.remove(index, count);
     }
 
+    function pop() {
+        // remove last
+        listmodel.remove(listmodel.count - 1, 1);
+    }
+
     function populate() {
         for (const el of root.modelObject) {
             append(el);

@@ -62,21 +62,19 @@ ApplicationWindow {
     MainMenuBar {
         id: mainmenubar
 
+        mainItem: mainitem
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
     }
 
     SplitLayout {
-        //        {
-        //            "type": "pagelayout"
-        //        }, {
+        //        , {
         //            "type": "pagelayout"
         //        }
 
         id: mainitem
 
-        orientation: Qt.Vertical
         anchors.top: mainmenubar.bottom
         anchors.left: parent.left
         anchors.right: parent.right
@@ -85,8 +83,6 @@ ApplicationWindow {
             "pagelayout": pagelayout
         }
         initModel: [{
-            "type": "pagelayout"
-        }, {
             "type": "pagelayout"
         }]
 

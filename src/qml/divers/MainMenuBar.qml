@@ -3,12 +3,13 @@ import QtQuick.Controls 2.15
 import QtQuick.Window 2.15
 import "qrc:/qml/configuration"
 
-MenuBar {
+Control {
     id: root
 
     property alias changerAnnee: changerAnnee_id
     property alias heightAnimation: height_animation
     property alias hideTimer: timer_hide
+    property Item mainItem
 
     height: 2 // juste pour trigger le hover
     onHoveredChanged: {
@@ -42,30 +43,6 @@ MenuBar {
             else
                 return root.state = "";
         }
-    }
-
-    Menu {
-        id: menu
-
-        title: qsTr("&Fichier")
-
-        Action {
-            text: qsTr("&Changer d'année")
-            onTriggered: changerAnnee.open()
-        }
-
-        Action {
-            text: qsTr("&Ajouter les matieres par défault")
-            onTriggered: repeupler_id.open()
-        }
-
-        Action {
-            text: qsTr("&Modifier les matières")
-            onTriggered: {
-                changer_matieres.open();
-            }
-        }
-
     }
 
     Dialog {
@@ -149,6 +126,70 @@ MenuBar {
         }
 
         contentItem: ChangeGroupe {
+        }
+
+    }
+
+    contentItem: Row {
+        MenuBar {
+            Menu {
+                id: menu
+
+                title: qsTr("&Fichier")
+
+                Action {
+                    text: qsTr("&Changer d'année")
+                    onTriggered: changerAnnee.open()
+                }
+
+                Action {
+                    text: qsTr("&Ajouter les matieres par défault")
+                    onTriggered: repeupler_id.open()
+                }
+
+                Action {
+                    text: qsTr("&Modifier les matières")
+                    onTriggered: {
+                        changer_matieres.open();
+                    }
+                }
+
+            }
+
+        }
+
+        Repeater {
+            id: flipbuttons
+
+            model: [{
+                "icon": "split_horizontal",
+                "orientation": Qt.Horizontal,
+                "contraire": Qt.Vertical
+            }, {
+                "icon": "split_vertical",
+                "orientation": Qt.Vertical,
+                "contraire": Qt.Horizontal
+            }]
+
+            delegate: Button {
+                id: button_horizontal
+
+                icon.source: "qrc:/icons/" + modelData.icon
+                highlighted: mainItem.orientation == modelData.orientation && mainItem.count > 1
+                onClicked: {
+                    if (mainItem.orientation == modelData.contraire) {
+                        mainItem.orientation = modelData.orientation;
+                        if (mainItem.count > 1)
+                            return ;
+
+                    }
+                    if (mainItem.count == 1)
+                        mainItem.append("pagelayout");
+                    else
+                        mainItem.pop();
+                }
+            }
+
         }
 
     }

@@ -3,8 +3,6 @@ import QtQuick.Controls 2.15
 import "qrc:/qml/divers"
 
 SplitView {
-    //        repeater.model =
-
     id: root
 
     //key/value obj with key:str and value:Component
@@ -22,6 +20,16 @@ SplitView {
             orientation = Qt.Horizontal;
         else
             orientation = Qt.Vertical;
+    }
+
+    function append(str) {
+        repeater.append({
+            "type": str
+        });
+    }
+
+    function pop() {
+        repeater.pop();
     }
 
     // simple hack pour que les flipps soient bien pris en compte

@@ -89,3 +89,16 @@ class TestUiManager:
             uiman.unSetBuzyIndicator()
         assert uiman.buzyIndicator == False
         uiman.unSetBuzyIndicator(1, 324, 432)  # accepts args if connected to signal
+
+    def test_mainLayouts(self, uiman, qapp):
+        assert uiman.mainLayouts == UiManager.MAIN_LAYOUTS
+
+    def test_MAIN_LAYOUTS(self):
+        for k, v in UiManager.MAIN_LAYOUTS.items():
+            assert k == v["splittype"]
+
+        # test splitindex, dans ordre voulu
+        indextemoin = 0
+        for k, v in UiManager.MAIN_LAYOUTS.items():
+            assert v["splitindex"] == indextemoin
+            indextemoin += 1

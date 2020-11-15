@@ -6,12 +6,9 @@ import QtQuick.Layouts 1.15
 import QtQuick.Window 2.15
 import "qrc:/qml/divers"
 import "qrc:/qml/layouts"
+import "qrc:/qml/menu"
 
 ApplicationWindow {
-    //    menuBar: MainMenuBar {
-    //        id: mainmenubar
-    //    }
-
     id: root
 
     property alias mainItem: mainitem
@@ -69,32 +66,15 @@ ApplicationWindow {
     }
 
     SplitLayout {
-        //        , {
-        //            "type": "pagelayout"
-        //        }
-
         id: mainitem
 
         anchors.top: mainmenubar.bottom
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: parent.bottom
-        componentKeys: {
-            "pagelayout": pagelayout
-        }
-        initModel: [{
-            "type": "pagelayout"
-        }]
-
-        Component {
-            id: pagelayout
-
-            PageLayout {
-                view: mainitem
-            }
-
-        }
-
+        layouts: uiManager.mainLayouts
+        nullComp: uiManager.nullComp
+        initDataModel: ["classeur"]
     }
 
 }

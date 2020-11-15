@@ -2,6 +2,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import "qrc:/qml/actions"
+import "qrc:/qml/layouts"
 
 ToolBar {
     id: root
@@ -57,6 +58,9 @@ ToolBar {
 
             }
 
+        }
+
+        SplitSwitch {
         }
 
         Item {

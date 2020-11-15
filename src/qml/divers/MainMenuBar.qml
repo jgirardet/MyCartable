@@ -184,7 +184,7 @@ Control {
 
                     }
                     if (mainItem.count == 1)
-                        mainItem.append("pagelayout");
+                        mainItem.append("vide");
                     else
                         mainItem.pop();
                 }

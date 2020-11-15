@@ -36,27 +36,16 @@ Rectangle {
     }
 
     ColumnLayout {
-        //      id: pagelistview
-        //      Layout.fillWidth: true
-        //      Layout.fillHeight: true
-        //      model: ddb.pageModel
-        //    }
-
         anchors.fill: parent
         spacing: 10
 
-        //    Rectangle {
-        //      radius: 10
         PageToolBar {
-            //      anchors.fill: parent
-
             id: pageToolBar
 
             Layout.fillWidth: true
             height: ddb.getLayoutSizes("preferredHeaderHeight")
         }
 
-        //    }
         Rectangle {
             Layout.preferredWidth: parent.width - 20
             Layout.preferredHeight: 50

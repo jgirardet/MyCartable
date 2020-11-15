@@ -5,12 +5,35 @@ import "qrc:/qml/divers"
 SplitView {
     id: root
 
-    //key/value obj with key:str and value:Component
-    property var componentKeys: object()
-    // Dynamic collection
+    property var layouts: []
     property alias items: repeater
-    // Data du 1er chargement. Seulement utilisé au début
-    property alias initModel: repeater.modelObject
+    property alias initDataModel: repeater.modelObject
+    property var layoutsAsArray: _layoutsAsArray()
+    property var nullComp
+
+    function _layoutsAsArray() {
+        var innerArray = [];
+        for (const key in layouts) {
+            innerArray.push(layouts[key]);
+        }
+        innerArray.sort((a, b) => {
+            return a.splitindex - b.splitindex;
+        });
+        return innerArray;
+    }
+
+    // append un element via son splittype
+    function append(str) {
+        insert(str, count);
+    }
+
+    // Retourne le SplitLoader pour item
+    function findSplitLoader(item) {
+        if (item.splitType === undefined)
+            return findSplitLoader(item.parent);
+        else
+            return item;
+    }
 
     // Change orientation with newOrientation or switch to other
     function flip(newOrientation) {
@@ -22,14 +45,36 @@ SplitView {
             orientation = Qt.Vertical;
     }
 
-    function append(str) {
-        repeater.append({
-            "type": str
-        });
+    // renvoie l'element  à index ou calcul l'index si besoin
+    function get(el) {
+        if (typeof el != "number")
+            return findSplitLoader(el);
+        else
+            return repeater.get(el);
     }
 
+    // append un element via son splittype
+    function insert(str, idx) {
+        let layout = layouts[str];
+        repeater.insert(idx, layout);
+    }
+
+    // remove the last
     function pop() {
-        repeater.pop();
+        remove(count - 1);
+    }
+
+    // efface  l'element position idx
+    function remove(caller) {
+        let idx = get(caller).viewIndex;
+        repeater.remove(idx);
+    }
+
+    // change le type de layout
+    function select(caller, value) {
+        let idx = get(caller).viewIndex;
+        repeater.remove(idx);
+        insert(value, idx);
     }
 
     // simple hack pour que les flipps soient bien pris en compte
@@ -43,37 +88,21 @@ SplitView {
     DynamicRepeater {
         id: repeater
 
-        delegate: Loader {
-            id: loader
-
-            Component.onCompleted: {
+        // overload default behavior
+        function populate() {
+            for (const el of modelObject) {
+                root.append(el);
             }
-            sourceComponent: componentKeys[type]
-            state: root.orientation == Qt.Vertical ? "vertical" : "horizontal"
-            states: [
-                State {
-                    name: "vertical"
+        }
 
-                    PropertyChanges {
-                        target: loader
-                        SplitView.fillWidth: true
-                        SplitView.fillHeight: false
-                        SplitView.preferredHeight: root.height / root.count
-                    }
-
-                },
-                State {
-                    name: "horizontal"
-
-                    PropertyChanges {
-                        target: loader
-                        SplitView.fillHeight: true
-                        SplitView.fillWidth: false
-                        SplitView.preferredWidth: root.width / root.count
-                    }
-
-                }
-            ]
+        delegate: SplitLoader {
+            splitType: splittype
+            splitText: splittext
+            splitIndex: splitindex
+            splitUrl: spliturl
+            splitComp: splitcomp
+            viewIndex: index
+            view: root
         }
 
     }

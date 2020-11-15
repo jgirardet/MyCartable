@@ -1,5 +1,8 @@
+import json
+
 from PySide2.QtCore import QObject, Property, Signal, Slot
 from PySide2.QtGui import QColor
+from PySide2.QtQml import QQmlComponent
 from package.cursors import build_all_image_cursor
 
 DEFAULT_ANNOTATION_CURRENT_TEXT_SIZE_FACTOR = 15
@@ -13,6 +16,34 @@ class UiManager(QObject):
     menuFlottantImageChanged = Signal()
     menuFlottantTableauChanged = Signal()
     menuTargetChanged = Signal()
+    mainLayoutsChanged = Signal()
+    nullCompChanged = Signal()
+
+    NULL_COMP = QQmlComponent()
+
+    MAIN_LAYOUTS = {
+        "vide": {
+            "splittype": "vide",
+            "splittext": "",
+            "splitindex": 0,
+            "spliturl": "qrc:/qml/layouts/VideLayout.qml",
+            "splitcomp": NULL_COMP,
+        },
+        "classeur": {
+            "splittype": "classeur",
+            "splittext": "Classeur",
+            "splitindex": 1,
+            "spliturl": "qrc:/qml/layouts/ClasseurLayout.qml",
+            "splitcomp": NULL_COMP,
+        },
+        "classeur2": {
+            "splittype": "classeur2",
+            "splittext": "Classeur2",
+            "splitindex": 2,
+            "spliturl": "qrc:/qml/layouts/ClasseurLayout.qml",
+            "splitcomp": NULL_COMP,
+        },
+    }
 
     def __init__(self):
         super().__init__()
@@ -32,6 +63,7 @@ class UiManager(QObject):
         self._annotationCurrentTool = "text"
         self._menuFlottantAnnotationText = None
         self._menuFlottantAnnotationDessin = None
+        self._mainLayouts = {}
 
     @Slot()
     def resetUiManager(self):
@@ -163,3 +195,11 @@ class UiManager(QObject):
     @Slot()
     def unSetBuzyIndicator(self, *args, **kwargs):
         self.buzyIndicator = False
+
+    @Property("QVariantMap", notify=mainLayoutsChanged)
+    def mainLayouts(self):
+        return self.MAIN_LAYOUTS
+
+    @Property(QQmlComponent, notify=nullCompChanged)
+    def nullComp(self):
+        return self.NULL_COMP

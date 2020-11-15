@@ -8,8 +8,6 @@ import "qrc:/qml/page"
 SandwichLayout {
     id: root
 
-    property Item view
-
     anchors.fill: parent
     color: ddb.colorFond
 

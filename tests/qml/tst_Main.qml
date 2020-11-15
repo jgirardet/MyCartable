@@ -2,16 +2,6 @@ import Qt.labs.settings 1.0
 import QtQuick 2.15
 
 Item {
-    //    ListModel {
-    //        //    ListElement {
-    //        //        page: {"é"}
-    //        //        cost: 2.45
-    //        //    }
-    //        id: pageModel
-    //        property int lastPosition: 0
-    //        signal modelReset()
-    //    }
-
     id: item
 
     width: 200
@@ -31,6 +21,7 @@ Item {
         }
 
         function test_init() {
+            compare(tested.mainItem.layouts, uiManager.mainLayouts);
         }
 
         function cleanup() {

@@ -10,15 +10,36 @@ Item {
     height: 400
 
     Component {
+        // dummy comp pour que le role splitComp ne fasse pas d'erreur
+        id: nullcomp
+
+        QtObject {
+        }
+
+    }
+
+    Component {
         id: splitcomp
 
         SplitLayout {
-            componentKeys: {
-                "rect": rect
+            nullComp: nullcomp
+            layouts: {
+                "rect": {
+                    "splittype": "rect",
+                    "splittext": "rect",
+                    "splitcomp": rect,
+                    "spliturl": "",
+                    "splitindex": 0
+                },
+                "vide": {
+                    "splittype": "vide",
+                    "splittext": "levide",
+                    "spliturl": "qrc:/qml/layouts/VideLayout.qml",
+                    "splitcomp": nullcomp,
+                    "splitindex": 1
+                }
             }
-            initModel: [{
-                "type": "rect"
-            }]
+            initDataModel: ["rect"]
 
             Component {
                 id: rect
@@ -49,6 +70,7 @@ Item {
         }
 
         function initPost() {
+            tryCompare(splitobj.get(0), "loaded", true);
             fichier = tested.contentItem.children[0].menus[0];
             hoributton = tested.contentItem.children[1];
             vertibutton = tested.contentItem.children[2];

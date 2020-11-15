@@ -19,7 +19,7 @@ Repeater {
         listmodel.append(dict);
     }
 
-    function clean() {
+    function clear() {
         listmodel.clear();
     }
 

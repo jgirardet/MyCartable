@@ -52,10 +52,13 @@
     </qresource>
 
     <qresource prefix="/qml/layouts">
-        <file alias="PageLayout.qml">qml/layouts/PageLayout.qml</file>
+        <file alias="ClasseurLayout.qml">qml/layouts/ClasseurLayout.qml</file>
+        <file alias="VideLayout.qml">qml/layouts/VideLayout.qml</file>
         <file alias="Bread.qml">qml/layouts/Bread.qml</file>
         <file alias="SandwichLayout.qml">qml/layouts/SandwichLayout.qml</file>
         <file alias="SplitLayout.qml">qml/layouts/SplitLayout.qml</file>
+        <file alias="SplitSwitch.qml">qml/layouts/SplitSwitch.qml</file>
+        <file alias="SplitLoader.qml">qml/layouts/SplitLoader.qml</file>
     </qresource>
 
     <qresource prefix="/qml/annotations">

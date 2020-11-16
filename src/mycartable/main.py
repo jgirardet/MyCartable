@@ -73,7 +73,7 @@ def main_init_database(filename=None, prod=False):
     return package.database.db
 
 
-def register_new_qml_type(databaseObject):
+def register_new_qml_type(databaseObject, db):
     from package.operations.models import (
         AdditionModel,
         SoustractionModel,
@@ -84,11 +84,13 @@ def register_new_qml_type(databaseObject):
     # from package.page.text_section import DocumentEditor
     from package.page.annotation_model import AnnotationModel
     from package.page.frise_model import FriseModel
+    from mycartable.types.changematieres import ChangeMatieres
 
     AdditionModel.ddb = databaseObject
     SoustractionModel.ddb = databaseObject
     MultiplicationModel.ddb = databaseObject
     DivisionModel.ddb = databaseObject
+    ChangeMatieres.db = db
 
     # qmlRegisterType(DocumentEditor, "DocumentEditor", 1, 0, "DocumentEditor")
     qmlRegisterType(AdditionModel, "MyCartable", 1, 0, "AdditionModel")
@@ -97,6 +99,7 @@ def register_new_qml_type(databaseObject):
     qmlRegisterType(DivisionModel, "MyCartable", 1, 0, "DivisionModel")
     qmlRegisterType(AnnotationModel, "MyCartable", 1, 0, "AnnotationModel")
     qmlRegisterType(FriseModel, "MyCartable", 1, 0, "FriseModel")
+    qmlRegisterType(ChangeMatieres, "MyCartable", 1, 0, "ChangeMatieres")
 
 
 def create_singleton_instance(prod=False):
@@ -164,14 +167,14 @@ def main(filename=None):
     app = QApplication([])
 
     # First instanciate db
-    main_init_database(filename=filename, prod=prod)
+    db = main_init_database(filename=filename, prod=prod)
 
     # create instance de ce qui sera des singleton dans qml
     databaseObject, ui_manager, dtb = create_singleton_instance(prod)
     app.dao = databaseObject
 
     # register les new qml type
-    register_new_qml_type(databaseObject)
+    register_new_qml_type(databaseObject, db)
 
     # setup le qml et retourne l'engine
     # import qrc

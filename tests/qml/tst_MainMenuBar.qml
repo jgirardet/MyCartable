@@ -113,41 +113,11 @@ Item {
             fichier.visible = true;
             var dialog = findChild(tested, "changer_matieres");
             dialog.height = 300;
-            var buttonMenu = fichier.itemAt(2);
+            var buttonMenu = fichier.itemAt(1);
             mouseClick(buttonMenu);
             tryCompare(dialog, "visible", true);
             dialog.close();
             spy.wait();
-        }
-
-        function test_ajouter_matieres() {
-            fichier.visible = true;
-            var buttonMenu = fichier.itemAt(1);
-            var repeupler = findChild(tested, "repeupler");
-            var changerAnnee = findChild(tested, "changerAnnee");
-            ddb.anneeActive = 2019;
-            compare(repeupler.opened, false);
-            mouseClick(buttonMenu);
-            compare(changerAnnee.opened, false);
-            compare(repeupler.opened, true);
-            let spy = getSpy(ddb, "changeMatieres");
-            repeupler.accept(); // émis par chargeMatireParDefault
-            spy.wait();
-        }
-
-        function test_ajouter_matieres_sans_annee() {
-            ddb.anneeActive = 0;
-            fichier.visible = true;
-            var buttonMenu = fichier.itemAt(1);
-            var repeupler = findChild(tested, "repeupler");
-            var changerAnnee = findChild(tested, "changerAnnee");
-            // si pas d'année selectionnée
-            compare(repeupler.opened, false);
-            mouseClick(buttonMenu);
-            compare(changerAnnee.opened, true);
-            compare(repeupler.opened, true);
-            repeupler.close();
-            changerAnnee.close();
         }
 
         function test_showhide() {
@@ -182,6 +152,8 @@ Item {
             compare(splitobj.count, 2);
             compare(splitobj.orientation, Qt.Vertical);
             // retour
+            wait(1);
+            //evite //QQmlContext: Cannot set context object on invalid context.vQQmlComponent: Cannot create a component in an invalid context
             mouseClick(vertibutton);
             compare(splitobj.count, 1);
             compare(splitobj.orientation, Qt.Vertical);

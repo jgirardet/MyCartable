@@ -16,6 +16,7 @@ sys.path.append(str(Path(__file__).parents[2] / "src"))
 sys.path.append(str(Path(__file__).parents[2] / "src" / "mycartable"))
 from common import fn_reset_db, setup_session
 
+from mycartable.package.database import init_database
 from mycartable.types.dtb import DTB
 from mycartable.package.page.frise_model import FriseModel
 from mycartable.package.page.annotation_model import AnnotationModel
@@ -91,23 +92,31 @@ class TestHelper(QObject):
         return [list(call.args) for call in getattr(self.dao, method).call_args_list]
 
 
+DONE = False
+db = init_database(Database(), create_db=True)
+
+
 def pytest_qml_context_properties() -> dict:
+    global db
     # init database
-    from package.database import init_database
     from package.database_object import DatabaseObject
     from package.ui_manager import UiManager
+    from mycartable.types.changematieres import ChangeMatieres
     import package.database
 
     # tmpfilename = tmp_path_factory.mktemp("mycartablefiledb") / "bla.sqlite"
-    db = init_database(Database(), create_db=True)
-    # package.database.getdb = lambda: db
-    # from python.factory import populate_database
-    #
-    # populate_database(db)
+    # db = init_database(Database(), create_db=True)
+    print(db)
 
     uim = UiManager()
     dao = DatabaseObject(db, uim)
     dtb = DTB(db)
+
+    ChangeMatieres.db = db
+    global DONE
+    if not DONE:  # not nice but, do the job for now
+        qmlRegisterType(ChangeMatieres, "MyCartable", 1, 0, "ChangeMatieres")
+        DONE = True
 
     # Mocking som method
     # dao.exportToPDF = MagicMock()

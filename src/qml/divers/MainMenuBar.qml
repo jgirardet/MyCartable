@@ -89,43 +89,18 @@ Control {
     }
 
     Dialog {
-        id: repeupler_id
-
-        objectName: "repeupler"
-        height: 300
-        width: 600
-        title: "Recréer les matières par défault ?"
-        standardButtons: Dialog.Ok | Dialog.Cancel
-        anchors.centerIn: Overlay.overlay
-        onOpened: {
-            if (!ddb.anneeActive)
-                changerAnnee_id.open();
-
-        }
-        onAccepted: ddb.peuplerLesMatieresParDefault(ddb.anneeActive)
-
-        contentItem: Label {
-            text: "Ceci ajoutera toute les matières par défault, confirmer ?"
-        }
-
-    }
-
-    Dialog {
         id: changer_matieres
 
         objectName: "changer_matieres"
         anchors.centerIn: Overlay.overlay
         height: ApplicationWindow.window ? ApplicationWindow.window.height * 0.9 : 600
         contentWidth: contentItem.width
-        onOpened: {
-            contentItem.model = ddb.getGroupeMatieres(ddb.anneeActive);
-        }
         onClosed: {
-            contentItem.model = 0;
             ddb.changeAnnee(ddb.anneeActive);
         }
 
         contentItem: ChangeGroupe {
+            annee: ddb.anneeActive
         }
 
     }
@@ -140,11 +115,6 @@ Control {
                 Action {
                     text: qsTr("&Changer d'année")
                     onTriggered: changerAnnee.open()
-                }
-
-                Action {
-                    text: qsTr("&Ajouter les matieres par défault")
-                    onTriggered: repeupler_id.open()
                 }
 
                 Action {

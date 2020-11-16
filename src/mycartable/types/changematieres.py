@@ -1,18 +1,20 @@
-from typing import List, Union
+from typing import List
 
-from PySide2.QtCore import Signal, Slot
+from PySide2.QtCore import Signal, Slot, QObject
 from PySide2.QtGui import QColor
 from loguru import logger
-from package.default_matiere import MATIERE_GROUPE_BASE, MATIERES_BASE
-from pony.orm import db_session, flush, sum
+from mycartable.package.default_matiere import MATIERE_GROUPE_BASE, MATIERES_BASE
+from pony.orm import db_session, sum, Database
 
 
-class ChangeMatieresMixin:
+class ChangeMatieres(QObject):
     changeMatieres = Signal()
 
     """
     Partie Activités
     """
+
+    db: Database = None
 
     @Slot(str, result="QVariantList")  # ajout par activite id
     @Slot(str, bool, result="QVariantList")  # append via matiere id
@@ -200,26 +202,3 @@ class ChangeMatieresMixin:
     @db_session
     def updateGroupeMatiereNom(self, groupeid: str, nom: str):
         self.db.GroupeMatiere[groupeid].nom = nom
-
-    @Slot(int)
-    @db_session
-    def peuplerLesMatieresParDefault(self, annee):
-        groupes = []
-        compteur = 0
-        for groupe in MATIERE_GROUPE_BASE:
-            gr = self.db.GroupeMatiere(
-                annee=annee, bgColor=groupe["bgColor"], nom=groupe["nom"]
-            )
-            for mat in MATIERES_BASE:
-                if mat["groupe"] == groupe["id"]:
-                    self.db.Matiere(groupe=gr, nom=mat["nom"])
-                    compteur += 1
-            groupes.append(gr)
-
-        for groupe in groupes:
-            self.reApplyGroupeDegrade(groupe.id)
-
-        self.ui.sendToast.emit(f"{compteur} matières créées")
-        logger.info(f"{len(groupes)} groupes de matières créées")
-        logger.info(f"{compteur} matières créées")
-        self.changeMatieres.emit()

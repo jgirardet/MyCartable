@@ -109,8 +109,7 @@ def class_structure(
             )
             return dico
 
-        def pages_par_section(self):
-            """devrait s'appeler page par activite"""
+        def pages_par_activite(self):
             res = []
             for x in Activite.get_by_position(self.id):  # .order_by(Activite.famille):
                 entry = x.to_dict()

@@ -106,7 +106,11 @@ class Faker:
             _bgColor = QColor(bgColor).rgba()
         else:
             _bgColor = _bgColor or random.choice(color_codes)
-        groupe = groupe or self.f_groupeMatiere()
+        groupe_args = {}
+        if isinstance(groupe, int):
+            groupe_args["annee"] = groupe
+            groupe = None
+        groupe = groupe or self.f_groupeMatiere(**groupe_args)
         # breakpoint()
         flush()
         if isinstance(groupe, self.db.GroupeMatiere):

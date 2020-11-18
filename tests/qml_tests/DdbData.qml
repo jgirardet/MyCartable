@@ -334,7 +334,7 @@ matiereList : annee en moins
         "fgColor": "red",
         "bgColor": "green"
     }]
-    property var pagesParSection: [{
+    property var pagesParActivite: [{
         "id": 7,
         "nom": "Leçons",
         "famille": 0,

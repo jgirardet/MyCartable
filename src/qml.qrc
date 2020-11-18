@@ -10,6 +10,39 @@
 
     </qresource>
 
+    <qresource prefix="/qml/actions">
+        <file alias="ActionToolTip.qml">qml/actions/ActionToolTip.qml</file>
+        <file alias="BasePageAction.qml">qml/actions/BasePageAction.qml</file>
+        <file alias="ExportOdt.qml">qml/actions/ExportOdt.qml</file>
+        <file alias="ExportPdf.qml">qml/actions/ExportPdf.qml</file>
+        <file alias="ImageVideButton.qml">qml/actions/ImageVideButton.qml</file>
+        <file alias="ModelChooser.qml">qml/actions/ModelChooser.qml</file>
+        <file alias="NewEquationSection.qml">qml/actions/NewEquationSection.qml</file>
+        <file alias="NewFriseSection.qml">qml/actions/NewFriseSection.qml</file>
+        <file alias="NewImageSection.qml">qml/actions/NewImageSection.qml</file>
+        <file alias="NewImageSectionVide.qml">qml/actions/NewImageSectionVide.qml</file>
+        <file alias="NewOperationSection.qml">qml/actions/NewOperationSection.qml</file>
+        <file alias="NewTableauSection.qml">qml/actions/NewTableauSection.qml</file>
+        <file alias="NewTextSection.qml">qml/actions/NewTextSection.qml</file>
+        <file alias="RemovePage.qml">qml/actions/RemovePage.qml</file>
+        <file alias="TableauActions.qml">qml/actions/TableauActions.qml</file>
+    </qresource>
+
+    <qresource prefix="/qml/buttons">
+        <file alias="BaseButton.qml">qml/buttons/BaseButton.qml</file>
+        <file alias="ExportOdt.qml">qml/buttons/ExportOdt.qml</file>
+        <file alias="ExportPdf.qml">qml/buttons/ExportPdf.qml</file>
+        <file alias="NewEquationSection.qml">qml/buttons/NewEquationSection.qml</file>
+        <file alias="NewFriseSection.qml">qml/buttons/NewFriseSection.qml</file>
+        <file alias="NewImageSection.qml">qml/buttons/NewImageSection.qml</file>
+        <file alias="NewImageSectionVide.qml">qml/buttons/NewImageSectionVide.qml</file>
+        <file alias="NewOperationSection.qml">qml/buttons/NewOperationSection.qml</file>
+        <file alias="NewTableauSection.qml">qml/buttons/NewTableauSection.qml</file>
+        <file alias="NewTextSection.qml">qml/buttons/NewTextSection.qml</file>
+        <file alias="RemovePage.qml">qml/buttons/RemovePage.qml</file>
+
+    </qresource>
+
     <qresource prefix="/qml/configuration">
         <file alias="NewUser.qml">qml/configuration/NewUser.qml</file>
         <file alias="NewAnnee.qml">qml/configuration/NewAnnee.qml</file>
@@ -112,12 +145,7 @@
         <file alias="DynamicRepeater.qml">qml/divers/DynamicRepeater.qml</file>
     </qresource>
     
-    <qresource prefix="/qml/actions">
-        <file alias="TableauActions.qml">qml/actions/TableauActions.qml</file>
-        <file alias="PageActions.qml">qml/actions/PageActions.qml</file>
-        <file alias="Buttons.qml">qml/actions/Buttons.qml</file>
-        <file alias="ImageVideButton.qml">qml/actions/ImageVideButton.qml</file>
-    </qresource>
+
     
     <qresource prefix="/icons">
         <file alias="mycartable.png">data/icons/mycartable.png</file>

@@ -1,10 +1,8 @@
 from loguru import logger
 from PySide2.QtCore import QObject, Signal
-from package.database_mixins.activite_mixin import ActiviteMixin
 from package.database_mixins.equation_mixin import EquationMixin
 from package.database_mixins.image_section_mixin import ImageSectionMixin
 from package.database_mixins.layout_mixin import LayoutMixin
-from package.database_mixins.matiere_mixin import MatiereMixin
 from package.database_mixins.page_mixin import PageMixin
 from package.database_mixins.recents_mixin import RecentsMixin
 from package.database_mixins.section_mixin import SectionMixin
@@ -19,7 +17,6 @@ from pony.orm import db_session
 MIXINS = [
     SessionMixin,
     PageMixin,
-    MatiereMixin,
     LayoutMixin,
     RecentsMixin,
     SectionMixin,
@@ -27,7 +24,6 @@ MIXINS = [
     EquationMixin,
     TextSectionMixin,
     TableauMixin,
-    ActiviteMixin,
 ]
 
 
@@ -57,7 +53,7 @@ class DatabaseObject(QObject, *MIXINS):
 
     def setup_connections(self):
 
-        self.matiereReset.connect(self.onMatiereReset)
+        # todo self.matiereReset.connect(self.onMatiereReset)
         self.currentPageChanged.connect(self.onCurrentPageChanged)
         self.currentTitreSetted.connect(self.updateRecentsAndActivites)
 
@@ -66,17 +62,17 @@ class DatabaseObject(QObject, *MIXINS):
         self.sectionAdded.connect(self.pageModel.insertRows)
         self.sectionAdded.connect(self.ui.unSetBuzyIndicator)
         self.sectionRemoved.connect(self.pageModel.removeRow)
-        self.pageActiviteChanged.connect(self.pagesParSectionChanged)
+        # OK: self.pageActiviteChanged.connect(self.pagesParSectionChanged)
 
         # mise à jour
         self.imageChanged.connect(self.updateRecentsAndActivites)
         self.equationChanged.connect(self.updateRecentsAndActivites)
         self.tableauChanged.connect(self.updateRecentsAndActivites)
         self.textSectionChanged.connect(self.updateRecentsAndActivites)
-        # self.changeMatieres.connect(lambda: self.onChangeAnnee(self.anneeActive))
+        # TODO: self.changeMatieres.connect(lambda: self.onChangeAnnee(self.anneeActive))
 
-        self.updateRecentsAndActivites.connect(self.pagesParSectionChanged)
-        self.updateRecentsAndActivites.connect(self.recentsModelChanged)
+        # OK: self.updateRecentsAndActivites.connect(self.pagesParSectionChanged)
+        # TODO: self.updateRecentsAndActivites.connect(self.recentsModelChanged)
 
         # session
         self.changeAnnee.connect(self.onChangeAnnee)
@@ -87,7 +83,7 @@ class DatabaseObject(QObject, *MIXINS):
             self.updateRecentsAndActivites.emit()
         else:
             self.pageModel.slotReset(page["id"])
-            self.currentMatiere = page["matiere"]
+            # TODO:  self.currentMatiere = page["matiere"]
 
     def onMatiereReset(self):
         self.currentPage = ""
@@ -104,7 +100,7 @@ class DatabaseObject(QObject, *MIXINS):
         self.currentMatiere = ""
         if value:
             self.anneeActive = value
-            self.init_matieres(annee=value)
+            # TODO: ? self.init_matieres(annee=value)
         self.recentsModelChanged.emit()
-        self.matieresListNomChanged.emit()
-        self.anneeActiveChanged.emit()
+        # ok self.matieresListNomChanged.emit()
+        # ok self.anneeActiveChanged.emit()

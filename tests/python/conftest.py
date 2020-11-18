@@ -134,6 +134,12 @@ def ddbr(ddbn, reset_db):
     return ddbn
 
 
+@pytest.fixture(scope="class")
+def ddbr_class(memory_db, reset_db_class):
+    """database reset db"""
+    return memory_db
+
+
 @pytest.fixture()
 def ddbrf(ddbnf, reset_dbf):
     """database reset db"""
@@ -161,6 +167,15 @@ def reset_db(ddbn, userid):
     fn_reset_db(ddbn)
     with db_session:
         ddbn.Utilisateur(id=userid, nom="nom", prenom="prenom")
+
+    yield
+
+
+@pytest.fixture(scope="class")
+def reset_db_class(memory_db, userid):
+    fn_reset_db(memory_db)
+    with db_session:
+        memory_db.Utilisateur(id=userid, nom="nom", prenom="prenom")
 
     yield
 
@@ -195,7 +210,7 @@ def uim(qapp):
     return UiManager()
 
 
-@pytest.fixture()
+@pytest.fixture(scope="session")
 def userid():
     return "0ca1d5b4-eddb-4afd-8b8e-1aa5e7e19d17"
 
@@ -212,7 +227,6 @@ def dao(ddbr, tmpfilename, uim, userid):
         )
     obj = DatabaseObject(ddbr, uim)
     obj.changeAnnee.emit(2019)
-    obj.init_matieres()
     obj.settings = QSettings(str(tmpfilename.absolute()))
 
     return obj
@@ -241,6 +255,13 @@ def fk(ddbr):
     from factory import Faker
 
     return Faker(ddbr)
+
+
+@pytest.fixture(scope="class")
+def fkc(ddbr_class):
+    from factory import Faker
+
+    return Faker(ddbr_class)
 
 
 @pytest.fixture()

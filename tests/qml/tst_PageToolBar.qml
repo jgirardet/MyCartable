@@ -24,9 +24,6 @@ Item {
         property var page
 
         function initPre() {
-        }
-
-        function initPreCreate() {
             page = fk.f("page", {
             });
             for (const i of Array(3).keys()) {

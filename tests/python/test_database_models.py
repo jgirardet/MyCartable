@@ -265,7 +265,7 @@ class TestMatiere:
         x = fk.b_page(3, activite=un, titre="pageun", created=datetime(1111, 11, 11))
 
         with db_session:
-            assert Matiere[m.id].pages_par_section() == [
+            assert Matiere[m.id].pages_par_activite() == [
                 {
                     "id": str(un.id),
                     "nom": "un",

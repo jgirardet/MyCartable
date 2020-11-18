@@ -38,7 +38,6 @@ TextEdit {
     wrapMode: TextEdit.Wrap
     Keys.onPressed: {
         var res = ddb.updateTextSectionOnKey(sectionId, text, cursorPosition, selectionStart, selectionEnd, JSON.stringify(event));
-        print(res["text"]);
         event.accepted = res["eventAccepted"];
         if (event.accepted == false) {
             return ;

@@ -8,6 +8,8 @@ Rectangle {
     id: base
 
     property var model
+    property alias deplacePage: deplacePopup
+    property alias pages: lv
 
     color: "transparent"
     height: lv.height + header.height + 10
@@ -23,7 +25,7 @@ Rectangle {
 
             objectName: "header"
             height: 30
-            color: ddb ? ddb.currentMatiereItem.bgColor : "transparent"
+            color: classeur.currentMatiere.bgColor
             radius: 10
             width: base.width
 
@@ -40,11 +42,10 @@ Rectangle {
                 acceptedButtons: Qt.RightButton
                 anchors.fill: parent
                 onPressed: {
-                    if (mouse.buttons == Qt.RightButton)
-                    {
+                    if (mouse.buttons == Qt.RightButton) {
                         ddb.newPage(model.id);
+                        classeur.activitesChanged();
                     }
-
                 }
             }
 
@@ -64,7 +65,8 @@ Rectangle {
 
             DeplacePage {
                 id: deplacePopup
-                objectName: "deplacepage"
+
+                parent: lv
             }
 
             delegate: PageButton {

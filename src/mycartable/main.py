@@ -2,7 +2,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-from PySide2.QtGui import QFont, QFontDatabase, QIcon, QPixmap
+from PySide2.QtGui import QFont, QFontDatabase, QIcon
 from mycartable.types.dtb import DTB
 from package import get_prod
 from package.constantes import APPNAME, ORGNAME, BASE_FONT
@@ -12,7 +12,6 @@ from PySide2.QtCore import (
     QSettings,
     QCoreApplication,
     QLocale,
-    QFile,
 )
 
 from PySide2.QtWidgets import QApplication
@@ -22,7 +21,7 @@ from loguru import logger
 
 
 import package.database
-from pony.orm import DBException, db_session, Database
+from pony.orm import Database
 
 
 def main_init_database(filename=None, prod=False):
@@ -85,12 +84,15 @@ def register_new_qml_type(databaseObject, db):
     from package.page.annotation_model import AnnotationModel
     from package.page.frise_model import FriseModel
     from mycartable.types.changematieres import ChangeMatieres
+    from mycartable.classeur.classeur import Classeur
 
     AdditionModel.ddb = databaseObject
     SoustractionModel.ddb = databaseObject
     MultiplicationModel.ddb = databaseObject
     DivisionModel.ddb = databaseObject
     ChangeMatieres.db = db
+    Classeur.db = db
+    DTB.db = db
 
     # qmlRegisterType(DocumentEditor, "DocumentEditor", 1, 0, "DocumentEditor")
     qmlRegisterType(AdditionModel, "MyCartable", 1, 0, "AdditionModel")
@@ -100,6 +102,8 @@ def register_new_qml_type(databaseObject, db):
     qmlRegisterType(AnnotationModel, "MyCartable", 1, 0, "AnnotationModel")
     qmlRegisterType(FriseModel, "MyCartable", 1, 0, "FriseModel")
     qmlRegisterType(ChangeMatieres, "MyCartable", 1, 0, "ChangeMatieres")
+    qmlRegisterType(Classeur, "MyCartable", 1, 0, "Classeur")
+    qmlRegisterType(DTB, "MyCartable", 1, 0, "Database")
 
 
 def create_singleton_instance(prod=False):

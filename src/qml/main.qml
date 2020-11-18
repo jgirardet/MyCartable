@@ -18,9 +18,6 @@ ApplicationWindow {
     height: 600
     visible: true
     title: "MyCartable: année " + ddb.anneeActive + "/" + (ddb.anneeActive + 1)
-    onClosing: {
-        mainitem.destroy(); // elmine presque tous les messages d'erreur
-    }
 
     BusyIndicator {
         id: busy

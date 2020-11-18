@@ -23,7 +23,7 @@ Item {
         property Item leg0
         property Item leg1
 
-        function initPreCreate() {
+        function initPre() {
             friseSection = fk.f("friseSection", {
                 "height": 424,
                 "titre": "ma frise"

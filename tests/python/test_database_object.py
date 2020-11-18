@@ -13,11 +13,9 @@ from package.cursors import build_one_image_cursor
 from fixtures import check_args
 from package import constantes
 from package.database_mixins.image_section_mixin import ImageSectionMixin
-from package.database_mixins.matiere_mixin import MatieresDispatcher
 from package.database_object import DatabaseObject
 from unittest.mock import patch, call
 
-from package.default_matiere import MATIERE_GROUPE, MATIERES
 from package.files_path import FILES
 from package.operations.api import create_operation
 from package.page import text_section
@@ -192,232 +190,6 @@ class TestPageMixin:
                 dao.exportToOdt()
             sleep(1 / 1000)
         assert w.called
-
-
-@pytest.fixture()
-def create_matiere(
-    fk,
-):
-    gp = fk.f_groupeMatiere(annee=2019)
-
-    def activ(mat):
-        return (
-            fk.f_activite(nom="un", matiere=mat),
-            fk.f_activite(nom="deux", matiere=mat),
-            fk.f_activite(nom="trois", matiere=mat),
-        )
-
-    _mats = []
-    a = fk.f_matiere("un", _fgColor=4294967295, _bgColor=4294901760, groupe=gp.id)
-    _mats.append(str(a.id))
-    a = fk.f_matiere("deux", _fgColor=4294967295, _bgColor=4294901760, groupe=gp.id)
-    _mats.append(str(a.id))
-    a = fk.f_matiere("trois", _fgColor=4294967295, _bgColor=4294901760, groupe=gp.id)
-    _mats.append(str(a.id))
-    a = fk.f_matiere("quatre", _fgColor=4294967295, _bgColor=4294901760, groupe=gp.id)
-    _mats.append(str(a.id))
-    gp._mats = _mats
-    gp._acts = []
-    for m in gp._mats:
-        gp._acts.append(activ(m))
-    return gp
-
-
-class TestMatiereMixin:
-    def test_check_args(self, dao: DatabaseObject):
-        check_args(dao.getMatiereIndexFromId, str, int)
-        check_args(dao.matieresListRefresh)
-
-    def test_init(self, dao):
-        assert dao._currentMatiere == ""
-
-    def test_currentMatiere(self, dao, qtbot, create_matiere):
-        assert dao.currentMatiere == ""
-        dao.init_matieres()
-
-        # from int
-        with db_session:
-            mats = [x for x in dao.db.Matiere.select()]
-        mat2 = mats[1]
-        with qtbot.waitSignal(dao.currentMatiereChanged, timeout=100):
-            dao.currentMatiere = mat2.id
-
-        assert dao.currentMatiere == str(mat2.id)
-        dao.currentMatiere = "fez"  # not in do nothing
-        assert dao.currentMatiere == ""
-
-        # from index
-        with qtbot.waitSignal(dao.matiereReset):
-            dao.setCurrentMatiereFromIndex(2)
-        assert dao.currentMatiere == str(mats[2].id)
-
-        # get index from id
-        assert dao.getMatiereIndexFromId(str(mats[2].id)) == 2
-        assert dao.getMatiereIndexFromId("99999") is 0
-
-    def test_currentMatiereItem(self, fk, dao):
-        m = fk.f_matiere(td=True)
-        dao.currentMatiere = m["id"]
-        assert dao.currentMatiereItem == m
-
-    def test_matiereList(
-        self,
-        dao,
-        create_matiere,
-        fk,
-    ):
-        dao.init_matieres()
-        x = create_matiere
-        # listnom
-        reslist = [
-            {
-                "activites": [
-                    str(x._acts[0][0].id),
-                    str(x._acts[0][1].id),
-                    str(x._acts[0][2].id),
-                ],
-                "bgColor": QColor("red"),
-                "fgColor": QColor("white"),
-                "id": x._mats[0],
-                "groupe": str(x.id),
-                "nom": "un",
-                "position": 0,
-            },
-            {
-                "activites": [
-                    str(x._acts[1][0].id),
-                    str(x._acts[1][1].id),
-                    str(x._acts[1][2].id),
-                ],
-                "bgColor": QColor("red"),
-                "fgColor": QColor("white"),
-                "groupe": str(x.id),
-                "id": x._mats[1],
-                "nom": "deux",
-                "position": 1,
-            },
-            {
-                "activites": [
-                    str(x._acts[2][0].id),
-                    str(x._acts[2][1].id),
-                    str(x._acts[2][2].id),
-                ],
-                "bgColor": QColor("red"),
-                "fgColor": QColor("white"),
-                "groupe": str(x.id),
-                "id": x._mats[2],
-                "nom": "trois",
-                "position": 2,
-            },
-            {
-                "activites": [
-                    str(x._acts[3][0].id),
-                    str(x._acts[3][1].id),
-                    str(x._acts[3][2].id),
-                ],
-                "bgColor": QColor("red"),
-                "fgColor": QColor("white"),
-                "groupe": str(x.id),
-                "id": x._mats[3],
-                "nom": "quatre",
-                "position": 3,
-            },
-        ]
-        assert dao.matieresList == reslist
-
-        # refresh
-        cinq = fk.f_matiere(
-            "cinq",
-            groupe=fk.f_groupeMatiere(annee=2019),
-            _fgColor=4294967295,
-            _bgColor=4294901760,
-        )
-        c1 = fk.f_activite(matiere=cinq.id)
-        c2 = fk.f_activite(matiere=cinq.id)
-        c3 = fk.f_activite(matiere=cinq.id)
-        dao.matieresListRefresh()
-        reslist.append(
-            {
-                "activites": [str(c1.id), str(c2.id), str(c3.id)],
-                "bgColor": QColor("red"),
-                "fgColor": QColor("white"),
-                "groupe": str(cinq.groupe.id),
-                "id": str(cinq.id),
-                "nom": "cinq",
-                "position": 0,
-            }
-        )
-        assert dao.matieresList == reslist
-
-    def test_pagesParSection(self, fk, dao):
-        assert dao.pagesParSection == []
-        acts = fk.b_activite(3)
-        p = fk.f_page(td=True, activite=str(acts[2].id))
-        dao.currentMatiere = p["matiere"]
-        assert dao.pagesParSection[0]["id"] == str(acts[0].id)
-        assert dao.pagesParSection[1]["id"] == str(acts[1].id)
-        assert dao.pagesParSection[2]["id"] == str(acts[2].id)
-        assert dao.pagesParSection[2]["pages"] == [p]
-
-    def test_matiere_dispatch(self, fk):
-        # anne n'exist pas
-        with pytest.raises(ObjectNotFound):
-            MatieresDispatcher(fk.db, 2000)
-        # assert m.annee.id == 2000
-
-        # anne existe
-        fk.f_annee(1954)
-        m = MatieresDispatcher(fk.db, 1954)
-        assert m.annee.id == 1954
-
-
-class TestActiviteMixin:
-    def test_check_args(self, dao):
-        check_args(dao.getDeplacePageModel, int, list)
-        check_args(dao.changeActivite, [str, str])
-
-    def test_getDeplacePageModel(self, fk, dao):
-        g1 = fk.f_groupeMatiere(annee=1900)
-        g2 = fk.f_groupeMatiere(annee=2000)
-        m1 = fk.f_matiere(nom="un", groupe=g1)
-        m2 = fk.f_matiere(nom="deux", groupe=g1)
-        m3 = fk.f_matiere(nom="trois", groupe=g2, bgColor="red")
-        m4 = fk.f_matiere(nom="quatre", groupe=g2, bgColor="blue")
-        acs = []
-        for i in [m1, m2, m3, m4]:
-            acs = acs + [*fk.b_activite(3, nom="rien", matiere=i.id)]
-        res = dao.getDeplacePageModel(2000)
-        assert res == [
-            {
-                "activites": [
-                    {"id": str(acs[6].id), "nom": "rien"},
-                    {"id": str(acs[7].id), "nom": "rien"},
-                    {"id": str(acs[8].id), "nom": "rien"},
-                ],
-                "bgColor": QColor("red"),
-                "nom": "trois",
-            },
-            {
-                "activites": [
-                    {"id": str(acs[9].id), "nom": "rien"},
-                    {"id": str(acs[10].id), "nom": "rien"},
-                    {"id": str(acs[11].id), "nom": "rien"},
-                ],
-                "bgColor": QColor("blue"),
-                "nom": "quatre",
-            },
-        ]
-
-    def test_changeActivite(self, fk, dao, qtbot):
-        s = fk.f_activite()
-        a = fk.f_page()
-        with db_session:
-            actt = a.activite.id
-            assert dao.db.Page[a.id].activite.id == actt
-        with qtbot.waitSignal(dao.pageActiviteChanged):
-            dao.changeActivite(a.id, s.id)
-        with db_session:
-            assert dao.db.Page[a.id].activite.id == s.id
 
 
 class TestRecentsMixin:
@@ -1111,7 +883,7 @@ class TestDatabaseObject:
         d = qappdao.dao
         with qtbot.wait_signals(
             [
-                (d.pagesParSectionChanged, "activites"),
+                (d.pagesParActiviteChanged, "activites"),
                 (d.recentsModelChanged, "recentchanged"),
             ]
         ):
@@ -1139,7 +911,7 @@ class TestDatabaseObject:
             [
                 (dao.pageModel.modelReset, "model"),
                 (dao.currentMatiereChanged, "matiere"),
-                (dao.pagesParSectionChanged, "activite"),
+                (dao.pagesParActiviteChanged, "activite"),
             ],
             # timeout=2000,
         ):
@@ -1157,7 +929,7 @@ class TestDatabaseObject:
         assert dao.currentMatiere == ""  # a["matiere"]
 
     def test_updateRecentsAndActivites(self, dao, qtbot):
-        with qtbot.waitSignals([dao.recentsModelChanged, dao.pagesParSectionChanged]):
+        with qtbot.waitSignals([dao.recentsModelChanged, dao.pagesParActiviteChanged]):
             dao.updateRecentsAndActivites.emit()
 
     def test_currentMaterieResed(self, fk, dao):
@@ -1198,7 +970,7 @@ class TestDatabaseObject:
             dao.equationChanged.emit()
 
     def test_page_activite_changed_update_pagesParsection(self, dao, qtbot):
-        with qtbot.waitSignal(dao.pagesParSectionChanged):
+        with qtbot.waitSignal(dao.pagesParActiviteChanged):
             dao.pageActiviteChanged.emit()
 
     def test_section_added_disable_busyindicator(self, fk, dao, qtbot):

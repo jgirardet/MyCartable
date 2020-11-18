@@ -5,6 +5,10 @@ import QtQuick.Layouts 1.14
 ColumnLayout {
     id: activitesColumn
 
+    property QtObject dispatcher: classeur.matieresDispatcher
+    property alias chooser: combo
+    property alias activites: lvActivite
+
     anchors.fill: parent
     spacing: 5
 
@@ -21,19 +25,16 @@ ColumnLayout {
         ComboBox {
             id: combo
 
+            Component.onCompleted: {
+            }
             width: parent.width
             anchors.fill: parent
             textRole: "nom"
             valueRole: "id"
             objectName: "combo"
-            model: ddb.matieresList
-            currentIndex: ddb.getMatiereIndexFromId(ddb.currentMatiere)
-            onActivated: {
-                ddb.setCurrentMatiereFromIndexSignal(index);
-            }
-            Component.onCompleted: {
-                activated.connect(ddb.setCurrentMatiereFromIndexSignal);
-            }
+            model: dispatcher ? dispatcher.matieresList : []
+            currentIndex: classeur.currentMatiereIndex
+            onActivated: classeur.setCurrentMatiere(index)
 
             popup.background: Rectangle {
                 color: "transparent"
@@ -41,7 +42,9 @@ ColumnLayout {
 
             contentItem: Text {
                 text: combo.displayText
-                color: combo.currentValue ? combo.model[combo.currentIndex].fgColor : "white"
+                //                color: combo.currentValue ? combo.model[combo.currentIndex].fgColor : "white"
+                color: classeur.currentMatiere ? classeur.currentMatiere.fgColor : "white"
+                // : "white"
                 font.pointSize: 16
                 font.family: ddb.fontMain
                 font.capitalization: Font.Capitalize
@@ -69,7 +72,7 @@ ColumnLayout {
             }
 
             background: Rectangle {
-                color: combo.currentValue ? combo.model[combo.currentIndex].bgColor : "white"
+                color: classeur.currentMatiere ? classeur.currentMatiere.bgColor : "white"
                 radius: 15
             }
 
@@ -103,8 +106,7 @@ ColumnLayout {
     ListView {
         id: lvActivite
 
-        objectName: "repeater"
-        model: ddb.pagesParSection
+        model: classeur.pagesParActivite
         Layout.fillHeight: true
         Layout.fillWidth: true
         spacing: 15

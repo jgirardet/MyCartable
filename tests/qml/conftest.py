@@ -23,6 +23,7 @@ from mycartable.package.page.annotation_model import AnnotationModel
 
 qmlRegisterType(FriseModel, "MyCartable", 1, 0, "FriseModel")
 qmlRegisterType(AnnotationModel, "MyCartable", 1, 0, "AnnotationModel")
+qmlRegisterType(DTB, "MyCartable", 1, 0, "Database")
 
 
 def pytest_sessionstart():
@@ -102,20 +103,24 @@ def pytest_qml_context_properties() -> dict:
     from package.database_object import DatabaseObject
     from package.ui_manager import UiManager
     from mycartable.types.changematieres import ChangeMatieres
+    from mycartable.classeur.classeur import Classeur
     import package.database
 
     # tmpfilename = tmp_path_factory.mktemp("mycartablefiledb") / "bla.sqlite"
     # db = init_database(Database(), create_db=True)
-    print(db)
 
     uim = UiManager()
     dao = DatabaseObject(db, uim)
     dtb = DTB(db)
 
     ChangeMatieres.db = db
+    Classeur.db = db
+    DTB.db = db
     global DONE
     if not DONE:  # not nice but, do the job for now
         qmlRegisterType(ChangeMatieres, "MyCartable", 1, 0, "ChangeMatieres")
+        qmlRegisterType(Classeur, "MyCartable", 1, 0, "Classeur")
+        qmlRegisterType(DTB, "MyCartable", 1, 0, "Database")
         DONE = True
 
     # Mocking som method

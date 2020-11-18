@@ -7,9 +7,13 @@ from pytestqml.qt import QObject
 
 
 class DTB(QObject):
-    def __init__(self, db: Database):
+
+    db: Database
+
+    def __init__(self, db: Database = None):
         super().__init__()
-        self.db = db
+        if db:
+            self.db = db
 
     @db_session
     @Slot(str, "QVariantMap", result="QVariantMap")

@@ -1,5 +1,4 @@
-import ".."
-import PyTest 1.0
+import MyCartable 1.0
 import QtQuick 2.15
 
 Item {
@@ -8,7 +7,13 @@ Item {
     width: 800
     height: 200
 
+    Classeur {
+        id: classeurid
+    }
+
     CasTest {
+        //            ddb.currentPage = page.id; // to make toolbar visible
+
         id: testcase
 
         property var newtext
@@ -22,6 +27,7 @@ Item {
         property var exportodt
         property var exportpdf
         property var page
+        property var pageC
 
         function initPre() {
             page = fk.f("page", {
@@ -31,7 +37,11 @@ Item {
                     "page": page.id
                 });
             }
-            ddb.currentPage = page.id; // to make toolbar visible
+            pageC = th.getBridgeInstance(classeurid, "Page", page.id);
+            params = {
+                "page": pageC
+            };
+            classeurid.setPage(pageC.id);
         }
 
         function initPost() {
@@ -50,6 +60,8 @@ Item {
 
         function test_init() {
             verify(tested.visible);
+            compare(tested.page.id, page.id);
+            compare(tested.page.model.count, 3);
         }
 
         function compare_new_section(classtype) {
@@ -99,17 +111,23 @@ Item {
         }
 
         function test_newimage() {
-            th.mock("addSection");
+            //            th.mock("addSection");
+            //            mouseClick(newimage);
+            //            newimage.action.dialog.accept();
+            //            let args = th.mock_call_args_list('addSection')[0];
+            //            compare(args[0], page.id);
+            //            compare(args[1], {
+            //                "classtype": "ImageSection",
+            //                "path": "",
+            //                "position": 3
+            //            });
+            //            th.unmock("addSection");
             mouseClick(newimage);
+            newimage.action.dialog.folder = "assets";
+            //            mouseClick(newimage.action.dialog.contentItem, 20, 20);
+            wait(2000);
             newimage.action.dialog.accept();
-            let args = th.mock_call_args_list('addSection')[0];
-            compare(args[0], page.id);
-            compare(args[1], {
-                "classtype": "ImageSection",
-                "path": "",
-                "position": 3
-            });
-            th.unmock("addSection");
+            compare_new_section(data.classtype);
         }
 
         function test_newimagevide() {

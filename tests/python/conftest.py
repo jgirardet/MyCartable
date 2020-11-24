@@ -71,7 +71,15 @@ def memory_db(
 
     db = init_database(Database())
     monkeypatch_session.setattr(package.database, "getdb", lambda: db)
+
     return db
+
+
+@pytest.fixture(scope="session", autouse=True)
+def add_db_to_types(memory_db):
+    from mycartable.types.dtb import DTB
+
+    DTB.db = memory_db
 
 
 @pytest.fixture(scope="session", autouse=True)

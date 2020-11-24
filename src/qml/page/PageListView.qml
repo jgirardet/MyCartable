@@ -3,6 +3,12 @@ import QtQuick.Controls 2.15
 import "qrc:/qml/buttons" as Buttons
 
 ListView {
+    //        target: model
+    //    }
+    //        if (currentIndex != model.basePage.lastPosition)
+    //            currentIndex = model.basePage.lastPosition;
+    //        property var page: page
+
     id: root
 
     property var removeDialog: removeDialog
@@ -13,18 +19,28 @@ ListView {
         currentIndex = row;
     }
 
+    //    Connections {
+    //        function onModelReset() {
+    //            if (currentIndex != model.basePage.lastPosition)
+    //                currentIndex = model.basePage.lastPosition;
+    //        }
+    //model
     spacing: 10
     clip: true
     cacheBuffer: 20000
     focus: true
     boundsBehavior: Flickable.DragOverBounds
-    onCurrentIndexChanged: {
-        if (model.lastPosition !== currentIndex)
-            model.lastPosition = currentIndex;
-
-    }
-    Component.onCompleted: {
-        model.rowsInserted.connect(onItemAdded);
+    currentIndex: model ? model.page.lastPosition : -1
+    //    onCurrentIndexChanged: {
+    //        if (model.page.lastPosition !== currentIndex) {
+    //            model.page.lastPosition = currentIndex;
+    //        }
+    //    }
+    onModelChanged: {
+        if (model) {
+            print(model);
+            model.rowsInserted.connect(onItemAdded);
+        }
     }
     contentItem.onChildrenRectChanged: {
         adjustcachebuffer.restart();
@@ -42,16 +58,6 @@ ListView {
                 root.cacheBuffer = bufferMax;
 
         }
-    }
-
-    Connections {
-        function onModelReset() {
-            if (currentIndex != model.lastPosition)
-                currentIndex = model.lastPosition;
-
-        }
-
-        target: model
     }
 
     Dialog {

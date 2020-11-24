@@ -1,14 +1,12 @@
 from loguru import logger
 from PySide2.QtCore import QObject, Signal
 from package.database_mixins.equation_mixin import EquationMixin
-from package.database_mixins.image_section_mixin import ImageSectionMixin
 from package.database_mixins.layout_mixin import LayoutMixin
 from package.database_mixins.page_mixin import PageMixin
 from package.database_mixins.recents_mixin import RecentsMixin
 from package.database_mixins.section_mixin import SectionMixin
 from package.database_mixins.session import SessionMixin
 from package.database_mixins.tableau_mixin import TableauMixin
-from package.database_mixins.text_mixin import TextSectionMixin
 
 from loguru import logger
 from package.files_path import FILES
@@ -20,9 +18,7 @@ MIXINS = [
     LayoutMixin,
     RecentsMixin,
     SectionMixin,
-    ImageSectionMixin,
     EquationMixin,
-    TextSectionMixin,
     TableauMixin,
 ]
 
@@ -53,22 +49,22 @@ class DatabaseObject(QObject, *MIXINS):
 
     def setup_connections(self):
 
-        # todo self.matiereReset.connect(self.onMatiereReset)
-        self.currentPageChanged.connect(self.onCurrentPageChanged)
-        self.currentTitreSetted.connect(self.updateRecentsAndActivites)
+        # todo: self.matiereReset.connect(self.onMatiereReset)
+        # todo: self.currentPageChanged.connect(self.onCurrentPageChanged)
+        # todo: self.currentTitreSetted.connect(self.updateRecentsAndActivites)
 
         self.newPageCreated.connect(self.onNewPageCreated)
         self.recentsItemClicked.connect(self.onRecentsItemClicked)
-        self.sectionAdded.connect(self.pageModel.insertRows)
+        # todo: self.sectionAdded.connect(self.pageModel.insertRows)
         self.sectionAdded.connect(self.ui.unSetBuzyIndicator)
-        self.sectionRemoved.connect(self.pageModel.removeRow)
+        # todo: self.sectionRemoved.connect(self.pageModel.removeRow)
         # OK: self.pageActiviteChanged.connect(self.pagesParSectionChanged)
 
         # mise à jour
-        self.imageChanged.connect(self.updateRecentsAndActivites)
+        # todo: self.imageChanged.connect(self.updateRecentsAndActivites)
         self.equationChanged.connect(self.updateRecentsAndActivites)
         self.tableauChanged.connect(self.updateRecentsAndActivites)
-        self.textSectionChanged.connect(self.updateRecentsAndActivites)
+        # todo: self.textSectionChanged.connect(self.updateRecentsAndActivites)
         # TODO: self.changeMatieres.connect(lambda: self.onChangeAnnee(self.anneeActive))
 
         # OK: self.updateRecentsAndActivites.connect(self.pagesParSectionChanged)

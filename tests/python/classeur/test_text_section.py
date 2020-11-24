@@ -1,17 +1,17 @@
+import json
 import uuid
 from string import Template
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 from PySide2.QtCore import Qt
 from PySide2.QtGui import QTextDocument, QColor, QFont, QKeyEvent, QBrush
 
-# from package.page.text_section import DocumentEditor, RE_AUTOPARAGRAPH
 from bs4 import BeautifulSoup
-from package.utils import KeyW
-from pony.orm.core import db_session, flush
+from mycartable.package.utils import KeyW
+from pony.orm.core import db_session
 
-from package.page.text_section import (
+from mycartable.classeur.sections.text import (
     CSS,
     blockCharFormat,
     BLACK,
@@ -25,9 +25,69 @@ from package.page.text_section import (
     GREEN,
     RED,
     TextSectionFormatter,
+    TextSection,
 )
 
-from fixtures import compare_char_format
+from fixtures import compare_char_format, check_args
+
+
+class TestTextSectionMixin:
+    def test_check_args(self):
+        check_args(TextSection.updateTextSectionOnKey, [str, int, int, int, str], dict)
+        check_args(TextSection.updateTextSectionOnChange, [str, int, int, int], dict)
+        check_args(
+            TextSection.updateTextSectionOnMenu, [str, int, int, int, dict], dict
+        )
+        check_args(TextSection.loadTextSection, None, dict)
+
+    def test_updateTextSectionOnKey(self, fk):
+        f = fk.f_textSection(text="bla")
+        sec = TextSection.get(f.id)
+        dic_event = {"key": int(Qt.Key_B), "modifiers": int(Qt.ControlModifier)}
+        event = json.dumps(dic_event)
+        args = "bla", 3, 3, 3
+
+        with patch("mycartable.classeur.sections.text.TextSectionEditor") as m:
+            res = sec.updateTextSectionOnKey(*args, event)
+            m.assert_called_with(str(f.id), *args)
+            m.return_value.onKey.assert_called_with(dic_event)
+            assert res == m.return_value.onKey.return_value
+
+    def test_updateTextSectionOnChange(self, fk, qtbot):
+        f = fk.f_textSection(text="bla")
+        sec = TextSection.get(f.id)
+        dic_event = {"key": int(Qt.Key_B), "modifiers": int(Qt.ControlModifier)}
+        args = "blap", 3, 3, 4
+
+        with patch("mycartable.classeur.sections.text.TextSectionEditor") as m:
+            with qtbot.waitSignal(sec.textSectionSignal):
+                res = sec.updateTextSectionOnChange(*args)
+            m.assert_called_with(sec.id, *args)
+            m.return_value.onChange.assert_called_with()
+            assert res == m.return_value.onChange.return_value
+
+    def test_updateTextSectionOnMenu(self, fk):
+        f = fk.f_textSection()
+        sec = TextSection.get(f.id)
+        dic_params = {"ble": "bla"}
+        # params = json.dumps(dic_params)
+        args = "bla", 3, 3, 3
+
+        with patch("mycartable.classeur.sections.text.TextSectionEditor") as m:
+            res = sec.updateTextSectionOnMenu(*args, dic_params)
+            m.assert_called_with(sec.id, *args)
+            m.return_value.onMenu.assert_called_with(ble="bla")
+            assert res == m.return_value.onMenu.return_value
+
+    def test_loadTextSection(self, fk):
+        f = fk.f_textSection()
+        sec = TextSection.get(f.id)
+
+        with patch("mycartable.classeur.sections.text.TextSectionEditor") as m:
+            res = sec.loadTextSection()
+            m.assert_called_with(sec.id)
+            m.return_value.onLoad.assert_called_with()
+            assert res == m.return_value.onLoad.return_value
 
 
 def test_css():

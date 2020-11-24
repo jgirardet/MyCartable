@@ -1,19 +1,37 @@
-from typing import Union
+from typing import Union, Optional
 from uuid import UUID
 
 from PySide2.QtCore import Slot, Signal, QObject, Property
 from loguru import logger
-from mycartable.classeur.matiere import MatieresDispatcher, Matiere
+from .matiere import MatieresDispatcher, Matiere
+from .page import Page
 from pony.orm import db_session, Database, ObjectNotFound
+
+
+"""
+connections restant à établir:
+page:
+    titre changed => recents
+pagemodel : 
+    modif content => recents
+    insertsection => recents
+    removesection => recents
+    moverow=> recents
+"""
 
 
 class Classeur(QObject):
 
     db: Database
 
-    currentMatiereChanged = Signal()
     anneeChanged = Signal()
     activitesChanged = Signal()
+    currentMatiereChanged = Signal()
+    pageChanged = Signal()
+
+    """
+    Pure python
+    """
 
     def __init__(self):
         super().__init__()
@@ -24,9 +42,14 @@ class Classeur(QObject):
         self._annee = 0
         self._matieresDispatcher: MatieresDispatcher = None
         self._currentMatiere: Matiere = None
+        self._page: Page = None
 
     def setup_connections(self):
         self.currentMatiereChanged.connect(self.activitesChanged)
+
+    """
+    Qt Properties
+    """
 
     @Property(int, notify=anneeChanged)
     def annee(self):
@@ -41,10 +64,6 @@ class Classeur(QObject):
             logger.info(f"Année en cours : {annee}")
             self.anneeChanged.emit()
 
-    @Property(QObject, notify=anneeChanged)
-    def matieresDispatcher(self):
-        return self._matieresDispatcher
-
     @Property(QObject, notify=currentMatiereChanged)
     def currentMatiere(self):
         return self._currentMatiere
@@ -53,11 +72,9 @@ class Classeur(QObject):
     def current_matiere_set(self, value):
         if isinstance(value, UUID):
             value = str(value)
-
         # ignore same
         if self._currentMatiere and self.currentMatiere.id == value:
             return
-
         with db_session:
             try:
                 self._currentMatiere = Matiere(self.db.Matiere[value].to_dict())
@@ -67,19 +84,37 @@ class Classeur(QObject):
         logger.info(f"current matiere set to: {self._currentMatiere}")
         self.currentMatiereChanged.emit()
 
-    @Slot(str)
-    @Slot(int)
-    def setCurrentMatiere(self, value: Union[int, str]):
-        if isinstance(value, int):
-            value = self.matieresDispatcher.idFromIndex(value)
-        self.currentMatiere = value
-
     @Property(int, notify=currentMatiereChanged)
     def currentMatiereIndex(self):
         if self.currentMatiere:
             return self.matieresDispatcher.indexFromId(self.currentMatiere.id)
         else:
             return 0
+
+    @Property(QObject, notify=anneeChanged)
+    def matieresDispatcher(self):
+        return self._matieresDispatcher
+
+    @Property(QObject, notify=pageChanged)
+    def page(self):
+        return self._page
+
+    """
+    Qt Slots
+    """
+
+    @Slot()
+    def deletePage(self):
+        if self.page.delete():
+            self._page = None
+            self.pageChanged.emit()
+
+    @Slot(str)
+    def newPage(self, activiteId: str) -> Optional[dict]:
+        if new_item := Page.new(activite=activiteId):
+            logger.debug(f'New Page "{new_item.id}" created')
+            self.setPage(new_item)
+            # self.activitesChanged.emit()
 
     @Property("QVariantList", notify=activitesChanged)
     def pagesParActivite(self):
@@ -89,3 +124,26 @@ class Classeur(QObject):
                 matiere = self.db.Matiere[self.currentMatiere.id]
                 res = matiere.pages_par_activite()
         return res
+
+    @Slot(str)
+    @Slot(int)
+    def setCurrentMatiere(self, value: Union[int, str]):
+        if isinstance(value, int):
+            value = self.matieresDispatcher.idFromIndex(value)
+        self.currentMatiere = value
+
+    @Slot(str)
+    @Slot(Page)
+    def setPage(self, value: Union[str, Page]):
+        new_page = None
+        if isinstance(value, Page):
+            new_page = value
+        elif page := Page.get(value):
+            new_page = page
+        if new_page:
+            new_page.setParent(self)
+            self._page = new_page
+            self.pageChanged.emit()
+            self._page.titreSignal.connect(self.activitesChanged)
+            logger.info(f"CurrentPage changed to {self.page.titre}")
+            self.setCurrentMatiere(self.page.matiereId)

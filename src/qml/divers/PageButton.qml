@@ -17,14 +17,15 @@ RoundButton {
         text: model ? model.titre : null
 
         MouseArea {
+            //                    ddb.currentPage = model.id;
+
             anchors.fill: parent
             acceptedButtons: Qt.LeftButton | Qt.RightButton
             onPressed: {
                 if (mouse.button == Qt.LeftButton)
-                    ddb.currentPage = model.id;
+                    classeur.setPage(model.id);
                 else if (mouse.button == Qt.RightButton)
                     root.ListView.view.deplacePopup.ouvre(modelData.id, root);
-
             }
         }
 

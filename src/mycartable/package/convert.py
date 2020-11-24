@@ -1064,7 +1064,7 @@ def grab_section(section, initial_prop={}):
     base_prop = {"sectionItem": sectionItem, "sectionId": section_dict["id"]}
     base_prop.update(initial_prop)
     app = QGuiApplication.instance()
-    dtb = DTB(app.dao.db)
+    dtb = DTB()
     with Grabber(context_dict={"ddb": app.dao, "c_dtb": dtb}) as grab:
         img = grab.comp_to_image(
             url=f":/qml/sections/{section.classtype}.qml",

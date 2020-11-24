@@ -7,16 +7,12 @@ Action {
     property string tooltip
     property var dialog
     property bool append: true
+    property QtObject page
 
     function newSection(kwargs = {
     }) {
-        let newPos = append ? ddb.pageModel.count : position + 1;
-        let params = {
-            "classtype": nom,
-            "position": newPos
-        };
-        Object.assign(params, kwargs);
-        ddb.addSection(ddb.currentPage, params);
+        let newPos = append ? page.model.count : position + 1;
+        page.addSection(nom, newPos, kwargs);
     }
 
 }

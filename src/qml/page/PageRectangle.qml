@@ -6,6 +6,8 @@ import "qrc:/qml/menu"
 Rectangle {
     id: base
 
+    property QtObject page
+
     color: Qt.rgba(98 / 255, 105 / 255, 123 / 255, 1)
     Component.onCompleted: {
         var newComp = Qt.createComponent("qrc:/qml/menu/MenuFlottantAnnotationDessin.qml");
@@ -42,6 +44,7 @@ Rectangle {
         PageToolBar {
             id: pageToolBar
 
+            page: base.page
             Layout.fillWidth: true
             height: ddb.getLayoutSizes("preferredHeaderHeight")
         }
@@ -56,7 +59,7 @@ Rectangle {
                 id: titre
 
                 anchors.fill: parent
-                page: pagelistview
+                page: base.page
             }
 
         }
@@ -70,8 +73,8 @@ Rectangle {
             PageListView {
                 id: pagelistview
 
+                model: base.page ? base.page.model : 0
                 anchors.fill: parent
-                model: ddb.pageModel
             }
 
         }

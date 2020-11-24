@@ -84,7 +84,7 @@ def register_new_qml_type(databaseObject, db):
     from package.page.annotation_model import AnnotationModel
     from package.page.frise_model import FriseModel
     from mycartable.types.changematieres import ChangeMatieres
-    from mycartable.classeur.classeur import Classeur
+    from mycartable.classeur import Classeur
 
     AdditionModel.ddb = databaseObject
     SoustractionModel.ddb = databaseObject
@@ -118,7 +118,7 @@ def create_singleton_instance(prod=False):
     #     databaseObject.anneeActive = 2019
     #     with db_session:
     #         databaseObject.currentPage = databaseObject.db.Page.select().first().id
-    dtb = DTB(package.database.db)
+    dtb = DTB()
 
     return databaseObject, ui_manager, dtb
 
@@ -174,6 +174,7 @@ def main(filename=None):
     db = main_init_database(filename=filename, prod=prod)
 
     # create instance de ce qui sera des singleton dans qml
+    DTB.db = db
     databaseObject, ui_manager, dtb = create_singleton_instance(prod)
     app.dao = databaseObject
 

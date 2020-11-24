@@ -185,8 +185,11 @@ def class_structure(
                     "created": self.created.isoformat(),
                     "modified": self.modified.isoformat(),
                     "activite": str(self.activite.id),
+                    "annee": self.activite.matiere.groupe.annee.id,
                     "lastPosition": self.lastPosition,
-                    # "sections": [str(s.id) for s in self.sections],
+                    "sections": [
+                        str(s.id) for s in self.sections.order_by(lambda x: x.position)
+                    ],
                     "matiere": str(self.activite.matiere.id),
                     "matiereNom": self.activite.matiere.nom,
                     "matiereFgColor": self.activite.matiere.fgColor,

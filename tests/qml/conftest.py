@@ -20,6 +20,7 @@ from mycartable.package.database import init_database
 from mycartable.types.dtb import DTB
 from mycartable.package.page.frise_model import FriseModel
 from mycartable.package.page.annotation_model import AnnotationModel
+from mycartable.classeur import Page
 
 qmlRegisterType(FriseModel, "MyCartable", 1, 0, "FriseModel")
 qmlRegisterType(AnnotationModel, "MyCartable", 1, 0, "AnnotationModel")
@@ -71,9 +72,13 @@ class FakerHelper(QObject):
 
 
 class TestHelper(QObject):
+
+    BRIDGES = {"Page": Page}
+
     def __init__(self, dao):
         super().__init__()
         self.dao = dao
+        self._dtb = DTB()
 
     @Slot(str)
     def mock(self, method: str):
@@ -91,6 +96,13 @@ class TestHelper(QObject):
     @Slot(str, result="QVariantList")
     def mock_call_args_list(self, method: str):
         return [list(call.args) for call in getattr(self.dao, method).call_args_list]
+
+    @Slot(QObject, str, str, result=QObject)
+    def getBridgeInstance(self, parent: QObject, letype: str, params: str):
+        classs = self.BRIDGES[letype]
+        res = classs.get(params)
+        res.setParent(parent)
+        return res
 
 
 DONE = False
@@ -111,11 +123,11 @@ def pytest_qml_context_properties() -> dict:
 
     uim = UiManager()
     dao = DatabaseObject(db, uim)
-    dtb = DTB(db)
 
     ChangeMatieres.db = db
     Classeur.db = db
     DTB.db = db
+    dtb = DTB()
     global DONE
     if not DONE:  # not nice but, do the job for now
         qmlRegisterType(ChangeMatieres, "MyCartable", 1, 0, "ChangeMatieres")

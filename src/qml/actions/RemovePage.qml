@@ -1,6 +1,8 @@
 BasePageAction {
     icon.source: "qrc:///icons/removePage"
-    onTriggered: ddb.removePage(ddb.currentPage)
+    onTriggered: {
+        page.classeur.deletePage();
+    }
     tooltip: "Supprimer la page ?"
     shortcut: ""
 }

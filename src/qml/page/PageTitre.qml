@@ -5,11 +5,11 @@ import QtQuick.Layouts 1.14
 TextArea {
     id: root
 
-    property var page
+    property QtObject page
     property int textlen: 0
 
-    text: ddb.currentPage ? ddb.currentTitre : ""
-    readOnly: ddb.currentPage == 0 ? true : false
+    text: page ? page.titre : "" //ddb.currentPage ? ddb.currentTitre : ""
+    readOnly: !page
     //  Layout.preferredWidth: parent.width
     //  Layout.preferredHeight: 50
     font.bold: true
@@ -19,7 +19,10 @@ TextArea {
     horizontalAlignment: TextInput.AlignHCenter
     verticalAlignment: TextInput.AlignVCenter
     onTextChanged: {
-        ddb.setCurrentTitre(text);
+        if (page)
+            // des fois page est près mais pas titre ???
+            page.titre = text;
+
         if (textlen < length) {
             while (contentWidth > (width) - 10) {
                 font.pointSize--;
@@ -41,7 +44,7 @@ TextArea {
     Keys.onPressed: {
         if (event.key == Qt.Key_Return)
             if (!page.model.rowCount())
-            ddb.addSection(ddb.currentPage, {
+            ddb.addSection(page.id, {
             "classtype": "TextSection"
         });
 ;

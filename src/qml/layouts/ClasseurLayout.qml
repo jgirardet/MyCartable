@@ -25,6 +25,8 @@ SandwichLayout {
 
     hamAndCheese: PageRectangle {
         id: _pageRectangle
+
+        page: classeurid.page
     }
 
     rightBread: MatiereRectangle {

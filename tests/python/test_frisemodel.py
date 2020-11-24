@@ -11,7 +11,7 @@ def fm(fk, dao):
     def wrapped(nb):
         f = FriseModel()
         f.dao = dao
-        f.dtb = DTB(fk.db)
+        f.dtb = DTB()
         f._frise = fk.f_friseSection()
         f._zones = fk.b_zoneFrise(nb, frise=f._frise, td=True)
         f.sectionId = f._frise.id
@@ -35,7 +35,7 @@ def test_init(fk, qtbot, dao):
     with qtbot.waitSignal(a.daoChanged):
         a.dao = dao
     with qtbot.waitSignal(a.dtbChanged):
-        a.dtb = DTB(fk.db)
+        a.dtb = DTB()
 
     # setup
     fr = fk.f_friseSection(titre="azerty", height=200)

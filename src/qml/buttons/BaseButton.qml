@@ -72,10 +72,16 @@ ToolButton {
     property var target
     property var dialog
     property bool appendMode
+    property QtObject page
 
-    enabled: ddb.currentPage
+    enabled: page
     icon.color: enabled ? "transparent" : ddb.colorPageToolBar
     visible: enabled
+    onPageChanged: {
+        if (action)
+            action.page = page;
+
+    }
 
     PageActions.ActionToolTip {
         visible: hovered

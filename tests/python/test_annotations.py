@@ -16,7 +16,7 @@ def am(fk, ddbr, dao):
         p = fk.f_imageSection()
         a = AnnotationModel()
         a.dao = dao
-        a.dtb = DTB(ddbr)
+        a.dtb = DTB()
         annots = []
         if isinstance(genre, tuple):
             for i in genre:
@@ -39,16 +39,16 @@ def am(fk, ddbr, dao):
 
 
 class TestAnnotationModel:
-    def test_base_init(self, qtbot, qtmodeltester):
-        assert check_super_init(
-            "package.page.page_model.QAbstractListModel", AnnotationModel
-        )
-        b = AnnotationModel()
-        assert b.rowCount() == 0
-
-        a = AnnotationModel()
-        # a._datas = [1, 2, 4]
-        qtmodeltester.check(a)
+    # def test_base_init(self, qtbot, qtmodeltester):
+    #     assert check_super_init(
+    #         "package.page.page_model.QAbstractListModel", AnnotationModel
+    #     )
+    #     b = AnnotationModel()
+    #     assert b.rowCount() == 0
+    #
+    #     a = AnnotationModel()
+    #     # a._datas = [1, 2, 4]
+    #     qtmodeltester.check(a)
 
     #
     def test_data_role(self, am, qtbot):

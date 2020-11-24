@@ -121,7 +121,7 @@ class WDict(collections.UserDict):
         return self
 
 
-def shift_list(l, idx, count, target):
+def shift_list(l_input, idx, count, target):
     """
     Move count element from index idx to index target. target index means "before"
     the move.
@@ -131,6 +131,7 @@ def shift_list(l, idx, count, target):
     :param target: int
     :return: list
     """
+    l = list(l_input)
     if idx == target:
         return l
     elif idx < target:

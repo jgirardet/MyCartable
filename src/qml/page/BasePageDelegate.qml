@@ -5,7 +5,7 @@ Item {
     id: root
 
     property var listview: ListView.view
-    property string sectionId: page.id
+    property string sectionId: section.id
     property int modelIndex: typeof model !== "undefined" ? model.index : undefined
     property alias dragarea: dragArea
 
@@ -13,9 +13,10 @@ Item {
     width: listview.width
     height: loader.height
     Component.onCompleted: {
-        loader.setSource("qrc:/qml/sections/" + page.classtype + ".qml", {
+        loader.setSource("qrc:/qml/sections/" + section.classtype + ".qml", {
             "sectionId": sectionId,
-            "sectionItem": root
+            "sectionItem": root,
+            "section": section
         });
     }
     onActiveFocusChanged: {

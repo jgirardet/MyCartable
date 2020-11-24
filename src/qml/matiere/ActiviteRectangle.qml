@@ -43,7 +43,7 @@ Rectangle {
                 anchors.fill: parent
                 onPressed: {
                     if (mouse.buttons == Qt.RightButton) {
-                        ddb.newPage(model.id);
+                        classeur.newPage(model.id);
                         classeur.activitesChanged();
                     }
                 }

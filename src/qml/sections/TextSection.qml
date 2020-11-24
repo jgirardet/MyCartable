@@ -4,12 +4,13 @@ import QtQuick.Controls 2.15
 TextEdit {
     id: root
 
-    property string sectionId
-    property var sectionItem
+    property string sectionId // inutil juste compat
+    property var sectionItem // pour la taille de reference
     property bool doNotUpdate: false
+    property QtObject section
 
     function setStyleFromMenu(params) {
-        var res = ddb.updateTextSectionOnMenu(sectionId, text, cursorPosition, selectionStart, selectionEnd, params);
+        var res = section.updateTextSectionOnMenu(text, cursorPosition, selectionStart, selectionEnd, params);
         if (!res["eventAccepted"]) {
             // ici event Accepted veut dire : on ne remet pas à jour le text
             return ;
@@ -37,7 +38,7 @@ TextEdit {
     selectByMouse: true
     wrapMode: TextEdit.Wrap
     Keys.onPressed: {
-        var res = ddb.updateTextSectionOnKey(sectionId, text, cursorPosition, selectionStart, selectionEnd, JSON.stringify(event));
+        var res = section.updateTextSectionOnKey(text, cursorPosition, selectionStart, selectionEnd, JSON.stringify(event));
         event.accepted = res["eventAccepted"];
         if (event.accepted == false) {
             return ;
@@ -47,8 +48,8 @@ TextEdit {
             cursorPosition = res["cursorPosition"];
         }
     }
-    onSectionIdChanged: {
-        var res = ddb.loadTextSection(sectionId);
+    onSectionChanged: {
+        var res = section.loadTextSection();
         doNotUpdate = true;
         text = res["text"];
         cursorPosition = res["cursorPosition"];
@@ -58,7 +59,7 @@ TextEdit {
             doNotUpdate = false;
             return ;
         } else {
-            var res = ddb.updateTextSectionOnChange(sectionId, text, cursorPosition, selectionStart, selectionEnd);
+            var res = section.updateTextSectionOnChange(text, cursorPosition, selectionStart, selectionEnd);
             if (res["eventAccepted"]) {
                 // ici event Accepted veut dire : on ne remet pas à jour le text
                 return ;

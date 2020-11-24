@@ -14,7 +14,7 @@ ApplicationWindow {
     property alias mainItem: mainitem
     property alias toast: toast
 
-    width: 800
+    width: 1100
     height: 600
     visible: true
     title: "MyCartable: année " + ddb.anneeActive + "/" + (ddb.anneeActive + 1)

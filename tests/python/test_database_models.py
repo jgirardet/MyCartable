@@ -98,17 +98,24 @@ class TestPage:
 
     def test_to_dict(self, ddb, fk):
         d = datetime.utcnow()
-        p = fk.f_page(created=d, titre="bl")
-        assert p.to_dict() == {
+        mat = fk.f_matiere(groupe=2018)
+        ac = fk.f_activite(matiere=mat)
+        p = fk.f_page(created=d, titre="bl", activite=ac.id)
+        a = fk.f_section(page=p.id)
+        res = p.to_dict()
+        res.pop("modified")
+        # res["modified"] == d.isoformat()
+        assert res == {
             "id": str(p.id),
             "created": d.isoformat(),
-            "modified": d.isoformat(),
             "titre": "bl",
-            "activite": str(p.activite.id),
-            "matiere": str(p.activite.matiere.id),
-            "matiereNom": p.activite.matiere.nom,
-            "matiereBgColor": p.activite.matiere.bgColor,
-            "matiereFgColor": p.activite.matiere.fgColor,
+            "annee": 2018,
+            "sections": [str(a.id)],
+            "activite": str(ac.id),
+            "matiere": str(mat.id),
+            "matiereNom": mat.nom,
+            "matiereBgColor": mat.bgColor,
+            "matiereFgColor": mat.fgColor,
             "lastPosition": p.lastPosition,
         }
 
@@ -255,7 +262,9 @@ class TestMatiere:
 
     def test_page_par_section(self, fk):
         Matiere = fk.db.Matiere
-        m = fk.f_matiere(nom="Math", _bgColor=4294967295, _fgColor=4294901760)
+        m = fk.f_matiere(
+            nom="Math", _bgColor=4294967295, _fgColor=4294901760, groupe=2019
+        )
         un = fk.f_activite(nom="un", matiere=m.id)
         deux = fk.f_activite(nom="deux", matiere=m.id)
         trois = fk.f_activite()
@@ -282,6 +291,8 @@ class TestMatiere:
                             "matiereFgColor": QColor("red"),
                             "modified": "1111-11-11T00:00:00",
                             "titre": "pageun",
+                            "sections": [],
+                            "annee": 2019,
                         },
                         {
                             "activite": str(un.id),
@@ -294,6 +305,8 @@ class TestMatiere:
                             "matiereFgColor": QColor("red"),
                             "modified": "1111-11-11T00:00:00",
                             "titre": "pageun",
+                            "sections": [],
+                            "annee": 2019,
                         },
                         {
                             "activite": str(un.id),
@@ -306,6 +319,8 @@ class TestMatiere:
                             "matiereFgColor": QColor("red"),
                             "modified": "1111-11-11T00:00:00",
                             "titre": "pageun",
+                            "sections": [],
+                            "annee": 2019,
                         },
                     ],
                     "position": 0,
@@ -326,6 +341,8 @@ class TestMatiere:
                             "matiereFgColor": QColor("red"),
                             "modified": "1212-12-12T00:00:00",
                             "titre": "pagedeux",
+                            "sections": [],
+                            "annee": 2019,
                         },
                         {
                             "activite": str(deux.id),
@@ -338,6 +355,8 @@ class TestMatiere:
                             "matiereFgColor": QColor("red"),
                             "modified": "1212-12-12T00:00:00",
                             "titre": "pagedeux",
+                            "sections": [],
+                            "annee": 2019,
                         },
                         {
                             "activite": str(deux.id),
@@ -350,6 +369,8 @@ class TestMatiere:
                             "matiereFgColor": QColor("red"),
                             "modified": "1212-12-12T00:00:00",
                             "titre": "pagedeux",
+                            "sections": [],
+                            "annee": 2019,
                         },
                     ],
                     "position": 1,

@@ -12,141 +12,15 @@ from PySide2.QtQuick import QQuickItem
 from package.cursors import build_one_image_cursor
 from fixtures import check_args
 from package import constantes
-from package.database_mixins.image_section_mixin import ImageSectionMixin
 from package.database_object import DatabaseObject
 from unittest.mock import patch, call
 
 from package.files_path import FILES
 from package.operations.api import create_operation
-from package.page import text_section
 from pony.orm import ObjectNotFound, db_session
 
 
 class TestPageMixin:
-    def test_check_args(self, dao: DatabaseObject):
-        check_args(dao.newPage, str, dict)
-        check_args(dao.removePage, str)
-        check_args(dao.setCurrentTitre, str)
-        check_args(dao.exportToPDF)
-        check_args(dao.exportToOdt)
-
-    def test_init(self, dao):
-        assert dao._currentPage == ""
-        assert dao._currentTitre == ""
-        assert dao._currentEntry == None
-
-        assert dao.timer_titre.isSingleShot()
-
-    def test_newPage(self, fk, dao, qtbot, qappdao):
-        f = fk.f_page()  # pour avoir plusieurs dans le resultats
-        with qtbot.wait_signal(dao.newPageCreated, timeout=100):
-            r = dao.newPage(f.activite.id)
-
-    def test_currentPage(self, fk, dao, qtbot):
-        a = fk.f_page()
-        b = fk.f_page()
-        assert dao.currentPage == ""
-
-        # setCurrentPage with UUID
-        dao.currentPage = a.id
-        assert dao.currentPage == str(a.id)
-
-        # Set CurrentPage with str
-        with qtbot.wait_signal(dao.currentPageChanged, timeout=100):
-            dao.currentPage = str(b.id)
-        assert dao.currentPage == str(b.id)
-
-        # set currentpage do nothing if same id
-        with qtbot.assertNotEmitted(dao.currentPageChanged):
-            dao.currentPage = b.id
-        assert dao.currentPage == str(b.id)
-
-        # set currentpage do nothing if same id
-        with qtbot.assertNotEmitted(dao.currentPageChanged):
-            dao.currentPage = b.id
-        assert dao.currentPage == str(b.id)
-
-    def test_current_entry(self, dao, fk):
-        a = fk.f_page()
-        dao.currentPage = a.id
-        with db_session:
-            assert (
-                dao._currentEntry.titre
-                == a.titre
-                == dao._currentTitre
-                == dao.currentTitre
-            )
-
-    def test_CurrentTitreSet(self, fk, dao):
-        a = fk.b_page(2)
-
-        # case no current page
-        dao.currentTitre = "omk"
-        assert dao._currentTitre == ""
-        dao.currentPage = a[0].id
-        with patch.object(dao.timer_titre, "start") as m:
-            dao.currentTitre = "mokmk"
-            assert dao.currentTitre == "mokmk"
-            assert m.call_args_list == [call(500)]
-
-            # do not call storage if same value
-            dao.currentTitre = "mokmk"
-            assert m.call_args_list == [call(500)]
-
-    def test_UnderscoreCurrentTitreSet(self, fk, dao, qtbot):
-        a = fk.f_page()
-        dao.currentPage = a.id
-        dao.TITRE_TIMER_DELAY = 0
-        with qtbot.wait_signal(dao.currentTitreChanged):
-            dao.currentTitre = "aaa"
-        with db_session:
-            assert dao.db.Page[a.id].titre == "aaa"
-
-    def test_setCurrentTitre(self, dao, qtbot, fk):
-        a = fk.f_page()
-        dao.currentPage = a.id
-        dao.TITRE_TIMER_DELAY = 0
-        with qtbot.assertNotEmitted(dao.currentTitreChanged):
-            dao.setCurrentTitre("blabla")
-        assert dao.currentTitre == "blabla"
-
-        with qtbot.waitSignal(dao.currentTitreSetted):
-            dao.setCurrentTitre("ble")
-
-        # no curerntPage
-        dao.currentPage = 0
-        with qtbot.assertNotEmitted(dao.currentTitreSetted):
-            dao.setCurrentTitre("blabla")
-
-    def test_on_pagechanged_reset_model(self, dao, fk):
-        p1 = fk.f_page()
-        fk.f_section(page=p1.id)
-        dao.currentPage = p1.id
-        with db_session:
-            assert dao.pageModel.page.id == p1.id
-
-    def test_removePAge(self, dao, qtbot, fk):
-        a = fk.f_page()
-        dao.removePage(a.id)
-        with db_session:
-            assert not dao.db.Page.get(id=1)
-        assert dao.currentPage == ""
-
-    def test_removePAge_no_item_in_db(self, dao, qtbot):
-        dao.removePage(99)
-        assert dao.currentPage == ""
-
-    def test_removePAge_blanck_if_currentItem(self, dao, fk):
-        a = fk.f_page()
-        dao.currentPage = a.id
-        dao.removePage(a.id)
-        assert dao.currentPage == ""
-
-    def test_allow_currentPAge_can_be_empty(self, dao, fk):
-        a = fk.f_page()
-        dao.currentPage = a.id
-        dao.currentPage = ""
-
     def test_export_to_pdf(selfsekf, dao, fk):
         a = fk.f_page(titre="blà")
         dao.currentPage = a.id
@@ -511,7 +385,7 @@ class TestEquationMixin:
 
 
 class TestImageSectionMixin:
-    def test_check_args(self, dao: ImageSectionMixin):
+    def test_check_args(self, dao):
         check_args(dao.pivoterImage, [str, int], bool)
 
     @pytest.mark.freeze_time("2344-9-21 7:48:5")
@@ -690,67 +564,6 @@ class TestTableauMixin:
     def test_nb_colonnes(self, fk, dao):
         x = fk.f_tableauSection(2, 6)
         assert dao.nbColonnes(x.id) == 6
-
-
-class TestTextSectionMixin:
-    def test_check_args(self, dao):
-        check_args(dao.updateTextSectionOnKey, [str, str, int, int, int, str], dict)
-        check_args(dao.updateTextSectionOnChange, [str, str, int, int, int], dict)
-        check_args(dao.updateTextSectionOnMenu, [str, str, int, int, int, dict], dict)
-        check_args(dao.loadTextSection, str, dict)
-        check_args(dao.getTextSectionColor, str, QColor)
-
-    def test_updateTextSectionOnKey(self, fk, dao):
-        fk.f_textSection(text="bla")
-        dic_event = {"key": int(Qt.Key_B), "modifiers": int(Qt.ControlModifier)}
-        event = json.dumps(dic_event)
-        args = 1, "bla", 3, 3, 3
-
-        with patch("package.database_mixins.text_mixin.TextSectionEditor") as m:
-            res = dao.updateTextSectionOnKey(*args, event)
-            m.assert_called_with(*args)
-            m.return_value.onKey.assert_called_with(dic_event)
-            assert res == m.return_value.onKey.return_value
-
-    def test_updateTextSectionOnChange(self, fk, dao, qtbot):
-        fk.f_textSection(text="bla")
-        dic_event = {"key": int(Qt.Key_B), "modifiers": int(Qt.ControlModifier)}
-        args = 1, "blap", 3, 3, 4
-
-        with patch("package.database_mixins.text_mixin.TextSectionEditor") as m:
-            with qtbot.waitSignal(dao.textSectionChanged):
-                res = dao.updateTextSectionOnChange(*args)
-            m.assert_called_with(*args)
-            m.return_value.onChange.assert_called_with()
-            assert res == m.return_value.onChange.return_value
-
-    def test_updateTextSectionOnMenu(self, fk, dao):
-        fk.f_textSection()
-        dic_params = {"ble": "bla"}
-        # params = json.dumps(dic_params)
-        args = 1, "bla", 3, 3, 3
-
-        with patch("package.database_mixins.text_mixin.TextSectionEditor") as m:
-            res = dao.updateTextSectionOnMenu(*args, dic_params)
-            m.assert_called_with(*args)
-            m.return_value.onMenu.assert_called_with(ble="bla")
-            assert res == m.return_value.onMenu.return_value
-
-    def test_loadTextSection(self, fk, dao):
-        fk.f_textSection()
-
-        with patch("package.database_mixins.text_mixin.TextSectionEditor") as m:
-            res = dao.loadTextSection(1)
-            m.assert_called_with(1)
-            m.return_value.onLoad.assert_called_with()
-            assert res == m.return_value.onLoad.return_value
-
-    def test_getTextSectionColor(self, dao):
-
-        for x in ["red", "blue", "green", "black"]:
-            assert dao.getTextSectionColor(x) == QColor(
-                getattr(text_section, x.upper())
-            )
 
 
 class TestSessionMixin:

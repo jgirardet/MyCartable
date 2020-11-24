@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, Optional
 
 from PySide2.QtCore import Slot
 from loguru import logger
@@ -10,10 +10,12 @@ class DTB(QObject):
 
     db: Database
 
-    def __init__(self, db: Database = None):
-        super().__init__()
-        if db:
-            self.db = db
+    def __init__(self, parent: QObject = None):
+        super().__init__(parent)
+        if not hasattr(self, "db"):
+            raise NotImplementedError(
+                "attribute 'db' must be set before instance creation"
+            )
 
     @db_session
     @Slot(str, "QVariantMap", result="QVariantMap")
@@ -53,10 +55,14 @@ class DTB(QObject):
             logger.error(f"Absence de table {entity_name} dans la base de donnée")
             return False
 
+    # @Slot(str, int, str, result="QVariantMap")
+    # @Slot(str, str, str, result="QVariantMap")
+    # def getDB(self, entity_name: str, item_id: str, func: Optional[str] = None) -> dict:
+
     @db_session
     @Slot(str, str, result="QVariantMap")
     @Slot(str, int, result="QVariantMap")
-    def getDB(self, entity_name: str, item_id: str) -> bool:
+    def getDB(self, entity_name: str, item_id: str) -> dict:
         """
         Get an Item un database
         :param entity: str. Entity Name
@@ -92,3 +98,25 @@ class DTB(QObject):
                 except TypeError as err:
                     logger.exception(err)
         return {}
+
+    #
+    # @db_session
+    # @Slot(str, str, str, result="QVariantMap")
+    # @Slot(str, int, str, result="QVariantMap")
+    # def execDB(self, entity: str, item_id: Union[str, int], func: "name") -> dict:
+    #     """
+    #     Runs a method on a row in database.
+    #     :param entity: str. Entity Name
+    #     :param item_id: str. Id (pk) of item
+    #     :param params: dict. paremeter to edit in  row.
+    #     :return: True if ok, else False
+    #     """
+    #     if entity := getattr(self.db, entity, None):  # pragma: no branch
+    #         if item := entity.get(id=item_id):  # pragma: no branch
+    #             try:
+    #                 # item.set(**params)
+    #                 res = getattr(item, "method")()
+    #                 return item.to_dict()
+    #             except TypeError as err:
+    #                 logger.exception(err)
+    #     return {}

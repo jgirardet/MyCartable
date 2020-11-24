@@ -7,7 +7,9 @@ import "qrc:/qml/layouts"
 ToolBar {
     id: root
 
-    visible: ddb.currentPage
+    property QtObject page
+
+    visible: true
 
     RowLayout {
         id: rowLayout
@@ -21,39 +23,49 @@ ToolBar {
 
                 Buttons.NewTextSection {
                     appendMode: true
+                    page: root.page
                 }
 
                 Buttons.NewImageSection {
                     appendMode: true
+                    page: root.page
                 }
 
                 Buttons.NewImageSectionVide {
                     appendMode: true
+                    page: root.page
                 }
 
                 Buttons.NewEquationSection {
                     appendMode: true
+                    page: root.page
                 }
 
                 Buttons.NewOperationSection {
                     appendMode: true
+                    page: root.page
                 }
 
                 Buttons.NewTableauSection {
                     appendMode: true
+                    page: root.page
                 }
 
                 Buttons.NewFriseSection {
                     appendMode: true
+                    page: root.page
                 }
 
                 Buttons.RemovePage {
+                    page: root.page
                 }
 
                 Buttons.ExportOdt {
+                    page: root.page
                 }
 
                 Buttons.ExportPdf {
+                    page: root.page
                 }
 
             }

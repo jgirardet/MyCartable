@@ -110,6 +110,7 @@ class Faker:
         if isinstance(groupe, int):
             groupe_args["annee"] = groupe
             groupe = None
+
         groupe = groupe or self.f_groupeMatiere(**groupe_args)
         # breakpoint()
         flush()

@@ -1,27 +1,70 @@
 import html
+import json
 import re
 from contextlib import contextmanager
-from loguru import logger
 
+from bs4 import BeautifulSoup
+from mycartable.types.dtb import DTB
+from PySide2.QtCore import Property, Signal, Slot
 from PySide2.QtGui import (
-    QTextDocument,
-    QTextCharFormat,
-    QTextCursor,
     QBrush,
     QColor,
     Qt,
-    QTextBlockFormat,
+    QTextCharFormat,
+    QTextCursor,
+    QTextDocument,
     QTextDocumentFragment,
-    QFont,
 )
-from bs4 import BeautifulSoup
-from package.utils import KeyW
-from pony.orm import db_session
-from package import database
+
+from mycartable.package.utils import KeyW
+
+from .section import Section
 
 
-from loguru import logger
+class TextSection(Section):
 
+    entity_name = "TextSection"
+
+    textSectionSignal = Signal()
+
+    @Property(str, notify=textSectionSignal)
+    def text(self):
+        return self._data["text"]
+
+    @Slot(str, int, int, int, str, result="QVariantMap")
+    def updateTextSectionOnKey(
+        self, content, curseur, selectionStart, selectionEnd, event
+    ):
+        event = json.loads(event)
+        res = TextSectionEditor(
+            self.id, content, curseur, selectionStart, selectionEnd
+        ).onKey(event)
+        return res
+
+    @Slot(str, int, int, int, result="QVariantMap")
+    def updateTextSectionOnChange(self, content, curseur, selectionStart, selectionEnd):
+        res = TextSectionEditor(
+            self.id, content, curseur, selectionStart, selectionEnd
+        ).onChange()
+        self.textSectionSignal.emit()
+        return res
+
+    @Slot(str, int, int, int, "QVariantMap", result="QVariantMap")
+    def updateTextSectionOnMenu(
+        self, content, curseur, selectionStart, selectionEnd, params
+    ):
+        return TextSectionEditor(
+            self.id, content, curseur, selectionStart, selectionEnd
+        ).onMenu(**params)
+
+    @Slot(result="QVariantMap")
+    def loadTextSection(self):
+        return TextSectionEditor(self.id).onLoad()
+
+
+"""
+Attention couleurs de menu flottant à changer à la main
+"""
 RED = "#D40020"
 BLUE = "#0048BA"
 GREEN = "#006A4E"
@@ -180,7 +223,7 @@ class TextSectionEditor(QTextDocument):
         self, sectionId: str, content="", pos=0, selectionStart=0, selectionEnd=0
     ):
         super().__init__()
-        self.db = database.getdb()
+        self.dtb = DTB()
         self.sectionId = sectionId
         self.setDefaultStyleSheet(CSS)
         self.setHtml(content)
@@ -210,10 +253,9 @@ class TextSectionEditor(QTextDocument):
         self.setResponse(True)
         return self.result
 
-    @db_session
     def onLoad(self):
-        item = self.db.Section[self.sectionId]
-        self.setHtml(item.text)
+        item = self.dtb.getDB("Section", self.sectionId)
+        self.setHtml(item["text"])
         self.setResponse(True, cur=self.len)
         return self.result
 
@@ -390,11 +432,9 @@ class TextSectionEditor(QTextDocument):
                 value = not self.cur.charFormat().fontUnderline()
             f.setFontUnderline(value)
 
-    @db_session
     def _update_ddb(self):
-        obj = self.db.Section[self.sectionId]
         new_body = TextSectionFormatter(self.toHtml()).build_body()
-        obj.set(text=new_body)
+        self.dtb.setDB("Section", self.sectionId, {"text": new_body})
         return new_body
 
 

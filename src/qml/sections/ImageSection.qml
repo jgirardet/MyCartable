@@ -5,18 +5,11 @@ import "qrc:/qml/annotations"
 import "qrc:/qml/menu"
 
 Image {
-    //        Binding {
-    //            target: root.model
-    //            when: rot.model.modelReady
-    //            property: "sectionId"
-    //            value: root.sectionId
-    //        }
-    //        sectionId: root.sectionId ? root.sectionId : ""
-
     id: root
 
     property string sectionId
     property var sectionItem
+    property var section
     property var model
     property MouseArea mousearea: mousearea
     property var currentAnnotation
@@ -24,8 +17,6 @@ Image {
 
     function reloadImage() {
         // not tested
-        //        print(implicitHeight);
-        //        let oldheight = height;
         sourceClipRect = root.childrenRect;
         sourceClipRect = undefined;
     }
@@ -45,7 +36,7 @@ Image {
                     uiManager.annotationDessinCurrentTool = "fillrect";
                 else
                     uiManager.annotationDessinCurrentTool = newTool;
-                ddb.setImageSectionCursor(mousearea);
+                page.setImageSectionCursor(mousearea);
             }
         }
     }
@@ -71,7 +62,9 @@ Image {
     sourceSize.width: sectionItem ? sectionItem.width : 0
     cache: false
     Component.onCompleted: {
-        var content = ddb.loadSection(sectionId);
+        print(page);
+        print(page.path);
+        var content = page.path;
         var path = content.path.toString();
         root.source = path.startsWith("file:///") || path.startsWith("qrc:") ? content.path : "file:///" + path;
     }
@@ -87,7 +80,7 @@ Image {
         preventStealing: true
         acceptedButtons: Qt.LeftButton | Qt.RightButton
         hoverEnabled: true
-        onEntered: ddb.setImageSectionCursor(mousearea)
+        onEntered: page.setImageSectionCursor(mousearea)
         onPressed: {
             if (pressedButtons === Qt.RightButton) {
                 if (mouse.modifiers == Qt.ControlModifier)
@@ -102,7 +95,7 @@ Image {
                 } else if (uiManager.annotationCurrentTool == "floodfill") {
                     let fillColor = uiManager.annotationDessinCurrentStrokeStyle;
                     let point = Qt.point(mouse.x / width, mouse.y / height);
-                    let res = ddb.floodFill(root.sectionId, fillColor, point);
+                    let res = page.floodFill(root.sectionId, fillColor, point);
                     root.reloadImage();
                 } else {
                     root.startDraw();

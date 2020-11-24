@@ -13,11 +13,9 @@ BasePageAction {
         nameFilters: ["fichiers Images (*.jpg *.png *.bmp *.ppm *.gif, *.pdf)"]
         onAccepted: {
             uiManager.buzyIndicator = true;
-            var newPos = append ? ddb.pageModel.count : position + 1;
-            ddb.addSection(ddb.currentPage, {
-                "path": fileUrl,
-                "classtype": nom,
-                "position": newPos
+            var newPos = append ? page.model.count : position + 1;
+            page.addSection(nom, newPos, {
+                "path": fileUrl
             });
         }
     }

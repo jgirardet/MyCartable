@@ -26,7 +26,6 @@ def test_init(fk, dummyClassPage):
 
 
 def test_set_property(fk, dummyClassPage):
-    print(Bridge.entity_name)
     p = fk.f_page()
     b = dummyClassPage.get(p.id)
     b.titre = "NonNon"
@@ -44,6 +43,33 @@ def test_new(fk, dummyClassPage):
     assert p._data["titre"] == "polumb"
 
 
+def test_new_factory(fk):
+    class DummySection(Bridge):
+        entity_name = "Section"
+
+    class TextDummy(DummySection):
+        entity_name = "TextSection"
+
+    g = fk.f_page()
+    p = DummySection.new(
+        page=str(g.id),
+        text="aa",
+        entity_factory="TextSection",
+        class_factory=lambda x: TextDummy,
+    )
+    assert isinstance(p, TextDummy)
+
+    p = DummySection.new(
+        **{
+            "page": str(g.id),
+            "class_factory": lambda x: TextDummy,
+            "entity_factory": "TextSection",
+            "text": "blabla",
+        }
+    )
+    assert isinstance(p, TextDummy)
+
+
 def test_get_by_id(fk, dummyClassPage):
     p = fk.f_page(td=True)
     x = dummyClassPage.get(p["id"])
@@ -56,6 +82,23 @@ def test_get_by_dict(fk, dummyClassPage):
     p = fk.f_page(td=True)
     x = dummyClassPage.get(p)
     assert x.data == p
+
+
+def test_get_classtype(fk, dummyClassPage):
+    class AlsoDummy(dummyClassPage):
+        pass
+
+    p = fk.f_page(td=True)
+
+    # with dict
+    x = dummyClassPage.get(p, class_factory=lambda x: AlsoDummy)
+    assert x.data == p
+    assert isinstance(x, AlsoDummy)
+
+    # with int
+    x = dummyClassPage.get(p["id"], class_factory=lambda x: AlsoDummy)
+    assert x.data == p
+    assert isinstance(x, AlsoDummy)
 
 
 def test_delete(fk, dummyClassPage):

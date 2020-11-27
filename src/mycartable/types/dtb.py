@@ -1,8 +1,9 @@
-from typing import Union, Optional
+from typing import Union, Optional, Any
 
 from PySide2.QtCore import Slot
+from PySide2.QtQml import QJSValue
 from loguru import logger
-from pony.orm import Database, db_session
+from pony.orm import Database, db_session, ObjectNotFound
 from pytestqml.qt import QObject
 
 
@@ -31,7 +32,7 @@ class DTB(QObject):
                 if item := entity(**params):  # pragma: no branch
                     return item.to_dict()
             except TypeError as err:
-                logger.exception(err)
+                logger.error(err)
         return {}
 
     @db_session
@@ -54,10 +55,6 @@ class DTB(QObject):
         else:
             logger.error(f"Absence de table {entity_name} dans la base de donnée")
             return False
-
-    # @Slot(str, int, str, result="QVariantMap")
-    # @Slot(str, str, str, result="QVariantMap")
-    # def getDB(self, entity_name: str, item_id: str, func: Optional[str] = None) -> dict:
 
     @db_session
     @Slot(str, str, result="QVariantMap")
@@ -91,13 +88,29 @@ class DTB(QObject):
         :return: True if ok, else False
         """
         if entity := getattr(self.db, entity, None):  # pragma: no branch
-            if item := entity.get(id=item_id):  # pragma: no branch
-                try:
-                    item.set(**params)
-                    return item.to_dict()
-                except TypeError as err:
-                    logger.exception(err)
+            try:
+                item = entity[item_id]  # pragma: no branch
+            except ObjectNotFound:
+                logger.error(f"{entity}[{item_id}] n'existe pas")
+                return {}
+            try:
+                item.set(**params)
+                return item.to_dict()
+            except TypeError as err:
+                logger.error(err)
         return {}
+
+    @db_session
+    @Slot(str, result="QVariant")
+    def getConfig(self, key: str):
+        return self.db.Configuration.option(key)
+
+    @db_session
+    @Slot(str, "QVariant")
+    def setConfig(self, key: str, value: Any):
+        if isinstance(value, QJSValue):
+            value = value.toVariant()
+        self.db.Configuration.add(key, value)
 
     #
     # @db_session

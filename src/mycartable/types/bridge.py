@@ -27,35 +27,43 @@ class Bridge(QObject):
         if cls.entity_name is None:
             raise NotImplementedError("Bridge sublclass must set 'entity_name'")
 
-    def __init__(self, *, data: dict):
-        super().__init__()
+    def __init__(self, data: dict = {}, parent=None):
+        super().__init__(parent)
         self._data: dict = data
         self._dtb = DTB()
 
     @classmethod
-    def get(cls, item: Union[str, dict]) -> Bridge:
+    def get(
+        cls, item: Union[str, int, UUID, dict], class_factory: callable = None
+    ) -> Bridge:
         f"""
         Create a new instance of {cls.__name__}
         :param item: id as string or data as dict
+        :param classtype: callable to produce custom classtype
         :return: instance of {cls.__name__} or None
         """
         data = None
-        if isinstance(item, (str, UUID)):
+        if isinstance(item, (str, UUID, int)):
             data = DTB().getDB(cls.entity_name, item)
         elif isinstance(item, dict):
             data = item
         if data:
-            return cls(data=data)
+            _class = cls if class_factory is None else class_factory(data)
+            return _class(data=data)
 
     @classmethod
-    def new(cls, **kwargs) -> Bridge:
+    def new(cls, parent=None, **kwargs) -> Bridge:
         """
         Create new entry in database and return the corresponding Bridge subclass
         :param kwargs: entity parameters
         :return: instance of {cls.__name__} or None
         """
-        if new_item := DTB().addDB(cls.entity_name, kwargs):
-            return cls(data=new_item)
+        class_factory = kwargs.pop("class_factory", None)
+        entity_factory = kwargs.pop("entity_factory", None)
+        entity_name = entity_factory or cls.entity_name
+        if new_item := DTB().addDB(entity_name, kwargs):
+            _class = cls if class_factory is None else class_factory(new_item)
+            return _class(data=new_item)
 
     def delete(self) -> bool:
         """
@@ -70,7 +78,9 @@ class Bridge(QObject):
                 self._data[name] = res[name]
 
     def __eq__(self, other):
-        return self._data == other._data
+        if isinstance(other, Bridge):
+            return self.id == other.id
+        return False
 
     """
     QT Properties

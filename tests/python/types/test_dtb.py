@@ -11,12 +11,10 @@ def dtb(reset_db):
 
 
 def test_addDB(dtb):
-    res = dtb.addDB("Utilisateur", {"nom": "aaa", "prenom": "bbb"})
+    res = dtb.addDB("Annee", {"id": 1234, "niveau": "bbb"})
     assert res == {
-        "id": str(res["id"]),
-        "last_used": 0,
-        "nom": "aaa",
-        "prenom": "bbb",
+        "id": 1234,
+        "niveau": "bbb",
     }
 
 
@@ -25,7 +23,7 @@ def test_addDB_bad_entity(dtb):
 
 
 def test_addDB_bas_params(dtb, caplog):
-    assert dtb.addDB("Utilisateur", {"ezfzef": "aaa"}) == {}
+    assert dtb.addDB("Annee", {"ezfzef": "aaa"}) == {}
     assert "Unknown attribute 'ezfzef'" == caplog.records[0].exc_info[1].args[0]
 
 
@@ -96,9 +94,23 @@ def test_getDB_bad_id(dtb, fk, caplog):
 
 
 def test_setDB_id_is_str(fk, dtb):
-    f = fk.f_user(nom="aaa", td=True)
-    res = dtb.setDB("Utilisateur", str(f["id"]), {"nom": "bbb"})
+    f = fk.f_groupeMatiere(td=True)
+    res = dtb.setDB("GroupeMatiere", str(f["id"]), {"nom": "bbb"})
     f["nom"] = "bbb"
+    assert res == f
+
+
+def test_setDB_id_is_int(fk, dtb):
+    f = fk.f_annee(td=True)
+    res = dtb.setDB("Annee", f["id"], {"niveau": "bbb"})
+    f["niveau"] = "bbb"
+    assert res == f
+
+
+def test_setDB_name_id_filed_is_not_id(fk, dtb):
+    f = fk.f_style(td=True, underline=True)
+    res = dtb.setDB("Style", f["styleId"], {"underline": False})
+    f["underline"] = False
     assert res == f
 
 
@@ -114,3 +126,16 @@ def test_setDB_bad_param(dtb, fk, caplog):
     f = fk.f_annee(id=2020)
     assert dtb.setDB("Annee", 2020, {"azda": "dzef"}) == {}
     assert "Unknown attribute 'azda'" == caplog.records[0].exc_info[1].args[0]
+
+
+# test configuration
+
+
+def test_config_get_set(dtb, fk):
+    with db_session:
+        fk.db.Configuration.add("bla", "ha")
+
+    assert dtb.getConfig("bla") == "ha"
+    assert dtb.getConfig("nothing") is None
+    dtb.setConfig("bla", "rouge")
+    assert dtb.getConfig("bla") == "rouge"

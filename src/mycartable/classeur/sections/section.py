@@ -1,12 +1,14 @@
 from PySide2.QtCore import Signal, Property, QObject
+from mycartable.types import SubTypeAble
 from mycartable.types.bridge import Bridge
 
 
-class Section(Bridge):
-    nullSignal = Signal()
+class Section(SubTypeAble, Bridge):
 
     entity_name = "Section"
 
-    @Property(str, notify=nullSignal)
-    def classtype(self):
-        return self._data["classtype"]
+    @staticmethod
+    def available_subclass() -> list:
+        from . import ImageSection, TextSection
+
+        return Section, TextSection, ImageSection

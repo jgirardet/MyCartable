@@ -3,9 +3,9 @@ from __future__ import annotations
 from typing import Any, Union
 from uuid import UUID
 
-from PySide2.QtCore import Signal, Property, QObject, Slot
+from PySide2.QtCore import Signal, Property, QObject
+from loguru import logger
 from mycartable.types.dtb import DTB
-from pony.orm import Database
 
 
 class Bridge(QObject):
@@ -15,7 +15,6 @@ class Bridge(QObject):
     """
 
     entity_name = None
-    nullSignal = Signal()
 
     """
     Pure python  section
@@ -72,10 +71,22 @@ class Bridge(QObject):
         """
         return self._dtb.delDB(self.entity_name, self.id)
 
-    def _set_field(self, name: str, value: Any) -> None:
-        if value != getattr(self, name):
-            if res := self._dtb.setDB(self.entity_name, self.id, {name: value}):
-                self._data[name] = res[name]
+    def _set_field(self, name: str, value: Any) -> bool:
+        # pas getattr avec default au cas ou on set un value à None (je sais pas si c possible)
+        try:
+            if value == getattr(self, name):
+                return False
+        except AttributeError as err:
+            logger.error(err)
+
+        if res := self._dtb.setDB(self.entity_name, self.id, {name: value}):
+            self._data[name] = res[name]
+            return True
+        return False
+
+    def set_field(self, name: str, value: Any):
+        if self._set_field(name, value):
+            getattr(self, name + "Changed").emit()
 
     def __eq__(self, other):
         if isinstance(other, Bridge):
@@ -86,17 +97,9 @@ class Bridge(QObject):
     QT Properties
     """
 
-    @Property(str, notify=nullSignal)
+    @Property(str, constant=True)
     def id(self) -> str:
         return self._data.get("id", "")
-
-    @Property(QObject, notify=nullSignal)
-    def dtb(self) -> DTB:
-        return self._dtb
-
-    @Property("QVariantMap", notify=nullSignal)
-    def data(self) -> dict:
-        return self._data
 
     """
     QT Slots

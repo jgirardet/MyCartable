@@ -2,7 +2,9 @@ import time
 from itertools import zip_longest
 from operator import itemgetter, attrgetter
 from unittest.mock import patch, MagicMock
+from uuid import UUID
 
+from loguru import logger
 from pony.orm import db_session
 from contextlib import contextmanager
 
@@ -184,3 +186,14 @@ def compare_char_format(lhs, rhs, exclude=[]):
         l = getattr(rhs, attr)()
         assert r == l, f"{attr}: {r}!={l}"
     return True
+
+
+def uuu(val):
+    return UUID(str(val) * 32)
+
+
+@contextmanager
+def disable_log(name=""):
+    logger.disable(name)
+    yield
+    logger.enable(name)

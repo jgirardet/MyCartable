@@ -2,7 +2,7 @@ import typing
 from PySide2.QtCore import Signal, Property, QObject, QModelIndex, QByteArray, Qt, Slot
 from mycartable.package.utils import shift_list
 
-from .sections import SectionFactory, Section
+from .sections import Section
 from mycartable.types.bridge import Bridge
 from mycartable.types.listmodel import DtbListModel
 from pony.orm import db_session
@@ -24,10 +24,8 @@ class Page(Bridge):
     """
 
     entity_name = "Page"
-    pageSignal = Signal()
-    titreSignal = Signal()
-    lastPositionSignal = Signal()
-    matiereChanged = Signal()
+    lastPositionChanged = Signal()
+    titreChanged = Signal()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -41,36 +39,32 @@ class Page(Bridge):
     Qt Property
     """
 
-    @Property(QObject, notify=pageSignal)
+    @Property(QObject, constant=True)
     def classeur(self):
         return self.parent()
 
-    @Property(str, notify=pageSignal)
+    @Property(str, notify=titreChanged)
     def titre(self) -> str:
         return self._data.get("titre", "")
 
     @titre.setter
     def setTitre(self, value):
-        self._set_field("titre", value)
-        self.titreSignal.emit()
+        self.set_field("titre", value)
 
-    @Property(int, notify=lastPositionSignal)
+    @Property(int, notify=lastPositionChanged)
     def lastPosition(self) -> int:
         return self._data.get("lastPosition", 0)
 
     @lastPosition.setter
     def setLastPosition(self, value):
-        print("setlast", value)
-        self._set_field("lastPosition", value)
-        self.lastPositionSignal.emit()
+        self.set_field("lastPosition", value)
 
-    @Property(str, notify=pageSignal)
+    @Property(str, constant=True)
     def matiereId(self) -> str:
         return self._data.get("matiere", "")
 
-    @Property(QObject, notify=pageSignal)
+    @Property(QObject, constant=True)
     def model(self) -> "PageModel":
-        # print(self._model.data(QModelIndex(0, 0), PageModel.PageRole))
         return self._model
 
     """
@@ -87,7 +81,6 @@ class Page(Bridge):
 
 class PageModel(DtbListModel):
     SectionRole = Qt.UserRole + 1
-    pageSignal = Signal()
     countChanged = Signal()
 
     def __init__(self, parent=None):
@@ -98,7 +91,7 @@ class PageModel(DtbListModel):
         return {self.SectionRole: QByteArray(b"section")}
 
     def _reset(self):
-        self._data = self.dtb.getDB("Page", self.parent().id)
+        self._data = self._dtb.getDB("Page", self.parent().id)
 
     @db_session
     def _insertRows(self, row, count):
@@ -110,7 +103,7 @@ class PageModel(DtbListModel):
         )
         with db_session:
             for n, sec in enumerate(sections):
-                item = self.dtb.setDB(
+                item = self._dtb.setDB(
                     "Section",
                     sec,
                     {
@@ -123,7 +116,7 @@ class PageModel(DtbListModel):
 
     def _removeRows(self, row: int, count: int):
         for sec in self._data["sections"][row : row + count + 1]:
-            self.dtb.delDB("Section", sec)
+            self._dtb.delDB("Section", sec)
         self._reset()
 
     def data(self, index: QModelIndex, role: int) -> Section:
@@ -131,7 +124,7 @@ class PageModel(DtbListModel):
             return None
         elif role == self.SectionRole:
             sec_id = self._data["sections"][index.row()]
-            return SectionFactory.get(sec_id)
+            return Section.get(sec_id)
         else:
             return None
 
@@ -146,10 +139,10 @@ class PageModel(DtbListModel):
         if position is None:
             position = self.rowCount(QModelIndex())
         params["position"] = position
-        SectionFactory.new(self.page.id, classtype, **params)
+        Section.new(page=self.page.id, classtype=classtype, **params)
         return self.insertRow(position)
 
-    @Property(Page, notify=pageSignal)
+    @Property(Page, constant=True)
     def page(self):
         return self.parent()
 

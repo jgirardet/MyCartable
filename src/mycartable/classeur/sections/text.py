@@ -24,10 +24,9 @@ from .section import Section
 class TextSection(Section):
 
     entity_name = "TextSection"
+    textChanged = Signal()
 
-    textSectionSignal = Signal()
-
-    @Property(str, notify=textSectionSignal)
+    @Property(str, notify=textChanged)
     def text(self):
         return self._data["text"]
 
@@ -46,7 +45,7 @@ class TextSection(Section):
         res = TextSectionEditor(
             self.id, content, curseur, selectionStart, selectionEnd
         ).onChange()
-        self.textSectionSignal.emit()
+        self.textChanged.emit()
         return res
 
     @Slot(str, int, int, int, "QVariantMap", result="QVariantMap")

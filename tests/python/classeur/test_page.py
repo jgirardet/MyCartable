@@ -1,7 +1,7 @@
 import pytest
 from PySide2.QtCore import QModelIndex, Qt
-from fixtures import ss, check_args
-from mycartable.classeur import Page, PageModel, TextSection
+from fixtures import ss, check_args, disable_log
+from mycartable.classeur import Page, PageModel, TextSection, Section, ImageSection
 from mycartable.package.utils import shift_list
 from pony.orm import db_session, make_proxy
 
@@ -12,7 +12,8 @@ def test_subclassing(fk):
     y = Page.get(x.id)
     assert x == y
     assert x.delete()
-    assert Page.get(y.id) is None
+    with disable_log():
+        assert Page.get(y.id) is None
 
 
 def test_properties(fk):
@@ -47,7 +48,11 @@ def test_base_init(fk):
 
 @pytest.mark.parametrize(
     "nom, sectionclass",
-    [("textSection", TextSection)],
+    [
+        ("textSection", TextSection),
+        ("section", Section),
+        ("imageSection", ImageSection),
+    ],
 )
 def test_data_role(fk, nom, sectionclass):
     sec = getattr(fk, "f_" + nom)(td=True)

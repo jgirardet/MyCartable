@@ -1,5 +1,5 @@
 import pytest
-from fixtures import check_args
+from fixtures import check_args, disable_log
 from mycartable.types.dtb import DTB
 from loguru_caplog import loguru_caplog as caplog
 from pony.orm import db_session
@@ -24,7 +24,7 @@ def test_addDB_bad_entity(dtb):
 
 def test_addDB_bas_params(dtb, caplog):
     assert dtb.addDB("Annee", {"ezfzef": "aaa"}) == {}
-    assert "Unknown attribute 'ezfzef'" == caplog.records[0].exc_info[1].args[0]
+    assert "Unknown attribute 'ezfzef'" == caplog.records[0].message
 
 
 def test_setDB_id_is_int(fk, dtb):
@@ -125,7 +125,7 @@ def test_setDB_bad_id(dtb):
 def test_setDB_bad_param(dtb, fk, caplog):
     f = fk.f_annee(id=2020)
     assert dtb.setDB("Annee", 2020, {"azda": "dzef"}) == {}
-    assert "Unknown attribute 'azda'" == caplog.records[0].exc_info[1].args[0]
+    assert "Unknown attribute 'azda'" == caplog.records[0].message
 
 
 # test configuration

@@ -1,13 +1,14 @@
 import pytest
 from PySide2.QtGui import QColor
+from fixtures import disable_log
 from mycartable.classeur import Annotation
 from mycartable.types.bridge import Bridge
 from mycartable.types.stylable import Stylable
 from pony.orm import db_session
 
 
-class Styled(Stylable, Annotation):
-    pass
+class Styled(Stylable, Bridge):
+    entity_name = "Annotation"
 
 
 def test_init(fk):
@@ -23,6 +24,12 @@ def test_set_field_style(fk, qtbot):
         s.bgColor = QColor("#123456")
     with db_session:
         assert fk.db.Annotation[a["id"]].style.bgColor == QColor("#123456")
+    with qtbot.assertNotEmitted(s.bgColorChanged):
+        s.bgColor = QColor("#123456")
+
+    assert s._set_field_style("bgColor", "#111111")
+    with disable_log():
+        assert not s._set_field_style("bgfzeColor", "#111111")
 
 
 @pytest.mark.parametrize(
@@ -56,6 +63,9 @@ def test_properties(fk, qtbot, name, value):
     )
     s = Styled.get(a["id"])
     with qtbot.waitSignal(getattr(s, name + "Changed")):
+        setattr(s, name, value)
+    # pas d'"émission si pas de changement
+    with qtbot.assertNotEmitted(getattr(s, name + "Changed")):
         setattr(s, name, value)
     with db_session:
         res = fk.db.Annotation[a["id"]].to_dict()

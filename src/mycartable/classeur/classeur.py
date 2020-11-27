@@ -144,6 +144,6 @@ class Classeur(QObject):
             new_page.setParent(self)
             self._page = new_page
             self.pageChanged.emit()
-            self._page.titreSignal.connect(self.activitesChanged)
+            self._page.titreChanged.connect(self.activitesChanged)
             logger.info(f"CurrentPage changed to {self.page.titre}")
             self.setCurrentMatiere(self.page.matiereId)

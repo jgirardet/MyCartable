@@ -7,9 +7,7 @@ from mycartable.types import Bridge
 
 
 class SubTypeAble:
-    classtypeChanged = Signal()
-
-    @Property(str, notify=classtypeChanged)
+    @Property(str, constant=True)
     def classtype(self):
         return self._data["classtype"]
 

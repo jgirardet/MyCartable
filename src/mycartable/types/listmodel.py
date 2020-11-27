@@ -37,8 +37,6 @@ class DtbListModel(QAbstractListModel):
                 "method rowCount has to be implemented",
             )
 
-    nullSignal = Signal()
-
     def __init__(self, parent: QObject = None):
         super().__init__(parent)
         self._dtb = DTB()
@@ -140,10 +138,6 @@ class DtbListModel(QAbstractListModel):
         pass
 
     """QT Properties"""
-
-    @Property(QObject, notify=nullSignal)
-    def dtb(self):
-        return self._dtb
 
     """QT Slots"""
 

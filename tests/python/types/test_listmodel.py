@@ -18,7 +18,7 @@ def lm():
 
 
 def test_init(lm):
-    assert isinstance(lm.dtb, DTB)
+    assert isinstance(lm._dtb, DTB)
 
 
 def test_reset(qtbot):

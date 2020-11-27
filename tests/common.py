@@ -23,7 +23,7 @@ def setup_session():
 
     # logger.level("CRITICAL")
     # breakpoint()
-    logger.remove()
+    # logger.remove()
 
     # modify path
     root = Path(__file__).parents[1]

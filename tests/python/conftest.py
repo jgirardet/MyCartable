@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 
 from PySide2.QtQml import qmlRegisterType
+from loguru import logger
 
 sys.path.append(str(Path(__file__).parents[1]))
 from common import fn_reset_db, setup_session
@@ -69,7 +70,10 @@ def memory_db(
     from package.database import init_database
     import package.database
 
+    logger.disable("")
     db = init_database(Database())
+    logger.enable("")
+    # logger.enable("package")
     monkeypatch_session.setattr(package.database, "getdb", lambda: db)
 
     return db
@@ -78,8 +82,10 @@ def memory_db(
 @pytest.fixture(scope="session", autouse=True)
 def add_db_to_types(memory_db):
     from mycartable.types.dtb import DTB
+    from mycartable.types.globus import Globus
 
     DTB.db = memory_db
+    Globus.db = memory_db
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -88,10 +94,11 @@ def file_db(monkeypatch_session, tmp_path_factory):
     import package.database
 
     tmpfilename = tmp_path_factory.mktemp("mycartablefiledb") / "bla.sqlite"
-
+    logger.disable("")
     db = init_database(
         Database(), provider="sqlite", filename=str(tmpfilename), create_db=True
     )
+    logger.enable("")
 
     return db
 
@@ -171,30 +178,20 @@ def ddbf(ddbrf):
 
 
 @pytest.fixture(scope="function")
-def reset_db(ddbn, userid):
+def reset_db(ddbn):
     fn_reset_db(ddbn)
-    with db_session:
-        ddbn.Utilisateur(id=userid, nom="nom", prenom="prenom")
-
     yield
 
 
 @pytest.fixture(scope="class")
-def reset_db_class(memory_db, userid):
+def reset_db_class(memory_db):
     fn_reset_db(memory_db)
-    with db_session:
-        memory_db.Utilisateur(id=userid, nom="nom", prenom="prenom")
-
     yield
 
 
 @pytest.fixture(scope="function")
-def reset_dbf(ddbnf, userid):
+def reset_dbf(ddbnf):
     fn_reset_db(ddbnf)
-    with db_session:
-        ddbnf.Utilisateur(id=userid, nom="nom", prenom="prenom")
-
-    yield
 
 
 @pytest.fixture(scope="function")
@@ -218,20 +215,14 @@ def uim(qapp):
     return UiManager()
 
 
-@pytest.fixture(scope="session")
-def userid():
-    return "0ca1d5b4-eddb-4afd-8b8e-1aa5e7e19d17"
-
-
 @pytest.fixture()
-def dao(ddbr, tmpfilename, uim, userid):
+def dao(ddbr, tmpfilename, uim):
     from package.database_object import DatabaseObject
 
     with db_session:
         annee = ddbr.Annee(
             id=2019,
             niveau="cm2019",
-            user=userid,
         )
     obj = DatabaseObject(ddbr, uim)
     obj.changeAnnee.emit(2019)
@@ -241,14 +232,13 @@ def dao(ddbr, tmpfilename, uim, userid):
 
 
 @pytest.fixture()
-def daof(ddbrf, tmpfilename, uim, userid):
+def daof(ddbrf, tmpfilename, uim):
     from package.database_object import DatabaseObject
 
     with db_session:
         annee = ddbrf.Annee(
             id=2019,
             niveau="cm2019",
-            user=userid,
         )
     obj = DatabaseObject(ddbrf, uim)
     obj.changeAnnee.emit(2019)

@@ -32,6 +32,7 @@ class DTB(QObject):
                 if item := entity(**params):  # pragma: no branch
                     return item.to_dict()
             except TypeError as err:
+                print(err)
                 logger.error(err)
         return {}
 

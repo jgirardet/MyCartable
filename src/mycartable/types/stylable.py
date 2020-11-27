@@ -9,12 +9,11 @@ from pony.orm import db_session
 
 class Stylable:
 
-    dtb: DTB
+    _dtb: DTB
     _data: dict
 
     bgColorChanged = Signal()
     fgColorChanged = Signal()
-    styleIdChanged = Signal()
     underlineChanged = Signal()
     pointSizeChanged = Signal()
     strikeoutChanged = Signal()
@@ -25,10 +24,20 @@ class Stylable:
     Python Code
     """
 
-    def _set_field_style(self, name: str, value: Any) -> None:
-        if value != getattr(self, name):
-            if res := self._dtb.setDB("Style", self.styleId, {name: value}):
-                self._data["style"][name] = res[name]
+    def _set_field_style(self, name: str, value: Any) -> bool:
+        try:
+            if value == getattr(self, name):
+                return False
+        except AttributeError as err:
+            logger.error(err)
+        if res := self._dtb.setDB("Style", self.styleId, {name: value}):
+            self._data["style"][name] = res[name]
+            return True
+        return False
+
+    def set_style(self, name: str, value: Any):
+        if self._set_field_style(name, value):
+            getattr(self, name + "Changed").emit()
 
     """
     Qt Property
@@ -40,8 +49,9 @@ class Stylable:
 
     @bgColor.setter
     def bgColor_set(self, value: QColor):
-        self._set_field_style("bgColor", value)
-        self.bgColorChanged.emit()
+        # self.set_style("bgColor", value):
+        #     self.bgColorChanged.emit()
+        self.set_style("bgColor", value)
 
     @Property(str, notify=familyChanged)
     def family(self):
@@ -49,8 +59,7 @@ class Stylable:
 
     @family.setter
     def family_set(self, value: str):
-        self._set_field_style("family", value)
-        self.familyChanged.emit()
+        self.set_style("family", value)
 
     @Property(QColor, notify=fgColorChanged)
     def fgColor(self):
@@ -58,8 +67,7 @@ class Stylable:
 
     @fgColor.setter
     def fgColor_set(self, value: QColor):
-        self._set_field_style("fgColor", value)
-        self.fgColorChanged.emit()
+        self.set_style("fgColor", value)
 
     @Property(float, notify=pointSizeChanged)
     def pointSize(self):
@@ -67,8 +75,7 @@ class Stylable:
 
     @pointSize.setter
     def pointSize_set(self, value: float):
-        self._set_field_style("pointSize", value)
-        self.pointSizeChanged.emit()
+        self.set_style("pointSize", value)
 
     @Property(bool, notify=underlineChanged)
     def underline(self):
@@ -76,8 +83,7 @@ class Stylable:
 
     @underline.setter
     def underline_set(self, value: bool):
-        self._set_field_style("underline", value)
-        self.underlineChanged.emit()
+        self.set_style("underline", value)
 
     @Property(bool, notify=strikeoutChanged)
     def strikeout(self):
@@ -85,10 +91,9 @@ class Stylable:
 
     @strikeout.setter
     def strikeout_set(self, value: bool):
-        self._set_field_style("strikeout", value)
-        self.strikeoutChanged.emit()
+        self.set_style("strikeout", value)
 
-    @Property(str, notify=styleIdChanged)
+    @Property(str, constant=True)
     def styleId(self):
         return self._data["style"]["styleId"]
 
@@ -98,8 +103,7 @@ class Stylable:
 
     @weight.setter
     def weight_set(self, value: int):
-        self._set_field_style("weight", value)
-        self.weightChanged.emit()
+        self.set_style("weight", value)
 
     # @Slot(str, "QVariantMap", result="QVariantMap")
     # def setStyle(self, styleId, content):

@@ -6,26 +6,23 @@ from pony.orm import db_session, Database
 
 
 class Matiere(QObject):
-
-    nullSignal = Signal()
-
     def __init__(self, data: dict):
         super().__init__()
         self._data: dict = data
 
-    @Property(str, notify=nullSignal)
+    @Property(str, constant=True)
     def id(self):
         return self._data.get("id", "")
 
-    @Property(str, notify=nullSignal)
+    @Property(str, constant=True)
     def nom(self):
         return self._data.get("nom", "")
 
-    @Property(QColor, notify=nullSignal)
+    @Property(QColor, constant=True)
     def bgColor(self):
         return self._data.get("bgColor", "")
 
-    @Property(QColor, notify=nullSignal)
+    @Property(QColor, constant=True)
     def fgColor(self):
         return self._data.get("fgColor", "")
 

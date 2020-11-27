@@ -37,31 +37,18 @@ class Faker:
             if start < res <= end:
                 return res
 
-    def f_user(self, nom="lenom", prenom="leprenom", td=False, **kwargs):
-
-        with db_session:
-            user = self.db.Utilisateur.user() or self.db.Utilisateur(
-                nom=nom,
-                prenom=prenom,
-            )
-            return user.to_dict() if td else user
-
     #
-    def f_annee(self, id=2019, niveau=None, user=None, td=False, **kwargs):
+    def f_annee(self, id=2019, niveau=None, td=False, **kwargs):
 
         id = id or random.randint(2018, 2020)
         if isinstance(id, self.db.Annee):
             id = id.id
         niveau = niveau or "cm" + str(id)
         with db_session:
-            if user is not None:
-                user = user if isinstance(user, str) else str(user.id)
-            else:
-                user = self.f_user()
             if self.db.Annee.exists(id=id):
                 an = self.db.Annee[id]
             else:
-                an = self.db.Annee(id=id, niveau=niveau, user=user)
+                an = self.db.Annee(id=id, niveau=niveau)
             return an.to_dict() if td else an
 
     def f_groupeMatiere(self, nom=None, annee=None, td=False, **kwargs):

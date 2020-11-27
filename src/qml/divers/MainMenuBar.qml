@@ -1,3 +1,4 @@
+import MyCartable 1.0
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Window 2.15
@@ -31,6 +32,10 @@ Control {
         }
     ]
 
+    Annee {
+        id: annee
+    }
+
     Timer {
         id: timer_hide
 
@@ -56,7 +61,7 @@ Control {
         standardButtons: Dialog.Cancel
         onOpened: {
             //to refresh
-            contentItem.model = ddb.getMenuAnnees();
+            contentItem.model = annee.getMenuAnnees();
         }
 
         contentItem: ListView {
@@ -68,7 +73,7 @@ Control {
 
             delegate: ValueButton {
                 onClicked: {
-                    ddb.changeAnnee(value);
+                    globus.annee = value;
                     changerAnnee_id.close();
                 }
                 text: "mon année de " + modelData.niveau + " en " + modelData.id + "/" + (modelData.id + 1)
@@ -96,11 +101,11 @@ Control {
         height: ApplicationWindow.window ? ApplicationWindow.window.height * 0.9 : 600
         contentWidth: contentItem.width
         onClosed: {
-            ddb.changeAnnee(ddb.anneeActive);
+            globus.anneeChanged();
         }
 
         contentItem: ChangeGroupe {
-            annee: ddb.anneeActive
+            annee: globus.annee
         }
 
     }

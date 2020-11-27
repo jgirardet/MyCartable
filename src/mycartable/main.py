@@ -4,6 +4,7 @@ from pathlib import Path
 
 from PySide2.QtGui import QFont, QFontDatabase, QIcon
 from mycartable.types.dtb import DTB
+from mycartable.types.globus import Globus
 from package import get_prod
 from package.constantes import APPNAME, ORGNAME, BASE_FONT
 from PySide2.QtCore import (
@@ -21,7 +22,7 @@ from loguru import logger
 
 
 import package.database
-from pony.orm import Database
+from pony.orm import Database, db_session
 
 
 def main_init_database(filename=None, prod=False):
@@ -63,9 +64,15 @@ def main_init_database(filename=None, prod=False):
     if not prod:
         from tests.factory import Faker
 
+        with db_session:
+            db.Configuration.add("annee", 2019)
+
         try:
             f = Faker(db)
-            f.f_textSection()
+            m = f.f_matiere(groupe=2019)
+            ac = f.f_activite(matiere=m)
+            p = f.f_page(activite=ac)
+            f.f_textSection(page=p)
         except:
             pass
 
@@ -81,9 +88,9 @@ def register_new_qml_type(databaseObject, db):
     )
 
     # from package.page.text_section import DocumentEditor
-    from package.page.annotation_model import AnnotationModel
     from package.page.frise_model import FriseModel
     from mycartable.types.changematieres import ChangeMatieres
+    from mycartable.types.annee import Annee
     from mycartable.classeur import Classeur
 
     AdditionModel.ddb = databaseObject
@@ -93,17 +100,21 @@ def register_new_qml_type(databaseObject, db):
     ChangeMatieres.db = db
     Classeur.db = db
     DTB.db = db
+    # Globus.db = db
+    Annee
 
     # qmlRegisterType(DocumentEditor, "DocumentEditor", 1, 0, "DocumentEditor")
     qmlRegisterType(AdditionModel, "MyCartable", 1, 0, "AdditionModel")
     qmlRegisterType(SoustractionModel, "MyCartable", 1, 0, "SoustractionModel")
     qmlRegisterType(MultiplicationModel, "MyCartable", 1, 0, "MultiplicationModel")
     qmlRegisterType(DivisionModel, "MyCartable", 1, 0, "DivisionModel")
-    qmlRegisterType(AnnotationModel, "MyCartable", 1, 0, "AnnotationModel")
+    # qmlRegisterType(AnnotationModel, "MyCartable", 1, 0, "AnnotationModel")
     qmlRegisterType(FriseModel, "MyCartable", 1, 0, "FriseModel")
     qmlRegisterType(ChangeMatieres, "MyCartable", 1, 0, "ChangeMatieres")
     qmlRegisterType(Classeur, "MyCartable", 1, 0, "Classeur")
     qmlRegisterType(DTB, "MyCartable", 1, 0, "Database")
+    qmlRegisterType(Globus, "MyCartable", 1, 0, "Globus")
+    qmlRegisterType(Annee, "MyCartable", 1, 0, "Annee")
 
 
 def create_singleton_instance(prod=False):
@@ -113,21 +124,18 @@ def create_singleton_instance(prod=False):
 
     ui_manager = UiManager()
     databaseObject = DatabaseObject(package.database.db, ui=ui_manager, debug=False)
-
+    globus = Globus()
+    globus.db = package.database.db
     # if not prod:
     #     databaseObject.anneeActive = 2019
     #     with db_session:
     #         databaseObject.currentPage = databaseObject.db.Page.select().first().id
     dtb = DTB()
 
-    return databaseObject, ui_manager, dtb
+    return databaseObject, ui_manager, dtb, globus
 
 
-def setup_qml(ddb, ui_manager, dtb):
-    # import ressources
-
-    # # set env : why ???
-    # os.environ["QT_STYLE_OVERRIDE"] = ""
+def setup_qml(ddb, ui_manager, dtb, globus):
 
     # Create engine
     engine = QQmlApplicationEngine()
@@ -136,6 +144,7 @@ def setup_qml(ddb, ui_manager, dtb):
     engine.rootContext().setContextProperty("ddb", ddb)
     engine.rootContext().setContextProperty("uiManager", ui_manager)
     engine.rootContext().setContextProperty("c_dtb", dtb)
+    engine.rootContext().setContextProperty("globus", globus)
 
     # load main
     engine.load(QUrl("qrc:///qml/main.qml"))
@@ -175,7 +184,7 @@ def main(filename=None):
 
     # create instance de ce qui sera des singleton dans qml
     DTB.db = db
-    databaseObject, ui_manager, dtb = create_singleton_instance(prod)
+    databaseObject, ui_manager, dtb, globus = create_singleton_instance(prod)
     app.dao = databaseObject
 
     # register les new qml type
@@ -184,7 +193,7 @@ def main(filename=None):
     # setup le qml et retourne l'engine
     # import qrc
 
-    engine = setup_qml(databaseObject, ui_manager, dtb)
+    engine = setup_qml(databaseObject, ui_manager, dtb, globus)
 
     # Manifestement l'acces au qrc n'est pas immediat apres creation de l'app
     # donc on met tout ça un peu plus "loin"

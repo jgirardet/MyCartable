@@ -19,7 +19,9 @@ Dialog {
             errortext.visible = true;
             return ;
         } else {
-            ddb.newUser(nom, prenom);
+            globus.setConfig("nom", nom);
+            globus.setConfig("prenom", prenom);
+            globus.setConfig("user_set", true);
         }
     }
     onRejected: {

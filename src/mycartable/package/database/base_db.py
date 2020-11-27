@@ -25,14 +25,21 @@ def ensure_database_directory(loc):
 
 
 def init_bind(db, provider="sqlite", filename=":memory:", create_db=False, **kwargs):
+    create_file = False
     if filename != ":memory:":
         filename = ensure_database_directory(filename)
     logger.info(f"Database file path is {filename}")
     # try:
+    if filename != ":memory:" and not filename.is_file():
+        create_file = True
+
     db.bind(provider=provider, filename=str(filename), create_db=create_db, **kwargs)
     db.generate_mapping(create_tables=True)
-    # except Exception as err:
-    #     logger.exception(err)
+    if create_file:
+        from mycartable.package.database.models import schema_version
+
+        schema = Schema(db)
+        schema.version = schema_version
 
 
 def init_database(db: Database, **kwargs):

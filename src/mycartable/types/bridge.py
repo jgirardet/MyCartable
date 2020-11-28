@@ -3,9 +3,10 @@ from __future__ import annotations
 from typing import Any, Union
 from uuid import UUID
 
-from PySide2.QtCore import Signal, Property, QObject
+from PySide2.QtCore import Signal, Property, QObject, Slot
 from loguru import logger
 from mycartable.types.dtb import DTB
+from pony.orm import db_session
 
 
 class Bridge(QObject):
@@ -104,3 +105,9 @@ class Bridge(QObject):
     """
     QT Slots
     """
+
+    @Slot("QVariantMap")
+    def set(self, data: dict):
+        with db_session(sql_debug=True):
+            for name, value in data.items():
+                self.set_field(name, value)

@@ -25,6 +25,17 @@ def dummyClassPage():
         def titre_set(self, value: str):
             self.set_field("titre", value)
 
+        lastPositionChanged = Signal()
+
+        @Property(int, notify=lastPositionChanged)
+        def lastPosition(self):
+            return self._data["lastPosition"]
+
+        @lastPosition.setter
+        def lastPosition_set(self, value: int):
+            self._set_field("lastPosition", value)
+            self.lastPositionChanged.emit()
+
     return Page
 
 
@@ -59,6 +70,17 @@ def test_set_field(fk, dummyClassPage, qtbot):
         a.titre = "iii"
     with db_session:
         assert fk.db.Page[a.id].titre == "iii"
+
+
+def test_set(fk, qtbot, dummyClassPage):
+    f = fk.f_page(titre="bla", lastPosition=3)
+    p = dummyClassPage.get(f.id)
+    with qtbot.waitSignals([p.titreChanged, p.lastPositionChanged]):
+        p.set({"titre": "hello", "lastPosition": 99})
+    with db_session:
+        pa = fk.db.Page[p.id]
+        assert pa.lastPosition == 99
+        assert pa.titre == "hello"
 
 
 def test_new(fk, dummyClassPage):

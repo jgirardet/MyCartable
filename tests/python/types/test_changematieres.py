@@ -1,6 +1,6 @@
 import pytest
 from PySide2.QtGui import QColor
-from fixtures import check_args
+from tests.python.fixtures import check_args
 from mycartable.types.changematieres import ChangeMatieres
 from pony.orm import db_session
 
@@ -165,10 +165,10 @@ class TestChangeMatieresMixin:
         ]
 
     def test_updateActiviteNom(self, fk, cm):
-        fk.f_activite(nom="bla")
-        cm.updateActiviteNom(1, "meuh")
+        x = fk.f_activite(nom="bla")
+        cm.updateActiviteNom(x.id, "meuh")
         with db_session:
-            assert cm.db.Activite[1].nom == "meuh"
+            assert cm.db.Activite[x.id].nom == "meuh"
 
     def test_getMatieres(self, fk, cm):
         groupe = fk.f_groupeMatiere()
@@ -344,7 +344,7 @@ class TestChangeMatieresMixin:
             }
         ]
 
-    def test_updateActiviteNom(self, fk, cm):
+    def test_updateMAtiereNom(self, fk, cm):
         m = fk.f_matiere(nom="bla")
         cm.updateMatiereNom(str(m.id), "meuh")
         with db_session:

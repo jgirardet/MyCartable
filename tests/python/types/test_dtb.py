@@ -1,5 +1,6 @@
 import pytest
-from fixtures import check_args, disable_log
+from PySide2.QtQml import QJSEngine
+from tests.python.fixtures import check_args, disable_log
 from mycartable.types.dtb import DTB
 from loguru_caplog import loguru_caplog as caplog
 from pony.orm import db_session
@@ -20,6 +21,16 @@ def test_addDB(dtb):
 
 def test_addDB_bad_entity(dtb):
     assert dtb.addDB("AAA", {}) == {}
+
+
+def test_DTB_no_db(dtb):
+    class AAA(DTB):
+        pass
+
+    AAA.db = None
+
+    with pytest.raises(NotImplementedError):
+        AAA()
 
 
 def test_addDB_bas_params(dtb, caplog):
@@ -139,3 +150,11 @@ def test_config_get_set(dtb, fk):
     assert dtb.getConfig("nothing") is None
     dtb.setConfig("bla", "rouge")
     assert dtb.getConfig("bla") == "rouge"
+
+
+def test_setConfig_jsvalue(dtb, fk, qapp):
+    q = QJSEngine()
+    val = {"nom": "aa", "prenom": "bb"}
+    arr = q.toScriptValue(val)
+    dtb.setConfig("bla", arr)
+    assert dtb.getConfig("bla") == val

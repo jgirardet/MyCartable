@@ -28,10 +28,16 @@ from mycartable.classeur.sections.text import (
     TextSection,
 )
 
-from fixtures import compare_char_format, check_args
+from tests.python.fixtures import compare_char_format, check_args
 
 
-class TestTextSectionMixin:
+def test_properties(fk):
+    a = fk.f_textSection(td=True)
+    b = TextSection.get(a)
+    assert a["text"] == b.text
+
+
+class TestTextSectio:
     def test_check_args(self):
         check_args(TextSection.updateTextSectionOnKey, [str, int, int, int, str], dict)
         check_args(TextSection.updateTextSectionOnChange, [str, int, int, int], dict)
@@ -60,7 +66,7 @@ class TestTextSectionMixin:
         args = "blap", 3, 3, 4
 
         with patch("mycartable.classeur.sections.text.TextSectionEditor") as m:
-            with qtbot.waitSignal(sec.textSectionSignal):
+            with qtbot.waitSignal(sec.textChanged):
                 res = sec.updateTextSectionOnChange(*args)
             m.assert_called_with(sec.id, *args)
             m.return_value.onChange.assert_called_with()

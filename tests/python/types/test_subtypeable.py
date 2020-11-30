@@ -1,3 +1,4 @@
+import pytest
 from mycartable.types import Bridge
 from mycartable.types import SubTypeAble
 
@@ -23,38 +24,14 @@ def test_classtype(fk):
     assert s.classtype == "bla"
 
 
-def test_new(fk):
-    p = fk.f_page()
-    # base class
-    normal = MainSection.new(page=str(p.id))
-    assert isinstance(normal, MainSection)
-    # sublcass
-    sub = MainSection.new(page=str(p.id), classtype="TextSection")
-    assert isinstance(sub, SubSection)
+def test_get_class(fk):
+    assert MainSection.get_class({"classtype": "Section"}) == MainSection
+    assert MainSection.get_class({}) == MainSection
+    assert MainSection.get_class("Section") == MainSection
+    assert MainSection.get_class({"classtype": "TextSection"}) == SubSection
+    assert MainSection.get_class("TextSection") == SubSection
 
 
-def test_new(fk):
-    p = fk.f_page()
-    # base class
-    normal = MainSection.new(page=str(p.id))
-    assert isinstance(normal, MainSection)
-    # sublcass
-    sub = MainSection.new(page=str(p.id), classtype="TextSection")
-    assert isinstance(sub, SubSection)
-
-
-def test_get(fk):
-    m = fk.f_section(td=True)
-    s = fk.f_textSection(td=True)
-    # base class
-    normal = MainSection.get(m["id"])
-    assert isinstance(normal, MainSection)
-    normaldict = MainSection.get(m)
-    assert isinstance(normal, MainSection)
-    assert normal == normaldict
-    # sublcass
-    sub = MainSection.get(s["id"])
-    assert isinstance(sub, SubSection)
-    subdict = MainSection.get(s)
-    assert isinstance(sub, SubSection)
-    assert sub == subdict
+def test_available_not_implemented():
+    with pytest.raises(NotImplementedError):
+        Subtyped.get_class("aa")

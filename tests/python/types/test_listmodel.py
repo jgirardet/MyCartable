@@ -21,6 +21,22 @@ def test_init(lm):
     assert isinstance(lm._dtb, DTB)
 
 
+def test_rowcount_not_implmented():
+    with pytest.raises(NotImplementedError):
+
+        class AAA(DtbListModel):
+            pass
+
+
+def test_virtual_function(lm: DtbListModel):
+    assert lm._insertRows(1, 1) is None
+    assert lm._removeRows(1, 1) is None
+    assert lm._moveRows(1, 1, 1) is None
+    assert lm._reset() is None
+    assert lm._roleNames() == {}
+    assert lm._after_reset() is None
+
+
 def test_reset(qtbot):
     class LM(DtbListModel):
         _data = ["a"]
@@ -124,6 +140,7 @@ def test_move_row_false(lm):
         ("removeRow", "removeRows", [2], [2, 0, QModelIndex()]),
         ("remove", "removeRows", [2], [2, 0, QModelIndex()]),
         ("moveRow", "moveRows", [1, 3], [QModelIndex(), 1, 0, QModelIndex(), 3]),
+        ("move", "moveRows", [1, 3], [QModelIndex(), 1, 0, QModelIndex(), 3]),
     ],
 )
 def test_shortcuts(method, general, inp, res, lm):

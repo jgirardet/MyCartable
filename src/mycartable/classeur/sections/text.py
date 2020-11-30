@@ -18,7 +18,7 @@ from PySide2.QtGui import (
 
 from mycartable.package.utils import KeyW
 
-from .section import Section
+from . import Section
 
 
 class TextSection(Section):

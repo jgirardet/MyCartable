@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+import datetime
 from typing import Tuple
 from uuid import UUID, uuid4
 
@@ -10,6 +10,7 @@ from pony.orm import (
     Set,
     desc,
     Database,
+    Json,
 )
 
 from .mixins import ColorMixin, PositionMixin
@@ -17,22 +18,74 @@ from .mixins import ColorMixin, PositionMixin
 
 def class_structure(
     db: Database,
-) -> Tuple["Annee", "GroupeMatiere", "Matiere", "Activite", "Page"]:
+) -> Tuple["Configuration", "Annee", "GroupeMatiere", "Matiere", "Activite", "Page"]:
+    class Configuration(db.Entity):
+        key = PrimaryKey(str)
+        field = Required(str)
+
+        EASY_TYPES = [str, int, bool, float, datetime.datetime, datetime.date]
+
+        str_value = Optional(str)
+        int_value = Optional(int)
+        bool_value = Optional(bool)
+        float_value = Optional(float)
+        uuid_value = Optional(UUID)
+        datetime_value = Optional(datetime.datetime)
+        date_value = Optional(datetime.date)
+        json_value = Optional(Json)
+
+        @classmethod
+        def add(cls, key, value):
+            field = cls._get_field(value)
+            item = cls.get(key=key)
+            if item:
+                if field != item.field:  # old != new, erase old
+                    setattr(item, item.field, Configuration._get_blank(item.field))
+                item.field = field
+                setattr(item, field, value)
+            else:
+                Configuration(**{"key": key, "field": field, field: value})
+
+        @classmethod
+        def option(cls, key):
+            if item := Configuration.get(key=key):
+                return getattr(item, item.field)
+
+        @staticmethod
+        def _get_field(value: str) -> str:
+            res = ""
+            if type(value) in Configuration.EASY_TYPES:
+                res = value.__class__.__name__
+            elif isinstance(value, UUID):
+                res = "uuid"
+            elif isinstance(value, (list, dict)):
+                res = "json"
+            else:
+                raise ValueError(f"Le type {type(value)} n'est pas valide")
+            return res + "_value"
+
+        @staticmethod
+        def _get_blank(value):
+            if value == "json_value":
+                return {}
+            elif value == "str_value":
+                return ""
+            else:
+                return None
+
+        @classmethod
+        def all(self):
+            return {c.key: getattr(c, c.field) for c in Configuration.select()}
+
     class Annee(db.Entity):
         id = PrimaryKey(int)
         niveau = Optional(str)
         groupes = Set("GroupeMatiere")
-        user = Required("Utilisateur", reverse="annees")
 
         def get_matieres(self):
             return select(
                 matiere for groupe in self.groupes for matiere in groupe.matieres
             ).order_by(lambda m: (m.groupe.position, m.position))
-
-        def to_dict(self, *args, **kwargs):
-            dico = super().to_dict(*args, **kwargs)
-            dico["user"] = str(dico["user"])
-            return dico
 
     class GroupeMatiere(db.Entity, PositionMixin, ColorMixin):
         referent_attribute_name = "annee"
@@ -161,8 +214,8 @@ def class_structure(
 
     class Page(db.Entity):
         id = PrimaryKey(UUID, auto=True, default=uuid4)
-        created = Required(datetime, default=datetime.utcnow)
-        modified = Optional(datetime)
+        created = Required(datetime.datetime, default=datetime.datetime.utcnow)
+        modified = Optional(datetime.datetime)
         titre = Optional(str, default="")
         activite = Required("Activite")
         lastPosition = Optional(int, default=0)
@@ -175,7 +228,7 @@ def class_structure(
             if hasattr(self, "reasonUpdate"):
                 del self.reasonUpdate  # block page autoupdate when provient de section
             else:
-                self.modified = datetime.utcnow()
+                self.modified = datetime.datetime.utcnow()
 
         def to_dict(self):
             dico = super().to_dict()
@@ -218,4 +271,4 @@ def class_structure(
         def content(self):
             return [p for p in self.sections.order_by(db.Section._position)]
 
-    return Annee, GroupeMatiere, Matiere, Activite, Page
+    return Configuration, Annee, GroupeMatiere, Matiere, Activite, Page

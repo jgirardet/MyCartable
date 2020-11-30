@@ -34,7 +34,8 @@ def class_style(db: Database) -> "Style":
             return dico
 
         def set(self, **kwargs):
-            super().set(**self.adjust_kwargs(**kwargs))
+            res = self.adjust_kwargs(**kwargs)
+            super().set(**self.adjust_kwargs(**res))
 
         def adjust_kwargs(self, **kwargs):
             colors = ["fgColor", "bgColor"]
@@ -42,7 +43,10 @@ def class_style(db: Database) -> "Style":
                 if col in kwargs:
                     val = kwargs.pop(col)
                     if val is not None:
-                        kwargs["_" + col] = self.color_setter(val)
+                        value = self.color_setter(val)
+                        if value is None:
+                            raise ValueError(f"{val} n'est pas valide pour {col}")
+                        kwargs["_" + col] = value
             return kwargs
 
     return Style

@@ -110,8 +110,6 @@ class PageModel(DtbListModel):
                         "_position": n,
                     },
                 )
-                if not item:
-                    break
         self._data["sections"] = sections
 
     def _removeRows(self, row: int, count: int):

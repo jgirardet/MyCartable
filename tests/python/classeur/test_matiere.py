@@ -1,5 +1,5 @@
 import pytest
-from fixtures import check_args
+from tests.python.fixtures import check_args
 from mycartable.classeur.matiere import Matiere, MatieresDispatcher
 
 

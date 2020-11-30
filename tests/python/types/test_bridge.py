@@ -3,7 +3,7 @@ from uuid import uuid4, UUID
 
 import pytest
 from PySide2.QtCore import Property, Signal
-from fixtures import disable_log
+from tests.python.fixtures import disable_log, uuu
 from mycartable.types.bridge import Bridge
 from mycartable.types.dtb import DTB
 from pony.orm import db_session
@@ -71,6 +71,14 @@ def test_set_field(fk, dummyClassPage, qtbot):
     with db_session:
         assert fk.db.Page[a.id].titre == "iii"
 
+    # fail in db
+    with qtbot.assertNotEmitted(a.titreChanged):
+        with disable_log():
+            a.titre = []  # datatype
+    assert a.titre == "iii"
+    with db_session:
+        assert fk.db.Page[a.id].titre == "iii"
+
 
 def test_set(fk, qtbot, dummyClassPage):
     f = fk.f_page(titre="bla", lastPosition=3)
@@ -91,32 +99,11 @@ def test_new(fk, dummyClassPage):
     p = dummyClassPage.new(**{"activite": str(g.id), "titre": "polumb"})
     assert p._data["titre"] == "polumb"
 
+    # none
+    class AAA(Bridge):
+        entity_name = "a"
 
-def test_new_factory(fk):
-    class DummySection(Bridge):
-        entity_name = "Section"
-
-    class TextDummy(DummySection):
-        entity_name = "TextSection"
-
-    g = fk.f_page()
-    p = DummySection.new(
-        page=str(g.id),
-        text="aa",
-        entity_factory="TextSection",
-        class_factory=lambda x: TextDummy,
-    )
-    assert isinstance(p, TextDummy)
-
-    p = DummySection.new(
-        **{
-            "page": str(g.id),
-            "class_factory": lambda x: TextDummy,
-            "entity_factory": "TextSection",
-            "text": "blabla",
-        }
-    )
-    assert isinstance(p, TextDummy)
+    assert AAA.new() is None
 
 
 def test_get_by_id(fk, dummyClassPage):
@@ -133,21 +120,8 @@ def test_get_by_dict(fk, dummyClassPage):
     assert x._data == p
 
 
-def test_get_classtype(fk, dummyClassPage):
-    class AlsoDummy(dummyClassPage):
-        pass
-
-    p = fk.f_page(td=True)
-
-    # with dict
-    x = dummyClassPage.get(p, class_factory=lambda x: AlsoDummy)
-    assert x._data == p
-    assert isinstance(x, AlsoDummy)
-
-    # with int
-    x = dummyClassPage.get(p["id"], class_factory=lambda x: AlsoDummy)
-    assert x._data == p
-    assert isinstance(x, AlsoDummy)
+def test_get_wrong_type(fk, dummyClassPage):
+    assert dummyClassPage.get([]) is None
 
 
 def test_delete(fk, dummyClassPage):
@@ -167,5 +141,32 @@ def test_init_subclass():
 def test_eq(dummyClassPage, fk):
     ac = fk.f_activite()
     x = dummyClassPage.new(activite=ac.id)
+    z = dummyClassPage.new(activite=ac.id)
     y = dummyClassPage.get(x.id)
     assert x == y
+    assert x != z
+    assert x != 1
+
+
+def test_get_class_with_new_and_get(fk):
+    class Child(Bridge):
+        entity_name = "Section"
+
+    class Rex(Bridge):
+        entity_name = "Section"
+
+        def get_class(self):
+            return Child
+
+    class Bla(Bridge):
+        entity_name = "Section"
+
+    p = fk.f_page()
+    # new
+    b = Bla.new(**{"page": p.id})
+    c = Rex.new(**{"page": p.id})
+    assert isinstance(b, Bla)
+    assert isinstance(c, Child)
+    # get
+    assert isinstance(Bla.get(b.id), Bla)
+    assert isinstance(Rex.get(c.id), Child)

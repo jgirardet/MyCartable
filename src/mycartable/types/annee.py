@@ -24,7 +24,7 @@ class Annee(Bridge):
 
     @niveau.setter
     def niveau_set(self, value: int):
-        if self.id:
+        if self.id:  # pragma: no branch
             self.set_field("niveau", value)
 
     @Slot(result="QVariantList")

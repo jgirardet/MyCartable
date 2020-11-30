@@ -1,14 +1,16 @@
 from pathlib import Path
 
-from PIL.Image import Image
-from PySide2.QtCore import Signal, Property, Slot, QPointF, QPoint, Qt, QUrl
+from PIL import Image
+from PySide2.QtCore import Signal, Property, Slot, QPointF, QPoint, Qt, QUrl, QObject
 from PySide2.QtGui import QColor, QCursor
 from PySide2.QtQuick import QQuickItem
+from .annotation import AnnotationModel
 from mycartable.package.constantes import ANNOTATION_TEXT_BG_OPACITY
 from mycartable.package.convertion.wimage import WImage
-from mycartable.package.cursors import build_one_image_cursor
+from mycartable.package.cursors import build_one_image_cursor, build_all_image_cursor
 from mycartable.package.files_path import FILES
 from mycartable.package.utils import get_new_filename
+from mycartable.types.dtb import DTB
 from pony.orm import db_session
 
 from .section import Section
@@ -16,29 +18,36 @@ from .section import Section
 
 class ImageSection(Section):
     entity_name = "ImageSection"
+    ALL_IMAGE_CURSORS = None
 
-    imageSectionSignal = Signal()
     annotationTextBGOpacityChanged = Signal()
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        print(self._data)
 
     """
     Python Code
     """
 
-    def create_empty_image(self, width: int, height: int) -> str:
+    def __init__(self, data: dict = {}, parent=None):
+        super().__init__(data=data, parent=parent)
+        self._model = AnnotationModel(self)
+
+    @property
+    def absolute_path(self) -> Path:
+        return FILES / self.path
+
+    @staticmethod
+    def create_empty_image(width: int, height: int) -> str:
         im = Image.new("RGBA", (width, height), "white")
-        res_path = self.get_new_image_path(".png")
-        new_file = self.files / res_path
+        res_path = ImageSection.get_new_image_path(".png")
+        new_file = FILES / res_path
         new_file.parent.mkdir(parents=True, exist_ok=True)
         im.save(new_file)
         return str(res_path)
 
     @staticmethod
     def get_new_image_path(ext):
-        return Path(str(self.annee_active), get_new_filename(ext)).as_posix()
+        with db_session:
+            annee = DTB().getConfig("annee")
+        return Path(str(annee), get_new_filename(ext)).as_posix()
 
     @staticmethod
     def store_new_file(filepath, ext=None):
@@ -53,7 +62,7 @@ class ImageSection(Section):
             return res_path
 
     @classmethod
-    def new(cls, **kwargs):
+    def new(cls, parent=None, **kwargs):
         path = kwargs.pop("path", None)
         if not path:
             return
@@ -64,12 +73,12 @@ class ImageSection(Section):
         )
         if not p_path.is_file():
             return
-
         if p_path.suffix == ".pdf":
             # umplement PDF section ?
             # runner = qrunnable(self.addSectionPDF, page_id, p_path)
             return
-        kwargs["path"] = str(ImageSection.store_new_file(p_path))
+        kwargs["path"] = str(cls.store_new_file(p_path))
+        return super().new(parent=parent, **kwargs)
 
     """
     Qt Propoerty
@@ -79,10 +88,19 @@ class ImageSection(Section):
     def annotationTextBGOpacity(self):
         return ANNOTATION_TEXT_BG_OPACITY
 
-    @Property(str, notify=imageSectionSignal)
+    @Property(str, constant=True)
     def path(self):
-        print(self._data)
         return self._data["path"]
+
+    @Property(QUrl, constant=True)
+    def url(self):
+        return QUrl.fromLocalFile(str(self.absolute_path))
+
+    modelChanged = Signal()
+
+    @Property(QObject, constant=True)
+    def model(self):
+        return self._model
 
     """
     Qt Slots
@@ -90,38 +108,32 @@ class ImageSection(Section):
 
     @Slot(str, QColor, QPointF, result=bool)
     def floodFill(self, sectionId: str, color: QColor, point: QPointF):
-        with db_session:
-            item = self.db.ImageSection[sectionId]
-            file = self.files / item.path
-        im = WImage(str(file))
+        im = WImage(str(self.absolute_path))
         point = QPoint(point.x() * im.width(), point.y() * im.height())
         im.flood_fill(color, point)
-        return im.save(str(file))
+        return im.save(str(self.absolute_path))
 
     @Slot(str, int, result=bool)
     def pivoterImage(self, sectionId, sens):
         with db_session:
-            item = self.db.ImageSection[sectionId]
-            file = self.files / item.path
-            im = Image.open(file)
+            im = Image.open(self.absolute_path)
             sens_rotate = Image.ROTATE_270 if sens else Image.ROTATE_90
-            im.transpose(sens_rotate).save(file)
-            self.imageSectionSignal.emit()
+            im.transpose(sens_rotate).save(self.absolute_path)
+            # todo: self.imageSectionSignal.emit()
             return True
 
-    @Slot(QQuickItem, str)
-    @Slot(QQuickItem)
-    def setImageSectionCursor(self, qk: QQuickItem, tool: str = ""):
-        tool = tool or self.ui.annotationCurrentTool
+    @Slot(QQuickItem, str, QColor)
+    def setImageSectionCursor(self, qk: QQuickItem, tool: str, color: QColor):
         if tool == "default":
             qk.setCursor(QCursor(Qt.ArrowCursor))
             return
         elif tool == "dragmove":
             qk.setCursor(QCursor(Qt.DragMoveCursor))
             return
-        color = QColor(self.ui.annotationDessinCurrentStrokeStyle)
         if color != "black":
             cur = build_one_image_cursor(tool, color)
         else:
-            cur = self.ui.image_cursors[tool]
+            if self.ALL_IMAGE_CURSORS is None:
+                type(self).ALL_IMAGE_CURSORS = build_all_image_cursor()
+            cur = self.ALL_IMAGE_CURSORS[tool]
         qk.setCursor(cur)

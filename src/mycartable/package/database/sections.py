@@ -103,7 +103,8 @@ def class_section(
 
         def to_dict(self, **kwargs):
             dico = super().to_dict()
-            dico["annotations"] = [annot.to_dict() for annot in self.annotations]
+            dico["annotations"] = [a.to_dict() for a in self.annotations]
+
             return dico
 
     class TextSection(Section):
@@ -348,8 +349,10 @@ def class_section(
 
         def to_dict(self, **kwargs):
             dico = super().to_dict(**kwargs, related_objects=True)
-            dico.update(dico.pop("style").to_dict())
+            # dico.update(dico.pop("style").to_dict())
+            dico["style"] = self.style.to_dict()
             dico["id"] = str(self.id)
+            dico["section"] = str(self.section.id)
             return dico
 
         def set(self, **kwargs):

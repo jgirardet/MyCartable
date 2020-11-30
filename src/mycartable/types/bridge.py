@@ -33,9 +33,16 @@ class Bridge(QObject):
         self._dtb = DTB()
 
     @classmethod
-    def get(
-        cls, item: Union[str, int, UUID, dict], class_factory: callable = None
-    ) -> Bridge:
+    def get_class(cls, data: Union[dict, str]) -> type(Bridge):
+        """
+        Retourne le type de classe à créer, peut être overrider
+        :param data: entity parameters
+        :return: Bridge subclass
+        """
+        return cls
+
+    @classmethod
+    def get(cls, item: Union[str, int, UUID, dict]) -> Bridge:
         f"""
         Create a new instance of {cls.__name__}
         :param item: id as string or data as dict
@@ -48,22 +55,19 @@ class Bridge(QObject):
         elif isinstance(item, dict):
             data = item
         if data:
-            _class = cls if class_factory is None else class_factory(data)
+            _class = cls.get_class(data)
             return _class(data=data)
 
     @classmethod
-    def new(cls, parent=None, **kwargs) -> Bridge:
+    def new(cls, parent: QObject = None, **kwargs) -> Bridge:
         """
         Create new entry in database and return the corresponding Bridge subclass
         :param kwargs: entity parameters
         :return: instance of {cls.__name__} or None
         """
-        class_factory = kwargs.pop("class_factory", None)
-        entity_factory = kwargs.pop("entity_factory", None)
-        entity_name = entity_factory or cls.entity_name
-        if new_item := DTB().addDB(entity_name, kwargs):
-            _class = cls if class_factory is None else class_factory(new_item)
-            return _class(data=new_item)
+        if data := DTB().addDB(cls.entity_name, kwargs):
+            _class = cls.get_class(data)
+            return _class(parent=parent, data=data)
 
     def delete(self) -> bool:
         """
@@ -81,12 +85,12 @@ class Bridge(QObject):
             logger.error(err)
 
         if res := self._dtb.setDB(self.entity_name, self.id, {name: value}):
-            self._data[name] = res[name]
             return True
         return False
 
     def set_field(self, name: str, value: Any):
         if self._set_field(name, value):
+            self._data[name] = value
             getattr(self, name + "Changed").emit()
 
     def __eq__(self, other):
@@ -108,6 +112,6 @@ class Bridge(QObject):
 
     @Slot("QVariantMap")
     def set(self, data: dict):
-        with db_session(sql_debug=True):
-            for name, value in data.items():
-                self.set_field(name, value)
+        for name, value in data.items():
+            # permet de mettre à jour aussi bien setfield/setstylefield
+            setattr(self, name, value)

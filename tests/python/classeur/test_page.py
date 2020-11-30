@@ -1,6 +1,7 @@
 import pytest
 from PySide2.QtCore import QModelIndex, Qt
-from fixtures import ss, check_args, disable_log
+from pytestqml.qt import QObject
+from tests.python.fixtures import ss, check_args, disable_log
 from mycartable.classeur import Page, PageModel, TextSection, Section, ImageSection
 from mycartable.package.utils import shift_list
 from pony.orm import db_session, make_proxy
@@ -27,9 +28,16 @@ def test_properties(fk):
 
     # lastused
     assert p.lastPosition == 5
+    p.lastPosition = 2
+    assert p.lastPosition == 2
 
     # matiere
     assert p.matiereId == str(ac.matiere.id)
+
+    # classert
+    a = QObject()
+    p.setParent(a)
+    assert p.classeur == a
 
 
 def test_property_model(fk):
@@ -65,7 +73,7 @@ def test_data_role(fk, nom, sectionclass):
     # invalid index
     assert a.data(a.index(99, 99), a.SectionRole) is None
     # no good role
-    assert a.data(a.index(1, 0), 99999) is None
+    assert a.data(a.index(0, 0), 99999) is None
 
 
 def test_rowCount(fk):
@@ -74,6 +82,7 @@ def test_rowCount(fk):
     p = Page.get(str(pg.id))
     a = p.model
     assert a.rowCount(QModelIndex()) == 3
+    assert a.count == 3
 
 
 def test_roleNames(fk):
@@ -235,6 +244,16 @@ def test_removeRows(fk, idx, res):
         ),
         (
             ["TextSection", 4],
+            {},
+            [
+                "00000000-0000-0000-0000-000000000000",
+                "11111111-1111-1111-1111-111111111111",
+                "22222222-2222-2222-2222-222222222222",
+                "33333333-3333-3333-3333-333333333333",
+            ],
+        ),
+        (
+            ["TextSection", None],
             {},
             [
                 "00000000-0000-0000-0000-000000000000",

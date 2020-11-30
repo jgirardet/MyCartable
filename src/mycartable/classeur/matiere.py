@@ -27,7 +27,7 @@ class Matiere(QObject):
         return self._data.get("fgColor", "")
 
     def __repr__(self):
-        return self.nom
+        return "Matiere: " + self.nom
 
 
 class MatieresDispatcher(QObject):
@@ -61,7 +61,7 @@ class MatieresDispatcher(QObject):
             new = {"activites": []}
             new["nom"] = m.nom
             new["bgColor"] = m.bgColor
-            for ac in m.activites.order_by(lambda x: x.position):
+            for ac in m.activites.order_by(lambda x: x.position):  # pragma: no branch
                 new["activites"].append(
                     {
                         "nom": ac.nom,

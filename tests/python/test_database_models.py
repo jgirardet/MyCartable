@@ -4,7 +4,7 @@ from typing import List
 from datetime import datetime, timedelta, date
 
 from PySide2.QtGui import QFont, QColor
-from fixtures import compare_items, check_is_range, wait
+from fixtures import compare_items, check_is_range, wait, ss, uuu
 
 import pytest
 from package.database.mixins import PositionMixin, ColorMixin
@@ -38,14 +38,11 @@ class TestAnnee:
             assert an.get_matieres()[:] == [a, b, d]
 
     def test_to_dict(self, fk):
-        with db_session:
-            user = fk.db.Utilisateur.user()
-        a = fk.f_annee(id=234, niveau="omjlihlm", user=user)
+        a = fk.f_annee(id=234, niveau="omjlihlm")
         with db_session:
             assert a.to_dict() == {
                 "id": 234,
                 "niveau": "omjlihlm",
-                "user": str(user.id),
             }
 
 
@@ -577,9 +574,12 @@ class TestImageSection:
         assert a.path == "mon/path"
 
     def test_to_dict(self, fk):
-        a = fk.f_imageSection(path="mon/path", td=True)
-        assert a["path"] == "mon/path"
-        assert a["annotations"] == []
+        sec = fk.f_imageSection(path="mon/path")
+        f1 = fk.f_annotation(section=sec.id, id=uuu(1), td=True)
+        f2 = fk.f_annotation(section=sec.id, id=uuu(0), td=True)
+        secdict = ss(lambda: fk.db.Section[sec.id].to_dict())
+        assert secdict["path"] == "mon/path"
+        assert secdict["annotations"] == [f1, f2] or [f2, f1]
 
 
 class TestTextSection:
@@ -928,9 +928,9 @@ class TestAnnotations:
         r = x.to_dict()
         assert r["x"] == 0.1
         assert r["y"] == 0.4
-        assert r["section"] == ddb.Section[s.id]
-        assert r["bgColor"] == QColor("red")
-        assert r["fgColor"] == QColor("black")
+        assert r["section"] == str(ddb.Section[s.id].id)
+        assert r["style"]["bgColor"] == QColor("red")
+        assert r["style"]["fgColor"] == QColor("black")
         assert r["id"] == str(x.id)
 
     def test_set(self, fk):
@@ -1724,22 +1724,6 @@ class TestPositionMixin:
             Mixed[x.id].delete()
 
 
-class TestUtilisateur:
-    def test_factory(self, fk):
-        assert fk.f_user()
-
-    def test_last_used(self, ddb, fk):
-        u = fk.f_user()
-        assert u.last_used == 0
-        u.last_used = 2014
-        assert u.to_dict()["last_used"] == 2014
-
-    def test_user(self, ddb, fk):
-        u = fk.f_user()
-        w = ddb.Utilisateur.user()
-        assert u == w
-
-
 class TestConfiguration:
     def test_get_field(self, ddb):
         c = ddb.Configuration
@@ -1774,6 +1758,30 @@ class TestConfiguration:
         u = uuid.uuid4()
         c.add("uuid", u)
         assert c.option("uuid") == u
+
+    def test_to_dict(self, fk):
+        with db_session:
+            fk.db.Configuration.add("un", 1)
+            fk.db.Configuration.add("deux", "2")
+            fk.db.Configuration.add("trois", ["3"])
+        with db_session:
+            res = fk.db.Configuration.all()
+        assert res == {"un": 1, "deux": "2", "trois": ["3"]}
+
+    def test_old_fields_is_erased_if_type_changed(self, ddb):
+        ddb.Configuration.add("bla", "texte")
+        item = ddb.Configuration.get(key="bla")
+        assert item.str_value == "texte"
+        ddb.Configuration.add("bla", 3)
+        assert item.int_value == 3
+        assert item.str_value == ""
+        ddb.Configuration.add("bla", [1, 2, 3])
+        assert item.int_value is None
+        assert item.json_value == [1, 2, 3]
+        uu = uuid.uuid4()
+        ddb.Configuration.add("bla", uu)
+        assert item.json_value == {}
+        assert item.uuid_value == uu
 
 
 class TestFrise:

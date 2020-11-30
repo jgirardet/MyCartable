@@ -13,7 +13,7 @@ class DTB(QObject):
 
     def __init__(self, parent: QObject = None):
         super().__init__(parent)
-        if not hasattr(self, "db"):
+        if not getattr(self, "db", None):
             raise NotImplementedError(
                 "attribute 'db' must be set before instance creation"
             )
@@ -98,6 +98,8 @@ class DTB(QObject):
                 item.set(**params)
                 return item.to_dict()
             except TypeError as err:
+                logger.error(err)
+            except ValueError as err:
                 logger.error(err)
         return {}
 

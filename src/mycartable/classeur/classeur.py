@@ -105,16 +105,15 @@ class Classeur(QObject):
 
     @Slot()
     def deletePage(self):
-        if self.page.delete():
-            self._page = None
-            self.pageChanged.emit()
+        self.page.delete()
+        self._page = None
+        self.pageChanged.emit()
 
     @Slot(str)
     def newPage(self, activiteId: str) -> Optional[dict]:
-        if new_item := Page.new(activite=activiteId):
-            logger.debug(f'New Page "{new_item.id}" created')
-            self.setPage(new_item)
-            # self.activitesChanged.emit()
+        new_item = Page.new(activite=activiteId)
+        logger.debug(f'New Page "{new_item.id}" created')
+        self.setPage(new_item)
 
     @Property("QVariantList", notify=activitesChanged)
     def pagesParActivite(self):
@@ -135,15 +134,10 @@ class Classeur(QObject):
     @Slot(str)
     @Slot(Page)
     def setPage(self, value: Union[str, Page]):
-        new_page = None
-        if isinstance(value, Page):
-            new_page = value
-        elif page := Page.get(value):
-            new_page = page
-        if new_page:
-            new_page.setParent(self)
-            self._page = new_page
-            self.pageChanged.emit()
-            self._page.titreChanged.connect(self.activitesChanged)
-            logger.info(f"CurrentPage changed to {self.page.titre}")
-            self.setCurrentMatiere(self.page.matiereId)
+        new_page = value if isinstance(value, Page) else Page.get(value)
+        new_page.setParent(self)
+        self._page = new_page
+        self.pageChanged.emit()
+        self._page.titreChanged.connect(self.activitesChanged)
+        logger.info(f"CurrentPage changed to {self.page.titre}")
+        self.setCurrentMatiere(self.page.matiereId)

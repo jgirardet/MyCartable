@@ -30,13 +30,13 @@ class Stylable:
                 return False
         except AttributeError as err:
             logger.error(err)
-        if res := self._dtb.setDB("Style", self.styleId, {name: value}):
-            self._data["style"][name] = res[name]
+        if self._dtb.setDB("Style", self.styleId, {name: value}):
             return True
         return False
 
     def set_style(self, name: str, value: Any):
         if self._set_field_style(name, value):
+            self._data["style"][name] = value
             getattr(self, name + "Changed").emit()
 
     """

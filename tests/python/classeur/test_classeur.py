@@ -1,5 +1,7 @@
+from uuid import UUID
+
 import pytest
-from fixtures import check_args
+from tests.python.fixtures import check_args, disable_log
 from mycartable.classeur.classeur import Classeur
 from pony.orm import db_session
 
@@ -45,7 +47,8 @@ def cl_data(
 def classeur(cl_data, ddbr):
     c = Classeur()
     c.db = ddbr
-    c.annee = 2019
+    with disable_log():
+        c.annee = 2019
     return c
 
 
@@ -61,6 +64,16 @@ def test_init_base():
     assert c.currentMatiere is None
     assert c.pagesParActivite == []
     assert c.page == None
+
+
+def test_anne_set(qtbot, classeur):
+    with qtbot.assertNotEmitted(classeur.anneeChanged):
+        # with disable_log():
+        classeur.annee = 0
+    assert classeur.matieresDispatcher is None
+    assert classeur.currentMatiere is None
+    assert classeur.pagesParActivite == []
+    assert classeur.page == None
 
 
 def test_init_apres_annee(classeur):
@@ -128,7 +141,8 @@ def test_deletePage(classeur, cl_data, qtbot):
 
 def test_set_matiere(classeur, cl_data, qtbot):
     # not found
-    classeur.currentMatiere = "8bfd9c48-a00c-468d-8fdd-797d3e1718c9"
+    with disable_log():
+        classeur.currentMatiere = "8bfd9c48-a00c-468d-8fdd-797d3e1718c9"
     assert classeur.currentMatiere is None
 
     # par id (str)
@@ -141,6 +155,11 @@ def test_set_matiere(classeur, cl_data, qtbot):
     classeur.setCurrentMatiere(1)
     assert classeur.currentMatiere.id == matid
 
+    # par UUID
+    matid = cl_data._mats[1]
+    classeur.setCurrentMatiere(UUID(matid))
+    assert classeur.currentMatiere.id == matid
+
     # same == no change
     with qtbot.assertNotEmitted(classeur.currentMatiereChanged):
         classeur.setCurrentMatiere(1)
@@ -149,3 +168,10 @@ def test_set_matiere(classeur, cl_data, qtbot):
 def test_connections(qtbot, classeur, cl_data):
     with qtbot.waitSignals([classeur.currentMatiereChanged, classeur.activitesChanged]):
         classeur.setCurrentMatiere(1)
+
+
+def test_currentMatiere_index(classeur, qtbot, cl_data):
+    assert classeur.currentMatiereIndex == 0
+    classeur.setCurrentMatiere(1)
+    assert classeur.currentMatiereIndex == 1
+    assert classeur.currentMatiere.id == cl_data._mats[1]

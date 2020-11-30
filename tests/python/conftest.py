@@ -1,6 +1,8 @@
 import io
+import logging
 import re
 import sys
+from logging import DEBUG
 from pathlib import Path
 
 from PySide2.QtQml import qmlRegisterType
@@ -345,3 +347,18 @@ def caplogger():
 
     yield log
     logger.remove(lid)
+
+
+@pytest.fixture(autouse=True, scope="session")
+def loglevel_base():
+    logger.remove()
+    logger.add(sys.stdout, level="WARNING")
+    yield
+
+
+@pytest.fixture(scope="function")
+def loglevel_debug():
+    logger.remove()
+    logger.add(sys.stdout, level="DEBUG")
+    yield
+    logger.add(sys.stdout, level="WARNING")

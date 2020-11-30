@@ -32,7 +32,9 @@ class DtbListModel(QAbstractListModel):
     """
 
     def __init_subclass__(cls, **kwargs):
-        if cls.rowCount.__qualname__.startswith("QAbstractItemModel"):
+        if cls.rowCount.__qualname__.startswith(
+            "QAbstractItemModel"
+        ):  # pragm: no branch
             raise NotImplementedError(
                 "method rowCount has to be implemented",
             )

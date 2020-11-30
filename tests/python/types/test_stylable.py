@@ -1,7 +1,7 @@
 import pytest
 from PySide2.QtGui import QColor
-from fixtures import disable_log
-from mycartable.classeur import Annotation
+from tests.python.fixtures import disable_log
+
 from mycartable.types.bridge import Bridge
 from mycartable.types.stylable import Stylable
 from pony.orm import db_session
@@ -27,9 +27,24 @@ def test_set_field_style(fk, qtbot):
     with qtbot.assertNotEmitted(s.bgColorChanged):
         s.bgColor = QColor("#123456")
 
+    # turue if succsse
     assert s._set_field_style("bgColor", "#111111")
     with disable_log():
         assert not s._set_field_style("bgfzeColor", "#111111")
+
+
+def test_set_field_style_bad_value(fk, qtbot):
+    a = fk.f_annotation(td=True)
+    s = Styled.get(a["id"])
+    s.bgColor = QColor("#123456")  # reset du test
+
+    # bad value in db
+    with qtbot.assertNotEmitted(s.bgColorChanged):
+        with disable_log():
+            s.bgColor = 3.4
+    assert s.bgColor == QColor("#123456")
+    with db_session:
+        assert fk.db.Annotation[a["id"]].style.bgColor == QColor("#123456")
 
 
 @pytest.mark.parametrize(

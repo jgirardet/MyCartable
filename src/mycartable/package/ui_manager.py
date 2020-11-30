@@ -48,7 +48,6 @@ class UiManager(QObject):
     def __init__(self):
         super().__init__()
         self.set_default()
-        self.image_cursors = build_all_image_cursor()
 
     def set_default(self):
         self._menuTarget = None

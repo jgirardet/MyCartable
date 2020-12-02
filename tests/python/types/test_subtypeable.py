@@ -15,7 +15,7 @@ class MainSection(SubTypeAble, Bridge):
         return [MainSection, SubSection]
 
 
-class SubSection(SubTypeAble, Bridge):
+class SubSection(MainSection):
     entity_name = "TextSection"
 
 
@@ -35,3 +35,11 @@ def test_get_class(fk):
 def test_available_not_implemented():
     with pytest.raises(NotImplementedError):
         Subtyped.get_class("aa")
+
+
+def test_new_sub(fk):
+    p = fk.f_page()
+    text = MainSection.new_sub(classtype="TextSection", page=p.id)
+    assert isinstance(text, SubSection)
+    text = MainSection.new_sub(classtype="Section", page=p.id)
+    assert isinstance(text, MainSection)

@@ -65,8 +65,9 @@ class Bridge(QObject):
         :param kwargs: entity parameters
         :return: instance of {cls.__name__} or None
         """
-        if data := DTB().addDB(cls.entity_name, kwargs):
-            _class = cls.get_class(data)
+        _class = cls.get_class(kwargs)
+        entity = _class.entity_name
+        if data := DTB().addDB(entity, kwargs):
             return _class(parent=parent, data=data)
 
     def delete(self) -> bool:

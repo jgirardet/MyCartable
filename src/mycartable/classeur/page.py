@@ -137,7 +137,7 @@ class PageModel(DtbListModel):
         if position is None:
             position = self.rowCount(QModelIndex())
         params["position"] = position
-        Section.new(page=self.page.id, classtype=classtype, **params)
+        Section.new_sub(page=self.page.id, classtype=classtype, **params)
         return self.insertRow(position)
 
     @Property(Page, constant=True)

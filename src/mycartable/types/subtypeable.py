@@ -1,9 +1,7 @@
 from __future__ import annotations
-from abc import ABC, abstractmethod
 from typing import Union
-from uuid import UUID
 
-from PySide2.QtCore import Signal, Property
+from PySide2.QtCore import Property, QObject
 from mycartable.types import Bridge
 
 
@@ -25,3 +23,8 @@ class SubTypeAble:
         raise NotImplementedError(
             "available_sublass must be implemented to inherit SubTypeAble"
         )
+
+    @classmethod
+    def new_sub(cls, parent: QObject = None, **kwargs) -> Bridge:
+        _class: Bridge = cls.get_class(kwargs)
+        return _class.new(parent, **kwargs)

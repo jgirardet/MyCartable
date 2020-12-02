@@ -49,8 +49,6 @@ class Stylable:
 
     @bgColor.setter
     def bgColor_set(self, value: QColor):
-        # self.set_style("bgColor", value):
-        #     self.bgColorChanged.emit()
         self.set_style("bgColor", value)
 
     @Property(str, notify=familyChanged)

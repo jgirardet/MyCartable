@@ -7,26 +7,30 @@ Item {
     //            print(item.section);
     //            sectionId = item.section;
     //        }
+    //    model: AnnotationModel {
+    //                sectionId: dao && item.section ? item.section.id : ""
+    //        dao: ddb
+    //        dtb: c_dtb
+    //    }
 
     id: item
 
     property var points: AssetAnnot.pointsMainLevee
-    property var model
+    property var model: section.model
     property var section
 
     CasTest {
+        //            item.model.sectionId = section.id;
+
         function initPre() {
-            item.section = fk.f("imageSection");
+            let fsection = fk.f("imageSection");
+            item.section = th.getBridgeInstance(item, "ImageSection", fsection.id);
             params = {
                 "anchors.fill": item
             };
         }
 
-        function initPreCreate() {
-        }
-
         function initPost() {
-            item.model.sectionId = section.id;
         }
 
         function test_init() {
@@ -72,12 +76,6 @@ Item {
 
         name: "MainLevee"
         testedNom: "qrc:/qml/annotations/MainLevee.qml"
-    }
-
-    model: AnnotationModel {
-        //        sectionId: dao && item.section ? item.section.id : ""
-        dao: ddb
-        dtb: c_dtb
     }
 
 }

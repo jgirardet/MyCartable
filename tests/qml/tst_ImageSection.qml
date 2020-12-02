@@ -13,14 +13,17 @@ Item {
         property var model
         property var canvas
         property var imgsection
+        property var imgInstance
 
         function initPre() {
             imgsection = fk.f("imageSection", {
                 "path": "tst_AnnotableImage.png"
             });
+            imgInstance = th.getBridgeInstance(item, "ImageSection", imgsection.id);
             params = {
                 "sectionId": imgsection.id,
-                "sectionItem": item
+                "sectionItem": item,
+                "section": imgInstance
             };
         }
 
@@ -185,34 +188,35 @@ Item {
             uiManager.annotationCurrentTool = "floodfill";
             uiManager.annotationDessinCurrentStrokeStyle = "blue";
             let mname = "floodFill";
-            th.mock(mname);
+            th.mock(imgInstance, mname);
             mouseClick(tested, 34, 54);
-            verify(th.mock_called(mname));
-            let args = th.mock_call_args_list(mname);
+            verify(th.mock_called(imgInstance, mname));
+            let args = th.mock_call_args_list(imgInstance, mname);
             compare(args[0], [tested.sectionId, "#0000ff", Qt.point(34 / tested.width, 54 / tested.height)]);
-            th.unmock(mname);
+            th.unmock(imgInstance, mname);
         }
 
         function test_cursor_move() {
             uiManager.annotationCurrentTool = "floodfill";
             uiManager.annotationDessinCurrentStrokeStyle = "blue";
             let mname = "setImageSectionCursor";
-            th.mock(mname);
+            th.mock(imgInstance, mname);
             mouseMove(tested, 1, 1);
-            verify(th.mock_called(mname));
-            th.unmock(mname);
+            verify(th.mock_called(imgInstance, mname));
+            th.unmock(imgInstance, mname);
         }
 
         function test_cursor_toolchanged() {
+            wait(1000);
             let mname = "setImageSectionCursor";
-            th.mock(mname);
+            th.mock(imgInstance, mname);
             tested.setStyleFromMenu({
                 "style": {
                     "tool": "trait"
                 }
             });
-            verify(th.mock_called(mname));
-            th.unmock(mname);
+            verify(th.mock_called(imgInstance, mname));
+            th.unmock(imgInstance, mname);
         }
 
         name: "ImageSection"

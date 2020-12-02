@@ -6,6 +6,7 @@ FocusScope {
 
     property Item model
     property var _move: null
+    property var section: testcase.ref
 
     function move(dx, dy) {
         _move = [dx, dy];
@@ -15,32 +16,28 @@ FocusScope {
     height: 200 //important pour les tests
     focus: true
 
-    //  function deleteAnnotation(obj) {}
     CasTest {
-        //        "height": 0.8
-        //        "index": index,
-        //                "style": {
-        //                }
+        id: testcase
 
         property var annot
-        property var edit
+        property var annotobj
+        property var ref
 
         function initPre() {
-            //    item.currentAnnotation = null
-            //      item.model._removeRow = 0
-            edit = null;
             annot = fk.f("annotationText", {
                 "text": "bla",
                 "style": {
-                    "bgColor": "blue"
+                    "bgColor": "blue",
+                    "fgColor": "#000000",
+                    "underline": true
                 }
             });
-            let idx = 4;
+            let img = fk.f("imageSection");
+            ref = th.getBridgeInstance(item, "ImageSection", img.id);
+            annotobj = th.getBridgeInstance(ref, "AnnotationText", annot.id);
             params = {
-                "annot": annot,
-                "referent": item,
-                "edit": edit,
-                "index": idx
+                "annot": annotobj,
+                "referent": item
             };
         }
 
@@ -69,39 +66,26 @@ FocusScope {
         function test_init_from_annot() {
             // at init
             compare(tested.color, "#000000");
-            compare(tested.font.underline, false);
-            compare(tested.text, "bla");
-            fuzzyCompare(tested.background.color, "blue", 0);
-            annot = {
-                "sectionId": 2,
-                "classtype": "AnnotationText",
-                "x": 0.4,
-                "y": 0.2,
-                "id": 34,
-                "fgColor": "#123456",
-                "bgColor": "#654321",
-                "underline": true,
-                "text": "blabla",
-                "pointSize": 3
-            };
-            compare(tested.color, "#123456");
             compare(tested.font.underline, true);
             compare(tested.text, "bla");
+            fuzzyCompare(tested.background.color, "#0000FF", 0);
         }
 
         function test_font_size() {
             compare(tested.fontSizeFactor, 15); // value uiManager.annotationCurrentTextSizeFactor
             compare(tested.font.pixelSize, 13); // 200/15
-            annot = {
-                "sectionId": 2,
-                "classtype": "AnnotationText",
+            let annot2 = fk.f("annotationText", {
+                "section": ref.id,
                 "x": 0.4,
                 "y": 0.2,
-                "pointSize": 3,
+                "style": {
+                    "pointSize": 3
+                },
                 "text": ""
-            };
+            });
+            let aannoott2 = th.getBridgeInstance(ref, "AnnotationText", annot2.id);
             var tested2 = createObj(testedNom, {
-                "annot": annot,
+                "annot": aannoott2,
                 "referent": item
             }, item);
             compare(tested2.fontSizeFactor, 3);
@@ -117,7 +101,7 @@ FocusScope {
             verify(Qt.colorEqual(bg.border.color, "transparent"));
             item.focus = true;
             verify(Qt.colorEqual(bg.border.color, "#21be2b"));
-            compare(bg.opacity, ddb.annotationTextBGOpacity);
+            compare(bg.opacity, ref.annotationTextBGOpacity);
         }
 
         function test_focus_changed_cursor_at_end() {
@@ -166,7 +150,7 @@ FocusScope {
             keyClick(Qt.Key_Plus, Qt.ControlModifier);
             compare(tested.fontSizeFactor, 14);
             let modif = fk.getItem("AnnotationText", annot.id);
-            compare(modif.pointSize, 14);
+            compare(modif.style.pointSize, 14);
             verify(tested.font.pixelSize > size);
         }
 
@@ -177,7 +161,7 @@ FocusScope {
             keyClick(Qt.Key_Minus, Qt.ControlModifier);
             compare(tested.fontSizeFactor, 16);
             let modif = fk.getItem("AnnotationText", annot.id);
-            compare(modif.pointSize, 16);
+            compare(modif.style.pointSize, 16);
             verify(tested.font.pixelSize < size);
         }
 
@@ -208,10 +192,7 @@ FocusScope {
 
         function test_on_textChanged() {
             clickAndWrite(tested);
-            compare(edit, {
-                "id": annot.id,
-                "text": "bcd"
-            });
+            compare(dtb.getDB("AnnotationText", annot.id).text, "bcd");
         }
 
         function test_checkPointIsNotDraw() {
@@ -220,15 +201,6 @@ FocusScope {
 
         name: "AnnotationText"
         testedNom: "qrc:/qml/annotations/AnnotationText.qml"
-    }
-
-    model: Item {
-        property var _remove: 0
-
-        function remove(idx) {
-            _removeRow = idx;
-        }
-
     }
 
 }

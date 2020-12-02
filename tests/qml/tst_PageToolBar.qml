@@ -1,5 +1,6 @@
 import MyCartable 1.0
 import QtQuick 2.15
+import QtQuick.Window 2.15
 
 Item {
     id: item
@@ -13,6 +14,7 @@ Item {
 
     CasTest {
         //            ddb.currentPage = page.id; // to make toolbar visible
+        //            mouseClick(newimage.action.dialog.contentItem, 200, 100);
 
         id: testcase
 
@@ -111,23 +113,11 @@ Item {
         }
 
         function test_newimage() {
-            //            th.mock("addSection");
-            //            mouseClick(newimage);
-            //            newimage.action.dialog.accept();
-            //            let args = th.mock_call_args_list('addSection')[0];
-            //            compare(args[0], page.id);
-            //            compare(args[1], {
-            //                "classtype": "ImageSection",
-            //                "path": "",
-            //                "position": 3
-            //            });
-            //            th.unmock("addSection");
             mouseClick(newimage);
             newimage.action.dialog.folder = "assets";
-            //            mouseClick(newimage.action.dialog.contentItem, 20, 20);
-            wait(2000);
-            newimage.action.dialog.accept();
-            compare_new_section(data.classtype);
+            mouseDoubleClickSequence(newimage.action.dialog.contentItem, 150, 150, Qt.LeftButton, Qt.NoModifier, 50);
+            //            print(JSON.stringify(fk.getSet("Page", page.id, "sections")));
+            compare_new_section("ImageSection");
         }
 
         function test_newimagevide() {

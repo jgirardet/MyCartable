@@ -174,6 +174,13 @@ Item {
             tryCompare(tested.items.get(2), "height", 50);
         }
 
+        function test_clear() {
+            tested.clear();
+            tryCompare(tested.items, "count", 1);
+            wait(50);
+            verify(tested.get(0).item.toString().includes("VideLayout_QMLTYPE"));
+        }
+
         function test_get() {
             //get by item
             let but = tested.items.get(2).item.lebutton;

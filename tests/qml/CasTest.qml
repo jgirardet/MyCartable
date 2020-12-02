@@ -1,3 +1,4 @@
+import MyCartable 1.0
 import PyTest 1.0
 import QtQuick 2.15
 import QtQuick.Controls 2.15
@@ -26,6 +27,7 @@ TestCase {
     property var backupParams
     property var ddbData
     property bool autocreate: true
+    property var dtb
 
     function init() {
         fk.resetDB();
@@ -108,6 +110,9 @@ TestCase {
         SignalSpy {
         }
 
+    }
+
+    dtb: Database {
     }
 
 }

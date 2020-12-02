@@ -27,6 +27,12 @@ SplitView {
         insert(str, count);
     }
 
+    // clear layout
+    function clear() {
+        repeater.clear();
+        append("vide");
+    }
+
     // Retourne le SplitLoader pour item
     function findSplitLoader(item) {
         if (item.splitType === undefined)

@@ -5,6 +5,7 @@ from unittest.mock import MagicMock
 from PySide2.QtCore import QObject, Slot
 from PySide2.QtGui import QColor, QGuiApplication
 from PySide2.QtQml import qmlRegisterType
+from loguru import logger
 from pony.orm import Database, db_session, flush, ObjectNotFound
 
 # Add common to path
@@ -19,17 +20,19 @@ from common import fn_reset_db, setup_session
 from mycartable.package.database import init_database
 from mycartable.types.dtb import DTB
 from mycartable.package.page.frise_model import FriseModel
-from mycartable.package.page.annotation_model import AnnotationModel
-from mycartable.classeur import Page
+
+# from mycartable.package.page.annotation_model import AnnotationModel
+from mycartable.classeur import Page, ImageSection, AnnotationText, AnnotationDessin
 
 qmlRegisterType(FriseModel, "MyCartable", 1, 0, "FriseModel")
-qmlRegisterType(AnnotationModel, "MyCartable", 1, 0, "AnnotationModel")
+# qmlRegisterType(AnnotationModel, "MyCartable", 1, 0, "AnnotationModel")
 qmlRegisterType(DTB, "MyCartable", 1, 0, "Database")
 
 
 def pytest_sessionstart():
 
     setup_session()
+    logger.disable("")
 
 
 class FakerHelper(QObject):
@@ -44,14 +47,14 @@ class FakerHelper(QObject):
     @Slot(str, "QVariantMap", result="QVariantMap")
     def f(self, fn: str, kwargs: dict = {}):
         """Appel chaque f_method avec kwargs"""
-        return getattr(self.faker, "f_" + fn)(td=True, **kwargs)
+        res = getattr(self.faker, "f_" + fn)(td=True, **kwargs)
+        return res
 
     @Slot()
     def resetDB(self):
         """reset database"""
         fn_reset_db(self.db)
-        user = self.f("user", {"id": "0ca1d5b4-eddb-4afd-8b8e-1aa5e7e19d17"})
-        self.f("annee", {"id": 2019, "niveau": "cm1", "user": user["id"]})
+        self.f("annee", {"id": 2019, "niveau": "cm1"})
         # dao.anneeActive = 2019
 
     @Slot(str, str, result="QVariantMap")
@@ -73,29 +76,34 @@ class FakerHelper(QObject):
 
 class TestHelper(QObject):
 
-    BRIDGES = {"Page": Page}
+    BRIDGES = {
+        "Page": Page,
+        "ImageSection": ImageSection,
+        "AnnotationText": AnnotationText,
+        "AnnotationDessin": AnnotationDessin,
+    }
 
     def __init__(self, dao):
         super().__init__()
-        self.dao = dao
+        # self.dao = dao
         self._dtb = DTB()
 
-    @Slot(str)
-    def mock(self, method: str):
-        setattr(self.dao, "xxx" + method, getattr(self.dao, method))
-        setattr(self.dao, method, MagicMock())
+    @Slot(QObject, str)
+    def mock(self, obj: QObject, method: str):
+        setattr(obj, "xxx" + method, getattr(obj, method))
+        setattr(obj, method, MagicMock())
 
-    @Slot(str)
-    def unmock(self, method: str):
-        setattr(self.dao, method, getattr(self.dao, "xxx" + method))
+    @Slot(QObject, str)
+    def unmock(self, obj: QObject, method: str):
+        setattr(obj, method, getattr(obj, "xxx" + method))
 
-    @Slot(str, result=bool)
-    def mock_called(self, method: str):
-        return getattr(self.dao, method).called
+    @Slot(QObject, str, result=bool)
+    def mock_called(self, obj: QObject, method: str):
+        return getattr(obj, method).called
 
-    @Slot(str, result="QVariantList")
-    def mock_call_args_list(self, method: str):
-        return [list(call.args) for call in getattr(self.dao, method).call_args_list]
+    @Slot(QObject, str, result="QVariantList")
+    def mock_call_args_list(self, obj: QObject, method: str):
+        return [list(call.args) for call in getattr(obj, method).call_args_list]
 
     @Slot(QObject, str, str, result=QObject)
     def getBridgeInstance(self, parent: QObject, letype: str, params: str):
@@ -112,14 +120,11 @@ db = init_database(Database(), create_db=True)
 def pytest_qml_context_properties() -> dict:
     global db
     # init database
-    from package.database_object import DatabaseObject
-    from package.ui_manager import UiManager
+    from mycartable.package.database_object import DatabaseObject
+    from mycartable.package.ui_manager import UiManager
     from mycartable.types.changematieres import ChangeMatieres
     from mycartable.classeur.classeur import Classeur
     import package.database
-
-    # tmpfilename = tmp_path_factory.mktemp("mycartablefiledb") / "bla.sqlite"
-    # db = init_database(Database(), create_db=True)
 
     uim = UiManager()
     dao = DatabaseObject(db, uim)
@@ -143,8 +148,7 @@ def pytest_qml_context_properties() -> dict:
     fk = FakerHelper(db)
 
     # pre setup dao needed often
-    user = fk.f("user", {"id": "0ca1d5b4-eddb-4afd-8b8e-1aa5e7e19d17"})
-    fk.f("annee", {"id": 2019, "niveau": "cm1", "user": user["id"]})
+    fk.f("annee", {"id": 2019, "niveau": "cm1"})
     dao.anneeActive = 2019
     # with db_session:
     #     dao.currentMatiere = db.Matiere.select().first().id

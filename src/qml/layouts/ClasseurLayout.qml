@@ -18,12 +18,6 @@ SandwichLayout {
     anchors.fill: parent
     color: ddb.colorFond
 
-    Globus {
-        id: globus
-
-        Component.onCompleted: print(globus.annee)
-    }
-
     classeur: Classeur {
         id: classeurid
 

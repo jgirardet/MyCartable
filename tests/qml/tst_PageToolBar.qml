@@ -15,6 +15,13 @@ Item {
     CasTest {
         //            ddb.currentPage = page.id; // to make toolbar visible
         //            mouseClick(newimage.action.dialog.contentItem, 200, 100);
+        //            compare(args[0], page.id);
+        //            compare(args[1], {
+        //                "width": 1280,
+        //                "height": 1200,
+        //                "classtype": "ImageSectionVide",
+        //                "position": 3
+        //            });
 
         id: testcase
 
@@ -121,19 +128,10 @@ Item {
         }
 
         function test_newimagevide() {
-            th.mock("addSection");
             mouseClick(newimagevide);
             let ct = newimagevide.action.dialog.contentItem;
-            mouseClick(ct, ct.width - 5, ct.height - 5);
-            let args = th.mock_call_args_list('addSection')[0];
-            compare(args[0], page.id);
-            compare(args[1], {
-                "width": 1280,
-                "height": 1200,
-                "classtype": "ImageSectionVide",
-                "position": 3
-            });
-            th.unmock("addSection");
+            mouseClick(ct, ct.width - 5, ct.height - 5, Qt.LeftButton, Qt.NoModifier, 50);
+            let newSec = compare_new_section("ImageSection");
         }
 
         function test_newoperation() {

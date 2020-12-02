@@ -40,11 +40,10 @@ BasePageAction {
             }
 
             function choose(val) {
-                var newPos = append ? ddb.pageModel.count : position + 1;
-                ddb.addSection(ddb.currentPage, {
+                var newPos = append ? page.model.count : position + 1;
+                page.addSection("ImageSection", newPos, {
                     "height": val,
                     "width": 1280,
-                    "classtype": nom,
                     "position": newPos
                 });
                 videdialog.close();

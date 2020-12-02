@@ -26,5 +26,5 @@ class SubTypeAble:
 
     @classmethod
     def new_sub(cls, parent: QObject = None, **kwargs) -> Bridge:
-        _class: Bridge = cls.get_class(kwargs)
+        _class = cls.get_class(kwargs)
         return _class.new(parent, **kwargs)

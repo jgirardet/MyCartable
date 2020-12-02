@@ -1,3 +1,4 @@
+from __future__ import annotations
 from pathlib import Path
 
 from PIL import Image
@@ -30,9 +31,24 @@ class ImageSection(Section):
         super().__init__(data=data, parent=parent)
         self._model = AnnotationModel(self)
 
+    @classmethod
+    def new(cls, parent=None, **kwargs) -> ImageSection:
+        if "path" in kwargs:
+            kwargs = cls._new_image_base(**kwargs)
+        elif "height" in kwargs and "width" in kwargs:
+            kwargs = cls._new_image_vide(**kwargs)
+        else:
+            return
+        if kwargs:
+            return super().new(parent=parent, **kwargs)
+
     @property
     def absolute_path(self) -> Path:
         return FILES / self.path
+
+    """
+    Image utility
+    """
 
     @staticmethod
     def create_empty_image(width: int, height: int) -> str:
@@ -61,8 +77,8 @@ class ImageSection(Section):
             new_file.write_bytes(filepath.read_bytes())
             return res_path
 
-    @classmethod
-    def new(cls, parent=None, **kwargs):
+    @staticmethod
+    def _new_image_base(**kwargs) -> dict:
         path = kwargs.pop("path", None)
         if not path:
             return
@@ -77,8 +93,17 @@ class ImageSection(Section):
             # umplement PDF section ?
             # runner = qrunnable(self.addSectionPDF, page_id, p_path)
             return
-        kwargs["path"] = str(cls.store_new_file(p_path))
-        return super().new(parent=parent, **kwargs)
+        kwargs["path"] = str(ImageSection.store_new_file(p_path))
+        return kwargs
+
+    @staticmethod
+    def _new_image_vide(**kwargs) -> dict:
+        kwargs["classtype"] = "ImageSection"
+        new_image = ImageSection.create_empty_image(
+            kwargs.pop("width"), kwargs.pop("height")
+        )
+        kwargs["path"] = new_image
+        return kwargs
 
     """
     Qt Propoerty

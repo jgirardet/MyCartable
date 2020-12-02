@@ -42,6 +42,24 @@ def test_new_Image(fk, resources):
     assert image is None
 
 
+@pytest.mark.freeze_time("2344-9-21 7:48:5")
+@patch(
+    "mycartable.package.utils.uuid.uuid4",
+    new=lambda: uuid.UUID("d9ca35e1-0b4b-4d42-9f0d-aa07f5dbf1a5"),
+)
+def test_new_ImageVide(fk, resources):
+    img = resources / "sc1.png"
+    p = fk.f_page()
+    DTB().setConfig("annee", 2011)
+    image = ImageSection.new(
+        **{"page": p.id, "width": 40, "height": 400, "classtype": "ImageSectionVide"}
+    )
+    assert image.path == "2011/2344-09-21-07-48-05-d9ca3.png"
+    im = Image.open(image.absolute_path)
+    assert im.height == 400
+    assert im.width == 40
+
+
 def test_check_args():
     check_args(ImageSection.pivoterImage, [str, int], bool)
 

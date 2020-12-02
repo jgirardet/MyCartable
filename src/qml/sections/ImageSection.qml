@@ -1,4 +1,4 @@
-import MyCartable 1.0
+//import MyCartable 1.0
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import "qrc:/qml/annotations"
@@ -36,7 +36,7 @@ Image {
                     uiManager.annotationDessinCurrentTool = "fillrect";
                 else
                     uiManager.annotationDessinCurrentTool = newTool;
-                page.setImageSectionCursor(mousearea);
+                section.setImageSectionCursor(mousearea, uiManager.annotationCurrentTool, uiManager.annotationDessinCurrentStrokeStyle);
             }
         }
     }
@@ -62,17 +62,11 @@ Image {
     sourceSize.width: sectionItem ? sectionItem.width : 0
     cache: false
     Component.onCompleted: {
-        print(page);
-        print(page.path);
-        var content = page.path;
-        var path = content.path.toString();
-        root.source = path.startsWith("file:///") || path.startsWith("qrc:") ? content.path : "file:///" + path;
+        root.source = section.url;
     }
+    model: section.model
 
     MouseArea {
-        //                cursorShape = Qt.ArrowCursor;
-        //                cursorShape = Qt.ArrowCursor;
-
         id: mousearea
 
         objectName: "mousearea"
@@ -80,7 +74,7 @@ Image {
         preventStealing: true
         acceptedButtons: Qt.LeftButton | Qt.RightButton
         hoverEnabled: true
-        onEntered: page.setImageSectionCursor(mousearea)
+        onEntered: section.setImageSectionCursor(mousearea, uiManager.annotationCurrentTool, uiManager.annotationDessinCurrentStrokeStyle)
         onPressed: {
             if (pressedButtons === Qt.RightButton) {
                 if (mouse.modifiers == Qt.ControlModifier)
@@ -95,7 +89,7 @@ Image {
                 } else if (uiManager.annotationCurrentTool == "floodfill") {
                     let fillColor = uiManager.annotationDessinCurrentStrokeStyle;
                     let point = Qt.point(mouse.x / width, mouse.y / height);
-                    let res = page.floodFill(root.sectionId, fillColor, point);
+                    let res = section.floodFill(root.sectionId, fillColor, point);
                     root.reloadImage();
                 } else {
                     root.startDraw();
@@ -133,6 +127,7 @@ Image {
         delegate: BaseAnnotation {
             id: repdelegate
 
+            annot: annotation
             referent: root
         }
 
@@ -152,12 +147,6 @@ Image {
         mouse: mousearea
         anchors.fill: root
         visible: false
-    }
-
-    model: AnnotationModel {
-        dao: ddb
-        dtb: c_dtb
-        Component.onCompleted: sectionId = root.sectionId
     }
 
 }

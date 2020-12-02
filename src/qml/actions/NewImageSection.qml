@@ -17,6 +17,7 @@ BasePageAction {
             page.addSection(nom, newPos, {
                 "path": fileUrl
             });
+            uiManager.buzyIndicator = false;
         }
     }
 

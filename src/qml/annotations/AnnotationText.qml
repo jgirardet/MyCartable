@@ -7,6 +7,7 @@ TextArea {
     id: root
 
     property var referent
+    property QtObject annot
     property var menu: uiManager.menuFlottantAnnotationText
     property int pointSizeStep: 1
     property int moveStep: 5
@@ -27,22 +28,15 @@ TextArea {
         return false;
     }
 
-    // other atributes
-    //uiManager.annotationCurrentTextSizeFactor
-    //  toujours curseur à la fin quand focus
-    onTextChanged: {
-        edit = {
-            "id": annot.id,
-            "text": text
-        };
-    }
+    text: annot.text
+    onTextChanged: annot.text = text
     //size and pos
     height: contentHeight
     padding: 0
     width: contentWidth + 5
     focus: parent.focus
-    color: annot.fgColor ? annot.fgColor : "black"
-    font.underline: annot.underline ? annot.underline : false
+    color: annot.fgColor
+    font.underline: annot.underline
     font.pixelSize: (referent.height / fontSizeFactor) | 0
     selectByMouse: true
     Component.onCompleted: {
@@ -50,13 +44,6 @@ TextArea {
             fontSizeFactor = uiManager.annotationCurrentTextSizeFactor;
 
         forceActiveFocus();
-        root.text = annot.text;
-        onTextChanged.connect(() => {
-            return edit = {
-                "id": annot.id,
-                "text": text
-            };
-        });
         timerRemove.running = true;
     }
     onFontSizeFactorChanged: {
@@ -64,9 +51,7 @@ TextArea {
             return ;
 
         // attention on stock fontSizeFactor dans du pointSize :le nom dans la ddb est nul :-)
-        var res = ddb.setStyle(annot.styleId, {
-            "pointSize": root.fontSizeFactor
-        });
+        annot.pointSize = root.fontSizeFactor;
         uiManager.annotationCurrentTextSizeFactor = root.fontSizeFactor;
     }
     onFocusChanged: {
@@ -104,9 +89,9 @@ TextArea {
 
     background: Rectangle {
         anchors.fill: parent
-        color: annot.bgColor ? annot.bgColor : "blue"
+        color: annot.bgColor
         border.color: parent.focus ? "#21be2b" : "transparent"
-        opacity: ddb.annotationTextBGOpacity
+        opacity: referent.section.annotationTextBGOpacity
     }
 
 }

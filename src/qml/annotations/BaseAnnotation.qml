@@ -5,8 +5,9 @@ Loader {
     id: root
 
     property var referent
-    property var mouse: mousearea
+    property alias mouse: mousearea
     property bool held: false
+    property QtObject annot
 
     function move(dx, dy) {
         anchors.leftMargin += dx;
@@ -15,16 +16,14 @@ Loader {
     }
 
     function saveMove() {
-        edit = {
-            "id": annot.id,
+        annot.set({
             "x": root.x / root.parent.implicitWidth,
             "y": root.y / root.parent.implicitHeight
-        };
+        });
     }
 
     function setStyleFromMenu(data) {
-        data["id"] = annot.id;
-        edit = data;
+        annot.set(data.style);
     }
 
     anchors.top: parent.top
@@ -34,7 +33,8 @@ Loader {
     focus: parent.currentAnnotation === root
     Component.onCompleted: {
         root.setSource("qrc:/qml/annotations/" + annot.classtype + ".qml", {
-            "referent": referent
+            "referent": referent,
+            "annot": annot
         });
     }
     states: [
@@ -52,9 +52,6 @@ Loader {
     ]
 
     MouseArea {
-        //            }
-        //            ddb.setImageSectionCursor(mousearea, "text");
-
         id: mousearea
 
         cursorShape: Qt.NoCursor
@@ -66,17 +63,18 @@ Loader {
             root.parent.currentAnnotation = root;
         }
         onExited: {
-            ddb.setImageSectionCursor(mousearea);
+            referent.section.setImageSectionCursor(mousearea, uiManager.annotationCurrentTool, uiManager.annotationDessinCurrentStrokeStyle);
         }
         onPositionChanged: {
-            let tool = "";
+            let tool = uiManager.annotationCurrentTool;
             if (!root.item.checkPointIsNotDraw(mouse.x, mouse.y)) {
                 if (mouse.modifiers & Qt.ControlModifier)
                     tool = "dragmove";
                 else
                     tool = "default";
+            } else {
             }
-            ddb.setImageSectionCursor(mousearea, tool);
+            referent.section.setImageSectionCursor(mousearea, tool, uiManager.annotationDessinCurrentStrokeStyle);
         }
         preventStealing: true
         onPressed: {

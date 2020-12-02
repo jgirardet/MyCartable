@@ -15,6 +15,7 @@ Canvas {
     property color fillStyle: annot.bgColor
     property real lineWidth: annot.pointSize
     property string tool: annot.tool
+    property QtObject annot
 
     function checkPointIsNotDraw(mx, my) {
         var ctx = canvas.getContext("2d");
@@ -34,7 +35,9 @@ Canvas {
     Component.onCompleted: {
         canvas.requestPaint();
     }
-    onStrokeStyleChanged: requestPaint()
+    onStrokeStyleChanged: {
+        requestPaint();
+    }
     onFillStyleChanged: requestPaint()
     onLineWidthChanged: requestPaint()
     onPaint: {
@@ -44,7 +47,7 @@ Canvas {
         ctx.strokeStyle = strokeStyle;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         if (tool == "point") {
-            DrawCanvas.drawPoints(ctx, JSON.parse(annot.points), lineWidth /2, width, height);
+            DrawCanvas.drawPoints(ctx, annot.points, lineWidth / 2, width, height);
         } else {
             var lw = lineWidth / 2;
             var startX = annot.startX * width;

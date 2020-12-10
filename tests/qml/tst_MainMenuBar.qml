@@ -103,12 +103,13 @@ Item {
             compare(lv.count, 2); // model ok
             compare(lv.itemAtIndex(0).text, "mon année de ce2 en 2018/2019");
             compare(lv.itemAtIndex(1).text, "mon année de cm1 en 2019/2020");
-            signalChecker(ddb, "changeAnnee", "mouseClick(lv.itemAtIndex(1))", [2019]);
+            mouseClick(lv.itemAtIndex(1));
+            compare(globus.annee, 2019);
             compare(changerAnnee.opened, false);
         }
 
         function test_change_matiere_reset_tout() {
-            var spy = getSpy(ddb, "changeAnnee");
+            var spy = getSpy(globus, "anneeChanged");
             ddb.currentMatiere = 4;
             fichier.visible = true;
             var dialog = findChild(tested, "changer_matieres");

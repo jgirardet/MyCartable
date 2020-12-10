@@ -5,23 +5,9 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 
 TestCase {
-    //    function cleanup() {
-    ////        if (tested)
-    ////            tested.destroy();
-    //        params = backupParams; //restore deafaut params if modified
-    //    }
-    //    Component {
-    //        id: compspyc
-    //        SignalSpy {
-    //        }
-    //    }
-    //         print(JSON.stringify(kwargs))
-
     id: testcase
 
     property var tested
-    //    property var ddb
-    //    property var uiManager
     property var testedNom
     property var params
     property var backupParams

@@ -57,10 +57,11 @@
 
     <qresource prefix="/qml/page">
         <file alias="PageToolBar.qml">qml/page/PageToolBar.qml</file>
-        <file alias="PageListView.qml">qml/page/PageListView.qml</file>
+        <file alias="PageSections.qml">qml/page/PageSections.qml</file>
         <file alias="BasePageDelegate.qml">qml/page/BasePageDelegate.qml</file>
         <file alias="PageRectangle.qml">qml/page/PageRectangle.qml</file>
         <file alias="PageTitre.qml">qml/page/PageTitre.qml</file>
+        <file alias="AddSectionDialog.qml">qml/page/AddSectionDialog.qml</file>
 
     </qresource>
     <qresource prefix="/qml/sections">
@@ -143,6 +144,7 @@
         <file alias="ColorGrid.qml">qml/divers/ColorGrid.qml</file>
         <file alias="ColorPicker.qml">qml/divers/ColorPicker.qml</file>
         <file alias="DynamicRepeater.qml">qml/divers/DynamicRepeater.qml</file>
+        <file alias="IndexedDialog.qml">qml/divers/IndexedDialog.qml</file>
     </qresource>
     
 

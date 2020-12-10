@@ -124,6 +124,9 @@ def pytest_qml_context_properties() -> dict:
     from mycartable.package.ui_manager import UiManager
     from mycartable.types.changematieres import ChangeMatieres
     from mycartable.classeur.classeur import Classeur
+    from mycartable.types import Globus
+    from mycartable.types import Annee
+
     import package.database
 
     uim = UiManager()
@@ -138,6 +141,8 @@ def pytest_qml_context_properties() -> dict:
         qmlRegisterType(ChangeMatieres, "MyCartable", 1, 0, "ChangeMatieres")
         qmlRegisterType(Classeur, "MyCartable", 1, 0, "Classeur")
         qmlRegisterType(DTB, "MyCartable", 1, 0, "Database")
+        qmlRegisterType(Annee, "MyCartable", 1, 0, "Annee")
+
         DONE = True
 
     # Mocking som method
@@ -150,12 +155,21 @@ def pytest_qml_context_properties() -> dict:
     # pre setup dao needed often
     fk.f("annee", {"id": 2019, "niveau": "cm1"})
     dao.anneeActive = 2019
+    globus = Globus()
+    globus.db = db
     # with db_session:
     #     dao.currentMatiere = db.Matiere.select().first().id
 
     th = TestHelper(dao)
 
-    return {"ddb": dao, "uiManager": uim, "c_dtb": dtb, "fk": fk, "th": th}
+    return {
+        "ddb": dao,
+        "uiManager": uim,
+        "c_dtb": dtb,
+        "fk": fk,
+        "th": th,
+        "globus": globus,
+    }
 
 
 def pytest_qml_applicationAvailable(app: QGuiApplication):

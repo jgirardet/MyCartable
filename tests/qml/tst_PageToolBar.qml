@@ -123,7 +123,7 @@ Item {
             mouseClick(newimage);
             newimage.action.dialog.folder = "assets";
             mouseDoubleClickSequence(newimage.action.dialog.contentItem, 150, 150, Qt.LeftButton, Qt.NoModifier, 50);
-            //            print(JSON.stringify(fk.getSet("Page", page.id, "sections")));
+            wait(100); //image is async
             compare_new_section("ImageSection");
         }
 

@@ -2,6 +2,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
 from PySide2.QtCore import QStandardPaths
 from loguru import logger
 from pony.orm import db_session, flush
@@ -36,7 +37,9 @@ def setup_session():
     orig = root / "src" / "qml.qrc"
     dest = python_dir / "package" / "qrc.py"
     command = f"pyside2-rcc {orig.absolute()} -o {dest.absolute()}"
-    subprocess.run(command, cwd=root, shell=True)
+    res = subprocess.run(command, cwd=root, shell=True, capture_output=True)
+    if res.returncode != 0:
+        pytest.exit(res.stdout.decode())
 
     # import qrc
     from package import qrc

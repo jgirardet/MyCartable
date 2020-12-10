@@ -199,6 +199,8 @@ def cmd_qmlformat(*args, **kwargs):
         "TableauActions.qml",  # https://bugreports.qt.io/browse/QTBUG-86979
         "PageActions.qml",  # https://bugreports.qt.io/browse/QTBUG-86979
         "Buttons.qml",  # https://bugreports.qt.io/browse/QTBUG-86979
+        # "PageSections.qml",  # https://bugreports.qt.io/browse/QTBUG-86979
+        # "PageRectangle.qml",  # https://bugreports.qt.io/browse/QTBUG-86979
         # "Legende.qml",
     ]
     errors = []

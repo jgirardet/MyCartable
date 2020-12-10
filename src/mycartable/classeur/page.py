@@ -1,11 +1,12 @@
 import typing
 from PySide2.QtCore import Signal, Property, QObject, QModelIndex, QByteArray, Qt, Slot
-from mycartable.package.utils import shift_list
+from pony.orm import db_session
 
-from .sections import Section
+from .matiere import Matiere
+from .sections import Section, ImageSection
+from mycartable.package.utils import shift_list
 from mycartable.types.bridge import Bridge
 from mycartable.types.listmodel import DtbListModel
-from pony.orm import db_session
 
 
 class Page(Bridge):
@@ -64,6 +65,12 @@ class Page(Bridge):
         return self._data.get("matiere", "")
 
     @Property(QObject, constant=True)
+    def matiere(self) -> str:
+        if not hasattr("self", "_matiere"):
+            self._matiere = Matiere(self._dtb.getDB("Matiere", self.matiereId))
+        return self._matiere
+
+    @Property(QObject, constant=True)
     def model(self) -> "PageModel":
         return self._model
 
@@ -96,6 +103,7 @@ class PageModel(DtbListModel):
     @db_session
     def _insertRows(self, row, count):
         self._reset()
+        self.page.lastPosition = min(row, self.count - 1)
 
     def _moveRows(self, sourceRow, count, destinationChild):
         sections = shift_list(
@@ -111,11 +119,17 @@ class PageModel(DtbListModel):
                     },
                 )
         self._data["sections"] = sections
+        self.page.lastPosition = (
+            destinationChild
+            if destinationChild < sourceRow
+            else max(destinationChild - 1 + count, 0)
+        )
 
     def _removeRows(self, row: int, count: int):
         for sec in self._data["sections"][row : row + count + 1]:
             self._dtb.delDB("Section", sec)
         self._reset()
+        self.page.lastPosition = min(row, self.count - 1)
 
     def data(self, index: QModelIndex, role: int) -> Section:
         if not index.isValid():
@@ -141,11 +155,11 @@ class PageModel(DtbListModel):
         return self.insertRow(position)
 
     @Property(Page, constant=True)
-    def page(self):
+    def page(self) -> Page:
         return self.parent()
 
     @Property(int, notify=countChanged)
-    def count(self):
+    def count(self) -> int:
         return self.rowCount(QModelIndex())
 
     @Slot(result=bool)

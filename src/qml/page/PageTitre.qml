@@ -2,13 +2,21 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.14
 
-TextArea {
+TextField {
+    // des fois page est près mais pas titre ???
+    //        ddb.newPageCreated.connect(forceActiveFocus);
+
     id: root
 
     property QtObject page
     property int textlen: 0
 
-    text: page ? page.titre : "" //ddb.currentPage ? ddb.currentTitre : ""
+    onPageChanged: {
+        if (page)
+            text = page.titre;
+        else
+            text = "";
+    }
     readOnly: !page
     //  Layout.preferredWidth: parent.width
     //  Layout.preferredHeight: 50
@@ -20,7 +28,6 @@ TextArea {
     verticalAlignment: TextInput.AlignVCenter
     onTextChanged: {
         if (page)
-            // des fois page est près mais pas titre ???
             page.titre = text;
 
         if (textlen < length) {
@@ -43,19 +50,14 @@ TextArea {
     }
     Keys.onPressed: {
         if (event.key == Qt.Key_Return)
-            if (!page.model.rowCount())
-            ddb.addSection(page.id, {
-            "classtype": "TextSection"
-        });
+            if (!page.model.count)
+            page.addSection("TextSection");
 ;
 
     }
-    Component.onCompleted: {
-        ddb.newPageCreated.connect(forceActiveFocus);
-    }
 
     background: Rectangle {
-        color: ddb.currentMatiere ? ddb.currentMatiereItem.bgColor : ddb.colorMainMenuBar
+        color: page ? page.matiere.bgColor : ddb.colorMainMenuBar
         radius: 10
     }
 

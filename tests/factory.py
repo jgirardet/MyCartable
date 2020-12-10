@@ -149,7 +149,7 @@ class Faker:
         created = created or self.f_datetime()
         if isinstance(created, str):
             created = datetime.fromisoformat(created)
-        titre = titre or " ".join(gen.text.words(5))
+        titre = titre if titre is not None else " ".join(gen.text.words(5))
         with db_session:
             item = self.db.Page(
                 created=created,

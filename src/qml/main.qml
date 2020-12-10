@@ -1,5 +1,4 @@
 import Qt.labs.qmlmodels 1.0
-import Qt.labs.qmlmodels 1.0
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
@@ -17,7 +16,7 @@ ApplicationWindow {
     width: 1100
     height: 600
     visible: true
-    title: "MyCartable: année " + ddb.anneeActive + "/" + (ddb.anneeActive + 1)
+    title: "MyCartable: année " + globus.annee + "/" + (globus.annee + 1)
 
     BusyIndicator {
         id: busy
@@ -60,6 +59,14 @@ ApplicationWindow {
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
+    }
+
+    Connections {
+        function onAnneeChanged() {
+            mainitem.clear();
+        }
+
+        target: globus
     }
 
     SplitLayout {

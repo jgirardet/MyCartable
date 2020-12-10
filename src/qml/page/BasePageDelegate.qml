@@ -1,16 +1,25 @@
+/*
+section injecté via model
+index injecté via repeater
+*/
+
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 
 Item {
     id: root
 
-    property var listview: ListView.view
+    property var referent
     property string sectionId: section.id
-    property int modelIndex: typeof model !== "undefined" ? model.index : undefined
     property alias dragarea: dragArea
+    property alias contentItem: loader.item
+    required property int index
+    required property QtObject section
+
+    signal loaded(int idx)
 
     focus: true
-    width: listview.width
+    width: referent.width
     height: loader.height
     Component.onCompleted: {
         loader.setSource("qrc:/qml/sections/" + section.classtype + ".qml", {
@@ -18,14 +27,6 @@ Item {
             "sectionItem": root,
             "section": section
         });
-    }
-    onActiveFocusChanged: {
-        if (activeFocus)
-            loader.item ? loader.item.forceActiveFocus() : null;
-
-    }
-    ListView.onAdd: {
-        loader.item.forceActiveFocus();
     }
 
     Rectangle {
@@ -43,8 +44,20 @@ Item {
         Loader {
             id: loader
 
+            function sendLoaded() {
+                if (loader.item.status == undefined || loader.item.status == 1)
+                    root.loaded(index);
+
+            }
+
             focus: true
-            objectName: "loader"
+            asynchronous: true
+            onLoaded: {
+                if (loader.item.status != undefined && loader.item.status != 1)
+                    loader.item.onStatusChanged.connect(sendLoaded);
+                else
+                    sendLoaded();
+            }
         }
 
         anchors {
@@ -62,7 +75,7 @@ Item {
 
             ParentChange {
                 target: dragitem
-                parent: listview.contentItem
+                parent: referent
             }
 
             AnchorChanges {
@@ -84,7 +97,7 @@ Item {
 
         property bool held: false
 
-        objectName: "pageDragArea"
+        objectName: "pageDragArea" //ne pas suppimer, important
         anchors.fill: parent
         height: loader.height
         drag.target: held ? dragitem : undefined
@@ -96,8 +109,7 @@ Item {
                 held = true;
                 mouse.accepted = true;
             } else if ((mouse.button == Qt.MiddleButton) && (mouse.modifiers & Qt.ShiftModifier)) {
-                var coord = mapToItem(listview, mouse.x, mouse.y);
-                listview.removeDialog.ouvre(index, coord);
+                referent.removeDialog.open(index);
                 mouse.accepted = true;
             } else {
                 mouse.accepted = false;
@@ -108,36 +120,34 @@ Item {
         }
     }
 
+    MouseArea {
+        objectName: "intermousearea"
+        height: referent.spacing
+        width: root.width
+        anchors.top: root.bottom
+        acceptedButtons: Qt.RightButton
+        onClicked: {
+            if ((mouse.button == Qt.RightButton) && (mouse.modifiers & Qt.ShiftModifier))
+                referent.addDialog.open(index);
+
+        }
+    }
+
     DropArea {
         id: droparea
 
         onEntered: {
-            if (drag.source.parent.modelIndex != index && drag.source.objectName == dragArea.objectName)
-                listview.model.move(drag.source.parent.modelIndex, index);
+            if (drag.source.parent.index != index && drag.source.objectName == dragArea.objectName)
+                referent.page.model.move(drag.source.parent.index, index);
             else
                 drag.accepted = false;
         }
 
         anchors {
             fill: root
-            margins: 10
+            margins: 1
         }
 
-    }
-
-    MouseArea {
-        objectName: "intermousearea"
-        height: listview.spacing
-        width: root.width
-        //    color: "green"
-        anchors.top: root.bottom
-        acceptedButtons: Qt.RightButton
-        onClicked: {
-            if ((mouse.button == Qt.RightButton) && (mouse.modifiers & Qt.ShiftModifier)) {
-                var coord = mapToItem(listview, mouse.x, mouse.y);
-                listview.addDialog.ouvre(index, coord);
-            }
-        }
     }
 
 }

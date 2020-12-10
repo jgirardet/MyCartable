@@ -13,9 +13,11 @@ Item {
     height: 800
 
     CasTest {
+        //            ddb.anneeActive = 2019;
+
         function initPre() {
+            globus.annee = 2019;
             page = fk.f("page");
-            ddb.anneeActive = 2019;
         }
 
         function initPost() {
@@ -24,6 +26,9 @@ Item {
         }
 
         function test_init() {
+        }
+
+        function test_add_page_focus_titre() {
         }
 
         name: "ClasseurLayout"

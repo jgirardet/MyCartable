@@ -52,6 +52,7 @@ def test_base_init(fk):
     p = Page.get(pg["id"])
     assert p.model._data == pg
     assert p.model.rowCount(QModelIndex()) == 0
+    assert p.matiereId == p.matiere.id == pg["matiere"]
 
 
 @pytest.mark.parametrize(
@@ -93,37 +94,37 @@ def test_roleNames(fk):
 
 
 @pytest.mark.parametrize(
-    "source, target",
+    "source, target, lastposition",
     [
-        (0, 0),
-        (0, 1),
-        (0, 2),
-        (0, 3),
-        (0, 4),
-        (1, 0),
-        (1, 1),
-        (1, 2),
-        (1, 3),
-        (1, 4),
-        (2, 0),
-        (2, 1),
-        (2, 2),
-        (2, 3),
-        (2, 4),
-        (3, 0),
-        (3, 1),
-        (3, 2),
-        (3, 3),
-        (3, 4),
-        (4, 0),
-        (4, 1),
-        (4, 2),
-        (4, 3),
-        (4, 4),
+        (0, 0, 9),
+        (0, 1, 9),
+        (0, 2, 1),
+        (0, 3, 2),
+        (0, 4, 9),
+        (1, 0, 0),
+        (1, 1, 9),
+        (1, 2, 9),
+        (1, 3, 2),
+        (1, 4, 9),
+        (2, 0, 0),
+        (2, 1, 1),
+        (2, 2, 9),
+        (2, 3, 9),
+        (2, 4, 9),
+        (3, 0, 9),
+        (3, 1, 9),
+        (3, 2, 9),
+        (3, 3, 9),
+        (3, 4, 9),
+        (4, 0, 9),
+        (4, 1, 9),
+        (4, 2, 9),
+        (4, 3, 9),
+        (4, 4, 9),
     ],
 )
-def test_move(fk, source, target):
-    pg = fk.f_page()
+def test_move(fk, source, target, lastposition):
+    pg = fk.f_page(lastPosition=9)
     secs_ids_pre = [str(x.id) for x in fk.b_section(3, page=pg.id)]
     p = Page.get(str(pg.id))
     a = p.model
@@ -142,48 +143,53 @@ def test_move(fk, source, target):
     else:
         assert new_secs_ids == secs_ids_pre
     assert [s["position"] for s in new_secs_dict] == [0, 1, 2]
+    assert a.page.lastPosition == lastposition
 
 
 @pytest.mark.parametrize(
-    "idx, res",
+    "idx, res, lastpos",
     [
         (
             0,
             [
-                "20d5d747-c3ea-4ebe-ab87-54159627ab98",
-                "2ef38337-6e09-4394-8d46-d2be8161daeb",
+                "11111111-1111-1111-1111-111111111111",
+                "22222222-2222-2222-2222-222222222222",
             ],
+            0,
         ),
         (
             1,
             [
-                "a1258e33-7446-4681-8729-d1b09501d9b7",
-                "2ef38337-6e09-4394-8d46-d2be8161daeb",
+                "00000000-0000-0000-0000-000000000000",
+                "22222222-2222-2222-2222-222222222222",
             ],
+            1,
         ),
         (
             2,
             [
-                "a1258e33-7446-4681-8729-d1b09501d9b7",
-                "20d5d747-c3ea-4ebe-ab87-54159627ab98",
+                "00000000-0000-0000-0000-000000000000",
+                "11111111-1111-1111-1111-111111111111",
             ],
+            1,
         ),
         (
             3,
             [
-                "a1258e33-7446-4681-8729-d1b09501d9b7",
-                "20d5d747-c3ea-4ebe-ab87-54159627ab98",
-                "2ef38337-6e09-4394-8d46-d2be8161daeb",
+                "00000000-0000-0000-0000-000000000000",
+                "11111111-1111-1111-1111-111111111111",
+                "22222222-2222-2222-2222-222222222222",
             ],
+            2,
         ),
     ],
 )
-def test_removeRows(fk, idx, res):
-    pg = fk.f_page()
+def test_removeRows(fk, idx, res, lastpos):
+    pg = fk.f_page(lastPosition=0)
     ids = [
-        "a1258e33-7446-4681-8729-d1b09501d9b7",
-        "20d5d747-c3ea-4ebe-ab87-54159627ab98",
-        "2ef38337-6e09-4394-8d46-d2be8161daeb",
+        "00000000-0000-0000-0000-000000000000",
+        "11111111-1111-1111-1111-111111111111",
+        "22222222-2222-2222-2222-222222222222",
     ]
     [fk.f_section(id=x, page=pg.id) for x in ids]
     p = Page.get(str(pg.id))
@@ -197,10 +203,11 @@ def test_removeRows(fk, idx, res):
         ]
     new_secs_ids = [s["id"] for s in new_secs_dict]
     assert a._data["sections"] == new_secs_ids
+    assert a.page.lastPosition == lastpos
 
 
 @pytest.mark.parametrize(
-    "args, kwargs, res",
+    "args, kwargs, res, lastpos",
     [
         (
             ["TextSection", 0],
@@ -211,6 +218,7 @@ def test_removeRows(fk, idx, res):
                 "11111111-1111-1111-1111-111111111111",
                 "22222222-2222-2222-2222-222222222222",
             ],
+            0,
         ),
         (
             ["TextSection", 1],
@@ -221,6 +229,7 @@ def test_removeRows(fk, idx, res):
                 "11111111-1111-1111-1111-111111111111",
                 "22222222-2222-2222-2222-222222222222",
             ],
+            1,
         ),
         (
             ["TextSection", 2],
@@ -231,6 +240,7 @@ def test_removeRows(fk, idx, res):
                 "33333333-3333-3333-3333-333333333333",
                 "22222222-2222-2222-2222-222222222222",
             ],
+            2,
         ),
         (
             ["TextSection", 3],
@@ -241,6 +251,7 @@ def test_removeRows(fk, idx, res):
                 "22222222-2222-2222-2222-222222222222",
                 "33333333-3333-3333-3333-333333333333",
             ],
+            3,
         ),
         (
             ["TextSection", 4],
@@ -251,6 +262,7 @@ def test_removeRows(fk, idx, res):
                 "22222222-2222-2222-2222-222222222222",
                 "33333333-3333-3333-3333-333333333333",
             ],
+            3,
         ),
         (
             ["TextSection", None],
@@ -261,10 +273,11 @@ def test_removeRows(fk, idx, res):
                 "22222222-2222-2222-2222-222222222222",
                 "33333333-3333-3333-3333-333333333333",
             ],
+            3,
         ),
     ],
 )
-def test_addSection(fk, args, kwargs, res):
+def test_addSection(fk, args, kwargs, res, lastpos):
     pg = fk.f_page()
     ids = [
         "00000000-0000-0000-0000-000000000000",
@@ -285,6 +298,7 @@ def test_addSection(fk, args, kwargs, res):
         ]
     new_secs_ids = [s["id"] for s in new_secs_dict]
     assert a._data["sections"] == new_secs_ids
+    assert a.page.lastPosition == lastpos
 
 
 def test_check_args_addsection():

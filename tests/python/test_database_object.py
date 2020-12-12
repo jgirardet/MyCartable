@@ -134,20 +134,6 @@ class TestLayoutMixin:
 
 
 class TestSectionMixin:
-    def test_checkargs(self, dao):
-        check_args(dao.loadSection, str, dict)
-        check_args(dao.addSection, [str, dict], str)
-
-    def test_loadsection_image(self, fk, dao):
-        s = fk.f_imageSection(path="bla/ble.jpg")
-        res = dao.loadSection(s.id)
-        assert res["id"] == str(s.id)
-        assert res["path"] == QUrl.fromLocalFile(str(FILES / "bla/ble.jpg"))
-
-    def test_loadsection_image_false(self, dao):
-        res = dao.loadSection(99999)
-        assert res == {}
-
     def test_load_section_Operation(self, fk, dao):
         a = fk.f_additionSection(string="3+4")
         assert dao.loadSection(a.id) == {
@@ -365,23 +351,6 @@ class TestSectionMixin:
             res = daof.addSection(str(page), content)
         with db_session:
             item = fkf.db.Page[page].sections.count() == 2
-
-
-class TestEquationMixin:
-    def test_check_args(self, dao):
-        check_args(dao.updateEquation, [str, str, int, str], dict)
-        check_args(dao.isEquationFocusable, [str, int], bool)
-
-    def test_update(self, dao, fk, qtbot):
-        e = fk.f_equationSection(content=" \n1\n ")
-        event = json.dumps({"key": int(Qt.Key_2), "text": "2", "modifiers": None})
-        with qtbot.waitSignal(dao.equationChanged):
-            res = dao.updateEquation(e.id, " \n1\n ", 3, event)
-        assert res == {"content": "  \n12\n  ", "curseur": 5}
-
-    def test_isequationfocusable(self, dao):
-        assert not dao.isEquationFocusable("  \n1 \n  ", 0)
-        assert dao.isEquationFocusable("  \n1 \n  ", 4)
 
 
 class TestTableauMixin:

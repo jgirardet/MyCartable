@@ -115,6 +115,9 @@ def register_new_qml_type(databaseObject, db):
     qmlRegisterType(DTB, "MyCartable", 1, 0, "Database")
     qmlRegisterType(Globus, "MyCartable", 1, 0, "Globus")
     qmlRegisterType(Annee, "MyCartable", 1, 0, "Annee")
+    # from mycartable.classeur import Section
+
+    # qmlRegisterType(Section, "MyCartable", 1, 0, "Section")
 
 
 def create_singleton_instance(prod=False):

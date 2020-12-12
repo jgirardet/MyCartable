@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="pytest qm" type="tests" factoryName="py.test">
+  <configuration default="false" name="pytest qml all" type="tests" factoryName="py.test">
     <module name="MyCartable" />
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />

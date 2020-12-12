@@ -6,30 +6,23 @@ TextArea {
 
     property string sectionId
     property var sectionItem
-    property int previousCursorPosition
+    required property QtObject section
 
-    width: sectionItem.width - 0
+    width: sectionItem.width
     height: contentHeight + 30
     font.pointSize: 12
-    onSectionIdChanged: {
-        var data = ddb.loadSection(sectionId);
-        text = data.content;
-        cursorPosition = data.curseur;
-    }
+    text: section.content
+    Component.onCompleted: cursorPosition = section.curseur // seulement pour init pas binding (cursorpos peut trop changer)
     onCursorPositionChanged: {
-        previousCursorPosition = cursorPosition;
+        if (!section.isEquationFocusable(cursorPosition))
+            cursorPosition = section.curseur;
+
     }
     font.family: "Code New Roman"
     Keys.onPressed: {
-        var new_data = ddb.updateEquation(sectionId, text, cursorPosition, JSON.stringify(event));
-        root.text = new_data.content;
-        root.cursorPosition = new_data.curseur;
+        section.update(cursorPosition, JSON.stringify(event));
+        cursorPosition = section.curseur;
         event.accepted = true;
-    }
-    onSelectionStartChanged: {
-        if (!ddb.isEquationFocusable(text, selectionStart))
-            cursorPosition = previousCursorPosition;
-
     }
 
     background: Rectangle {

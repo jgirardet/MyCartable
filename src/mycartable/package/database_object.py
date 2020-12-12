@@ -1,6 +1,5 @@
 from loguru import logger
 from PySide2.QtCore import QObject, Signal, Property
-from package.database_mixins.equation_mixin import EquationMixin
 from package.database_mixins.layout_mixin import LayoutMixin
 from package.database_mixins.page_mixin import PageMixin
 from package.database_mixins.recents_mixin import RecentsMixin
@@ -18,7 +17,6 @@ MIXINS = [
     LayoutMixin,
     RecentsMixin,
     SectionMixin,
-    EquationMixin,
     TableauMixin,
 ]
 
@@ -73,7 +71,7 @@ class DatabaseObject(QObject, *MIXINS):
 
         # mise à jour
         # todo: self.imageChanged.connect(self.updateRecentsAndActivites)
-        self.equationChanged.connect(self.updateRecentsAndActivites)
+        # todo: self.equationChanged.connect(self.updateRecentsAndActivites)
         self.tableauChanged.connect(self.updateRecentsAndActivites)
         # todo: self.textSectionChanged.connect(self.updateRecentsAndActivites)
         # TODO: self.changeMatieres.connect(lambda: self.onChangeAnnee(self.anneeActive))

@@ -22,7 +22,13 @@ from mycartable.types.dtb import DTB
 from mycartable.package.page.frise_model import FriseModel
 
 # from mycartable.package.page.annotation_model import AnnotationModel
-from mycartable.classeur import Page, ImageSection, AnnotationText, AnnotationDessin
+from mycartable.classeur import (
+    Page,
+    ImageSection,
+    AnnotationText,
+    AnnotationDessin,
+    EquationSection,
+)
 
 qmlRegisterType(FriseModel, "MyCartable", 1, 0, "FriseModel")
 # qmlRegisterType(AnnotationModel, "MyCartable", 1, 0, "AnnotationModel")
@@ -81,6 +87,7 @@ class TestHelper(QObject):
         "ImageSection": ImageSection,
         "AnnotationText": AnnotationText,
         "AnnotationDessin": AnnotationDessin,
+        "EquationSection": EquationSection,
     }
 
     def __init__(self, dao):

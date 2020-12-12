@@ -1,8 +1,41 @@
+import json
 import textwrap
 
 import pytest
 from PySide2.QtCore import Qt
-from package.operations.equation import TextEquation, Fragment
+from fixtures import check_args
+from mycartable.classeur.sections.equation import (
+    TextEquation,
+    Fragment,
+    EquationSection,
+)
+from pony.orm import db_session
+
+
+class TestEquation:
+    def test_check_args(self):
+        check_args(EquationSection.update, [int, str])
+        check_args(EquationSection.isEquationFocusable, int, bool)
+
+    def test_update(self, fk, qtbot):
+        eq = fk.f_equationSection(content=" \n1\n ")
+        e = EquationSection.get(eq.id)
+        event = json.dumps({"key": int(Qt.Key_2), "text": "2", "modifiers": None})
+        with qtbot.waitSignals([e.contentChanged, e.curseurChanged]):
+            e.update(3, event)
+        assert e.content == "  \n12\n  "
+        assert e.curseur == 5
+        with db_session:
+            item = fk.db.EquationSection[e.id]
+            assert item.content == e.content
+            assert item.curseur == e.curseur
+
+    def test_isequationfocusable(self, fk):
+        eq = fk.f_equationSection(content=" \n1 \n  ")
+        e = EquationSection.get(eq.id)
+        assert not e.isEquationFocusable(0)
+        assert e.isEquationFocusable(4)
+
 
 UN = """
 ||1¤............¤12...1234....||
@@ -63,6 +96,10 @@ class TestTextEquation:
         assert e_un.modifiers == None
         assert e_un.line_active == 1
 
+    def test_constant_with_database(self, e_un, memory_db):
+        assert e_un.DEFAULT_CONTENT == memory_db.EquationSection.DEFAULT_CONTENT
+        assert e_un.DEFAULT_CURSEUR == memory_db.EquationSection.DEFAULT_CURSEUR
+
     def test_property(self, e_un):
         assert e_un.debut_line[0] == 0
         assert e_un.debut_line[1] == 29
@@ -81,9 +118,26 @@ class TestTextEquation:
 
     @pytest.mark.parametrize(
         "curseur, res",
-        [(0, 0), (3, 3), (9, 9), (10, 10),]
-        + [(11, 0), (13, 2), (19, 8), (20, 9), (21, 10),]
-        + [(22, 0), (24, 2), (29, 7), (31, 9), (32, 10),],
+        [
+            (0, 0),
+            (3, 3),
+            (9, 9),
+            (10, 10),
+        ]
+        + [
+            (11, 0),
+            (13, 2),
+            (19, 8),
+            (20, 9),
+            (21, 10),
+        ]
+        + [
+            (22, 0),
+            (24, 2),
+            (29, 7),
+            (31, 9),
+            (32, 10),
+        ],
     )
     def test_get_line_curseur(self, eq, curseur, res):
         a = eq(curseur=curseur)
@@ -192,7 +246,11 @@ class TestTextEquation:
                 ("1", TextEquation.BARRE, TextEquation.FSP),
                 0,
             ),
-            (f"1\n{TextEquation.BARRE}\n1", ("1", TextEquation.BARRE, "1"), 0,),
+            (
+                f"1\n{TextEquation.BARRE}\n1",
+                ("1", TextEquation.BARRE, "1"),
+                0,
+            ),
             (
                 f"123\n{TextEquation.BARRE*3}\n{TextEquation.FSP}3",
                 (
@@ -585,7 +643,10 @@ class TestTextEquation:
 
     @pytest.mark.parametrize(
         "cur, cur_res",
-        [(0, 0), (24, 24),]
+        [
+            (0, 0),
+            (24, 24),
+        ]
         + [
             (29, 1),
             (31, 1),
@@ -639,7 +700,10 @@ class TestTextEquation:
             (53, 81),
             (57, 57),
         ]
-        + [(58, 58), (81, 81),],
+        + [
+            (58, 58),
+            (81, 81),
+        ],
     )
     def test_call_move_down(self, eq, cur, cur_res):
         _, new_cur = eq(UN, cur, {"key": Qt.Key_Down, "text": "", "modifiers": None})()
@@ -658,7 +722,11 @@ class TestTextEquation:
             (21, 81),
             (24, 81),
         ]
-        + [(29, 29), (44, 44), (57, 57),]
+        + [
+            (29, 29),
+            (44, 44),
+            (57, 57),
+        ]
         + [
             (58, 31),
             (59, 31),
@@ -1091,7 +1159,7 @@ class TestTextEquation:
             1,
             {"key": Qt.Key_Backspace, "text": "", "modifiers": None},
         )
-        assert a() == ("\n\n", 1)
+        assert a() == ("", 0)
 
     @pytest.mark.parametrize(
         "curseur, res",
@@ -1114,7 +1182,14 @@ class TestTextEquation:
         a = eq(UN, curseur)
         assert a.is_focusable == res
 
-    @pytest.mark.parametrize("cur, res", [(6, True), (7, True), (8, True),])
+    @pytest.mark.parametrize(
+        "cur, res",
+        [
+            (6, True),
+            (7, True),
+            (8, True),
+        ],
+    )
     def test_isFocusable2(self, eq, cur, res):
         a = eq(
             f"23\n{TextEquation.BARRE}{TextEquation.BARRE}\n{TextEquation.FSP}{TextEquation.FSP}",

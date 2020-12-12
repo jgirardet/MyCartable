@@ -1486,13 +1486,6 @@ class TestEquationModel:
         a = fk.f_equationSection(content="     \n1 + 1\n     ")
         assert a.content == "     \n1 + 1\n     "
 
-    def test_set(self, ddb, fk):
-        a = fk.f_equationSection()
-        assert a.set(content="   ", curseur=1)["content"] == ""
-        assert a.set(content="   ", curseur=3)["curseur"] == 0
-        assert a.set(content="1+2", curseur=2)["content"] == "1+2"
-        assert a.set(content="1+2", curseur=9)["curseur"] == 9
-
 
 class BaseTestColorMixin:
     def __init__(self, _bgColor=None, _fgColor=None):

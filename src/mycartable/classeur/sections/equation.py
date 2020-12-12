@@ -1,10 +1,51 @@
+import json
 import re
 from dataclasses import dataclass
 from typing import List, ClassVar
 
-from PySide2.QtCore import Qt
+from PySide2.QtCore import Slot, Qt, Signal, Property
 
 from loguru import logger
+
+from . import Section
+
+
+class EquationSection(Section):
+
+    entity_name = "EquationSection"
+    contentChanged = Signal()
+    curseurChanged = Signal()
+
+    @Property(str, notify=contentChanged)
+    def content(self):
+        return self._data["content"]
+
+    @content.setter
+    def content_set(self, value: str):
+        self.set_field("content", value)
+
+    @Property(int, notify=curseurChanged)
+    def curseur(self):
+        return self._data["curseur"]
+
+    @curseur.setter
+    def curseur_set(self, value: int):
+        print("dans set debut")
+        self.set_field("curseur", value)
+        print("dans set fin")
+
+    @Slot(int, str)
+    def update(self, curseur, event):
+        event = json.loads(event)
+        content, new_curseur = TextEquation(str(self.content), curseur, event)()
+        self.content = content
+        self.curseur = new_curseur
+
+    @Slot(int, result=bool)
+    def isEquationFocusable(self, curseur: int) -> bool:
+        return TextEquation(
+            str(self.content), curseur, {"key": None, "text": None, "modifiers": None}
+        ).is_focusable
 
 
 @dataclass
@@ -35,6 +76,8 @@ class TextEquation:
     SPACES = [" ", FSP]
     ARROWS = [Qt.Key_Right, Qt.Key_Up, Qt.Key_Left, Qt.Key_Down, Qt.Key_Return]
     RE_FIND_FRACTION = re.compile(rf"{BARRE}+|\s+|\S+")
+    DEFAULT_CONTENT = ""
+    DEFAULT_CURSEUR = 0
 
     def __init__(self, lines: str, curseur: int, event):
         self.lines_string = lines
@@ -72,9 +115,14 @@ class TextEquation:
             .replace(" ", ".")
             + "||"
         )
-        logger.debug(f"TextEquation nouvelle string : {log_string}",)
+        logger.debug(
+            f"TextEquation nouvelle string : {log_string}",
+        )
 
-        return new_string, new_curseur
+        if re.match(r"^\s+$", new_string):
+            return self.DEFAULT_CONTENT, self.DEFAULT_CURSEUR
+        else:
+            return new_string, new_curseur
 
     @staticmethod
     def debug_string_format(string):

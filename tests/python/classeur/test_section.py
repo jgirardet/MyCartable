@@ -1,6 +1,6 @@
 import pytest
 from mycartable.classeur import ImageSection
-from mycartable.classeur.sections import TextSection, Section
+from mycartable.classeur.sections import TextSection, Section, EquationSection
 
 """
 Section
@@ -10,6 +10,7 @@ sub_classes = (
     Section,
     TextSection,
     ImageSection,
+    EquationSection,
 )
 
 

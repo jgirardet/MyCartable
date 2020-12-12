@@ -320,17 +320,6 @@ def class_section(
         content = Optional(str, default=DEFAULT_CONTENT, autostrip=False)
         curseur = Required(int, default=DEFAULT_CURSEUR)
 
-        def set(self, *, content, curseur, **kwargs):
-            super().set(**kwargs)
-            if re.match(r"\s+", content):
-                self.content = self.DEFAULT_CONTENT
-                self.curseur = self.DEFAULT_CURSEUR
-                return self.to_dict()
-            else:
-                self.content = content
-                self.curseur = curseur
-                return self.to_dict()
-
     class Annotation(db.Entity):
         id = PrimaryKey(UUID, auto=True, default=uuid4)
         x = Required(float)

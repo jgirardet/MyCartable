@@ -2,7 +2,14 @@ import pytest
 from PySide2.QtCore import QModelIndex, Qt
 from pytestqml.qt import QObject
 from tests.python.fixtures import ss, check_args, disable_log
-from mycartable.classeur import Page, PageModel, TextSection, Section, ImageSection
+from mycartable.classeur import (
+    Page,
+    PageModel,
+    TextSection,
+    Section,
+    ImageSection,
+    EquationSection,
+)
 from mycartable.package.utils import shift_list
 from pony.orm import db_session, make_proxy
 
@@ -61,6 +68,7 @@ def test_base_init(fk):
         ("textSection", TextSection),
         ("section", Section),
         ("imageSection", ImageSection),
+        ("equationSection", EquationSection),
     ],
 )
 def test_data_role(fk, nom, sectionclass):

@@ -37,7 +37,7 @@ def test_properties(fk):
     assert a["text"] == b.text
 
 
-class TestTextSectio:
+class TestTextSection:
     def test_check_args(self):
         check_args(TextSection.updateTextSectionOnKey, [str, int, int, int, str], dict)
         check_args(TextSection.updateTextSectionOnChange, [str, int, int, int], dict)

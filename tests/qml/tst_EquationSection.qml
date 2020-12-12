@@ -19,7 +19,6 @@ Item {
             eqObj = th.getBridgeInstance(item, "EquationSection", eq.id);
             params = {
                 "section": eqObj,
-                "sectionId": eq.id,
                 "sectionItem": item
             };
         }

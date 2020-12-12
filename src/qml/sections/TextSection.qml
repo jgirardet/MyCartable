@@ -4,10 +4,9 @@ import QtQuick.Controls 2.15
 TextEdit {
     id: root
 
-    property string sectionId // inutil juste compat
-    property var sectionItem // pour la taille de reference
     property bool doNotUpdate: false
-    property QtObject section
+    required property Item sectionItem // basepagedelegate
+    required property QtObject section
 
     function setStyleFromMenu(params) {
         var res = section.updateTextSectionOnMenu(text, cursorPosition, selectionStart, selectionEnd, params);

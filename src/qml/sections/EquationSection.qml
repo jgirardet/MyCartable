@@ -4,8 +4,7 @@ import QtQuick.Controls 2.15
 TextArea {
     id: root
 
-    property string sectionId
-    property var sectionItem
+    required property Item sectionItem // basepagedelegate
     required property QtObject section
 
     width: sectionItem.width

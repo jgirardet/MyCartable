@@ -7,9 +7,8 @@ import "qrc:/qml/menu"
 Image {
     id: root
 
-    property string sectionId
-    property var sectionItem
-    property var section
+    required property Item sectionItem // basepagedelegate
+    required property QtObject section
     property var model
     property MouseArea mousearea: mousearea
     property var currentAnnotation
@@ -89,7 +88,7 @@ Image {
                 } else if (uiManager.annotationCurrentTool == "floodfill") {
                     let fillColor = uiManager.annotationDessinCurrentStrokeStyle;
                     let point = Qt.point(mouse.x / width, mouse.y / height);
-                    let res = section.floodFill(root.sectionId, fillColor, point);
+                    let res = section.floodFill(section.id, fillColor, point);
                     root.reloadImage();
                 } else {
                     root.startDraw();
@@ -99,7 +98,7 @@ Image {
         }
         onReleased: {
             if (canvas.painting)
-                canvas.endDraw(root.sectionId);
+                canvas.endDraw(section.id);
             else if (mainlevee.painting)
                 mainlevee.endDraw();
         }

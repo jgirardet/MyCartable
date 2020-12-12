@@ -21,7 +21,6 @@ Item {
             });
             imgInstance = th.getBridgeInstance(item, "ImageSection", imgsection.id);
             params = {
-                "sectionId": imgsection.id,
                 "sectionItem": item,
                 "section": imgInstance
             };
@@ -192,7 +191,7 @@ Item {
             mouseClick(tested, 34, 54);
             verify(th.mock_called(imgInstance, mname));
             let args = th.mock_call_args_list(imgInstance, mname);
-            compare(args[0], [tested.sectionId, "#0000ff", Qt.point(34 / tested.width, 54 / tested.height)]);
+            compare(args[0], [imgInstance.id, "#0000ff", Qt.point(34 / tested.width, 54 / tested.height)]);
             th.unmock(imgInstance, mname);
         }
 

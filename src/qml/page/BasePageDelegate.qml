@@ -23,7 +23,6 @@ Item {
     height: loader.height
     Component.onCompleted: {
         loader.setSource("qrc:/qml/sections/" + section.classtype + ".qml", {
-            "sectionId": sectionId,
             "sectionItem": root,
             "section": section
         });

@@ -5,7 +5,7 @@ TextEdit {
     id: root
 
     property bool doNotUpdate: false
-    required property Item sectionItem // basepagedelegate
+    required property Item sectionItem
     required property QtObject section
 
     function setStyleFromMenu(params) {

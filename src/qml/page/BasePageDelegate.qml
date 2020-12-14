@@ -44,9 +44,13 @@ Item {
             id: loader
 
             function sendLoaded() {
-                if (loader.item.status == undefined || loader.item.status == 1)
+                if (loader.item.status == undefined || loader.item.status == 1) {
+                    print(loader.item);
+                    print(loader.item.height, loader.item.width, "statue");
+                    print(loader.height, loader.width, "laoder");
+                    print(root.height, root.width, "root");
                     root.loaded(index);
-
+                }
             }
 
             focus: true

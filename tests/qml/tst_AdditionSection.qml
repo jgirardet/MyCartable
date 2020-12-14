@@ -9,74 +9,27 @@ Item {
     width: 200
     height: 200
 
-    Component {
-        id: modelComp
-
-        ListModel {
-            id: listmodel
-
-            property int rows: 4
-            property int sectionId: 0
-            property int columns: 3
-            property int cursor: 0
-            property int size: 12
-            property var datas: ["", "", "", "", "", "9", "+", "", "8", "", "", ""]
-            property var _moveCursor
-
-            function isResultLine(index) {
-                return [9, 10, 11].includes(index) ? true : false;
-            }
-
-            function isRetenueLine(index) {
-                return [0, 1, 2].includes(index) ? true : false;
-            }
-
-            function isMiddleLine(index) {
-                return [3, 4, 5, 6, 7, 8].includes(index) ? true : false;
-            }
-
-            function readOnly(index) {
-                return [0, 2, 3, 4, 5, 6, 7, 8, 9].includes(index) ? true : false;
-            }
-
-            function moveCursor(index, key) {
-                _moveCursor = [index, key];
-            }
-
-            function getInitialPosition() {
-                return size - 1;
-            }
-
-            Component.onCompleted: {
-                for (var x of datas) {
-                    listmodel.append({
-                        "display": x,
-                        "edit": x
-                    });
-                }
-            }
-        }
-
-    }
-
     CasTest {
-        property var model
+        property var secDB
+        property var sec
 
         function initPre() {
-            model = createTemporaryObject(modelComp, item);
+            secDB = fk.f("additionSection", {
+                "string": "9+8"
+            });
+            sec = th.getBridgeInstance(item, "AdditionSection", secDB.id);
             params = {
-                "model": model
+                "section": sec,
+                "sectionItem": item
             };
         }
 
         function initPost() {
-            // baseoperation testé ici car addition très simple
-
         }
 
-        function test_the_mock_model() {
-            compare(model.count, 12);
-            compare(tested.model, model);
+        function test_the_model() {
+            compare(tested.model, sec.model);
+            compare(tested.count, 12);
         }
 
         function test_init() {
@@ -86,7 +39,7 @@ Item {
         }
 
         function test_cursor_binding() {
-            model.cursor = 11;
+            sec.model.cursor = 11;
             compare(tested.currentIndex, 11);
         }
 
@@ -100,34 +53,43 @@ Item {
 
         function test_keys_and_validator() {
             var elem = tested.itemAtIndex(11).textinput;
-            var mod = model.get(11);
             mouseClick(elem);
-            compare(mod.edit, "");
+            compare(sec.datas[11], "");
             //1 entier
             keyClick(Qt.Key_5);
-            compare(mod.edit, "5");
+            compare(sec.datas[11], "5");
             ///del et backspace
+            mouseClick(elem);
             keyClick(Qt.Key_Backspace);
-            compare(mod.edit, "");
+            compare(sec.datas[11], "");
+            mouseClick(elem);
             keyClick(Qt.Key_5);
-            compare(mod.edit, "5");
+            compare(sec.datas[11], "5");
+            mouseClick(elem);
             keyClick(Qt.Key_Delete);
-            compare(mod.edit, "");
+            compare(sec.datas[11], "");
             // validator refuse alphabet
+            mouseClick(elem);
             keyClick(Qt.Key_A);
-            compare(mod.edit, "");
+            compare(sec.datas[11], "");
             //valiadator n'ademet qu'un chiffre
+            mouseClick(elem);
             keyClick(Qt.Key_5);
-            compare(mod.edit, "5");
+            compare(sec.datas[11], "5");
+            mouseClick(elem);
             keyClick(Qt.Key_5);
-            compare(mod.edit, "5");
+            compare(sec.datas[11], "5");
         }
 
         function test_move_with_arrows() {
-            // on controle juste le call car fonction non refaite
             mouseClick(tested.itemAtIndex(11).textinput);
+            keyClick(Qt.Key_Left);
+            keyClick(Qt.Key_5);
+            compare(sec.datas[10], "5");
+            mouseClick(tested.itemAtIndex(10).textinput);
             keyClick(Qt.Key_Right);
-            compare(model._moveCursor, [11, Qt.Key_Right]);
+            keyClick(Qt.Key_4);
+            compare(sec.datas[11], "4");
             tested.destroy();
         }
 
@@ -142,7 +104,7 @@ Item {
             mouseClick(tested.itemAtIndex(11).textinput);
             compare(tested.currentItem.textinput.focus, true); // si pas fait
             keyClick(Qt.Key_5);
-            compare(model.get(11).edit, "5");
+            compare(sec.datas[11], "5");
         }
 
         function test_properties() {
@@ -170,7 +132,7 @@ Item {
         }
 
         name: "AdditionSection"
-        testedNom: "qrc:/qml/operations/AdditionSectionBase.qml"
+        testedNom: "qrc:/qml/sections/AdditionSection.qml"
     }
 
 }

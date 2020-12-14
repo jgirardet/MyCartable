@@ -9,8 +9,8 @@ from PySide2.QtCore import (
     QAbstractItemModel,
     QAbstractListModel,
     Slot,
+    QObject,
 )
-from package import database
 
 from pony.orm import db_session, make_proxy
 from functools import cached_property
@@ -22,32 +22,55 @@ class OperationModel(QAbstractListModel):
     paramsChanged = Signal()
     sectionIdChanged = Signal()
 
-    def __init__(self):
-        super().__init__()
-        self.db = database.getdb()
+    def __init__(self, parent: "Operation" = None):
+        super().__init__(parent)
         self._cursor = 0
-        self.editables = []
-        self.params = {"rows": 0, "columns": 0, "datas": [], "size": 0}
-        self._sectionId = None
-        self.sectionIdChanged.connect(self.load_params)
-        self.dataChanged.connect(self.ddb.recentsModelChanged)
-
-    @db_session
-    def load_params(self):
-        # c'est une post init method
-        try:
-            self.proxy = make_proxy(self.db.Section.get(id=self.sectionId))
-        except AttributeError:
-            self._sectionId = None
-            return
-        self.params = self.proxy.to_dict()
-        self.editables = self.proxy.get_editables()
+        self.editables = self.get_editables() or {}
         self.custom_params_load()
         self.cursor = self.getInitialPosition()
 
-    @Property(int, notify=paramsChanged)
-    def columns(self):
-        return int(self.params["columns"])
+    """
+    Pure Python code
+    """
+
+    # @Slot()
+    def getInitialPosition(self):
+        pos = self.get_initial_position()
+        a = pos if pos is not None else self.operation.size - 1
+        return a
+
+    def data(self, index, role):
+        if index.isValid() and role == Qt.DisplayRole:
+            value = self.operation.datas[index.row()]
+            return value
+
+    def flags(self, index):
+        if not index.isValid():
+            return
+        return super().flags(index) | Qt.ItemIsEditable
+
+    def rowCount(self, parent=QModelIndex()) -> int:
+        return self.operation.size
+
+    def setData(self, index, value, role, move=True) -> bool:
+        if index.isValid() and role == Qt.EditRole:
+            self.operation.update_datas(index.row(), value)
+            self.dataChanged.emit(index, index)
+            if move and "," not in value:
+                self.autoMoveNext(index.row())
+            return True
+        return False
+
+    def get_editables(self):
+        return {}
+
+    """
+    Qt Property
+    """
+
+    @Property(QObject, constant=True)
+    def operation(self):
+        return self.parent()
 
     @Property(int, notify=cursorChanged)
     def cursor(self):
@@ -59,66 +82,13 @@ class OperationModel(QAbstractListModel):
             self._cursor = value
             self.cursorChanged.emit()
 
-    @Property("QVariantList", notify=paramsChanged)
-    def datas(self):
-        return self.params["datas"]
-
-    @Property(int, notify=paramsChanged)
-    def rows(self):
-        return int(self.params["rows"])
-
-    @Property(str, notify=sectionIdChanged)
-    def sectionId(self):
-        return self._sectionId
-
-    @sectionId.setter
-    def sectionId_set(self, value: str):
-        self._sectionId = value
-        self.sectionIdChanged.emit()
-
-    @Property(int, notify=paramsChanged)
-    def size(self):
-        return int(self.params["size"])
-
-    @Property(int, notify=paramsChanged)
-    def virgule(self):
-        return self.params["virgule"]
-
-    def data(self, index, role):
-        if index.isValid() and role == Qt.DisplayRole:
-            value = self.datas[index.row()]
-            return value
-
-    def flags(self, index):
-        if not index.isValid():
-            return
-        return super().flags(index) | Qt.ItemIsEditable
-
-    def rowCount(self, parent=QModelIndex()) -> int:
-        return int(self.params["size"])
-
-    def setData(self, index, value, role, move=True) -> bool:
-        if index.isValid() and role == Qt.EditRole:
-            with db_session:
-                self.proxy.update_datas(index.row(), value)
-            self.datas[index.row()] = value
-            self.dataChanged.emit(index, index)
-            if move and "," not in value:
-                self.autoMoveNext(index.row())
-            return True
-        return False
-
-    # Slot en plus
+    """
+    Qt SLot
+    """
 
     @Slot(int)
     def autoMoveNext(self, currentIndex):
         self.cursor = self.auto_move_next(currentIndex)
-
-    # @Slot(result=int)
-    def getInitialPosition(self):
-        pos = self.get_initial_position()
-        a = pos if pos is not None else self.size - 1
-        return a
 
     @Slot(int, int)
     def moveCursor(self, index, key):
@@ -172,33 +142,52 @@ class OperationModel(QAbstractListModel):
 
 class AdditionModel(OperationModel):
     def auto_move_next(self, position):
-        if position == self.rowCount() - self.columns + 1:  # début de ligne résultat
+        if (
+            position == self.rowCount() - self.operation.columns + 1
+        ):  # début de ligne résultat
             return position
-        elif position > self.columns:  # reste ligne résutlat
+        elif position > self.operation.columns:  # reste ligne résutlat
             diff = self.rowCount() - position
-            new = int(self.columns - diff - 1)
-            if new == self.virgule:
+            new = int(self.operation.columns - diff - 1)
+            if new == self.operation.virgule:
                 new -= 1  # saute la virgule dans les retenues
         else:  # le haut
-            new = self.columns * (self.rows - 1) + position
+            new = self.operation.columns * (self.operation.rows - 1) + position
         return new
 
+    def get_editables(self):
+        first_line = {x for x in range(1, self.operation.columns - 1)}
+        last_line = {
+            x
+            for x in range(
+                self.operation.size - self.operation.columns + 1, self.operation.size
+            )
+        }
+        res = first_line | last_line
+        if self.operation.virgule:
+            virgule_ll = (
+                self.operation.size - self.operation.columns + self.operation.virgule
+            )
+            res = res - {self.operation.virgule, virgule_ll}
+
+        return res
+
     def is_result_line(self, index):
-        return index >= self.rowCount() - self.columns
+        return index >= self.rowCount() - self.operation.columns
 
     def is_retenue_line(self, index):
-        return 0 <= index and index < self.columns
+        return 0 <= index and index < self.operation.columns
 
     def move_cursor(self, index, key):
         new = self.cursor
         if key == Qt.Key_Up:
-            temp = index - self.columns * (self.rows - 1)
-            if temp == self.columns - 1:
+            temp = index - self.operation.columns * (self.operation.rows - 1)
+            if temp == self.operation.columns - 1:
                 new = temp - 1
             elif temp > 0:
                 new = temp
         elif key == Qt.Key_Down:
-            temp = index + self.columns * (self.rows - 1)
+            temp = index + self.operation.columns * (self.operation.rows - 1)
             if temp <= self.rowCount():
                 new = temp
         elif key == Qt.Key_Left:
@@ -217,11 +206,15 @@ class AdditionModel(OperationModel):
 
 class SoustractionModel(OperationModel):
     def get_initial_position(self):
-        return self.size - 2
+        return self.operation.size - 2
 
     def auto_move_next(self, position):
         factor = 0
-        if (position - 3) % self.columns < self.virgule < position % self.columns:
+        if (
+            (position - 3) % self.operation.columns
+            < self.operation.virgule
+            < position % self.operation.columns
+        ):
             factor = 1
         return (
             position - 3 - factor
@@ -239,32 +232,32 @@ class SoustractionModel(OperationModel):
 
     @Slot()
     def addRetenues(self):
-        r1 = self.cursor - (self.columns * 2) - 1
-        r2 = self.cursor - self.columns - 2
-        if self.datas[r2] == ",":
+        r1 = self.cursor - (self.operation.columns * 2) - 1
+        r2 = self.cursor - self.operation.columns - 2
+        if self.operation.datas[r2] == ",":
             r2 -= 1
         if r1 not in self.retenue_gauche or r2 not in self.retenue_droite:
             return
 
-        res = "" if self.datas[r1] == "1" else "1"
+        res = "" if self.operation.datas[r1] == "1" else "1"
         self.setData(self.index(r1), res, Qt.EditRole, move=False)
         self.setData(self.index(r2), res, Qt.EditRole, move=False)
 
     def is_result_line(self, index):
-        return index >= self.columns * 2
+        return index >= self.operation.columns * 2
 
     def is_retenue_line(self, index):
         """retenu == fistr line"""
-        return 0 <= index and index < self.columns
+        return 0 <= index and index < self.operation.columns
 
     @cached_property
     def retenue_gauche(self):
         res = set()
         i = 4
-        while i < self.columns:
+        while i < self.operation.columns:
 
             # si on dépasse la virgule on ajoute 1, 1 seul fois
-            if self.datas[i] == ",":
+            if self.operation.datas[i] == ",":
                 i += 1
             res.add(i)
             i += 3
@@ -273,11 +266,11 @@ class SoustractionModel(OperationModel):
     @cached_property
     def retenue_droite(self):
         res = set()
-        i = 3 + self.columns
-        while i < self.columns * 2 - 1:
+        i = 3 + self.operation.columns
+        while i < self.operation.columns * 2 - 1:
 
             # si on dépasse la virgule on ajoute 1, 1 seul fois
-            if self.datas[i - 2] == ",":
+            if self.operation.datas[i - 2] == ",":
                 i += 1
             res.add(i)
             i += 3
@@ -290,7 +283,7 @@ class SoustractionModel(OperationModel):
             temp = index + 3
             if temp in self.editables:
                 new = temp
-            elif index % self.columns >= self.columns - 4:
+            elif index % self.operation.columns >= self.operation.columns - 4:
                 pass
             elif temp + 1 in self.editables:  # pragma: no branch
                 new = temp + 1
@@ -298,9 +291,9 @@ class SoustractionModel(OperationModel):
             temp = index - 3
             if temp in self.editables:
                 new = temp
-            # elif self.datas[temp].isdigit() or self.datas[temp] == ",":
+            # elif self.operation.datas[temp].isdigit() or self.operation.datas[temp] == ",":
             #     new = temp - 1
-            elif self.datas[temp + 1] == ",":
+            elif self.operation.datas[temp + 1] == ",":
                 new = temp - 1
         elif key == Qt.Key_Up:
             new = index
@@ -308,34 +301,73 @@ class SoustractionModel(OperationModel):
             new = index
         return new
 
+    @property
+    def line_0(self):
+        return self.operation.datas[0 : self.operation.columns]
+
+    @property
+    def line_1(self):
+        return self.operation.datas[self.operation.columns : self.operation.columns * 2]
+
+    @property
+    def line_2(self):
+        return self.operation.datas[self.operation.columns * 2 :]
+
+    def get_editables(self):
+        res = set()
+
+        def aide(res, debut, limite):
+            i = debut
+            while i < limite:
+                res.add(i)
+                i += 3
+
+        if not self.operation.virgule:
+            if len(self.line_0) == len(self.line_1) == 4:
+                return {10}
+            aide(
+                res, self.operation.columns * 2 + 2, self.operation.size
+            )  # troisieme ligne
+
+        else:
+            i = self.operation.columns * 2 + 2
+            flag = True
+            while i < self.operation.size:
+                if i >= self.operation.virgule + (self.operation.columns * 2) and flag:
+                    i += 1
+                    flag = False
+                    continue
+                res.add(i)
+                i += 3
+        return res
+
 
 class MultiplicationModel(OperationModel):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent):
+        super().__init__(parent)
         self.cursorChanged.connect(self.highLightChanged)
 
-    # methodes overidées
-    def custom_params_load(self):
-        self.n_chiffres = self.proxy.n_chiffres
-
     def get_initial_position(self):
-        return self.i_line_1.stop + self.columns - 1
+        return self.i_line_1.stop + self.operation.columns - 1
 
     def is_result_line(self, index):
-        return self.size - self.columns <= index < self.size
+        return (
+            self.operation.size - self.operation.columns <= index < self.operation.size
+        )
 
     def is_retenue_line(self, index):
         """retenu première lignes et  appres addition"""
-        if self.rows == 4:  # 1 chiffre en bas
-            if index < self.columns:  # premire ligne
+        if self.operation.rows == 4:  # 1 chiffre en bas
+            if index < self.operation.columns:  # premire ligne
                 return True
         else:
-            if index < self.columns * self.n_chiffres:  # premieres lignes
+            if index < self.operation.columns * self.n_chiffres:  # premieres lignes
                 return True
             elif (
-                (self.n_chiffres * 2 + 2) * self.columns
+                (self.n_chiffres * 2 + 2) * self.operation.columns
                 <= index
-                < (self.n_chiffres * 2 + 2) * self.columns + self.columns
+                < (self.n_chiffres * 2 + 2) * self.operation.columns
+                + self.operation.columns
             ):
                 return True
         return False
@@ -345,27 +377,27 @@ class MultiplicationModel(OperationModel):
 
         if key == Qt.Key_Up:
             while index > 0:
-                index = index - self.columns
+                index = index - self.operation.columns
                 if index in self.editables:
                     new = index
                     break
 
         elif key == Qt.Key_Down:
-            while index < self.size:
-                index = index + self.columns
+            while index < self.operation.size:
+                index = index + self.operation.columns
                 if index in self.editables:
                     new = index
                     break
 
         elif key == Qt.Key_Right:
-            while index % self.columns < self.columns - 1:
+            while index % self.operation.columns < self.operation.columns - 1:
                 index += 1
                 if index in self.editables:
                     new = index
                     break
 
         elif key == Qt.Key_Left:  # pragma: no branch
-            while index % self.columns:
+            while index % self.operation.columns:
                 index -= 1
                 if index in self.editables:
                     new = index
@@ -381,13 +413,15 @@ class MultiplicationModel(OperationModel):
         res: résultat
         """
         res = position
-        i_case = position % self.columns
+        i_case = position % self.operation.columns
 
         # ordre result/middle est important pour le cas ouligne1 a 1 chiffre
 
         if self.isResultLine(position):
             if self.n_chiffres == 1:  # cas ou mambre 2 a 1 seul chiffre
-                if position - 1 != self.size - self.columns:  # pragma: no branch
+                if (
+                    position - 1 != self.operation.size - self.operation.columns
+                ):  # pragma: no branch
                     temp = self._if_middle_line(position)
                     if temp is not None:  # pragma: no branch
                         res = temp
@@ -395,7 +429,7 @@ class MultiplicationModel(OperationModel):
             else:
                 # tant que pas l'avant dernier
                 if i_case > 1:
-                    res = position - self.columns - 1
+                    res = position - self.operation.columns - 1
 
         elif self.isMiddleLine(position):
             temp = self._if_middle_line(position)
@@ -405,33 +439,35 @@ class MultiplicationModel(OperationModel):
 
         elif self.isRetenueLine(position):  # pragma: no branch
             # pourrait être else mais moins explicit, d'où le pragama
-            if position < self.columns * self.n_chiffres:  # retenu du haut.
-                y = self.n_chiffres - (position // self.columns) - 1
+            if position < self.operation.columns * self.n_chiffres:  # retenu du haut.
+                y = self.n_chiffres - (position // self.operation.columns) - 1
                 x = (
-                    self.columns - i_case - 1
+                    self.operation.columns - i_case - 1
                 )  # une colonne de retenu correspond toujorus au même x
                 if i_case <= self.i_retenue_virgule:
                     x -= 1
                 res = self._get_middle(y, x)
 
             else:  # retenu du bas
-                res = position + self.columns
+                res = position + self.operation.columns
 
         return res
 
     # move_cursor/automove next
     def _get_retenue(self, y, x):
         rev_y = self.n_chiffres - y
-        start = rev_y * self.columns - 1  # en fin de ligne de la bonne ligne de retenu
+        start = (
+            rev_y * self.operation.columns - 1
+        )  # en fin de ligne de la bonne ligne de retenu
         res = start - x - 1  # -1 car la retenu décale d'une colonne
-        new_i_case = res % self.columns
+        new_i_case = res % self.operation.columns
         if new_i_case <= self.i_retenue_virgule:
             res -= 1
         return res
 
     def _get_middle(self, y, x):
-        start = self.i_line_1.stop + (self.columns * y)
-        new_i_case = self.columns - 1 - y - x
+        start = self.i_line_1.stop + (self.operation.columns * y)
+        new_i_case = self.operation.columns - 1 - y - x
         res = start + new_i_case
         return res
 
@@ -440,15 +476,15 @@ class MultiplicationModel(OperationModel):
         # cas où on saute la ligne de la retenue
         if y == self.n_chiffres - 1:
             bonus += 1
-        return self.columns * (self.n_chiffres + 2 + y + bonus + 2) - 1
+        return self.operation.columns * (self.n_chiffres + 2 + y + bonus + 2) - 1
 
     def _if_middle_line(self, position):
-        i_case = position % self.columns
+        i_case = position % self.operation.columns
         if self.n_chiffres == 1:
             y = 0
         else:
-            y = (position - self.i_line_1.stop) // self.columns
-        x = self.columns - i_case - y - 1
+            y = (position - self.i_line_1.stop) // self.operation.columns
+        x = self.operation.columns - i_case - y - 1
 
         # cas du point de décalge
         if x < 0:
@@ -473,13 +509,13 @@ class MultiplicationModel(OperationModel):
     # private utils property / methods
     @cached_property
     def i_line_0(self):
-        start = self.n_chiffres * self.columns
-        return slice(start, start + self.columns)
+        start = self.n_chiffres * self.operation.columns
+        return slice(start, start + self.operation.columns)
 
     @cached_property
     def i_line_1(self):
         start = self.i_line_0.stop
-        return slice(start, start + self.columns)
+        return slice(start, start + self.operation.columns)
 
     @cached_property
     def editables_index_middle(self):
@@ -489,29 +525,31 @@ class MultiplicationModel(OperationModel):
             set(
                 range(
                     self.i_line_1.stop,
-                    self.i_line_1.stop + self.columns * self.n_chiffres,
+                    self.i_line_1.stop + self.operation.columns * self.n_chiffres,
                 )
             )
             if self.n_chiffres > 1
-            else set(range(self.size - self.columns, self.size))
+            else set(
+                range(self.operation.size - self.operation.columns, self.operation.size)
+            )
         )
         return pre_list & self.editables
 
     @cached_property
     def i_retenue_virgule(self):
         try:
-            return self.datas[self.i_line_0].index(",")
+            return self.operation.datas[self.i_line_0].index(",")
         except ValueError:
             return 0  # virgule ne peut jamais avoir index 0
 
     @cached_property
     def len_ligne0(self):
-        line1 = self.datas[self.i_line_0]
+        line1 = self.operation.datas[self.i_line_0]
         for n, i in enumerate(line1):  # pragma: no branch
             if i == "":
                 pass
             elif i.isdigit():  # pragma: no branch
-                self._len_ligne0 = self.columns - n
+                self._len_ligne0 = self.operation.columns - n
                 if "," in line1:
                     self._len_ligne0 -= 1
                 return self._len_ligne0
@@ -523,7 +561,7 @@ class MultiplicationModel(OperationModel):
     @cached_property
     def i_line1_virgule(self):
         try:
-            return self.datas[self.i_line_1].index(",")
+            return self.operation.datas[self.i_line_1].index(",")
         except ValueError:
             return 0  # virgule ne peut jamais avoir index 0
 
@@ -538,12 +576,14 @@ class MultiplicationModel(OperationModel):
         if index not in self.editables_index_middle:
             return -1, -1
 
-        i_case = index % self.columns
+        i_case = index % self.operation.columns
         if self.n_chiffres == 1:
-            return (self.columns * 3) - 1, index - (2 * self.columns)
+            return (self.operation.columns * 3) - 1, index - (
+                2 * self.operation.columns
+            )
         else:
-            y = (index - self.i_line_1.stop) // self.columns
-        x = self.columns - i_case - y - 1
+            y = (index - self.i_line_1.stop) // self.operation.columns
+        x = self.operation.columns - i_case - y - 1
         if x < 0:  # cas des 0 de décalage
             index_x = -1
         else:  # reste
@@ -552,11 +592,11 @@ class MultiplicationModel(OperationModel):
             if i_case <= self.i_line0_vigule:
                 index_x -= 1
             # pour les fins de ligne trouver le + dernier de ligne0
-            while not self.datas[index_x].isdigit():
+            while not self.operation.datas[index_x].isdigit():
                 index_x += 1
 
         index_y = self.i_line_1.stop - 1 - y
-        if self.columns - y - 1 <= self.i_line1_virgule:
+        if self.operation.columns - y - 1 <= self.i_line1_virgule:
             index_y -= 1
 
         return index_y, index_x
@@ -573,32 +613,79 @@ class MultiplicationModel(OperationModel):
     def highLight(self):
         return list(self.getHighlightedForCurrent(self.cursor))
 
+    @cached_property
+    def n_chiffres(self):
+        return int((self.operation.rows - 4) / 2) or 1
+
+    @property
+    def line_0(self):
+        start = self.n_chiffres * self.operation.columns
+        return self.operation.datas[start : start + self.operation.columns]
+
+    @property
+    def line_1(self):
+        start = (1 + self.n_chiffres) * self.operation.columns
+        return self.operation.datas[start : start + self.operation.columns]
+
+    @property
+    def line_res_index(self):
+        return self.operation.size - self.operation.columns, self.operation.size
+
+    @property
+    def line_res(self):
+        start, stop = self.line_res_index
+        return self.operation.datas[start:stop]
+
+    def get_editables(self):
+        res = set()
+        if self.n_chiffres == 1:
+            # pass
+            start, stop = self.line_res_index
+            res = set(range(start + 1, stop)) | set(
+                range(1, self.operation.columns - 1)
+            )
+        else:
+            # d'abord les retenues via les même index que ligne0 - le dernier
+            indexes = [n for n, x in enumerate(self.line_0) if x.isdigit()][:-1]
+            for i in range(self.n_chiffres):
+                k = self.operation.columns * i
+                for j in indexes:
+                    res.add(k + j)
+
+            # ensuite on faite tout le reste
+            reste = set(
+                range(
+                    self.operation.columns * (self.n_chiffres + 2), self.operation.size
+                )
+            )
+
+            # on enleve la collone des signe
+            colonne_signe = set(range(0, self.operation.size, self.operation.columns))
+            reste = reste - colonne_signe
+
+            res = res | reste
+
+        return res
+
 
 class DivisionModel(OperationModel):
 
-    # methods overrides
-
-    def custom_params_load(self):
-        self._dividende = self.proxy.dividende_as_num
-        self._diviseur = self.proxy.diviseur_as_num
-        self._quotient = self.proxy.quotient
-        self.cursor = 10
-        self.quotientChanged.connect(self.ddb.recentsModelChanged)
+    # todo: self.quotientChanged.connect(self.ddb.recentsModelChanged)
 
     def move_cursor(self, index, key):
         temp = index
         if key == Qt.Key_Up:
-            while temp >= self.columns:
-                temp -= self.columns
+            while temp >= self.operation.columns:
+                temp -= self.operation.columns
                 if temp in self.editables:
                     return temp
         elif key == Qt.Key_Down:
-            while temp < self.size:
-                temp += self.columns
+            while temp < self.operation.size:
+                temp += self.operation.columns
                 if temp in self.editables:
                     return temp
         elif key == Qt.Key_Right:
-            while temp < self.size:
+            while temp < self.operation.size:
                 temp += 1
                 if temp in self.editables:
                     return temp
@@ -613,13 +700,13 @@ class DivisionModel(OperationModel):
         res = position
 
         if res in self.retenue_gauche:  # va à la retenue droit du bas
-            res = res + self.columns - 1
+            res = res + self.operation.columns - 1
         elif res in self.retenue_droite:  # va au chiffre d'avant du bas
-            res = res + self.columns + 2
+            res = res + self.operation.columns + 2
         elif res in self.regular_chiffre:  # pragma: no branch
-            row = int(position / self.columns)
+            row = int(position / self.operation.columns)
             if bool(row & 1):  # impair : on va faire le chiffre de gauche
-                debut_ligne = row * self.columns
+                debut_ligne = row * self.operation.columns
                 temp = res - 3
                 if temp >= debut_ligne:
                     res = temp
@@ -627,8 +714,10 @@ class DivisionModel(OperationModel):
                     # on va à la ligne, aligné sous plus grand index
                     res = self.go_to_end_line_result(debut_ligne)
             else:  # va aussi au chiffre de gauche mais calcul différent
-                if position % self.columns >= 4:  # on shunt la premiere colone
-                    # res -= 2 * self.columns + 1
+                if (
+                    position % self.operation.columns >= 4
+                ):  # on shunt la premiere colone
+                    # res -= 2 * self.operation.columns + 1
                     res -= 3
 
         return res
@@ -637,45 +726,48 @@ class DivisionModel(OperationModel):
     @Slot()
     def addRetenues(self):
         if not self.isMembreLine(self.cursor):
-            r1 = self.cursor - (self.columns * 2) - 1
-            r2 = self.cursor - self.columns - 2
+            r1 = self.cursor - (self.operation.columns * 2) - 1
+            r2 = self.cursor - self.operation.columns - 2
             if r1 not in self.retenue_gauche or r2 not in self.retenue_droite:
                 return
 
-            res = "" if self.datas[r1] == "1" else "1"
+            res = "" if self.operation.datas[r1] == "1" else "1"
             self.setData(self.index(r1), res, Qt.EditRole)
             self.setData(self.index(r2), res, Qt.EditRole)
 
     @Slot(result=int)
     def getPosByQuotient(self):
-        len_q = len(self.quotient.replace(",", ""))
-        len_diviseur = len(str(self.diviseur).replace(",", ""))
+        len_q = len(self.operation.quotient.replace(",", ""))
+        len_diviseur = len(str(self.operation.diviseur).replace(",", ""))
         if not len_q or len_q == 1:
-            self.cursor = self.columns + 1 + (len_diviseur * 3)
+            self.cursor = self.operation.columns + 1 + (len_diviseur * 3)
         else:
-            self.cursor = self.cursor + self.columns + 3
+            self.cursor = self.cursor + self.operation.columns + 3
+        return self.cursor
 
     @Slot()
     def goToAbaisseLine(self):
-        debut = int(self.cursor / self.columns) * self.columns
+        debut = int(self.cursor / self.operation.columns) * self.operation.columns
         self.cursor = (
             debut
-            + self._get_last_index_filled(self.datas[debut : debut + self.columns])
+            + self._get_last_index_filled(
+                self.operation.datas[debut : debut + self.operation.columns]
+            )
             + 3
         )
 
     @Slot()
     def goToResultLine(self):
-        debut = int(self.cursor / self.columns) * self.columns
+        debut = int(self.cursor / self.operation.columns) * self.operation.columns
         self.cursor = self.go_to_end_line_result(debut)
 
     @Slot(int, result=bool)
     def isDividendeLine(self, index):
-        return index in range(self.columns)
+        return index in range(self.operation.columns)
 
     @Slot(int, result=bool)
     def isMembreLine(self, index):
-        return bool(int(index / self.columns) & 1)
+        return bool(int(index / self.operation.columns) & 1)
 
     @Slot(int, result=bool)
     def isRetenue(self, index):
@@ -693,60 +785,36 @@ class DivisionModel(OperationModel):
     def isEditable(self, value):
         return value in self.editables
 
-    # Property en plus
-
-    memberChanged = Signal()
-
-    @Property(int, notify=memberChanged)
-    def diviseur(self):
-        return self._diviseur
-
-    @Property(float, notify=memberChanged)
-    def dividende(self):
-        return self._dividende
-
-    quotientChanged = Signal()
-
-    @Property(str, notify=quotientChanged)
-    def quotient(self):
-        with db_session:
-            return self.proxy.quotient
-
-    @quotient.setter
-    def quotient_set(self, value: int):
-        with db_session:
-            if value != self.proxy.quotient:
-                self.proxy.quotient = value
-        self.quotientChanged.emit()
-
     # private utils property / methods
 
     @cached_property
     def retenue_gauche(self):
         res = set()
-        for i in range(self.rows - 2):  # pas de rentenu gauche pour la derniere ligne
+        for i in range(
+            self.operation.rows - 2
+        ):  # pas de rentenu gauche pour la derniere ligne
             if bool(i & 1):  # on saute les lignes impaires
                 continue
-            debut = i * self.columns
-            res.update(set(range(debut + 3, debut + self.columns, 3)))
+            debut = i * self.operation.columns
+            res.update(set(range(debut + 3, debut + self.operation.columns, 3)))
         return res
 
     @cached_property
     def retenue_droite(self):
         res = set()
-        for i in range(1, self.rows - 1):
+        for i in range(1, self.operation.rows - 1):
             if not bool(i & 1):  # on saute les lignes paires
                 continue
-            debut = i * self.columns + 2
-            res.update(set(range(debut, debut + self.columns - 3, 3)))
+            debut = i * self.operation.columns + 2
+            res.update(set(range(debut, debut + self.operation.columns - 3, 3)))
         return res
 
     @cached_property
     def regular_chiffre(self):
         res = set()
-        for i in range(1, self.rows):
-            debut = i * self.columns + 1
-            res.update(set(range(debut, debut + self.columns, 3)))
+        for i in range(1, self.operation.rows):
+            debut = i * self.operation.columns + 1
+            res.update(set(range(debut, debut + self.operation.columns, 3)))
         return res
 
     @staticmethod
@@ -761,10 +829,46 @@ class DivisionModel(OperationModel):
         return len(liste) - 1
 
     def go_to_end_line_result(self, debut_ligne):
-        ligne = slice(debut_ligne, debut_ligne + self.columns)
-        new_index = self._get_last_index_filled(self.datas[ligne])
-        return debut_ligne + self.columns + new_index
+        ligne = slice(debut_ligne, debut_ligne + self.operation.columns)
+        new_index = self._get_last_index_filled(self.operation.datas[ligne])
+        return debut_ligne + self.operation.columns + new_index
 
-    @Slot(int, result=bool)
-    def readOnly(self, value):
-        return value not in self.editables
+    # @Slot(int, result=bool)
+    # def readOnly(self, value):
+    #     return value not in self.editables
+
+    def is_ligne_dividende(self, index):
+        return 0 <= index < self.operation.columns
+
+    def is_ligne_last(self, index):
+        return (
+            self.operation.size - self.operation.columns <= index < self.operation.size
+        )
+
+    def get_editables(self):
+        last = set(
+            range(
+                self.operation.size - self.operation.columns + 1, self.operation.size, 3
+            )
+        )
+        milieu = set()
+        for i in range(1, self.operation.rows - 1):
+            debut = i * self.operation.columns
+            impair = bool(i & 1)
+            mini_index = 1
+            # rangée des chiffres
+            milieu.update(
+                set(range(debut + mini_index, debut + self.operation.columns, 3))
+            )
+            mini_index = 2 if impair else 3  # rien dans la premiere colone
+            skip_end = 3 if impair else 0
+            # # rangée des retenues /// A priorri les tests on été fait AVEC cette ligne là
+            # milieu.update(
+            #     set(
+            #         range(
+            #             debut + mini_index, debut + self.operation.columns - skip_end, 3
+            #         )
+            #     )
+            # )
+
+        return milieu | last

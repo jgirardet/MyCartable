@@ -4,14 +4,14 @@ import QtQuick.Controls 2.15
 GridView {
     id: root
 
-    property string sectionId
-    property var sectionItem
+    required property Item sectionItem // basepagedelegate
+    required property QtObject section
 
-    contentWidth: cellWidth * model.columns
-    width: contentWidth
+    model: section.model
     height: contentHeight
-    contentHeight: cellHeight * model.rows
-    //  height: cellHeight * model.rows
+    contentWidth: cellWidth * section.columns
+    width: contentWidth
+    contentHeight: cellHeight * section.rows
     cellWidth: 50
     cellHeight: 50
     keyNavigationEnabled: false
@@ -22,7 +22,7 @@ GridView {
     }
 
     Binding on currentIndex {
-        when: model.sectionIdChanged
+        when: section.model.sectionIdChanged
         value: model.cursor
     }
 

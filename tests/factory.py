@@ -297,6 +297,17 @@ class Faker:
     def b_annotation(self, n, *args, **kwargs):
         return [self.f_annotationText(*args, **kwargs) for x in range(n)]
 
+    def f_operationSection(self, string=None, **kwargs):
+        string = (
+            string
+            if string
+            else random.choice(
+                ["3+2", "8+9", "8,1+5", "23,45+365,2", "32+45", "87+76", "3458+23+827"]
+            )
+        )
+
+        return self._f_section("OperationSection", string, **kwargs)
+
     def f_additionSection(self, string=None, **kwargs):
         string = (
             string

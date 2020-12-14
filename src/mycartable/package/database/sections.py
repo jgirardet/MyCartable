@@ -6,8 +6,9 @@ from uuid import UUID, uuid4
 
 from PySide2.QtGui import QColor
 from functools import cached_property
+
+from mycartable.classeur.sections.operations.api import create_operation
 from package.exceptions import MyCartableOperationError
-from package.operations.api import create_operation
 from pony.orm import (
     Required,
     PrimaryKey,
@@ -119,16 +120,20 @@ def class_section(
         def datas(self):
             return json.loads(self._datas)
 
+        @datas.setter
+        def datas(self, value):
+            self._datas = json.dumps(value)
+
         def to_dict(self, *args, **kwargs):
             dico = super().to_dict(*args, **kwargs)
             dico.pop("_datas")
             dico["datas"] = self.datas
             return dico
 
-        def update_datas(self, index, value):
-            datas = self.datas
-            datas[index] = value
-            self._datas = json.dumps(datas)
+        def set(self, **kwargs):
+            if datas := kwargs.pop("datas", None):
+                self.datas = datas
+            super().set(**kwargs)
 
     class OperationSection(TableDataSection):
 
@@ -152,109 +157,17 @@ def class_section(
             )
 
     class AdditionSection(OperationSection):
-        def get_editables(self):
-            first_line = {x for x in range(1, self.columns - 1)}
-            last_line = {x for x in range(self.size - self.columns + 1, self.size)}
-            res = first_line | last_line
-            if self.virgule:
-                virgule_ll = self.size - self.columns + self.virgule
-                res = res - {self.virgule, virgule_ll}
-
-            return res
+        pass
 
     class SoustractionSection(OperationSection):
-        @property
-        def line_0(self):
-            return self.datas[0 : self.columns]
-
-        @property
-        def line_1(self):
-            return self.datas[self.columns : self.columns * 2]
-
-        @property
-        def line_2(self):
-            return self.datas[self.columns * 2 :]
-
-        def get_editables(self):
-            res = set()
-
-            def aide(res, debut, limite):
-                i = debut
-                while i < limite:
-                    res.add(i)
-                    i += 3
-
-            if not self.virgule:
-                if len(self.line_0) == len(self.line_1) == 4:
-                    return {10}
-                aide(res, self.columns * 2 + 2, self.size)  # troisieme ligne
-
-            else:
-                i = self.columns * 2 + 2
-                flag = True
-                while i < self.size:
-                    if i >= self.virgule + (self.columns * 2) and flag:
-                        i += 1
-                        flag = False
-                        continue
-                    res.add(i)
-                    i += 3
-            return res
+        pass
 
     class MultiplicationSection(OperationSection):
-        @cached_property
-        def n_chiffres(self):
-            return int((self.rows - 4) / 2) or 1
-
-        @property
-        def line_0(self):
-            start = self.n_chiffres * self.columns
-            return self.datas[start : start + self.columns]
-
-        @property
-        def line_1(self):
-            start = (1 + self.n_chiffres) * self.columns
-            return self.datas[start : start + self.columns]
-
-        @property
-        def line_res_index(self):
-            return self.size - self.columns, self.size
-
-        @property
-        def line_res(self):
-            start, stop = self.line_res_index
-            return self.datas[start:stop]
-
-        def get_editables(self):
-            res = set()
-            if self.n_chiffres == 1:
-                # pass
-                start, stop = self.line_res_index
-                res = set(range(start + 1, stop)) | set(range(1, self.columns - 1))
-            else:
-                # d'abord les retenues via les même index que ligne0 - le dernier
-                indexes = [n for n, x in enumerate(self.line_0) if x.isdigit()][:-1]
-                for i in range(self.n_chiffres):
-                    k = self.columns * i
-                    for j in indexes:
-                        res.add(k + j)
-
-                # ensuite on faite tout le reste
-                reste = set(range(self.columns * (self.n_chiffres + 2), self.size))
-
-                # on enleve la collone des signe
-                colonne_signe = set(range(0, self.size, self.columns))
-                reste = reste - colonne_signe
-
-                res = res | reste
-
-            return res
+        pass
 
     class DivisionSection(OperationSection):
         dividende = Optional(str)
-        # dividende = Optional(Decimal)
         diviseur = Optional(str)
-        # diviseur = Optional(Decimal, scale=1, precision=8)
         quotient = Optional(str, default="")
 
         def __init__(self, string, **kwargs):
@@ -268,49 +181,20 @@ def class_section(
             self._datas = json.dumps(datas["datas"])
             self.size = self.columns * self.rows
 
+        # def _as_num(self, num):
+        #     try:
+        #         res = int(num)
+        #     except ValueError:
+        #         res = float(num)
+        #     return res
+        #
         # @cached_property
-        # def l_dividende(self):
-        #     return len(self.dividende)
-
-        def is_ligne_dividende(self, index):
-            return 0 <= index < self.columns
-
-        def is_ligne_last(self, index):
-            return self.size - self.columns <= index < self.size
-
-        def get_editables(self):
-            # dividende = set(range(3, self.columns, 3)) # retenues du haut
-            last = set(range(self.size - self.columns + 1, self.size, 3))
-            milieu = set()
-            for i in range(1, self.rows - 1):
-                debut = i * self.columns
-                impair = bool(i & 1)
-                mini_index = 1
-                # rangée des chiffres
-                milieu.update(set(range(debut + mini_index, debut + self.columns, 3)))
-                mini_index = 2 if impair else 3  # rien dans la premiere colone
-                skip_end = 3 if impair else 0
-                # # rangée des retenues
-                # milieu.update(
-                #     set(range(debut + mini_index, debut + self.columns - skip_end, 3))
-                # )
-
-            return milieu | last
-
-        def _as_num(self, num):
-            try:
-                res = int(num)
-            except ValueError:
-                res = float(num)
-            return res
-
-        @cached_property
-        def diviseur_as_num(self):
-            return self._as_num(self.diviseur)
-
-        @cached_property
-        def dividende_as_num(self):
-            return self._as_num(self.dividende)
+        # def diviseur_as_num(self):
+        #     return self._as_num(self.diviseur)
+        #
+        # @cached_property
+        # def dividende_as_num(self):
+        #     return self._as_num(self.dividende)
 
     class EquationSection(Section):
 

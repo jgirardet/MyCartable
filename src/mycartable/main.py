@@ -80,12 +80,12 @@ def main_init_database(filename=None, prod=False):
 
 
 def register_new_qml_type(databaseObject, db):
-    from package.operations.models import (
-        AdditionModel,
-        SoustractionModel,
-        MultiplicationModel,
-        DivisionModel,
-    )
+    # from package.operations.models import (
+    #     AdditionModel,
+    #     SoustractionModel,
+    #     MultiplicationModel,
+    #     DivisionModel,
+    # )
 
     # from package.page.text_section import DocumentEditor
     from package.page.frise_model import FriseModel
@@ -93,10 +93,10 @@ def register_new_qml_type(databaseObject, db):
     from mycartable.types.annee import Annee
     from mycartable.classeur import Classeur
 
-    AdditionModel.ddb = databaseObject
-    SoustractionModel.ddb = databaseObject
-    MultiplicationModel.ddb = databaseObject
-    DivisionModel.ddb = databaseObject
+    # AdditionModel.ddb = databaseObject
+    # SoustractionModel.ddb = databaseObject
+    # MultiplicationModel.ddb = databaseObject
+    # DivisionModel.ddb = databaseObject
     ChangeMatieres.db = db
     Classeur.db = db
     DTB.db = db
@@ -104,10 +104,10 @@ def register_new_qml_type(databaseObject, db):
     Annee
 
     # qmlRegisterType(DocumentEditor, "DocumentEditor", 1, 0, "DocumentEditor")
-    qmlRegisterType(AdditionModel, "MyCartable", 1, 0, "AdditionModel")
-    qmlRegisterType(SoustractionModel, "MyCartable", 1, 0, "SoustractionModel")
-    qmlRegisterType(MultiplicationModel, "MyCartable", 1, 0, "MultiplicationModel")
-    qmlRegisterType(DivisionModel, "MyCartable", 1, 0, "DivisionModel")
+    # qmlRegisterType(AdditionModel, "MyCartable", 1, 0, "AdditionModel")
+    # qmlRegisterType(SoustractionModel, "MyCartable", 1, 0, "SoustractionModel")
+    # qmlRegisterType(MultiplicationModel, "MyCartable", 1, 0, "MultiplicationModel")
+    # qmlRegisterType(DivisionModel, "MyCartable", 1, 0, "DivisionModel")
     # qmlRegisterType(AnnotationModel, "MyCartable", 1, 0, "AnnotationModel")
     qmlRegisterType(FriseModel, "MyCartable", 1, 0, "FriseModel")
     qmlRegisterType(ChangeMatieres, "MyCartable", 1, 0, "ChangeMatieres")

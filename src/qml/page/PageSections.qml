@@ -57,7 +57,7 @@ Flickable {
     function scrollToIndex(idx) {
         content_y_behavior.enabled = true;
         positionAtIndex(idx);
-        content_y_behavior.enabled = true;
+        content_y_behavior.enabled = false;
     }
 
     function removeItem(idx) {

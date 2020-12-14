@@ -13,16 +13,6 @@ Item {
     }
 
     CasTest {
-        //            ddb.currentPage = page.id; // to make toolbar visible
-        //            mouseClick(newimage.action.dialog.contentItem, 200, 100);
-        //            compare(args[0], page.id);
-        //            compare(args[1], {
-        //                "width": 1280,
-        //                "height": 1200,
-        //                "classtype": "ImageSectionVide",
-        //                "position": 3
-        //            });
-
         id: testcase
 
         property var newtext
@@ -131,22 +121,30 @@ Item {
             mouseClick(newimagevide);
             let ct = newimagevide.action.dialog.contentItem;
             mouseClick(ct, ct.width - 5, ct.height - 5, Qt.LeftButton, Qt.NoModifier, 50);
-            let newSec = compare_new_section("ImageSection");
+            compare_new_section("ImageSection");
         }
 
-        function test_newoperation() {
-            th.mock("addSection");
-            mouseClick(newimage);
-            newoperation.action.dialog.contentItem.text = "45*23";
+        function test_new_operation_data() {
+            return [{
+                "tag": "AdditionSection",
+                "string": "23+3"
+            }, {
+                "tag": "SoustractionSection",
+                "string": "23-3"
+            }, {
+                "tag": "MultiplicationSection",
+                "string": "5*2"
+            }, {
+                "tag": "DivisionSection",
+                "string": "2/1"
+            }];
+        }
+
+        function test_new_operation(data) {
+            mouseClick(newoperation);
+            newoperation.action.dialog.contentItem.text = data.string;
             newoperation.action.dialog.accept();
-            let args = th.mock_call_args_list('addSection')[0];
-            compare(args[0], page.id);
-            compare(args[1], {
-                "string": "45*23",
-                "classtype": "OperationSection",
-                "position": 3
-            });
-            th.unmock("addSection");
+            compare_new_section(data.tag);
         }
 
         function test_newtableau() {

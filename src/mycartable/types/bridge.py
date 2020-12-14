@@ -84,6 +84,7 @@ class Bridge(QObject):
                 return False
         except AttributeError as err:
             logger.error(err)
+            return False
         if self._dtb.setDB(self.entity_name, self.id, {name: value}):
             return True
         return False

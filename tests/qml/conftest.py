@@ -28,6 +28,10 @@ from mycartable.classeur import (
     AnnotationText,
     AnnotationDessin,
     EquationSection,
+    AdditionSection,
+    SoustractionSection,
+    MultiplicationSection,
+    DivisionSection,
 )
 
 qmlRegisterType(FriseModel, "MyCartable", 1, 0, "FriseModel")
@@ -88,6 +92,10 @@ class TestHelper(QObject):
         "AnnotationText": AnnotationText,
         "AnnotationDessin": AnnotationDessin,
         "EquationSection": EquationSection,
+        "AdditionSection": AdditionSection,
+        "SoustractionSection": SoustractionSection,
+        "MultiplicationSection": MultiplicationSection,
+        "DivisionSection": DivisionSection,
     }
 
     def __init__(self, dao):

@@ -24,6 +24,9 @@ TextField {
         var isMove = [Qt.Key_Up, Qt.Key_Left, Qt.Key_Down, Qt.Key_Right].includes(event.key);
         var numPressed = [Qt.Key_0, Qt.Key_1, Qt.Key_2, Qt.Key_3, Qt.Key_4, Qt.Key_5, Qt.Key_6, Qt.Key_7, Qt.Key_8, Qt.Key_9].includes(event.key);
         var delPressed = [Qt.Key_Backspace, Qt.Key_Delete].includes(event.key);
+        if (!isMove && readOnly)
+            return ;
+
         if (isMove) {
             model.moveCursor(index, event.key);
             event.accepted = true;
@@ -52,7 +55,6 @@ TextField {
     }
 
     background: BorderRectangle {
-        //    color: input.parent.color
         color: input.focus ? "yellow" : root.color
         borderColor: model.isResultLine(index) ? "black" : input.parent.color
         borderTop: -2

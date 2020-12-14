@@ -12,7 +12,7 @@ Pour créer une nouvelle section :
 - ajouter import dans section.__init__
 - ajouter dans Section.available_sublasss
 - ajouter dans test_section.sub_classes
-- ahouter dans test_page.test_data_role
+- ajouter dans test_page.test_data_role
 """
 
 
@@ -23,6 +23,25 @@ class Section(SubTypeAble, Bridge):
     @staticmethod
     @lru_cache
     def available_subclass() -> Tuple[Section]:
-        from . import ImageSection, TextSection, EquationSection
+        from . import (
+            ImageSection,
+            TextSection,
+            EquationSection,
+            OperationSection,
+            AdditionSection,
+            SoustractionSection,
+            MultiplicationSection,
+            DivisionSection,
+        )
 
-        return Section, TextSection, ImageSection, EquationSection
+        return (
+            Section,
+            TextSection,
+            ImageSection,
+            EquationSection,
+            OperationSection,
+            AdditionSection,
+            SoustractionSection,
+            MultiplicationSection,
+            DivisionSection,
+        )

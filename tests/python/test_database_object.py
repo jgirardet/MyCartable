@@ -9,6 +9,7 @@ from PIL import Image
 from PySide2.QtCore import QUrl, Qt, QPointF
 from PySide2.QtGui import QColor, QImage, QCursor
 from PySide2.QtQuick import QQuickItem
+from mycartable.classeur import create_operation
 from package.cursors import build_one_image_cursor
 from fixtures import check_args
 from package import constantes
@@ -16,7 +17,6 @@ from package.database_object import DatabaseObject
 from unittest.mock import patch, call
 
 from package.files_path import FILES
-from package.operations.api import create_operation
 from pony.orm import ObjectNotFound, db_session
 
 

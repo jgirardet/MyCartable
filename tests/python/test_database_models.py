@@ -599,14 +599,9 @@ class TestTableDataSection:
             _datas='["", "", "", "", "", ""]', rows=3, columns=2, page=p.id
         )
         assert a.datas == ["", "", "", "", "", ""]
-
-    def test_update_datas(self, ddb, fk):
-        p = fk.f_page()
-        a = ddb.TableDataSection(
-            _datas='["", "", "", "", "", ""]', rows=3, columns=2, page=p.id
-        )
-        a.update_datas(4, "g")
-        assert a.datas == ["", "", "", "", "g", ""]
+        a.set(**{"datas": ["a", "", "b", "", "", "c"]})
+        assert a.datas == ["a", "", "b", "", "", "c"]
+        assert a._datas == '["a", "", "b", "", "", "c"]'
 
     def test_to_dict(self, ddb, fk):
         p = fk.f_page()
@@ -681,14 +676,6 @@ class TestOperationSection:
             "virgule": 0,
         }
 
-    def test_update_datas(self, fk):
-        item = fk.f_additionSection(string="259+135")
-        with db_session:
-            fk.db.Section[item.id].update_datas(15, 4)
-
-        with db_session:
-            assert fk.db.Section[item.id].datas[15] == 4
-
 
 class TestAddditionSection:
     def test_factory(self, fk):
@@ -708,20 +695,6 @@ class TestAddditionSection:
         ]
 
         fk.f_additionSection()
-
-    @pytest.mark.parametrize(
-        "string, res",
-        [
-            ("9+8", {1, 10, 11}),
-            ("1+2", {7}),
-            ("345+289", {1, 2, 13, 14, 15}),
-            ("1+2+3", {9}),
-            ("1,1+1", {1, 13, 15}),
-        ],
-    )
-    def test_get_editables(self, ddb, string, res, fk):
-        x = fk.f_additionSection(string=string)
-        assert x.get_editables() == res
 
 
 class TestSoustractionSection:
@@ -759,36 +732,6 @@ class TestSoustractionSection:
 
         fk.f_soustractionSection()
 
-    def test_lines(self, ddb, fk):
-        a = fk.f_soustractionSection(string="24-13")
-        # ['', '', '2', '', '', '4', '', '-', '', '1', '', '', '3', '', '', '', '', '', '', '', ''] 7 3
-        assert a.line_0 == ["", "", "2", "", "", "4", ""]
-        assert a.line_1 == [
-            "-",
-            "",
-            "1",
-            "",
-            "",
-            "3",
-            "",
-        ]
-        assert a.line_2 == [""] * a.columns
-
-    @pytest.mark.parametrize(
-        "string, res",
-        [
-            ("9-8", {10}),
-            ("22-2", {16, 19}),
-            ("22-21", {16, 19}),
-            ("345-28", {22, 25, 28}),
-            ("345-285", {22, 25, 28}),
-            ("2,2-1,1", {18, 22}),
-        ],
-    )
-    def test_get_editables(self, ddb, string, res, fk):
-        x = fk.f_soustractionSection(string=string)
-        assert x.get_editables() == res
-
 
 class TestMultiplicationSection:
     def test_factory(self, fk):
@@ -805,80 +748,12 @@ class TestMultiplicationSection:
 
         fk.f_multiplicationSection()
 
-    def test_properties(self, ddb, fk):
-        a = fk.f_multiplicationSection(string="12*34")
-        assert a.n_chiffres == 2
-        assert a.line_0 == ["", "", "3", "4"]
-        assert a.line_1 == ["x", "", "1", "2"]
-
-        a._datas = '["", "", "", "", "", "", "", "", "", "", "1", "2", "x", "", "3", "4", "", "", "", "", "", "", "", "", "", "", "", "", "f", "", "", "z"]'
-        assert a.line_res == ["f", "", "", "z"]
-
-    @pytest.mark.parametrize(
-        "string, res",
-        [
-            ("2*1", {7}),
-            ("2*5", {1, 10, 11}),
-            ("22*5", {1, 2, 13, 14, 15}),
-            (
-                "22*55",
-                {3, 8, 21, 22, 23, 24, 26, 27, 28, 29, 31, 32, 33, 34, 36, 37, 38, 39},
-            ),
-            (
-                "2,2*5,5",
-                {3, 9} | set(range(25, 48)) - set(range(24, 48, 6)),
-            ),
-            (
-                "325,12*99,153",
-                set(
-                    itertools.chain.from_iterable(
-                        range(x, 60, 12) for x in [6, 7, 8, 10]
-                    )
-                )
-                | set(range(84, 168)) - set(range(84, 168, 12)),
-            ),
-        ],
-    )
-    def test_get_editables(self, ddb, string, res, fk):
-        x = fk.f_multiplicationSection(string=string)
-        assert x.get_editables() == res
-
 
 class TestDivisionSection:
     def test_factory(self, ddb, fk):
         x = fk.f_divisionSection(string="34/3")
         assert x.dividende == "34"
         assert x.diviseur == "3"
-
-    def test_is_ligne_dividende(self, fk):
-        tm = fk.f_divisionSection("264/11")
-        check_is_range(tm, "is_ligne_dividende", range(9))
-
-    def test_is_ligne_last(self, fk):
-        tm = fk.f_divisionSection("264/11")
-        check_is_range(tm, "is_ligne_last", range(36, 45))
-
-    @pytest.mark.parametrize(
-        "string, res",
-        [
-            # ("5/4", set(range(84)) - {1}),
-            (
-                "264/11",
-                {10, 13, 16, 19, 22, 25} | {28, 31, 34, 37, 40, 43},
-            ),
-        ],
-    )
-    def test_get_editables(self, string, res, fk):
-        x = fk.f_divisionSection(string=string)
-        assert x.get_editables() == res
-
-    #     # 'rows': 5, 'columns': 9, '
-    #
-    #     # '', 'X', '',  '*', 'Y', '', '*', 'Z', '' //8
-    #     # '', '*', '*', '',  '*', '*', '', '*', '', // 17
-    #     # '', '*', '', '*',  '*', '', '*', '*', '', // 26
-    #     # '', '*', '*', '',  '*', '*', '', '*', '', // 35
-    #     # '', '*', '', '',   '*', '',  '', '*', '' , //44
 
     def test_to_dict(self, fk):
         x = fk.f_divisionSection(string="5/4")
@@ -898,15 +773,6 @@ class TestDivisionSection:
             "size": 84,
             "virgule": 0,
         }
-
-    def test_as_num(self, fk):
-        x = fk.f_divisionSection(string="5/4")
-        assert x.diviseur_as_num == 4
-        assert x.dividende_as_num == 5
-
-        x = fk.f_divisionSection(string="5,333333/4,1")
-        assert x.diviseur_as_num == 4.1
-        assert x.dividende_as_num == 5.333333
 
 
 class TestAnnotations:

@@ -61,7 +61,7 @@ def test_new_ImageVide(fk, resources):
 
 
 def test_check_args():
-    check_args(ImageSection.pivoterImage, [str, int], bool)
+    check_args(ImageSection.pivoterImage, [int], bool)
 
 
 def test_absolute_path_qmlpath_path(fk):
@@ -126,7 +126,7 @@ def test_pivoter_image(new_res, fk, qtbot):
 
     f = fk.f_imageSection(path=str(file))
     isec = ImageSection.get(f.id)
-    isec.pivoterImage(f.id, 1)
+    isec.pivoterImage(1)
     img = Image.open(file)
     assert img.height == 673
     assert img.width == 124

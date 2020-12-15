@@ -11,7 +11,7 @@ BaseMenu {
                 icon.source: "qrc:///icons/rotateLeft"
                 icon.color: "blue"
                 onClicked: {
-                    var res = target.section.pivoterImage(menu.target.sectionId, 0);
+                    var res = target.section.pivoterImage(0);
                     if (res)
                         target.reloadImage();
 
@@ -23,7 +23,8 @@ BaseMenu {
                 icon.source: "qrc:///icons/rotateRight"
                 icon.color: "blue"
                 onClicked: {
-                    var res = target.section.pivoterImage(menu.target.sectionId, 1);
+                    print(menu.target);
+                    var res = target.section.pivoterImage(1);
                     if (res)
                         target.reloadImage();
 

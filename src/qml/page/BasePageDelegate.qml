@@ -10,7 +10,6 @@ Item {
     id: root
 
     property var referent
-    property string sectionId: section.id
     property alias dragarea: dragArea
     property alias contentItem: loader.item
     required property int index

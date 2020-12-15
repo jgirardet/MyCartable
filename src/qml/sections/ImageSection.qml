@@ -7,7 +7,7 @@ import "qrc:/qml/menu"
 Image {
     id: root
 
-    required property Item sectionItem // basepagedelegate
+    required property Item sectionItem
     required property QtObject section
     property var model
     property MouseArea mousearea: mousearea

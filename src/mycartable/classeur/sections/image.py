@@ -138,8 +138,8 @@ class ImageSection(Section):
         im.flood_fill(color, point)
         return im.save(str(self.absolute_path))
 
-    @Slot(str, int, result=bool)
-    def pivoterImage(self, sectionId, sens):
+    @Slot(int, result=bool)
+    def pivoterImage(self, sens):
         with db_session:
             im = Image.open(self.absolute_path)
             sens_rotate = Image.ROTATE_270 if sens else Image.ROTATE_90

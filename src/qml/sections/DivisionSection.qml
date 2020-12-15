@@ -50,7 +50,6 @@ RowLayout {
             Layout.preferredWidth: 200
             text: section.diviseur
 
-            //      text: sectionId ?  corps.model.diviseur : undefined
             background: Rectangle {
                 color: "white"
             }
@@ -71,11 +70,6 @@ RowLayout {
             onTextEdited: {
                 section.quotient = text;
             }
-            //      Binding on text {
-            //        when: root.sectionId
-            //        value: corps.model.quotient
-            //      }
-            //      text: root.model.quotient
             Component.onCompleted: {
                 text = section.quotient;
             }

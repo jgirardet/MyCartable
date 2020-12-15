@@ -4,7 +4,7 @@ import QtQuick.Controls 2.15
 GridView {
     id: root
 
-    required property Item sectionItem // basepagedelegate
+    required property Item sectionItem
     required property QtObject section
 
     model: section.model
@@ -22,7 +22,7 @@ GridView {
     }
 
     Binding on currentIndex {
-        when: section.model.sectionIdChanged
+        when: section.model
         value: model.cursor
     }
 

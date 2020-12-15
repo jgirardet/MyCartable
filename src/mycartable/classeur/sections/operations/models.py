@@ -20,7 +20,6 @@ class OperationModel(QAbstractListModel):
 
     cursorChanged = Signal()
     paramsChanged = Signal()
-    sectionIdChanged = Signal()
 
     def __init__(self, parent: "Operation" = None):
         super().__init__(parent)

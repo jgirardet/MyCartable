@@ -10,20 +10,21 @@ Rectangle {
 
     property alias corps: corps
     property alias titre: titre
-    property string sectionId
-    property var sectionItem
-    property QtObject model
+    required property var sectionItem
+    required property QtObject section
+    property var model: section.model
 
     width: sectionItem.width
-    height: model ? model.height : 0
+    height: section ? section.height : 0
     color: "white"
 
     TextEdit {
         id: titre
 
         onTextChanged: {
-            return root.model.titre = titre.text;
+            return root.section.titre = titre.text;
         }
+        Component.onCompleted: text = section.titre
         font.pointSize: 16
         anchors.horizontalCenter: parent.horizontalCenter
     }
@@ -74,15 +75,6 @@ Rectangle {
 
         }
 
-    }
-
-    model: FriseModel {
-        dao: ddb
-        dtb: c_dtb
-        Component.onCompleted: {
-            sectionId = root.sectionId;
-            root.titre.text = model.titre;
-        }
     }
 
 }

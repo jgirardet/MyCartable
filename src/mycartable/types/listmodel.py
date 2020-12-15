@@ -1,27 +1,18 @@
-from abc import ABC
-
 import typing
 from PySide2.QtCore import (
-    Signal,
     QObject,
-    Property,
     QModelIndex,
     Qt,
     Slot,
     QAbstractListModel,
-    QByteArray,
 )
 from mycartable.types.dtb import DTB
-from pony.orm import Database
 
 
 class DtbListModel(QAbstractListModel):
     """
     Modèle par défault des collections.
-    Les appels database sont fait via self.dao qui devra être donné en paramêtre
-    au moment de l'instanciation vai la Property `dao`.
-    Signal `tiggerInit` est connecté à reset(). Devra être appelé manuelement ou connecté
-    à un autre signal
+    Les appels database sont fait via self._dtb
 
     Les méthods `_moveRows`, `_indesertRows`, `removeRows`, `_roleNames`, `_reset`
      , `_after_reset` peuvent être implémentées.

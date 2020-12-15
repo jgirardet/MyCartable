@@ -8,8 +8,8 @@ from mycartable.types.bridge import Bridge
 """
 Pour créer une nouvelle section :
 - fichier séparé (penser à entity_name
-- ajouter les property/slots et autres
 - ajouter import dans section.__init__
+- ajouter les property/slots et autres
 - ajouter dans Section.available_sublasss
 - ajouter dans test_section.sub_classes
 - ajouter dans test_page.test_data_role
@@ -33,6 +33,7 @@ class Section(SubTypeAble, Bridge):
             MultiplicationSection,
             DivisionSection,
             TableauSection,
+            FriseSection,
         )
 
         return (
@@ -46,4 +47,5 @@ class Section(SubTypeAble, Bridge):
             MultiplicationSection,
             DivisionSection,
             TableauSection,
+            FriseSection,
         )

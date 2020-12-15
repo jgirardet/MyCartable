@@ -14,6 +14,8 @@ from mycartable.classeur import (
     SoustractionSection,
     MultiplicationSection,
     DivisionSection,
+    TableauSection,
+    FriseSection,
 )
 from mycartable.package.utils import shift_list
 from pony.orm import db_session, make_proxy
@@ -79,6 +81,8 @@ def test_base_init(fk):
         ("soustractionSection", SoustractionSection),
         ("multiplicationSection", MultiplicationSection),
         ("divisionSection", DivisionSection),
+        ("tableauSection", TableauSection),
+        ("friseSection", FriseSection),
     ],
 )
 def test_data_role(fk, nom, sectionclass):

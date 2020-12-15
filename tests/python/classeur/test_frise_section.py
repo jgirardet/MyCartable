@@ -1,70 +1,49 @@
 import pytest
 from PySide2.QtCore import Qt, QModelIndex
 from PySide2.QtGui import QColor
-from mycartable.types.dtb import DTB
-from package.page.frise_model import FriseModel
+from mycartable.classeur import FriseSection
+from mycartable.classeur.sections.frise import FriseModel
 from pony.orm import db_session
 
 
 @pytest.fixture()
-def fm(fk, dao):
+def fm(fk):
     def wrapped(nb):
-        f = FriseModel()
-        f.dao = dao
-        f.dtb = DTB()
-        f._frise = fk.f_friseSection()
-        f._zones = fk.b_zoneFrise(nb, frise=f._frise, td=True)
-        f.sectionId = f._frise.id
+        x = fk.f_friseSection()
+        _zones = fk.b_zoneFrise(nb, frise=x.id, td=True)
+        f = FriseSection.get(x.id)
+        f._zones = _zones
         return f
 
     return wrapped
 
 
-def test_base(fk):
-    # reset is called on sectionIf in the fixture
-    a = FriseModel()
-    assert a.zones == []
-    assert a.sectionId == ""
-    assert a._sectionItem == {}
-    assert a.rowCount() == 0
-    assert a.titre == ""
+def test_base(fk, qtbot):
+    x = fk.f_friseSection(height=3, titre="aaa")
+    a = FriseSection.get(x.id)
+    assert a.id == str(x.id)
+    assert a.height == 3
+    assert a.titre == "aaa"
+    with qtbot.waitSignals([a.heightChanged, a.titreChanged]):
+        a.height = 5
+        a.titre = "bbb"
+    with db_session:
+        it = fk.db.FriseSection[x.id]
+        assert it.titre == "bbb"
+        assert it.height == 5
 
-
-def test_init(fk, qtbot, dao):
-    a = FriseModel()
-    with qtbot.waitSignal(a.daoChanged):
-        a.dao = dao
-    with qtbot.waitSignal(a.dtbChanged):
-        a.dtb = DTB()
-
-    # setup
-    fr = fk.f_friseSection(titre="azerty", height=200)
-    zz = fk.b_zoneFrise(2, frise=fr, td=True)
-    with qtbot.waitSignals(
-        [
-            (a.sectionIdChanged, "id"),
-            (a.modelReset, "reset"),
-            (a.titreChanged, "titre"),
-            (a.heightChanged, "heieght"),
-        ]
-    ):
-        a.sectionId = str(fr.id)
-
-        # after reset
-    assert a.titre == "azerty"
-    assert a.height == 200
-    assert a.rowCount() == 2
-    assert a.zones == zz
+    assert isinstance(a.model, FriseModel)
 
 
 def test_data(fm, fk):
-    a = fm(3)
+    b = fm(3)
+    a = b.model
     a.zones[0]["style"]["bgColor"] = "blue"
     a.zones[2]["ratio"] = 0.45
     a.zones[1]["style"]["strikeout"] = True
     a.zones[2]["separatorText"] = "un époque"
     a.zones[2]["legendes"] = [fk.f_friseLegende(td=True, texte="bla")]
-    assert a.data(a.index(1, 0), Qt.DisplayRole) == a._zones[1]["texte"]
+    assert a.data(a.index(1, 0), Qt.DisplayRole) == b._zones[1]["texte"]
     assert a.data(a.index(5, 0), Qt.DisplayRole) is None
     assert a.data(a.index(0, 0), Qt.BackgroundRole) == QColor("blue")
     assert a.data(a.index(2, 0), a.RatioRole) == 0.45
@@ -76,7 +55,8 @@ def test_data(fm, fk):
 
 
 def test_set_data(fm, ddbr):
-    a = fm(3)
+    b = fm(3)
+    a = b.model
     a.zones[0]["style"]["bgColor"] = "blue"
     a.zones[2]["ratio"] = 0.45
     a.setData(a.index(1, 0), "blabla", Qt.EditRole)
@@ -102,194 +82,212 @@ def test_set_data(fm, ddbr):
 
 
 def test_insert_rows(fm, qtbot):
-    a = fm(3)
+    b = fm(3)
+    a = b.model
     with qtbot.waitSignals([a.rowsAboutToBeInserted, a.rowsInserted]):
         a.insertRows(1, 2)
     assert a.rowCount() == 6
-    assert a.zones[0] == a._zones[0]
+    assert a.zones[0] == b._zones[0]
     assert a.zones[1]["texte"] == "new"
     assert a.zones[2]["texte"] == "new"
     assert a.zones[3]["texte"] == "new"
     assert (
-        a.zones[4]["id"] == a._zones[1]["id"]
+        a.zones[4]["id"] == b._zones[1]["id"]
     )  # on peut pas comparer tout à cause des positions
-    assert a.zones[5]["id"] == a._zones[2]["id"]
+    assert a.zones[5]["id"] == b._zones[2]["id"]
 
 
 def test_insert_rows_at_end(fm, qtbot):
-    a = fm(3)
+    b = fm(3)
+    a = b.model
     with qtbot.waitSignals([a.rowsAboutToBeInserted, a.rowsInserted]):
         a.insertRows(3, 1)
     assert a.rowCount() == 5
-    assert a.zones[0]["id"] == a._zones[0]["id"]
-    assert a.zones[1]["id"] == a._zones[1]["id"]
-    assert a.zones[2]["id"] == a._zones[2]["id"]
+    assert a.zones[0]["id"] == b._zones[0]["id"]
+    assert a.zones[1]["id"] == b._zones[1]["id"]
+    assert a.zones[2]["id"] == b._zones[2]["id"]
     assert a.zones[3]["texte"] == "new"
     assert a.zones[4]["texte"] == "new"
 
 
 def test_insert_rows_at_start(fm, qtbot):
-    a = fm(3)
+    b = fm(3)
+    a = b.model
     with qtbot.waitSignals([a.rowsAboutToBeInserted, a.rowsInserted]):
         a.insertRows(0, 1)
     assert a.rowCount() == 5
     assert a.zones[0]["texte"] == "new"
     assert a.zones[1]["texte"] == "new"
-    assert a.zones[2]["id"] == a._zones[0]["id"]
+    assert a.zones[2]["id"] == b._zones[0]["id"]
     assert (
-        a.zones[3]["id"] == a._zones[1]["id"]
+        a.zones[3]["id"] == b._zones[1]["id"]
     )  # on peut pas comparer tout à cause des positions
-    assert a.zones[4]["id"] == a._zones[2]["id"]
+    assert a.zones[4]["id"] == b._zones[2]["id"]
 
 
 def test_insert_one_row(fm, qtbot):
-    a = fm(3)
+    b = fm(3)
+    a = b.model
     with qtbot.waitSignals([a.rowsAboutToBeInserted, a.rowsInserted]):
         a.insertRow(1)
     assert a.rowCount() == 4
-    assert a.zones[0]["id"] == a._zones[0]["id"]
+    assert a.zones[0]["id"] == b._zones[0]["id"]
     assert a.zones[1]["texte"] == "new"
-    assert a.zones[2]["id"] == a._zones[1]["id"]
-    assert a.zones[3]["id"] == a._zones[2]["id"]
+    assert a.zones[2]["id"] == b._zones[1]["id"]
+    assert a.zones[3]["id"] == b._zones[2]["id"]
 
 
 def test_append_row(fm, qtbot):
-    a = fm(3)
+    b = fm(3)
+    a = b.model
     with qtbot.waitSignals([a.rowsAboutToBeInserted, a.rowsInserted]):
         a.append()
     assert a.rowCount() == 4
-    assert a.zones[0]["id"] == a._zones[0]["id"]
-    assert a.zones[1]["id"] == a._zones[1]["id"]
-    assert a.zones[2]["id"] == a._zones[2]["id"]
+    assert a.zones[0]["id"] == b._zones[0]["id"]
+    assert a.zones[1]["id"] == b._zones[1]["id"]
+    assert a.zones[2]["id"] == b._zones[2]["id"]
     assert a.zones[3]["texte"] == "new"
 
 
 def test_move_rows(fm, qtbot):
-    a = fm(5)
+    b = fm(5)
+    a = b.model
     with qtbot.waitSignals([a.rowsAboutToBeMoved, a.rowsMoved]):
         assert a.moveRows(QModelIndex(), 1, 1, QModelIndex(), 4)
-    assert a.zones[0]["id"] == a._zones[0]["id"]
-    assert a.zones[1]["id"] == a._zones[3]["id"]
-    assert a.zones[2]["id"] == a._zones[1]["id"]
-    assert a.zones[3]["id"] == a._zones[2]["id"]
-    assert a.zones[4]["id"] == a._zones[4]["id"]
+    assert a.zones[0]["id"] == b._zones[0]["id"]
+    assert a.zones[1]["id"] == b._zones[3]["id"]
+    assert a.zones[2]["id"] == b._zones[1]["id"]
+    assert a.zones[3]["id"] == b._zones[2]["id"]
+    assert a.zones[4]["id"] == b._zones[4]["id"]
 
 
 def test_move_rows(fm, qtbot):
-    a = fm(3)
+    b = fm(3)
+    a = b.model
     with qtbot.waitSignals([a.rowsAboutToBeMoved, a.rowsMoved]):
         assert a.moveRows(QModelIndex(), 0, 0, QModelIndex(), 2)
-    assert a.zones[0]["id"] == a._zones[1]["id"]
-    assert a.zones[1]["id"] == a._zones[0]["id"]
-    assert a.zones[2]["id"] == a._zones[2]["id"]
-    # assert a.zones[3]["id"] == a._zones[2]["id"]
-    # assert a.zones[4]["id"] == a._zones[4]["id"]
+    assert a.zones[0]["id"] == b._zones[1]["id"]
+    assert a.zones[1]["id"] == b._zones[0]["id"]
+    assert a.zones[2]["id"] == b._zones[2]["id"]
+    # assert a.zones[3]["id"] == b._zones[2]["id"]
+    # assert a.zones[4]["id"] == b._zones[4]["id"]
 
 
 def test_move_rows_ends(fm, qtbot):
-    a = fm(5)
+    b = fm(5)
+    a = b.model
     with qtbot.waitSignals([a.rowsAboutToBeMoved, a.rowsMoved]):
         assert a.moveRows(QModelIndex(), 2, 1, QModelIndex(), 5)
-    assert a.zones[0]["id"] == a._zones[0]["id"]
-    assert a.zones[1]["id"] == a._zones[1]["id"]
-    assert a.zones[2]["id"] == a._zones[4]["id"]
-    assert a.zones[3]["id"] == a._zones[2]["id"]
-    assert a.zones[4]["id"] == a._zones[3]["id"]
+    assert a.zones[0]["id"] == b._zones[0]["id"]
+    assert a.zones[1]["id"] == b._zones[1]["id"]
+    assert a.zones[2]["id"] == b._zones[4]["id"]
+    assert a.zones[3]["id"] == b._zones[2]["id"]
+    assert a.zones[4]["id"] == b._zones[3]["id"]
 
 
 def test_move_rows_start(fm, qtbot):
-    a = fm(5)
+    b = fm(5)
+    a = b.model
     with qtbot.waitSignals([a.rowsAboutToBeMoved, a.rowsMoved]):
         assert a.moveRows(QModelIndex(), 2, 1, QModelIndex(), 0)
-    assert a.zones[0]["id"] == a._zones[2]["id"]
-    assert a.zones[1]["id"] == a._zones[3]["id"]
-    assert a.zones[2]["id"] == a._zones[0]["id"]
-    assert a.zones[3]["id"] == a._zones[1]["id"]
-    assert a.zones[4]["id"] == a._zones[4]["id"]
+    assert a.zones[0]["id"] == b._zones[2]["id"]
+    assert a.zones[1]["id"] == b._zones[3]["id"]
+    assert a.zones[2]["id"] == b._zones[0]["id"]
+    assert a.zones[3]["id"] == b._zones[1]["id"]
+    assert a.zones[4]["id"] == b._zones[4]["id"]
 
 
 def test_moveRow_down_top(fm, qtbot):
-    a = fm(5)
+    b = fm(5)
+    a = b.model
     with qtbot.waitSignals([a.rowsAboutToBeMoved, a.rowsMoved]):
         assert a.moveRow(3, 1)
-    assert a.zones[0]["id"] == a._zones[0]["id"]
-    assert a.zones[1]["id"] == a._zones[3]["id"]
-    assert a.zones[2]["id"] == a._zones[1]["id"]
-    assert a.zones[3]["id"] == a._zones[2]["id"]
-    assert a.zones[4]["id"] == a._zones[4]["id"]
+    assert a.zones[0]["id"] == b._zones[0]["id"]
+    assert a.zones[1]["id"] == b._zones[3]["id"]
+    assert a.zones[2]["id"] == b._zones[1]["id"]
+    assert a.zones[3]["id"] == b._zones[2]["id"]
+    assert a.zones[4]["id"] == b._zones[4]["id"]
 
 
 def test_moveRow_top_down(fm, qtbot):
-    a = fm(5)
+    b = fm(5)
+    a = b.model
     with qtbot.waitSignals([a.rowsAboutToBeMoved, a.rowsMoved]):
         assert a.moveRow(1, 3)
-    assert a.zones[0]["id"] == a._zones[0]["id"]
-    assert a.zones[1]["id"] == a._zones[2]["id"]
-    assert a.zones[2]["id"] == a._zones[1]["id"]
-    assert a.zones[3]["id"] == a._zones[3]["id"]
-    assert a.zones[4]["id"] == a._zones[4]["id"]
+    assert a.zones[0]["id"] == b._zones[0]["id"]
+    assert a.zones[1]["id"] == b._zones[2]["id"]
+    assert a.zones[2]["id"] == b._zones[1]["id"]
+    assert a.zones[3]["id"] == b._zones[3]["id"]
+    assert a.zones[4]["id"] == b._zones[4]["id"]
 
 
 def test_remove_rows_middle(fm, qtbot):
-    a = fm(5)
+    b = fm(5)
+    a = b.model
     with qtbot.waitSignals([a.rowsAboutToBeRemoved, a.rowsRemoved]):
         assert a.removeRows(2, 1)
-    assert a.zones[0]["id"] == a._zones[0]["id"]
-    assert a.zones[1]["id"] == a._zones[1]["id"]
-    assert a.zones[2]["id"] == a._zones[4]["id"]
+    assert a.zones[0]["id"] == b._zones[0]["id"]
+    assert a.zones[1]["id"] == b._zones[1]["id"]
+    assert a.zones[2]["id"] == b._zones[4]["id"]
 
 
 def test_remove_rows_end(fm, qtbot):
-    a = fm(5)
+    b = fm(5)
+    a = b.model
     with qtbot.waitSignals([a.rowsAboutToBeRemoved, a.rowsRemoved]):
         assert a.removeRows(3, 1)
-    assert a.zones[0]["id"] == a._zones[0]["id"]
-    assert a.zones[1]["id"] == a._zones[1]["id"]
-    assert a.zones[2]["id"] == a._zones[2]["id"]
+    assert a.zones[0]["id"] == b._zones[0]["id"]
+    assert a.zones[1]["id"] == b._zones[1]["id"]
+    assert a.zones[2]["id"] == b._zones[2]["id"]
 
 
 def test_remove_rows_end_depasse(fm, qtbot):
-    a = fm(5)
+    b = fm(5)
+    a = b.model
     with qtbot.waitSignals([a.rowsAboutToBeRemoved, a.rowsRemoved]):
         assert a.removeRows(3, 3)
-    assert a.zones[0]["id"] == a._zones[0]["id"]
-    assert a.zones[1]["id"] == a._zones[1]["id"]
-    assert a.zones[2]["id"] == a._zones[2]["id"]
+    assert a.zones[0]["id"] == b._zones[0]["id"]
+    assert a.zones[1]["id"] == b._zones[1]["id"]
+    assert a.zones[2]["id"] == b._zones[2]["id"]
 
 
 def test_remove_rows_debute(fm, qtbot):
-    a = fm(5)
+    b = fm(5)
+    a = b.model
     with qtbot.waitSignals([a.rowsAboutToBeRemoved, a.rowsRemoved]):
         assert a.removeRows(0, 2)
-    assert a.zones[0]["id"] == a._zones[3]["id"]
-    assert a.zones[1]["id"] == a._zones[4]["id"]
+    assert a.zones[0]["id"] == b._zones[3]["id"]
+    assert a.zones[1]["id"] == b._zones[4]["id"]
 
 
 def test_remove_row_debut(fm, qtbot):
-    a = fm(5)
+    b = fm(5)
+    a = b.model
     with qtbot.waitSignals([a.rowsAboutToBeRemoved, a.rowsRemoved]):
         assert a.removeRows(0, 0)
-    assert a.zones[0]["id"] == a._zones[1]["id"]
-    assert a.zones[1]["id"] == a._zones[2]["id"]
-    assert a.zones[2]["id"] == a._zones[3]["id"]
-    assert a.zones[3]["id"] == a._zones[4]["id"]
+    assert a.zones[0]["id"] == b._zones[1]["id"]
+    assert a.zones[1]["id"] == b._zones[2]["id"]
+    assert a.zones[2]["id"] == b._zones[3]["id"]
+    assert a.zones[3]["id"] == b._zones[4]["id"]
 
 
 def test_remove(fm, qtbot):
-    a = fm(5)
+    b = fm(5)
+    a = b.model
     with qtbot.waitSignals([a.rowsAboutToBeRemoved, a.rowsRemoved]):
         assert a.remove(4)
-    assert a.zones[0]["id"] == a._zones[0]["id"]
-    assert a.zones[1]["id"] == a._zones[1]["id"]
-    assert a.zones[2]["id"] == a._zones[2]["id"]
-    assert a.zones[3]["id"] == a._zones[3]["id"]
+    assert a.zones[0]["id"] == b._zones[0]["id"]
+    assert a.zones[1]["id"] == b._zones[1]["id"]
+    assert a.zones[2]["id"] == b._zones[2]["id"]
+    assert a.zones[3]["id"] == b._zones[3]["id"]
 
 
 def test_remove(fm, qtbot):
-    a = fm(5)
+    b = fm(5)
+    a = b.model
     with qtbot.waitSignals([a.rowsAboutToBeRemoved, a.rowsRemoved]):
         assert a.remove(0)
-    assert a.zones[0]["id"] == a._zones[1]["id"]
-    assert a.zones[1]["id"] == a._zones[2]["id"]
-    assert a.zones[2]["id"] == a._zones[3]["id"]
-    assert a.zones[3]["id"] == a._zones[4]["id"]
+    assert a.zones[0]["id"] == b._zones[1]["id"]
+    assert a.zones[1]["id"] == b._zones[2]["id"]
+    assert a.zones[2]["id"] == b._zones[3]["id"]
+    assert a.zones[3]["id"] == b._zones[4]["id"]

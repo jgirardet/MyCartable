@@ -121,11 +121,11 @@ def ddbnf(file_db, monkeypatch):
     # monkeypatch.undo()
 
 
-@pytest.fixture(scope="session", autouse=True)
-def register_qml_types():
-    from package.page.frise_model import FriseModel
+# @pytest.fixture(scope="session", autouse=True)
+# def register_qml_types():
+# from package.page.frise_model import FriseModel
 
-    qmlRegisterType(FriseModel, "MyCartable", 1, 0, "FriseModel")
+# qmlRegisterType(FriseModel, "MyCartable", 1, 0, "FriseModel")
 
 
 @pytest.fixture(scope="function")

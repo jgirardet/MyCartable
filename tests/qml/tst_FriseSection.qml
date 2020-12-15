@@ -9,6 +9,7 @@ Item {
 
     CasTest {
         property var friseSection
+        property var sec
         property var corps
         property QtObject zero
         property QtObject un
@@ -68,8 +69,9 @@ Item {
                 "relativeX": 0.7,
                 "side": true
             });
+            sec = th.getBridgeInstance(item, "FriseSection", friseSection.id);
             params = {
-                "sectionId": friseSection.id,
+                "section": sec,
                 "sectionItem": item
             };
         }

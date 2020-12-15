@@ -60,6 +60,7 @@ Rectangle {
         font.pointSize: Math.max(dragParent.width / 100, 10)
         text: display
         wrapMode: Text.Wrap
+        selectByMouse: true
         Component.onCompleted: {
             onTextChanged.connect(function() {
                 model.edit = text;

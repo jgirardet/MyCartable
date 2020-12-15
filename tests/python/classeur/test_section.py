@@ -10,6 +10,7 @@ from mycartable.classeur import (
     TextSection,
     EquationSection,
     TableauSection,
+    FriseSection,
 )
 
 """
@@ -27,6 +28,7 @@ sub_classes = (
     MultiplicationSection,
     DivisionSection,
     TableauSection,
+    FriseSection,
 )
 
 

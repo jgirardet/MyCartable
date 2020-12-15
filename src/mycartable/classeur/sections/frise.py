@@ -5,16 +5,50 @@ from PySide2.QtCore import (
     QByteArray,
     Signal,
     Property,
+    QObject,
 )
 from PySide2.QtGui import QColor
 import typing
 
-from package.page.basemodel import SectionDetailModel
-from package.utils import WDict, shift_list
-from pony.orm import db_session
+from .section import Section
+from mycartable.types import DtbListModel
+from mycartable.package.utils import WDict, shift_list
 
 
-class FriseModel(SectionDetailModel):
+class FriseSection(Section):
+    entity_name = "FriseSection"
+
+    heightChanged = Signal()
+    titreChanged = Signal()
+
+    def __init__(self, data: dict = {}, parent=None):
+        super().__init__(data=data, parent=parent)
+        self._model = FriseModel(self)
+
+    @Property(int, notify=heightChanged)
+    def height(self):
+        return self._data["height"]
+
+    @height.setter
+    def height_set(self, value: int):
+        self.set_field("height", value)
+        self.heightChanged.emit()
+
+    @Property(str, notify=titreChanged)
+    def titre(self):
+        return self._data["titre"]
+
+    @titre.setter
+    def titre_set(self, value: str):
+        self.set_field("titre", value)
+        self.titreChanged.emit()
+
+    @Property(QObject, constant=True)
+    def model(self):
+        return self._model
+
+
+class FriseModel(DtbListModel):
 
     RatioRole = Qt.UserRole + 1
     SeparatorPositionRole = Qt.UserRole + 2
@@ -25,7 +59,7 @@ class FriseModel(SectionDetailModel):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.zones = []
-        self._sectionItem = {}
+        self.reset()
 
     def rowCount(self, parent=QModelIndex()) -> int:
         return len(self.zones)
@@ -74,7 +108,7 @@ class FriseModel(SectionDetailModel):
             return False
         zone: dict = self.zones[index.row()]
         data = WDict(self.ROLES[role], value)
-        if self.dtb.setDB("ZoneFrise", zone["id"], data):
+        if self._dtb.setDB("ZoneFrise", zone["id"], data):
             zone.update(data)
             self.dataChanged.emit(index, index)
             return True
@@ -83,50 +117,48 @@ class FriseModel(SectionDetailModel):
 
     def _insertRows(self, row: int, count):
         # start datanase work
-        with db_session:
-            for pos in range(row, row + count + 1):
-                item = self.dtb.addDB(
-                    "ZoneFrise",
-                    {
-                        "frise": self.sectionId,
-                        "texte": "new",
-                        "ratio": 0.2,
-                        "style": {"bgColor": QColor("lightgoldenrodyellow")},
-                        "position": pos,
-                    },
-                )
-                self.dtb.addDB(
-                    "FriseLegende",
-                    {
-                        "zone": item["id"],
-                        "texte": "",
-                        "relativeX": 1,
-                        "side": False,
-                    },
-                )
-                if not item:
-                    break
+        for pos in range(row, row + count + 1):
+            item = self._dtb.addDB(
+                "ZoneFrise",
+                {
+                    "frise": self.parent().id,
+                    "texte": "new",
+                    "ratio": 0.2,
+                    "style": {"bgColor": QColor("lightgoldenrodyellow")},
+                    "position": pos,
+                },
+            )
+            self._dtb.addDB(
+                "FriseLegende",
+                {
+                    "zone": item["id"],
+                    "texte": "",
+                    "relativeX": 1,
+                    "side": False,
+                },
+            )
+            if not item:
+                break
 
         self._reset()  # changemnt de position des zones donc plus logiq de tout reprendre
 
     def _moveRows(self, sourceRow, count, destinationChild):
         self.zones = shift_list(self.zones, sourceRow, 1 + count, destinationChild)
-        with db_session:
-            for n, zo in enumerate(self.zones):
-                item = self.dtb.setDB(
-                    "ZoneFrise",
-                    zo["id"],
-                    {
-                        "_position": n,
-                    },
-                )
-                if not item:
-                    break
+        for n, zo in enumerate(self.zones):
+            item = self._dtb.setDB(
+                "ZoneFrise",
+                zo["id"],
+                {
+                    "_position": n,
+                },
+            )
+            if not item:
+                break
         self._reset()
 
     def _removeRows(self, row: int, count: int):
         for d in self.zones[row : row + count + 1]:
-            self.dtb.delDB("ZoneFrise", d["id"])
+            self._dtb.delDB("ZoneFrise", d["id"])
         self._reset()
 
     @Slot(result=bool)
@@ -134,39 +166,13 @@ class FriseModel(SectionDetailModel):
         self.beginResetModel()
         self._reset()
         self.endResetModel()
-        self.titreChanged.emit()
-        self.heightChanged.emit()
+        self._after_reset()
         return True
 
     def _reset(self):
-        self._sectionItem = self.dtb.getDB("FriseSection", self.sectionId)
-        self.zones = [WDict(z) for z in self._sectionItem["zones"]]
+        self.parent()._data = self._dtb.getDB("FriseSection", self.parent().id)
+        self.zones = [WDict(z) for z in self.parent()._data["zones"]]
 
     def _after_reset(self):
-        self.titreChanged.emit()
-        self.heightChanged.emit()
-
-    # Properties
-
-    heightChanged = Signal()
-
-    @Property(int, notify=heightChanged)
-    def height(self):
-        return self._sectionItem.get("height", 0)
-
-    @height.setter
-    def height_set(self, value: int):
-        self._height = value
-        self.heightChanged.emit()
-
-    titreChanged = Signal()
-
-    @Property(str, notify=titreChanged)
-    def titre(self):
-        return self._sectionItem.get("titre", "")
-
-    @titre.setter
-    def titre_set(self, value: int):
-        if self.dtb.setDB("FriseSection", self.sectionId, {"titre": value}):
-            self._sectionItem["titre"] = value
-            self.titreChanged.emit()
+        self.parent().titreChanged.emit()
+        self.parent().heightChanged.emit()

@@ -59,6 +59,7 @@ Item {
         width: Math.max(contentWidth + 20, 40)
         horizontalAlignment: TextEdit.AlignHCenter
         verticalAlignment: TextEdit.AlignVCenter
+        selectByMouse: true
 
         MouseArea {
             anchors.fill: parent

@@ -20,7 +20,6 @@ from common import fn_reset_db, setup_session
 
 from mycartable.package.database import init_database
 from mycartable.types.dtb import DTB
-from mycartable.package.page.frise_model import FriseModel
 
 # from mycartable.package.page.annotation_model import AnnotationModel
 from mycartable.classeur import (
@@ -34,10 +33,9 @@ from mycartable.classeur import (
     MultiplicationSection,
     DivisionSection,
     TableauSection,
+    FriseSection,
 )
 
-qmlRegisterType(FriseModel, "MyCartable", 1, 0, "FriseModel")
-# qmlRegisterType(AnnotationModel, "MyCartable", 1, 0, "AnnotationModel")
 qmlRegisterType(DTB, "MyCartable", 1, 0, "Database")
 
 
@@ -101,6 +99,7 @@ class TestHelper(QObject):
         "MultiplicationSection": MultiplicationSection,
         "DivisionSection": DivisionSection,
         "TableauSection": TableauSection,
+        "FriseSection": FriseSection,
     }
 
     def __init__(self, dao):

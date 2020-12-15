@@ -88,7 +88,7 @@ def register_new_qml_type(databaseObject, db):
     # )
 
     # from package.page.text_section import DocumentEditor
-    from package.page.frise_model import FriseModel
+    # from package.page.frise_model import FriseModel
     from mycartable.types.changematieres import ChangeMatieres
     from mycartable.types.annee import Annee
     from mycartable.classeur import Classeur
@@ -101,7 +101,7 @@ def register_new_qml_type(databaseObject, db):
     Classeur.db = db
     DTB.db = db
     # Globus.db = db
-    Annee
+    # Annee
 
     # qmlRegisterType(DocumentEditor, "DocumentEditor", 1, 0, "DocumentEditor")
     # qmlRegisterType(AdditionModel, "MyCartable", 1, 0, "AdditionModel")
@@ -109,7 +109,7 @@ def register_new_qml_type(databaseObject, db):
     # qmlRegisterType(MultiplicationModel, "MyCartable", 1, 0, "MultiplicationModel")
     # qmlRegisterType(DivisionModel, "MyCartable", 1, 0, "DivisionModel")
     # qmlRegisterType(AnnotationModel, "MyCartable", 1, 0, "AnnotationModel")
-    qmlRegisterType(FriseModel, "MyCartable", 1, 0, "FriseModel")
+    # qmlRegisterType(FriseModel, "MyCartable", 1, 0, "FriseModel")
     qmlRegisterType(ChangeMatieres, "MyCartable", 1, 0, "ChangeMatieres")
     qmlRegisterType(Classeur, "MyCartable", 1, 0, "Classeur")
     qmlRegisterType(DTB, "MyCartable", 1, 0, "Database")

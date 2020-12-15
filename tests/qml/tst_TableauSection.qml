@@ -17,17 +17,30 @@ Item {
         property TextArea un
         property TextArea deux
         property var model: item.cellModel
+        property var secDB
+        property var sec
 
         function initPre() {
+            uiManager.menuFlottantTableau = createObj("qrc:/qml/menu/MenuFlottantTableau.qml");
+            secDB = fk.f("tableauSection", {
+                "id": '11111111-1111-1111-1111-111111111111',
+                "lignes": 5,
+                "colonnes": 3
+            });
+            sec = th.getBridgeInstance(item, "TableauSection", secDB.id);
+            for (let dat of DATA.modelDeBase) {
+                sec.updateCell(dat.y, dat.x, {
+                    "style": dat.style,
+                    "texte": dat.texte
+                });
+            }
             params = {
-                "sectionId": "1270",
+                "section": sec,
                 "sectionItem": item
             };
         }
 
         function initPreCreate() {
-            ddb._nbColonnes = 3;
-            ddb._initTableauDatas = model;
         }
 
         function initPost() {
@@ -57,7 +70,7 @@ Item {
         }
 
         function test_init() {
-            compare(tested.sectionId, "1270");
+            compare(tested.section.id, sec.id);
             compare(rep.count, 15);
             compare(tested.width, grid.width);
             compare(tested.height, grid.height);
@@ -127,7 +140,7 @@ Item {
         }
 
         function test_repeater() {
-            compare(rep.model, ddb.initTableauDatas(3));
+            compare(rep.model, sec.initTableauDatas());
         }
 
         function test_delegate_init() {
@@ -149,9 +162,7 @@ Item {
 
         function test_delegate_onTextChanged_and_setText() {
             un.text = "bla";
-            compare(ddb._updateCell, ["1270", 0, 1, {
-                "texte": "bla"
-            }]);
+            compare(fk.getItem("TableauCell", sec.id, 0, 1).texte, "bla");
         }
 
         function test_delegate_selected_state() {
@@ -275,7 +286,7 @@ Item {
                 }
             };
             un.setStyleFromMenu(dict);
-            compare(ddb._updateCell, ["1270", 0, 1, dict]);
+            fuzzyCompare(fk.getItem("TableauCell", sec.id, 0, 1).style.fgColor, "red", 0);
             verify(Qt.colorEqual(un.color, "red"));
         }
 
@@ -287,7 +298,7 @@ Item {
                 }
             };
             un.setStyleFromMenu(dict);
-            compare(ddb._updateCell, ["1270", 0, 1, dict]);
+            fuzzyCompare(fk.getItem("TableauCell", sec.id, 0, 1).style.bgColor, "red", 0);
             verify(Qt.colorEqual(un.background.color, "red"));
         }
 
@@ -299,7 +310,7 @@ Item {
                 }
             };
             un.setStyleFromMenu(dict);
-            compare(ddb._updateCell, ["1270", 0, 1, dict]);
+            compare(fk.getItem("TableauCell", sec.id, 0, 1).style.underline, true);
             verify(un.font.underline);
         }
 
@@ -307,10 +318,9 @@ Item {
             var cbBgRed = uiManager.menuFlottantTableau.contentItem.contentItem.children[0].children[0].children[1].children[0];
             var cbBlueNoUnderline = uiManager.menuFlottantTableau.contentItem.contentItem.children[3].children[0].children[1];
             var cbGreenUnderline = uiManager.menuFlottantTableau.contentItem.contentItem.children[5].children[0].children[2];
-            //       wait(5000)
             // background
             compare(Qt.colorEqual(un.background.color, "blue"), true);
-            compare(uiManager.menuTarget, undefined);
+            compare(uiManager.menuTarget, null);
             mouseClick(un, 1, 1, Qt.RightButton);
             compare(uiManager.menuTarget, un); //target is tx
             mouseClick(cbBgRed, 1, 1);
@@ -335,11 +345,9 @@ Item {
         function test_mouseClick_add_column() {
             var but = uiManager.menuFlottantTableau.contentItem.contentItem.children[7].children[0].children[0];
             compare(rep.count, 15);
-            ddb._nbColonnes = 4;
-            ddb._initTableauDatas = DATA.modelColonneEnPlus;
             mouseClick(un, 1, 1, Qt.RightButton);
             mouseClick(but, 1, 1, Qt.LeftButton);
-            compare(ddb._insertColumn, ["1270", 1]);
+            compare(sec.colonnes, 4);
             compare(grid.columns, 4);
             compare(rep.count, 20);
         }
@@ -347,58 +355,48 @@ Item {
         function test_mouseClick_remove_column() {
             var but = uiManager.menuFlottantTableau.contentItem.contentItem.children[7].children[0].children[1];
             compare(rep.count, 15);
-            ddb._nbColonnes = 2;
-            ddb._initTableauDatas = DATA.modelColonneEnMoins;
             mouseClick(un, 1, 1, Qt.RightButton);
             mouseClick(but, 1, 1, Qt.LeftButton);
-            compare(ddb._removeColumn, ["1270", 1]);
+            compare(sec.colonnes, 2);
             compare(grid.columns, 2);
             compare(rep.count, 10);
         }
 
         function test_mouseClick_append_column() {
             var but = uiManager.menuFlottantTableau.contentItem.contentItem.children[7].children[0].children[2];
-            ddb._nbColonnes = 4;
-            ddb._initTableauDatas = DATA.modelColonneEnPlus;
             mouseClick(un, 1, 1, Qt.RightButton);
             mouseClick(but, 1, 1, Qt.LeftButton);
-            compare(ddb._appendColumn, ["1270"]);
+            compare(sec.colonnes, 4);
             compare(grid.columns, 4);
             compare(rep.count, 20);
         }
 
         function test_mouseClick_add_row() {
             var but = uiManager.menuFlottantTableau.contentItem.contentItem.children[7].children[0].children[3];
-            compare(rep.count, 15);
-            ddb._nbColonnes = 3;
-            ddb._initTableauDatas = DATA.modelLigneEnPlus;
             mouseClick(un, 1, 1, Qt.RightButton);
             mouseClick(but, 1, 1, Qt.LeftButton);
-            compare(ddb._insertRow, ["1270", 0]);
+            compare(sec.lignes, 6);
             compare(rep.count, 18);
         }
 
         function test_mouseClick_remove_row() {
             var but = uiManager.menuFlottantTableau.contentItem.contentItem.children[7].children[0].children[4];
-            ddb._nbColonnes = 3;
-            ddb._initTableauDatas = DATA.modelLigneEnMoins;
             mouseClick(un, 1, 1, Qt.RightButton);
             mouseClick(but, 1, 1, Qt.LeftButton);
-            compare(ddb._removeRow, ["1270", 0]);
+            compare(sec.lignes, 4);
             compare(rep.count, 12);
         }
 
         function test_mouseClick_append_row() {
             var but = uiManager.menuFlottantTableau.contentItem.contentItem.children[7].children[0].children[5];
-            ddb._nbColonnes = 3;
-            ddb._initTableauDatas = DATA.modelLigneEnPlus;
             mouseClick(un, 1, 1, Qt.RightButton);
             mouseClick(but, 1, 1, Qt.LeftButton);
-            compare(ddb._appendRow, ["1270"]);
+            compare(sec.lignes, 6);
             compare(rep.count, 18);
         }
 
         function test_targetmenu_egale_grid_if_selected() {
+            uiManager.menuFlottantTableau = createObj("qrc:/qml/menu/MenuFlottantTableau.qml");
             grid.selectCell(un);
             mouseClick(un, 1, 1, Qt.RightButton);
             compare(uiManager.menuTarget, grid);

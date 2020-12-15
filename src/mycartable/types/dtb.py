@@ -1,4 +1,4 @@
-from typing import Union, Optional, Any
+from typing import Union, Optional, Any, List
 
 from PySide2.QtCore import Slot
 from PySide2.QtQml import QJSValue
@@ -32,7 +32,6 @@ class DTB(QObject):
                 if item := entity(**params):  # pragma: no branch
                     return item.to_dict()
             except TypeError as err:
-                print(err)
                 logger.error(err)
         return {}
 
@@ -80,7 +79,7 @@ class DTB(QObject):
     @db_session
     @Slot(str, str, "QVariantMap", result="QVariantMap")
     @Slot(str, int, "QVariantMap", result="QVariantMap")
-    def setDB(self, entity: str, item_id: Union[str, int], params: dict) -> dict:
+    def setDB(self, entity: str, item_id: Union[str, int, tuple], params: dict) -> dict:
         """
         Modify a row in database.
         :param entity: str. Entity Name
@@ -115,24 +114,29 @@ class DTB(QObject):
             value = value.toVariant()
         self.db.Configuration.add(key, value)
 
-    #
-    # @db_session
     # @Slot(str, str, str, result="QVariantMap")
     # @Slot(str, int, str, result="QVariantMap")
-    # def execDB(self, entity: str, item_id: Union[str, int], func: "name") -> dict:
-    #     """
-    #     Runs a method on a row in database.
-    #     :param entity: str. Entity Name
-    #     :param item_id: str. Id (pk) of item
-    #     :param params: dict. paremeter to edit in  row.
-    #     :return: True if ok, else False
-    #     """
-    #     if entity := getattr(self.db, entity, None):  # pragma: no branch
-    #         if item := entity.get(id=item_id):  # pragma: no branch
-    #             try:
-    #                 # item.set(**params)
-    #                 res = getattr(item, "method")()
-    #                 return item.to_dict()
-    #             except TypeError as err:
-    #                 logger.exception(err)
-    #     return {}
+    # @Slot(str, int, str, "QVariantList", "QVariantMap", result="QVariantList")
+    # @Slot(str, int, str, "QVariantList", "QVariantMap", result="QVariantList")
+    @db_session
+    def execDB(
+        self, entity: str, item_id: Union[str, int], func: str, *args, **kwargs
+    ) -> Any:
+        """
+        Runs a method on a row in database.
+        N EST PAS Un SLOT
+        :param entity: str. Entity Name
+        :param item_id: str. Id (pk) of item
+        :param func: str.function name
+        :param args: positionnal arguments
+        :param kwargs: keyword arguments
+        :return: Any
+        """
+        if entity := getattr(self.db, entity, None):  # pragma: no branch
+            if item := entity.get(id=item_id):  # pragma: no branch
+                try:
+                    res = getattr(item, func)(*args, **kwargs)
+                except TypeError as err:
+                    logger.exception(err)
+                else:
+                    return res

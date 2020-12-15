@@ -9,6 +9,7 @@ from mycartable.classeur import (
     Section,
     TextSection,
     EquationSection,
+    TableauSection,
 )
 
 """
@@ -25,6 +26,7 @@ sub_classes = (
     SoustractionSection,
     MultiplicationSection,
     DivisionSection,
+    TableauSection,
 )
 
 

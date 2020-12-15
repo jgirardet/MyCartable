@@ -6,7 +6,7 @@ from package.database_mixins.recents_mixin import RecentsMixin
 from package.database_mixins.section_mixin import SectionMixin
 
 # from package.database_mixins.session import SessionMixin
-from package.database_mixins.tableau_mixin import TableauMixin
+# from package.database_mixins.tableau_mixin import TableauMixin
 
 from loguru import logger
 from package.files_path import FILES
@@ -17,7 +17,6 @@ MIXINS = [
     LayoutMixin,
     RecentsMixin,
     SectionMixin,
-    TableauMixin,
 ]
 
 
@@ -72,7 +71,7 @@ class DatabaseObject(QObject, *MIXINS):
         # mise à jour
         # todo: self.imageChanged.connect(self.updateRecentsAndActivites)
         # todo: self.equationChanged.connect(self.updateRecentsAndActivites)
-        self.tableauChanged.connect(self.updateRecentsAndActivites)
+        # todo: self.tableauChanged.connect(self.updateRecentsAndActivites)
         # todo: self.textSectionChanged.connect(self.updateRecentsAndActivites)
         # TODO: self.changeMatieres.connect(lambda: self.onChangeAnnee(self.anneeActive))
 

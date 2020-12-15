@@ -24,13 +24,14 @@ BasePageAction {
         title: "Ajouter un tableau"
         standardButtons: Dialog.Ok | Dialog.Cancel
         onAccepted: {
-            ddb.addSection(ddb.currentPage, {
+            var newPos = append ? page.model.count : position + 1;
+            page.addSection(tableauaction.nom, newPos, {
                 "lignes": ~~lignesSlider.value,
                 "colonnes": ~~colonneSlider.value,
-                "classtype": tableauaction.nom,
-                "position": tableauaction.append ? ddb.pageModel.count : tableauaction.position + 1,
+                "position": newPos,
                 "modele": groupeModeles.checkedButton.icon.name
             });
+            dialogNewTableau.close();
         }
 
         contentItem: Column {

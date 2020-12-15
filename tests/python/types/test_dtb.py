@@ -158,3 +158,17 @@ def test_setConfig_jsvalue(dtb, fk, qapp):
     arr = q.toScriptValue(val)
     dtb.setConfig("bla", arr)
     assert dtb.getConfig("bla") == val
+
+
+def test_exec(dtb, fk):
+    a = fk.f_annee(id=2019)
+    # no arg
+    res = dtb.execDB("Annee", a.id, "get_pk")
+    assert res == a.id
+
+    # pos args
+    # pas d'exemple à tester ...
+
+    # kwargs
+    res = dtb.execDB("Annee", 2019, "to_dict", only=["niveau"])
+    assert res == {"niveau": "cm2019"}

@@ -148,19 +148,9 @@ Item {
         }
 
         function test_newtableau() {
-            th.mock("addSection");
-            mouseClick(newimage);
+            mouseClick(newtableau);
             newtableau.action.dialog.accept();
-            let args = th.mock_call_args_list('addSection')[0];
-            compare(args[0], page.id);
-            compare(args[1], {
-                "lignes": 1,
-                "colonnes": 1,
-                "classtype": "TableauSection",
-                "position": 3,
-                "modele": ""
-            });
-            th.unmock("addSection");
+            compare_new_section("TableauSection");
         }
 
         function test_removepage() {

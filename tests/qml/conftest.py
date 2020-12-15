@@ -2,6 +2,7 @@
 from typing import List
 from unittest.mock import MagicMock
 
+import pytest
 from PySide2.QtCore import QObject, Slot
 from PySide2.QtGui import QColor, QGuiApplication
 from PySide2.QtQml import qmlRegisterType
@@ -32,6 +33,7 @@ from mycartable.classeur import (
     SoustractionSection,
     MultiplicationSection,
     DivisionSection,
+    TableauSection,
 )
 
 qmlRegisterType(FriseModel, "MyCartable", 1, 0, "FriseModel")
@@ -68,10 +70,12 @@ class FakerHelper(QObject):
         # dao.anneeActive = 2019
 
     @Slot(str, str, result="QVariantMap")
-    def getItem(self, entity: str, id: str) -> dict:
+    @Slot(str, str, int, int, result="QVariantMap")
+    def getItem(self, entity: str, id: str, rab1=None, rab2=None) -> dict:
+        params = tuple([aa for aa in [id, rab1, rab2] if aa is not None])
         with db_session:
             try:
-                item = getattr(self.db, entity)[id]
+                item = getattr(self.db, entity)[params]
             except ObjectNotFound:
                 item = {}
             return item.to_dict() if item else item
@@ -96,6 +100,7 @@ class TestHelper(QObject):
         "SoustractionSection": SoustractionSection,
         "MultiplicationSection": MultiplicationSection,
         "DivisionSection": DivisionSection,
+        "TableauSection": TableauSection,
     }
 
     def __init__(self, dao):
@@ -121,6 +126,7 @@ class TestHelper(QObject):
         return [list(call.args) for call in getattr(obj, method).call_args_list]
 
     @Slot(QObject, str, str, result=QObject)
+    @Slot(QObject, str, "QVariantList", result=QObject)
     def getBridgeInstance(self, parent: QObject, letype: str, params: str):
         classs = self.BRIDGES[letype]
         res = classs.get(params)

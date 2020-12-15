@@ -297,15 +297,18 @@ def class_section(
                 for cel in self.get_cells_par_ligne(0):
                     cel.style.bgColor = self.MODEL_COLOR_LINE0
 
-        def get_cells(self):
+        def _get_cells(self):
             return self.cells.select().sort_by(TableauCell.y, TableauCell.x)
 
+        def get_cells(self):
+            return [x.to_dict() for x in self._get_cells()]
+
         def get_cells_par_ligne(self, row):
-            return self.get_cells().page(
+            return self._get_cells().page(
                 row + 1, self.colonnes
             )  # page commence a 1 chez pony
 
-        def insert_one_line(self, line):
+        def insert_one_line(self, line) -> bool:
             self.lignes = self.lignes + 1
 
             # Ajout de la ligne
@@ -324,8 +327,9 @@ def class_section(
                 cel = TableauCell[self, line, c]
                 cel.texte = ""
                 cel.style = db.Style()
+            return True
 
-        def remove_one_line(self, line):
+        def remove_one_line(self, line) -> bool:
             self.lignes = self.lignes - 1
 
             if line < self.lignes:
@@ -336,8 +340,9 @@ def class_section(
                         )
             for c in range(self.colonnes):
                 TableauCell[self, self.lignes, c].delete()
+            return True
 
-        def insert_one_column(self, col):
+        def insert_one_column(self, col) -> bool:
             self.colonnes = self.colonnes + 1
 
             # Ajout de la colonnes
@@ -356,8 +361,9 @@ def class_section(
                 cel = TableauCell[self, l, col]
                 cel.texte = ""
                 cel.style = db.Style()
+            return True
 
-        def remove_one_column(self, col):
+        def remove_one_column(self, col) -> bool:
             self.colonnes = self.colonnes - 1
 
             if col < self.colonnes:
@@ -368,12 +374,13 @@ def class_section(
                         )
             for l in range(self.lignes):
                 TableauCell[self, l, self.colonnes].delete()
+            return True
 
-        def append_one_line(self):
-            self.insert_one_line(self.lignes)
+        def append_one_line(self) -> bool:
+            return self.insert_one_line(self.lignes)
 
-        def append_one_column(self):
-            self.insert_one_column(self.colonnes)
+        def append_one_column(self) -> bool:
+            return self.insert_one_column(self.colonnes)
 
     class TableauCell(db.Entity, ColorMixin):
         """

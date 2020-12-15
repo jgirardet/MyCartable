@@ -953,6 +953,75 @@ class TestTableauSection:
             "position": 0,
         }
 
+    def test_get_cells(self, ddb, fk):
+        t = fk.f_tableauSection(lignes=2, colonnes=2)
+        res = t.get_cells()
+        for it in res:
+            del it["style"]["styleId"]
+        print(res)
+        assert res == [
+            {
+                "x": 0,
+                "y": 0,
+                "tableau": str(t.id),
+                "texte": "",
+                "style": {
+                    "family": "",
+                    "underline": False,
+                    "pointSize": None,
+                    "strikeout": False,
+                    "weight": None,
+                    "bgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 0.000000),
+                    "fgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 1.000000),
+                },
+            },
+            {
+                "x": 1,
+                "y": 0,
+                "tableau": str(t.id),
+                "texte": "",
+                "style": {
+                    "family": "",
+                    "underline": False,
+                    "pointSize": None,
+                    "strikeout": False,
+                    "weight": None,
+                    "bgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 0.000000),
+                    "fgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 1.000000),
+                },
+            },
+            {
+                "x": 0,
+                "y": 1,
+                "tableau": str(t.id),
+                "texte": "",
+                "style": {
+                    "family": "",
+                    "underline": False,
+                    "pointSize": None,
+                    "strikeout": False,
+                    "weight": None,
+                    "bgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 0.000000),
+                    "fgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 1.000000),
+                },
+            },
+            {
+                "x": 1,
+                "y": 1,
+                "tableau": str(t.id),
+                "texte": "",
+                "style": {
+                    "family": "",
+                    "underline": False,
+                    "pointSize": None,
+                    "strikeout": False,
+                    "weight": None,
+                    "bgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 0.000000),
+                    "fgColor": QColor.fromRgbF(0.000000, 0.000000, 0.000000, 1.000000),
+                },
+            },
+        ]
+
     def test_get_par_ligne(self, ddb, fk):
         TableauCell = ddb.TableauCell
         TableauSection = ddb.TableauSection
@@ -1005,7 +1074,7 @@ class TestTableauSection:
         def wraped():
             with db_session:
                 a = fk.f_tableauSection(3, 4)  # premiere colone : 0,4,8
-                cells = a.get_cells()[:]
+                cells = a._get_cells()[:]
                 cells[0].texte = "0_0"
                 cells[0].style.underline = True
                 cells[4].texte = "1_0"
@@ -1021,10 +1090,10 @@ class TestTableauSection:
     def test_insert_one_line(self, peupler_tableau_manipulation):
         a, cells = peupler_tableau_manipulation()
         with db_session:
-            a.insert_one_line(1)
+            assert a.insert_one_line(1)
         with db_session:
             assert a.cells.count() == 16
-            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a.get_cells()[:]]
+            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a._get_cells()[:]]
             [x["style"].pop("styleId") for x in cells_after]
             assert cells_after[0] == cells[0]
             assert cells_after[8] == cells[4]
@@ -1035,10 +1104,10 @@ class TestTableauSection:
     def test_insert_one_line_start(self, peupler_tableau_manipulation):
         a, cells = peupler_tableau_manipulation()
         with db_session:
-            a.insert_one_line(0)
+            assert a.insert_one_line(0)
         with db_session:
             assert a.cells.count() == 16
-            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a.get_cells()[:]]
+            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a._get_cells()[:]]
             [x["style"].pop("styleId") for x in cells_after]
             assert cells_after[4] == cells[0]
             assert cells_after[8] == cells[4]
@@ -1049,10 +1118,10 @@ class TestTableauSection:
     def test_insert_one_avant_line_dernier(self, peupler_tableau_manipulation):
         a, cells = peupler_tableau_manipulation()
         with db_session:
-            a.insert_one_line(2)
+            assert a.insert_one_line(2)
         with db_session:
             assert a.cells.count() == 16
-            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a.get_cells()[:]]
+            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a._get_cells()[:]]
             [x["style"].pop("styleId") for x in cells_after]
             assert cells_after[0] == cells[0]
             assert cells_after[4] == cells[4]
@@ -1063,10 +1132,10 @@ class TestTableauSection:
     def test_insert_one_apres_dernier(self, peupler_tableau_manipulation):
         a, cells = peupler_tableau_manipulation()
         with db_session:
-            a.insert_one_line(3)
+            assert a.insert_one_line(3)
         with db_session:
             assert a.cells.count() == 16
-            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a.get_cells()[:]]
+            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a._get_cells()[:]]
             [x["style"].pop("styleId") for x in cells_after]
             assert cells_after[0] == cells[0]
             assert cells_after[4] == cells[4]
@@ -1077,10 +1146,10 @@ class TestTableauSection:
     def test_insert_append_one_line(self, peupler_tableau_manipulation):
         a, cells = peupler_tableau_manipulation()
         with db_session:
-            a.append_one_line()
+            assert a.append_one_line()
         with db_session:
             assert a.cells.count() == 16
-            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a.get_cells()[:]]
+            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a._get_cells()[:]]
             [x["style"].pop("styleId") for x in cells_after]
             assert cells_after[0] == cells[0]
             assert cells_after[4] == cells[4]
@@ -1091,10 +1160,10 @@ class TestTableauSection:
     def test_remove_line_middle(self, peupler_tableau_manipulation):
         a, cells = peupler_tableau_manipulation()
         with db_session:
-            a.remove_on_line(1)
+            assert a.remove_on_line(1)
         with db_session:
             assert a.cells.count() == 8
-            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a.get_cells()[:]]
+            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a._get_cells()[:]]
             [x["style"].pop("styleId") for x in cells_after]
             assert cells_after[0] == cells[0]
             assert cells_after[4] == cells[8]
@@ -1102,10 +1171,10 @@ class TestTableauSection:
     def test_remove_line_last(self, peupler_tableau_manipulation):
         a, cells = peupler_tableau_manipulation()
         with db_session:
-            a.remove_one_line(2)
+            assert a.remove_one_line(2)
         with db_session:
             assert a.cells.count() == 8
-            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a.get_cells()[:]]
+            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a._get_cells()[:]]
             [x["style"].pop("styleId") for x in cells_after]
             assert cells_after[0] == cells[0]
             assert cells_after[4] == cells[4]
@@ -1113,10 +1182,10 @@ class TestTableauSection:
     def test_remove_line_middle(self, peupler_tableau_manipulation):
         a, cells = peupler_tableau_manipulation()
         with db_session:
-            a.remove_one_line(0)
+            assert a.remove_one_line(0)
         with db_session:
             assert a.cells.count() == 8
-            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a.get_cells()[:]]
+            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a._get_cells()[:]]
             [x["style"].pop("styleId") for x in cells_after]
             assert cells_after[0] == cells[4]
             assert cells_after[4] == cells[8]
@@ -1127,7 +1196,7 @@ class TestTableauSection:
         def wrap():
             with db_session:
                 a = fk.f_tableauSection(3, 4)
-                cells = a.get_cells()[:]
+                cells = a._get_cells()[:]
                 cells[0].texte = "0_0"
                 cells[0].style.underline = True
                 cells[1].texte = "0_1"
@@ -1145,10 +1214,10 @@ class TestTableauSection:
     def test_insert_one_col_middle(self, peupler_tableau_manip_colonnes):
         a, cells = peupler_tableau_manip_colonnes()
         with db_session:
-            a.insert_one_column(1)
+            assert a.insert_one_column(1)
         with db_session:
             assert a.cells.count() == 15
-            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a.get_cells()[:]]
+            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a._get_cells()[:]]
             [x["style"].pop("styleId") for x in cells_after]
             assert cells_after[0] == cells[0]
             assert cells_after[2] == cells[1]
@@ -1160,10 +1229,10 @@ class TestTableauSection:
     def test_insert_one_col_start(self, peupler_tableau_manip_colonnes):
         a, cells = peupler_tableau_manip_colonnes()
         with db_session:
-            a.insert_one_column(0)
+            assert a.insert_one_column(0)
         with db_session:
             assert a.cells.count() == 15
-            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a.get_cells()[:]]
+            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a._get_cells()[:]]
             [x["style"].pop("styleId") for x in cells_after]
             assert cells_after[1] == cells[0]
             assert cells_after[2] == cells[1]
@@ -1175,10 +1244,10 @@ class TestTableauSection:
     def test_insert_one_col_avant_dernier(self, peupler_tableau_manip_colonnes):
         a, cells = peupler_tableau_manip_colonnes()
         with db_session:
-            a.insert_one_column(3)
+            assert a.insert_one_column(3)
         with db_session:
             assert a.cells.count() == 15
-            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a.get_cells()[:]]
+            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a._get_cells()[:]]
             [x["style"].pop("styleId") for x in cells_after]
             assert cells_after[0] == cells[0]
             assert cells_after[1] == cells[1]
@@ -1190,10 +1259,10 @@ class TestTableauSection:
     def test_insert_one_col__dernier(self, peupler_tableau_manip_colonnes):
         a, cells = peupler_tableau_manip_colonnes()
         with db_session:
-            a.insert_one_column(4)
+            assert a.insert_one_column(4)
         with db_session:
             assert a.cells.count() == 15
-            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a.get_cells()[:]]
+            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a._get_cells()[:]]
             [x["style"].pop("styleId") for x in cells_after]
             assert cells_after[0] == cells[0]
             assert cells_after[1] == cells[1]
@@ -1205,10 +1274,10 @@ class TestTableauSection:
     def test_insert_append_colonne(self, peupler_tableau_manip_colonnes):
         a, cells = peupler_tableau_manip_colonnes()
         with db_session:
-            a.append_one_column()
+            assert a.append_one_column()
         with db_session:
             assert a.cells.count() == 15
-            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a.get_cells()[:]]
+            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a._get_cells()[:]]
             [x["style"].pop("styleId") for x in cells_after]
             assert cells_after[0] == cells[0]
             assert cells_after[1] == cells[1]
@@ -1220,10 +1289,10 @@ class TestTableauSection:
     def test_remove_one_col_middle(self, peupler_tableau_manip_colonnes):
         a, cells = peupler_tableau_manip_colonnes()
         with db_session:
-            a.remove_one_column(2)
+            assert a.remove_one_column(2)
         with db_session:
             assert a.cells.count() == 9
-            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a.get_cells()[:]]
+            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a._get_cells()[:]]
             [x["style"].pop("styleId") for x in cells_after]
             assert cells_after[0] == cells[0]
             assert cells_after[1] == cells[1]
@@ -1232,10 +1301,10 @@ class TestTableauSection:
     def test_remove_one_col_start(self, peupler_tableau_manip_colonnes):
         a, cells = peupler_tableau_manip_colonnes()
         with db_session:
-            a.remove_one_column(0)
+            assert a.remove_one_column(0)
         with db_session:
             assert a.cells.count() == 9
-            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a.get_cells()[:]]
+            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a._get_cells()[:]]
             [x["style"].pop("styleId") for x in cells_after]
             assert cells_after[0] == cells[1]
             assert cells_after[1] == cells[2]
@@ -1244,10 +1313,10 @@ class TestTableauSection:
     def test_remove_one_col_end(self, peupler_tableau_manip_colonnes):
         a, cells = peupler_tableau_manip_colonnes()
         with db_session:
-            a.remove_one_column(3)
+            assert a.remove_one_column(3)
         with db_session:
             assert a.cells.count() == 9
-            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a.get_cells()[:]]
+            cells_after = [x.to_dict(exclude=["x", "y"]) for x in a._get_cells()[:]]
             [x["style"].pop("styleId") for x in cells_after]
             assert cells_after[0] == cells[0]
             assert cells_after[1] == cells[1]

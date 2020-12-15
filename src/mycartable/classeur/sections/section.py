@@ -32,6 +32,7 @@ class Section(SubTypeAble, Bridge):
             SoustractionSection,
             MultiplicationSection,
             DivisionSection,
+            TableauSection,
         )
 
         return (
@@ -44,4 +45,5 @@ class Section(SubTypeAble, Bridge):
             SoustractionSection,
             MultiplicationSection,
             DivisionSection,
+            TableauSection,
         )

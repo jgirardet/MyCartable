@@ -12,7 +12,7 @@ Item {
         property var cell
         icon.source: "qrc:///icons/add-row"
         onTriggered: {
-          ddb.insertRow(cell.tableauSection, cell.ligne)
+          cell.parent.parent.section.insertRow(cell.ligne)
           uiManager.menuFlottantTableau.ferme()
           cell.parent.reload()
 
@@ -22,7 +22,7 @@ Item {
         property var cell
         icon.source: "qrc:///icons/append-row"
         onTriggered: {
-          ddb.appendRow(cell.tableauSection)
+          cell.parent.parent.section.appendRow()
           uiManager.menuFlottantTableau.ferme()
           cell.parent.reload()
 
@@ -32,7 +32,7 @@ Item {
         property var cell
         icon.source: "qrc:///icons/add-column"
         onTriggered: {
-          ddb.insertColumn(cell.tableauSection, cell.colonne)
+          cell.parent.parent.section.insertColumn(cell.colonne)
           uiManager.menuFlottantTableau.ferme()
           cell.parent.reload()
 
@@ -43,7 +43,7 @@ Item {
         property var cell
         icon.source: "qrc:///icons/append-column"
         onTriggered: {
-          ddb.appendColumn(cell.tableauSection)
+          cell.parent.parent.section.appendColumn()
           uiManager.menuFlottantTableau.ferme()
           cell.parent.reload()
 
@@ -53,7 +53,7 @@ Item {
         property var cell
         icon.source: "qrc:///icons/remove-row"
         onTriggered: {
-        ddb.removeRow(cell.tableauSection, cell.ligne)
+        cell.parent.parent.section.removeRow(cell.ligne)
         uiManager.menuFlottantTableau.ferme()
         cell.parent.reload()
 
@@ -63,7 +63,7 @@ Item {
         property var cell
         icon.source: "qrc:///icons/remove-column"
         onTriggered: {
-          ddb.removeColumn(cell.tableauSection, cell.colonne)
+          cell.parent.parent.section.removeColumn(cell.colonne)
           uiManager.menuFlottantTableau.ferme()
           cell.parent.reload()
 

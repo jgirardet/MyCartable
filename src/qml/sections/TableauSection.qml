@@ -3,13 +3,10 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 
 Item {
-    //    property var tableau: sectionId ? ddb.loadSection(sectionId) : {
-    //    }
-
     id: root
 
-    property string sectionId
-    property var sectionItem
+    required property Item sectionItem
+    required property QtObject section
 
     width: grid.width
     height: grid.height
@@ -21,8 +18,8 @@ Item {
         property var currentSelectedCell: null
 
         function reload() {
-            repeater.model = ddb.initTableauDatas(root.sectionId);
-            grid.columns = ddb.nbColonnes(root.sectionId);
+            repeater.model = section.initTableauDatas();
+            grid.columns = section.colonnes;
         }
 
         function selectCell(obj) {
@@ -66,7 +63,7 @@ Item {
         }
 
         objectName: "grid"
-        columns: ddb.nbColonnes(root.sectionId) ?? 0
+        columns: section.colonnes
         columnSpacing: 3
         rowSpacing: 3
 
@@ -74,14 +71,14 @@ Item {
             id: repeater
 
             objectName: "repeater"
-            model: root.sectionId ? grid.reload() : 0
+            model: root.section ? grid.reload() : 0
 
             delegate: TextArea {
                 id: tx
 
                 property int colonne: modelData.x
                 property int ligne: modelData.y
-                property string tableauSection: root.sectionId
+                property string tableauSection: section.id
 
                 function changeCase(event) {
                     var obj;
@@ -112,7 +109,6 @@ Item {
                         return ;
                     else if (newIndex < 0)
                         return ;
-
                     repeater.itemAt(newIndex).forceActiveFocus();
                 }
 
@@ -154,7 +150,6 @@ Item {
                         font.pointSize += 2;
                     else if (key == Qt.Key_Minus)
                         font.pointSize -= 2;
-
                     updateCell({
                         "style": {
                             "pointSize": font.pointSize
@@ -189,7 +184,7 @@ Item {
                 }
 
                 function updateCell(content) {
-                    ddb.updateCell(root.sectionId, modelData.y, modelData.x, content);
+                    section.updateCell(modelData.y, modelData.x, content);
                 }
 
                 focus: true
@@ -263,7 +258,9 @@ Item {
                 } else {
                     grid.unSelectAll();
                     selecting = false;
-                    ite.forceActiveFocus();
+                    if (ite)
+                        ite.forceActiveFocus();
+
                     mouse.accepted = false;
                 }
             } else if (mouse.button == Qt.RightButton) {

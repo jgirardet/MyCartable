@@ -26,7 +26,7 @@ class OperationSection(Section):
         self._model = self.model_class(parent=self)
 
     def update_datas(self, index, value):
-        datas = self.datas
+        datas = list(self.datas)
         datas[index] = value
         self.datas = datas
 

@@ -39,6 +39,13 @@ class TestOperationModel:
         assert b.model.cursor == 11
         assert b.model.operation is b
 
+    def test_update_datas(self, to, ddbr):
+        to.update_datas(to.size - 1, "6")
+        res = ["", "", "", "", "", "9", "+", "", "8", "", "", "6"]
+        assert to.datas == res
+        with db_session:
+            assert ddbr.OperationSection[to.id].datas == res
+
     def test_cursor(self, to, qtbot):
         with qtbot.waitSignal(to.model.cursorChanged):
             to.model.cursor = 1

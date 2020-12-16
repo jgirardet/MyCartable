@@ -1,0 +1,36 @@
+
+###########
+Etape en cours :
+-remove
+-to odt
+-topdf
+
+###### APRES CI DESSUS #########
+Faire les imports PDF
+finir teestpage (databaseobject notamenet)
+vérifier les tests de ce qui a déjà été changé
+
+
+####### enfin ###########
+A faire plus généralement :
+- classeur:
+  -currrentAnnee => annee
+  -currentMatiere => matiere
+- transformer Matiere en Bridge (et change page.matiere du coup)
+- refinir globus
+- toutes les connections
+- tous les signals
+- toues les sections
+- convert
+
+- PagelistView : Menu add section
+- PageMenu : finir menu
+
+
+###### CHANGEMENT DB ######
+- drop table Utilisateur
+- remove field user de annee
+- ajout/transfert configuration : annee, nom, prenom
+- add field created dans annotation : donc redonner un valeur pour chaque série
+d'annotation dans la ddb (prendre chaque section avec annotaiton et donner un valeur croissante
+de date.)

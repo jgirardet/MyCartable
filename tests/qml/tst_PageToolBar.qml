@@ -153,8 +153,22 @@ Item {
             compare_new_section("TableauSection");
         }
 
-        function test_removepage() {
+        function test_removepage_confirmation_not_empty() {
             mouseClick(removepage);
+            removepage.action.dialog.accept();
+            removepage.action.dialog.confirmation.accept();
+            compare(fk.getItem("Page", page.id), {
+            });
+        }
+
+        function test_removepage_empty() {
+            page = fk.f("page", {
+            });
+            pageC = th.getBridgeInstance(classeurid, "Page", page.id);
+            classeurid.setPage(pageC.id);
+            tested.page = pageC;
+            mouseClick(removepage);
+            removepage.action.dialog.accept();
             compare(fk.getItem("Page", page.id), {
             });
         }

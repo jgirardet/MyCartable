@@ -1,6 +1,6 @@
 BasePageAction {
     icon.source: "qrc:///icons/pdf"
-    onTriggered: ddb.exportToPDF()
+    onTriggered: page.exportToPDF()
     tooltip: "Exporter la page en pdf"
     shortcut: ""
 }

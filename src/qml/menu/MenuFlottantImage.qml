@@ -23,7 +23,6 @@ BaseMenu {
                 icon.source: "qrc:///icons/rotateRight"
                 icon.color: "blue"
                 onClicked: {
-                    print(menu.target);
                     var res = target.section.pivoterImage(1);
                     if (res)
                         target.reloadImage();

@@ -56,14 +56,12 @@ Item {
             //            moveTextLeft.duration = 5;
             verify(tested.truncated == true);
             var oldX = tested.x;
-            print(oldX);
             tested.move = true;
             waitForRendering(tested);
             verify(moveTextLeft.running == true);
             tested.move = false;
             tryCompare(moveTextLeft, "running", false);
             //            compare(tested.x, oldX);
-            print(oldX);
             tryCompare(tested, "x", oldX, 10000);
             // timeout pour la CI
             //            tryCompare(tested, "textInitialPosition", 0);

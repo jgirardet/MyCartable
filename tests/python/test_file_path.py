@@ -31,7 +31,6 @@ def test_root_data_en_prod():
         # desactive en attendant la sauvegarde
         # appdata = Path(QStandardPaths.writableLocation(QStandardPaths.AppDataLocation))
         rrr = root_data(create=False)
-        print(rrr)
         assert rrr == appdata
 
 

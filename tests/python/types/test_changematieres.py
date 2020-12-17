@@ -595,7 +595,6 @@ class TestChangeMatieresMixin:
         gm = fk.f_groupeMatiere(
             id="bf44711d-1c0f-444a-af48-869f62974696", bgColor="pink"
         )
-        print(gm.id)
         fk.b_matiere(nb, groupe=str(gm.id), nom="rien", bgColor="blue", fgColor="green")
         pre_res = cm.applyGroupeDegrade(str(gm.id), QColor("red"))
         for mat in pre_res:

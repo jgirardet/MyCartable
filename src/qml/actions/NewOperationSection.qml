@@ -33,7 +33,6 @@ BasePageAction {
             else if (string.includes("/"))
                 classtype = "DivisionSection";
             var newPos = append ? page.model.count : position + 1;
-            print(classtype, newPos, string);
             page.addSection(classtype, newPos, {
                 "string": string
             });

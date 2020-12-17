@@ -3,9 +3,11 @@ from functools import partial
 
 from PySide2.QtCore import Slot, Signal, Property, QObject, QThreadPool
 from PySide2.QtGui import QDesktopServices
+from mycartable.classeur.convert import escaped_filename, soffice_convert
 
 from package.constantes import TITRE_TIMER_DELAY
-from package.convert import soffice_convert, escaped_filename
+
+# from package.convert import soffice_convert, escaped_filename
 from package.utils import create_singleshot, qrunnable
 from pony.orm import db_session, make_proxy
 
@@ -49,42 +51,42 @@ class PageMixin:
     #     self.newPageCreated.emit(new_item)
 
     # currentPage
-    @Property(str, notify=currentPageChanged)
-    def currentPage(self):
-        return self._currentPage
+    # @Property(str, notify=currentPageChanged)
+    # def currentPage(self):
+    #     return self._currentPage
+    #
+    # @currentPage.setter
+    # def currentPageSet(self, new_id):
+    #     if isinstance(new_id, uuid.UUID):
+    #         new_id = str(new_id)
+    #     if self._currentPage == new_id:
+    #         return
+    #
+    #     self._currentPage = new_id
+    #     logger.debug(f"CurrentPage changed to {new_id}")
+    #
+    #     # breakpoint()
+    #     if new_id:
+    #         print(new_id)
+    #         with db_session:
+    #             page = self.db.Page[new_id].to_dict()
+    #         self.currentPageChanged.emit(page)
+    #         self.setCurrentEntry()
+    #     else:
+    #         self._currentEntry = None
+    #         self._currentPage = ""
+    #         self.currentPageChanged.emit({})
 
-    @currentPage.setter
-    def currentPageSet(self, new_id):
-        if isinstance(new_id, uuid.UUID):
-            new_id = str(new_id)
-        if self._currentPage == new_id:
-            return
-
-        self._currentPage = new_id
-        logger.debug(f"CurrentPage changed to {new_id}")
-
-        # breakpoint()
-        if new_id:
-            print(new_id)
-            with db_session:
-                page = self.db.Page[new_id].to_dict()
-            self.currentPageChanged.emit(page)
-            self.setCurrentEntry()
-        else:
-            self._currentEntry = None
-            self._currentPage = ""
-            self.currentPageChanged.emit({})
-
-    @Slot(str)
-    def removePage(self, pageId):
-
-        with db_session:
-            item = self.db.Page.get(id=pageId)
-            if item:
-                item.delete()
-        # bien après les modifs de database pour être ne pas emmettres
-        # signaux avant modif de database
-        self.currentPage = ""
+    # @Slot(str)
+    # def removePage(self, pageId):
+    #
+    #     with db_session:
+    #         item = self.db.Page.get(id=pageId)
+    #         if item:
+    #             item.delete()
+    #     # bien après les modifs de database pour être ne pas emmettres
+    #     # signaux avant modif de database
+    #     self.currentPage = ""
 
     # def setCurrentEntry(self):
     #     with db_session:

@@ -1,3 +1,5 @@
+from unittest.mock import patch, call
+
 import pytest
 from PySide2.QtCore import QModelIndex, Qt
 from pytestqml.qt import QObject
@@ -16,6 +18,7 @@ from mycartable.classeur import (
     DivisionSection,
     TableauSection,
     FriseSection,
+    Converter,
 )
 from mycartable.package.utils import shift_list
 from pony.orm import db_session, make_proxy
@@ -331,3 +334,17 @@ def test_check_args_addsection():
 def test_append():
     with pytest.raises(NotImplementedError):
         PageModel.append("self")
+
+
+@pytest.mark.parametrize(
+    "func, format, ext",
+    [("exportToPDF", "pdf:writer_pdf_Export", ".pdf"), ("exportToODT", "odt", ".odt")],
+)
+def test_exportTo(fk, func, format, ext):
+    pg = fk.f_page()
+    p = Page.get(str(pg.id))
+    with patch("mycartable.classeur.convert.qrunnable") as w:
+        getattr(p, func)()
+
+        assert w.called
+        assert w.call_args.args[1:] == (format, ext)

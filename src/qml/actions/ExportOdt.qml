@@ -1,6 +1,6 @@
 BasePageAction {
     icon.source: "qrc:///icons/odt"
-    onTriggered: ddb.exportToOdt()
+    onTriggered: page.exportToODT()
     tooltip: "Exporter la page en odt"
     shortcut: ""
 }

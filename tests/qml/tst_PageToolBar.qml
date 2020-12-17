@@ -13,6 +13,9 @@ Item {
     }
 
     CasTest {
+        //            verify(th.mock_called(data.fnName));
+        //            th.unmock(data.fnName);
+
         id: testcase
 
         property var newtext
@@ -91,22 +94,25 @@ Item {
             compare_new_section(data.classtype);
         }
 
-        function test_mocked_data() {
+        function test_export_data() {
             return [{
                 "tag": "exportpdf",
-                "fnName": "exportToPDF"
+                "fnName": "exportToPDF",
+                "text": "Export en PDF démarré, cela peut prendre plusieurs secondes"
             }, {
                 "tag": "exportodt",
-                "fnName": "exportToOdt"
+                "fnName": "exportToODT",
+                "text": "Export en ODT démarré, cela peut prendre plusieurs secondes"
             }];
         }
 
-        function test_mocked(data) {
+        function test_export(data) {
             let button = testcase[data.tag];
-            th.mock(data.fnName);
+            button.action.page = fakepage;
+            verify(button.visible);
             mouseClick(button);
-            verify(th.mock_called(data.fnName));
-            th.unmock(data.fnName);
+            verify(button.toast.visible);
+            compare(button.toast.msg, data.text);
         }
 
         function test_newimage() {
@@ -177,6 +183,18 @@ Item {
         testedNom: "qrc:/qml/page/PageToolBar.qml"
         params: {
         }
+
+        QtObject {
+            id: fakepage
+
+            function exportToPDF() {
+            }
+
+            function exportToODT() {
+            }
+
+        }
+
     }
 
 }

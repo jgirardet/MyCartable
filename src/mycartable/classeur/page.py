@@ -1,10 +1,11 @@
 import typing
 from PySide2.QtCore import Signal, Property, QObject, QModelIndex, QByteArray, Qt, Slot
+from .convert import Converter
 from pony.orm import db_session
 
 from .matiere import Matiere
 from .sections import Section, ImageSection
-from mycartable.package.utils import shift_list
+from mycartable.package.utils import shift_list, qrunnable
 from mycartable.types.bridge import Bridge
 from mycartable.types.listmodel import DtbListModel
 
@@ -84,6 +85,20 @@ class Page(Bridge):
         self, classtype: str, position: int = None, params: dict = {}
     ) -> bool:
         return self.model.addSection(classtype, position, params)
+
+    @Slot()
+    def exportToPDF(self):
+        Converter(self).export_to_pdf()
+        # self.ui.sendToast.emit(
+        #     "Export en PDF lancé, cela peut prendre plusieurs secondes"
+        # )
+
+    @Slot()
+    def exportToODT(self):
+        Converter(self).export_to_odt()
+        # self.ui.sendToast.emit(
+        #     "Export en ODT lancé, cela peut prendre plusieurs secondes"
+        # )
 
 
 class PageModel(DtbListModel):

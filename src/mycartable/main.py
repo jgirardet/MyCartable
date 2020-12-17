@@ -194,7 +194,7 @@ def main(filename=None):
     register_new_qml_type(databaseObject, db)
 
     # setup le qml et retourne l'engine
-    # import qrc
+    import qrc
 
     engine = setup_qml(databaseObject, ui_manager, dtb, globus)
 

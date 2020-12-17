@@ -2,7 +2,8 @@ import tempfile
 from pathlib import Path
 
 from PySide2.QtCore import Slot, QUrl, Signal, QThreadPool
-from package.convert import split_pdf_to_png
+
+# from package.convert import split_pdf_to_png
 from package.files_path import FILES
 from package.exceptions import MyCartableOperationError
 from package.utils import qrunnable

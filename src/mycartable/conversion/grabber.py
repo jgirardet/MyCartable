@@ -19,7 +19,7 @@ from PySide2.QtQml import (
     QQmlIncubationController,
 )
 from PySide2.QtQuick import QQuickItem, QQuickRenderControl, QQuickWindow
-from package.convertion.wimage import WImage
+from .wimage import WImage
 
 
 class Grabber(QObject):

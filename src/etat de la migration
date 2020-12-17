@@ -1,9 +1,7 @@
 
 ###########
 Etape en cours :
--remove
--to odt
--topdf
+- remettre Toast pour terminer export odt/pdf
 
 ###### APRES CI DESSUS #########
 Faire les imports PDF
@@ -21,9 +19,9 @@ A faire plus généralement :
 - toutes les connections
 - tous les signals
 - toues les sections
-- convert
 
-- PagelistView : Menu add section
+
+
 - PageMenu : finir menu
 
 

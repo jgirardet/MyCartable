@@ -20,52 +20,6 @@ from package.files_path import FILES
 from pony.orm import ObjectNotFound, db_session
 
 
-class TestPageMixin:
-    def test_export_to_pdf(selfsekf, dao, fk):
-        a = fk.f_page(titre="blà")
-        dao.currentPage = a.id
-        with patch("package.database_mixins.page_mixin.QDesktopServices.openUrl") as m:
-            with patch("package.database_mixins.page_mixin.soffice_convert") as v:
-                dao._export_to_pdf()
-                v.assert_called_with(
-                    str(a.id), "pdf:writer_pdf_Export", "bla.pdf", dao.ui
-                )
-                m.assert_called_with(v.return_value.as_uri())
-
-    def test_exportToPDf(self, dao, qtbot):
-        with patch.object(dao, "_export_to_pdf") as w:
-            with qtbot.waitSignal(
-                dao.ui.sendToast,
-                check_params_cb=lambda x: x
-                == "Export en PDF lancé, cela peut prendre plusieurs secondes",
-            ):
-                dao.exportToPDF()
-            sleep(1 / 1000)
-
-        assert w.called
-
-    def test_export_to_odt(selfsekf, dao, fk):
-        a = fk.f_page(titre="blà")
-        dao.currentPage = a.id
-        with patch("package.database_mixins.page_mixin.QDesktopServices.openUrl") as m:
-            with patch("package.database_mixins.page_mixin.soffice_convert") as v:
-                dao._export_to_odt()
-                v.assert_called_with(str(a.id), "odt", "bla.odt", dao.ui)
-                m.assert_called_with(v.return_value.as_uri())
-
-    def test_exportToOdt(self, dao, qtbot):
-        with patch.object(dao, "_export_to_odt") as w:
-            with qtbot.waitSignal(
-                dao.ui.sendToast,
-                check_params_cb=lambda x: x
-                == "Export en ODT lancé, cela peut prendre plusieurs secondes",
-            ):
-
-                dao.exportToOdt()
-            sleep(1 / 1000)
-        assert w.called
-
-
 class TestRecentsMixin:
     def test_init(self, fk, dao, ddbn):
         a = fk.b_page(5)
@@ -295,7 +249,6 @@ class TestSectionMixin:
 
         x = fkf.f_page()
         page = x.id
-        print("dans test", fkf.db, daof.db)
         daof.pageModel.slotReset(x.id)
         if "path" not in content:
             pass

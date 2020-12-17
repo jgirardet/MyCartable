@@ -958,7 +958,6 @@ class TestTableauSection:
         res = t.get_cells()
         for it in res:
             del it["style"]["styleId"]
-        print(res)
         assert res == [
             {
                 "x": 0,

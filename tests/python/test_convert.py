@@ -7,10 +7,13 @@ from multiprocessing import Value
 import pytest
 from PySide2.QtCore import QObject, Signal
 from PySide2.QtGui import QImage, QColor
-from package import convert, WIN
-from package.convert import split_pdf_to_png, save_pdf_pages_to_png
-from package.convertion.grabber import Grabber
-from package.convertion.wimage import WImage
+from mycartable.classeur.convert import (
+    save_pdf_pages_to_png,
+    split_pdf_to_png,
+    frise_section,
+)
+from mycartable.package import WIN
+from mycartable.conversion import Grabber, WImage
 
 from pony.orm import db_session
 
@@ -265,12 +268,14 @@ class TestExportToOdt:
     @pytest.mark.skipif(
         WIN, reason="le rendu est bon  mais le test echoue que sous windows"
     )
-    def test_frise_section(self, fk, qappdao, resources):
+    def test_frise_section(self, fk, qapp, resources):
 
         with db_session:
             f1 = fk.f_friseSection(titre="ma frise")
-            with patch("package.convert.uuid.uuid4", return_value=UUID("1" * 32)):
-                res, auto = convert.frise_section(f1)
+            with patch(
+                "mycartable.classeur.convert.uuid.uuid4", return_value=UUID("1" * 32)
+            ):
+                res, auto = frise_section(f1)
         width = pixel_to_mm(1181)
         height = pixel_to_mm(f1.height)
         img = resources / "convert" / "frisesection.png"
@@ -288,8 +293,10 @@ class TestExportToOdt:
 
         with db_session:
             f1 = fk.f_friseSection(titre="ma frise")
-            with patch("package.convert.uuid.uuid4", return_value=UUID("1" * 32)):
-                res, auto = convert.frise_section(f1)
+            with patch(
+                "mycartable.classeur.convert.uuid.uuid4", return_value=UUID("1" * 32)
+            ):
+                res, auto = frise_section(f1)
         width = pixel_to_mm(1181)
         height = pixel_to_mm(f1.height)
         img = resources / "convert" / "frisesection.png"

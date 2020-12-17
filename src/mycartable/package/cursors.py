@@ -2,7 +2,7 @@ from typing import Dict, Optional, Union
 
 from PySide2.QtCore import Qt, QPoint
 from PySide2.QtGui import QPixmap, QColor, QPainter, QCursor
-from package.convertion.wimage import WImage
+from mycartable.conversion import WImage
 
 TOOL_ICON = {
     "trait": "trait",

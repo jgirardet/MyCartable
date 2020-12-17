@@ -7,7 +7,7 @@ from PySide2.QtGui import QColor, QCursor
 from PySide2.QtQuick import QQuickItem
 from .annotation import AnnotationModel
 from mycartable.package.constantes import ANNOTATION_TEXT_BG_OPACITY
-from mycartable.package.convertion.wimage import WImage
+from mycartable.conversion import WImage
 from mycartable.package.cursors import build_one_image_cursor, build_all_image_cursor
 from mycartable.package.files_path import FILES
 from mycartable.package.utils import get_new_filename

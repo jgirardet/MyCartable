@@ -37,16 +37,6 @@ ApplicationWindow {
     Toast {
         id: toast
 
-        function showToast(message) {
-            // pas compris le bug
-            //pas possible de bouger dans la déclaration
-            if (root === null)
-                return ;
-
-            toast.msg = message;
-            toast.open();
-        }
-
         Component.onCompleted: {
             uiManager.sendToast.connect(toast.showToast);
         }

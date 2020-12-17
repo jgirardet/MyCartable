@@ -19,6 +19,7 @@ from PySide2.QtCore import (
     Signal,
     QTemporaryFile,
     QPointF,
+    QUrl,
 )
 from PySide2.QtGui import (
     QPainter,
@@ -26,22 +27,31 @@ from PySide2.QtGui import (
     QFontDatabase,
     QPainterPath,
     QGuiApplication,
+    QDesktopServices,
 )
 from bs4 import NavigableString, BeautifulSoup
 from mako.lookup import TemplateLookup
 from mycartable.types.dtb import DTB
-from package.constantes import BASE_FONT, ANNOTATION_TEXT_BG_OPACITY, MONOSPACED_FONTS
-from package.convertion.grabber import Grabber
-from package.database import getdb
-from package.files_path import FILES, TMP
-from package.utils import read_qrc
-from package import LINUX, WIN
+from mycartable.package.constantes import (
+    BASE_FONT,
+    ANNOTATION_TEXT_BG_OPACITY,
+    MONOSPACED_FONTS,
+)
+from mycartable.conversion import Grabber
+from mycartable.package.database import getdb
+from mycartable.package.files_path import FILES, TMP
+from mycartable.package.utils import read_qrc, qrunnable
+from mycartable.package import LINUX, WIN
 from pony.orm import db_session
 
 from loguru import logger
-from package import qrc  # type: ignore
 
-from package.ui_manager import DEFAULT_ANNOTATION_CURRENT_TEXT_SIZE_FACTOR, UiManager
+from mycartable import qrc  # type: ignore
+
+from mycartable.package.ui_manager import (
+    DEFAULT_ANNOTATION_CURRENT_TEXT_SIZE_FACTOR,
+    UiManager,
+)
 
 from typing import Union
 
@@ -53,6 +63,24 @@ db = getdb()
 
 MARGINS = {"bottom": 1, "top": 1, "left": 2, "right": 2}
 HEADER = {"height": 1}
+
+
+class Converter:
+    def __init__(self, page):
+        self.titre = page.titre
+        self.id = page.id
+
+    def _export(self, format, ext, open_file=True):
+        filename = escaped_filename(self.titre, ext)
+        new_file = soffice_convert(self.id, format, filename, UiManager())
+        if open_file:
+            QDesktopServices.openUrl(QUrl.fromLocalFile(str(new_file)))
+
+    def export_to_pdf(self, **kwargs):
+        qrunnable(self._export, "pdf:writer_pdf_Export", ".pdf", **kwargs)
+
+    def export_to_odt(self, **kwargs):
+        qrunnable(self._export, "odt", ".odt", **kwargs)
 
 
 def save_pdf_pages_to_png(
@@ -213,8 +241,9 @@ def create_images_with_annotation(image_section, tmpdir=None):
     image.load(str(FILES / image_section["path"]))
 
     painter.begin(image)
+    dtb = DTB()
     for annotation_id in image_section["annotations"]:
-        annotation = db.Annotation[annotation_id["id"]].to_dict()
+        annotation = dtb.getDB("Annotation", annotation_id["id"])
         if annotation["classtype"] == "AnnotationText":
             draw_annotation_text(annotation, image, painter)
         elif annotation["classtype"] == "AnnotationDessin":  # pragma: no branch
@@ -233,19 +262,20 @@ def create_images_with_annotation(image_section, tmpdir=None):
 def draw_annotation_text(annotation: dict, image: QImage, painter: QPainter):
     # d'abord font params
     font = painter.font()
+    style = annotation["style"]
     font.setPixelSize(
         image.height()
-        / (annotation["pointSize"] or DEFAULT_ANNOTATION_CURRENT_TEXT_SIZE_FACTOR)
+        / (style["pointSize"] or DEFAULT_ANNOTATION_CURRENT_TEXT_SIZE_FACTOR)
     )
-    font.setUnderline(annotation["underline"])
+    font.setUnderline(style["underline"])
     # get considère empty "" comme true
-    if not annotation.get("family", None):  # pragma: no branch
+    if not style.get("family", None):  # pragma: no branch
         font.setFamily(BASE_FONT)  # pragma: no cover
     painter.setFont(font)
 
     # Ensuite le crayon
     pen = painter.pen()
-    pen.setColor(annotation["fgColor"])
+    pen.setColor(style["fgColor"])
     painter.setPen(pen)
 
     # On evalue la taille de et la position de l'annotation
@@ -256,7 +286,7 @@ def draw_annotation_text(annotation: dict, image: QImage, painter: QPainter):
 
     #
     painter.setOpacity(ANNOTATION_TEXT_BG_OPACITY)
-    painter.fillRect(rect, annotation["bgColor"])
+    painter.fillRect(rect, style["bgColor"])
     painter.setOpacity(1)
 
     painter.drawText(
@@ -266,6 +296,7 @@ def draw_annotation_text(annotation: dict, image: QImage, painter: QPainter):
 
 
 def draw_annotation_dessin(annotation: dict, image: QImage, painter: QPainter) -> None:
+    style = annotation["style"]
     width = annotation["width"] * image.width()
     height = annotation["height"] * image.height()
     x = annotation["x"] * image.width()
@@ -274,7 +305,7 @@ def draw_annotation_dessin(annotation: dict, image: QImage, painter: QPainter) -
     ex = annotation["endX"] * width
     sy = annotation["startY"] * height
     ey = annotation["endY"] * height
-    pz = annotation["pointSize"]
+    pz = style["pointSize"]
 
     if sx <= ex:
         sx += pz / 2
@@ -291,11 +322,11 @@ def draw_annotation_dessin(annotation: dict, image: QImage, painter: QPainter) -
         ey += pz / 2
 
     pen = painter.pen()
-    pen.setWidth(annotation["pointSize"] / 2)
-    pen.setColor(annotation["fgColor"])
+    pen.setWidth(style["pointSize"] / 2)
+    pen.setColor(style["fgColor"])
     painter.setPen(pen)
     painter.setOpacity(0.2 if annotation["tool"] == "fillrect" else 1)
-    painter.setOpacity(annotation["weight"] / 10)
+    painter.setOpacity(style["weight"] / 10)
     painter.setRenderHint(QPainter.Antialiasing)
     startPoint = QPoint(x + sx, y + sy)
     endPoint = QPoint(x + ex, y + ey)
@@ -305,7 +336,7 @@ def draw_annotation_dessin(annotation: dict, image: QImage, painter: QPainter) -
     #     painter.fillRect(QRect(startPoint, endPoint), annotation["fgColor"])
     elif annotation["tool"] == "rect":
         painter.drawRect(QRect(startPoint, endPoint))
-        painter.fillRect(QRect(startPoint, endPoint), annotation["bgColor"])
+        painter.fillRect(QRect(startPoint, endPoint), style["bgColor"])
 
     elif annotation["tool"] == "ellipse":  # pragma: no branch
         painter.drawEllipse(QRect(startPoint, endPoint))
@@ -316,7 +347,7 @@ def draw_annotation_dessin(annotation: dict, image: QImage, painter: QPainter) -
         path.lineTo(endPoint)
         arrowSize = pen.width() * 3
         drawArrowhead(path, startPoint, endPoint, arrowSize)
-        painter.fillPath(path, annotation["fgColor"])
+        painter.fillPath(path, style["fgColor"])
         painter.drawPath(path)
 
     elif annotation["tool"] == "point":
@@ -737,17 +768,19 @@ def multiplication_section(section):
         f"""<table:table table:name="{uuid.uuid4()}" table:style-name="{table_style_name}">
         <table:table-column table:style-name="{column_style_name}" table:number-columns-repeated="{section.columns}"/>"""
     )
+    from mycartable.classeur import Section
 
+    q_sec = Section.get(section.id)
     for l in range(section.rows):
         lignes = [f"""<table:table-row  table:style-name="{row_style_name}">"""]
-        if l == section.rows - 1 or l == section.n_chiffres + 2:
+        if l == section.rows - 1 or l == q_sec.model.n_chiffres + 2:
             cell_style = addition_total_style_name
         else:
             cell_style = addition_base_style_name
 
         format_cell_style = (
             addition_retenue_style_name
-            if l < section.n_chiffres or l == section.rows - 2
+            if l < q_sec.model.n_chiffres or l == section.rows - 2
             else addition_base_style_name_paragraph
         )
 
@@ -916,19 +949,20 @@ def division_section(section):
     return "\n".join(res), "\n".join(automatic_res)
 
 
-def create_cell(cell, table_style_name):
-    bgcolor = cell.style.bgColor.name()
+def create_cell(cell: dict, table_style_name):
+    style = cell["style"]
+    bgcolor = style["bgColor"].name()
     if bgcolor == "#000000":
         bgcolor = "transparent"
-    fgcolor = cell.style.fgColor.name()
-    fontsize = cell.style.pointSize or 14
+    fgcolor = style["fgColor"].name()
+    fontsize = style["pointSize"] or 14
     fontsize -= 6  # mieux en papier
     underline = (
         f''' style:text-underline-style="solid" style:text-underline-width="auto" style:text-underline-color="font-color"'''
-        if cell.style.underline
+        if style["underline"]
         else ""
     )
-    style_name = f"{table_style_name}.{cell.y}.{cell.x}"
+    style_name = f"{table_style_name}.{cell['y']}.{cell['x']}"
     auto_style_cell = f"""<style:style style:name="{style_name}" style:family="table-cell">
        <style:table-cell-properties fo:background-color="{bgcolor}" fo:padding="0.097cm" fo:border="1pt solid"/>
       </style:style>"""
@@ -940,10 +974,10 @@ def create_cell(cell, table_style_name):
        </style:style>"""
 
     new_cell = f"""<table:table-cell table:style-name="{style_name}" office:value-type="string">
-                  <text:p text:style-name="{para_name}">{escape(cell.texte)}</text:p>
+                  <text:p text:style-name="{para_name}">{escape(cell["texte"])}</text:p>
                  </table:table-cell>"""
-    cell_width = len(cell.texte) * fontsize / 28.34646 / 1.55 or 0.4
-    cell_height = (1 + cell.texte.count("\n")) * fontsize / 28.34646 or 2
+    cell_width = len(cell["texte"]) * fontsize / 28.34646 / 1.55 or 0.4
+    cell_height = (1 + cell["texte"].count("\n")) * fontsize / 28.34646 or 2
     return new_cell, auto_style_cell, auto_style_paragraph, cell_width, cell_height
 
 
@@ -993,8 +1027,8 @@ def tableau_section(section):
             cell_width,
             cell_height,
         ) = create_cell(cell, table_style_name)
-        colonnes_max[cell.x] = max(cell_width, colonnes_max.get(cell.x, 0))
-        lignes_max[cell.y] = max(cell_height, lignes_max.get(cell.y, 0))
+        colonnes_max[cell["x"]] = max(cell_width, colonnes_max.get(cell["x"], 0))
+        lignes_max[cell["y"]] = max(cell_height, lignes_max.get(cell["y"], 0))
         automatic_res.append(auto_style_cell)
         automatic_res.append(auto_style_paragraph)
         cells.append(new_cell)
@@ -1055,17 +1089,18 @@ def equation_section(section):
 
 
 def frise_section(section):
-    return grab_section(section)
+    from . import Section
+
+    instance = Section.get(section.id)
+    return grab_section(section, instance)
 
 
-def grab_section(section, initial_prop={}):
-    section_dict = section.to_dict()
+def grab_section(section, q_section, initial_prop={}):
     sectionItem = QQuickItem(width=1181)
-    base_prop = {"sectionItem": sectionItem, "sectionId": section_dict["id"]}
+    base_prop = {"sectionItem": sectionItem, "section": q_section}
     base_prop.update(initial_prop)
-    app = QGuiApplication.instance()
     dtb = DTB()
-    with Grabber(context_dict={"ddb": app.dao, "c_dtb": dtb}) as grab:
+    with Grabber(context_dict={"c_dtb": dtb}) as grab:
         img = grab.comp_to_image(
             url=f":/qml/sections/{section.classtype}.qml",
             initial_prop=base_prop,
@@ -1139,11 +1174,11 @@ def build_styles() -> str:
 
 def build_master_styles() -> str:
     tmpl = templates.get_template("master-styles.xml")
-    db = getdb()
-    user = db.Utilisateur.user()
-    return tmpl.render(
-        nom=user.nom, prenom=user.prenom, classe=db.Annee[user.last_used].niveau
-    )
+    db = DTB()
+    nom = db.getConfig("nom")
+    prenom = db.getConfig("prenom")
+    niveau = db.getDB("Annee", db.getConfig("annee"))["niveau"]
+    return tmpl.render(nom=nom, prenom=prenom, classe=niveau)
 
 
 @db_session

@@ -177,7 +177,7 @@ def cmd_install_qt(*args, **kwargs):
 
 def cmd_make_qrc(*args, **kwargs):
     input = SRC / "qml.qrc"
-    output = SRC / "mycartable" / "package" / "qrc.py"
+    output = SRC / "mycartable" / "qrc.py"
     runCommand(f"pyside2-rcc {input} -o {output}")
 
 

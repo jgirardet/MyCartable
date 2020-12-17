@@ -30,9 +30,7 @@ class EquationSection(Section):
 
     @curseur.setter
     def curseur_set(self, value: int):
-        print("dans set debut")
         self.set_field("curseur", value)
-        print("dans set fin")
 
     @Slot(int, str)
     def update(self, curseur, event):

@@ -14,6 +14,7 @@ Item {
     CasTest {
         property var lv
         property var header
+        property var p2
 
         function initPre() {
             let mat = fk.f("matiere", {
@@ -27,7 +28,7 @@ Item {
                 "activite": ac1.id,
                 "titre": "un titre"
             });
-            let p2 = fk.f("page", {
+            p2 = fk.f("page", {
                 "activite": ac1.id,
                 "titre": "un titre2"
             });
@@ -61,6 +62,13 @@ Item {
             verify(!dp.visible);
             mousePress(lv.itemAtIndex(0), undefined, undefined, Qt.RightButton);
             verify(dp.visible);
+        }
+
+        function test_page_click() {
+            wait(50);
+            let but = tested.pages.itemAtIndex(2);
+            mouseClick(but);
+            tryCompare(classeurid.page, "titre", but.model.titre);
         }
 
         name: "ActiviteRectangle"

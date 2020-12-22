@@ -1,3 +1,4 @@
+from datetime import datetime
 from uuid import UUID
 
 import pytest
@@ -37,9 +38,15 @@ def cl_data(
     for m in gp._mats:
         gp._acts.append(activ(m))
     # breakpoint()
-    gp._page00 = fk.f_page(activite=gp._acts[0][0], td=True)
-    gp._page01 = fk.f_page(activite=gp._acts[0][1], td=True)
-    gp._page10 = fk.f_page(activite=gp._acts[1][0], td=True)
+    gp._page00 = fk.f_page(
+        activite=gp._acts[0][0], td=True, created=datetime(2019, 12, 31)
+    )
+    gp._page01 = fk.f_page(
+        activite=gp._acts[0][1], td=True, created=datetime(2019, 12, 10)
+    )
+    gp._page10 = fk.f_page(
+        activite=gp._acts[1][0], td=True, created=datetime(2019, 12, 1)
+    )
     return gp
 
 
@@ -62,7 +69,7 @@ def test_init_base():
     assert c.annee == 0
     assert c.matieresDispatcher is None
     assert c.currentMatiere is None
-    assert c.pagesParActivite == []
+    assert c.recents == None
     assert c.page == None
 
 
@@ -72,15 +79,15 @@ def test_anne_set(qtbot, classeur):
         classeur.annee = 0
     assert classeur.matieresDispatcher is None
     assert classeur.currentMatiere is None
-    assert classeur.pagesParActivite == []
+    assert classeur.recents == None
     assert classeur.page == None
 
 
-def test_init_apres_annee(classeur):
+def test_init_apres_annee(classeur, fk):
     assert classeur.annee == 2019
     assert classeur.matieresDispatcher.annee_active == 2019
     assert classeur.currentMatiere is None
-    assert classeur.pagesParActivite == []
+    assert classeur.recents.rowCount() == 3
     assert classeur.page == None
 
 
@@ -91,8 +98,7 @@ def test_init_apres_matiere(classeur, cl_data, ddbr):
     assert classeur.matieresDispatcher.annee_active == 2019
     assert classeur.currentMatiere.nom == "un"
     assert classeur.currentMatiere.id == matid
-    with db_session:
-        assert classeur.pagesParActivite == ddbr.Matiere[matid].pages_par_activite()
+    assert classeur.recents.rowCount() == 3
     assert classeur.page == None
 
 
@@ -118,23 +124,30 @@ def test_init_page_apres_autre_dans_meme_matiere(classeur, cl_data, qtbot):
         classeur.setPage(cl_data._page01["id"])
 
 
-def test_setPage_emitted_signals(classeur, cl_data, qtbot):
-    with qtbot.waitSignals([classeur.activitesChanged]):
-        classeur.setPage(cl_data._page00["id"])
-
-
 def test_newPage(classeur, cl_data, qtbot):
     classeur.setPage(cl_data._page00["id"])
     assert classeur.page.parent() == classeur
     old = classeur.page
-    with qtbot.waitSignal(classeur.pageChanged):
+    with qtbot.waitSignals(
+        [
+            classeur.pageChanged,
+            classeur.recents.rowsInserted,
+            classeur.currentMatiere.activites[0].pages.rowsInserted,
+        ]
+    ):
         classeur.newPage(str(cl_data._acts[0][0].id))
     assert classeur.page != old
 
 
 def test_deletePage(classeur, cl_data, qtbot):
     classeur.setPage(cl_data._page00["id"])
-    with qtbot.waitSignal(classeur.pageChanged):
+    with qtbot.waitSignals(
+        [
+            classeur.pageChanged,
+            classeur.recents.rowsRemoved,
+            classeur.currentMatiere.activites[0].pages.rowsRemoved,
+        ]
+    ):
         classeur.deletePage()
     assert classeur.page is None
 
@@ -166,7 +179,7 @@ def test_set_matiere(classeur, cl_data, qtbot):
 
 
 def test_connections(qtbot, classeur, cl_data):
-    with qtbot.waitSignals([classeur.currentMatiereChanged, classeur.activitesChanged]):
+    with qtbot.waitSignals([classeur.currentMatiereChanged]):
         classeur.setCurrentMatiere(1)
 
 
@@ -179,9 +192,19 @@ def test_currentMatiere_index(classeur, qtbot, cl_data):
 
 def test_recents(classeur, ddbr, fk, qtbot):
     with db_session:
-        assert ddbr.Page.recents(classeur.annee) == classeur.recents
-        assert len(classeur.recents) == 3
+        assert ddbr.Page.recents(classeur.annee) == classeur.recents._data
+        assert classeur.recents.rowCount() == 3
 
     fk.f_annee(2099)
     with qtbot.waitSignal(classeur.recentsChanged):
         classeur.annee = 2099
+
+
+def test_page_titre_chaged(classeur, cl_data, qtbot):
+    classeur.setPage(cl_data._page00["id"])
+    with qtbot.waitSignal(classeur.recents.dataChanged):
+        classeur.page.titre = "hello !!!"
+    r = classeur.recents
+    assert r.data(r.index(0, 0), r.TitreRole) == "hello !!!"
+    ac = classeur.currentMatiere.activites[0]
+    assert ac.pages.data(r.index(0, 0), r.TitreRole) == "hello !!!"

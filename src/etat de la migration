@@ -1,7 +1,9 @@
 
 ###########
 Etape en cours :
-
+fixer test python
+tester en python dtb bridge (nouvelles lignes)
+tester qml (acvite et recents)
 
 
 ###### APRES CI DESSUS #########
@@ -14,7 +16,6 @@ A faire plus généralement :
 - classeur:
   -currrentAnnee => annee
   -currentMatiere => matiere
-- transformer Matiere en Bridge (et change page.matiere du coup)
 - refinir globus
 - toutes les connections
 - tous les signals

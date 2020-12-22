@@ -37,6 +37,10 @@ class Page(Bridge):
     Qt Property
     """
 
+    @Property(str, constant=True)
+    def activite(self):
+        return self._data.get("activite", "")
+
     @Property(QObject, constant=True)
     def classeur(self):
         return self.parent()

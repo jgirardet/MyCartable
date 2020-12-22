@@ -202,3 +202,12 @@ class UiManager(QObject):
     @Property(QQmlComponent, notify=nullCompChanged)
     def nullComp(self):
         return self.NULL_COMP
+
+    # @Slot(str, QObject, result=QObject)
+    # def findParent(self, parent_name: str, child: QObject):
+    #     if child is None:
+    #         return None
+    #     if child.property("objectName") != parent_name:
+    #         return self.findParent(parent_name, child.parent())
+    #     else:
+    #         return child

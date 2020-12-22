@@ -61,31 +61,3 @@ class DatabaseObject(QObject):
 
     # session
     # todo: self.changeAnnee.connect(self.onChangeAnnee)
-
-    def onCurrentPageChanged(self, page):
-        if not page:
-            self.pageModel.slotReset(0)
-            self.updateRecentsAndActivites.emit()
-        else:
-            self.pageModel.slotReset(page["id"])
-            # TODO:  self.currentMatiere = page["matiere"]
-
-    def onMatiereReset(self):
-        self.currentPage = ""
-
-    def onNewPageCreated(self, item: dict):
-        self.currentPage = item["id"]
-
-    def onRecentsItemClicked(self, id: str, matiere: str):
-        self.currentPage = id
-        self.currentMatiere = matiere
-
-    def onChangeAnnee(self, value: int):
-        self.currentPage = ""
-        self.currentMatiere = ""
-        if value:
-            self.anneeActive = value
-            # TODO: ? self.init_matieres(annee=value)
-        # ok: self.recentsModelChanged.emit()
-        # ok self.matieresListNomChanged.emit()
-        # ok self.anneeActiveChanged.emit()

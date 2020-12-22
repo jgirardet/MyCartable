@@ -49,6 +49,13 @@ Item {
             compare(tested.count, 2);
         }
 
+        function test_page_click() {
+            wait(50);
+            let but = tested.itemAtIndex(1);
+            mouseClick(but);
+            tryCompare(classeur.page, "titre", but.model.titre);
+        }
+
         name: "RecentsRectangle"
         testedNom: "qrc:/qml/matiere/RecentsRectangle.qml"
         params: {

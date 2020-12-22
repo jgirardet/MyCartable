@@ -14,7 +14,6 @@ ListView {
     delegate: PageButton {
         height: contentItem.contentHeight + 20
         width: root.width
-        model: modelData
     }
 
 }

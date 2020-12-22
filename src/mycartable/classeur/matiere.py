@@ -2,13 +2,20 @@ from typing import List
 
 from PySide2.QtCore import QObject, Signal, Property, Slot
 from PySide2.QtGui import QColor
+from .pagelist_model import ActiviteModel
+from mycartable.types import Bridge
 from pony.orm import db_session, Database
 
 
-class Matiere(QObject):
-    def __init__(self, data: dict):
-        super().__init__()
-        self._data: dict = data
+class Matiere(Bridge):
+    entity_name = "Matiere"
+
+    def __init__(self, data={}, parent=None):
+        super().__init__(data=data, parent=parent)
+        self._activites = [
+            Activite.get(activite_id, parent=self)
+            for activite_id in self._data["activites"]
+        ]
 
     @Property(str, constant=True)
     def id(self):
@@ -26,8 +33,40 @@ class Matiere(QObject):
     def fgColor(self):
         return self._data.get("fgColor", "")
 
+    @Property(QColor, constant=True)
+    def fgColor(self):
+        return self._data.get("fgColor", "")
+
+    @Property("QVariantList", constant=True)
+    def activites(self):
+        return self._activites
+
     def __repr__(self):
         return "Matiere: " + self.nom
+
+
+class Activite(Bridge):
+    entity_name = "Activite"
+
+    def __init__(self, data={}, parent=None):
+        super().__init__(data=data, parent=parent)
+        self._pages = ActiviteModel(self.id, parent=self)
+
+    @Property(str, constant=True)
+    def nom(self):
+        return self._data.get("nom", "")
+
+    @Property(QObject, constant=True)
+    def matiere(self):
+        return self.parent()
+
+    @Property(QObject, constant=True)
+    def position(self):
+        return self._data.get("position", "")
+
+    @Property(QObject, constant=True)
+    def pages(self):
+        return self._pages
 
 
 class MatieresDispatcher(QObject):

@@ -162,17 +162,6 @@ def class_structure(
             )
             return dico
 
-        def pages_par_activite(self):
-            res = []
-            for x in Activite.get_by_position(self.id):  # .order_by(Activite.famille):
-                entry = x.to_dict()
-                entry["pages"] = [
-                    y.to_dict()
-                    for y in select(p for p in x.pages).order_by(desc(Page.created))
-                ]
-                res.append(entry)
-            return res
-
         def before_delete(self):
             self.before_delete_position()
 
@@ -211,6 +200,9 @@ def class_structure(
                 }
             )
             return dico
+
+        def pages_by_created(self):
+            return [y.to_dict() for y in self.pages.order_by(desc(Page.created))]
 
     class Page(db.Entity):
         id = PrimaryKey(UUID, auto=True, default=uuid4)

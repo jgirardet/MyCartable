@@ -1,23 +1,14 @@
 from typing import Union, Optional
 from uuid import UUID
 
-from PySide2.QtCore import Slot, Signal, QObject, Property
-from loguru import logger
-from .matiere import MatieresDispatcher, Matiere
-from .page import Page
 from pony.orm import db_session, Database, ObjectNotFound
 
+from PySide2.QtCore import Slot, Signal, QObject, Property, QTimer
+from loguru import logger
+from .pagelist_model import RecentsModel
 
-"""
-connections restant à établir:
-page:
-    titre changed => recents
-pagemodel : 
-    modif content => recents
-    insertsection => recents
-    removesection => recents
-    moverow=> recents
-"""
+from .matiere import MatieresDispatcher, Matiere
+from .page import Page
 
 
 class Classeur(QObject):
@@ -25,7 +16,7 @@ class Classeur(QObject):
     db: Database
 
     anneeChanged = Signal()
-    activitesChanged = Signal()
+    recentsChanged = Signal()
     currentMatiereChanged = Signal()
     pageChanged = Signal()
 
@@ -43,9 +34,10 @@ class Classeur(QObject):
         self._matieresDispatcher: MatieresDispatcher = None
         self._currentMatiere: Matiere = None
         self._page: Page = None
+        self._recents: RecentsModel = None
+        self.newPage_timer = None
 
     def setup_connections(self):
-        self.currentMatiereChanged.connect(self.activitesChanged)
         self.anneeChanged.connect(self.recentsChanged)
 
     """
@@ -62,6 +54,7 @@ class Classeur(QObject):
         if annee:
             self._annee = annee
             self._matieresDispatcher = MatieresDispatcher(self.db, annee)
+            self._recents = RecentsModel(self._annee, parent=self)
             logger.info(f"Année en cours : {annee}")
             self.anneeChanged.emit()
 
@@ -100,12 +93,9 @@ class Classeur(QObject):
     def page(self):
         return self._page
 
-    recentsChanged = Signal()
-
-    @Property("QVariantList", notify=recentsChanged)
+    @Property(QObject, notify=recentsChanged)
     def recents(self):
-        with db_session:
-            return self.db.Page.recents(self.annee)
+        return self._recents
 
     """
     Qt Slots
@@ -113,28 +103,22 @@ class Classeur(QObject):
 
     @Slot()
     def deletePage(self):
+        old = self.page.id
         self.page.delete()
         self._page = None
         self.pageChanged.emit()
+        self.onDeletePage(old)
 
     @Slot(str)
     def newPage(self, activiteId: str) -> Optional[dict]:
         new_item = Page.new(activite=activiteId)
         logger.debug(f'New Page "{new_item.id}" created')
         self.setPage(new_item)
-
-    @Property("QVariantList", notify=activitesChanged)
-    def pagesParActivite(self):
-        res = []
-        if self.currentMatiere:
-            with db_session:
-                matiere = self.db.Matiere[self.currentMatiere.id]
-                res = matiere.pages_par_activite()
-        return res
+        QTimer.singleShot(0, lambda: self.onNewPage(activiteId))
 
     @Slot(str)
     @Slot(int)
-    def setCurrentMatiere(self, value: Union[int, str]):
+    def setCurrentMatiere(self, value: Union[int, str]) -> None:
         if isinstance(value, int):
             value = self.matieresDispatcher.idFromIndex(value)
         self.currentMatiere = value
@@ -150,3 +134,33 @@ class Classeur(QObject):
         self.pageChanged.emit()
         logger.info(f"CurrentPage changed to {self.page.titre}")
         self.setCurrentMatiere(self.page.matiereId)
+        self.page.titreChanged.connect(self.onPageTitreChanged)
+
+    """
+    Callback de liaisons
+    """
+
+    def onPageTitreChanged(self):
+        def wrapped():
+            self.recents.update_titre(self.page)
+            for ac in self.currentMatiere.activites:
+                if ac.id == self.page.activite:
+                    ac.pages.update_titre(self.page)
+                    break
+
+        QTimer.singleShot(0, wrapped)
+
+    def onNewPage(self, activiteId):
+        self.recents.insertRow(0)
+        for ac in self.currentMatiere.activites:
+            if ac.id == activiteId:
+                ac.pages.insertRow(0)
+                break
+
+    def onDeletePage(self, pageid):
+        def wrapped():
+            self.recents.remove_by_Id(pageid)
+            for ac in self.currentMatiere.activites:
+                ac.pages.remove_by_Id(pageid)
+
+        QTimer.singleShot(0, wrapped)

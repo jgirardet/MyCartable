@@ -142,7 +142,9 @@ class Faker:
         self, created=None, activite=None, titre=None, td=False, lastPosition=None
     ):
         """actvite int = id mais str = index"""
-
+        if isinstance(activite, int):
+            m = self.f_matiere(groupe=activite)
+            activite = self.f_activite(matiere=m)
         activite = activite or self.f_activite()
         if isinstance(activite, self.db.Activite):
             activite = str(activite.id)

@@ -42,14 +42,14 @@ SandwichLayout {
 
     }
 
-    rightBread: MatiereRectangle {
-        id: matiere
-    }
-
     leftBread: RecentsRectangle {
-        id: recents
+        id: recentsid
 
         model: classeurid.recents
+    }
+
+    rightBread: MatiereRectangle {
+        id: matiere
     }
 
 }

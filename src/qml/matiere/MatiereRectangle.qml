@@ -108,14 +108,14 @@ ColumnLayout {
     ListView {
         id: lvActivite
 
-        model: classeur.pagesParActivite
+        model: classeur.currentMatiere ? classeur.currentMatiere.activites : []
         Layout.fillHeight: true
         Layout.fillWidth: true
         spacing: 15
         clip: true
 
         delegate: ActiviteRectangle {
-            model: modelData
+            activite: modelData
             width: lvActivite.width
         }
 

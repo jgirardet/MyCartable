@@ -1,16 +1,28 @@
 import pytest
 from tests.python.fixtures import check_args
-from mycartable.classeur.matiere import Matiere, MatieresDispatcher
+from mycartable.classeur import Matiere, MatieresDispatcher, Activite, ActiviteModel
 
 
 class TestMatiere:
     def test_properties(self, fk):
         f = fk.f_matiere(td=True)
-        m = Matiere(f)
+        ac = fk.f_activite(matiere=f["id"])
+        m = Matiere.get(f["id"])
         assert m.id == f["id"]
         assert m.nom == f["nom"]
         assert m.bgColor == f["bgColor"]
         assert m.fgColor == f["fgColor"]
+        assert m.activites == [Activite.get(ac.id)]
+
+
+class TestActivite:
+    def test_properties(self, fk):
+        ac = fk.f_activite(nom="aaa")
+        m = Matiere.get(ac.matiere)
+        act = Activite.get(ac.id, parent=m)
+        assert act.nom == "aaa"
+        assert act.position == 0
+        assert isinstance(act.pages, ActiviteModel)
 
 
 class TestMatiereDispatcher:

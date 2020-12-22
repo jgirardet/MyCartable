@@ -12,72 +12,12 @@ from PySide2.QtQuick import QQuickItem
 from mycartable.classeur import create_operation
 from package.cursors import build_one_image_cursor
 from fixtures import check_args
-from package import constantes
+from mycartable import constantes
 from package.database_object import DatabaseObject
 from unittest.mock import patch, call
 
-from package.files_path import FILES
+from mycartable.files_path import FILES
 from pony.orm import ObjectNotFound, db_session
-
-
-class TestLayoutMixin:
-    def test_check_args(self, dao):
-        check_args(dao.getLayoutSizes, str, float)
-        check_args(dao.setStyle, (str, dict), dict)
-
-    def test_getlayoutsize(self, dao: DatabaseObject):
-        assert (
-            dao.getLayoutSizes("preferredCentralWidth")
-            == constantes.preferredCentralWidth
-        )
-
-    def test_setStyle(self, fk, dao: DatabaseObject, caplogger):
-        a = fk.f_style()
-
-        # normal
-        r = dao.setStyle(a.styleId, {"underline": True, "bgColor": "red"})
-        assert r == {
-            "bgColor": QColor("red"),
-            "family": "",
-            "fgColor": QColor("black"),
-            "styleId": str(a.styleId),
-            "pointSize": None,
-            "strikeout": False,
-            "underline": True,
-            "weight": None,
-        }
-
-        with db_session:
-            item = dao.db.Style[a.styleId]
-            assert item.bgColor == "red"
-            assert item.underline == True
-
-        # bad params
-        r = dao.setStyle(a.styleId, {"badparam": True})
-        # breakpoint()
-        assert "Unknown attribute 'badparam'" in caplogger.records[0][2]
-        assert caplogger.records[0][1].replace(" ", "") == "ERROR"
-        caplogger.truncate(0)
-
-        # style does not exists
-        with db_session:
-            b = dao.db.Style[a.styleId]
-            b.delete()
-
-        r = dao.setStyle(a.styleId, {"underline": True})
-        assert (
-            caplogger.records[0][2][52:]  # Horrible  à refaire avec caplogger
-            == f"Echec de la mise à jour du style : ObjectNotFound  Style[{repr(a.styleId)}]"
-        )
-        assert caplogger.records[0][1].replace(" ", "") == "ERROR"
-
-    def test_color_property(self, dao):
-        assert dao.colorFond == QColor(130, 134, 138)
-        assert dao.colorMainMenuBar == QColor(83, 93, 105)
-        assert dao.colorPageToolBar == QColor(197, 197, 197)
-
-    def test_font_property(self, dao):
-        assert dao.fontMain == "Verdana"
 
 
 class TestDatabaseObject:

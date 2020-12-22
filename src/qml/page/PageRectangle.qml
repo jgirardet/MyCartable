@@ -1,3 +1,4 @@
+import MyCartable 1.0
 import QtQml 2.15
 import QtQuick 2.15
 import QtQuick.Controls 2.15
@@ -54,6 +55,10 @@ Rectangle {
         uiManager.menuFlottantImage = null;
     }
 
+    Database {
+        id: database
+    }
+
     PageToolBar {
         id: pageToolBar
 
@@ -61,7 +66,8 @@ Rectangle {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
-        height: ddb.getLayoutSizes("preferredHeaderHeight")
+        anchors.margins: 10
+        height: database.getConfig("preferredHeaderHeight")
     }
 
     PageTitre {
@@ -72,7 +78,7 @@ Rectangle {
         anchors.top: pageToolBar.bottom
         height: 50
         page: root.page
-        anchors.margins: 20
+        anchors.margins: 10
         visible: page
     }
 
@@ -103,7 +109,7 @@ Rectangle {
         anchors.right: parent.right
         anchors.top: titre.bottom
         anchors.bottom: parent.bottom
-        anchors.topMargin: 20
+        anchors.margins: 10
         enabled: status == Loader.Ready
         opacity: 0
         states: [

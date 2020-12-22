@@ -1,3 +1,4 @@
+import MyCartable 1.0
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.14
@@ -12,11 +13,15 @@ ColumnLayout {
     anchors.fill: parent
     spacing: 5
 
+    Database {
+        id: database
+    }
+
     Rectangle {
         id: matiereSelect
 
         objectName: "matiereSelect"
-        Layout.preferredHeight: ddb.getLayoutSizes("preferredHeaderHeight")
+        Layout.preferredHeight: database.getConfig("preferredHeaderHeight")
         Layout.minimumHeight: Layout.preferredHeight
         Layout.maximumHeight: Layout.preferredHeight
         color: "transparent"
@@ -42,11 +47,8 @@ ColumnLayout {
 
             contentItem: Text {
                 text: combo.displayText
-                //                color: combo.currentValue ? combo.model[combo.currentIndex].fgColor : "white"
                 color: classeur.currentMatiere ? classeur.currentMatiere.fgColor : "white"
-                // : "white"
                 font.pointSize: 16
-                font.family: ddb.fontMain
                 font.capitalization: Font.Capitalize
                 font.bold: true
                 verticalAlignment: Text.AlignVCenter

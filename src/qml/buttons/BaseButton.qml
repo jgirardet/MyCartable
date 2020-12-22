@@ -4,6 +4,9 @@ import "qrc:/qml/actions" as PageActions
 import "qrc:/qml/divers"
 
 ToolButton {
+    //    height: 40
+    //        color: Qt.darker(ddb.colorPageToolBar, control.enabled && control.hovered ? 1.5 : 1)
+
     id: control
 
     property string sectionName
@@ -14,7 +17,7 @@ ToolButton {
     property alias toast: toast
 
     enabled: page
-    icon.color: enabled ? "transparent" : ddb.colorPageToolBar
+    icon.color: "transparent"
     visible: enabled
     onPageChanged: {
         if (action)
@@ -36,8 +39,7 @@ ToolButton {
         //    width: 40
         implicitWidth: 40
         implicitHeight: 40
-        //    height: 40
-        color: Qt.darker(ddb.colorPageToolBar, control.enabled && control.hovered ? 1.5 : 1)
+        color: "transparent"
     }
 
 }

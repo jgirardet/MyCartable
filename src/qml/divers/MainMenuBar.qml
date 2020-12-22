@@ -26,7 +26,7 @@ Control {
 
             PropertyChanges {
                 target: root
-                height: 50
+                height: root.contentItem.childrenRect.height
             }
 
         }
@@ -111,6 +111,8 @@ Control {
     }
 
     contentItem: Row {
+        height: childrenRect.height
+
         MenuBar {
             Menu {
                 id: menu
@@ -176,12 +178,6 @@ Control {
             duration: 300
         }
 
-    }
-
-    background: Rectangle {
-        anchors.fill: parent
-        color: ddb.colorMainMenuBar
-        radius: 10
     }
 
 }

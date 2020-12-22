@@ -125,15 +125,15 @@ Item {
             //mouse in and out
             compare(tested.height, 2);
             mouseMove(tested, 1, 1);
-            compare(tested.height, 50);
+            compare(tested.height, 40);
             mouseMove(tested, -1, -1);
             compare(tested.height, 2);
             // don't hide if menu visible
             tested.state = "expanded";
             fichier.visible = true;
-            compare(tested.height, 50);
+            compare(tested.height, 40);
             tested.hideTimer.start();
-            compare(tested.height, 50);
+            compare(tested.height, 40);
         }
 
         function test_split_buttons() {

@@ -3,10 +3,13 @@ import tempfile
 from pathlib import Path
 
 from PySide2.QtGui import QFont, QFontDatabase, QIcon
+from mycartable.constantes import APPNAME, ORGNAME
+from mycartable.default_configuration import DEFAUT_CONFIGURATION
 from mycartable.types.dtb import DTB
 from mycartable.types.globus import Globus
 from package import get_prod
-from package.constantes import APPNAME, ORGNAME, BASE_FONT
+
+# from .constantes import APPNAME, ORGNAME, BASE_FONT
 from PySide2.QtCore import (
     QUrl,
     QStandardPaths,
@@ -160,10 +163,18 @@ def setup_qml(ddb, ui_manager, dtb, globus):
 
 
 def setup_logging():
-    from package.files_path import LOGFILE
+    from .files_path import LOGFILE
 
     logger.add(LOGFILE, rotation="10 MB")
     logger.info(f"logfile path : {LOGFILE}")
+
+
+def update_configuration(db: Database):
+    with db_session:
+
+        for k, v in DEFAUT_CONFIGURATION.items():
+            if db.Configuration.option(k) is None:
+                db.Configuration.add(k, v)
 
 
 @logger.catch(reraise=True)
@@ -185,6 +196,8 @@ def main(filename=None):
     # First instanciate db
     db = main_init_database(filename=filename, prod=prod)
 
+    update_configuration(db)
+
     # create instance de ce qui sera des singleton dans qml
     DTB.db = db
     databaseObject, ui_manager, dtb, globus = create_singleton_instance(prod)
@@ -204,7 +217,9 @@ def main(filename=None):
     QFontDatabase.addApplicationFont(":/fonts/Verdana.ttf")
     QFontDatabase.addApplicationFont(":/fonts/Code New Roman.otf")
     QFontDatabase.addApplicationFont(":/fonts/LiberationMono-Regular.ttf")
-    font = QFont(BASE_FONT, 12, QFont.Normal)
+    with db_session:
+        base_font = db.Configuration.option("fontMain")
+    font = QFont(base_font, 12, QFont.Normal)
     app.setFont(font)
 
     # run the app

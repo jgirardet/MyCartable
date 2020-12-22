@@ -26,14 +26,13 @@ from PySide2.QtGui import (
 from bs4 import NavigableString, BeautifulSoup
 from mako.lookup import TemplateLookup
 from mycartable.types.dtb import DTB
-from mycartable.package.constantes import (
-    BASE_FONT,
+from mycartable.constantes import (
     ANNOTATION_TEXT_BG_OPACITY,
     MONOSPACED_FONTS,
 )
 from mycartable.conversion import Grabber
 from mycartable.package.database import getdb
-from mycartable.package.files_path import FILES, TMP
+from mycartable.files_path import FILES, TMP
 from mycartable.package.utils import read_qrc, qrunnable
 from mycartable.package import LINUX, WIN
 from pony.orm import db_session
@@ -192,7 +191,8 @@ def draw_annotation_text(annotation: dict, image: QImage, painter: QPainter):
     font.setUnderline(style["underline"])
     # get considère empty "" comme true
     if not style.get("family", None):  # pragma: no branch
-        font.setFamily(BASE_FONT)  # pragma: no cover
+        font_name = DTB().getConfig("fontMain")
+        font.setFamily(font_name)  # pragma: no cover
     painter.setFont(font)
 
     # Ensuite le crayon

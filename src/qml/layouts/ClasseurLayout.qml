@@ -1,5 +1,4 @@
 import MyCartable 1.0
-import MyCartable 1.0
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
@@ -16,7 +15,7 @@ SandwichLayout {
 
     objectName: "ClasseurLayout"
     anchors.fill: parent
-    color: ddb.colorFond
+    color: database.getConfig("colorFond")
 
     Database {
         id: database

@@ -2,7 +2,7 @@ from pathlib import Path
 
 from PySide2.QtCore import QStandardPaths
 from loguru import logger
-from package.constantes import APPNAME
+from .constantes import APPNAME
 from package import get_prod
 
 

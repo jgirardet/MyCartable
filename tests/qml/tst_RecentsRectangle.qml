@@ -1,8 +1,11 @@
+import MyCartable 1.0
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 
 Item {
     id: item
+
+    property var classeur
 
     width: 200
     height: 200
@@ -29,11 +32,17 @@ Item {
                 "created": "2018-01-12",
                 "activite": ac.id
             });
-            ddb.anneeActive = 2018;
+            classeur.annee = 2018;
+            params = {
+                "model": classeur.recents
+            };
+        }
+
+        function init_post() {
         }
 
         function test_init() {
-            compare(ddb.recentsModel, tested.model);
+            compare(classeur.recents, tested.model);
         }
 
         function test_count() {
@@ -44,6 +53,10 @@ Item {
         testedNom: "qrc:/qml/matiere/RecentsRectangle.qml"
         params: {
         }
+    }
+
+    classeur: Classeur {
+        id: classeur
     }
 
 }

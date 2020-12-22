@@ -5,6 +5,7 @@ import "qrc:/qml/buttons" as Buttons
 import "qrc:/qml/layouts"
 
 ToolBar {
+
     id: root
 
     property QtObject page
@@ -18,6 +19,9 @@ ToolBar {
         spacing: 0
 
         ToolBar {
+
+            id: toolbar
+
             RowLayout {
                 spacing: 0
 
@@ -70,21 +74,27 @@ ToolBar {
 
             }
 
+            background: Rectangle {
+                anchors.fill: parent
+                color: "transparent"
+            }
+
         }
 
         SplitSwitch {
         }
 
-        Item {
+        Rectangle {
             Layout.fillWidth: true
-            Layout.fillHeight: true
+            height: toolbar.height
+            color: "transparent"
         }
 
     }
 
     background: Rectangle {
-        //    radius: 10
-        color: ddb.colorPageToolBar
+        radius: 10
+        color: "#c5c5c5"
     }
 
 }

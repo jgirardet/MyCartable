@@ -13,7 +13,7 @@ from mycartable.types import DTB
 from tests.python.fixtures import check_args
 from mycartable.classeur import ImageSection
 from mycartable.package.cursors import build_one_image_cursor
-from mycartable.package.files_path import FILES
+from mycartable.files_path import FILES
 from pony.orm import db_session
 
 

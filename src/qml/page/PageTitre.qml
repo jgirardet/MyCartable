@@ -1,3 +1,4 @@
+import MyCartable 1.0
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.14
@@ -18,7 +19,6 @@ TextField {
     font.bold: true
     font.pointSize: 16
     font.capitalization: Font.Capitalize
-    font.family: ddb.fontMain
     horizontalAlignment: TextInput.AlignHCenter
     verticalAlignment: TextInput.AlignVCenter
     onTextChanged: {
@@ -35,7 +35,7 @@ TextField {
     }
 
     background: Rectangle {
-        color: page ? page.matiere.bgColor : ddb.colorMainMenuBar
+        color: page ? page.matiere.bgColor : "transparent"
         radius: 10
     }
 

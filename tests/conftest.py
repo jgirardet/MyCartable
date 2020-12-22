@@ -14,7 +14,7 @@ from tests.common import setup_session
 
 def pytest_sessionstart():
     setup_session()
-    from mycartable.package.files_path import root_data
+    from mycartable.files_path import root_data
 
     shutil.rmtree(root_data())
 

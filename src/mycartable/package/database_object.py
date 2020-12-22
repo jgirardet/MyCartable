@@ -1,14 +1,9 @@
 from PySide2.QtCore import QObject, Signal, Property
-from package.database_mixins.layout_mixin import LayoutMixin
 
-from package.files_path import FILES
-
-MIXINS = [
-    LayoutMixin,
-]
+from mycartable.files_path import FILES
 
 
-class DatabaseObject(QObject, *MIXINS):
+class DatabaseObject(QObject):
 
     updateRecentsAndActivites = Signal()
 
@@ -27,9 +22,6 @@ class DatabaseObject(QObject, *MIXINS):
         super().__init__()
         self.db = db
         self.ui = ui
-
-        for mixin in MIXINS:
-            mixin.__init__(self)
 
         # if not debug:
         # self.setup_settings()

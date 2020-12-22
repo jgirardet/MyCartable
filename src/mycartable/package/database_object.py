@@ -1,11 +1,9 @@
 from PySide2.QtCore import QObject, Signal, Property
 from package.database_mixins.layout_mixin import LayoutMixin
-from package.database_mixins.page_mixin import PageMixin
 
 from package.files_path import FILES
 
 MIXINS = [
-    PageMixin,
     LayoutMixin,
 ]
 

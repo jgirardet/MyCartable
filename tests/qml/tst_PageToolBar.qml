@@ -13,9 +13,6 @@ Item {
     }
 
     CasTest {
-        //            verify(th.mock_called(data.fnName));
-        //            th.unmock(data.fnName);
-
         id: testcase
 
         property var newtext
@@ -119,7 +116,7 @@ Item {
             mouseClick(newimage);
             newimage.action.dialog.folder = "assets";
             mouseDoubleClickSequence(newimage.action.dialog.contentItem, 150, 150, Qt.LeftButton, Qt.NoModifier, 50);
-            wait(100); //image is async
+            tryCompare(newimage.action.busy, "visible", false);
             compare_new_section("ImageSection");
         }
 

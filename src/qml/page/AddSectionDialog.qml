@@ -24,7 +24,10 @@ IndexedDialog {
             appendMode: false
             page: root.page
             targetIndex: root.itemIndex
-            Component.onCompleted: action.triggered.connect(root.close)
+            Component.onCompleted: {
+                action.triggered.connect(root.close);
+                action.busy.parent = root.parent;
+            }
         }
 
         NewImageSectionVide {

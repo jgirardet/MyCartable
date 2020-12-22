@@ -1,40 +1,28 @@
 import os
-from unittest.mock import patch
-from uuid import UUID
 import base64
-from multiprocessing import Value
 
 import pytest
-from PySide2.QtCore import QObject, Signal
 from PySide2.QtGui import QImage, QColor
-from mycartable.classeur.convert import (
-    save_pdf_pages_to_png,
-    split_pdf_to_png,
-    frise_section,
-)
+from mycartable.conversion.pdf import PDFSplitter, save_pdf_pages_to_png
 from mycartable.package import WIN
 from mycartable.conversion import Grabber, WImage
 
-from pony.orm import db_session
-
 
 @pytest.mark.parametrize(
-    "index, cpu, range_res, compteur",
+    "index, cpu, range_res",
     [
-        (0, 2, range(0, 4), 4),
-        (1, 2, range(4, 7), 3),
-        (1, 1, [], 0),
-        (0, 1, range(0, 7), 7),
-        (0, 3, range(0, 3), 3),
-        (1, 3, range(3, 6), 3),
-        (2, 3, range(6, 7), 1),
+        (0, 2, range(0, 4)),
+        (1, 2, range(4, 7)),
+        (1, 1, []),
+        (0, 1, range(0, 7)),
+        (0, 3, range(0, 3)),
+        (1, 3, range(3, 6)),
+        (2, 3, range(6, 7)),
     ],
 )
-def test_save_pages_to_png(tmp_path, new_res, index, cpu, range_res, compteur):
-    v = Value("i", 0)
-    save_pdf_pages_to_png(index, cpu, new_res("pdf7pages.pdf"), tmp_path, v)
+def test_save_pages_to_png(tmp_path, new_res, index, cpu, range_res):
+    save_pdf_pages_to_png(index, cpu, new_res("pdf7pages.pdf"), tmp_path)
     assert set(tmp_path.glob("*.png")) == {tmp_path / f"{i}.png" for i in range_res}
-    assert v.value == compteur
 
 
 @pytest.mark.parametrize(
@@ -47,22 +35,8 @@ def test_split_pdf_to_png(tmp_path, new_res, qtbot, cpu):
     if os.environ.get("CI", None) and cpu is None:
         return True
 
-    class S(QObject):
-        s = Signal(int, int)
-
-    ss = S()
-
-    def check_cb_params(*params):
-        base = 0
-        x, y = params
-        assert base <= x <= y
-        assert y == 7
-        if x >= 7:
-            return True  # ne retourne True que quand tous les appels ont été vérifiés
-        return False
-
-    with qtbot.waitSignal(ss.s, check_params_cb=check_cb_params):
-        res = split_pdf_to_png(new_res("pdf7pages.pdf"), tmp_path, cpu, ss.s)
+    splitter = PDFSplitter()
+    res = splitter(new_res("pdf7pages.pdf"), tmp_path, cpu)
     assert res == [tmp_path / f"{i}.png" for i in range(7)]
 
 
@@ -258,54 +232,3 @@ class TestGrabber:
 
         assert "write canvas" in [r.message for r in qtlog.records]
         # assert img == WImage(str(resources / "convert" / "width_height.png"))
-
-
-def pixel_to_mm(pix):
-    return round(pix / 3.7795275591)
-
-
-class TestExportToOdt:
-    @pytest.mark.skipif(
-        WIN, reason="le rendu est bon  mais le test echoue que sous windows"
-    )
-    def test_frise_section(self, fk, qapp, resources):
-
-        with db_session:
-            f1 = fk.f_friseSection(titre="ma frise")
-            with patch(
-                "mycartable.classeur.convert.uuid.uuid4", return_value=UUID("1" * 32)
-            ):
-                res, auto = frise_section(f1)
-        width = pixel_to_mm(1181)
-        height = pixel_to_mm(f1.height)
-        img = resources / "convert" / "frisesection.png"
-        img = base64.b64encode(img.read_bytes())
-        # print("img dans test", img)
-        control = f"""<text:p text:style-name="Standard">
-    <draw:frame draw:style-name="fr1" draw:name="{"1"*32}" text:anchor-type="paragraph" svg:width="{width}mm"  svg:height="{height}mm" draw:z-index="0">
-        <draw:image loext:mime-type="image/png">
-            <office:binary-data>{img.decode()}</office:binary-data>
-        </draw:image>
-    </draw:frame>
-</text:p>"""
-        # assert res == control
-        # assert auto == ""
-
-        with db_session:
-            f1 = fk.f_friseSection(titre="ma frise")
-            with patch(
-                "mycartable.classeur.convert.uuid.uuid4", return_value=UUID("1" * 32)
-            ):
-                res, auto = frise_section(f1)
-        width = pixel_to_mm(1181)
-        height = pixel_to_mm(f1.height)
-        img = resources / "convert" / "frisesection.png"
-        img = base64.b64encode(img.read_bytes())
-        # print("img dans test", img)
-        control = f"""<text:p text:style-name="Standard">
-    <draw:frame draw:style-name="fr1" draw:name="{"1"*32}" text:anchor-type="paragraph" svg:width="{width}mm"  svg:height="{height}mm" draw:z-index="0">
-        <draw:image loext:mime-type="image/png">
-            <office:binary-data>{img.decode()}</office:binary-data>
-        </draw:image>
-    </draw:frame>
-</text:p>"""

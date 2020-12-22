@@ -231,6 +231,30 @@ def test_removeRows(fk, idx, res, lastpos):
     assert a.page.lastPosition == lastpos
 
 
+def test_check_args_addsection():
+    check_args(Page.addSection, [str], bool, slot_order=0)
+    check_args(Page.addSection, [str, int, dict], bool, slot_order=1)
+
+
+def test_append():
+    with pytest.raises(NotImplementedError):
+        PageModel.append("self")
+
+
+@pytest.mark.parametrize(
+    "func, format, ext",
+    [("exportToPDF", "pdf:writer_pdf_Export", ".pdf"), ("exportToODT", "odt", ".odt")],
+)
+def test_exportTo(fk, func, format, ext):
+    pg = fk.f_page()
+    p = Page.get(str(pg.id))
+    with patch("mycartable.classeur.convert.qrunnable") as w:
+        getattr(p, func)()
+
+        assert w.called
+        assert w.call_args.args[1:] == (format, ext)
+
+
 @pytest.mark.parametrize(
     "args, kwargs, res, lastpos",
     [
@@ -302,7 +326,7 @@ def test_removeRows(fk, idx, res, lastpos):
         ),
     ],
 )
-def test_addSection(fk, args, kwargs, res, lastpos):
+def test_addSection(fk, args, kwargs, res, lastpos, qtbot):
     pg = fk.f_page()
     ids = [
         "00000000-0000-0000-0000-000000000000",
@@ -314,7 +338,8 @@ def test_addSection(fk, args, kwargs, res, lastpos):
     p = Page.get(str(pg.id))
     a = p.model
     kwargs.update({"id": new_id})
-    assert p.addSection(*args, kwargs)
+    with qtbot.waitSignal(a.rowsInserted):
+        p.addSection(*args, kwargs)
     assert a._data["sections"] == res
     with db_session:
         new_secs_dict = [
@@ -326,25 +351,122 @@ def test_addSection(fk, args, kwargs, res, lastpos):
     assert a.page.lastPosition == lastpos
 
 
-def test_check_args_addsection():
-    check_args(Page.addSection, [str], bool, slot_order=0)
-    check_args(Page.addSection, [str, int, dict], bool, slot_order=1)
+def new_page(fk):
+    p = fk.f_page()
+    po = Page.get(p.id)
+    model = po.model
+    return p, po, model
 
 
-def test_append():
-    with pytest.raises(NotImplementedError):
-        PageModel.append("self")
+def test_addSection_text(fk, qtbot):
+    p, po, model = new_page(fk)
+    with qtbot.waitSignal(po.model.rowsInserted):
+        po.addSection("TextSection", 0, {"text": "aaa"})
+    assert model.count == 1
+    assert model.data(model.index(0, 0), model.SectionRole).text == "aaa"
+
+
+def test_addSection_image(
+    fk,
+    qtbot,
+    png_annot,
+):
+    p, po, model = new_page(fk)
+    with qtbot.waitSignal(po.model.rowsInserted):
+        po.addSection("ImageSection", 0, {"path": str(png_annot)})
+    assert model.count == 1
+    new_img = model.data(model.index(0, 0), model.SectionRole).absolute_path
+    assert new_img.read_bytes() == png_annot.read_bytes()
+
+
+def test_addSection_image_pdf(
+    fk,
+    qtbot,
+    resources,
+):
+    pdf = resources / "2pages.pdf"
+    p, po, model = new_page(fk)
+    fk.f_textSection(page=p.id)
+    with qtbot.waitSignal(po.model.rowsInserted):
+        po.addSection("ImageSection", 1, {"path": str(pdf)})
+    assert model.count == 3
+    assert po.lastPosition == 1
+    # new_img = model.data(model.index(0, 0), model.SectionRole).absolute_path
+    # assert new_img.read_bytes() == pdf.read_bytes()
+
+
+def test_addSection_image_vide(
+    fk,
+    qtbot,
+):
+    p, po, model = new_page(fk)
+    with qtbot.waitSignal(po.model.rowsInserted):
+        po.addSection("ImageSection", 0, {"height": 1, "width": 1})
+    assert model.count == 1
+    new_img = model.data(model.index(0, 0), model.SectionRole).absolute_path
+    assert new_img.is_file()
+
+
+def test_addSection_equation(
+    fk,
+    qtbot,
+):
+    p, po, model = new_page(fk)
+    with qtbot.waitSignal(po.model.rowsInserted):
+        po.addSection("EquationSection", 0, {"content": "aaa"})
+    assert model.count == 1
+    assert model.data(model.index(0, 0), model.SectionRole).content == "aaa"
 
 
 @pytest.mark.parametrize(
-    "func, format, ext",
-    [("exportToPDF", "pdf:writer_pdf_Export", ".pdf"), ("exportToODT", "odt", ".odt")],
+    "section, string, rows, columns",
+    [
+        (AdditionSection, "1+1", 4, 2),
+        (SoustractionSection, "1-1", 3, 4),
+        (MultiplicationSection, "1*1", 4, 2),
+        (DivisionSection, "1/1", 3, 6),
+    ],
 )
-def test_exportTo(fk, func, format, ext):
-    pg = fk.f_page()
-    p = Page.get(str(pg.id))
-    with patch("mycartable.classeur.convert.qrunnable") as w:
-        getattr(p, func)()
+def test_addSection_addition(
+    section,
+    string,
+    rows,
+    columns,
+    fk,
+    qtbot,
+):
+    p, po, model = new_page(fk)
+    with qtbot.waitSignal(po.model.rowsInserted):
+        po.addSection(section.entity_name, 0, {"string": string})
+    assert model.count == 1
+    res = model.data(model.index(0, 0), model.SectionRole)
+    assert isinstance(res, section)
+    assert res.rows == rows
+    assert res.columns == columns
 
-        assert w.called
-        assert w.call_args.args[1:] == (format, ext)
+
+def test_addSection_tableau(
+    fk,
+    qtbot,
+):
+    p, po, model = new_page(fk)
+    with qtbot.waitSignal(po.model.rowsInserted):
+        po.addSection("TableauSection", 0, {"lignes": 3, "colonnes": 2})
+    assert model.count == 1
+    res = model.data(model.index(0, 0), model.SectionRole)
+    assert isinstance(res, TableauSection)
+    assert res.lignes == 3
+    assert res.colonnes == 2
+
+
+def test_addSection_frise(
+    fk,
+    qtbot,
+):
+    p, po, model = new_page(fk)
+    with qtbot.waitSignal(po.model.rowsInserted):
+        po.addSection("FriseSection", 0, {"height": 3})
+    assert model.count == 1
+    res = model.data(model.index(0, 0), model.SectionRole)
+    assert isinstance(res, FriseSection)
+    assert res.height == 3

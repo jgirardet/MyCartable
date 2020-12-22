@@ -1,22 +1,21 @@
 import collections
 import re
-import sys
 import uuid
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Callable
+from pathlib import Path
+from typing import Callable, Union
 from packaging.version import (
     Version as PackagingVersion,
     InvalidVersion,
 )
 
-from PySide2.QtCore import QTimer, QFile, QTextStream, QRunnable, QThreadPool
-from PySide2.QtWidgets import QApplication
+from PySide2.QtCore import QTimer, QFile, QTextStream, QRunnable, QThreadPool, QUrl
 from package import WIN
 
 
-def create_singleshot(fn):
-    timer = QTimer(QApplication.instance())
+def create_singleshot(fn, parent=None):
+    timer = QTimer(parent)
     timer.setSingleShot(True)
     timer.timeout.connect(fn)
     return timer
@@ -82,10 +81,12 @@ def read_qrc(path, mode="t"):
         raise FileNotFoundError(f"{path} n'est pas une ressource valide")
 
 
-def qrunnable(fn: Callable, *args, run=True, **kwargs) -> QRunnable:
+def qrunnable(fn: Callable, *args, run=True, on_complete=None, **kwargs) -> QRunnable:
     class QQRunnable(QRunnable):
         def run(self):
-            fn(*args, **kwargs)
+            res = fn(*args, **kwargs)
+            if res and on_complete:
+                on_complete()
 
     runner = QQRunnable()
     if run:
@@ -222,3 +223,8 @@ class Version(PackagingVersion):
         minor = minor if len(minor) == 2 else "0" + minor
         micro = micro if len(micro) == 2 else "0" + micro
         return int(major + minor + micro)
+
+
+def pathize(url: Union[QUrl, Path, str]) -> Path:
+    p = Path(url.toLocalFile()) if isinstance(url, QUrl) else Path(url)
+    return p.resolve()

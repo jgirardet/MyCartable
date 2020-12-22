@@ -136,8 +136,9 @@ class Classeur(QObject):
     def setPage(self, value: Union[str, Page]):
         new_page = value if isinstance(value, Page) else Page.get(value)
         new_page.setParent(self)
+        if self._page:
+            self._page.setParent(None)
         self._page = new_page
         self.pageChanged.emit()
-        # self._page.titreChanged.connect(self.activitesChanged)
         logger.info(f"CurrentPage changed to {self.page.titre}")
         self.setCurrentMatiere(self.page.matiereId)

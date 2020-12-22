@@ -5,8 +5,6 @@ import QtQuick.Layouts 1.15
 import "qrc:/qml/menu"
 
 Rectangle {
-    //        }
-
     id: root
 
     property QtObject page
@@ -47,6 +45,13 @@ Rectangle {
             uiManager.menuFlottantImage = newComp.createObject(root);
         else
             print(newComp.errorString());
+    }
+    Component.onDestruction: {
+        uiManager.menuFlottantAnnotationDessin = null;
+        uiManager.menuFlottantText = null;
+        uiManager.menuFlottantAnnotationText = null;
+        uiManager.menuFlottantTableau = null;
+        uiManager.menuFlottantImage = null;
     }
 
     PageToolBar {

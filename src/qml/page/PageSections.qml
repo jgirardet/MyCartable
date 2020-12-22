@@ -84,7 +84,7 @@ Flickable {
             populated = true;
 
     }
-    onItemAdded: scrollToIndex(index)
+    onItemAdded: scrollToIndex(page.lastPosition) // valable si bien mis à jour dans le model
     boundsBehavior: Flickable.StopAtBounds
     contentWidth: column.width
     contentHeight: column.height
@@ -109,7 +109,7 @@ Flickable {
         Repeater {
             id: repeater
 
-            model: page.model
+            model: page ? page.model : 0
             onItemAdded: root._itemLoaded(index, item)
 
             delegate: BasePageDelegate {

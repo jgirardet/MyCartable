@@ -1,10 +1,9 @@
 
 ###########
 Etape en cours :
-- remettre Toast pour terminer export odt/pdf
+Faire les imports PDF
 
 ###### APRES CI DESSUS #########
-Faire les imports PDF
 finir teestpage (databaseobject notamenet)
 vérifier les tests de ce qui a déjà été changé
 
@@ -19,7 +18,7 @@ A faire plus généralement :
 - toutes les connections
 - tous les signals
 - toues les sections
-
+-memoryleak : du au DDB et uimanger ? globus ?
 
 
 - PageMenu : finir menu

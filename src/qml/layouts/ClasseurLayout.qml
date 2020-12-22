@@ -22,12 +22,21 @@ SandwichLayout {
         id: classeurid
 
         annee: root.currentAnnee
+        onPageChanged: loader.reload(page)
     }
 
-    hamAndCheese: PageRectangle {
-        id: _pageRectangle
+    hamAndCheese: Loader {
+        id: loader
 
-        page: classeurid.page
+        function reload(page) {
+            source = "";
+            if (page)
+                setSource("qrc:/qml/page/PageRectangle.qml", {
+                "page": page
+            });
+
+        }
+
     }
 
     rightBread: MatiereRectangle {

@@ -1,16 +1,21 @@
 from __future__ import annotations
+
+import tempfile
 from pathlib import Path
+from typing import Optional
 
 from PIL import Image
 from PySide2.QtCore import Signal, Property, Slot, QPointF, QPoint, Qt, QUrl, QObject
 from PySide2.QtGui import QColor, QCursor
 from PySide2.QtQuick import QQuickItem
+from mycartable.conversion.pdf import PDFSplitter
+
 from .annotation import AnnotationModel
 from mycartable.package.constantes import ANNOTATION_TEXT_BG_OPACITY
 from mycartable.conversion import WImage
 from mycartable.package.cursors import build_one_image_cursor, build_all_image_cursor
 from mycartable.package.files_path import FILES
-from mycartable.package.utils import get_new_filename
+from mycartable.package.utils import get_new_filename, pathize
 from mycartable.types.dtb import DTB
 from pony.orm import db_session
 
@@ -32,15 +37,21 @@ class ImageSection(Section):
         self._model = AnnotationModel(self)
 
     @classmethod
-    def new(cls, parent=None, **kwargs) -> ImageSection:
-        if "path" in kwargs:
-            kwargs = cls._new_image_base(**kwargs)
-        elif "height" in kwargs and "width" in kwargs:
+    def new(cls, parent=None, **kwargs) -> Optional[ImageSection]:
+        if path := kwargs.get("path", None):  # cas filename
+            p_path = pathize(path)
+            if not p_path.is_file():
+                return
+            elif p_path.suffix == ".pdf":  # si pdf
+                return cls._new_image_from_pdf(p_path, **kwargs)
+
+            else:  # sinon image standard
+                kwargs = cls._new_image_base(p_path, **kwargs)
+        elif "height" in kwargs and "width" in kwargs:  # cas image vide
             kwargs = cls._new_image_vide(**kwargs)
-        else:
+        else:  # rien de prévu, on fai trien
             return
-        if kwargs:
-            return super().new(parent=parent, **kwargs)
+        return super().new(parent=parent, **kwargs)
 
     @property
     def absolute_path(self) -> Path:
@@ -78,21 +89,7 @@ class ImageSection(Section):
             return res_path
 
     @staticmethod
-    def _new_image_base(**kwargs) -> dict:
-        path = kwargs.pop("path", None)
-        if not path:
-            return
-        p_path = (
-            Path(path.toLocalFile())
-            if isinstance(path, QUrl)
-            else Path(path).absolute()
-        )
-        if not p_path.is_file():
-            return
-        if p_path.suffix == ".pdf":
-            # umplement PDF section ?
-            # runner = qrunnable(self.addSectionPDF, page_id, p_path)
-            return
+    def _new_image_base(p_path: Path, **kwargs) -> dict:
         kwargs["path"] = str(ImageSection.store_new_file(p_path))
         return kwargs
 
@@ -104,6 +101,21 @@ class ImageSection(Section):
         )
         kwargs["path"] = new_image
         return kwargs
+
+    @staticmethod
+    def _new_image_from_pdf(p_path: Path, **kwargs):
+        kwargs.pop("path")
+        new_sections = []
+        splitter = PDFSplitter()
+        with tempfile.TemporaryDirectory() as temp_path:
+            res = splitter(p_path, Path(temp_path))
+            for counter, pdf_page in enumerate(res):
+                content = kwargs.copy()
+                if "position" in content:
+                    content["position"] += counter
+                new_sec = ImageSection.new(path=pdf_page, **content)
+                new_sections.append(new_sec)
+        return new_sections
 
     """
     Qt Propoerty

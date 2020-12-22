@@ -38,11 +38,11 @@ from mycartable.classeur import (
 
 qmlRegisterType(DTB, "MyCartable", 1, 0, "Database")
 
-
-def pytest_sessionstart():
-
-    setup_session()
-    logger.disable("")
+#
+# def pytest_sessionstart():
+#
+#     setup_session()
+#     # logger.disable("")
 
 
 class FakerHelper(QObject):

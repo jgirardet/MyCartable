@@ -13,6 +13,11 @@ def init_onetable(ddb):
 
 
 @pytest.fixture()
+def mdb():
+    return Database(provider="sqlite", filename=":memory:")
+
+
+@pytest.fixture()
 def onetable(mdb):
     init_onetable(mdb)
     return mdb

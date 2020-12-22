@@ -4,7 +4,8 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
-
+from PySide2.QtCore import QUrl
+from mycartable.package.utils import pathize
 
 from package.utils import (
     create_singleshot,
@@ -176,3 +177,12 @@ class TestVersion:
     def test_to_int(self):
         for v_int, v_str in versions_values[1:]:
             assert Version(v_str).to_int() == v_int
+
+
+def test_pathize():
+    name = Path(__file__).name
+    res = Path(__file__).resolve()
+    assert pathize(QUrl.fromLocalFile(name)) == res
+    assert pathize(name) == res
+    assert pathize(name) == res
+    assert res.is_absolute()

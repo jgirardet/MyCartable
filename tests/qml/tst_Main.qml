@@ -34,13 +34,6 @@ Item {
             verify(!tested.mainItem.enabled);
         }
 
-        function test_show_toast() {
-            verify(!tested.toast.visible);
-            uiManager.sendToast("blabla");
-            verify(tested.toast.visible);
-            compare(tested.toast.msg, "blabla");
-        }
-
         name: "Main"
         testedNom: "qrc:/qml/main.qml"
         params: {

@@ -12,8 +12,7 @@ import random
 
 #
 from PySide2.QtGui import QColor
-from mycartable.classeur.sections.equation import TextEquation
-from package.default_matiere import (
+from mycartable.package.default_matiere import (
     MATIERES,
     MATIERE_GROUPE_BASE,
     MATIERES_BASE,
@@ -393,6 +392,7 @@ class Faker:
             return item.to_dict() if td else item
 
     def f_equationSection(self, content=None, **kwargs):
+        from mycartable.classeur.sections.equation import TextEquation
 
         content = (
             content or f"1{TextEquation.FSP}    \n{TextEquation.BARRE*2} + 1\n15    "

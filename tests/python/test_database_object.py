@@ -295,16 +295,6 @@ class TestSectionMixin:
         with qtbot.waitSignal(dao.sectionAdded):
             res = dao.addSection(str(page), content)
 
-    def test_addSection_pdf(self, fkf, daof, resources, qtbot, qappdaof):
-        page = fkf.f_page().id
-        daof.pageModel.slotReset(page)
-        content = {"classtype": "ImageSection"}
-        content["path"] = str(resources / "2pages.pdf")
-        with qtbot.waitSignal(daof.sectionAdded, timeout=5000):
-            res = daof.addSection(str(page), content)
-        with db_session:
-            item = fkf.db.Page[page].sections.count() == 2
-
 
 class TestDatabaseObject:
     # def test_init_settings(self, fk, dao):

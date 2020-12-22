@@ -1,41 +1,37 @@
 import typing
-from PySide2.QtCore import Signal, Property, QObject, QModelIndex, QByteArray, Qt, Slot
+from PySide2.QtCore import (
+    Signal,
+    Property,
+    QObject,
+    QModelIndex,
+    QByteArray,
+    Qt,
+    Slot,
+)
+
 from .convert import Converter
 from pony.orm import db_session
 
 from .matiere import Matiere
-from .sections import Section, ImageSection
-from mycartable.package.utils import shift_list, qrunnable
+from .sections import Section
+from mycartable.package.utils import shift_list
 from mycartable.types.bridge import Bridge
 from mycartable.types.listmodel import DtbListModel
 
 
 class Page(Bridge):
-    """
-    prop
-        pagemodel
-        currentPage/set -> classeur
-        # currentTitre/set
-    fn
-        newPage -> classeur
-        removePage -> classeur
-        # setCurrentTitre : ok
-        exportpdf
-        eportodt
-
-    """
 
     entity_name = "Page"
     lastPositionChanged = Signal()
     titreChanged = Signal()
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._model = PageModel(parent=self)
-
     """
     Python Code
     """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._model = PageModel(parent=self)
 
     """
     Qt Property
@@ -89,16 +85,10 @@ class Page(Bridge):
     @Slot()
     def exportToPDF(self):
         Converter(self).export_to_pdf()
-        # self.ui.sendToast.emit(
-        #     "Export en PDF lancé, cela peut prendre plusieurs secondes"
-        # )
 
     @Slot()
     def exportToODT(self):
         Converter(self).export_to_odt()
-        # self.ui.sendToast.emit(
-        #     "Export en ODT lancé, cela peut prendre plusieurs secondes"
-        # )
 
 
 class PageModel(DtbListModel):
@@ -165,9 +155,14 @@ class PageModel(DtbListModel):
         to page `page_id` width params `params`"""
         if position is None:
             position = self.rowCount(QModelIndex())
+
         params["position"] = position
-        Section.new_sub(page=self.page.id, classtype=classtype, **params)
-        return self.insertRow(position)
+
+        new_secs = Section.new_sub(page=self.page.id, classtype=classtype, **params)
+        new_secs = [new_secs] if not isinstance(new_secs, list) else new_secs
+        nb = len(new_secs) - 1
+        if nb >= 0:
+            self.insertRows(position, nb)
 
     @Property(Page, constant=True)
     def page(self) -> Page:

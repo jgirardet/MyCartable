@@ -1,22 +1,12 @@
-from loguru import logger
 from PySide2.QtCore import QObject, Signal, Property
 from package.database_mixins.layout_mixin import LayoutMixin
 from package.database_mixins.page_mixin import PageMixin
-from package.database_mixins.recents_mixin import RecentsMixin
-from package.database_mixins.section_mixin import SectionMixin
 
-# from package.database_mixins.session import SessionMixin
-# from package.database_mixins.tableau_mixin import TableauMixin
-
-from loguru import logger
 from package.files_path import FILES
-from pony.orm import db_session
 
 MIXINS = [
     PageMixin,
     LayoutMixin,
-    RecentsMixin,
-    SectionMixin,
 ]
 
 
@@ -56,30 +46,31 @@ class DatabaseObject(QObject, *MIXINS):
         # todo: self.changeAnnee.emit(self.initialize_session())
 
     def setup_connections(self):
+        pass
 
-        # todo: self.matiereReset.connect(self.onMatiereReset)
-        # todo: self.currentPageChanged.connect(self.onCurrentPageChanged)
-        # todo: self.currentTitreSetted.connect(self.updateRecentsAndActivites)
+    # todo: self.matiereReset.connect(self.onMatiereReset)
+    # todo: self.currentPageChanged.connect(self.onCurrentPageChanged)
+    # todo: self.currentTitreSetted.connect(self.updateRecentsAndActivites)
 
-        self.newPageCreated.connect(self.onNewPageCreated)
-        self.recentsItemClicked.connect(self.onRecentsItemClicked)
-        # todo: self.sectionAdded.connect(self.pageModel.insertRows)
-        self.sectionAdded.connect(self.ui.unSetBuzyIndicator)
-        # todo: self.sectionRemoved.connect(self.pageModel.removeRow)
-        # OK: self.pageActiviteChanged.connect(self.pagesParSectionChanged)
+    # todo: self.newPageCreated.connect(self.onNewPageCreated)
+    # todo: self.recentsItemClicked.connect(self.onRecentsItemClicked)
+    # todo: self.sectionAdded.connect(self.pageModel.insertRows)
+    # todo: self.sectionAdded.connect(self.ui.unSetBuzyIndicator)
+    # todo: self.sectionRemoved.connect(self.pageModel.removeRow)
+    # OK: self.pageActiviteChanged.connect(self.pagesParSectionChanged)
 
-        # mise à jour
-        # todo: self.imageChanged.connect(self.updateRecentsAndActivites)
-        # todo: self.equationChanged.connect(self.updateRecentsAndActivites)
-        # todo: self.tableauChanged.connect(self.updateRecentsAndActivites)
-        # todo: self.textSectionChanged.connect(self.updateRecentsAndActivites)
-        # TODO: self.changeMatieres.connect(lambda: self.onChangeAnnee(self.anneeActive))
+    # mise à jour
+    # todo: self.imageChanged.connect(self.updateRecentsAndActivites)
+    # todo: self.equationChanged.connect(self.updateRecentsAndActivites)
+    # todo: self.tableauChanged.connect(self.updateRecentsAndActivites)
+    # todo: self.textSectionChanged.connect(self.updateRecentsAndActivites)
+    # TODO: self.changeMatieres.connect(lambda: self.onChangeAnnee(self.anneeActive))
 
-        # OK: self.updateRecentsAndActivites.connect(self.pagesParSectionChanged)
-        # TODO: self.updateRecentsAndActivites.connect(self.recentsModelChanged)
+    # OK: self.updateRecentsAndActivites.connect(self.pagesParSectionChanged)
+    # TODO: self.updateRecentsAndActivites.connect(self.recentsModelChanged)
 
-        # session
-        # todo: self.changeAnnee.connect(self.onChangeAnnee)
+    # session
+    # todo: self.changeAnnee.connect(self.onChangeAnnee)
 
     def onCurrentPageChanged(self, page):
         if not page:
@@ -105,6 +96,6 @@ class DatabaseObject(QObject, *MIXINS):
         if value:
             self.anneeActive = value
             # TODO: ? self.init_matieres(annee=value)
-        self.recentsModelChanged.emit()
+        # ok: self.recentsModelChanged.emit()
         # ok self.matieresListNomChanged.emit()
         # ok self.anneeActiveChanged.emit()

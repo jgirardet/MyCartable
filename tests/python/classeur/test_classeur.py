@@ -175,3 +175,13 @@ def test_currentMatiere_index(classeur, qtbot, cl_data):
     classeur.setCurrentMatiere(1)
     assert classeur.currentMatiereIndex == 1
     assert classeur.currentMatiere.id == cl_data._mats[1]
+
+
+def test_recents(classeur, ddbr, fk, qtbot):
+    with db_session:
+        assert ddbr.Page.recents(classeur.annee) == classeur.recents
+        assert len(classeur.recents) == 3
+
+    fk.f_annee(2099)
+    with qtbot.waitSignal(classeur.recentsChanged):
+        classeur.annee = 2099

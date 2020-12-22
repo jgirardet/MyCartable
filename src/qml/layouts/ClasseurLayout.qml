@@ -12,11 +12,15 @@ SandwichLayout {
 
     property QtObject classeur
     property alias currentMatiere: classeurid.currentMatiere
-    property int currentAnnee: globus.annee
+    property int currentAnnee: database.getConfig("annee")
 
     objectName: "ClasseurLayout"
     anchors.fill: parent
     color: ddb.colorFond
+
+    Database {
+        id: database
+    }
 
     classeur: Classeur {
         id: classeurid
@@ -45,6 +49,8 @@ SandwichLayout {
 
     leftBread: RecentsRectangle {
         id: recents
+
+        model: classeurid.recents
     }
 
 }

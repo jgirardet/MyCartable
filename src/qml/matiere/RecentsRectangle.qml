@@ -8,7 +8,6 @@ ListView {
     id: root
 
     anchors.fill: parent
-    model: ddb.recentsModel
     spacing: 5
     clip: true
 

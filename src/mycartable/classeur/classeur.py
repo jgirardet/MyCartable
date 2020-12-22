@@ -46,6 +46,7 @@ class Classeur(QObject):
 
     def setup_connections(self):
         self.currentMatiereChanged.connect(self.activitesChanged)
+        self.anneeChanged.connect(self.recentsChanged)
 
     """
     Qt Properties
@@ -98,6 +99,13 @@ class Classeur(QObject):
     @Property(QObject, notify=pageChanged)
     def page(self):
         return self._page
+
+    recentsChanged = Signal()
+
+    @Property("QVariantList", notify=recentsChanged)
+    def recents(self):
+        with db_session:
+            return self.db.Page.recents(self.annee)
 
     """
     Qt Slots

@@ -2,7 +2,7 @@ from copy import copy
 from uuid import uuid4, UUID
 
 import pytest
-from PySide2.QtCore import Property, Signal
+from PySide2.QtCore import Property, Signal, QObject
 from tests.python.fixtures import disable_log, uuu
 from mycartable.types.bridge import Bridge
 from mycartable.types.dtb import DTB
@@ -122,6 +122,14 @@ def test_get_by_dict(fk, dummyClassPage):
 
 def test_get_wrong_type(fk, dummyClassPage):
     assert dummyClassPage.get([]) is None
+
+
+def test_get_with_parent(fk, dummyClassPage):
+    a = QObject()
+    p = fk.f_page(td=True)
+    x = dummyClassPage.get(p["id"], parent=a)
+    assert x._data == p
+    assert x.parent() == a
 
 
 def test_delete(fk, dummyClassPage):

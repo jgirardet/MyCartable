@@ -257,123 +257,6 @@ class TestMatiere:
             assert Matiere[b.id].to_dict()["fgColor"] == QColor("red")
             assert Matiere[c.id].to_dict()["bgColor"] == QColor("green")
 
-    def test_page_par_section(self, fk):
-        Matiere = fk.db.Matiere
-        m = fk.f_matiere(
-            nom="Math", _bgColor=4294967295, _fgColor=4294901760, groupe=2019
-        )
-        un = fk.f_activite(nom="un", matiere=m.id)
-        deux = fk.f_activite(nom="deux", matiere=m.id)
-        trois = fk.f_activite()
-        w = fk.b_page(
-            3, activite=deux, titre="pagedeux", created=datetime(1212, 12, 12)
-        )
-        x = fk.b_page(3, activite=un, titre="pageun", created=datetime(1111, 11, 11))
-
-        with db_session:
-            assert Matiere[m.id].pages_par_activite() == [
-                {
-                    "id": str(un.id),
-                    "nom": "un",
-                    "matiere": str(m.id),
-                    "pages": [
-                        {
-                            "activite": str(un.id),
-                            "created": "1111-11-11T00:00:00",
-                            "id": str(x[0].id),
-                            "matiereNom": "Math",
-                            "lastPosition": None,
-                            "matiere": str(m.id),
-                            "matiereBgColor": QColor("white"),
-                            "matiereFgColor": QColor("red"),
-                            "modified": "1111-11-11T00:00:00",
-                            "titre": "pageun",
-                            "sections": [],
-                            "annee": 2019,
-                        },
-                        {
-                            "activite": str(un.id),
-                            "created": "1111-11-11T00:00:00",
-                            "id": str(x[1].id),
-                            "lastPosition": None,
-                            "matiere": str(m.id),
-                            "matiereNom": "Math",
-                            "matiereBgColor": QColor("white"),
-                            "matiereFgColor": QColor("red"),
-                            "modified": "1111-11-11T00:00:00",
-                            "titre": "pageun",
-                            "sections": [],
-                            "annee": 2019,
-                        },
-                        {
-                            "activite": str(un.id),
-                            "created": "1111-11-11T00:00:00",
-                            "id": str(x[2].id),
-                            "lastPosition": None,
-                            "matiere": str(m.id),
-                            "matiereNom": "Math",
-                            "matiereBgColor": QColor("white"),
-                            "matiereFgColor": QColor("red"),
-                            "modified": "1111-11-11T00:00:00",
-                            "titre": "pageun",
-                            "sections": [],
-                            "annee": 2019,
-                        },
-                    ],
-                    "position": 0,
-                },
-                {
-                    "id": str(deux.id),
-                    "nom": "deux",
-                    "matiere": str(m.id),
-                    "pages": [
-                        {
-                            "activite": str(deux.id),
-                            "created": "1212-12-12T00:00:00",
-                            "id": str(w[0].id),
-                            "lastPosition": None,
-                            "matiere": str(m.id),
-                            "matiereNom": "Math",
-                            "matiereBgColor": QColor("white"),
-                            "matiereFgColor": QColor("red"),
-                            "modified": "1212-12-12T00:00:00",
-                            "titre": "pagedeux",
-                            "sections": [],
-                            "annee": 2019,
-                        },
-                        {
-                            "activite": str(deux.id),
-                            "created": "1212-12-12T00:00:00",
-                            "id": str(w[1].id),
-                            "lastPosition": None,
-                            "matiere": str(m.id),
-                            "matiereNom": "Math",
-                            "matiereBgColor": QColor("white"),
-                            "matiereFgColor": QColor("red"),
-                            "modified": "1212-12-12T00:00:00",
-                            "titre": "pagedeux",
-                            "sections": [],
-                            "annee": 2019,
-                        },
-                        {
-                            "activite": str(deux.id),
-                            "created": "1212-12-12T00:00:00",
-                            "id": str(w[2].id),
-                            "lastPosition": None,
-                            "matiere": str(m.id),
-                            "matiereNom": "Math",
-                            "matiereBgColor": QColor("white"),
-                            "matiereFgColor": QColor("red"),
-                            "modified": "1212-12-12T00:00:00",
-                            "titre": "pagedeux",
-                            "sections": [],
-                            "annee": 2019,
-                        },
-                    ],
-                    "position": 1,
-                },
-            ]
-
 
 class TestActivite:
     def test_delete_mixin_position(self, fk):
@@ -384,6 +267,21 @@ class TestActivite:
             fk.db.Activite[a[0].id].delete()
         with db_session:
             assert fk.db.Activite[a[1].id].position == 0
+
+    def test_pages_by_created(self, fk):
+        un = fk.f_activite(nom="un")
+        x = fk.f_page(
+            activite=un, titre="pageun", created=datetime(1111, 10, 1), td=True
+        )
+        y = fk.f_page(
+            activite=un, titre="pageun", created=datetime(1111, 12, 1), td=True
+        )
+        z = fk.f_page(
+            activite=un, titre="pageun", created=datetime(1111, 11, 1), td=True
+        )
+
+        with db_session:
+            assert fk.db.Activite[un.id].pages_by_created() == [y, z, x]
 
 
 class TestSection:

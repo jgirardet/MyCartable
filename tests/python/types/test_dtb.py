@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pytest
 from PySide2.QtQml import QJSEngine
 from tests.python.fixtures import check_args, disable_log
@@ -172,3 +174,13 @@ def test_exec(dtb, fk):
     # kwargs
     res = dtb.execDB("Annee", 2019, "to_dict", only=["niveau"])
     assert res == {"niveau": "cm2019"}
+
+
+def test_exec_class_method(dtb, fk):
+    x = fk.f_page(activite=2019, titre="pageun", created=datetime(1111, 10, 1), td=True)
+    y = fk.f_page(activite=2019, titre="pageun", created=datetime(1111, 12, 1), td=True)
+    z = fk.f_page(activite=2019, titre="pageun", created=datetime(1111, 11, 1), td=True)
+
+    a = fk.f_annee(id=2019)
+    res = dtb.execDB("Page", None, "recents", 2019)
+    assert res == [y, z, x]

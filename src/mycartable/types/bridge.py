@@ -42,7 +42,7 @@ class Bridge(QObject):
         return cls
 
     @classmethod
-    def get(cls, item: Union[str, int, UUID, dict]) -> Bridge:
+    def get(cls, item: Union[str, int, UUID, dict], parent=None) -> Bridge:
         f"""
         Create a new instance of {cls.__name__}
         :param item: id as string or data as dict
@@ -56,7 +56,7 @@ class Bridge(QObject):
             data = item
         if data:
             _class = cls.get_class(data)
-            return _class(data=data)
+            return _class(data=data, parent=parent)
 
     @classmethod
     def new(cls, parent: QObject = None, **kwargs) -> Bridge:

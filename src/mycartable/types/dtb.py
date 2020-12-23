@@ -133,9 +133,18 @@ class DTB(QObject):
         :return: Any
         """
         if entity := getattr(self.db, entity, None):  # pragma: no branch
-            if item := entity.get(id=item_id):  # pragma: no branch
+            if item_id:
+                if item := entity.get(id=item_id):  # pragma: no branch
+                    try:
+                        res = getattr(item, func)(*args, **kwargs)
+                    except TypeError as err:
+                        logger.exception(err)
+                    else:
+                        return res
+
+            else:
                 try:
-                    res = getattr(item, func)(*args, **kwargs)
+                    res = getattr(entity, func)(*args, **kwargs)
                 except TypeError as err:
                     logger.exception(err)
                 else:

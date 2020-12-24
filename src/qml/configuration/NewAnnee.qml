@@ -16,7 +16,7 @@ Dialog {
             errortext.visible = true;
             return ;
         } else {
-            c_dtb.addDB("Annee", {
+            database.addDB("Annee", {
                 "id": annee,
                 "niveau": classe
             });

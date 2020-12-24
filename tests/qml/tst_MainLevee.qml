@@ -3,16 +3,6 @@ import QtQuick 2.15
 import "assets/annotationsValues.mjs" as AssetAnnot
 
 Item {
-    //        Component.onCompleted: {
-    //            print(item.section);
-    //            sectionId = item.section;
-    //        }
-    //    model: AnnotationModel {
-    //                sectionId: dao && item.section ? item.section.id : ""
-    //        dao: ddb
-    //        dtb: c_dtb
-    //    }
-
     id: item
 
     property var points: AssetAnnot.pointsMainLevee
@@ -20,8 +10,6 @@ Item {
     property var section
 
     CasTest {
-        //            item.model.sectionId = section.id;
-
         function initPre() {
             let fsection = fk.f("imageSection");
             item.section = th.getBridgeInstance(item, "ImageSection", fsection.id);

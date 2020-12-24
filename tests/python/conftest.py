@@ -7,9 +7,7 @@ from tests.factory import Faker
 
 from tests.common import fn_reset_db
 import pytest
-from pony.orm import db_session,  Database
-
-
+from pony.orm import db_session, Database
 
 
 @pytest.fixture(scope="session", autouse=True)

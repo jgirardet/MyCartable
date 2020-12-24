@@ -1,3 +1,4 @@
+import MyCartable 1.0
 import QtQml.Models 2.15
 import QtQuick 2.15
 import QtQuick.Controls 2.15
@@ -41,6 +42,10 @@ Rectangle {
 
         }
     ]
+
+    Database {
+        id: database
+    }
 
     ColorPicker {
         id: colordialog
@@ -119,7 +124,7 @@ Rectangle {
             anchors.fill: parent
             cursorShape: Qt.BlankCursor
             onClicked: {
-                let newL = c_dtb.addDB("FriseLegende", {
+                let newL = database.addDB("FriseLegende", {
                     "relativeX": mouse.x / width,
                     "texte": "",
                     "zone": zoneId,
@@ -146,10 +151,10 @@ Rectangle {
 
         onItemAdded: item.legende.forceActiveFocus()
         onItemRemoved: {
-            c_dtb.delDB("FriseLegende", item.legendeId);
+            database.delDB("FriseLegende", item.legendeId);
         }
         onItemSet: {
-            c_dtb.setDB("FriseLegende", item.legendeId, dict);
+            database.setDB("FriseLegende", item.legendeId, dict);
         }
         modelObject: legendes
 

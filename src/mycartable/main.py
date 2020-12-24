@@ -92,7 +92,6 @@ def register_new_qml_type():
 
 def setup_engine(engine: QQmlApplicationEngine):
     engine.rootContext().setContextProperty("uiManager", UiManager(parent=engine))
-    engine.rootContext().setContextProperty("c_dtb", DTB(parent=engine))
 
 
 def load_engine(engine: QQmlApplicationEngine):

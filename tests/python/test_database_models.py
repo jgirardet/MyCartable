@@ -1,14 +1,12 @@
-import itertools
 import uuid
-from typing import List
-from datetime import datetime, timedelta, date
+from datetime import datetime, date
 
 from PySide2.QtGui import QFont, QColor
-from fixtures import compare_items, check_is_range, wait, ss, uuu
+from fixtures import compare_items, wait, ss, uuu
 
 import pytest
-from package.database.mixins import PositionMixin, ColorMixin
-from package.exceptions import MyCartableOperationError
+from mycartable.package.database.mixins import PositionMixin, ColorMixin
+from mycartable.package.exceptions import MyCartableOperationError
 from pony.orm import flush, Database, make_proxy, Set, Required, db_session
 
 

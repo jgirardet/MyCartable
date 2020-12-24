@@ -1,6 +1,7 @@
 from typing import Union, Optional
 from uuid import UUID
 
+from mycartable.types import DTB
 from pony.orm import db_session, Database, ObjectNotFound
 
 from PySide2.QtCore import Slot, Signal, QObject, Property, QTimer
@@ -11,9 +12,9 @@ from .matiere import MatieresDispatcher, Matiere
 from .page import Page
 
 
-class Classeur(QObject):
+class Classeur(DTB):
 
-    db: Database
+    # db: Database
 
     anneeChanged = Signal()
     recentsChanged = Signal()
@@ -135,6 +136,14 @@ class Classeur(QObject):
         logger.info(f"CurrentPage changed to {self.page.titre}")
         self.setCurrentMatiere(self.page.matiereId)
         self.page.titreChanged.connect(self.onPageTitreChanged)
+        self.page.pageModified.connect(self.onPageModified)
+
+    @Slot(str, str)
+    def movePage(self, page: str, activite: str):
+
+        res = self.setDB("Page", page, {"activite": activite})
+        if res:
+            self.onMovePage()
 
     """
     Callback de liaisons
@@ -162,5 +171,19 @@ class Classeur(QObject):
             self.recents.remove_by_Id(pageid)
             for ac in self.currentMatiere.activites:
                 ac.pages.remove_by_Id(pageid)
+
+        QTimer.singleShot(0, wrapped)
+
+    def onMovePage(self):
+        def wrapped():
+            self.recents.reset()
+            for ac in self.currentMatiere.activites:
+                ac.pages.reset()
+
+        QTimer.singleShot(0, wrapped)
+
+    def onPageModified(self):
+        def wrapped():
+            self.recents.move_to(self.page.id, 0)
 
         QTimer.singleShot(0, wrapped)

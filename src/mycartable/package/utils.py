@@ -11,7 +11,7 @@ from packaging.version import (
 )
 
 from PySide2.QtCore import QTimer, QFile, QTextStream, QRunnable, QThreadPool, QUrl
-from package import WIN
+from mycartable.package import WIN
 
 
 def create_singleshot(fn, parent=None):

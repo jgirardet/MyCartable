@@ -6,7 +6,9 @@ import QtQuick.Layouts 1.14
 ColumnLayout {
     id: activitesColumn
 
+    required property QtObject classeur
     property QtObject dispatcher: classeur.matieresDispatcher
+    property QtObject matiere: classeur.currentMatiere
     property alias chooser: combo
     property alias activites: lvActivite
 
@@ -30,8 +32,6 @@ ColumnLayout {
         ComboBox {
             id: combo
 
-            Component.onCompleted: {
-            }
             width: parent.width
             anchors.fill: parent
             textRole: "nom"
@@ -47,7 +47,7 @@ ColumnLayout {
 
             contentItem: Text {
                 text: combo.displayText
-                color: classeur.currentMatiere ? classeur.currentMatiere.fgColor : "white"
+                color: matiere ? matiere.fgColor : "white"
                 font.pointSize: 16
                 font.capitalization: Font.Capitalize
                 font.bold: true
@@ -74,7 +74,7 @@ ColumnLayout {
             }
 
             background: Rectangle {
-                color: classeur.currentMatiere ? classeur.currentMatiere.bgColor : "white"
+                color: matiere ? matiere.bgColor : "white"
                 radius: 15
             }
 
@@ -108,7 +108,7 @@ ColumnLayout {
     ListView {
         id: lvActivite
 
-        model: classeur.currentMatiere ? classeur.currentMatiere.activites : []
+        model: matiere ? matiere.activites : []
         Layout.fillHeight: true
         Layout.fillWidth: true
         spacing: 15

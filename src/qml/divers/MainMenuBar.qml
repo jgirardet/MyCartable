@@ -1,7 +1,6 @@
 import MyCartable 1.0
 import QtQuick 2.15
 import QtQuick.Controls 2.15
-import QtQuick.Window 2.15
 import "qrc:/qml/configuration"
 
 Control {
@@ -31,6 +30,10 @@ Control {
 
         }
     ]
+
+    Database {
+        id: database
+    }
 
     Annee {
         id: annee
@@ -73,7 +76,8 @@ Control {
 
             delegate: ValueButton {
                 onClicked: {
-                    globus.annee = value;
+                    database.setConfig('annee', value);
+                    root.parent.reload();
                     changerAnnee_id.close();
                 }
                 text: "mon année de " + modelData.niveau + " en " + modelData.id + "/" + (modelData.id + 1)
@@ -98,14 +102,14 @@ Control {
 
         objectName: "changer_matieres"
         anchors.centerIn: Overlay.overlay
-        height: ApplicationWindow.window ? ApplicationWindow.window.height * 0.9 : 600
+        height: root.parent.height * 0.9
         contentWidth: contentItem.width
         onClosed: {
-            globus.anneeChanged();
+            root.parent.reload();
         }
 
         contentItem: ChangeGroupe {
-            annee: globus.annee
+            annee: database.getConfig("annee")
         }
 
     }

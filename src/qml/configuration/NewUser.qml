@@ -1,3 +1,4 @@
+import MyCartable 1.0
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import "qrc:/qml/divers"
@@ -19,9 +20,9 @@ Dialog {
             errortext.visible = true;
             return ;
         } else {
-            globus.setConfig("nom", nom);
-            globus.setConfig("prenom", prenom);
-            globus.setConfig("user_set", true);
+            database.setConfig("nom", nom);
+            database.setConfig("prenom", prenom);
+            database.setConfig("user_set", true);
         }
     }
     onRejected: {
@@ -32,6 +33,10 @@ Dialog {
     standardButtons: Dialog.Ok | Dialog.Cancel
     focus: true
     anchors.centerIn: Overlay.overlay
+
+    Database {
+        id: database
+    }
 
     contentItem: Column {
         LabeledInput {

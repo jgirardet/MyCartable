@@ -200,7 +200,7 @@ def test_recents(classeur, ddbr, fk, qtbot):
         classeur.annee = 2099
 
 
-def test_page_titre_chaged(classeur, cl_data, qtbot):
+def test_page_titre_changed(classeur, cl_data, qtbot):
     classeur.setPage(cl_data._page00["id"])
     with qtbot.waitSignal(classeur.recents.dataChanged):
         classeur.page.titre = "hello !!!"
@@ -208,3 +208,26 @@ def test_page_titre_chaged(classeur, cl_data, qtbot):
     assert r.data(r.index(0, 0), r.TitreRole) == "hello !!!"
     ac = classeur.currentMatiere.activites[0]
     assert ac.pages.data(r.index(0, 0), r.TitreRole) == "hello !!!"
+
+
+def test_movePage(classeur, cl_data, fk, qtbot):
+    r = classeur.recents
+    classeur.setPage(cl_data._page00["id"])
+    ac0 = classeur.currentMatiere.activites[0]
+    ac1 = classeur.currentMatiere.activites[1]
+    new_ac = cl_data._acts[1][0]
+    with qtbot.waitSignals([r.modelReset, ac0.pages.modelReset, ac1.pages.modelReset]):
+        classeur.movePage(cl_data._page00["id"], new_ac.id)
+
+    with db_session:
+        item = fk.db.Page[cl_data._page00["id"]]
+        assert item.activite.id == new_ac.id
+
+
+def test_pageModified_move_on_top_of_recents(classeur, cl_data, fk, qtbot):
+    r = classeur.recents
+    classeur.setPage(cl_data._page10["id"])
+    with qtbot.waitSignal(r.rowsMoved):
+        classeur.page.update_modified_if_viewed()
+
+    assert r._data[0]["id"] == cl_data._page10["id"]

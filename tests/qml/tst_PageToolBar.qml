@@ -40,6 +40,7 @@ Item {
             params = {
                 "page": pageC
             };
+            classeurid.annee = 2019;
             classeurid.setPage(pageC.id);
         }
 

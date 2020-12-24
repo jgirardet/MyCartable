@@ -13,6 +13,7 @@ Pour créer une nouvelle section :
 - ajouter dans Section.available_sublasss
 - ajouter dans test_section.sub_classes
 - ajouter dans test_page.test_data_role
+- ajouter dans test_addSection_XXX
 """
 
 

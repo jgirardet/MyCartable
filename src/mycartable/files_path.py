@@ -3,7 +3,7 @@ from pathlib import Path
 from PySide2.QtCore import QStandardPaths
 from loguru import logger
 from .constantes import APPNAME
-from package import get_prod
+from mycartable.package import get_prod
 
 
 def root_data(create=True):

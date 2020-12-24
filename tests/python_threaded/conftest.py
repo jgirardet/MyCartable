@@ -1,5 +1,6 @@
 import pytest
 from loguru import logger
+from mycartable.main import update_configuration
 from pony.orm import Database, db_session
 
 from tests.common import fn_reset_db
@@ -24,13 +25,9 @@ def file_db(
 
 
 @pytest.fixture(scope="session", autouse=True)
-def add_db_to_types(file_db):
+def fix_update_configuration(file_db):
     "register database to some qt types"
-    from mycartable.types.dtb import DTB
-    from mycartable.types.globus import Globus
-
-    DTB.db = file_db
-    Globus.db = file_db
+    update_configuration(file_db)
 
 
 @pytest.fixture(scope="function")

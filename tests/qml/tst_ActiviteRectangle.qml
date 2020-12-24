@@ -15,6 +15,7 @@ Item {
         property var lv
         property var header
         property var p2
+        property var actobj
 
         function initPre() {
             let mat = fk.f("matiere", {
@@ -36,8 +37,10 @@ Item {
                 "activite": ac1.id,
                 "titre": "un titre3"
             });
+            classeur.annee = 2019;
             classeurid.setCurrentMatiere(mat.id);
-            params["model"] = classeurid.pagesParActivite[0];
+            actobj = classeurid.currentMatiere.activites[0];
+            params["activite"] = actobj;
             params["width"] = 300;
         }
 
@@ -53,7 +56,6 @@ Item {
         function test_new_page_via_header() {
             compare(lv.count, 3);
             mousePress(header.mousearea, 1, 1, Qt.RightButton);
-            tested.model = classeurid.pagesParActivite[0];
             compare(lv.count, 4);
         }
 
@@ -68,7 +70,7 @@ Item {
             wait(50);
             let but = tested.pages.itemAtIndex(2);
             mouseClick(but);
-            tryCompare(classeurid.page, "titre", but.model.titre);
+            tryCompare(classeurid.page, "titre", but.contentItem.text);
         }
 
         name: "ActiviteRectangle"
@@ -80,8 +82,6 @@ Item {
 
     classeur: Classeur {
         id: classeurid
-
-        annee: 2019
     }
 
 }

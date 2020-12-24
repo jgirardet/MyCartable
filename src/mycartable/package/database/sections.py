@@ -5,10 +5,9 @@ from typing import Tuple
 from uuid import UUID, uuid4
 
 from PySide2.QtGui import QColor
-from functools import cached_property
 
 from mycartable.classeur.sections.operations.api import create_operation
-from package.exceptions import MyCartableOperationError
+from mycartable.package.exceptions import MyCartableOperationError
 from pony.orm import (
     Required,
     PrimaryKey,
@@ -16,7 +15,6 @@ from pony.orm import (
     Set,
     Database,
     ObjectNotFound,
-    Json,
 )
 from .mixins import ColorMixin, PositionMixin
 

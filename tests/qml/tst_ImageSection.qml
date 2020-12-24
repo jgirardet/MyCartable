@@ -206,7 +206,6 @@ Item {
         }
 
         function test_cursor_toolchanged() {
-            wait(1000);
             let mname = "setImageSectionCursor";
             th.mock(imgInstance, mname);
             tested.setStyleFromMenu({

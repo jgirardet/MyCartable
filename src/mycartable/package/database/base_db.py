@@ -4,14 +4,13 @@ from pathlib import Path
 from typing import Union, List
 
 from loguru import logger
-from package.utils import Version
-from pony.orm import Database, ObjectNotFound
+from mycartable.package.utils import Version
+from pony.orm import Database
 from pony.orm import db_session as pony_db_session
-from pony.orm.core import Entity
 
 
 def init_models(db: Database):
-    from package.database.models import import_models
+    from mycartable.package.database.models import import_models
 
     return import_models(db)
 

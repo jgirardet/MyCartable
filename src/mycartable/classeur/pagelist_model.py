@@ -24,6 +24,13 @@ class ListOfPageModel(DtbListModel):
     def _removeRows(self, row, count):
         self._reset()
 
+    def _moveRows(self, sourceRow, count, destinationChild):
+        if count:
+            raise NotImplementedError(
+                "ListOfPageModel ne peut déplacer qu'un rang à la fois"
+            )
+        self._reset()
+
     def rowCount(self, parent=QModelIndex()) -> int:
         return len(self._data)
 
@@ -54,6 +61,12 @@ class ListOfPageModel(DtbListModel):
         for idx, page in enumerate(self._data):
             if pageid == page["id"]:
                 return self.remove(idx)
+        return False
+
+    def move_to(self, pageid: str, dest: int) -> bool:
+        for idx, page in enumerate(self._data):
+            if pageid == page["id"]:
+                return self.move(idx, dest)
         return False
 
     """

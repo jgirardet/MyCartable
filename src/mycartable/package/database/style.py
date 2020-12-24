@@ -1,6 +1,6 @@
 from uuid import UUID, uuid4
 
-from package.database.mixins import ColorMixin
+from mycartable.package.database.mixins import ColorMixin
 from pony.orm import Required, Optional, Set, PrimaryKey, Database
 
 

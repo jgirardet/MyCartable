@@ -7,6 +7,7 @@ from PySide2.QtCore import (
     QByteArray,
     Qt,
     Slot,
+    QTimer,
 )
 
 from .convert import Converter
@@ -22,8 +23,10 @@ from mycartable.types.listmodel import DtbListModel
 class Page(Bridge):
 
     entity_name = "Page"
+    UPDATE_MODIFIED_DELAY = 10000
     lastPositionChanged = Signal()
     titreChanged = Signal()
+    pageModified = Signal()
 
     """
     Python Code
@@ -32,6 +35,12 @@ class Page(Bridge):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._model = PageModel(parent=self)
+        QTimer.singleShot(self.UPDATE_MODIFIED_DELAY, self.update_modified_if_viewed)
+
+    def update_modified_if_viewed(self):
+        if res := self._dtb.execDB("Page", self.id, "update_modified"):
+            self._data["modified"] = res.isoformat()
+            self.pageModified.emit()
 
     """
     Qt Property

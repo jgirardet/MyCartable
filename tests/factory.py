@@ -139,7 +139,13 @@ class Faker:
         return [self.f_activite(matiere=matiere, nom=nom) for i in range(nb)]
 
     def f_page(
-        self, created=None, activite=None, titre=None, td=False, lastPosition=None
+        self,
+        created=None,
+        modified=None,
+        activite=None,
+        titre=None,
+        td=False,
+        lastPosition=None,
     ):
         """actvite int = id mais str = index"""
         if isinstance(activite, int):
@@ -151,10 +157,14 @@ class Faker:
         created = created or self.f_datetime()
         if isinstance(created, str):
             created = datetime.fromisoformat(created)
+        modified = modified or self.f_datetime()
+        if isinstance(modified, str):
+            modified = datetime.fromisoformat(modified)
         titre = titre if titre is not None else " ".join(gen.text.words(5))
         with db_session:
             item = self.db.Page(
                 created=created,
+                modified=modified,
                 activite=activite,
                 titre=titre,
                 lastPosition=lastPosition,

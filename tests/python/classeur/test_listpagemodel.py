@@ -1,3 +1,5 @@
+from unittest.mock import MagicMock, call
+
 from PySide2.QtCore import QObject
 from mycartable.classeur import (
     ListOfPageModel,
@@ -43,6 +45,17 @@ class TestListOfPageModel:
         l._reset = lambda: setattr(l, "_data", [])
         assert l.remove_by_Id(str(p.id))
         assert l._data == []
+
+    def test_move_to(self, fk):
+        l = ListOfPageModel()
+        p = fk.f_page()
+        l._data = [
+            {"titre": "aaa", "id": "11111111&&"},
+            {"titre": "bbb", "id": str(p.id)},
+        ]
+        l.move = MagicMock()
+        assert l.move_to(str(p.id), 0)
+        assert l.move.call_args == call(1, 0)
 
 
 class TestRecentsModel:

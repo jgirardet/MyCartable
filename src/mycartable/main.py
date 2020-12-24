@@ -2,14 +2,15 @@ import sys
 import tempfile
 from pathlib import Path
 
-from PySide2.QtGui import QFont, QFontDatabase, QIcon
+from PySide2.QtGui import QFont, QFontDatabase, QIcon, QGuiApplication
+from mycartable.classeur import Classeur
 from mycartable.constantes import APPNAME, ORGNAME
 from mycartable.default_configuration import DEFAUT_CONFIGURATION
+from mycartable.package.ui_manager import UiManager
+from mycartable.types import Annee, ChangeMatieres
 from mycartable.types.dtb import DTB
-from mycartable.types.globus import Globus
-from package import get_prod
+from mycartable.package import get_prod
 
-# from .constantes import APPNAME, ORGNAME, BASE_FONT
 from PySide2.QtCore import (
     QUrl,
     QStandardPaths,
@@ -22,9 +23,8 @@ from PySide2.QtWidgets import QApplication
 from PySide2.QtQml import QQmlApplicationEngine, qmlRegisterType
 
 from loguru import logger
+from . import qrc  # QRC do not erase
 
-
-import package.database
 from pony.orm import Database, db_session
 
 
@@ -82,84 +82,26 @@ def main_init_database(filename=None, prod=False):
     return package.database.db
 
 
-def register_new_qml_type(databaseObject, db):
-    # from package.operations.models import (
-    #     AdditionModel,
-    #     SoustractionModel,
-    #     MultiplicationModel,
-    #     DivisionModel,
-    # )
+def register_new_qml_type():
 
-    # from package.page.text_section import DocumentEditor
-    # from package.page.frise_model import FriseModel
-    from mycartable.types.changematieres import ChangeMatieres
-    from mycartable.types.annee import Annee
-    from mycartable.classeur import Classeur
-
-    # AdditionModel.ddb = databaseObject
-    # SoustractionModel.ddb = databaseObject
-    # MultiplicationModel.ddb = databaseObject
-    # DivisionModel.ddb = databaseObject
-    ChangeMatieres.db = db
-    Classeur.db = db
-    DTB.db = db
-    # Globus.db = db
-    # Annee
-
-    # qmlRegisterType(DocumentEditor, "DocumentEditor", 1, 0, "DocumentEditor")
-    # qmlRegisterType(AdditionModel, "MyCartable", 1, 0, "AdditionModel")
-    # qmlRegisterType(SoustractionModel, "MyCartable", 1, 0, "SoustractionModel")
-    # qmlRegisterType(MultiplicationModel, "MyCartable", 1, 0, "MultiplicationModel")
-    # qmlRegisterType(DivisionModel, "MyCartable", 1, 0, "DivisionModel")
-    # qmlRegisterType(AnnotationModel, "MyCartable", 1, 0, "AnnotationModel")
-    # qmlRegisterType(FriseModel, "MyCartable", 1, 0, "FriseModel")
     qmlRegisterType(ChangeMatieres, "MyCartable", 1, 0, "ChangeMatieres")
     qmlRegisterType(Classeur, "MyCartable", 1, 0, "Classeur")
     qmlRegisterType(DTB, "MyCartable", 1, 0, "Database")
-    qmlRegisterType(Globus, "MyCartable", 1, 0, "Globus")
     qmlRegisterType(Annee, "MyCartable", 1, 0, "Annee")
-    # from mycartable.classeur import Section
-
-    # qmlRegisterType(Section, "MyCartable", 1, 0, "Section")
 
 
-def create_singleton_instance(prod=False):
-    # models
-    from package.database_object import DatabaseObject
-    from package.ui_manager import UiManager
-
-    ui_manager = UiManager()
-    databaseObject = DatabaseObject(package.database.db, ui=ui_manager, debug=False)
-    globus = Globus()
-    globus.db = package.database.db
-    # if not prod:
-    #     databaseObject.anneeActive = 2019
-    #     with db_session:
-    #         databaseObject.currentPage = databaseObject.db.Page.select().first().id
-    dtb = DTB()
-
-    return databaseObject, ui_manager, dtb, globus
+def setup_engine(engine: QQmlApplicationEngine):
+    engine.rootContext().setContextProperty("uiManager", UiManager(parent=engine))
+    engine.rootContext().setContextProperty("c_dtb", DTB(parent=engine))
 
 
-def setup_qml(ddb, ui_manager, dtb, globus):
-
-    # Create engine
-    engine = QQmlApplicationEngine()
-
-    # register property instance
-    engine.rootContext().setContextProperty("ddb", ddb)
-    engine.rootContext().setContextProperty("uiManager", ui_manager)
-    engine.rootContext().setContextProperty("c_dtb", dtb)
-    engine.rootContext().setContextProperty("globus", globus)
-
+def load_engine(engine: QQmlApplicationEngine):
     # load main
     engine.load(QUrl("qrc:///qml/main.qml"))
 
     # quit if error
     if not engine.rootObjects():
         sys.exit(-1)
-
-    return engine
 
 
 def setup_logging():
@@ -176,6 +118,28 @@ def update_configuration(db: Database):
             if db.Configuration.option(k) is None:
                 db.Configuration.add(k, v)
 
+    ChangeMatieres.db = db
+    DTB.db = db
+
+
+def initial_setup_application(app: QApplication):
+    # global settings
+    QCoreApplication.setApplicationName(APPNAME)
+    QCoreApplication.setOrganizationName(ORGNAME)
+    QLocale.setDefault(QLocale(QLocale.French, QLocale.France))
+
+    app.setWindowIcon(QIcon(":/icons/mycartable.png"))
+    QFontDatabase.addApplicationFont(":/fonts/Verdana.ttf")
+    QFontDatabase.addApplicationFont(":/fonts/Code New Roman.otf")
+    QFontDatabase.addApplicationFont(":/fonts/LiberationMono-Regular.ttf")
+
+
+def late_setup_application(app: QApplication, db: Database):
+    with db_session:
+        base_font = db.Configuration.option("fontMain")
+    font = QFont(base_font, 12, QFont.Normal)
+    app.setFont(font)
+
 
 @logger.catch(reraise=True)
 def main(filename=None):
@@ -185,45 +149,27 @@ def main(filename=None):
     setup_logging()
     logger.info(f"Application en mode {'PROD' if prod else 'DEBUG'}")
 
-    # global settings
-    QCoreApplication.setApplicationName(APPNAME)
-    QCoreApplication.setOrganizationName(ORGNAME)
-    QLocale.setDefault(QLocale(QLocale.French, QLocale.France))
-
-    # create de app
+    # create de app and initial setup
     app = QApplication([])
+    initial_setup_application(app)
 
-    # First instanciate db
+    # create database and update configation with default values if needed
     db = main_init_database(filename=filename, prod=prod)
-
     update_configuration(db)
 
-    # create instance de ce qui sera des singleton dans qml
-    DTB.db = db
-    databaseObject, ui_manager, dtb, globus = create_singleton_instance(prod)
-    app.dao = databaseObject
+    # qml
+    register_new_qml_type()
+    engine = QQmlApplicationEngine()
+    setup_engine(engine)
 
-    # register les new qml type
-    register_new_qml_type(databaseObject, db)
-
-    # setup le qml et retourne l'engine
-    import qrc
-
-    engine = setup_qml(databaseObject, ui_manager, dtb, globus)
-
-    # Manifestement l'acces au qrc n'est pas immediat apres creation de l'app
-    # donc on met tout ça un peu plus "loin"
-    app.setWindowIcon(QIcon(":/icons/mycartable.png"))
-    QFontDatabase.addApplicationFont(":/fonts/Verdana.ttf")
-    QFontDatabase.addApplicationFont(":/fonts/Code New Roman.otf")
-    QFontDatabase.addApplicationFont(":/fonts/LiberationMono-Regular.ttf")
-    with db_session:
-        base_font = db.Configuration.option("fontMain")
-    font = QFont(base_font, 12, QFont.Normal)
-    app.setFont(font)
+    # late configuration
+    late_setup_application(app, db)
 
     # run the app
+    load_engine(engine)
     sys.exit(app.exec_())
+
+    print("avant quit")
 
 
 if __name__ == "__main__":

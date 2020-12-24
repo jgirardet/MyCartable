@@ -1,3 +1,4 @@
+from datetime import datetime
 from unittest.mock import patch, call
 
 import pytest
@@ -32,6 +33,19 @@ def test_subclassing(fk):
     assert x.delete()
     with disable_log():
         assert Page.get(y.id) is None
+
+
+@pytest.mark.freeze_time("2017-05-21")
+def test_update_modified_if_viewed(fk, qtbot):
+    class PPage(Page):
+        entity_name = "Page"
+        UPDATE_MODIFIED_DELAY = 0
+
+    pa = fk.f_page(created=datetime(2000, 2, 2))
+    p = PPage.get(pa.id)
+    with qtbot.waitSignal(p.pageModified):
+        pass
+    assert p._data["modified"] == "2017-05-21T00:00:00"
 
 
 def test_properties(fk):

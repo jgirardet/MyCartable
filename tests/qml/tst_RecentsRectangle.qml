@@ -53,7 +53,7 @@ Item {
             wait(50);
             let but = tested.itemAtIndex(1);
             mouseClick(but);
-            tryCompare(classeur.page, "titre", but.model.titre);
+            tryCompare(classeur.page, "titre", but.contentItem.text);
         }
 
         name: "RecentsRectangle"

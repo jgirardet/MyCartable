@@ -220,7 +220,11 @@ def class_structure(
             if hasattr(self, "reasonUpdate"):
                 del self.reasonUpdate  # block page autoupdate when provient de section
             else:
-                self.modified = datetime.datetime.utcnow()
+                self.update_modified()
+
+        def update_modified(self):
+            self.modified = datetime.datetime.utcnow()
+            return self.modified
 
         def to_dict(self):
             dico = super().to_dict()

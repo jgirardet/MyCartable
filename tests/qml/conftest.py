@@ -2,26 +2,21 @@
 from typing import List
 from unittest.mock import MagicMock
 
-import pytest
 from PySide2.QtCore import QObject, Slot
-from PySide2.QtGui import QColor, QGuiApplication
-from PySide2.QtQml import qmlRegisterType
-from loguru import logger
+from PySide2.QtGui import QGuiApplication
+from mycartable.main import (
+    update_configuration,
+    register_new_qml_type,
+    setup_engine,
+)
 from pony.orm import Database, db_session, flush, ObjectNotFound
 
-# Add common to path
-import sys
-from pathlib import Path
 
-sys.path.append(str(Path(__file__).parents[1]))
-sys.path.append(str(Path(__file__).parents[2] / "src"))
-sys.path.append(str(Path(__file__).parents[2] / "src" / "mycartable"))
-from common import fn_reset_db, setup_session
-
+from tests.common import fn_reset_db
+from tests.factory import Faker
 from mycartable.package.database import init_database
 from mycartable.types.dtb import DTB
 
-# from mycartable.package.page.annotation_model import AnnotationModel
 from mycartable.classeur import (
     Page,
     ImageSection,
@@ -34,22 +29,14 @@ from mycartable.classeur import (
     DivisionSection,
     TableauSection,
     FriseSection,
+    Activite,
+    Matiere,
 )
-
-qmlRegisterType(DTB, "MyCartable", 1, 0, "Database")
-
-#
-# def pytest_sessionstart():
-#
-#     setup_session()
-#     # logger.disable("")
 
 
 class FakerHelper(QObject):
-    def __init__(self, db):
-        from factory import Faker
-
-        super().__init__()
+    def __init__(self, db, parent=None):
+        super().__init__(parent)
         self.db = db
         self.faker = Faker(db)
 
@@ -65,7 +52,9 @@ class FakerHelper(QObject):
         """reset database"""
         fn_reset_db(self.db)
         self.f("annee", {"id": 2019, "niveau": "cm1"})
-        # dao.anneeActive = 2019
+        update_configuration(self.db)
+        with db_session:
+            self.db.Configuration.add("annee", 2019)
 
     @Slot(str, str, result="QVariantMap")
     @Slot(str, str, int, int, result="QVariantMap")
@@ -86,10 +75,12 @@ class FakerHelper(QObject):
         return collection
 
 
-class TestHelper(QObject):
+class TestHelper(DTB):
 
     BRIDGES = {
         "Page": Page,
+        "Activite": Activite,
+        "Matiere": Matiere,
         "ImageSection": ImageSection,
         "AnnotationText": AnnotationText,
         "AnnotationDessin": AnnotationDessin,
@@ -101,11 +92,6 @@ class TestHelper(QObject):
         "TableauSection": TableauSection,
         "FriseSection": FriseSection,
     }
-
-    def __init__(self, dao):
-        super().__init__()
-        # self.dao = dao
-        self._dtb = DTB()
 
     @Slot(QObject, str)
     def mock(self, obj: QObject, method: str):
@@ -137,59 +123,18 @@ DONE = False
 db = init_database(Database(), create_db=True)
 
 
-def pytest_qml_context_properties() -> dict:
+def pytest_qml_qmlEngineAvailable(engine):
     global db
-    # init database
-    from mycartable.package.database_object import DatabaseObject
-    from mycartable.package.ui_manager import UiManager
-    from mycartable.types.changematieres import ChangeMatieres
-    from mycartable.classeur.classeur import Classeur
-    from mycartable.types import Globus
-    from mycartable.types import Annee
 
-    import package.database
-
-    uim = UiManager()
-    dao = DatabaseObject(db, uim)
-
-    ChangeMatieres.db = db
-    Classeur.db = db
-    DTB.db = db
-    dtb = DTB()
+    update_configuration(db)
     global DONE
     if not DONE:  # not nice but, do the job for now
-        qmlRegisterType(ChangeMatieres, "MyCartable", 1, 0, "ChangeMatieres")
-        qmlRegisterType(Classeur, "MyCartable", 1, 0, "Classeur")
-        qmlRegisterType(DTB, "MyCartable", 1, 0, "Database")
-        qmlRegisterType(Annee, "MyCartable", 1, 0, "Annee")
-
+        register_new_qml_type()
         DONE = True
 
-    # Mocking som method
-    # dao.exportToPDF = MagicMock()
-
-    app = QGuiApplication.instance() or QGuiApplication([])
-    app.dao = dao
-    fk = FakerHelper(db)
-
-    # pre setup dao needed often
-    fk.f("annee", {"id": 2019, "niveau": "cm1"})
-    dao.anneeActive = 2019
-    globus = Globus()
-    globus.db = db
-    # with db_session:
-    #     dao.currentMatiere = db.Matiere.select().first().id
-
-    th = TestHelper(dao)
-
-    return {
-        "ddb": dao,
-        "uiManager": uim,
-        "c_dtb": dtb,
-        "fk": fk,
-        "th": th,
-        "globus": globus,
-    }
+    setup_engine(engine)
+    engine.rootContext().setContextProperty("fk", FakerHelper(db, parent=engine))
+    engine.rootContext().setContextProperty("th", TestHelper(parent=engine))
 
 
 def pytest_qml_applicationAvailable(app: QGuiApplication):

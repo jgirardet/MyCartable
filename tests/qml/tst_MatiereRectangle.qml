@@ -81,7 +81,7 @@ Item {
 
         function test_activite_rectangle() {
             chooser.activated(0);
-            compare(tested.activites.model, classeur.pagesParActivite);
+            compare(tested.activites.model, classeur.currentMatiere.activites);
             compare(tested.activites.count, 2);
         }
 
@@ -93,16 +93,16 @@ Item {
             chooser.activated(0);
             let ac_rec0 = tested.activites.itemAtIndex(0);
             let ac_rec1 = tested.activites.itemAtIndex(1);
-            compare(ac_rec0.model.pages.length, 1);
-            compare(ac_rec1.model.pages.length, 0);
+            compare(ac_rec0.pages.count, 1);
+            compare(ac_rec1.pages.count, 0);
             mouseClick(ac_rec0.pages.itemAtIndex(0), undefined, undefined, Qt.RightButton);
             let bt0 = ac_rec0.deplacePage.buttons.itemAt(0);
             mouseMove(bt0, 1, 1);
             mouseClick(bt0.repActivites.itemAt(1));
             ac_rec0 = tested.activites.itemAtIndex(0);
             ac_rec1 = tested.activites.itemAtIndex(1);
-            compare(ac_rec0.model.pages.length, 0);
-            compare(ac_rec1.model.pages.length, 1);
+            compare(ac_rec0.pages.count, 0);
+            compare(ac_rec1.pages.count, 1);
         }
 
         name: "MatiereRectangle"

@@ -1,45 +1,33 @@
-import Qt.labs.qmlmodels 1.0
+import MyCartable 1.0
 import QtQuick 2.15
 import QtQuick.Controls 2.15
-import QtQuick.Layouts 1.15
-import QtQuick.Window 2.15
 import "qrc:/qml/divers"
 import "qrc:/qml/layouts"
-import "qrc:/qml/menu"
 
 ApplicationWindow {
     id: root
 
     property alias mainItem: mainitem
-    property alias toast: toast
+
+    function reload() {
+        root.title = get_title();
+        mainItem.clear();
+    }
+
+    function get_title() {
+        let an = database.getConfig("annee");
+        return "MyCartable: année " + an + "/" + (an + 1);
+    }
 
     width: 1100
     height: 600
     visible: true
-    title: "MyCartable: année " + globus.annee + "/" + (globus.annee + 1)
-
-    BusyIndicator {
-        id: busy
-
-        width: root.width / 4
-        height: width
-        anchors.centerIn: mainitem
-        running: uiManager.buzyIndicator ?? false
-        onRunningChanged: {
-            if (running)
-                mainitem.enabled = false;
-            else
-                mainitem.enabled = true;
-        }
-        z: running ? 10 : -5
+    Component.onCompleted: {
+        root.title = get_title();
     }
 
-    Toast {
-        id: toast
-
-        Component.onCompleted: {
-            uiManager.sendToast.connect(toast.showToast);
-        }
+    Database {
+        id: database
     }
 
     MainMenuBar {
@@ -49,14 +37,6 @@ ApplicationWindow {
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
-    }
-
-    Connections {
-        function onAnneeChanged() {
-            mainitem.clear();
-        }
-
-        target: globus
     }
 
     SplitLayout {

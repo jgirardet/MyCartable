@@ -104,13 +104,7 @@ Dialog {
                                 text: modelData.nom
                                 highlighted: hovered
                                 onClicked: {
-                                    let res = database.setDB("Page", root.pageId, {
-                                        "activite": modelData.id
-                                    });
-                                    if (res != {
-                                    })
-                                        rootClasseur.activitesChanged();
-
+                                    rootClasseur.movePage(root.pageId, modelData.id);
                                     reroot.close();
                                 }
 

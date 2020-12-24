@@ -13,10 +13,7 @@ Item {
     height: 800
 
     CasTest {
-        //            ddb.anneeActive = 2019;
-
         function initPre() {
-            globus.annee = 2019;
             page = fk.f("page");
         }
 

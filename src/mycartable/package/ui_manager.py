@@ -1,9 +1,6 @@
-import json
-
 from PySide2.QtCore import QObject, Property, Signal, Slot
 from PySide2.QtGui import QColor
 from PySide2.QtQml import QQmlComponent
-from package.cursors import build_all_image_cursor
 
 DEFAULT_ANNOTATION_CURRENT_TEXT_SIZE_FACTOR = 15
 
@@ -45,8 +42,8 @@ class UiManager(QObject):
         },
     }
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent=None):
+        super().__init__(parent)
         self.set_default()
 
     def set_default(self):

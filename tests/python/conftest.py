@@ -1,39 +1,15 @@
-import io
-import logging
-import re
 import sys
-from logging import DEBUG
 from pathlib import Path
-
-from PySide2.QtQml import qmlRegisterType
 from loguru import logger
+from mycartable.main import update_configuration
 
 from tests.factory import Faker
 
-sys.path.append(str(Path(__file__).parents[1]))
-from common import fn_reset_db, setup_session
-
-
-import shutil
-
+from tests.common import fn_reset_db
 import pytest
-import time
-
-from PySide2.QtCore import QSettings, QStandardPaths
-
-from PySide2.QtWidgets import QApplication
-from mimesis import Generic
-from pony.orm import db_session, flush, Database
-import subprocess
+from pony.orm import db_session,  Database
 
 
-# @pytest.fixture(scope="session")
-# def monkeypatch_session():
-#     from _pytest.monkeypatch import MonkeyPatch
-#
-#     m = MonkeyPatch()
-#     yield m
-#     m.undo()
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -47,12 +23,8 @@ def memory_db():
 
 
 @pytest.fixture(scope="session", autouse=True)
-def add_db_to_types(memory_db):
-    from mycartable.types.dtb import DTB
-    from mycartable.types.globus import Globus
-
-    DTB.db = memory_db
-    Globus.db = memory_db
+def fix_update_configuration(memory_db):
+    update_configuration(memory_db)
 
 
 @pytest.fixture(scope="function")

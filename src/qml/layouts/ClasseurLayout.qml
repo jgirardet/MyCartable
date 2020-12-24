@@ -50,6 +50,8 @@ SandwichLayout {
 
     rightBread: MatiereRectangle {
         id: matiere
+
+        classeur: classeurid
     }
 
 }

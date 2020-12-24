@@ -26,8 +26,8 @@ Dialog {
         }
     }
     onOpened: {
-        let user = globus.getConfig("user_set");
-        if (!globus.getConfig("user_set"))
+        let user = database.getConfig("user_set");
+        if (!database.getConfig("user_set"))
             newUserDialog.open();
 
     }
@@ -36,6 +36,10 @@ Dialog {
     standardButtons: Dialog.Ok | Dialog.Cancel
     focus: true
     anchors.centerIn: Overlay.overlay
+
+    Database {
+        id: database
+    }
 
     NewUser {
         id: newUserDialog

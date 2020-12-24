@@ -28,12 +28,6 @@ Item {
             tested.destroy();
         }
 
-        function test_buzyindicator() {
-            verify(tested.mainItem.enabled);
-            uiManager.buzyIndicator = true;
-            verify(!tested.mainItem.enabled);
-        }
-
         name: "Main"
         testedNom: "qrc:/qml/main.qml"
         params: {

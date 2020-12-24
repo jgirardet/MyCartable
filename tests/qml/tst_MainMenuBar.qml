@@ -6,6 +6,12 @@ import "qrc:/qml/layouts"
 Item {
     id: item
 
+    property bool _reload_run: false
+
+    function reload() {
+        _reload_run = true;
+    }
+
     width: 800
     height: 400
 
@@ -65,7 +71,8 @@ Item {
         function initPre() {
             splitobj = splitcomp.createObject(item);
             params = {
-                "mainItem": splitobj
+                "mainItem": splitobj,
+                "parent": item
             };
         }
 
@@ -76,6 +83,7 @@ Item {
             vertibutton = tested.contentItem.children[2];
             tested.heightAnimation.duration = 0;
             tested.hideTimer.interval = 0;
+            item._reload_run = false;
         }
 
         function test_fichier() {
@@ -84,7 +92,6 @@ Item {
         }
 
         function test_changer_annee() {
-            fk.resetDB();
             fk.f("annee", {
                 "id": 2018,
                 "niveau": "ce2"
@@ -93,6 +100,7 @@ Item {
                 "id": 2019,
                 "niveau": "cm1"
             });
+            th.setConfig("annee", 2018);
             fichier.visible = true;
             var buttonMenu = fichier.itemAt(0);
             var changerAnnee = findChild(tested, "changerAnnee");
@@ -104,21 +112,18 @@ Item {
             compare(lv.itemAtIndex(0).text, "mon année de ce2 en 2018/2019");
             compare(lv.itemAtIndex(1).text, "mon année de cm1 en 2019/2020");
             mouseClick(lv.itemAtIndex(1));
-            compare(globus.annee, 2019);
+            compare(th.getConfig("annee"), 2019);
             compare(changerAnnee.opened, false);
         }
 
         function test_change_matiere_reset_tout() {
-            var spy = getSpy(globus, "anneeChanged");
-            ddb.currentMatiere = 4;
             fichier.visible = true;
             var dialog = findChild(tested, "changer_matieres");
-            dialog.height = 300;
             var buttonMenu = fichier.itemAt(1);
             mouseClick(buttonMenu);
             tryCompare(dialog, "visible", true);
             dialog.close();
-            spy.wait();
+            tryCompare(item, "_reload_run", true);
         }
 
         function test_showhide() {

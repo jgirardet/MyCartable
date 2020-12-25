@@ -21,12 +21,6 @@ class TestUiManager:
             uiman.menuFlottantAnnotationDessin = a
         assert uiman.menuFlottantAnnotationDessin == a
 
-    def test_menuFlottantText(self, uiman: UiManager, qtbot):
-        a = QObject()
-        with qtbot.waitSignal(uiman.menuFlottantTextChanged):
-            uiman.menuFlottantText = a
-        assert uiman.menuFlottantText == a
-
     def test_menuFlottantTableau(self, uiman: UiManager, qtbot):
         a = QObject()
         with qtbot.waitSignal(uiman.menuFlottantTableauChanged):

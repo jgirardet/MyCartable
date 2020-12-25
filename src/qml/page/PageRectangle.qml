@@ -26,11 +26,6 @@ Rectangle {
             uiManager.menuFlottantAnnotationDessin = newComp.createObject(root);
         else
             print(newComp.errorString());
-        var newComp = Qt.createComponent("qrc:/qml/menu/MenuFlottantText.qml");
-        if (newComp.status == Component.Ready)
-            uiManager.menuFlottantText = newComp.createObject(root);
-        else
-            print(newComp.errorString());
         var newComp = Qt.createComponent("qrc:/qml/menu/MenuFlottantAnnotationText.qml");
         if (newComp.status == Component.Ready)
             uiManager.menuFlottantAnnotationText = newComp.createObject(root);

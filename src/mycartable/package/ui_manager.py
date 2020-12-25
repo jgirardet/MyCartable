@@ -7,7 +7,6 @@ DEFAULT_ANNOTATION_CURRENT_TEXT_SIZE_FACTOR = 15
 
 class UiManager(QObject):
 
-    menuFlottantTextChanged = Signal()
     menuFlottantAnnotationTextChanged = Signal()
     menuFlottantAnnotationDessinChanged = Signal()
     menuFlottantImageChanged = Signal()
@@ -64,15 +63,6 @@ class UiManager(QObject):
     @Slot()
     def resetUiManager(self):
         self.set_default()
-
-    @Property(QObject, notify=menuFlottantTextChanged)
-    def menuFlottantText(self):
-        return self._menuFlottantText
-
-    @menuFlottantText.setter
-    def menuFlottantText_set(self, value: int):
-        self._menuFlottantText = value
-        self.menuFlottantTextChanged.emit()
 
     @Property(QObject, notify=menuFlottantAnnotationTextChanged)
     def menuFlottantAnnotationText(self):

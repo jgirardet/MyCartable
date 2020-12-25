@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+import "qrc:/qml/menu"
 
 TextEdit {
     id: root
@@ -23,7 +24,7 @@ TextEdit {
     function showMenu() {
         var s_start = Math.min(root.selectionStart, root.selectionEnd);
         var s_end = Math.max(root.selectionEnd, root.selectionEnd);
-        uiManager.menuFlottantText.ouvre(root);
+        menuFlottantText.ouvre(root);
         root.cursorPosition = s_start;
         root.moveCursorSelection(s_end, TextEdit.SelectCharacters);
     }
@@ -68,6 +69,10 @@ TextEdit {
                 cursorPosition = res["cursorPosition"];
             }
         }
+    }
+
+    MenuFlottantText {
+        id: menuFlottantText
     }
 
     MouseArea {

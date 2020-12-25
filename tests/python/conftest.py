@@ -1,5 +1,3 @@
-import sys
-from pathlib import Path
 from loguru import logger
 from mycartable.main import update_configuration
 

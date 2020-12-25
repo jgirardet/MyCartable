@@ -3,12 +3,12 @@ import tempfile
 from pathlib import Path
 
 import pytest
-from package.database.base_db import init_models, Schema
-from migrations import make_migrations
-from package.database.models import schema_version
+from mycartable.package.database.base_db import init_models, Schema
+from mycartable.migrations import make_migrations
+from mycartable.package.database.models import schema_version
 from pony.orm import Database
 
-from factory import Faker
+from tests.factory import Faker
 
 
 class GenerateDatabase:

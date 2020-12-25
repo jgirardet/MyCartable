@@ -8,12 +8,16 @@ from pathlib import Path
 import pytest
 from loguru import logger
 from mimesis import Generic
+from mycartable.main import register_new_qml_type
 
 from tests.common import setup_session
 
 
 def pytest_sessionstart():
     setup_session()
+
+    register_new_qml_type()
+
     from mycartable.files_path import root_data
 
     shutil.rmtree(root_data())

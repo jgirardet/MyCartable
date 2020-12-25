@@ -119,7 +119,6 @@ class TestHelper(DTB):
         return res
 
 
-DONE = False
 db = init_database(Database(), create_db=True)
 
 
@@ -127,10 +126,6 @@ def pytest_qml_qmlEngineAvailable(engine):
     global db
 
     update_configuration(db)
-    global DONE
-    if not DONE:  # not nice but, do the job for now
-        register_new_qml_type()
-        DONE = True
 
     setup_engine(engine)
     engine.rootContext().setContextProperty("fk", FakerHelper(db, parent=engine))

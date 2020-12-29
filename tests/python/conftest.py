@@ -1,5 +1,5 @@
 from loguru import logger
-from mycartable.main import update_configuration
+from mycartable.main import update_configuration, add_database_to_types
 
 from tests.factory import Faker
 
@@ -14,6 +14,8 @@ def memory_db():
 
     logger.disable("")
     db = init_database(Database())
+    add_database_to_types(db)
+
     logger.enable("")
     return db
 

@@ -21,7 +21,6 @@ Item {
         property var sec
 
         function initPre() {
-            uiManager.menuFlottantTableau = createObj("qrc:/qml/menu/MenuFlottantTableau.qml");
             secDB = fk.f("tableauSection", {
                 "id": '11111111-1111-1111-1111-111111111111',
                 "lignes": 5,
@@ -315,35 +314,35 @@ Item {
         }
 
         function test_mouseClick_style() {
-            var cbBgRed = uiManager.menuFlottantTableau.contentItem.contentItem.children[0].children[0].children[1].children[0];
-            var cbBlueNoUnderline = uiManager.menuFlottantTableau.contentItem.contentItem.children[3].children[0].children[1];
-            var cbGreenUnderline = uiManager.menuFlottantTableau.contentItem.contentItem.children[5].children[0].children[2];
+            var cbBgRed = tested.menu.contentItem.contentItem.children[0].children[0].children[1].children[0];
+            var cbBlueNoUnderline = tested.menu.contentItem.contentItem.children[3].children[0].children[1];
+            var cbGreenUnderline = tested.menu.contentItem.contentItem.children[5].children[0].children[2];
             // background
             compare(Qt.colorEqual(un.background.color, "blue"), true);
-            compare(uiManager.menuTarget, null);
+            compare(tested.menu.target, undefined);
             mouseClick(un, 1, 1, Qt.RightButton);
-            compare(uiManager.menuTarget, un); //target is tx
+            compare(tested.menu.target, un); //target is tx
             mouseClick(cbBgRed, 1, 1);
             compare(Qt.colorEqual(un.background.color, cbBgRed.color), true);
             // text color
             compare(Qt.colorEqual(un.color, "black"), true);
             un.font.underline = true;
             mouseClick(un, 1, 1, Qt.RightButton);
-            compare(uiManager.menuTarget, un); //target is tx
+            compare(tested.menu.target, un); //target is tx
             mouseClick(cbBlueNoUnderline, 1, 1);
             compare(Qt.colorEqual(un.color, cbBlueNoUnderline.color), true);
             verify(!un.font.underline);
             // color underline
             un.color = "red";
             mouseClick(un, 1, 1, Qt.RightButton);
-            compare(uiManager.menuTarget, un); //target is tx
+            compare(tested.menu.target, un); //target is tx
             mouseClick(cbGreenUnderline, 1, 1);
             compare(Qt.colorEqual(un.color, cbGreenUnderline.color), true);
             verify(un.font.underline);
         }
 
         function test_mouseClick_add_column() {
-            var but = uiManager.menuFlottantTableau.contentItem.contentItem.children[7].children[0].children[0];
+            var but = tested.menu.contentItem.contentItem.children[7].children[0].children[0];
             compare(rep.count, 15);
             mouseClick(un, 1, 1, Qt.RightButton);
             mouseClick(but, 1, 1, Qt.LeftButton);
@@ -353,7 +352,7 @@ Item {
         }
 
         function test_mouseClick_remove_column() {
-            var but = uiManager.menuFlottantTableau.contentItem.contentItem.children[7].children[0].children[1];
+            var but = tested.menu.contentItem.contentItem.children[7].children[0].children[1];
             compare(rep.count, 15);
             mouseClick(un, 1, 1, Qt.RightButton);
             mouseClick(but, 1, 1, Qt.LeftButton);
@@ -363,7 +362,7 @@ Item {
         }
 
         function test_mouseClick_append_column() {
-            var but = uiManager.menuFlottantTableau.contentItem.contentItem.children[7].children[0].children[2];
+            var but = tested.menu.contentItem.contentItem.children[7].children[0].children[2];
             mouseClick(un, 1, 1, Qt.RightButton);
             mouseClick(but, 1, 1, Qt.LeftButton);
             compare(sec.colonnes, 4);
@@ -372,7 +371,7 @@ Item {
         }
 
         function test_mouseClick_add_row() {
-            var but = uiManager.menuFlottantTableau.contentItem.contentItem.children[7].children[0].children[3];
+            var but = tested.menu.contentItem.contentItem.children[7].children[0].children[3];
             mouseClick(un, 1, 1, Qt.RightButton);
             mouseClick(but, 1, 1, Qt.LeftButton);
             compare(sec.lignes, 6);
@@ -380,7 +379,7 @@ Item {
         }
 
         function test_mouseClick_remove_row() {
-            var but = uiManager.menuFlottantTableau.contentItem.contentItem.children[7].children[0].children[4];
+            var but = tested.menu.contentItem.contentItem.children[7].children[0].children[4];
             mouseClick(un, 1, 1, Qt.RightButton);
             mouseClick(but, 1, 1, Qt.LeftButton);
             compare(sec.lignes, 4);
@@ -388,7 +387,7 @@ Item {
         }
 
         function test_mouseClick_append_row() {
-            var but = uiManager.menuFlottantTableau.contentItem.contentItem.children[7].children[0].children[5];
+            var but = tested.menu.contentItem.contentItem.children[7].children[0].children[5];
             mouseClick(un, 1, 1, Qt.RightButton);
             mouseClick(but, 1, 1, Qt.LeftButton);
             compare(sec.lignes, 6);
@@ -396,10 +395,9 @@ Item {
         }
 
         function test_targetmenu_egale_grid_if_selected() {
-            uiManager.menuFlottantTableau = createObj("qrc:/qml/menu/MenuFlottantTableau.qml");
             grid.selectCell(un);
             mouseClick(un, 1, 1, Qt.RightButton);
-            compare(uiManager.menuTarget, grid);
+            compare(tested.menu.target, grid);
         }
 
         function selected(liste) {

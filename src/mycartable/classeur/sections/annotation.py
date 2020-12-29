@@ -57,6 +57,17 @@ class AnnotationText(Annotation):
     def text_set(self, value: str):
         self.set_field("text", value)
 
+    annotationCurrentTextSizeFactorChanged = Signal()
+
+    @Property(int, notify=annotationCurrentTextSizeFactorChanged)
+    def annotationCurrentTextSizeFactor(self):
+        return self._dtb.getConfig("annotationCurrentTextSizeFactor")
+
+    @annotationCurrentTextSizeFactor.setter
+    def annotationCurrentTextSizeFactor_set(self, value: int):
+        self._dtb.setConfig("annotationCurrentTextSizeFactor", value)
+        self.annotationCurrentTextSizeFactorChanged.emit()
+
 
 class AnnotationDessin(Annotation):
 

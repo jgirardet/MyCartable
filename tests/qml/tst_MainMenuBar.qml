@@ -16,32 +16,20 @@ Item {
     height: 400
 
     Component {
-        // dummy comp pour que le role splitComp ne fasse pas d'erreur
-        id: nullcomp
-
-        QtObject {
-        }
-
-    }
-
-    Component {
         id: splitcomp
 
         SplitLayout {
-            nullComp: nullcomp
             layouts: {
                 "rect": {
                     "splittype": "rect",
                     "splittext": "rect",
-                    "splitcomp": rect,
-                    "spliturl": "",
+                    "spliturl": th.testPath("assets/splitlayout/SpBlue.qml"),
                     "splitindex": 0
                 },
                 "vide": {
                     "splittype": "vide",
                     "splittext": "levide",
                     "spliturl": "qrc:/qml/layouts/VideLayout.qml",
-                    "splitcomp": nullcomp,
                     "splitindex": 1
                 }
             }

@@ -1,15 +1,21 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
+import "qrc:/qml/menu"
 
 Item {
     id: root
 
     required property Item sectionItem
     required property QtObject section
+    property alias menu: menuFlottantTableau
 
     width: grid.width
     height: grid.height
+
+    MenuFlottantTableau {
+        id: menuFlottantTableau
+    }
 
     GridLayout {
         id: grid
@@ -265,11 +271,11 @@ Item {
                 }
             } else if (mouse.button == Qt.RightButton) {
                 if (grid.selectedCells.includes(ite)) {
-                    uiManager.menuFlottantTableau.ouvre(grid);
+                    root.menu.ouvre(grid);
                     mouse.accepted = true;
                 } else {
                     grid.unSelectAll();
-                    uiManager.menuFlottantTableau.ouvre(ite);
+                    root.menu.ouvre(ite);
                     mouse.accepted = true;
                 }
             }

@@ -1,3 +1,4 @@
+import json
 from typing import Union, Optional, Any, List
 
 from PySide2.QtCore import Slot
@@ -105,7 +106,10 @@ class DTB(QObject):
     @db_session
     @Slot(str, result="QVariant")
     def getConfig(self, key: str):
-        return self.db.Configuration.option(key)
+        res = self.db.Configuration.option(key)
+        if isinstance(res, dict):  # compliqué de retourner des dict
+            res = json.dumps(res)
+        return res
 
     @db_session
     @Slot(str, "QVariant")
@@ -114,10 +118,6 @@ class DTB(QObject):
             value = value.toVariant()
         self.db.Configuration.add(key, value)
 
-    # @Slot(str, str, str, result="QVariantMap")
-    # @Slot(str, int, str, result="QVariantMap")
-    # @Slot(str, int, str, "QVariantList", "QVariantMap", result="QVariantList")
-    # @Slot(str, int, str, "QVariantList", "QVariantMap", result="QVariantList")
     @db_session
     def execDB(
         self, entity: str, item_id: Union[str, int], func: str, *args, **kwargs

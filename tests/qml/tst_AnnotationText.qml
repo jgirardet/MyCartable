@@ -50,7 +50,6 @@ FocusScope {
         function test_initY() {
             compare(tested.pointSizeStep, 1);
             compare(tested.moveStep, 5);
-            compare(tested.menu, uiManager.menuFlottantAnnotationText);
             compare(tested.height, tested.contentHeight);
             compare(tested.width, tested.contentWidth + 5);
         }
@@ -132,12 +131,12 @@ FocusScope {
 
         function test_taille_du_texte() {
             // pointSize empty donc default  = annotationCurrentTextSizeFactor
-            compare(tested.fontSizeFactor, uiManager.annotationCurrentTextSizeFactor);
-            compare(tested.fontSizeFactor, uiManager.annotationCurrentTextSizeFactor);
+            compare(tested.fontSizeFactor, annotobj.annotationCurrentTextSizeFactor);
+            compare(tested.fontSizeFactor, annotobj.annotationCurrentTextSizeFactor);
         }
 
         function test_taille_du_text_fonction_taille_image() {
-            var old = (item.height / uiManager.annotationCurrentTextSizeFactor) | 0;
+            var old = (item.height / annotobj.annotationCurrentTextSizeFactor) | 0;
             compare(tested.font.pixelSize, old);
             item.height = item.height * 2;
             tryCompare(tested.font, "pixelSize", old * 2);

@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 
 import pytest
@@ -159,7 +160,7 @@ def test_setConfig_jsvalue(dtb, fk, qapp):
     val = {"nom": "aa", "prenom": "bb"}
     arr = q.toScriptValue(val)
     dtb.setConfig("bla", arr)
-    assert dtb.getConfig("bla") == val
+    assert dtb.getConfig("bla") == json.dumps(val)
 
 
 def test_exec(dtb, fk):

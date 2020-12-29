@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import "qrc:/js/drawcanvas.mjs" as DrawCanvas
+import "qrc:/qml/menu"
 
 Canvas {
     //      canvas.save("tests/qml/assets/trait.png") // pour tests
@@ -10,7 +11,7 @@ Canvas {
     id: canvas
 
     property var referent
-    property var menu: uiManager ? uiManager.menuFlottantAnnotationDessin : null
+    property alias menu: menuFlottantAnnotationDessin
     property color strokeStyle: annot.fgColor
     property color fillStyle: annot.bgColor
     property real lineWidth: annot.pointSize
@@ -57,4 +58,9 @@ Canvas {
             DrawCanvas.drawCanvas(ctx, tool, startX, startY, endX, endY);
         }
     }
+
+    MenuFlottantAnnotationDessin {
+        id: menuFlottantAnnotationDessin
+    }
+
 }

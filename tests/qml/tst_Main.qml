@@ -1,3 +1,4 @@
+import MyCartable 1.0
 import Qt.labs.settings 1.0
 import QtQuick 2.15
 
@@ -6,6 +7,10 @@ Item {
 
     width: 200
     height: 200
+
+    Database {
+        id: database
+    }
 
     CasTest {
         //            wait(1000);
@@ -21,7 +26,20 @@ Item {
         }
 
         function test_init() {
-            compare(tested.mainItem.layouts, uiManager.mainLayouts);
+            compare(tested.mainItem.layouts, {
+                "vide": {
+                    "splittype": "vide",
+                    "splittext": "",
+                    "splitindex": 0,
+                    "spliturl": "qrc:/qml/layouts/VideLayout.qml"
+                },
+                "classeur": {
+                    "splittype": "classeur",
+                    "splittext": "Classeur",
+                    "splitindex": 1,
+                    "spliturl": "qrc:/qml/layouts/ClasseurLayout.qml"
+                }
+            });
         }
 
         function cleanup() {

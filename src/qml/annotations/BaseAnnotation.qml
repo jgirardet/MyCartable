@@ -8,6 +8,7 @@ Loader {
     property alias mouse: mousearea
     property bool held: false
     property QtObject annot
+    property QtObject section
 
     function move(dx, dy) {
         anchors.leftMargin += dx;
@@ -63,10 +64,10 @@ Loader {
             root.parent.currentAnnotation = root;
         }
         onExited: {
-            referent.section.setImageSectionCursor(mousearea, uiManager.annotationCurrentTool, uiManager.annotationDessinCurrentStrokeStyle);
+            referent.section.setImageSectionCursor(mousearea, section.annotationCurrentTool, section.annotationDessinCurrentStrokeStyle);
         }
         onPositionChanged: {
-            let tool = uiManager.annotationCurrentTool;
+            let tool = section.annotationCurrentTool;
             if (!root.item.checkPointIsNotDraw(mouse.x, mouse.y)) {
                 if (mouse.modifiers & Qt.ControlModifier)
                     tool = "dragmove";
@@ -74,7 +75,7 @@ Loader {
                     tool = "default";
             } else {
             }
-            referent.section.setImageSectionCursor(mousearea, tool, uiManager.annotationDessinCurrentStrokeStyle);
+            referent.section.setImageSectionCursor(mousearea, tool, section.annotationDessinCurrentStrokeStyle);
         }
         preventStealing: true
         onPressed: {

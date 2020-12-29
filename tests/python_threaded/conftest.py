@@ -1,6 +1,6 @@
 import pytest
 from loguru import logger
-from mycartable.main import update_configuration
+from mycartable.main import update_configuration, add_database_to_types
 from pony.orm import Database, db_session
 
 from tests.common import fn_reset_db
@@ -19,6 +19,8 @@ def file_db(
     db = init_database(
         Database(), provider="sqlite", filename=str(tmpfilename), create_db=True
     )
+    add_database_to_types(db)
+
     logger.enable("")
 
     return db

@@ -13,6 +13,7 @@ Image {
     property MouseArea mousearea: mousearea
     property var currentAnnotation
     property Item annotations: repeater
+    property alias menu: menuFlottantImage
 
     function reloadImage() {
         // not tested
@@ -23,25 +24,25 @@ Image {
     function setStyleFromMenu(datas) {
         if ("style" in datas) {
             if ("pointSize" in datas["style"])
-                uiManager.annotationDessinCurrentLineWidth = datas["style"]["pointSize"];
+                section.annotationDessinCurrentLineWidth = datas["style"]["pointSize"];
 
             if ("fgColor" in datas["style"])
-                uiManager.annotationDessinCurrentStrokeStyle = datas["style"]["fgColor"];
+                section.annotationDessinCurrentStrokeStyle = datas["style"]["fgColor"];
 
             if ("tool" in datas["style"]) {
                 var newTool = datas["style"]["tool"];
-                uiManager.annotationCurrentTool = newTool;
+                section.annotationCurrentTool = newTool;
                 if (newTool == "text")
-                    uiManager.annotationDessinCurrentTool = "fillrect";
+                    section.annotationDessinCurrentTool = "fillrect";
                 else
-                    uiManager.annotationDessinCurrentTool = newTool;
-                section.setImageSectionCursor(mousearea, uiManager.annotationCurrentTool, uiManager.annotationDessinCurrentStrokeStyle);
+                    section.annotationDessinCurrentTool = newTool;
+                section.setImageSectionCursor(mousearea, section.annotationCurrentTool, section.annotationDessinCurrentStrokeStyle);
             }
         }
     }
 
     function startDraw(fallback) {
-        if (uiManager.annotationCurrentTool == "point")
+        if (section.annotationCurrentTool == "point")
             mainlevee.startDraw();
         else
             canvas.startDraw(fallback);
@@ -65,6 +66,10 @@ Image {
     }
     model: section.model
 
+    MenuFlottantImage {
+        id: menuFlottantImage
+    }
+
     MouseArea {
         id: mousearea
 
@@ -73,20 +78,20 @@ Image {
         preventStealing: true
         acceptedButtons: Qt.LeftButton | Qt.RightButton
         hoverEnabled: true
-        onEntered: section.setImageSectionCursor(mousearea, uiManager.annotationCurrentTool, uiManager.annotationDessinCurrentStrokeStyle)
+        onEntered: section.setImageSectionCursor(mousearea, section.annotationCurrentTool, section.annotationDessinCurrentStrokeStyle)
         onPressed: {
             if (pressedButtons === Qt.RightButton) {
                 if (mouse.modifiers == Qt.ControlModifier)
                     root.startDraw(true);
                 else
-                    uiManager.menuFlottantImage.ouvre(root);
+                    menuFlottantImage.ouvre(root);
             } else if (pressedButtons === Qt.LeftButton) {
                 if (mouse.modifiers == Qt.ControlModifier) {
                     root.addAnnotationText(mouse);
-                } else if (uiManager.annotationCurrentTool == "text") {
+                } else if (section.annotationCurrentTool == "text") {
                     root.addAnnotationText(mouse);
-                } else if (uiManager.annotationCurrentTool == "floodfill") {
-                    let fillColor = uiManager.annotationDessinCurrentStrokeStyle;
+                } else if (section.annotationCurrentTool == "floodfill") {
+                    let fillColor = section.annotationDessinCurrentStrokeStyle;
                     let point = Qt.point(mouse.x / width, mouse.y / height);
                     let res = section.floodFill(section.id, fillColor, point);
                     root.reloadImage();
@@ -128,6 +133,7 @@ Image {
 
             annot: annotation
             referent: root
+            section: root.section
         }
 
     }
@@ -138,11 +144,13 @@ Image {
         objectName: "canvasFactory"
         mouse: mousearea
         anchors.fill: root
+        section: root.section
     }
 
     MainLevee {
         id: mainlevee
 
+        section: root.section
         mouse: mousearea
         anchors.fill: root
         visible: false

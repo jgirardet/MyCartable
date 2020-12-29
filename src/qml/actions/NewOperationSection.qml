@@ -16,12 +16,6 @@ BasePageAction {
         standardButtons: Dialog.Ok | Dialog.Cancel
         focus: true
         onAccepted: {
-            //            ddb.addSection(ddb.currentPage, {
-            //                "string": contentItem.text,
-            //                "classtype": nom,
-            //                "position": append ? ddb.pageModel.count : position + 1
-            //            });
-            uiManager.buzyIndicator = true;
             let string = contentItem.text;
             let classtype = nom;
             if (string.includes("+"))
@@ -36,7 +30,6 @@ BasePageAction {
             page.addSection(classtype, newPos, {
                 "string": string
             });
-            uiManager.buzyIndicator = false;
             contentItem.clear();
         }
 

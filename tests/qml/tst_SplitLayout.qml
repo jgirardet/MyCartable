@@ -7,106 +7,32 @@ Item {
     width: 200
     height: 200
 
-    Component {
-        id: red
-
-        Rectangle {
-            property alias lebutton: lebutton
-
-            color: "red"
-
-            Button {
-                id: lebutton
-
-                text: "bla"
-            }
-
-        }
-
-    }
-
-    Component {
-        id: blue
-
-        Rectangle {
-            property alias lebutton: lebutton
-
-            color: "blue"
-
-            Button {
-                id: lebutton
-
-                x: 5
-                y: 3
-                text: "bla"
-            }
-
-        }
-
-    }
-
-    Component {
-        id: green
-
-        Rectangle {
-            property alias lebutton: lebutton
-
-            color: "green"
-
-            Button {
-                id: lebutton
-
-                x: 5
-                y: 3
-                text: "bla"
-            }
-
-        }
-
-    }
-
-    Component {
-        // dummy comp pour que le role splitComp ne fasse pas d'erreur
-        id: nullcomp
-
-        QtObject {
-        }
-
-    }
-
     CasTest {
-        //            verify(tested.items.get(4).item.toString().includes("VideLayout_QMLTYPE"));
-
         function initPre() {
             params = {
-                "nullComp": nullcomp,
                 "layouts": {
                     "red": {
                         "splittype": "red",
                         "splittext": "lered",
-                        "splitcomp": red,
-                        "spliturl": "",
+                        "spliturl": th.testPath("assets/splitlayout/SpRed.qml"),
                         "splitindex": 0
                     },
                     "blue": {
                         "splittype": "blue",
                         "splittext": "leblue",
-                        "splitcomp": blue,
-                        "spliturl": "",
+                        "spliturl": th.testPath("assets/splitlayout/SpBlue.qml"),
                         "splitindex": 1
                     },
                     "green": {
                         "splittype": "green",
                         "splittext": "lergreen",
-                        "splitcomp": green,
-                        "spliturl": "",
+                        "spliturl": th.testPath("assets/splitlayout/SpGreen.qml"),
                         "splitindex": 2
                     },
                     "vide": {
                         "splittype": "vide",
                         "splittext": "levide",
                         "spliturl": "qrc:/qml/layouts/VideLayout.qml",
-                        "splitcomp": nullcomp,
                         "splitindex": 3
                     }
                 },
@@ -140,8 +66,7 @@ Item {
                 "orange": {
                     "splittype": "orange",
                     "splittext": "leorange",
-                    "splitcomp": nullcomp,
-                    "spliturl": "",
+                    "spliturl": "erreur attendue, ne pas tenir compte",
                     "splitindex": 0
                 }
             };

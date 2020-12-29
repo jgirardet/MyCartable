@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 from PySide2.QtCore import QStandardPaths
-from loguru import logger
+from mycartable.main import update_configuration
 from pony.orm import db_session, flush
 
 
@@ -17,14 +17,11 @@ def fn_reset_db(db):
                     flush()
                 except:
                     continue
+        update_configuration(db)
 
 
 def setup_session():
     QStandardPaths.setTestModeEnabled(True)
-
-    # logger.level("CRITICAL")
-    # breakpoint()
-    # logger.remove()
 
     # modify path
     root = Path(__file__).parents[1]
@@ -35,11 +32,8 @@ def setup_session():
 
     # setup qrc
     orig = root / "src" / "qml.qrc"
-    dest = python_dir / "package" / "qrc.py"
+    dest = python_dir / "qrc.py"
     command = f"pyside2-rcc {orig.absolute()} -o {dest.absolute()}"
     res = subprocess.run(command, cwd=root, shell=True, capture_output=True)
     if res.returncode != 0:
         pytest.exit(res.stdout.decode())
-
-    # import qrc
-    from package import qrc

@@ -31,13 +31,13 @@ Item {
                 "y": 0.2,
                 "section": img.id
             });
-            //            ref = th.getBridgeInstance(item, "ImageSection", annot.section);
             ref = th.getBridgeInstance(item, "ImageSection", img.id);
             annotobj = th.getBridgeInstance(ref, "AnnotationText", annot.id);
             params = {
                 "annot": annotobj,
                 "referent": item,
-                "index": index
+                "index": index,
+                "section": section
             };
         }
 
@@ -53,13 +53,11 @@ Item {
             item.currentAnnotation = false;
             verify(!tested.focus, "focus should be false");
             verify(!item.currentAnnotation);
-            //      item.currentAnnotation = tested
             mouseMove(tested, 1, 1);
             compare(item.currentAnnotation, tested);
         }
 
         function test_right_button_show_menu() {
-            uiManager.menuFlottantAnnotationText = createObj("qrc:/qml/menu/MenuFlottantAnnotationText.qml");
             verify(!tested.item.menu.visible);
             mouseClick(tested, 0, 0, Qt.RightButton);
             verify(tested.item.menu.visible);

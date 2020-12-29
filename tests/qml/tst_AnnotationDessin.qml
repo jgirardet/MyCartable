@@ -41,7 +41,6 @@ Item {
                 "endY": 0.9,
                 "tool": "rect"
             });
-            //            ref = th.getBridgeInstance(item, "ImageSection", annot.section);
             ref = th.getBridgeInstance(item, "ImageSection", img.id);
             annot = th.getBridgeInstance(ref, "AnnotationDessin", annotdata.id);
             params = {
@@ -55,7 +54,6 @@ Item {
         }
 
         function test_init() {
-            compare(tested.menu, uiManager.menuFlottantAnnotationDessin);
             compare(tested.strokeStyle, "#0000ff");
             compare(tested.fillStyle, "#654321");
             compare(tested.lineWidth, 12);

@@ -9,7 +9,6 @@ SplitView {
     property alias items: repeater
     property alias initDataModel: repeater.modelObject
     property var layoutsAsArray: _layoutsAsArray()
-    property var nullComp
 
     function _layoutsAsArray() {
         var innerArray = [];
@@ -106,7 +105,6 @@ SplitView {
             splitText: splittext
             splitIndex: splitindex
             splitUrl: spliturl
-            splitComp: splitcomp
             viewIndex: index
             view: root
         }

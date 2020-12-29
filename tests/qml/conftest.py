@@ -1,15 +1,15 @@
 # Here start usual imports
+from pathlib import Path
 from typing import List
 from unittest.mock import MagicMock
 
 from PySide2.QtCore import QObject, Slot
 from PySide2.QtGui import QGuiApplication
+from PySide2.QtQml import QQmlEngine
 from mycartable.main import (
-    update_configuration,
-    register_new_qml_type,
-    setup_engine,
+    add_database_to_types,
 )
-from pony.orm import Database, db_session, flush, ObjectNotFound
+from pony.orm import Database, db_session, ObjectNotFound
 
 
 from tests.common import fn_reset_db
@@ -52,7 +52,7 @@ class FakerHelper(QObject):
         """reset database"""
         fn_reset_db(self.db)
         self.f("annee", {"id": 2019, "niveau": "cm1"})
-        update_configuration(self.db)
+        # update_configuration(self.db)
         with db_session:
             self.db.Configuration.add("annee", 2019)
 
@@ -118,16 +118,18 @@ class TestHelper(DTB):
         res.setParent(parent)
         return res
 
+    @Slot(str, result=str)
+    def testPath(self, name: str):
+        return (Path(__file__).parent / name).as_uri()
+
 
 db = init_database(Database(), create_db=True)
 
 
-def pytest_qml_qmlEngineAvailable(engine):
+def pytest_qml_qmlEngineAvailable(engine: QQmlEngine):
     global db
+    add_database_to_types(db)
 
-    update_configuration(db)
-
-    setup_engine(engine)
     engine.rootContext().setContextProperty("fk", FakerHelper(db, parent=engine))
     engine.rootContext().setContextProperty("th", TestHelper(parent=engine))
 

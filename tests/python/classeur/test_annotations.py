@@ -4,6 +4,7 @@ import pytest
 
 from PySide2.QtCore import QByteArray
 from PySide2.QtGui import QColor
+from mycartable.default_configuration import KEEP_UPDATED_CONFIGURATION
 from tests.python.fixtures import disable_log
 from mycartable.classeur import (
     Annotation,
@@ -98,6 +99,14 @@ class TestAnnotationText:
         with db_session:
             item = fk.db.AnnotationText[an.id]
             assert item.text == "text"
+
+    def test_annotationCurrentTextSizeFactor(self, fk, qtbot):
+        anx = fk.f_annotationText(text="aa")
+        an = AnnotationText.get(anx.id)
+        assert (
+            an.annotationCurrentTextSizeFactor
+            == KEEP_UPDATED_CONFIGURATION["annotationCurrentTextSizeFactor"]
+        )
 
 
 class TestAnnotationDessin:

@@ -2,11 +2,13 @@ import sys
 import tempfile
 from pathlib import Path
 
-from PySide2.QtGui import QFont, QFontDatabase, QIcon, QGuiApplication
+from PySide2.QtGui import QFont, QFontDatabase, QIcon
 from mycartable.classeur import Classeur
 from mycartable.constantes import APPNAME, ORGNAME
-from mycartable.default_configuration import DEFAUT_CONFIGURATION
-from mycartable.package.ui_manager import UiManager
+from mycartable.default_configuration import (
+    DEFAUT_CONFIGURATION,
+    KEEP_UPDATED_CONFIGURATION,
+)
 from mycartable.types import Annee, ChangeMatieres
 from mycartable.types.dtb import DTB
 from mycartable.package import get_prod
@@ -23,6 +25,7 @@ from PySide2.QtWidgets import QApplication
 from PySide2.QtQml import QQmlApplicationEngine, qmlRegisterType
 
 from loguru import logger
+
 from . import qrc  # QRC do not erase
 
 from pony.orm import Database, db_session
@@ -90,10 +93,6 @@ def register_new_qml_type():
     qmlRegisterType(Annee, "MyCartable", 1, 0, "Annee")
 
 
-def setup_engine(engine: QQmlApplicationEngine):
-    engine.rootContext().setContextProperty("uiManager", UiManager(parent=engine))
-
-
 def load_engine(engine: QQmlApplicationEngine):
     # load main
     engine.load(QUrl("qrc:///qml/main.qml"))
@@ -116,6 +115,11 @@ def update_configuration(db: Database):
         for k, v in DEFAUT_CONFIGURATION.items():
             if db.Configuration.option(k) is None:
                 db.Configuration.add(k, v)
+        for k, v in KEEP_UPDATED_CONFIGURATION.items():
+            db.Configuration.add(k, v)
+
+
+def add_database_to_types(db: Database):
 
     ChangeMatieres.db = db
     DTB.db = db
@@ -155,11 +159,11 @@ def main(filename=None):
     # create database and update configation with default values if needed
     db = main_init_database(filename=filename, prod=prod)
     update_configuration(db)
+    add_database_to_types(db)
 
     # qml
     register_new_qml_type()
     engine = QQmlApplicationEngine()
-    setup_engine(engine)
 
     # late configuration
     late_setup_application(app, db)

@@ -25,6 +25,7 @@ from PySide2.QtGui import (
 )
 from bs4 import NavigableString, BeautifulSoup
 from mako.lookup import TemplateLookup
+from mycartable.default_configuration import KEEP_UPDATED_CONFIGURATION
 from mycartable.types.dtb import DTB
 from mycartable.constantes import (
     ANNOTATION_TEXT_BG_OPACITY,
@@ -40,11 +41,6 @@ from pony.orm import db_session
 from loguru import logger
 
 from mycartable import qrc  # type: ignore
-
-from mycartable.package.ui_manager import (
-    DEFAULT_ANNOTATION_CURRENT_TEXT_SIZE_FACTOR,
-    UiManager,
-)
 
 
 from PySide2.QtCore import QBuffer
@@ -64,7 +60,7 @@ class Converter:
 
     def _export(self, format, ext, open_file=True):
         filename = escaped_filename(self.titre, ext)
-        new_file = soffice_convert(self.id, format, filename, UiManager())
+        new_file = soffice_convert(self.id, format, filename)
         if open_file:
             QDesktopServices.openUrl(QUrl.fromLocalFile(str(new_file)))
 
@@ -186,7 +182,10 @@ def draw_annotation_text(annotation: dict, image: QImage, painter: QPainter):
     style = annotation["style"]
     font.setPixelSize(
         image.height()
-        / (style["pointSize"] or DEFAULT_ANNOTATION_CURRENT_TEXT_SIZE_FACTOR)
+        / (
+            style["pointSize"]
+            or KEEP_UPDATED_CONFIGURATION["annotationCurrentTextSizeFactor"]
+        )
     )
     font.setUnderline(style["underline"])
     # get considère empty "" comme true

@@ -267,6 +267,7 @@ BaseMenu {
                 icon.color: "transparent"
                 ToolTip.visible: hovered
                 ToolTip.text: "Ajouter une ligne à la fin"
+                Component.onCompleted: action.triggered.connect(root.close)
 
                 action: TableauActions.AppendRow {
                     cell: root.target

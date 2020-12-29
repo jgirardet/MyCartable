@@ -116,7 +116,8 @@ Item {
         function test_newimage() {
             mouseClick(newimage);
             newimage.action.dialog.folder = "assets";
-            mouseDoubleClickSequence(newimage.action.dialog.contentItem, 150, 150, Qt.LeftButton, Qt.NoModifier, 50);
+            // voir tst_pagestions.test_insert_row_entre pour la bonne valeur du clique
+            mouseDoubleClickSequence(newimage.action.dialog.contentItem, 150, 80, Qt.LeftButton, Qt.NoModifier, 50);
             tryCompare(newimage.action.busy, "visible", false);
             compare_new_section("ImageSection");
         }

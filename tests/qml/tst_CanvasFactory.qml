@@ -5,22 +5,22 @@ Item {
 
     property var _newDessin: null
     property var model
+    property var section
 
     width: 200
     height: 200
 
     CasTest {
-        //      params = {
-        //        "sectionId": 3796,
-        //        "sectionItem": item
-        //      }
-
         property var mouse
 
         function initPre() {
-        }
-
-        function initPreCreate() {
+            let imgsection = fk.f("imageSection", {
+                "path": "tst_AnnotableImage.png"
+            });
+            section = th.getBridgeInstance(item, "ImageSection", imgsection.id);
+            params = {
+                "section": section
+            };
         }
 
         function initPost() {
@@ -79,9 +79,9 @@ Item {
         }
 
         function test_endDraw_blue_rect() {
-            uiManager.annotationDessinCurrentTool = "rect";
-            uiManager.annotationDessinCurrentStrokeStyle = "blue";
-            uiManager.annotationDessinCurrentLineWidth = 10;
+            section.annotationDessinCurrentTool = "rect";
+            section.annotationDessinCurrentStrokeStyle = "blue";
+            section.annotationDessinCurrentLineWidth = 10;
             tested.startDraw(false);
             tested.mouse = {
                 "mouseX": 100,
@@ -95,7 +95,7 @@ Item {
         }
 
         function test_endDraw_trait() {
-            uiManager.annotationDessinCurrentTool = "trait";
+            section.annotationDessinCurrentTool = "trait";
             tested.endDraw(23);
             compare(item._newDessin[1].tool, "trait");
         }

@@ -8,76 +8,6 @@ Item {
     width: 400
     height: 400
 
-    Component {
-        //        }
-
-        id: red
-
-        Rectangle {
-            property alias sw: sw
-
-            color: "red"
-
-            SplitSwitch {
-                id: sw
-
-                mainItem: sl
-                anchors.centerIn: parent
-            }
-
-        }
-
-    }
-
-    Component {
-        id: blue
-
-        Rectangle {
-            property alias sw: sw
-
-            color: "blue"
-
-            SplitSwitch {
-                id: sw
-
-                mainItem: sl
-                anchors.centerIn: parent
-            }
-
-        }
-
-    }
-
-    Component {
-        id: green
-
-        Rectangle {
-            property alias lebutton: lebutton
-            property alias sw: sw
-
-            color: "green"
-
-            Column {
-                anchors.fill: parent
-
-                Button {
-                    id: lebutton
-
-                    text: "bla"
-                }
-
-                SplitSwitch {
-                    id: sw
-
-                    mainItem: sl
-                }
-
-            }
-
-        }
-
-    }
-
     SplitLayout {
         id: sl
 
@@ -86,22 +16,19 @@ Item {
             "red": {
                 "splittype": "red",
                 "splittext": "lered",
-                "spliturl": "",
-                "splitcomp": red,
+                "spliturl": th.testPath("assets/splitswitch/SwRed.qml"),
                 "splitindex": 0
             },
             "blue": {
                 "splittype": "blue",
                 "splittext": "leblue",
-                "spliturl": "",
-                "splitcomp": blue,
+                "spliturl": th.testPath("assets/splitswitch/SwBlue.qml"),
                 "splitindex": 1
             },
             "green": {
                 "splittype": "green",
                 "splittext": "legreen",
-                "spliturl": "",
-                "splitcomp": green,
+                "spliturl": th.testPath("assets/splitswitch/SwGreen.qml"),
                 "splitindex": 2
             }
         }

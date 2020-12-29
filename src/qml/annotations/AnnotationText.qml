@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+import "qrc:/qml/menu"
 
 TextArea {
     // casse le binding mais evite le loop, donc on laisse pour le moment
@@ -8,10 +9,10 @@ TextArea {
 
     property var referent
     property QtObject annot
-    property var menu: uiManager.menuFlottantAnnotationText
+    property alias menu: menuFlottantAnnotationText
     property int pointSizeStep: 1
     property int moveStep: 5
-    property int fontSizeFactor: annot.pointSize ? annot.pointSize : 0 //uiManager.annotationCurrentTextSizeFactor
+    property int fontSizeFactor: annot.pointSize ? annot.pointSize : 0 //annot.annotationCurrentTextSizeFactor
 
     function move(key) {
         if (key == Qt.Key_Left)
@@ -41,7 +42,7 @@ TextArea {
     selectByMouse: true
     Component.onCompleted: {
         if (!annot.pointSize)
-            fontSizeFactor = uiManager.annotationCurrentTextSizeFactor;
+            fontSizeFactor = annot.annotationCurrentTextSizeFactor;
 
         forceActiveFocus();
         timerRemove.running = true;
@@ -52,7 +53,7 @@ TextArea {
 
         // attention on stock fontSizeFactor dans du pointSize :le nom dans la ddb est nul :-)
         annot.pointSize = root.fontSizeFactor;
-        uiManager.annotationCurrentTextSizeFactor = root.fontSizeFactor;
+        annot.annotationCurrentTextSizeFactor = root.fontSizeFactor;
     }
     onFocusChanged: {
         if (focus)
@@ -71,6 +72,10 @@ TextArea {
             move(event.key);
             event.accepted = true;
         }
+    }
+
+    MenuFlottantAnnotationText {
+        id: menuFlottantAnnotationText
     }
 
     Timer {

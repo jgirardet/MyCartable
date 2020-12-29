@@ -9,6 +9,7 @@ from PySide2.QtCore import QPointF, Qt, QUrl
 from PySide2.QtGui import QColor, QImage, QCursor
 from PySide2.QtQuick import QQuickItem
 from mycartable.classeur.sections.annotation import AnnotationModel
+from mycartable.default_configuration import KEEP_UPDATED_CONFIGURATION
 from mycartable.types import DTB
 from tests.python.fixtures import check_args
 from mycartable.classeur import ImageSection
@@ -97,6 +98,24 @@ def test_new_image_path(fk):
             ImageSection.get_new_image_path(".gif")
             == "2018/2344-09-21-07-48-05-d9ca3.gif"
         )
+
+
+@pytest.mark.parametrize(
+    "name, new_value",
+    [
+        ("annotationCurrentTool", "new_tool"),
+        ("annotationDessinCurrentLineWidth", "99"),
+        ("annotationDessinCurrentStrokeStyle", QColor("purple")),
+        ("annotationDessinCurrentTool", "new_tool"),
+    ],
+)
+def test_annotation_properties(fk, qtbot, name, new_value):
+    i = fk.f_imageSection(td=True)
+    img = ImageSection.get(i)
+    assert getattr(img, name) == KEEP_UPDATED_CONFIGURATION[name]
+    setattr(img, name, new_value)
+    with db_session:
+        assert fk.db.Configuration.option(name) == new_value
 
 
 def test_store_new_file_pathlib(resources):

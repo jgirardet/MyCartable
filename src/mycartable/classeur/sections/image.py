@@ -26,6 +26,10 @@ class ImageSection(Section):
     entity_name = "ImageSection"
     ALL_IMAGE_CURSORS = None
 
+    annotationCurrentToolChanged = Signal()
+    annotationDessinCurrentStrokeStyleChanged = Signal()
+    annotationDessinCurrentToolChanged = Signal()
+    annotationDessinCurrentLineWidthChanged = Signal()
     annotationTextBGOpacityChanged = Signal()
 
     """
@@ -120,6 +124,42 @@ class ImageSection(Section):
     """
     Qt Propoerty
     """
+
+    @Property(str, notify=annotationCurrentToolChanged)
+    def annotationCurrentTool(self):
+        return self._dtb.getConfig("annotationCurrentTool")
+
+    @annotationCurrentTool.setter
+    def annotationCurrentTool_set(self, value: str):
+        self._dtb.setConfig("annotationCurrentTool", value)
+        self.annotationCurrentToolChanged.emit()
+
+    @Property(int, notify=annotationDessinCurrentLineWidthChanged)
+    def annotationDessinCurrentLineWidth(self):
+        return self._dtb.getConfig("annotationDessinCurrentLineWidth")
+
+    @annotationDessinCurrentLineWidth.setter
+    def annotationDessinCurrentLineWidth_set(self, value: int):
+        self._dtb.setConfig("annotationDessinCurrentLineWidth", value)
+        self.annotationDessinCurrentLineWidthChanged.emit()
+
+    @Property(QColor, notify=annotationDessinCurrentStrokeStyleChanged)
+    def annotationDessinCurrentStrokeStyle(self):
+        return QColor(self._dtb.getConfig("annotationDessinCurrentStrokeStyle"))
+
+    @annotationDessinCurrentStrokeStyle.setter
+    def annotationDessinCurrentStrokeStyle_set(self, value: str):
+        self._dtb.setConfig("annotationDessinCurrentStrokeStyle", value.name())
+        self.annotationDessinCurrentStrokeStyleChanged.emit()
+
+    @Property(str, notify=annotationDessinCurrentToolChanged)
+    def annotationDessinCurrentTool(self):
+        return self._dtb.getConfig("annotationDessinCurrentTool")
+
+    @annotationDessinCurrentTool.setter
+    def annotationDessinCurrentTool_set(self, value: str):
+        self._dtb.setConfig("annotationDessinCurrentTool", value)
+        self.annotationDessinCurrentToolChanged.emit()
 
     @Property(float, notify=annotationTextBGOpacityChanged)
     def annotationTextBGOpacity(self):

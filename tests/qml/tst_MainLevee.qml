@@ -6,7 +6,7 @@ Item {
     id: item
 
     property var points: AssetAnnot.pointsMainLevee
-    property var model: section.model
+    property var model: section ? section.model : null
     property var section
 
     CasTest {
@@ -14,7 +14,8 @@ Item {
             let fsection = fk.f("imageSection");
             item.section = th.getBridgeInstance(item, "ImageSection", fsection.id);
             params = {
-                "anchors.fill": item
+                "anchors.fill": item,
+                "section": section
             };
         }
 

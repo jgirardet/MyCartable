@@ -46,8 +46,7 @@ ApplicationWindow {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: parent.bottom
-        layouts: uiManager.mainLayouts
-        nullComp: uiManager.nullComp
+        layouts: JSON.parse(database.getConfig("layouts"))
         initDataModel: ["classeur"]
     }
 

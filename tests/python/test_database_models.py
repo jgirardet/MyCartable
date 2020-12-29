@@ -1584,6 +1584,9 @@ class TestConfiguration:
 
     def test_to_dict(self, fk):
         with db_session:
+            for ek in fk.db.Configuration.select():
+                ek.delete()
+        with db_session:
             fk.db.Configuration.add("un", 1)
             fk.db.Configuration.add("deux", "2")
             fk.db.Configuration.add("trois", ["3"])

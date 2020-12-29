@@ -20,35 +20,6 @@ Rectangle {
 
     }
     color: Qt.rgba(98 / 255, 105 / 255, 123 / 255, 1)
-    Component.onCompleted: {
-        var newComp = Qt.createComponent("qrc:/qml/menu/MenuFlottantAnnotationDessin.qml");
-        if (newComp.status == Component.Ready)
-            uiManager.menuFlottantAnnotationDessin = newComp.createObject(root);
-        else
-            print(newComp.errorString());
-        var newComp = Qt.createComponent("qrc:/qml/menu/MenuFlottantAnnotationText.qml");
-        if (newComp.status == Component.Ready)
-            uiManager.menuFlottantAnnotationText = newComp.createObject(root);
-        else
-            print(newComp.errorString());
-        var newComp = Qt.createComponent("qrc:/qml/menu/MenuFlottantTableau.qml");
-        if (newComp.status == Component.Ready)
-            uiManager.menuFlottantTableau = newComp.createObject(root);
-        else
-            print(newComp.errorString());
-        var newComp = Qt.createComponent("qrc:/qml/menu/MenuFlottantImage.qml");
-        if (newComp.status == Component.Ready)
-            uiManager.menuFlottantImage = newComp.createObject(root);
-        else
-            print(newComp.errorString());
-    }
-    Component.onDestruction: {
-        uiManager.menuFlottantAnnotationDessin = null;
-        uiManager.menuFlottantText = null;
-        uiManager.menuFlottantAnnotationText = null;
-        uiManager.menuFlottantTableau = null;
-        uiManager.menuFlottantImage = null;
-    }
 
     Database {
         id: database

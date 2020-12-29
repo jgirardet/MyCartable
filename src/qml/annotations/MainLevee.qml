@@ -6,8 +6,9 @@ Canvas {
 
     property var mouse
     property bool painting: false
-    property real lineWidth: uiManager.annotationDessinCurrentLineWidth
-    property color strokeStyle: uiManager.annotationDessinCurrentStrokeStyle
+    property QtObject section
+    property real lineWidth: section.annotationDessinCurrentLineWidth
+    property color strokeStyle: section.annotationDessinCurrentStrokeStyle
     property var points: []
 
     function startDraw(fallback) {

@@ -14,7 +14,7 @@ from pony.orm import Database, db_session, ObjectNotFound
 
 from tests.common import fn_reset_db
 from tests.factory import Faker
-from mycartable.package.database import init_database
+from mycartable.database import init_database
 from mycartable.types.dtb import DTB
 
 from mycartable.classeur import (
@@ -57,6 +57,7 @@ class FakerHelper(QObject):
             self.db.Configuration.add("annee", 2019)
 
     @Slot(str, str, result="QVariantMap")
+    @Slot(str, int, result="QVariantMap")
     @Slot(str, str, int, int, result="QVariantMap")
     def getItem(self, entity: str, id: str, rab1=None, rab2=None) -> dict:
         params = tuple([aa for aa in [id, rab1, rab2] if aa is not None])

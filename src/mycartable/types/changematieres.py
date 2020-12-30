@@ -2,8 +2,6 @@ from typing import List
 
 from PySide2.QtCore import Signal, Slot, QObject
 from PySide2.QtGui import QColor
-from loguru import logger
-from mycartable.package.default_matiere import MATIERE_GROUPE_BASE, MATIERES_BASE
 from pony.orm import db_session, sum, Database
 
 

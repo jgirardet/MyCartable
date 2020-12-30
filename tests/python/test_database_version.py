@@ -1,6 +1,6 @@
 import pytest
-from package.database.base_db import Schema
-from package.utils import Version
+from mycartable.database.base_db import Schema
+from mycartable.utils import Version
 from pony.orm import Database, db_session
 
 

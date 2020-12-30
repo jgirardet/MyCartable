@@ -9,18 +9,18 @@ from PySide2.QtCore import QPointF, Qt, QUrl
 from PySide2.QtGui import QColor, QImage, QCursor
 from PySide2.QtQuick import QQuickItem
 from mycartable.classeur.sections.annotation import AnnotationModel
-from mycartable.default_configuration import KEEP_UPDATED_CONFIGURATION
+from mycartable.defaults.configuration import KEEP_UPDATED_CONFIGURATION
 from mycartable.types import DTB
 from tests.python.fixtures import check_args
 from mycartable.classeur import ImageSection
-from mycartable.package.cursors import build_one_image_cursor
-from mycartable.files_path import FILES
+from mycartable.cursors import build_one_image_cursor
+from mycartable.defaults.files_path import FILES
 from pony.orm import db_session
 
 
 @pytest.mark.freeze_time("2344-9-21 7:48:5")
 @patch(
-    "mycartable.package.utils.uuid.uuid4",
+    "mycartable.utils.uuid.uuid4",
     new=lambda: uuid.UUID("d9ca35e1-0b4b-4d42-9f0d-aa07f5dbf1a5"),
 )
 def test_new_Image(fk, resources):
@@ -45,7 +45,7 @@ def test_new_Image(fk, resources):
 
 @pytest.mark.freeze_time("2344-9-21 7:48:5")
 @patch(
-    "mycartable.package.utils.uuid.uuid4",
+    "mycartable.utils.uuid.uuid4",
     new=lambda: uuid.UUID("d9ca35e1-0b4b-4d42-9f0d-aa07f5dbf1a5"),
 )
 def test_new_ImageVide(fk, resources):
@@ -82,7 +82,7 @@ def test_model(fk):
 @pytest.mark.freeze_time("2344-9-21 7:48:5")
 def test_new_image_path(fk):
     with patch(
-        "package.utils.uuid.uuid4",
+        "mycartable.utils.uuid.uuid4",
         new=lambda: uuid.UUID("d9ca35e1-0b4b-4d42-9f0d-aa07f5dbf1a5"),
     ):
         with db_session:

@@ -1,4 +1,4 @@
-from mycartable.default_configuration import (
+from mycartable.defaults.configuration import (
     DEFAUT_CONFIGURATION,
     KEEP_UPDATED_CONFIGURATION,
 )

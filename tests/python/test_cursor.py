@@ -1,6 +1,6 @@
 from PySide2.QtCore import QPoint
 from PySide2.QtGui import QColor
-from mycartable.package.cursors import build_one_image_cursor
+from mycartable.cursors import build_one_image_cursor
 
 
 def test_hotspots():

@@ -15,7 +15,7 @@ from pony.orm import db_session
 
 from .matiere import Matiere
 from .sections import Section
-from mycartable.package.utils import shift_list
+from mycartable.utils import shift_list
 from mycartable.types.bridge import Bridge
 from mycartable.types.listmodel import DtbListModel
 

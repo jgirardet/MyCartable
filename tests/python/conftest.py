@@ -10,7 +10,7 @@ from pony.orm import db_session, Database
 
 @pytest.fixture(scope="session", autouse=True)
 def memory_db():
-    from mycartable.package.database import init_database
+    from mycartable.database import init_database
 
     logger.disable("")
     db = init_database(Database())

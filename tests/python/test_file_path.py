@@ -2,8 +2,7 @@ import shutil
 from pathlib import Path
 from unittest.mock import patch
 
-import pytest
-from mycartable.files_path import root_data, files, tmp_files
+from mycartable.defaults.files_path import root_data, files, tmp_files
 from PySide2.QtCore import QStandardPaths
 
 
@@ -22,7 +21,7 @@ def test_root_data_en_test():
 
 
 def test_root_data_en_prod():
-    with patch("mycartable.files_path.get_prod", return_value=True):
+    with patch("mycartable.defaults.files_path.get_prod", return_value=True):
 
         appdata = (
             Path(QStandardPaths.writableLocation(QStandardPaths.DocumentsLocation))

@@ -11,11 +11,11 @@ from PySide2.QtQuick import QQuickItem
 from mycartable.conversion.pdf import PDFSplitter
 
 from .annotation import AnnotationModel
-from mycartable.constantes import ANNOTATION_TEXT_BG_OPACITY
+from mycartable.defaults.constantes import ANNOTATION_TEXT_BG_OPACITY
 from mycartable.conversion import WImage
-from mycartable.package.cursors import build_one_image_cursor, build_all_image_cursor
-from mycartable.files_path import FILES
-from mycartable.package.utils import get_new_filename, pathize
+from mycartable.cursors import build_one_image_cursor, build_all_image_cursor
+from mycartable.defaults.files_path import FILES
+from mycartable.utils import get_new_filename, pathize
 from mycartable.types.dtb import DTB
 from pony.orm import db_session
 

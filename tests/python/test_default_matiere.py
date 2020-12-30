@@ -1,6 +1,5 @@
 import PySide2
-from package.default_matiere import build_matiere
-from package.default_matiere import SATURATION_BASE, VALUE_BASE
+from mycartable.defaults.matiere import SATURATION_BASE, VALUE_BASE, build_matiere
 
 
 def test_MATIERES():

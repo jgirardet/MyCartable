@@ -4,7 +4,7 @@ from uuid import UUID
 
 import pytest
 from mycartable.classeur.convert import frise_section
-from mycartable.package import WIN
+from mycartable import WIN
 from pony.orm import db_session
 
 
@@ -28,7 +28,6 @@ class TestExportToOdt:
         height = pixel_to_mm(f1.height)
         img = resources / "convert" / "frisesection.png"
         img = base64.b64encode(img.read_bytes())
-        # print("img dans test", img)
         control = f"""<text:p text:style-name="Standard">
     <draw:frame draw:style-name="fr1" draw:name="{"1"*32}" text:anchor-type="paragraph" svg:width="{width}mm"  svg:height="{height}mm" draw:z-index="0">
         <draw:image loext:mime-type="image/png">
@@ -49,7 +48,6 @@ class TestExportToOdt:
         height = pixel_to_mm(f1.height)
         img = resources / "convert" / "frisesection.png"
         img = base64.b64encode(img.read_bytes())
-        # print("img dans test", img)
         control = f"""<text:p text:style-name="Standard">
     <draw:frame draw:style-name="fr1" draw:name="{"1"*32}" text:anchor-type="paragraph" svg:width="{width}mm"  svg:height="{height}mm" draw:z-index="0">
         <draw:image loext:mime-type="image/png">

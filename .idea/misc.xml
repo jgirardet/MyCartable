@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ProjectPlainTextFileTypeManager">
-    <file url="file://$PROJECT_DIR$/src/qml/sections/frise/main.qml" />
+    <file url="file://$PROJECT_DIR$/src/mycartable/package/database_object.py" />
   </component>
   <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.8 MyCartable" project-jdk-type="Python SDK" />
   <component name="PyCharmProfessionalAdvertiser">

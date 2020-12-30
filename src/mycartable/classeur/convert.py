@@ -25,23 +25,20 @@ from PySide2.QtGui import (
 )
 from bs4 import NavigableString, BeautifulSoup
 from mako.lookup import TemplateLookup
-from mycartable.default_configuration import KEEP_UPDATED_CONFIGURATION
+from mycartable.defaults.configuration import KEEP_UPDATED_CONFIGURATION
 from mycartable.types.dtb import DTB
-from mycartable.constantes import (
+from mycartable.defaults.constantes import (
     ANNOTATION_TEXT_BG_OPACITY,
     MONOSPACED_FONTS,
 )
 from mycartable.conversion import Grabber
-from mycartable.package.database import getdb
-from mycartable.files_path import FILES, TMP
-from mycartable.package.utils import read_qrc, qrunnable
-from mycartable.package import LINUX, WIN
+from mycartable.database import getdb
+from mycartable.defaults.files_path import FILES, TMP
+from mycartable.utils import read_qrc, qrunnable
+from mycartable import LINUX, WIN
 from pony.orm import db_session
 
 from loguru import logger
-
-from mycartable import qrc  # type: ignore
-
 
 from PySide2.QtCore import QBuffer
 from PySide2.QtGui import QImage

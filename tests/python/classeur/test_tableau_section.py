@@ -1,5 +1,5 @@
 import pytest
-from fixtures import check_args
+from tests.python.fixtures import check_args
 from mycartable.classeur import TableauSection
 from pony.orm import db_session
 

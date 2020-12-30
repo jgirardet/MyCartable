@@ -54,7 +54,7 @@ jobs:
     - name: Tests python test on ${{ matrix.os }}
       run: python run.py test_python
     - name: Tests python/qml  test on ${{ matrix.os }}
-      run: python run.py test_qml_pytest
+      run: python run.py test_qml
     - name: Install Qt on Linux
       if: runner.os == 'Linux'
       uses: jurplel/install-qt-action@v2
@@ -71,9 +71,6 @@ jobs:
         target: 'desktop'
         arch: 'win64_mingw81'
         aqtversion: ">=0.9.0"
-    - name: Tests QML on ${{ matrix.os }}
-      run: |
-        python run.py test_qml_reset
 
 #    - name: Coverage on ${{ matrix.os }}
 #      run: |

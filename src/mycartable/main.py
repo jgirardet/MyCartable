@@ -4,14 +4,14 @@ from pathlib import Path
 
 from PySide2.QtGui import QFont, QFontDatabase, QIcon
 from mycartable.classeur import Classeur
-from mycartable.constantes import APPNAME, ORGNAME
-from mycartable.default_configuration import (
+from mycartable.defaults.constantes import APPNAME, ORGNAME
+from mycartable.defaults.configuration import (
     DEFAUT_CONFIGURATION,
     KEEP_UPDATED_CONFIGURATION,
 )
 from mycartable.types import Annee, ChangeMatieres
 from mycartable.types.dtb import DTB
-from mycartable.package import get_prod
+from mycartable import get_prod
 
 from PySide2.QtCore import (
     QUrl,
@@ -37,10 +37,10 @@ def main_init_database(filename=None, prod=False):
     logger.info(f"ficher settings : {settings.fileName()}")
     newdb = Database()
     create_db = False
-    import package.database
+    import mycartable.database
 
     if prod:
-        from package.files_path import ROOT_DATA
+        from mycartable.files_path import ROOT_DATA
 
         filename = settings.value("General/ddb_path", ROOT_DATA / "mycartable.ddb")
         create_db = True
@@ -54,18 +54,20 @@ def main_init_database(filename=None, prod=False):
         # filename = ":memory:"
         create_db = True
 
-    from migrations import make_migrations
+    from mycartable.migrations.migrations import make_migrations
 
     if filename != ":memory:" and Path(filename).is_file():
         migrate_res = make_migrations(filename)
         if not migrate_res:
-            from package.files_path import LOGFILE
+            from mycartable.defaults.files_path import LOGFILE
 
             raise SystemError(f"voir dans {LOGFILE}")
 
-    package.database.db = newdb
+    mycartable.database.db = newdb
 
-    db = package.database.init_database(newdb, filename=filename, create_db=create_db)
+    db = mycartable.database.init_database(
+        newdb, filename=filename, create_db=create_db
+    )
 
     if not prod:
         from tests.factory import Faker
@@ -82,7 +84,7 @@ def main_init_database(filename=None, prod=False):
         except:
             pass
 
-    return package.database.db
+    return mycartable.database.db
 
 
 def register_new_qml_type():
@@ -103,7 +105,7 @@ def load_engine(engine: QQmlApplicationEngine):
 
 
 def setup_logging():
-    from .files_path import LOGFILE
+    from mycartable.defaults.files_path import LOGFILE
 
     logger.add(LOGFILE, rotation="10 MB")
     logger.info(f"logfile path : {LOGFILE}")
@@ -171,8 +173,6 @@ def main(filename=None):
     # run the app
     load_engine(engine)
     sys.exit(app.exec_())
-
-    print("avant quit")
 
 
 if __name__ == "__main__":

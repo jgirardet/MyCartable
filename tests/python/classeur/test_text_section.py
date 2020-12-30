@@ -8,7 +8,7 @@ from PySide2.QtCore import Qt
 from PySide2.QtGui import QTextDocument, QColor, QFont, QKeyEvent, QBrush
 
 from bs4 import BeautifulSoup
-from mycartable.package.utils import KeyW
+from mycartable.utils import KeyW
 from pony.orm.core import db_session
 
 from mycartable.classeur.sections.text import (

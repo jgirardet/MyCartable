@@ -4,7 +4,7 @@ import base64
 import pytest
 from PySide2.QtGui import QImage, QColor
 from mycartable.conversion.pdf import PDFSplitter, save_pdf_pages_to_png
-from mycartable.package import WIN
+from mycartable import WIN
 from mycartable.conversion import Grabber, WImage
 
 
@@ -151,10 +151,7 @@ class TestGrabber:
 
             anchors.fill: parent
             Component.onCompleted: {
-                    print("avant,")
                     paint(item.childrenRect)
-                    //requestPaint()
-                    print(",apres")
             }
             onPaint: {
                 let ctx = canvas.getContext("2d");

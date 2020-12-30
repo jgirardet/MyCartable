@@ -6,7 +6,6 @@ import subprocess
 import os
 import sys
 import time
-from multiprocessing import cpu_count
 from pathlib import Path
 
 
@@ -18,7 +17,6 @@ VIRTUAL_ENV = ROOT / ".venv"
 QT_PATH = ROOT / QT_VERSION
 DIST = ROOT / "dist" / PACKAGE
 BUILD = ROOT / "build"
-QMLTESTS = ROOT / "build" / "qml_tests"
 
 
 currentProccess = None
@@ -233,13 +231,6 @@ def cmd_setup(*args, **kwargs):
     cmd_install_qt()
 
 
-def cmd_setup_qml(*args, **kwargs):
-    if QMLTESTS.exists():
-        shutil.rmtree(QMLTESTS)
-    com = f"qmake -o {QMLTESTS}/Makefile tests/qml_tests/qml_tests.pro -spec {sys.platform}-g++ CONFIG+=debug CONFIG+=qml_debug"
-    runCommand(com)
-
-
 def cmd_tag(*args, **kwargs):
     import toml
     import git
@@ -270,42 +261,8 @@ def cmd_test_python(*args, **kwargs):
 
 
 def cmd_test_qml(*args, **kwargs):
-    qml_tests = "qml_tests"
-    if sys.platform == "linux":
-        make = "make"
-        command_line = str(QMLTESTS / qml_tests)
-    elif sys.platform == "win32":
-        make = "mingw32-make.exe"
-        command_line = str(QMLTESTS / "debug" / f"{qml_tests}.exe")
-    runCommand(f"{make} -C build/qml_tests")
-    # command_line = str(QMLTESTS / qml_tests)
-
-    filedir = kwargs.get("input", None)
-    if filedir:
-        command_line = f"{command_line} -input {filedir}"
-
-    elif args:
-        testCase, testname = args
-        if testCase == "-input":
-            command_line = f"{command_line} {testCase} {testname}"
-        else:
-            testCase = testCase.lstrip("tst_")
-
-            if not testname.startswith("test_"):
-                testname = "test_" + testname
-            command_line = f"{command_line} {testCase}::{testname}"
-    runCommand(command_line)
-
-
-def cmd_test_qml_reset(*args, **kwargs):
-    cmd_setup_qml()
-    cmd_test_qml(*args, **kwargs)
-
-
-def cmd_test_qml_pytest(*args, **kwargs):
     capture = "-s --no-qt-log" if "capture" in args else ""
     test_path = ROOT / "tests" / "qml"
-    # f"python -m pytest -s -vvv -n {cpu_count()} {test_path}", sleep_time=0.001
     runCommand(
         f"python -m pytest -vv --color=yes {capture} {test_path} ", sleep_time=0.001
     )

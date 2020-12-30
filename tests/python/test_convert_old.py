@@ -33,7 +33,7 @@
 #
 # from package.files_path import TMP, FILES
 # from package.ui_manager import UiManager
-# from pony.orm import db_session
+# from pony.orm import dbsession_autodisconnect
 
 
 #
@@ -68,13 +68,11 @@
 #     p = Path("bla.txt")
 #     p.write_text("blaabalba")
 #     soffice = find_soffice()
-#     print(soffice)
 #     res = subprocess.run(
 #         [soffice, "--headless", "--convert-to", "pdf:writer_pdf_Export", str(p)],
 #         # cwd=p.parent,
 #         capture_output=True,
 #     )
-#     print(res, res.stdout)
 #     res = subprocess.run(
 #         [
 #             soffice,
@@ -87,7 +85,6 @@
 #         # cwd=p.parent,
 #         capture_output=True,
 #     )
-#     print(res, res.stdout)
 #
 #
 # # @pytest.mark.skip("lent")
@@ -284,7 +281,7 @@
 # #     assert hash(content) == hash(res)
 #
 # #
-# # @db_session
+# # @dbsession_autodisconnect
 # # def test_createimages_with_annotation(resources, tmp_path, ddbr):
 # #     image = QImage(300, 200, QImage.Format_RGB32)
 # #     image.fill(QColor("white"))

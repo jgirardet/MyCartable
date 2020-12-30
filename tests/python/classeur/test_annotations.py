@@ -4,7 +4,7 @@ import pytest
 
 from PySide2.QtCore import QByteArray
 from PySide2.QtGui import QColor
-from mycartable.default_configuration import KEEP_UPDATED_CONFIGURATION
+from mycartable.defaults.configuration import KEEP_UPDATED_CONFIGURATION
 from tests.python.fixtures import disable_log
 from mycartable.classeur import (
     Annotation,
@@ -320,7 +320,7 @@ class TestAnnotationModel:
     #             ),
     #             Qt.EditRole,
     #         )
-    #     with db_session:
+    #     with dbsession_autodisconnect:
     #         assert ddbr.AnnotationText[a0].text == "blabla"
     #
     #     # wrong index
@@ -332,7 +332,7 @@ class TestAnnotationModel:
     #             ),
     #             Qt.EditRole,
     #         )
-    #     with db_session:
+    #     with dbsession_autodisconnect:
     #         assert ddbr.AnnotationText[a0].text == "blabla"
     #
     # def test_set_data_select_right_class_annotation(self, am, ddbr):
@@ -343,7 +343,7 @@ class TestAnnotationModel:
     #         QJsonDocument.fromJson(json.dumps({"id": a0, "width": 23}).encode()),
     #         Qt.EditRole,
     #     )
-    #     with db_session:
+    #     with dbsession_autodisconnect:
     #         assert ddbr.AnnotationDessin[a0].width == 23
     #
     # def test_modif_update_recents_and_activites(self, qtbot, am):

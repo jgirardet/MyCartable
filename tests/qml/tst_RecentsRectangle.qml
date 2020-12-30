@@ -6,6 +6,7 @@ Item {
     id: item
 
     property var classeur
+    property var p2
 
     width: 200
     height: 200
@@ -28,7 +29,7 @@ Item {
                 "created": "2018-12-12",
                 "activite": ac.id
             });
-            let p2 = fk.f("page", {
+            p2 = fk.f("page", {
                 "created": "2018-01-12",
                 "activite": ac.id
             });
@@ -39,6 +40,7 @@ Item {
         }
 
         function init_post() {
+            wait(50);
         }
 
         function test_init() {
@@ -50,10 +52,17 @@ Item {
         }
 
         function test_page_click() {
-            wait(50);
             let but = tested.itemAtIndex(1);
             mouseClick(but);
             tryCompare(classeur.page, "titre", but.contentItem.text);
+        }
+
+        function test_page_button_background() {
+            let but = tested.itemAtIndex(1);
+            compare(but.background.border.width, 1);
+            fuzzyCompare(but.background.color, p2.matiereBgColor, 0);
+            mouseMove(but, 1, 1);
+            compare(but.background.border.width, 3);
         }
 
         name: "RecentsRectangle"

@@ -2,11 +2,11 @@ import uuid
 from datetime import datetime, date
 
 from PySide2.QtGui import QFont, QColor
-from fixtures import compare_items, wait, ss, uuu
+from tests.python.fixtures import compare_items, wait, ss, uuu
 
 import pytest
-from mycartable.package.database.mixins import PositionMixin, ColorMixin
-from mycartable.package.exceptions import MyCartableOperationError
+from mycartable.database import PositionMixin, ColorMixin
+from mycartable.exceptions import MyCartableOperationError
 from pony.orm import flush, Database, make_proxy, Set, Required, db_session
 
 

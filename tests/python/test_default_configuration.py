@@ -1,4 +1,4 @@
-from mycartable.default_configuration import KEEP_UPDATED_CONFIGURATION
+from mycartable.defaults.configuration import KEEP_UPDATED_CONFIGURATION
 
 
 def test_layouts():

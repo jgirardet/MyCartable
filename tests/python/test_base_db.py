@@ -1,8 +1,8 @@
 import pytest
-from mycartable.package.database.base_db import Schema
-from mycartable.package.database.models import schema_version
-from mycartable.package.utils import Version
-from package.database import init_bind
+from mycartable.database.base_db import Schema
+from mycartable.database.models import schema_version
+from mycartable.utils import Version
+from mycartable.database import init_bind
 from pony.orm import Database
 
 

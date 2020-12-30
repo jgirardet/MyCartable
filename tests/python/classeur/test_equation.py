@@ -3,7 +3,7 @@ import textwrap
 
 import pytest
 from PySide2.QtCore import Qt
-from fixtures import check_args
+from tests.python.fixtures import check_args
 from mycartable.classeur.sections.equation import (
     TextEquation,
     Fragment,

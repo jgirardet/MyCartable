@@ -1,7 +1,6 @@
 
 ###########
 Etape en cours :
-test c ++ vers python
 
 ###### APRES CI DESSUS #########
 
@@ -9,7 +8,6 @@ test c ++ vers python
 A faire plus généralement :
 
 -memoryleak : du au DDB et uimanger ? globus ?
--refaire uiManager
 
 
 ###### CHANGEMENT DB ######

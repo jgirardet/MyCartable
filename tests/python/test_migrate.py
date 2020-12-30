@@ -1,9 +1,8 @@
 import pytest
-from package.database import init_database
-from package.database.base_db import Schema
-from package.migrate import Migrator, MakeMigrations
-from package.utils import Version
-from pony.orm import Database, PrimaryKey, Required, Optional, db_session
+from mycartable.migrations.migrate import Migrator, MakeMigrations
+from mycartable.database.base_db import Schema
+from mycartable.utils import Version
+from pony.orm import Database, Required, db_session
 
 
 def init_onetable(ddb):

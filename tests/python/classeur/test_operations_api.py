@@ -1013,15 +1013,15 @@ class TestOperation:
 #
 #     def test_setData(self, to):
 #         assert to.setData(to.index(11, 0), "5", Qt.EditRole)  # doit retourner True
-#         with db_session:
+#         with dbsession_autodisconnect:
 #             un = str(to.db.Section.select().first().id)
-#         with db_session:
+#         with dbsession_autodisconnect:
 #             assert to.db.Section[un].datas[11] == "5"
 #             assert to.datas[11] == "5"
 #
 #         assert not to.setData(to.index(99, 0), "5", Qt.EditRole)
 #         assert not to.setData(to.index(11, 0), 8, Qt.DisplayRole)
-#         with db_session:
+#         with dbsession_autodisconnect:
 #             assert to.db.Section[un].datas[11] == "5"  # pas de modif
 #
 #     def test_setData_changerecents(self, to, qtbot):
@@ -2381,7 +2381,7 @@ class TestOperation:
 #         # a.ddb = dao
 #         x = fk.f_multiplicationSection()
 #         a.sectionId = x.id
-#         with db_session:
+#         with dbsession_autodisconnect:
 #             assert a.n_chiffres == x.n_chiffres
 #
 #     def test_get_initial_position(self, dao, fk):

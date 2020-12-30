@@ -1,11 +1,9 @@
 import itertools
-import uuid
-from decimal import Decimal
 from unittest.mock import patch, call
 
 import pytest
-from PySide2.QtCore import Qt, Signal
-from fixtures import check_super_init, check_args, check_is_range
+from PySide2.QtCore import Qt
+from tests.python.fixtures import check_args, check_is_range
 from mycartable.classeur import (
     OperationSection,
     AdditionSection,

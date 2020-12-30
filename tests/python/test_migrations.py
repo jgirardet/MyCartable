@@ -3,9 +3,9 @@ import tempfile
 from pathlib import Path
 
 import pytest
-from mycartable.package.database.base_db import init_models, Schema
-from mycartable.migrations import make_migrations
-from mycartable.package.database.models import schema_version
+from mycartable.database.base_db import init_models, Schema
+from mycartable.migrations.migrations import make_migrations
+from mycartable.database.models import schema_version
 from pony.orm import Database
 
 from tests.factory import Faker

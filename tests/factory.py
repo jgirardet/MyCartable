@@ -12,8 +12,7 @@ import random
 
 #
 from PySide2.QtGui import QColor
-from mycartable.package.default_matiere import (
-    MATIERES,
+from mycartable.defaults.matiere import (
     MATIERE_GROUPE_BASE,
     MATIERES_BASE,
 )

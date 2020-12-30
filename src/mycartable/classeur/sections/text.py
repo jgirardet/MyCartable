@@ -16,7 +16,7 @@ from PySide2.QtGui import (
     QTextDocumentFragment,
 )
 
-from mycartable.package.utils import KeyW
+from mycartable.utils import KeyW
 
 from . import Section
 

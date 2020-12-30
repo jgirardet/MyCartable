@@ -105,7 +105,7 @@ class Stylable:
 
     # @Slot(str, "QVariantMap", result="QVariantMap")
     # def setStyle(self, styleId, content):
-    #     with db_session:
+    #     with dbsession_autodisconnect:
     #         try:
     #             item = self.db.Style[styleId]
     #             item.set(**content)

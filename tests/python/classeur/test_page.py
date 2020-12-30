@@ -1,8 +1,8 @@
 from datetime import datetime
-from unittest.mock import patch, call
+from unittest.mock import patch
 
 import pytest
-from PySide2.QtCore import QModelIndex, Qt
+from PySide2.QtCore import QModelIndex
 from pytestqml.qt import QObject
 from tests.python.fixtures import ss, check_args, disable_log
 from mycartable.classeur import (
@@ -19,10 +19,9 @@ from mycartable.classeur import (
     DivisionSection,
     TableauSection,
     FriseSection,
-    Converter,
 )
-from mycartable.package.utils import shift_list
-from pony.orm import db_session, make_proxy
+from mycartable.utils import shift_list
+from pony.orm import db_session
 
 
 def test_subclassing(fk):

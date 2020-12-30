@@ -3,10 +3,6 @@ import QtQuick.Controls 2.15
 
 Item {
     id: tableauactions
-    function complete(ite) {
-        uiManager.menuFlottantTableau.ferme()
-        ite.parent.reload()
-    }
 
     component AddRow:  Action {
         property var cell

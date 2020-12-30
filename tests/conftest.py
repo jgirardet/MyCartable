@@ -8,7 +8,11 @@ from pathlib import Path
 import pytest
 from loguru import logger
 from mimesis import Generic
-from mycartable.main import register_new_qml_type
+
+
+root = Path(__file__).parents[1]
+python_dir = root / "src"
+sys.path.append(str(python_dir))
 
 from tests.common import setup_session
 
@@ -16,9 +20,11 @@ from tests.common import setup_session
 def pytest_sessionstart():
     setup_session()
 
+    from mycartable.main import register_new_qml_type
+
     register_new_qml_type()
 
-    from mycartable.files_path import root_data
+    from mycartable.defaults.files_path import root_data
 
     shutil.rmtree(root_data())
 
@@ -93,14 +99,6 @@ def tmpfilename(request, tmp_path, gen):
 """
 Qt fixtures
 """
-
-
-@pytest.fixture()
-def uim(qapp):
-    """uimannager fixture"""
-    from mycartable.package.ui_manager import UiManager
-
-    return UiManager()
 
 
 """

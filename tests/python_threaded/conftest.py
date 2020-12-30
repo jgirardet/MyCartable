@@ -12,7 +12,7 @@ def file_db(
     # monkeypatch_session,
     tmp_path_factory,
 ):
-    from mycartable.package.database import init_database
+    from mycartable.database import init_database
 
     tmpfilename = tmp_path_factory.mktemp("mycartablefiledb") / "bla.sqlite"
     logger.disable("")

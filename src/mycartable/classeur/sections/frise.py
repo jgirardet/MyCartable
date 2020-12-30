@@ -12,7 +12,7 @@ import typing
 
 from .section import Section
 from mycartable.types import DtbListModel
-from mycartable.package.utils import WDict, shift_list
+from mycartable.utils import WDict, shift_list
 
 
 class FriseSection(Section):

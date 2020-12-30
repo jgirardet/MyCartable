@@ -60,7 +60,7 @@ Item {
             splitobj = splitcomp.createObject(item);
             params = {
                 "mainItem": splitobj,
-                "parent": item
+                "base": item
             };
         }
 

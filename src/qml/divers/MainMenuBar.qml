@@ -10,6 +10,7 @@ Control {
     property alias heightAnimation: height_animation
     property alias hideTimer: timer_hide
     property Item mainItem
+    property var base
 
     height: 2 // juste pour trigger le hover
     onHoveredChanged: {
@@ -77,7 +78,7 @@ Control {
             delegate: ValueButton {
                 onClicked: {
                     database.setConfig('annee', value);
-                    root.parent.reload();
+                    base.reload();
                     changerAnnee_id.close();
                 }
                 text: "mon année de " + modelData.niveau + " en " + modelData.id + "/" + (modelData.id + 1)
@@ -105,7 +106,7 @@ Control {
         height: root.parent.height * 0.9
         contentWidth: contentItem.width
         onClosed: {
-            root.parent.reload();
+            base.reload();
         }
 
         contentItem: ChangeGroupe {

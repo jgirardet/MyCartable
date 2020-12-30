@@ -34,6 +34,7 @@ ApplicationWindow {
         id: mainmenubar
 
         mainItem: mainitem
+        base: root
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right

@@ -40,7 +40,7 @@ def main_init_database(filename=None, prod=False):
     import mycartable.database
 
     if prod:
-        from mycartable.files_path import ROOT_DATA
+        from mycartable.defaults.files_path import ROOT_DATA
 
         filename = settings.value("General/ddb_path", ROOT_DATA / "mycartable.ddb")
         create_db = True

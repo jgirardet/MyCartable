@@ -1,11 +1,10 @@
 import json
 from typing import Union, Optional, Any, List
 
-from PySide2.QtCore import Slot
+from PySide2.QtCore import Slot, QObject
 from PySide2.QtQml import QJSValue
 from loguru import logger
 from pony.orm import Database, db_session, ObjectNotFound
-from pytestqml.qt import QObject
 
 
 class DTB(QObject):

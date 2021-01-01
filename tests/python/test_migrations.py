@@ -1,10 +1,14 @@
 import shutil
 import tempfile
 from pathlib import Path
-
 import pytest
-from mycartable.database.base_db import init_models, Schema
-from mycartable.migrations.migrations import make_migrations
+from mycartable.database.base_db import init_models, Schema, db_session_disconnect_db
+from mycartable.migrations.migrate import MakeMigrations
+from mycartable.migrations.migrations import (
+    make_migrations,
+    migrations_history,
+    CheckMigrations,
+)
 from mycartable.database.models import schema_version
 from pony.orm import Database
 
@@ -73,12 +77,13 @@ class GenerateDatabase:
         self.generate_items()
         self.f.f_annotationDessin(points="""[{"x": 0.3, "y": 0.4}]""")
 
+    def version_1_4_0(self):
+        self.generate_items()
+
 
 @pytest.fixture(scope="session", autouse=True)
 def check_generate_database_version(resources):
     dest_path = resources / "db_version"
-    p = dest_path / "1.2.2.sqlite"
-    Schema(p).to_file(p.parent / "1.2.2.sql")
     gd = GenerateDatabase(schema_version, dest_path)
     if gd.sqlite_and_sql:
         gd.compare_schema()
@@ -86,7 +91,7 @@ def check_generate_database_version(resources):
         gd()
 
 
-@pytest.mark.parametrize("version", ["1.2.2"])
+@pytest.mark.parametrize("version", ["1.2.2", "1.3.0"])
 def test_depuis_version(resources, tmpfilename, caplogger, version):
 
     base = resources / "db_version" / f"{version}.sqlite"
@@ -96,3 +101,41 @@ def test_depuis_version(resources, tmpfilename, caplogger, version):
         Schema(tmpfilename).framgments
         == Schema(resources / "db_version" / f"{schema_version}.sqlite").framgments
     )
+
+
+def test_1_3_0_vers_1_4_0(new_res, resources, caplogger):
+    base = new_res(resources / "db_version" / f"1.3.0.sqlite")
+    mk = MakeMigrations(base, "1.4.0", migrations_history)
+
+    ddb = Database(provider="sqlite", filename=str(base))
+    with db_session_disconnect_db(ddb):
+        nom, prenom = ddb.get('select nom,prenom from Utilisateur where nom=="lenom"')
+
+    assert mk(CheckMigrations(), lambda x: True), caplogger.read()
+    ddb = Database(provider="sqlite", filename=str(base))
+
+    # test: pas de perte de donnée
+    with db_session_disconnect_db(ddb):
+        assert ddb.execute("select * from annee").fetchall() == [
+            (2018, "cm2018"),
+            (2019, "cm2019"),
+        ]
+    # test transfert nom, prenom, user_set de Utilisateur vers Configuration
+    with db_session_disconnect_db(ddb):
+        assert ddb.execute("select * from Configuration").fetchall() == [
+            (
+                "vue",
+                "str_value",
+                "intéresser",
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                "{}",
+            ),
+            ("nom", "str_value", nom, None, None, None, None, None, None, 0),
+            ("prenom", "str_value", prenom, None, None, None, None, None, None, 0),
+            ("user_set", "bool_value", "", None, 1, None, None, None, None, 0),
+        ]

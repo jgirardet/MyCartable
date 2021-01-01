@@ -74,8 +74,8 @@ def new_res(tmp_path, resources):
     """pour acces en écriture"""
 
     def factory(name):
-        file = resources / name
-        new_file = tmp_path / name
+        file = name if isinstance(name, Path) else resources / name
+        new_file = tmp_path / file.name
         new_file.write_bytes(file.read_bytes())
         return new_file
 

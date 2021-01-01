@@ -33,6 +33,8 @@ class Migrator:
         """
         selected = []
         schema_v = self.schema.version
+        if schema_v == self.version:
+            return selected
         for ver, migs in self.migrations.items():
             version = Version(ver)
             if schema_v < version <= self.version:
@@ -87,6 +89,9 @@ class MakeMigrations:
         # outils pour migrations
         self.tmp_db = Database(provider="sqlite", filename=tmp.name)
         self.schema = Schema(file=self.tmp_db)
+        if self.schema.version == self.actual_version:
+            logger.info(f"version {self.actual_version}: No migration needed")
+            return
         self.migrator = Migrator(self.tmp_db, self.actual_version, migrations)
         logger.info(
             f"starting migrations from version {self.schema.version} to {self.actual_version}"
@@ -158,7 +163,11 @@ class MakeMigrations:
         - on remplace l'ancienne par la nouvelle
 
         :return: True sinon False
+
         """
+        if not hasattr(self, "migrator"):
+            return True
+
         backup_file = self.backup_old()
 
         try:
@@ -171,3 +180,15 @@ class MakeMigrations:
             self.restore_backup(backup_file)
             return False
         return True
+
+
+class MigrationError(Exception):
+    """
+    Base classe des erreurs de migration
+    """
+
+
+class MigrationResultError(MigrationError):
+    """
+    la migration est faite sans erreur mais le résultat n'est pas bon
+    """

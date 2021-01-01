@@ -143,6 +143,16 @@ class TestMakeMigrations:
             == "mycartable_backup-from_0.0.0-to_1.0.1-2017-05-21T12_12_12"
         )
 
+    def test_migrations_same_version_is_cancelled(selfn, tmpfile, caplogger):
+        ddb = Database(provider="sqlite", filename=str(tmpfile))
+        init_onetable(ddb)
+        s1 = Schema(ddb)
+        s1.version = "1.3.4"
+        m = MakeMigrations(tmpfile, Version("1.3.4"), migrations)
+        assert not hasattr(m, "migrator")
+        m(lambda: True, lambda: True)
+        assert "No migration needed" in caplogger.read()
+
     def test_migration_check_fail(self, tmpfile, caplogger):
         ddb = Database(provider="sqlite", filename=str(tmpfile))
         init_onetable(ddb)

@@ -39,9 +39,6 @@ Item {
             };
         }
 
-        function initPreCreate() {
-        }
-
         function initPost() {
             rep = findChild(tested, "repeater");
             grid = findChild(tested, "grid");

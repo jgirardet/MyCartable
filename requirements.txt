@@ -1,6 +1,5 @@
 
 #dev
-aqtinstall==0.9
 black
 coverage
 freezegun

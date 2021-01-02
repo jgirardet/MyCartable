@@ -44,13 +44,19 @@ class Migrator:
         return selected
 
     def process_migrations(self, mig_list: list):
+        """
+        procession migrations.
+        Ne marche pas avec pony sans ddl = True. (perte de donnée)
+        on lausse le momory pour les tests seulement
+        à revoir si on vir sqlite3 pour repasser pony
+        alexander sayd : Hmm, it is undocumented indeed.
+            It mark db session as peforming some DDL (that is, ALTER TABLE) commands.
+            For SQLite it means that db_session turns off foreign key checks
 
-        # with db_session(sql_debug=True):
+        """
+        # with db_session(ddl=True):
         #     for mig in mig_list:
         #         self.db.execute(mig)
-        #         print(mig)
-        #         assert self.db.execute("select id from Page").fetchall()
-        #         # self.db.flush()
 
         filename = self.db.provider.pool.filename
         if filename == ":memory:":

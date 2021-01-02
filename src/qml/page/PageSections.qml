@@ -23,6 +23,8 @@ import QtQuick.Controls 2.15
 import "qrc:/qml/divers"
 
 Flickable {
+    //        returnToBounds();
+
     id: root
 
     required property QtObject page
@@ -47,11 +49,11 @@ Flickable {
             column.forceLayout();
             let item = itemAt(idx);
             let scrollToY = item.mapToItem(column, 0, 0).y;
-            contentY = scrollToY - (height * 0.3);
+            let newY = scrollToY - (height * 0.3);
+            contentY = newY > 0 ? newY : 0;
         } else {
             contentY = 0;
         }
-        returnToBounds();
     }
 
     function scrollToIndex(idx) {

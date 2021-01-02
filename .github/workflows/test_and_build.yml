@@ -51,33 +51,33 @@ jobs:
       if: runner.os == 'Windows'
       run: |
         choco install libreoffice-fresh -y
+    - name: write qrc
+      run: |
+        python run.py make_qrc
     - name: Tests python test on ${{ matrix.os }}
       run: python run.py test_python
     - name: Tests python/qml  test on ${{ matrix.os }}
       run: python run.py test_qml
-    - name: Install Qt on Linux
-      if: runner.os == 'Linux'
-      uses: jurplel/install-qt-action@v2
-      with:
-        version: '5.15.1'
-        host: 'linux'
-        target: 'desktop'
-    - name: Install Qt on Windows
-      if: runner.os == 'Windows'
-      uses: jurplel/install-qt-action@v2
-      with:
-        version: '5.15.1'
-        host: 'windows'
-        target: 'desktop'
-        arch: 'win64_mingw81'
-        aqtversion: ">=0.9.0"
+#    - name: Install Qt on Linux
+#      if: runner.os == 'Linux'
+#      uses: jurplel/install-qt-action@v2
+#      with:
+#        version: '5.15.1'
+#        host: 'linux'
+#        target: 'desktop'
+#    - name: Install Qt on Windows
+#      if: runner.os == 'Windows'
+#      uses: jurplel/install-qt-action@v2
+#      with:
+#        version: '5.15.1'
+#        host: 'windows'
+#        target: 'desktop'
+#        arch: 'win64_mingw81'
+#        aqtversion: ">=0.9.0"
 
 #    - name: Coverage on ${{ matrix.os }}
 #      run: |
 #        python run.py cov
-    - name: write qrc
-      run: |
-        python run.py make_qrc
 
     - name: briefcase create all platforms
       if:  matrix.os != 'ubuntu-16.04'

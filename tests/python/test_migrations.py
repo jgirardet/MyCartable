@@ -60,7 +60,9 @@ class GenerateDatabase:
 
     def store_db_and_schema(self):
         shutil.move(self.tmp_path, self.sqlite)
-        Schema(self.sqlite).to_file(self.sql)
+        schema = Schema(self.sqlite)
+        schema.version = self.version
+        schema.to_file(self.sql)
 
     """
     Sous cette marque, on définie les fonctions pour les versions
@@ -91,7 +93,7 @@ def check_generate_database_version(resources):
         gd()
 
 
-@pytest.mark.parametrize("version", ["1.2.2", "1.3.0"])
+@pytest.mark.parametrize("version", migrations_history.keys())
 def test_depuis_version(resources, tmpfilename, caplogger, version):
 
     base = resources / "db_version" / f"{version}.sqlite"
@@ -102,19 +104,25 @@ def test_depuis_version(resources, tmpfilename, caplogger, version):
         == Schema(resources / "db_version" / f"{schema_version}.sqlite").framgments
     )
 
+    # test tdes données ok
+    ddb = Database(provider="sqlite", filename=str(tmpfilename))
+    with db_session_disconnect_db(ddb):
+        assert ddb.execute("select id from Page").fetchall()
+
 
 def test_1_3_0_vers_1_4_0(new_res, resources, caplogger):
+    # setup
     base = new_res(resources / "db_version" / f"1.3.0.sqlite")
     mk = MakeMigrations(base, "1.4.0", migrations_history)
-
     ddb = Database(provider="sqlite", filename=str(base))
+    print(base, "base")
+    # test tdes données ok
     with db_session_disconnect_db(ddb):
         nom, prenom = ddb.get('select nom,prenom from Utilisateur where nom=="lenom"')
 
     assert mk(CheckMigrations(), lambda x: True), caplogger.read()
-    ddb = Database(provider="sqlite", filename=str(base))
 
-    # test: pas de perte de donnée
+    # test: pas de perte de donnée pour Annee
     with db_session_disconnect_db(ddb):
         assert ddb.execute("select * from annee").fetchall() == [
             (2018, "cm2018"),

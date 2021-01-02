@@ -3,14 +3,16 @@ Ici sont expliquées les migrations chaque changement dans la ddb.
 """
 import os
 import shutil
+import sqlite3
 import tempfile
+from contextlib import closing
 from datetime import datetime
 from pathlib import Path
 from typing import Union, Callable, List
 from loguru import logger
 from mycartable.database.base_db import Schema, db_session_disconnect_db
 from mycartable.utils import Version
-from pony.orm import Database
+from pony.orm import Database, db_session
 
 
 class Migrator:
@@ -41,18 +43,30 @@ class Migrator:
                 selected += migs
         return selected
 
-    def process_one(self, line: str):
-        with db_session_disconnect_db(self.db) as db:
-            db.execute(line)
-
     def process_migrations(self, mig_list: list):
-        for mig in mig_list:
-            self.process_one(mig)
+
+        # with db_session(sql_debug=True):
+        #     for mig in mig_list:
+        #         self.db.execute(mig)
+        #         print(mig)
+        #         assert self.db.execute("select id from Page").fetchall()
+        #         # self.db.flush()
+
+        filename = self.db.provider.pool.filename
+        if filename == ":memory:":
+            with db_session_disconnect_db(self.db):
+                for mig in mig_list:
+                    self.db.execute(mig)
+        else:
+            with closing(sqlite3.connect(filename)) as con:
+                with con:
+                    for mig in mig_list:
+                        con.execute(mig)
+                        assert con.execute("select id from Page").fetchall()
 
     def apply_version(self):
         """
         Apply the targetted version
-        :return:
         """
         self.schema.version = self.version
 

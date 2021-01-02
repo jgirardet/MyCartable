@@ -17,9 +17,20 @@ def mdb():
 
 
 @pytest.fixture()
+def fdb(tmpfile):
+    return Database(provider="sqlite", filename=str(tmpfile))
+
+
+@pytest.fixture()
 def onetable(mdb):
     init_onetable(mdb)
     return mdb
+
+
+@pytest.fixture()
+def onetablefile(fdb):
+    init_onetable(fdb)
+    return fdb
 
 
 migrations = {
@@ -38,6 +49,20 @@ class TestMigrator:
     def test_one_migration(self, onetable):
         m = Migrator(
             onetable, Version("1"), {"0.9": ["""INSERT INTO "bla" VALUES("deux")"""]}
+        )
+        m()
+        with db_session:
+            assert m.db.execute("select * from bla").fetchall() == [
+                ("prems",),
+                ("deux",),
+            ]
+        assert m.schema.version == Version("1.0")
+
+    def test_one_migration_file(self, onetablefile):
+        m = Migrator(
+            onetablefile,
+            Version("1"),
+            {"0.9": ["""INSERT INTO "bla" VALUES("deux")"""]},
         )
         m()
         with db_session:
@@ -81,6 +106,16 @@ class TestMigrator:
 
     def test_many_migrations_not_all(self, onetable):
         m = Migrator(onetable, Version("1.3.2"), migrations)
+        m()
+        with db_session:
+            assert (
+                m.db.execute("select * from sqlite_master").fetchone()[4]
+                == 'CREATE TABLE "bla" ("key" TEXT NOT NULL PRIMARY KEY, "texta" TEXT, "textb" TEXT, "textc" TEXT)'
+            )
+        assert m.schema.version == Version("1.3.2")
+
+    def test_many_migrations_not_all_file(self, onetablefile):
+        m = Migrator(onetablefile, Version("1.3.2"), migrations)
         m()
         with db_session:
             assert (

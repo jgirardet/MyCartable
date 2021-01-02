@@ -4,7 +4,18 @@ from typing import Union
 from mycartable.migrations.migrate import MakeMigrations, MigrationResultError
 from pony.orm import Database, db_session, OperationalError
 
+
+"""
+Mode d'emploi pour ajouter des migrations:
+
+- changer la version dans database/models
+- ajouter une nouvelle list de migrations à migration_history : un instruction par ligne
+- créer de_1_X_X_vers_1_X_Y dans CheckMigrations
+- Ce qui ne peut être mis dans CheckMigrations doit faire l'objet d'un test séparé dans test_migrations.py
+"""
+
 migrations_history = {
+    "1.2.2": [],
     "1.3.0": [
         'ALTER TABLE Annotation ADD "points" TEXT',
         'ALTER TABLE Section ADD "height" INTEGER',
@@ -20,13 +31,11 @@ migrations_history = {
         # DEBUT  drop utilisateur, remove refenrece from Annee
         "PRAGMA foreign_keys = OFF;",
         "DROP INDEX idx_annee__user;",
-        "CREATE TABLE AnneeBackup (id INTEGER NOT NULL PRIMARY KEY,  niveau TEXT NOT NULL);",
+        'CREATE TABLE AnneeBackup ( "id" INTEGER NOT NULL PRIMARY KEY, "niveau" TEXT NOT NULL);',
         "INSERT INTO AnneeBackup SELECT id, niveau from Annee;",
-        "DROP TABLE Annee;",
         "DROP TABLE Utilisateur;",
-        'CREATE TABLE "Annee" ( "id" INTEGER NOT NULL PRIMARY KEY,  "niveau" TEXT NOT NULL);',
-        "INSERT INTO Annee SELECT id, niveau from AnneeBackup;",
-        "DROP TABLE AnneeBackup;",
+        "DROP TABLE Annee;",
+        "ALTER TABLE AnneeBackup RENAME TO Annee;",
         "PRAGMA foreign_keys = ON;",
         # FIN drop utilisateur, remove refenrece from Annee
     ],
@@ -49,7 +58,15 @@ def generate_new_mapping(db: Database):
 class CheckMigrations:
 
     db: Database
-    func_names = ["de_1_2_2_vers_1_3_0", "de_1_3_0_vers_1_4_0"]
+
+    def _generate_func_names(self):
+        res = []
+        keys = list(migrations_history.keys())
+        prev = keys[0]
+        for k in keys[1:]:
+            res.append(f"de_{prev.replace('.','_')}_vers_{k.replace('.','_')}")
+            prev = k
+        return res
 
     def check_via_error(
         self, commands, exception_text="", exception_type=OperationalError
@@ -86,7 +103,7 @@ class CheckMigrations:
 
     def __call__(self, db: Database, only=[]) -> bool:
         self.db = db
-        funcs = only if only else self.func_names
+        funcs = only if only else self._generate_func_names()
         for fn in funcs:
             with db_session:
                 getattr(self, fn)()

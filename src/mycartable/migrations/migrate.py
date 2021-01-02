@@ -68,7 +68,6 @@ class Migrator:
                 with con:
                     for mig in mig_list:
                         con.execute(mig)
-                        assert con.execute("select id from Page").fetchall()
 
     def apply_version(self):
         """

@@ -26,7 +26,7 @@ from PySide2.QtQml import QQmlApplicationEngine, qmlRegisterType
 
 from loguru import logger
 
-import qrc  # QRC do not erase
+from . import qrc  # QRC do not erase
 
 from pony.orm import Database, db_session
 

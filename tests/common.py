@@ -27,7 +27,7 @@ def setup_session():
 
     # setup qrc
     orig = root / "src" / "qml.qrc"
-    dest = python_dir / "qrc.py"
+    dest = python_dir / "mycartable" / "qrc.py"
     command = f"pyside2-rcc {orig.absolute()} -o {dest.absolute()}"
     res = subprocess.run(command, cwd=root, shell=True, capture_output=True)
     if res.returncode != 0:

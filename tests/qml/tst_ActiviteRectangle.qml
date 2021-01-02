@@ -49,7 +49,7 @@ Item {
             classeurid.setCurrentMatiere(mat.id);
             actobj = classeurid.currentMatiere.activites[0];
             params["activite"] = actobj;
-            params["width"] = 300;
+            params["width"] = 200;
         }
 
         function initPost() {

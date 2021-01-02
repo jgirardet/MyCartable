@@ -5,8 +5,6 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 
 TestCase {
-    //    when: windowShown
-
     id: testcase
 
     property var tested
@@ -88,6 +86,8 @@ TestCase {
         mouseClick(_obj);
         keySequence(seq);
     }
+
+    when: windowShown
 
     Component {
         id: compspyc

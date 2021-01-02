@@ -70,6 +70,12 @@ def test_absolute_path_qmlpath_path(fk):
     img = ImageSection.get(i)
     assert img.path == i["path"]
     assert img.absolute_path == FILES / i["path"]
+    print(img.url)
+    print(img.absolute_path)
+    print(Path(img.absolute_path))
+    print(QUrl.fromLocalFile(str(Path(img.absolute_path).resolve())))
+    print(QUrl.fromLocalFile(str(Path(img.absolute_path).absolute())))
+    assert img.url == QUrl.fromLocalFile(str(Path(img.absolute_path).absolute()))
     assert img.url == QUrl.fromLocalFile(str(Path(img.absolute_path).resolve()))
 
 

@@ -46,5 +46,5 @@ def test_getprod(monkeypatch):
     monkeypatch.delenv("MYCARTABLE_PROD")
     assert not get_prod()
 
-    with patch("package.sys.executable", "blfze/blfze/pythonw.exe"):
+    with patch("mycartable.sys.executable", "blfze/blfze/pythonw.exe"):
         assert get_prod()

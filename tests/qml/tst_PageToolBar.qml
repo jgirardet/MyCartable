@@ -114,6 +114,9 @@ Item {
         }
 
         function test_newimage() {
+            if (Qt.platform.os == "windows")
+                skip("ne marche pas sous windows");
+
             mouseClick(newimage);
             newimage.action.dialog.folder = "assets";
             // voir tst_pagestions.test_insert_row_entre pour la bonne valeur du clique

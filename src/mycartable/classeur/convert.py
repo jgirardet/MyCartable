@@ -141,7 +141,11 @@ def escaped_filename(nom, ext):
 
 def create_lookup():
     lookup = TemplateLookup()
+    print(QDir(":/templates").entryInfoList())
+    import mycartable.qrc
+
     for file in QDir(":/templates").entryInfoList():
+        print(file)
         lookup.put_string(file.fileName(), read_qrc(file.absoluteFilePath()))
     return lookup
 
@@ -1030,7 +1034,7 @@ def grab_section(section, q_section, initial_prop={}):
 def build_body(page_id: int) -> Tuple[str, str]:
     tags = []
     automatic_res = []
-    from package.database import getdb
+    from mycartable.database import getdb
 
     db = getdb()
     page = db.Page[page_id]

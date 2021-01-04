@@ -2,7 +2,9 @@ import time
 from itertools import zip_longest
 from operator import itemgetter, attrgetter
 from unittest.mock import patch, MagicMock
+from uuid import UUID
 
+from loguru import logger
 from pony.orm import db_session
 from contextlib import contextmanager
 
@@ -91,11 +93,11 @@ def check_args(fn, exp_args=[], exp_return_type=None, slot_order=0):
 def check_is_range(obj, fn, res):
     res = set(res)
     for i in res:
-        assert getattr(obj, fn)(i), f" {i} should return True"
+        assert getattr(obj.model, fn)(i), f" {i} should return True"
     non_compris = set(range(0, obj.size))
     non_compris = non_compris - res
     for i in non_compris:
-        assert not getattr(obj, fn)(i), f" {i} should return False"
+        assert not getattr(obj.model, fn)(i), f" {i} should return False"
 
 
 #
@@ -184,3 +186,14 @@ def compare_char_format(lhs, rhs, exclude=[]):
         l = getattr(rhs, attr)()
         assert r == l, f"{attr}: {r}!={l}"
     return True
+
+
+def uuu(val):
+    return UUID(str(val) * 32)
+
+
+@contextmanager
+def disable_log(name=""):
+    logger.disable(name)
+    yield
+    logger.enable(name)

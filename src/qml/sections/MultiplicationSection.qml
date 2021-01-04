@@ -1,11 +1,15 @@
 import MyCartable 1.0
 import "qrc:/qml/operations"
 
-MultiplicationSectionBase {
+BaseOperation {
     id: root
 
-    model: MultiplicationModel {
-        sectionId: root.sectionId
+    cellWidth: 50
+    cellHeight: 50
+    model: section.model
+
+    delegate: MultiplicationDelegate {
+        model: section.model
     }
 
 }

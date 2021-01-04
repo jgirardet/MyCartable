@@ -1,11 +1,9 @@
+import MyCartable 1.0
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import "qrc:/qml/divers"
 
 Dialog {
-    //      if (!ddb.currentUser)
-    //            root.close();
-
     id: root
 
     property alias annee: annee_id.text.text
@@ -18,13 +16,18 @@ Dialog {
             errortext.visible = true;
             return ;
         } else {
-            ddb.newAnnee(annee, classe);
+            database.addDB("Annee", {
+                "id": annee,
+                "niveau": classe
+            });
+            //            ddb.newAnnee(annee, classe);
             parent.changerAnnee.close();
             parent.changerAnnee.open();
         }
     }
     onOpened: {
-        if (Object.keys(ddb.currentUser).length === 0)
+        let user = database.getConfig("user_set");
+        if (!database.getConfig("user_set"))
             newUserDialog.open();
 
     }
@@ -33,6 +36,10 @@ Dialog {
     standardButtons: Dialog.Ok | Dialog.Cancel
     focus: true
     anchors.centerIn: Overlay.overlay
+
+    Database {
+        id: database
+    }
 
     NewUser {
         id: newUserDialog

@@ -1,11 +1,15 @@
 import MyCartable 1.0
 import "qrc:/qml/operations"
 
-SoustractionSectionBase {
+BaseOperation {
     id: root
 
-    model: SoustractionModel {
-        sectionId: root.sectionId
+    cellWidth: 30
+    cellHeight: 50
+    model: section.model
+
+    delegate: SoustractionDelegate {
+        model: section.model
     }
 
 }

@@ -1,25 +1,10 @@
+import MyCartable 1.0
 import QtQml.Models 2.15
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import "qrc:/qml/divers"
 
 Rectangle {
-    //        repeater.model.splice(index, 1);
-    //     {
-    //        id: listlegendes
-    //        Component.onCompleted: {
-    //            for (const el of legendes) {
-    //      ListModel          append(el);
-    //            }
-    //        }
-    //    }
-    //    function remove_legende(index) {
-    //        let modd = repeater.model;
-    //        modd.splice(index, 1);
-    //        repeater.model = modd;
-    //        listlegendes.remove(index);
-    //    }
-
     id: root
 
     property int modelIndex
@@ -58,6 +43,10 @@ Rectangle {
         }
     ]
 
+    Database {
+        id: database
+    }
+
     ColorPicker {
         id: colordialog
 
@@ -76,6 +65,7 @@ Rectangle {
         font.pointSize: Math.max(dragParent.width / 100, 10)
         text: display
         wrapMode: Text.Wrap
+        selectByMouse: true
         Component.onCompleted: {
             onTextChanged.connect(function() {
                 model.edit = text;
@@ -134,7 +124,7 @@ Rectangle {
             anchors.fill: parent
             cursorShape: Qt.BlankCursor
             onClicked: {
-                let newL = ddb.addDB("FriseLegende", {
+                let newL = database.addDB("FriseLegende", {
                     "relativeX": mouse.x / width,
                     "texte": "",
                     "zone": zoneId,
@@ -161,10 +151,10 @@ Rectangle {
 
         onItemAdded: item.legende.forceActiveFocus()
         onItemRemoved: {
-            ddb.delDB("FriseLegende", item.legendeId);
+            database.delDB("FriseLegende", item.legendeId);
         }
         onItemSet: {
-            ddb.setDB("FriseLegende", item.legendeId, dict);
+            database.setDB("FriseLegende", item.legendeId, dict);
         }
         modelObject: legendes
 

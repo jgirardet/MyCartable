@@ -1,5 +1,8 @@
 import pytest
-from package.database import init_bind
+from mycartable.database.base_db import Schema
+from mycartable.database.models import schema_version
+from mycartable.utils import Version
+from mycartable.database import init_bind
 from pony.orm import Database
 
 
@@ -27,6 +30,13 @@ def test_init_bind_file_no_exists_no_createdb(tmpfilename):
 def test_init_bind_file_not_exists_create_db(tmpfilename):
     ddb = Database()
     init_bind(ddb, filename=tmpfilename, create_db=True)
+
+
+def test_init_bind_create_file_add_schema_version(tmpfilename):
+    ddb = Database()
+    init_bind(ddb, filename=tmpfilename, create_db=True)
+    s = Schema(ddb)
+    assert s.version == Version(schema_version)
 
 
 def test_init_bind_file_and_parent_dir_does_not_exists(tmp_path):

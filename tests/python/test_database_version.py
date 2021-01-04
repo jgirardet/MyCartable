@@ -1,14 +1,15 @@
 import pytest
-from package.database.base_db import Schema
-from package.utils import Version
+from mycartable.database.base_db import Schema
+from mycartable.migrations.migrations import migrations_history
+from mycartable.utils import Version
 from pony.orm import Database, db_session
+
+migs = list(migrations_history.keys())
 
 
 @pytest.mark.parametrize(
     "version",
-    [
-        "1.2.2",
-    ],
+    migs,
 )
 def test_get_schema(resources, version):
     base = resources / "db_version" / f"{version}.sqlite"
@@ -20,9 +21,7 @@ def test_get_schema(resources, version):
 
 @pytest.mark.parametrize(
     "version",
-    [
-        "1.2.2",
-    ],
+    migs,
 )
 def test_get_schema_version(resources, version):
     base = resources / "db_version" / f"{version}.sqlite"
@@ -35,10 +34,7 @@ def test_get_schema_version(resources, version):
 
 @pytest.mark.parametrize(
     "version",
-    [
-        "0",  # no version in pragma
-        "1.2.2",
-    ],
+    ["0", *migs],  # no version in pragma
 )
 def test_version_get(resources, version):
     base = resources / "db_version" / f"{version}.sqlite"

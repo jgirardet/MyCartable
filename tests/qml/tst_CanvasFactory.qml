@@ -5,22 +5,22 @@ Item {
 
     property var _newDessin: null
     property var model
+    property var section
 
     width: 200
     height: 200
 
     CasTest {
-        //      params = {
-        //        "sectionId": 3796,
-        //        "sectionItem": item
-        //      }
-
         property var mouse
 
         function initPre() {
-        }
-
-        function initPreCreate() {
+            let imgsection = fk.f("imageSection", {
+                "path": "tst_AnnotableImage.png"
+            });
+            section = th.getBridgeInstance(item, "ImageSection", imgsection.id);
+            params = {
+                "section": section
+            };
         }
 
         function initPost() {
@@ -71,17 +71,15 @@ Item {
                 "mouseY": 120
             };
             tested.endDraw(23);
-            //      print(JSON.stringify(item._newDessin))
-            //      compare(item._newDessin[0], 23)
             compare(JSON.stringify(item._newDessin[1]), "{\"x\":0.2425,\"y\":0.2925,\"startX\":0.02830188679245283,\"startY\":0.023809523809523808,\"endX\":0.9716981132075472,\"endY\":0.9761904761904762,\"width\":0.265,\"height\":0.315,\"tool\":\"fillrect\",\"lineWidth\":3,\"strokeStyle\":{\"r\":0,\"g\":0,\"b\":0,\"a\":1,\"hsvHue\":-1,\"hsvSaturation\":0,\"hsvValue\":0,\"hslHue\":-1,\"hslSaturation\":0,\"hslLightness\":0,\"valid\":true},\"fillStyle\":{\"r\":0,\"g\":0,\"b\":0,\"a\":0,\"hsvHue\":-1,\"hsvSaturation\":0,\"hsvValue\":0,\"hslHue\":-1,\"hslSaturation\":0,\"hslLightness\":0,\"valid\":true},\"opacity\":1}");
             verify(!tested.useDefaultTool);
             verify(!tested.visble);
         }
 
         function test_endDraw_blue_rect() {
-            uiManager.annotationDessinCurrentTool = "rect";
-            uiManager.annotationDessinCurrentStrokeStyle = "blue";
-            uiManager.annotationDessinCurrentLineWidth = 10;
+            section.annotationDessinCurrentTool = "rect";
+            section.annotationDessinCurrentStrokeStyle = "blue";
+            section.annotationDessinCurrentLineWidth = 10;
             tested.startDraw(false);
             tested.mouse = {
                 "mouseX": 100,
@@ -95,7 +93,7 @@ Item {
         }
 
         function test_endDraw_trait() {
-            uiManager.annotationDessinCurrentTool = "trait";
+            section.annotationDessinCurrentTool = "trait";
             tested.endDraw(23);
             compare(item._newDessin[1].tool, "trait");
         }

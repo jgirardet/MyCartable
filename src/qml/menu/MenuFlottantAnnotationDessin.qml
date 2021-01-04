@@ -25,7 +25,6 @@ BaseMenu {
                     return "rect";
                 else if (tool == "fillellipse")
                     return "ellipse";
-
                 return tool;
             }
 
@@ -88,7 +87,6 @@ BaseMenu {
                     return "fillrect";
                 else if (tool == "ellipse")
                     return "fillellipse";
-
                 return tool;
             }
 

@@ -1,3 +1,4 @@
+import MyCartable 1.0
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 
@@ -8,9 +9,21 @@ Dialog {
     property int cellHeight: 20
     property string pageId
     property alias matieres: columnmatiere
+    property QtObject rootClasseur: findClasseur(root)
+    property alias buttons: ac_buttons
+
+    function findClasseur(item) {
+        if (item === null)
+            return null;
+
+        if (item.objectName !== "ClasseurLayout")
+            return findClasseur(item.parent);
+        else
+            return item.classeur;
+    }
 
     function ouvre(pageId, basebutton) {
-        root.model = ddb.getDeplacePageModel(ddb.anneeActive);
+        root.model = rootClasseur.matieresDispatcher.getDeplacePageModel();
         root.pageId = pageId;
         open();
     }
@@ -19,6 +32,10 @@ Dialog {
     contentWidth: 200
     margins: 0
     padding: 0
+
+    Database {
+        id: database
+    }
 
     ScrollView {
         id: scroll
@@ -40,12 +57,15 @@ Dialog {
             width: 100
 
             Repeater {
+                id: ac_buttons
+
                 model: root.model
 
                 delegate: Button {
                     id: matierebutton
 
                     property var activites: columnactivite
+                    property var repActivites: rep_activites
 
                     highlighted: hovered
                     text: modelData.nom
@@ -70,6 +90,8 @@ Dialog {
                         }
 
                         Repeater {
+                            id: rep_activites
+
                             model: modelData.activites
 
                             delegate: Button {
@@ -82,7 +104,7 @@ Dialog {
                                 text: modelData.nom
                                 highlighted: hovered
                                 onClicked: {
-                                    ddb.changeActivite(root.pageId, modelData.id);
+                                    rootClasseur.movePage(root.pageId, modelData.id);
                                     reroot.close();
                                 }
 

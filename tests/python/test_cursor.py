@@ -1,16 +1,6 @@
 from PySide2.QtCore import QPoint
-from PySide2.QtGui import QImage, QColor
-from package.convertion.wimage import WImage
-from package.cursors import build_all_image_cursor, build_one_image_cursor
-
-
-def test_all_cursor(uim, resources):
-    for toolname, v in build_all_image_cursor().items():
-        path = resources / "cursors" / ("cursor_" + toolname + ".png")
-        assert WImage(v.pixmap().toImage()) == WImage(str(path))
-        assert WImage(uim.image_cursors[toolname].pixmap().toImage()) == WImage(
-            str(path)
-        )
+from PySide2.QtGui import QColor
+from mycartable.cursors import build_one_image_cursor
 
 
 def test_hotspots():

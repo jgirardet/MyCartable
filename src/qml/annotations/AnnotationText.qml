@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+import "qrc:/qml/menu"
 
 TextArea {
     // casse le binding mais evite le loop, donc on laisse pour le moment
@@ -7,10 +8,11 @@ TextArea {
     id: root
 
     property var referent
-    property var menu: uiManager.menuFlottantAnnotationText
+    property QtObject annot
+    property alias menu: menuFlottantAnnotationText
     property int pointSizeStep: 1
     property int moveStep: 5
-    property int fontSizeFactor: annot.pointSize ? annot.pointSize : 0 //uiManager.annotationCurrentTextSizeFactor
+    property int fontSizeFactor: annot.pointSize ? annot.pointSize : 0 //annot.annotationCurrentTextSizeFactor
 
     function move(key) {
         if (key == Qt.Key_Left)
@@ -27,36 +29,22 @@ TextArea {
         return false;
     }
 
-    // other atributes
-    //uiManager.annotationCurrentTextSizeFactor
-    //  toujours curseur à la fin quand focus
-    onTextChanged: {
-        edit = {
-            "id": annot.id,
-            "text": text
-        };
-    }
+    text: annot.text
+    onTextChanged: annot.text = text
     //size and pos
     height: contentHeight
     padding: 0
     width: contentWidth + 5
     focus: parent.focus
-    color: annot.fgColor ? annot.fgColor : "black"
-    font.underline: annot.underline ? annot.underline : false
+    color: annot.fgColor
+    font.underline: annot.underline
     font.pixelSize: (referent.height / fontSizeFactor) | 0
     selectByMouse: true
     Component.onCompleted: {
         if (!annot.pointSize)
-            fontSizeFactor = uiManager.annotationCurrentTextSizeFactor;
+            fontSizeFactor = annot.annotationCurrentTextSizeFactor;
 
         forceActiveFocus();
-        root.text = annot.text;
-        onTextChanged.connect(() => {
-            return edit = {
-                "id": annot.id,
-                "text": text
-            };
-        });
         timerRemove.running = true;
     }
     onFontSizeFactorChanged: {
@@ -64,10 +52,8 @@ TextArea {
             return ;
 
         // attention on stock fontSizeFactor dans du pointSize :le nom dans la ddb est nul :-)
-        var res = ddb.setStyle(annot.styleId, {
-            "pointSize": root.fontSizeFactor
-        });
-        uiManager.annotationCurrentTextSizeFactor = root.fontSizeFactor;
+        annot.pointSize = root.fontSizeFactor;
+        annot.annotationCurrentTextSizeFactor = root.fontSizeFactor;
     }
     onFocusChanged: {
         if (focus)
@@ -88,6 +74,10 @@ TextArea {
         }
     }
 
+    MenuFlottantAnnotationText {
+        id: menuFlottantAnnotationText
+    }
+
     Timer {
         id: timerRemove
 
@@ -104,9 +94,9 @@ TextArea {
 
     background: Rectangle {
         anchors.fill: parent
-        color: annot.bgColor ? annot.bgColor : "blue"
+        color: annot.bgColor
         border.color: parent.focus ? "#21be2b" : "transparent"
-        opacity: ddb.annotationTextBGOpacity
+        opacity: referent.section.annotationTextBGOpacity
     }
 
 }

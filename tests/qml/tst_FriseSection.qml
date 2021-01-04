@@ -9,6 +9,7 @@ Item {
 
     CasTest {
         property var friseSection
+        property var sec
         property var corps
         property QtObject zero
         property QtObject un
@@ -23,7 +24,7 @@ Item {
         property Item leg0
         property Item leg1
 
-        function initPreCreate() {
+        function initPre() {
             friseSection = fk.f("friseSection", {
                 "height": 424,
                 "titre": "ma frise"
@@ -68,8 +69,9 @@ Item {
                 "relativeX": 0.7,
                 "side": true
             });
+            sec = th.getBridgeInstance(item, "FriseSection", friseSection.id);
             params = {
-                "sectionId": friseSection.id,
+                "section": sec,
                 "sectionItem": item
             };
         }

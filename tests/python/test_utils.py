@@ -1,16 +1,15 @@
 import uuid
-from datetime import datetime
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
+from PySide2.QtCore import QUrl
+from mycartable.utils import pathize
 
-
-from package.utils import (
+from mycartable.utils import (
     create_singleshot,
     get_new_filename,
     KeyW,
-    KeyCross,
     WIN,
     KEYS,
     read_qrc,
@@ -32,7 +31,7 @@ def test_create_single_shot():
 @pytest.mark.freeze_time("2344-9-21 7:48:5")
 def test_get_new_filename():
     with patch(
-        "package.utils.uuid.uuid4",
+        "mycartable.utils.uuid.uuid4",
         new=lambda: uuid.UUID("d9ca35e1-0b4b-4d42-9f0d-aa07f5dbf1a5"),
     ):
         assert get_new_filename(".jpg") == "2344-09-21-07-48-05-d9ca3.jpg"
@@ -176,3 +175,12 @@ class TestVersion:
     def test_to_int(self):
         for v_int, v_str in versions_values[1:]:
             assert Version(v_str).to_int() == v_int
+
+
+def test_pathize():
+    name = Path(__file__)
+    res = Path(__file__).resolve()
+    assert pathize(QUrl.fromLocalFile(__file__)) == res
+    assert pathize(name) == res
+    assert pathize(name) == res
+    assert res.is_absolute()

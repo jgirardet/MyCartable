@@ -1,15 +1,16 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+import "qrc:/qml/menu"
 
 TextEdit {
     id: root
 
-    property string sectionId
-    property var sectionItem
     property bool doNotUpdate: false
+    required property Item sectionItem
+    required property QtObject section
 
     function setStyleFromMenu(params) {
-        var res = ddb.updateTextSectionOnMenu(sectionId, text, cursorPosition, selectionStart, selectionEnd, params);
+        var res = section.updateTextSectionOnMenu(text, cursorPosition, selectionStart, selectionEnd, params);
         if (!res["eventAccepted"]) {
             // ici event Accepted veut dire : on ne remet pas à jour le text
             return ;
@@ -23,7 +24,7 @@ TextEdit {
     function showMenu() {
         var s_start = Math.min(root.selectionStart, root.selectionEnd);
         var s_end = Math.max(root.selectionEnd, root.selectionEnd);
-        uiManager.menuFlottantText.ouvre(root);
+        menuFlottantText.ouvre(root);
         root.cursorPosition = s_start;
         root.moveCursorSelection(s_end, TextEdit.SelectCharacters);
     }
@@ -37,8 +38,7 @@ TextEdit {
     selectByMouse: true
     wrapMode: TextEdit.Wrap
     Keys.onPressed: {
-        var res = ddb.updateTextSectionOnKey(sectionId, text, cursorPosition, selectionStart, selectionEnd, JSON.stringify(event));
-        print(res["text"]);
+        var res = section.updateTextSectionOnKey(text, cursorPosition, selectionStart, selectionEnd, JSON.stringify(event));
         event.accepted = res["eventAccepted"];
         if (event.accepted == false) {
             return ;
@@ -48,8 +48,8 @@ TextEdit {
             cursorPosition = res["cursorPosition"];
         }
     }
-    onSectionIdChanged: {
-        var res = ddb.loadTextSection(sectionId);
+    onSectionChanged: {
+        var res = section.loadTextSection();
         doNotUpdate = true;
         text = res["text"];
         cursorPosition = res["cursorPosition"];
@@ -59,7 +59,7 @@ TextEdit {
             doNotUpdate = false;
             return ;
         } else {
-            var res = ddb.updateTextSectionOnChange(sectionId, text, cursorPosition, selectionStart, selectionEnd);
+            var res = section.updateTextSectionOnChange(text, cursorPosition, selectionStart, selectionEnd);
             if (res["eventAccepted"]) {
                 // ici event Accepted veut dire : on ne remet pas à jour le text
                 return ;
@@ -69,6 +69,10 @@ TextEdit {
                 cursorPosition = res["cursorPosition"];
             }
         }
+    }
+
+    MenuFlottantText {
+        id: menuFlottantText
     }
 
     MouseArea {

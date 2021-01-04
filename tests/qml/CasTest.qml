@@ -1,49 +1,31 @@
+import MyCartable 1.0
 import PyTest 1.0
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 
 TestCase {
-    //    function cleanup() {
-    ////        if (tested)
-    ////            tested.destroy();
-    //        params = backupParams; //restore deafaut params if modified
-    //    }
-    //    Component {
-    //        id: compspyc
-    //        SignalSpy {
-    //        }
-    //    }
-    //         print(JSON.stringify(kwargs))
-
     id: testcase
 
     property var tested
-    //    property var ddb
-    //    property var uiManager
     property var testedNom
     property var params
     property var backupParams
     property var ddbData
+    property bool autocreate: true
+    property var dtb
 
     function init() {
         fk.resetDB();
-        uiManager.resetUiManager();
         backupParams = params;
         initPre();
-        //        ddb = createTemporaryObject(Qt.createComponent("DdbData.qml"), testcase.parent);
-        //        uiManager = createTemporaryObject(Qt.createComponent("UiManager.qml"), testcase.parent, {
-        //            "ddb": ddb
-        //        });
-        initPreCreate();
-        tested = createObj(testedNom, params);
+        if (autocreate)
+            tested = createObj(testedNom, params);
+
         initPost();
     }
 
     function initPre() {
-    }
-
-    function initPreCreate() {
     }
 
     function initPost() {
@@ -52,9 +34,6 @@ TestCase {
     function createObj(nom, rabParams, parentItem) {
         var kwargs = {
         };
-        //            "ddb": ddb,
-        //            "uiManager": uiManager
-        //        };
         if (rabParams)
             Object.assign(kwargs, rabParams);
 
@@ -116,6 +95,9 @@ TestCase {
         SignalSpy {
         }
 
+    }
+
+    dtb: Database {
     }
 
 }

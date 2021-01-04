@@ -1,4 +1,3 @@
-import MyCartable 1.0
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Dialogs 1.3
@@ -8,34 +7,25 @@ import "qrc:/qml/frise"
 Rectangle {
     id: root
 
-    //    property alias listmodel: listmodel
     property alias corps: corps
     property alias titre: titre
-    property string sectionId
-    property var sectionItem
-    property QtObject model
+    required property var sectionItem
+    required property QtObject section
+    property var model: section.model
 
-    //    property alias repeater: repeater
-    //    model:
-    //    Rectangle {
-    //        anchors.fill: parent
-    //        border.width: 1
-    //    }
     width: sectionItem.width
-    height: model ? model.height : 0
+    height: section ? section.height : 0
     color: "white"
 
     TextEdit {
         id: titre
 
-        text: root.model ? root.model.titre : ""
+        onTextChanged: {
+            return root.section.titre = titre.text;
+        }
+        Component.onCompleted: text = section.titre
         font.pointSize: 16
         anchors.horizontalCenter: parent.horizontalCenter
-        Component.onCompleted: {
-            onTextChanged.connect(() => {
-                return root.model.titre = text;
-            });
-        }
     }
 
     CorpsFrise {
@@ -48,9 +38,7 @@ Rectangle {
             left: root.left
             right: root.right
             top: root.top
-            //            bottom: root.bottom
             topMargin: root.height / 2 - height / 2
-            //            bottomMargin: 150
             leftMargin: 30
             rightMargin: 50
         }
@@ -86,11 +74,6 @@ Rectangle {
 
         }
 
-    }
-
-    model: FriseModel {
-        sectionId: dao ? root.sectionId : ""
-        dao: ddb
     }
 
 }

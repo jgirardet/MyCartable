@@ -4,44 +4,61 @@ import "assets/annotationsValues.mjs" as AssetAnnot
 Item {
     id: item
 
-    width: 200 // important pout les tests
-    height: 300 //important pour les
     implicitWidth: width
     implicitHeight: height // si pas de taille, pas ed paint
-
-    Item {
-        id: item2
-
-        width: 200
-        height: 200
-    }
+    width: 200 // important pout les tests
+    height: 300 //important pour les
 
     CasTest {
-        //                "points": JSON.stringify(AssetAnnot.pointsMainLevee)
-        //        function test_draw_point() {
-        //            // en pratique on test surtout en regression
-        //            annot.points = JSON.stringify(AssetAnnot.pointsMainLevee);
-        //            tested.fillStyle = "transparent";
-        //            tested.tool = "point";
-        //            var spy = getSpy(tested, "painted");
-        //            tested.requestPaint();
-        //            spy.wait();
-        //            var img = Qt.createQmlObject("import QtQuick 2.15; Image {source: 'assets/" + tested.tool + ".png'}", item2);
-        //            var c = Qt.createQmlObject("import QtQuick 2.15; Canvas {height:" + tested.height + ";width:" + tested.width + "}", item2);
-        //            tryCompare(c, "available", true);
-        //            var ctx = c.getContext("2d");
-        //            ctx.drawImage(img, 0, 0);
-        //            wait(2000);
-        //            compare(tested.toDataURL(), c.toDataURL());
-        //        }
-
-        id: testCase
-
-        property var annot
-
         // en haut a gauche
         // trou
         // en haut a gauche
+
+        id: testCase
+
+        property var annotdata
+        property var annot
+        property var img
+        property var ref
+
+        function initPre() {
+            let img = fk.f("imageSection");
+            annotdata = fk.f("annotationDessin", {
+                "section": img.id,
+                "x": 0.4,
+                "y": 0.2,
+                "style": {
+                    "fgColor": "#0000ff",
+                    "bgColor": "#654321",
+                    "pointSize": 12,
+                    "weight": 10
+                },
+                "width": 0.4,
+                "height": 0.5,
+                "startX": 0.3,
+                "startY": 0.7,
+                "endX": 0.5,
+                "endY": 0.9,
+                "tool": "rect"
+            });
+            ref = th.getBridgeInstance(item, "ImageSection", img.id);
+            annot = th.getBridgeInstance(ref, "AnnotationDessin", annotdata.id);
+            params = {
+                "annot": annot,
+                "referent": item
+            };
+        }
+
+        function initPost() {
+            tryCompare(tested, "available", true);
+        }
+
+        function test_init() {
+            compare(tested.strokeStyle, "#0000ff");
+            compare(tested.fillStyle, "#654321");
+            compare(tested.lineWidth, 12);
+        }
+
         function test_opacity() {
             annot.weight = 2;
             //            uiManager.menuFlottantAnnotationDessin = item;
@@ -52,16 +69,9 @@ Item {
             compare(nt.opacity, 0.2);
         }
 
-        function test_ini() {
-            compare(tested.menu, uiManager.menuFlottantAnnotationDessin);
-            compare(tested.strokeStyle, "#0000ff");
-            compare(tested.fillStyle, "#654321");
-            compare(tested.lineWidth, 12);
-        }
-
         function test_requestPaint_on_fgcolor() {
             var spy = getSpy(tested, "painted");
-            annot.fgColor = "#33333";
+            tested.strokeStyle = "#33333";
             spy.wait();
         }
 
@@ -135,31 +145,6 @@ Item {
             ctx.drawImage(img, 0, 0);
             //            wait(1000);
             compare(tested.toDataURL(), c.toDataURL());
-        }
-
-        function initPre() {
-            annot = {
-                "sectionId": 2,
-                "classtype": "AnnotationDessin",
-                "x": 0.4,
-                "y": 0.2,
-                "id": 34,
-                "fgColor": "#0000ff",
-                "bgColor": "#654321",
-                "pointSize": 12,
-                "width": 0.4,
-                "height": 0.5,
-                "startX": 0.3,
-                "startY": 0.7,
-                "endX": 0.5,
-                "endY": 0.9,
-                "tool": "rect",
-                "weight": 10
-            };
-            params = {
-                "annot": annot,
-                "referent": item
-            };
         }
 
         name: "AnnotationDessin"

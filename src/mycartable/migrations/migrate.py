@@ -185,6 +185,7 @@ class MakeMigrations:
 
         """
         if not hasattr(self, "migrator"):
+            # no mirgator == same version, no migration do nothing, succeed
             return True
 
         backup_file = self.backup_old()

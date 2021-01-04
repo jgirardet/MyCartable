@@ -48,7 +48,6 @@ def main_init_database(filename=None, prod=False):
         QStandardPaths.setTestModeEnabled(True)
         # filename.unlink()
         filename = Path(tempfile.gettempdir()) / "devddbmdk.sqlite"
-
         # filename = "/home/jimmy/Documents/MyCartable/mycartable.ddb"
         # filename = ":memory:"
         # filename = ":memory:"

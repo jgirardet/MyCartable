@@ -1,13 +1,11 @@
-from copy import copy
-from uuid import uuid4, UUID
+from uuid import UUID
 
 import pytest
-from PySide2.QtCore import Property, Signal, QObject
-from tests.python.fixtures import disable_log, uuu
+from PyQt5.QtCore import pyqtProperty, pyqtSignal, QObject
+from tests.python.fixtures import disable_log
 from mycartable.types.bridge import Bridge
 from mycartable.types.dtb import DTB
 from pony.orm import db_session
-from loguru_caplog import loguru_caplog as caplog
 
 
 @pytest.fixture()
@@ -15,24 +13,24 @@ def dummyClassPage():
     class Page(Bridge):
         entity_name = "Page"
 
-        titreChanged = Signal()
+        titreChanged = pyqtSignal()
 
-        @Property(str, notify=titreChanged)
+        @pyqtProperty(str, notify=titreChanged)
         def titre(self):
             return self._data["titre"]
 
         @titre.setter
-        def titre_set(self, value: str):
+        def titre(self, value: str):
             self.set_field("titre", value)
 
-        lastPositionChanged = Signal()
+        lastPositionChanged = pyqtSignal()
 
-        @Property(int, notify=lastPositionChanged)
+        @pyqtProperty(int, notify=lastPositionChanged)
         def lastPosition(self):
             return self._data["lastPosition"]
 
         @lastPosition.setter
-        def lastPosition_set(self, value: int):
+        def lastPosition(self, value: int):
             self._set_field("lastPosition", value)
             self.lastPositionChanged.emit()
 

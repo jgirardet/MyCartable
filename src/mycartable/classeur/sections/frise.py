@@ -1,13 +1,13 @@
-from PySide2.QtCore import (
+from PyQt5.QtCore import (
     Qt,
-    Slot,
+    pyqtSlot,
     QModelIndex,
     QByteArray,
-    Signal,
-    Property,
+    pyqtSignal,
+    pyqtProperty,
     QObject,
 )
-from PySide2.QtGui import QColor
+from PyQt5.QtGui import QColor
 import typing
 
 from .section import Section
@@ -18,32 +18,32 @@ from mycartable.utils import WDict, shift_list
 class FriseSection(Section):
     entity_name = "FriseSection"
 
-    heightChanged = Signal()
-    titreChanged = Signal()
+    heightChanged = pyqtSignal()
+    titreChanged = pyqtSignal()
 
     def __init__(self, data: dict = {}, parent=None):
         super().__init__(data=data, parent=parent)
         self._model = FriseModel(self)
 
-    @Property(int, notify=heightChanged)
+    @pyqtProperty(int, notify=heightChanged)
     def height(self):
         return self._data["height"]
 
     @height.setter
-    def height_set(self, value: int):
+    def height(self, value: int):
         self.set_field("height", value)
         self.heightChanged.emit()
 
-    @Property(str, notify=titreChanged)
+    @pyqtProperty(str, notify=titreChanged)
     def titre(self):
         return self._data["titre"]
 
     @titre.setter
-    def titre_set(self, value: str):
+    def titre(self, value: str):
         self.set_field("titre", value)
         self.titreChanged.emit()
 
-    @Property(QObject, constant=True)
+    @pyqtProperty(QObject, constant=True)
     def model(self):
         return self._model
 
@@ -161,7 +161,7 @@ class FriseModel(DtbListModel):
             self._dtb.delDB("ZoneFrise", d["id"])
         self._reset()
 
-    @Slot(result=bool)
+    @pyqtSlot(result=bool)
     def reset(self):
         self.beginResetModel()
         self._reset()

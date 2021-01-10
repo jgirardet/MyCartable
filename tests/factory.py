@@ -3,15 +3,12 @@ import tempfile
 import uuid
 from datetime import datetime, timedelta
 from pathlib import Path
-
-#
 from uuid import UUID
 
 import mimesis
 import random
 
-#
-from PySide2.QtGui import QColor
+from PyQt5.QtGui import QColor
 from mycartable.defaults.matiere import (
     MATIERE_GROUPE_BASE,
     MATIERES_BASE,

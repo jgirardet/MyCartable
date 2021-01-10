@@ -1,10 +1,11 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+import QtQuick.Window 2.15
 
 Item {
     id: item
 
-    width: 200
+    width: 600
     height: 600
 
     CasTest {
@@ -37,8 +38,8 @@ Item {
 
         function test_img_load_init() {
             verify(tested.source.toString().endsWith("tst_AnnotableImage.png"));
-            compare(tested.width, 200);
-            compare(tested.height, 174); // 669 * item.width / 767
+            compare(tested.width, 600);
+            compare(tested.height, 523);
         }
 
         function test_Mousearea_init() {
@@ -183,37 +184,51 @@ Item {
         }
 
         function test_floodfill() {
-            imgInstance.annotationCurrentTool = "floodfill";
-            imgInstance.annotationDessinCurrentStrokeStyle = "blue";
-            let mname = "floodFill";
-            th.mock(imgInstance, mname);
-            mouseClick(tested, 34, 54);
-            verify(th.mock_called(imgInstance, mname));
-            let args = th.mock_call_args_list(imgInstance, mname);
-            compare(args[0], [imgInstance.id, "#0000ff", Qt.point(34 / tested.width, 54 / tested.height)]);
-            th.unmock(imgInstance, mname);
+          // non testé trop compliqué et change l'image de base
         }
 
         function test_cursor_move() {
+            // pour tester les changement de curseur on utiliser le cacheKey
+            // qui reste constant pour 2 images identiques.
+            let cache_before = th.python("obj.cursor().pixmap().cacheKey()", Window.window);
+
             imgInstance.annotationCurrentTool = "floodfill";
-            imgInstance.annotationDessinCurrentStrokeStyle = "blue";
-            let mname = "setImageSectionCursor";
-            th.mock(imgInstance, mname);
             mouseMove(tested, 1, 1);
-            verify(th.mock_called(imgInstance, mname));
-            th.unmock(imgInstance, mname);
+            let cache_flood = th.python("obj.cursor().pixmap().cacheKey()", Window.window);
+
+            imgInstance.annotationCurrentTool = "rect";
+            mouseMove(tested, 1, 1);
+            let cache_rect = th.python("obj.cursor().pixmap().cacheKey()", Window.window);
+
+
+            imgInstance.annotationCurrentTool = "floodfill";
+            mouseMove(tested, 1, 1);
+            let cache_flood2 = th.python("obj.cursor().pixmap().cacheKey()", Window.window);
+
+            compare(cache_before, 0)
+            verify(cache_flood != cache_before)
+            verify(cache_flood != cache_before)
+            verify(cache_flood == cache_flood2)
         }
 
         function test_cursor_toolchanged() {
-            let mname = "setImageSectionCursor";
-            th.mock(imgInstance, mname);
-            tested.setStyleFromMenu({
+            let cache_before = th.python("obj.cursor().pixmap().cacheKey()", tested.mousearea);
+
+             tested.setStyleFromMenu({
                 "style": {
                     "tool": "trait"
                 }
             });
-            verify(th.mock_called(imgInstance, mname));
-            th.unmock(imgInstance, mname);
+            let cache_trait = th.python("obj.cursor().pixmap().cacheKey()", tested.mousearea);
+            tested.setStyleFromMenu({
+                "style": {
+                    "tool": "rect"
+                }
+            });
+            let cache_rect = th.python("obj.cursor().pixmap().cacheKey()", tested.mousearea);
+            compare(cache_before, 0)
+            verify(cache_trait != cache_before)
+            verify(cache_trait != cache_rect)
         }
 
         name: "ImageSection"

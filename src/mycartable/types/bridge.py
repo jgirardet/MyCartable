@@ -3,10 +3,9 @@ from __future__ import annotations
 from typing import Any, Union
 from uuid import UUID
 
-from PySide2.QtCore import Signal, Property, QObject, Slot
+from PyQt5.QtCore import pyqtProperty, QObject, pyqtSlot
 from loguru import logger
 from mycartable.types.dtb import DTB
-from pony.orm import db_session
 
 
 class Bridge(QObject):
@@ -99,19 +98,23 @@ class Bridge(QObject):
             return self.id == other.id
         return False
 
+    def __hash__(self):
+        # surtout utilisé pour waitSignals de pytest_qt
+        return UUID(self.id).int
+
     """
     QT Properties
     """
 
-    @Property(str, constant=True)
+    @pyqtProperty(str, constant=True)
     def id(self) -> str:
         return self._data.get("id", "")
 
     """
-    QT Slots
+    QT pyqtSlots
     """
 
-    @Slot("QVariantMap")
+    @pyqtSlot("QVariantMap")
     def set(self, data: dict):
         for name, value in data.items():
             # permet de mettre à jour aussi bien setfield/setstylefield

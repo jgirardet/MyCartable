@@ -1,11 +1,10 @@
 from unittest.mock import MagicMock, call
 
-from PySide2.QtCore import QObject
+from PyQt5.QtCore import QObject
 from mycartable.classeur import (
     ListOfPageModel,
     Page,
     RecentsModel,
-    Classeur,
     ActiviteModel,
 )
 from pony.orm import db_session

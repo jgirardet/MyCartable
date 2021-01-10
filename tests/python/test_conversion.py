@@ -2,7 +2,9 @@ import os
 import base64
 
 import pytest
-from PySide2.QtGui import QImage, QColor
+from PyQt5.QtCore import QUrl
+from PyQt5.QtGui import QImage, QColor
+from PyQt5.QtQuick import QQuickItem
 from mycartable.conversion.pdf import PDFSplitter, save_pdf_pages_to_png
 from mycartable import WIN
 from mycartable.conversion import Grabber, WImage
@@ -70,10 +72,10 @@ class Test_Wimage:
         w.setPixelColor(1, 1, QColor("transparent"))
 
         w.change_color(QColor("purple"))
-        assert w.pixelColor(0, 0) == "transparent"
+        assert w.pixelColor(0, 0) == QColor("transparent")
         assert w.pixelColor(0, 1) == QColor("purple")
         assert w.pixelColor(1, 0) == QColor("purple")
-        assert w.pixelColor(1, 1) == "transparent"
+        assert w.pixelColor(1, 1) == QColor("transparent")
 
 
 @pytest.mark.usefixtures("qapp")
@@ -98,13 +100,14 @@ class TestGrabber:
         }
     }"""
 
-    QML_CONTEXT = """import QtQuick 2.15
+    QML_PROP = """import QtQuick 2.15
     import QtQuick.Controls 2.15
     Item {
         id: item
 
         width: 200
         height: 200
+        property string aaa
 
         Rectangle {
             id: rect
@@ -114,7 +117,7 @@ class TestGrabber:
             border.width: 5
             border.color: "green"
             Button {
-                text: aaa
+                text: item.aaa
             }
         }
     }
@@ -138,24 +141,44 @@ class TestGrabber:
     }
 
     """
+    QML_NOSIZE_BUT_PARENT = """import QtQuick 2.15
+        Rectangle {
+            id: rect
+
+            anchors.fill: parent
+            color: "blue"
+            border.width: 5
+            border.color: "green"
+        }
+
+    """
     QML_CANVAS = """import QtQuick 2.15
 
     Item {
         id: item
         property alias canvas: canvas
         objectName: "itemitem"
+        property int status: 0
+        signal loaded
 
         Canvas {
             id: canvas
             objectName: "canvas"
 
             anchors.fill: parent
-            Component.onCompleted: {
+            onAvailableChanged: {
+                if(available)
                     paint(item.childrenRect)
             }
+            //Component.onCompleted: {
+            //        paint(item.childrenRect)
+            //}
             onPaint: {
                 let ctx = canvas.getContext("2d");
                 print("write canvas")
+                item.status = 1
+                loaded()
+                
                 }
 
             
@@ -164,68 +187,58 @@ class TestGrabber:
 
     """
 
-    def test_comp_to_image_with_data(self, resources):
+    def test_simple(self, resources, tmpfilename):
 
-        g = Grabber()
-        with g:
-            img1 = g.comp_to_image(data=self.QML.encode())
+        tmpfilename.write_text(self.QML)
+        g = Grabber(QUrl.fromLocalFile(str(tmpfilename)))
+        img1 = g()
 
-        # 2 fois juste pour voir si on peut répéter le contextmanager
-        with g:
-            img2 = g.comp_to_image(data=self.QML.encode())
-        assert img1 == img2
         assert img1 == WImage(str(resources / "convert" / "data.png"))
 
-    def test_data_context_manager_2_different(self, resources):
-        # g = Grabber()
-        with Grabber() as g:
-            img1 = g.comp_to_image(data=self.QML.encode())
-
-        with Grabber() as f:
-            img2 = f.comp_to_image(data=self.QML.encode())
+    def test_2_fois(self, resources, tmpfilename):
+        tmpfilename.write_text(self.QML)
+        g = Grabber(QUrl.fromLocalFile(str(tmpfilename)))
+        img1 = g()
+        img3 = g()
+        g = Grabber(QUrl.fromLocalFile(str(tmpfilename)))
+        img2 = g()
 
         # 2 fois juste pour voir si on peut répéter le contextmanager
-        assert img1 == img2
+        assert img1 == img2 == img3
         assert img1 == WImage(str(resources / "convert" / "data.png"))
 
-    def test_comp_to_image_with_context_fail(self, resources):
+    def test_comp_to_image_with_context_fail(self, resources, tmpfilename):
         """le texte du component est undefined donc l'image est pas la meme"""
-        with Grabber() as g:
-            img1 = g.comp_to_image(data=self.QML_CONTEXT.encode())
+        tmpfilename.write_text(self.QML_PROP)
+        g = Grabber(QUrl.fromLocalFile(str(tmpfilename)))
+        img1 = g()
         assert img1 != WImage(str(resources / "convert" / "context.png"))
 
     @pytest.mark.skipif(WIN, reason="img comparaison fails on windows but img is good")
-    def test_comp_to_image_with_context_pass(self, resources):
+    def test_comp_to_image_with_context_pass(self, resources, tmpfilename):
         img_control = WImage(str(resources / "convert" / "context.png"))
         # version  du context à la volé
-        with Grabber() as g:
-            g.context.setContextProperty("aaa", "hello")
-            img1 = g.comp_to_image(data=self.QML_CONTEXT.encode())
+        tmpfilename.write_text(self.QML_PROP)
+        g = Grabber(QUrl.fromLocalFile(str(tmpfilename)), {"aaa": "hello"})
+        img1 = g()
         assert img1 == img_control
 
-        # version context init de l'instance
-        with Grabber(context_dict={"aaa": "hello"}) as f:
-            img2 = f.comp_to_image(data=self.QML_CONTEXT.encode())
-        assert img2 == img_control
-
-    def test_comp_to_image_with_width_height(self, resources):
-        with Grabber() as f:
-            img = f.comp_to_image(data=self.QML_NOSIZE.encode(), width=400, height=300)
-        assert img == WImage(str(resources / "convert" / "width_height.png"))
+    def test_without_size(self, resources, tmpfilename):
+        tmpfilename.write_text(self.QML_NOSIZE)
+        g = Grabber(QUrl.fromLocalFile(str(tmpfilename)), timeout=1)
+        img1 = g()
+        assert img1 is None
 
     def test_comp_to_image_with_qrc(self, resources):
-        with Grabber() as f:
-            img = f.comp_to_image(url=":/tests/Dummy.qml")
+        g = Grabber(url=QUrl("qrc:///tests/Dummy.qml"))
+        img = g()
         assert img == WImage(str(resources / "convert" / "data.png"))
 
-    def test_canvas(self, qtlog, qtbot):
-        with Grabber() as f:
-            f.load_component(
-                data=self.QML_CANVAS.encode(),
-                initial_prop={"width": 400, "height": 300},
-            )
-            qtbot.wait(100)
-            f.render_component()
-
+    def test_canvas(self, qtlog, qtbot, tmpfilename):
+        tmpfilename.write_text(self.QML_CANVAS)
+        g = Grabber(
+            QUrl.fromLocalFile(str(tmpfilename)), params={"width": 400, "height": 300}
+        )
+        qtbot.wait(100)
+        g()
         assert "write canvas" in [r.message for r in qtlog.records]
-        # assert img == WImage(str(resources / "convert" / "width_height.png"))

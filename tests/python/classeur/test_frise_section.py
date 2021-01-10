@@ -1,6 +1,6 @@
 import pytest
-from PySide2.QtCore import Qt, QModelIndex
-from PySide2.QtGui import QColor
+from PyQt5.QtCore import Qt, QModelIndex
+from PyQt5.QtGui import QColor
 from mycartable.classeur import FriseSection
 from mycartable.classeur.sections.frise import FriseModel
 from pony.orm import db_session
@@ -38,7 +38,7 @@ def test_base(fk, qtbot):
 def test_data(fm, fk):
     b = fm(3)
     a = b.model
-    a.zones[0]["style"]["bgColor"] = "blue"
+    a.zones[0]["style"]["bgColor"] = QColor("blue")
     a.zones[2]["ratio"] = 0.45
     a.zones[1]["style"]["strikeout"] = True
     a.zones[2]["separatorText"] = "un époque"
@@ -57,7 +57,7 @@ def test_data(fm, fk):
 def test_set_data(fm, ddbr):
     b = fm(3)
     a = b.model
-    a.zones[0]["style"]["bgColor"] = "blue"
+    a.zones[0]["style"]["bgColor"] = QColor("blue")
     a.zones[2]["ratio"] = 0.45
     a.setData(a.index(1, 0), "blabla", Qt.EditRole)
     a.setData(a.index(5, 0), "hehe", Qt.DisplayRole)

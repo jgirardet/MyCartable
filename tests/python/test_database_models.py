@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, date
 
-from PySide2.QtGui import QFont, QColor
+from PyQt5.QtGui import QFont, QColor
 from tests.python.fixtures import compare_items, wait, ss, uuu
 
 import pytest
@@ -1642,10 +1642,10 @@ class TestFrise:
                 frise=ph.id, ratio=0.2, style={"bgColor": "blue"}, texte="bla"
             )
             l = fk.f_friseLegende(texte="aa", relativeX="0.3", side=True, zone=f.id)
-            assert f.style.bgColor == "blue"
+            assert f.style.bgColor == QColor("blue")
             # test set
             f.set(ratio=0.5, style={"bgColor": "green"})
-            assert f.style.bgColor == "green"
+            assert f.style.bgColor == QColor("green")
             assert f.ratio == 0.5
             assert f.to_dict() == {
                 "frise": str(ph.id),

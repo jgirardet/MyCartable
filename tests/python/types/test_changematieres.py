@@ -1,6 +1,5 @@
 import pytest
-from PySide2.QtGui import QColor
-from tests.python.fixtures import check_args
+from PyQt5.QtGui import QColor
 from mycartable.types.changematieres import ChangeMatieres
 from pony.orm import db_session
 
@@ -13,27 +12,6 @@ def cm(ddbr, qapp):
 
 
 class TestChangeMatieresMixin:
-    def test_check_args(self, cm: ChangeMatieres):
-        check_args(cm.getActivites, str, list)
-        check_args(cm.moveActiviteTo, [str, int], list)
-        check_args(cm.removeActivite, str, list)
-        check_args(cm.addActivite, [str, bool], list, slot_order=0)
-        check_args(cm.addActivite, [str], list, slot_order=1)
-        check_args(cm.updateActiviteNom, [str, str])
-        check_args(cm.getMatieres, str, list)
-        check_args(cm.moveMatiereTo, [str, int], list)
-        check_args(cm.removeMatiere, str, list)
-        check_args(cm.updateMatiereNom, [str, str])
-        check_args(cm.addMatiere, [str, bool], list, slot_order=0)
-        check_args(cm.addMatiere, [str], list, slot_order=1)
-        check_args(cm.getGroupeMatieres, int, list)
-        check_args(cm.moveGroupeMatiereTo, [str, int], list)
-        check_args(cm.removeGroupeMatiere, str, list)
-        check_args(cm.updateGroupeMatiereNom, [str, str])
-        check_args(cm.addGroupeMatiere, str, list)
-        check_args(cm.applyGroupeDegrade, [str, QColor], list)
-        check_args(cm.reApplyGroupeDegrade, str, list)
-
     def test_get_activites(self, fk, cm):
         m = fk.f_matiere()
         acs = fk.b_activite(3, nom="machoire", matiere=m)

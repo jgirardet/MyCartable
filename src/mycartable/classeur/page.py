@@ -1,18 +1,20 @@
 import typing
-from PySide2.QtCore import (
-    Signal,
-    Property,
+
+from PyQt5 import sip
+from PyQt5.QtCore import (
+    pyqtSignal,
+    pyqtProperty,
     QObject,
     QModelIndex,
     QByteArray,
     Qt,
-    Slot,
+    pyqtSlot,
     QTimer,
 )
 
-from .convert import Converter
 from pony.orm import db_session
 
+from .convert import Converter
 from .matiere import Matiere
 from .sections import Section
 from mycartable.utils import shift_list
@@ -24,9 +26,9 @@ class Page(Bridge):
 
     entity_name = "Page"
     UPDATE_MODIFIED_DELAY = 10000
-    lastPositionChanged = Signal()
-    titreChanged = Signal()
-    pageModified = Signal()
+    lastPositionChanged = pyqtSignal()
+    titreChanged = pyqtSignal()
+    pageModified = pyqtSignal()
 
     """
     Python Code
@@ -43,70 +45,71 @@ class Page(Bridge):
             self.pageModified.emit()
 
     """
-    Qt Property
+    Qt pyqtProperty
     """
 
-    @Property(str, constant=True)
+    @pyqtProperty(str, constant=True)
     def activite(self):
         return self._data.get("activite", "")
 
-    @Property(QObject, constant=True)
+    @pyqtProperty(QObject, constant=True)
     def classeur(self):
         return self.parent()
 
-    @Property(str, notify=titreChanged)
+    @pyqtProperty(str, notify=titreChanged)
     def titre(self) -> str:
         return self._data.get("titre", "")
 
     @titre.setter
-    def setTitre(self, value):
+    def titre(self, value):
         self.set_field("titre", value)
 
-    @Property(int, notify=lastPositionChanged)
+    @pyqtProperty(int, notify=lastPositionChanged)
     def lastPosition(self) -> int:
-        return self._data.get("lastPosition", 0)
+        res = self._data.get("lastPosition", 0)
+        return res if res else 0
 
     @lastPosition.setter
-    def setLastPosition(self, value):
+    def lastPosition(self, value):
         self.set_field("lastPosition", value)
 
-    @Property(str, constant=True)
+    @pyqtProperty(str, constant=True)
     def matiereId(self) -> str:
         return self._data.get("matiere", "")
 
-    @Property(QObject, constant=True)
+    @pyqtProperty(QObject, constant=True)
     def matiere(self) -> str:
         if not hasattr("self", "_matiere"):
             self._matiere = Matiere(self._dtb.getDB("Matiere", self.matiereId))
         return self._matiere
 
-    @Property(QObject, constant=True)
+    @pyqtProperty(QObject, constant=True)
     def model(self) -> "PageModel":
         return self._model
 
     """
-    Qt Slots
+    Qt pyqtSlots
     """
 
-    @Slot(str, int, "QVariantMap", result=bool)
-    @Slot(str, result=bool)
+    @pyqtSlot(str, int, "QVariantMap", result=bool)
+    @pyqtSlot(str, result=bool)
     def addSection(
         self, classtype: str, position: int = None, params: dict = {}
     ) -> bool:
-        return self.model.addSection(classtype, position, params)
+        return bool(self.model.addSection(classtype, position, params))
 
-    @Slot()
+    @pyqtSlot()
     def exportToPDF(self):
         Converter(self).export_to_pdf()
 
-    @Slot()
+    @pyqtSlot()
     def exportToODT(self):
         Converter(self).export_to_odt()
 
 
 class PageModel(DtbListModel):
     SectionRole = Qt.UserRole + 1
-    countChanged = Signal()
+    countChanged = pyqtSignal()
 
     def __init__(self, parent=None):
         self._data = {}
@@ -154,7 +157,10 @@ class PageModel(DtbListModel):
             return None
         elif role == self.SectionRole:
             sec_id = self._data["sections"][index.row()]
-            return Section.get(sec_id)
+            sec = Section.get(sec_id)
+            sip.transferto(sec, sec)
+            return sec
+
         else:
             return None
 
@@ -177,15 +183,15 @@ class PageModel(DtbListModel):
         if nb >= 0:
             self.insertRows(position, nb)
 
-    @Property(Page, constant=True)
+    @pyqtProperty(Page, constant=True)
     def page(self) -> Page:
         return self.parent()
 
-    @Property(int, notify=countChanged)
+    @pyqtProperty(int, notify=countChanged)
     def count(self) -> int:
         return self.rowCount(QModelIndex())
 
-    @Slot(result=bool)
+    @pyqtSlot(result=bool)
     def append(self) -> bool:
-        """Slot to append a row at the end"""
+        """pyqtSlot to append a row at the end"""
         raise NotImplementedError("please use page addSection instead")

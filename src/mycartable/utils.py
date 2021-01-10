@@ -10,7 +10,7 @@ from packaging.version import (
     InvalidVersion,
 )
 
-from PySide2.QtCore import QTimer, QFile, QTextStream, QRunnable, QThreadPool, QUrl
+from PyQt5.QtCore import QTimer, QFile, QTextStream, QRunnable, QThreadPool, QUrl
 from mycartable import WIN
 
 

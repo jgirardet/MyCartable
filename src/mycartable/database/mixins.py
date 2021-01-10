@@ -1,8 +1,7 @@
 from contextlib import contextmanager
 from uuid import UUID
 
-from PySide2.QtGui import QColor
-from pony.orm import Required
+from PyQt5.QtGui import QColor
 from pony.orm.core import (
     Entity,
     Attribute,

@@ -14,6 +14,7 @@ Item {
     property alias contentItem: loader.item
     required property int index
     required property QtObject section
+    property alias status: loader.status
 
     signal loaded(int idx)
 

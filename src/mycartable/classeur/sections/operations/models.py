@@ -1,25 +1,22 @@
 import functools
-import operator
 
-from PySide2.QtCore import (
-    Qt,
+from PyQt5.QtCore import (
     QModelIndex,
-    Signal,
-    Property,
-    QAbstractItemModel,
+    pyqtSignal,
+    pyqtProperty,
     QAbstractListModel,
-    Slot,
+    pyqtSlot,
+    Qt,
     QObject,
 )
 
-from pony.orm import db_session, make_proxy
 from functools import cached_property
 
 
 class OperationModel(QAbstractListModel):
 
-    cursorChanged = Signal()
-    paramsChanged = Signal()
+    cursorChanged = pyqtSignal()
+    paramsChanged = pyqtSignal()
 
     def __init__(self, parent: "Operation" = None):
         super().__init__(parent)
@@ -32,7 +29,6 @@ class OperationModel(QAbstractListModel):
     Pure Python code
     """
 
-    # @Slot()
     def getInitialPosition(self):
         pos = self.get_initial_position()
         a = pos if pos is not None else self.operation.size - 1
@@ -64,19 +60,19 @@ class OperationModel(QAbstractListModel):
         return {}
 
     """
-    Qt Property
+    Qt pyqtProperty
     """
 
-    @Property(QObject, constant=True)
+    @pyqtProperty(QObject, constant=True)
     def operation(self):
         return self.parent()
 
-    @Property(int, notify=cursorChanged)
+    @pyqtProperty(int, notify=cursorChanged)
     def cursor(self):
         return self._cursor
 
     @cursor.setter
-    def cursor_set(self, value: int):
+    def cursor(self, value: int):
         if value != self._cursor:
             self._cursor = value
             self.cursorChanged.emit()
@@ -85,33 +81,33 @@ class OperationModel(QAbstractListModel):
     Qt SLot
     """
 
-    @Slot(int)
+    @pyqtSlot(int)
     def autoMoveNext(self, currentIndex):
         self.cursor = self.auto_move_next(currentIndex)
 
-    @Slot(int, int)
+    @pyqtSlot(int, int)
     def moveCursor(self, index, key):
         res = self.move_cursor(index, key)
         if res != index:  # pragma: no branch
             self.cursor = res
 
-    @Slot(int, result=bool)
+    @pyqtSlot(int, result=bool)
     def readOnly(self, value):
         return value not in self.editables
 
-    @Slot(int, result=bool)
+    @pyqtSlot(int, result=bool)
     def isMiddleLine(self, index):
         return not self.isResultLine(index) and not self.isRetenueLine(index)
 
-    @Slot(int, result=bool)
+    @pyqtSlot(int, result=bool)
     def isMembreLine(self, index):
         return self.isMiddleLine(index)
 
-    @Slot(int, result=bool)
+    @pyqtSlot(int, result=bool)
     def isResultLine(self, index):
         return self.is_result_line(index)
 
-    @Slot(int, result=bool)
+    @pyqtSlot(int, result=bool)
     def isRetenueLine(self, index):
         return self.is_retenue_line(index)
 
@@ -221,15 +217,15 @@ class SoustractionModel(OperationModel):
             else position
         )
 
-    @Slot(int, result=bool)
+    @pyqtSlot(int, result=bool)
     def isRetenueGauche(self, index):
         return index in self.retenue_gauche
 
-    @Slot(int, result=bool)
+    @pyqtSlot(int, result=bool)
     def isRetenueDroite(self, index):
         return index in self.retenue_droite
 
-    @Slot()
+    @pyqtSlot()
     def addRetenues(self):
         r1 = self.cursor - (self.operation.columns * 2) - 1
         r2 = self.cursor - self.operation.columns - 2
@@ -600,15 +596,15 @@ class MultiplicationModel(OperationModel):
 
         return index_y, index_x
 
-    # slot / Property  en plus
+    # slot / pyqtProperty  en plus
 
-    @Slot(int, result=bool)
+    @pyqtSlot(int, result=bool)
     def isLine1(self, index):
         return self.i_line_1.start <= index < self.i_line_1.stop
 
-    highLightChanged = Signal()
+    highLightChanged = pyqtSignal()
 
-    @Property("QVariantList", notify=highLightChanged)
+    @pyqtProperty("QVariantList", notify=highLightChanged)
     def highLight(self):
         return list(self.getHighlightedForCurrent(self.cursor))
 
@@ -721,8 +717,8 @@ class DivisionModel(OperationModel):
 
         return res
 
-    # Slot en plus
-    @Slot()
+    # pyqtSlot en plus
+    @pyqtSlot()
     def addRetenues(self):
         if not self.isMembreLine(self.cursor):
             r1 = self.cursor - (self.operation.columns * 2) - 1
@@ -734,7 +730,7 @@ class DivisionModel(OperationModel):
             self.setData(self.index(r1), res, Qt.EditRole)
             self.setData(self.index(r2), res, Qt.EditRole)
 
-    @Slot(result=int)
+    @pyqtSlot(result=int)
     def getPosByQuotient(self):
         len_q = len(self.operation.quotient.replace(",", ""))
         len_diviseur = len(str(self.operation.diviseur).replace(",", ""))
@@ -744,7 +740,7 @@ class DivisionModel(OperationModel):
             self.cursor = self.cursor + self.operation.columns + 3
         return self.cursor
 
-    @Slot()
+    @pyqtSlot()
     def goToAbaisseLine(self):
         debut = int(self.cursor / self.operation.columns) * self.operation.columns
         self.cursor = (
@@ -755,32 +751,32 @@ class DivisionModel(OperationModel):
             + 3
         )
 
-    @Slot()
+    @pyqtSlot()
     def goToResultLine(self):
         debut = int(self.cursor / self.operation.columns) * self.operation.columns
         self.cursor = self.go_to_end_line_result(debut)
 
-    @Slot(int, result=bool)
+    @pyqtSlot(int, result=bool)
     def isDividendeLine(self, index):
         return index in range(self.operation.columns)
 
-    @Slot(int, result=bool)
+    @pyqtSlot(int, result=bool)
     def isMembreLine(self, index):
         return bool(int(index / self.operation.columns) & 1)
 
-    @Slot(int, result=bool)
+    @pyqtSlot(int, result=bool)
     def isRetenue(self, index):
         return index in self.retenue_gauche or index in self.retenue_droite
 
-    @Slot(int, result=bool)
+    @pyqtSlot(int, result=bool)
     def isRetenueDroite(self, index):
         return index in self.retenue_droite
 
-    @Slot(int, result=bool)
+    @pyqtSlot(int, result=bool)
     def isRetenueGauche(self, index):
         return index in self.retenue_gauche
 
-    @Slot(int, result=bool)
+    @pyqtSlot(int, result=bool)
     def isEditable(self, value):
         return value in self.editables
 
@@ -832,7 +828,7 @@ class DivisionModel(OperationModel):
         new_index = self._get_last_index_filled(self.operation.datas[ligne])
         return debut_ligne + self.operation.columns + new_index
 
-    # @Slot(int, result=bool)
+    # @pyqtSlot(int, result=bool)
     # def readOnly(self, value):
     #     return value not in self.editables
 

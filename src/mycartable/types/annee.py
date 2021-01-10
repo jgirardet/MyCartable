@@ -1,4 +1,4 @@
-from PySide2.QtCore import Slot, Signal, Property
+from PyQt5.QtCore import pyqtSlot, pyqtSignal, pyqtProperty
 from mycartable.types.bridge import Bridge
 from pony.orm import db_session
 
@@ -13,21 +13,21 @@ class Annee(Bridge):
 
     entity_name = "Annee"
 
-    niveauChanged = Signal()
+    niveauChanged = pyqtSignal()
 
     def __init__(self, data={"id": 0}, parent=None):
         super().__init__(data, parent)
 
-    @Property(str, notify=niveauChanged)
+    @pyqtProperty(str, notify=niveauChanged)
     def niveau(self):
         return self._data.get("niveau", 0)
 
     @niveau.setter
-    def niveau_set(self, value: int):
+    def niveau(self, value: int):
         if self.id:  # pragma: no branch
             self.set_field("niveau", value)
 
-    @Slot(result="QVariantList")
+    @pyqtSlot(result="QVariantList")
     def getMenuAnnees(self):
         with db_session:
             res = [

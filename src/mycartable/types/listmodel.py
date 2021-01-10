@@ -1,9 +1,9 @@
 import typing
-from PySide2.QtCore import (
+from PyQt5.QtCore import (
     QObject,
     QModelIndex,
     Qt,
-    Slot,
+    pyqtSlot,
     QAbstractListModel,
 )
 from mycartable.types.dtb import DTB
@@ -23,9 +23,7 @@ class DtbListModel(QAbstractListModel):
     """
 
     def __init_subclass__(cls, **kwargs):
-        if cls.rowCount.__qualname__.startswith(
-            "QAbstractItemModel"
-        ):  # pragm: no branch
+        if id(cls.rowCount) == id(QAbstractListModel.rowCount):  # pragm: no branch
             raise NotImplementedError(
                 "method rowCount has to be implemented",
             )
@@ -132,24 +130,24 @@ class DtbListModel(QAbstractListModel):
 
     """QT Properties"""
 
-    """QT Slots"""
+    """QT pyqtSlots"""
 
-    @Slot(result=bool)
+    @pyqtSlot(result=bool)
     def append(self) -> bool:
-        """Slot to append a row at the end"""
+        """pyqtSlot to append a row at the end"""
         return self.insertRow(self.rowCount())
 
-    @Slot(int, int, result=bool)
+    @pyqtSlot(int, int, result=bool)
     def move(self, source: int, target: int):
-        """Slot to move a single row from source to target"""
+        """pyqtSlot to move a single row from source to target"""
         return self.moveRow(source, target)
 
-    @Slot(int, result=bool)
+    @pyqtSlot(int, result=bool)
     def remove(self, row: int):
-        """Slot to remove one row"""
+        """pyqtSlot to remove one row"""
         return self.removeRow(row)
 
-    @Slot(result=bool)
+    @pyqtSlot(result=bool)
     def reset(self):
         """Int the model"""
         self.beginResetModel()

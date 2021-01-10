@@ -5,13 +5,12 @@ from unittest.mock import patch
 
 import pytest
 from PIL import Image
-from PySide2.QtCore import QPointF, Qt, QUrl
-from PySide2.QtGui import QColor, QImage, QCursor
-from PySide2.QtQuick import QQuickItem
+from PyQt5.QtCore import QPointF, Qt, QUrl
+from PyQt5.QtGui import QColor, QImage, QCursor
+from PyQt5.QtQuick import QQuickItem
 from mycartable.classeur.sections.annotation import AnnotationModel
 from mycartable.defaults.configuration import KEEP_UPDATED_CONFIGURATION
 from mycartable.types import DTB
-from tests.python.fixtures import check_args
 from mycartable.classeur import ImageSection
 from mycartable.cursors import build_one_image_cursor
 from mycartable.defaults.files_path import FILES
@@ -61,8 +60,8 @@ def test_new_ImageVide(fk, resources):
     assert im.width == 40
 
 
-def test_check_args():
-    check_args(ImageSection.pivoterImage, [int], bool)
+# def test_check_args():
+# check_args(ImageSection.pivoterImage, [int], bool)
 
 
 def test_absolute_path_qmlpath_path(fk):
@@ -105,7 +104,6 @@ def test_new_image_path(fk):
     [
         ("annotationCurrentTool", "new_tool"),
         ("annotationDessinCurrentLineWidth", "99"),
-        ("annotationDessinCurrentStrokeStyle", QColor("purple")),
         ("annotationDessinCurrentTool", "new_tool"),
     ],
 )
@@ -116,6 +114,21 @@ def test_annotation_properties(fk, qtbot, name, new_value):
     setattr(img, name, new_value)
     with db_session:
         assert fk.db.Configuration.option(name) == new_value
+
+
+@pytest.mark.parametrize(
+    "name, new_value",
+    [
+        ("annotationDessinCurrentStrokeStyle", QColor("purple")),
+    ],
+)
+def test_annotation_propertiesQColor(fk, qtbot, name, new_value):
+    i = fk.f_imageSection(td=True)
+    img = ImageSection.get(i)
+    assert getattr(img, name).name() == KEEP_UPDATED_CONFIGURATION[name]
+    setattr(img, name, new_value)
+    with db_session:
+        assert fk.db.Configuration.option(name) == new_value.name()
 
 
 def test_store_new_file_pathlib(resources):
@@ -172,21 +185,23 @@ def test_flood_fill(fk, resources, tmp_path, pos, img_res):
     shutil.copy(resources / "floodfill.png", fp)
     f = fk.f_imageSection(path=str(fp))
     isec = ImageSection.get(f.id)
-    assert isec.floodFill(f.id, QColor("blue"), pos)
-    assert QImage(str(isec.absolute_path)) == QImage(str(resources / img_res))
+    isec.floodFill(QColor("blue"), pos)
+    lhs = QImage(str(isec.absolute_path))
+    rhs = QImage(str(resources / img_res))
+    assert lhs == rhs
 
 
 def test_image_selection_curosr(fk, qtbot):
     qk = QQuickItem()
     isec = ImageSection.get(fk.f_imageSection().id)
     # defaut
-    isec.setImageSectionCursor(qk, "text", "black")
+    isec.setImageSectionCursor(qk, "text", QColor("black"))
     assert (
         qk.cursor().pixmap().toImage()
         == build_one_image_cursor("text").pixmap().toImage()
     )
     # color
-    isec.setImageSectionCursor(qk, "text", "blue")
+    isec.setImageSectionCursor(qk, "text", QColor("blue"))
     # qk.cursor().pixmap().toImage().save("/tmp/aa1.png")
     # build_one_image_cursor("text", QColor("blue")).pixmap().toImage().save(
     #     "/tmp/aa2.png"
@@ -197,7 +212,7 @@ def test_image_selection_curosr(fk, qtbot):
     )
 
     # with tool
-    isec.setImageSectionCursor(qk, "fillrect", "red")
+    isec.setImageSectionCursor(qk, "fillrect", QColor("red"))
     assert (
         qk.cursor().pixmap().toImage()
         == build_one_image_cursor("fillrect", QColor("red")).pixmap().toImage()

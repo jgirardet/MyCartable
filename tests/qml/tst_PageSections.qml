@@ -111,8 +111,8 @@ Rectangle {
         }
 
         function test_insert_row_entre(data) {
-            if (Qt.platform.os == "windows")
-                skip("ne marche pas sous windows", 1);
+//            if (Qt.platform.os == "windows")
+//                skip("ne marche pas sous windows", 1);
 
             var inter = findChild(txt1, "intermousearea");
             mouseClick(inter, undefined, undefined, Qt.RightButton, Qt.ShiftModifier);
@@ -122,10 +122,9 @@ Rectangle {
                 let filedialog = tested.addDialog.contentItem.children[data.index].action.dialog;
                 filedialog.folder = "assets";
                 wait(50);
-                // ATTENTION, en fonction de ce qui a dans asset ça peut changer
-                //                mouseClick(filedialog.contentItem, 150, 80, Qt.LeftButton, Qt.NoModifier, 50);
-                //                wait(1000);
-                mouseDoubleClickSequence(filedialog.contentItem, 150, 80, Qt.LeftButton, Qt.NoModifier, 50);
+                keySequence("r,e,c,t")
+                keySequence(".,p,n,g")
+                keyClick(Qt.Key_Return)
             }
             tryCompare(tested.addDialog, "scale", 0);
             compare(tested.addDialog.visible, false);

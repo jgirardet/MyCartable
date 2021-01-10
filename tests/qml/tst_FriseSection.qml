@@ -181,8 +181,8 @@ Item {
             compare(fk.getItem("FriseLegende", l0.id).texte, "bcd");
             // relative X
             mouseDrag(leg1.languette, 1, 1, 40, 0);
-            fuzzyCompare(leg1.x, 187, 10); // 147+40
-            fuzzyCompare(fk.getItem("FriseLegende", l1.id).relativeX, 187 / leg1.parent.width, 0.1);
+            fuzzyCompare(leg1.x, 187.0, 10); // 147+40
+            fuzzyCompare(fk.getItem("FriseLegende", l1.id).relativeX, 187.0 / leg1.parent.width, 0.1);
         }
 
         function test_legende_ajout() {

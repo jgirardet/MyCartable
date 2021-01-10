@@ -1,10 +1,9 @@
 from typing import Any
 
-from PySide2.QtCore import Slot, Signal, Property
-from PySide2.QtGui import QColor
+from PyQt5.QtCore import pyqtSignal, pyqtProperty
+from PyQt5.QtGui import QColor
 from loguru import logger
 from mycartable.types.dtb import DTB
-from pony.orm import db_session
 
 
 class Stylable:
@@ -12,13 +11,13 @@ class Stylable:
     _dtb: DTB
     _data: dict
 
-    bgColorChanged = Signal()
-    fgColorChanged = Signal()
-    underlineChanged = Signal()
-    pointSizeChanged = Signal()
-    strikeoutChanged = Signal()
-    weightChanged = Signal()
-    familyChanged = Signal()
+    bgColorChanged = pyqtSignal()
+    fgColorChanged = pyqtSignal()
+    underlineChanged = pyqtSignal()
+    pointSizeChanged = pyqtSignal()
+    strikeoutChanged = pyqtSignal()
+    weightChanged = pyqtSignal()
+    familyChanged = pyqtSignal()
 
     """
     Python Code
@@ -40,70 +39,70 @@ class Stylable:
             getattr(self, name + "Changed").emit()
 
     """
-    Qt Property
+    Qt pyqtProperty
     """
 
-    @Property(QColor, notify=bgColorChanged)
+    @pyqtProperty(QColor, notify=bgColorChanged)
     def bgColor(self):
         return self._data["style"]["bgColor"]
 
     @bgColor.setter
-    def bgColor_set(self, value: QColor):
+    def bgColor(self, value: QColor):
         self.set_style("bgColor", value)
 
-    @Property(str, notify=familyChanged)
+    @pyqtProperty(str, notify=familyChanged)
     def family(self):
         return self._data["style"]["family"]
 
     @family.setter
-    def family_set(self, value: str):
+    def family(self, value: str):
         self.set_style("family", value)
 
-    @Property(QColor, notify=fgColorChanged)
+    @pyqtProperty(QColor, notify=fgColorChanged)
     def fgColor(self):
         return self._data["style"]["fgColor"]
 
     @fgColor.setter
-    def fgColor_set(self, value: QColor):
+    def fgColor(self, value: QColor):
         self.set_style("fgColor", value)
 
-    @Property(float, notify=pointSizeChanged)
+    @pyqtProperty(float, notify=pointSizeChanged)
     def pointSize(self):
-        return self._data["style"]["pointSize"]
+        return self._data["style"]["pointSize"] or 0.0
 
     @pointSize.setter
-    def pointSize_set(self, value: float):
+    def pointSize(self, value: float):
         self.set_style("pointSize", value)
 
-    @Property(bool, notify=underlineChanged)
+    @pyqtProperty(bool, notify=underlineChanged)
     def underline(self):
         return self._data["style"]["underline"]
 
     @underline.setter
-    def underline_set(self, value: bool):
+    def underline(self, value: bool):
         self.set_style("underline", value)
 
-    @Property(bool, notify=strikeoutChanged)
+    @pyqtProperty(bool, notify=strikeoutChanged)
     def strikeout(self):
         return self._data["style"]["strikeout"]
 
     @strikeout.setter
-    def strikeout_set(self, value: bool):
+    def strikeout(self, value: bool):
         self.set_style("strikeout", value)
 
-    @Property(str, constant=True)
+    @pyqtProperty(str, constant=True)
     def styleId(self):
         return self._data["style"]["styleId"]
 
-    @Property(int, notify=weightChanged)
+    @pyqtProperty(int, notify=weightChanged)
     def weight(self):
         return self._data["style"]["weight"]
 
     @weight.setter
-    def weight_set(self, value: int):
+    def weight(self, value: int):
         self.set_style("weight", value)
 
-    # @Slot(str, "QVariantMap", result="QVariantMap")
+    # @pyqtSlot(str, "QVariantMap", result="QVariantMap")
     # def setStyle(self, styleId, content):
     #     with dbsession_autodisconnect:
     #         try:

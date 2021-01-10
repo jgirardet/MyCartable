@@ -8,7 +8,7 @@ from loguru import logger
 from pony.orm import db_session
 from contextlib import contextmanager
 
-from PySide2.QtGui import QFontInfo, QColor
+from PyQt5.QtGui import QFontInfo, QColor
 
 
 def compare_items(first, two, key="id"):
@@ -68,7 +68,7 @@ EQUIVALENTS = {
 
 
 def check_args(fn, exp_args=[], exp_return_type=None, slot_order=0):
-
+    breakpoint()
     if not isinstance(exp_args, (tuple, list)):
         exp_args = [exp_args] if exp_args is not None else None
 
@@ -149,7 +149,7 @@ def compare_char_format(lhs, rhs, exclude=[]):
 
     attrs = [
         "anchorHref",
-        "anchorName",
+        # "anchorName",
         "anchorNames",
         "font",
         "fontCapitalization",

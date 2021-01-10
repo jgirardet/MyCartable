@@ -59,11 +59,6 @@ def classeur(cl_data, ddbr):
     return c
 
 
-def test_check_args():
-    check_args(Classeur.setCurrentMatiere, int)
-    check_args(Classeur.setCurrentMatiere, str, slot_order=1)
-
-
 def test_init_base():
     c = Classeur()
     assert c.annee == 0

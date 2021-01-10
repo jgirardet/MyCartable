@@ -12,17 +12,6 @@ def test_properties(fk):
     assert b.entity_name == "TableauSection"
 
 
-def test_check_args():
-    check_args(TableauSection.initTableauDatas, None, list)
-    check_args(TableauSection.updateCell, [int, int, dict])
-    check_args(TableauSection.insertRow, [int])
-    check_args(TableauSection.appendRow)
-    check_args(TableauSection.removeRow, [int])
-    check_args(TableauSection.insertColumn, [int])
-    check_args(TableauSection.appendColumn)
-    check_args(TableauSection.removeColumn, [int])
-
-
 def test_init_datas(fk):
     x = fk.f_tableauSection(3, 4)
     t = TableauSection.get(x.id)

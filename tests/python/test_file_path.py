@@ -3,7 +3,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from mycartable.defaults.files_path import root_data, files, tmp_files
-from PySide2.QtCore import QStandardPaths
+from PyQt5.QtCore import QStandardPaths
 
 
 def test_root_data_en_test():

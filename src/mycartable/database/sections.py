@@ -3,10 +3,7 @@ from datetime import datetime
 from typing import Tuple
 from uuid import UUID, uuid4
 
-from PySide2.QtGui import QColor
-
-from mycartable.classeur.sections.operations.api import create_operation
-from mycartable.exceptions import MyCartableOperationError
+from PyQt5.QtGui import QColor
 from pony.orm import (
     Required,
     PrimaryKey,
@@ -15,6 +12,9 @@ from pony.orm import (
     Database,
     ObjectNotFound,
 )
+
+from mycartable.classeur.sections.operations.api import create_operation
+from mycartable.exceptions import MyCartableOperationError
 from .mixins import ColorMixin, PositionMixin
 
 

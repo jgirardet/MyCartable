@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock, call
 
 import pytest
-from PySide2.QtCore import QModelIndex, Qt, QByteArray
+from PyQt5.QtCore import QModelIndex, Qt, QByteArray
 from mycartable.types.dtb import DTB
 from mycartable.types.listmodel import DtbListModel
 

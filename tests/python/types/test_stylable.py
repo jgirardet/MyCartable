@@ -1,5 +1,5 @@
 import pytest
-from PySide2.QtGui import QColor
+from PyQt5.QtGui import QColor
 from tests.python.fixtures import disable_log
 
 from mycartable.types.bridge import Bridge

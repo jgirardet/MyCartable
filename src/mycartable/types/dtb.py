@@ -1,8 +1,8 @@
 import json
-from typing import Union, Optional, Any, List
+from typing import Union, Any
 
-from PySide2.QtCore import Slot, QObject
-from PySide2.QtQml import QJSValue
+from PyQt5.QtCore import pyqtSlot, QObject
+from PyQt5.QtQml import QJSValue
 from loguru import logger
 from pony.orm import Database, db_session, ObjectNotFound
 
@@ -19,7 +19,7 @@ class DTB(QObject):
             )
 
     @db_session
-    @Slot(str, "QVariantMap", result="QVariantMap")
+    @pyqtSlot(str, "QVariantMap", result="QVariantMap")
     def addDB(self, entity: str, params: dict) -> dict:
         """
         Add a row in database.
@@ -36,8 +36,8 @@ class DTB(QObject):
         return {}
 
     @db_session
-    @Slot(str, str, result=bool)
-    @Slot(str, int, result=bool)
+    @pyqtSlot(str, str, result=bool)
+    @pyqtSlot(str, int, result=bool)
     def delDB(self, entity_name: str, item_id: str) -> bool:
         """
         Database delete call
@@ -57,8 +57,8 @@ class DTB(QObject):
             return False
 
     @db_session
-    @Slot(str, str, result="QVariantMap")
-    @Slot(str, int, result="QVariantMap")
+    @pyqtSlot(str, str, result="QVariantMap")
+    @pyqtSlot(str, int, result="QVariantMap")
     def getDB(self, entity_name: str, item_id: str) -> dict:
         """
         Get an Item un database
@@ -77,8 +77,8 @@ class DTB(QObject):
             return {}
 
     @db_session
-    @Slot(str, str, "QVariantMap", result="QVariantMap")
-    @Slot(str, int, "QVariantMap", result="QVariantMap")
+    @pyqtSlot(str, str, "QVariantMap", result="QVariantMap")
+    @pyqtSlot(str, int, "QVariantMap", result="QVariantMap")
     def setDB(self, entity: str, item_id: Union[str, int, tuple], params: dict) -> dict:
         """
         Modify a row in database.
@@ -103,7 +103,7 @@ class DTB(QObject):
         return {}
 
     @db_session
-    @Slot(str, result="QVariant")
+    @pyqtSlot(str, result="QVariant")
     def getConfig(self, key: str):
         res = self.db.Configuration.option(key)
         if isinstance(res, dict):  # compliqué de retourner des dict
@@ -111,7 +111,7 @@ class DTB(QObject):
         return res
 
     @db_session
-    @Slot(str, "QVariant")
+    @pyqtSlot(str, "QVariant")
     def setConfig(self, key: str, value: Any):
         if isinstance(value, QJSValue):
             value = value.toVariant()

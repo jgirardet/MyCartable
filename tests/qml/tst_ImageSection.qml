@@ -213,19 +213,21 @@ Item {
 
         function test_cursor_toolchanged() {
             let cache_before = th.python("obj.cursor().pixmap().cacheKey()", tested.mousearea);
-
+            print(cache_before)
              tested.setStyleFromMenu({
                 "style": {
                     "tool": "trait"
                 }
             });
             let cache_trait = th.python("obj.cursor().pixmap().cacheKey()", tested.mousearea);
+            print(cache_trait)
             tested.setStyleFromMenu({
                 "style": {
                     "tool": "rect"
                 }
             });
             let cache_rect = th.python("obj.cursor().pixmap().cacheKey()", tested.mousearea);
+            print(cache_rect)
             verify(cache_trait != cache_before)
             verify(cache_trait != cache_rect)
         }

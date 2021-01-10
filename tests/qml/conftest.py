@@ -98,7 +98,7 @@ class TestHelper(DTB):
     @pyqtSlot(str, QObject, result="QVariant")
     def python(self, command: str, obj: Optional[QObject] = None) -> Any:
         # obj existe pour être dans le namespace si besoin
-        return eval(compile(command, "abc", "exec"))
+        return eval(command)
 
     @pyqtSlot(QObject, str, str, result=QObject)
     @pyqtSlot(QObject, str, "QVariantList", result=QObject)

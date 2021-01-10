@@ -1,4 +1,5 @@
 # Here start usual imports
+import os
 from pathlib import Path
 from typing import List, Optional, Any
 
@@ -97,7 +98,7 @@ class TestHelper(DTB):
     @pyqtSlot(str, QObject, result="QVariant")
     def python(self, command: str, obj: Optional[QObject] = None) -> Any:
         # obj existe pour être dans le namespace si besoin
-        return eval(command)
+        return eval(compile(command, "abc", "exec"))
 
     @pyqtSlot(QObject, str, str, result=QObject)
     @pyqtSlot(QObject, str, "QVariantList", result=QObject)
@@ -115,6 +116,10 @@ class TestHelper(DTB):
     @pyqtSlot(str, result=QColor)
     def color(self, color: str):
         return QColor(color)
+
+    @pyqtSlot(str, result="QVariant")
+    def env(self, value: str):
+        return os.environ.get(value, None)
 
 
 print("dbut import conftest qml")

@@ -226,7 +226,6 @@ Item {
                 }
             });
             let cache_rect = th.python("obj.cursor().pixmap().cacheKey()", tested.mousearea);
-            compare(cache_before, 0)
             verify(cache_trait != cache_before)
             verify(cache_trait != cache_rect)
         }

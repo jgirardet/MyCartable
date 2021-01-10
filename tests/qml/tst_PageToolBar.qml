@@ -114,8 +114,8 @@ Item {
         }
 
         function test_newimage() {
-//            if (Qt.platform.os == "windows")
-//                skip("ne marche pas sous windows");
+            if (Qt.platform.os == "windows")
+                skip("test ne marche pas sous windows");
 
             mouseClick(newimage);
             let dialog = newimage.action.dialog

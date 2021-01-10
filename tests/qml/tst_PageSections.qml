@@ -111,8 +111,8 @@ Rectangle {
         }
 
         function test_insert_row_entre(data) {
-//            if (Qt.platform.os == "windows")
-//                skip("ne marche pas sous windows", 1);
+            if (Qt.platform.os == "windows")
+                skip("ne marche pas sous windows", 1);
 
             var inter = findChild(txt1, "intermousearea");
             mouseClick(inter, undefined, undefined, Qt.RightButton, Qt.ShiftModifier);

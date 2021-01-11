@@ -7,9 +7,9 @@ class ListOfPageModel(DtbListModel):
     PageIdRole = Qt.UserRole + 2
     BgColorRole = Qt.UserRole + 3
 
-    def __init__(self, parent=None):
+    def __init__(self, **kwargs):
         self._data = []
-        super().__init__(parent)
+        super().__init__(**kwargs)
 
     def _roleNames(self) -> dict:
         return {
@@ -75,9 +75,9 @@ class ListOfPageModel(DtbListModel):
 
 
 class RecentsModel(ListOfPageModel):
-    def __init__(self, annee, parent=None):
+    def __init__(self, annee, **kwargs):
         self.annee = annee
-        super().__init__(parent)
+        super().__init__(**kwargs)
 
     def _reset(self):
         self._data = self._dtb.execDB("Page", None, "recents", self.classeur.annee)
@@ -88,9 +88,9 @@ class RecentsModel(ListOfPageModel):
 
 
 class ActiviteModel(ListOfPageModel):
-    def __init__(self, activite: str, parent=None):
+    def __init__(self, activite: str, **kwargs):
         self.activite = activite
-        super().__init__(parent)
+        super().__init__(**kwargs)
 
     def _reset(self):
         self._data = self._dtb.execDB("Activite", self.activite, "pages_by_created")

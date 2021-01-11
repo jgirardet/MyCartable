@@ -19,7 +19,7 @@ from .matiere import Matiere
 from .sections import Section
 from mycartable.utils import shift_list
 from mycartable.types.bridge import Bridge
-from mycartable.types.listmodel import DtbListModel
+from mycartable.types.collections import DtbListModel
 
 
 class Page(Bridge):
@@ -111,9 +111,9 @@ class PageModel(DtbListModel):
     SectionRole = Qt.UserRole + 1
     countChanged = pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, **kwargs):
         self._data = {}
-        super().__init__(parent)
+        super().__init__(**kwargs)
 
     def _roleNames(self) -> typing.Dict:
         return {self.SectionRole: QByteArray(b"section")}

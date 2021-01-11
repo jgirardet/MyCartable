@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from PySide2.QtCore import QStandardPaths
+from PyQt5.QtCore import QStandardPaths
 from loguru import logger
 from mycartable.defaults.constantes import APPNAME
 from mycartable import get_prod

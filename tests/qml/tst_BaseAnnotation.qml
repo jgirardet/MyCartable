@@ -41,8 +41,6 @@ Item {
             };
         }
 
-        function initPost() {
-        }
 
         function test_init() {
             compare(tested.anchors.topMargin, 200 * 0.2);
@@ -84,7 +82,7 @@ Item {
         function test_setStyleFromMenu() {
             tested.setStyleFromMenu({
                 "style": {
-                    "bgColor": "red"
+                    "bgColor": th.color("red")
                 }
             });
             let newl = fk.getItem("AnnotationText", annot.id);

@@ -3,7 +3,7 @@ import re
 from dataclasses import dataclass
 from typing import List, ClassVar
 
-from PySide2.QtCore import Slot, Qt, Signal, Property
+from PyQt5.QtCore import pyqtSlot, Qt, pyqtSignal, pyqtProperty
 
 from loguru import logger
 
@@ -13,33 +13,33 @@ from . import Section
 class EquationSection(Section):
 
     entity_name = "EquationSection"
-    contentChanged = Signal()
-    curseurChanged = Signal()
+    contentChanged = pyqtSignal()
+    curseurChanged = pyqtSignal()
 
-    @Property(str, notify=contentChanged)
+    @pyqtProperty(str, notify=contentChanged)
     def content(self):
         return self._data["content"]
 
     @content.setter
-    def content_set(self, value: str):
+    def content(self, value: str):
         self.set_field("content", value)
 
-    @Property(int, notify=curseurChanged)
+    @pyqtProperty(int, notify=curseurChanged)
     def curseur(self):
         return self._data["curseur"]
 
     @curseur.setter
-    def curseur_set(self, value: int):
+    def curseur(self, value: int):
         self.set_field("curseur", value)
 
-    @Slot(int, str)
+    @pyqtSlot(int, str)
     def update(self, curseur, event):
         event = json.loads(event)
         content, new_curseur = TextEquation(str(self.content), curseur, event)()
         self.content = content
         self.curseur = new_curseur
 
-    @Slot(int, result=bool)
+    @pyqtSlot(int, result=bool)
     def isEquationFocusable(self, curseur: int) -> bool:
         return TextEquation(
             str(self.content), curseur, {"key": None, "text": None, "modifiers": None}

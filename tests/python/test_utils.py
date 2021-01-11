@@ -3,7 +3,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
-from PySide2.QtCore import QUrl
+from PyQt5.QtCore import QUrl
 from mycartable.utils import pathize
 
 from mycartable.utils import (

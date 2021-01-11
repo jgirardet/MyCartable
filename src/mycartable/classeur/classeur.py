@@ -2,31 +2,38 @@ from typing import Union, Optional
 from uuid import UUID
 
 from mycartable.types import DTB
-from pony.orm import db_session, Database, ObjectNotFound
 
-from PySide2.QtCore import Slot, Signal, QObject, Property, QTimer
+from pony.orm import db_session, ObjectNotFound
+
+from PyQt5.QtCore import pyqtSlot, pyqtSignal, QObject, pyqtProperty, QTimer
 from loguru import logger
+
 from .pagelist_model import RecentsModel
 
+
 from .matiere import MatieresDispatcher, Matiere
+
+print("import myclasseurdebut")
 from .page import Page
+
+print("import myclasseur fin")
 
 
 class Classeur(DTB):
 
     # db: Database
 
-    anneeChanged = Signal()
-    recentsChanged = Signal()
-    currentMatiereChanged = Signal()
-    pageChanged = Signal()
+    anneeChanged = pyqtSignal()
+    recentsChanged = pyqtSignal()
+    currentMatiereChanged = pyqtSignal()
+    pageChanged = pyqtSignal()
 
     """
     Pure python
     """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent: QObject = None):
+        super().__init__(parent)
         self.reset()
         self.setup_connections()
 
@@ -45,12 +52,12 @@ class Classeur(DTB):
     Qt Properties
     """
 
-    @Property(int, notify=anneeChanged)
+    @pyqtProperty(int, notify=anneeChanged)
     def annee(self):
         return self._annee
 
     @annee.setter
-    def annee_set(self, annee: int):
+    def annee(self, annee: int):
         self.reset()
         if annee:
             self._annee = annee
@@ -59,12 +66,14 @@ class Classeur(DTB):
             logger.info(f"Année en cours : {annee}")
             self.anneeChanged.emit()
 
-    @Property(QObject, notify=currentMatiereChanged)
+    @pyqtProperty(QObject, notify=currentMatiereChanged)
     def currentMatiere(self):
         return self._currentMatiere
 
     @currentMatiere.setter
-    def current_matiere_set(self, value):
+    def currentMatiere(self, value):
+        # breakpoint()
+
         if isinstance(value, UUID):
             value = str(value)
         # ignore same
@@ -79,30 +88,30 @@ class Classeur(DTB):
         logger.info(f"current matiere set to: {self._currentMatiere}")
         self.currentMatiereChanged.emit()
 
-    @Property(int, notify=currentMatiereChanged)
+    @pyqtProperty(int, notify=currentMatiereChanged)
     def currentMatiereIndex(self):
         if self.currentMatiere:
             return self.matieresDispatcher.indexFromId(self.currentMatiere.id)
         else:
             return 0
 
-    @Property(QObject, notify=anneeChanged)
+    @pyqtProperty(QObject, notify=anneeChanged)
     def matieresDispatcher(self):
         return self._matieresDispatcher
 
-    @Property(QObject, notify=pageChanged)
+    @pyqtProperty(QObject, notify=pageChanged)
     def page(self):
         return self._page
 
-    @Property(QObject, notify=recentsChanged)
+    @pyqtProperty(QObject, notify=recentsChanged)
     def recents(self):
         return self._recents
 
     """
-    Qt Slots
+    Qt pyqtSlots
     """
 
-    @Slot()
+    @pyqtSlot()
     def deletePage(self):
         old = self.page.id
         self.page.delete()
@@ -110,22 +119,22 @@ class Classeur(DTB):
         self.pageChanged.emit()
         self.onDeletePage(old)
 
-    @Slot(str)
+    @pyqtSlot(str)
     def newPage(self, activiteId: str) -> Optional[dict]:
         new_item = Page.new(activite=activiteId)
         logger.debug(f'New Page "{new_item.id}" created')
         self.setPage(new_item)
         QTimer.singleShot(0, lambda: self.onNewPage(activiteId))
 
-    @Slot(str)
-    @Slot(int)
+    @pyqtSlot(str)
+    @pyqtSlot(int)
     def setCurrentMatiere(self, value: Union[int, str]) -> None:
         if isinstance(value, int):
             value = self.matieresDispatcher.idFromIndex(value)
         self.currentMatiere = value
 
-    @Slot(str)
-    @Slot(Page)
+    @pyqtSlot(str)
+    @pyqtSlot(Page)
     def setPage(self, value: Union[str, Page]):
         new_page = value if isinstance(value, Page) else Page.get(value)
         new_page.setParent(self)
@@ -138,7 +147,7 @@ class Classeur(DTB):
         self.page.titreChanged.connect(self.onPageTitreChanged)
         self.page.pageModified.connect(self.onPageModified)
 
-    @Slot(str, str)
+    @pyqtSlot(str, str)
     def movePage(self, page: str, activite: str):
 
         res = self.setDB("Page", page, {"activite": activite})

@@ -122,10 +122,9 @@ Rectangle {
                 let filedialog = tested.addDialog.contentItem.children[data.index].action.dialog;
                 filedialog.folder = "assets";
                 wait(50);
-                // ATTENTION, en fonction de ce qui a dans asset ça peut changer
-                //                mouseClick(filedialog.contentItem, 150, 80, Qt.LeftButton, Qt.NoModifier, 50);
-                //                wait(1000);
-                mouseDoubleClickSequence(filedialog.contentItem, 150, 80, Qt.LeftButton, Qt.NoModifier, 50);
+                keySequence("r,e,c,t")
+                keySequence(".,p,n,g")
+                keyClick(Qt.Key_Return)
             }
             tryCompare(tested.addDialog, "scale", 0);
             compare(tested.addDialog.visible, false);

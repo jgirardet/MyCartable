@@ -1,4 +1,4 @@
-from PySide2.QtGui import QColor
+from PyQt5.QtGui import QColor
 
 """
     Toute matiere appartient à un groupe, ce n'est pas négociable
@@ -90,7 +90,9 @@ def get_color_by_group(groupe):
     ajout = (255 - bgColor.saturation()) / len(matieres)
     for v in matieres.values():
         v["bgColor"] = bgColor.toHsv()
-        bgColor.setHsv(bgColor.hue(), bgColor.saturation() + ajout, bgColor.value())
+        bgColor.setHsv(
+            bgColor.hue(), bgColor.saturation() + round(ajout), bgColor.value()
+        )
     return matieres
 
 

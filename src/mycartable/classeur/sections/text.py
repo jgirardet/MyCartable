@@ -5,17 +5,15 @@ from contextlib import contextmanager
 
 from bs4 import BeautifulSoup
 from mycartable.types.dtb import DTB
-from PySide2.QtCore import Property, Signal, Slot
-from PySide2.QtGui import (
+from PyQt5.QtCore import pyqtProperty, pyqtSignal, pyqtSlot, Qt
+from PyQt5.QtGui import (
     QBrush,
     QColor,
-    Qt,
     QTextCharFormat,
     QTextCursor,
     QTextDocument,
     QTextDocumentFragment,
 )
-
 from mycartable.utils import KeyW
 
 from . import Section
@@ -24,13 +22,13 @@ from . import Section
 class TextSection(Section):
 
     entity_name = "TextSection"
-    textChanged = Signal()
+    textChanged = pyqtSignal()
 
-    @Property(str, notify=textChanged)
+    @pyqtProperty(str, notify=textChanged)
     def text(self):
         return self._data["text"]
 
-    @Slot(str, int, int, int, str, result="QVariantMap")
+    @pyqtSlot(str, int, int, int, str, result="QVariantMap")
     def updateTextSectionOnKey(
         self, content, curseur, selectionStart, selectionEnd, event
     ):
@@ -40,7 +38,7 @@ class TextSection(Section):
         ).onKey(event)
         return res
 
-    @Slot(str, int, int, int, result="QVariantMap")
+    @pyqtSlot(str, int, int, int, result="QVariantMap")
     def updateTextSectionOnChange(self, content, curseur, selectionStart, selectionEnd):
         res = TextSectionEditor(
             self.id, content, curseur, selectionStart, selectionEnd
@@ -48,7 +46,7 @@ class TextSection(Section):
         self.textChanged.emit()
         return res
 
-    @Slot(str, int, int, int, "QVariantMap", result="QVariantMap")
+    @pyqtSlot(str, int, int, int, "QVariantMap", result="QVariantMap")
     def updateTextSectionOnMenu(
         self, content, curseur, selectionStart, selectionEnd, params
     ):
@@ -56,7 +54,7 @@ class TextSection(Section):
             self.id, content, curseur, selectionStart, selectionEnd
         ).onMenu(**params)
 
-    @Slot(result="QVariantMap")
+    @pyqtSlot(result="QVariantMap")
     def loadTextSection(self):
         return TextSectionEditor(self.id).onLoad()
 

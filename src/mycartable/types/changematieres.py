@@ -1,12 +1,12 @@
 from typing import List
 
-from PySide2.QtCore import Signal, Slot, QObject
-from PySide2.QtGui import QColor
+from PyQt5.QtCore import pyqtSignal, pyqtSlot, QObject
+from PyQt5.QtGui import QColor
 from pony.orm import db_session, sum, Database
 
 
 class ChangeMatieres(QObject):
-    changeMatieres = Signal()
+    changeMatieres = pyqtSignal()
 
     """
     Partie Activités
@@ -14,8 +14,8 @@ class ChangeMatieres(QObject):
 
     db: Database = None
 
-    @Slot(str, result="QVariantList")  # ajout par activite id
-    @Slot(str, bool, result="QVariantList")  # append via matiere id
+    @pyqtSlot(str, result="QVariantList")  # ajout par activite id
+    @pyqtSlot(str, bool, result="QVariantList")  # append via matiere id
     @db_session
     def addActivite(self, someId: str, append: bool = False) -> List[dict]:
         matiereid: str
@@ -30,19 +30,19 @@ class ChangeMatieres(QObject):
 
         return self.get_activites(matiereid)
 
-    @Slot(str, result="QVariantList")
+    @pyqtSlot(str, result="QVariantList")
     @db_session
     def getActivites(self, matiere: str) -> List[dict]:
         return self.get_activites(matiere)
 
-    @Slot(str, int, result="QVariantList")
+    @pyqtSlot(str, int, result="QVariantList")
     @db_session
     def moveActiviteTo(self, activite: str, new_pos: int) -> List[dict]:
         ac = self.db.Activite[activite]
         ac.position = new_pos
         return self.get_activites(ac.matiere.id)
 
-    @Slot(str, result="QVariantList")
+    @pyqtSlot(str, result="QVariantList")
     def removeActivite(self, activite: str) -> List[dict]:
         with db_session:
             ac = self.db.Activite[activite]
@@ -60,7 +60,7 @@ class ChangeMatieres(QObject):
             res.append(temp)
         return res
 
-    @Slot(str, str)
+    @pyqtSlot(str, str)
     @db_session
     def updateActiviteNom(self, activiteid: str, nom: str):
         self.db.Activite[activiteid].nom = nom
@@ -69,7 +69,7 @@ class ChangeMatieres(QObject):
     Partie Matières
     """
 
-    @Slot(str, result="QVariantList")
+    @pyqtSlot(str, result="QVariantList")
     @db_session
     def getMatieres(self, groupe: str) -> List[dict]:
         return self.get_matieres(groupe)
@@ -82,14 +82,14 @@ class ChangeMatieres(QObject):
             res.append(temp)
         return res
 
-    @Slot(str, int, result="QVariantList")
+    @pyqtSlot(str, int, result="QVariantList")
     @db_session
     def moveMatiereTo(self, matiere: str, new_pos: int) -> List[dict]:
         mat = self.db.Matiere[matiere]
         mat.position = new_pos
         return self.get_matieres(mat.groupe.id)
 
-    @Slot(str, result="QVariantList")
+    @pyqtSlot(str, result="QVariantList")
     def removeMatiere(self, matiere: str) -> List[dict]:
         with db_session:
             ac = self.db.Matiere[matiere]
@@ -98,8 +98,8 @@ class ChangeMatieres(QObject):
         with db_session:
             return self.get_matieres(groupe_id)
 
-    @Slot(str, result="QVariantList")
-    @Slot(str, bool, result="QVariantList")
+    @pyqtSlot(str, result="QVariantList")
+    @pyqtSlot(str, bool, result="QVariantList")
     @db_session
     def addMatiere(self, someId: str, append: bool = False) -> List[dict]:
         groupeid: str
@@ -114,7 +114,7 @@ class ChangeMatieres(QObject):
 
         return self.get_matieres(groupeid)
 
-    @Slot(str, str)
+    @pyqtSlot(str, str)
     @db_session
     def updateMatiereNom(self, matiereid: str, nom: str):
         self.db.Matiere[matiereid].nom = nom
@@ -123,7 +123,7 @@ class ChangeMatieres(QObject):
     Partie GroupeMatiere
     """
 
-    @Slot(int, result="QVariantList")
+    @pyqtSlot(int, result="QVariantList")
     @db_session
     def getGroupeMatieres(self, annee: int) -> List[dict]:
         return self.get_groupe_matieres(annee)
@@ -138,14 +138,14 @@ class ChangeMatieres(QObject):
             res.append(temp)
         return res
 
-    @Slot(str, int, result="QVariantList")
+    @pyqtSlot(str, int, result="QVariantList")
     @db_session
     def moveGroupeMatiereTo(self, groupe_matiere: str, new_pos: int) -> List[dict]:
         groupe = self.db.GroupeMatiere[groupe_matiere]
         groupe.position = new_pos
         return self.get_groupe_matieres(groupe.annee.id)
 
-    @Slot(str, result="QVariantList")
+    @pyqtSlot(str, result="QVariantList")
     def removeGroupeMatiere(self, groupe_matiere: str) -> List[dict]:
         with db_session:
             groupe = self.db.GroupeMatiere[groupe_matiere]
@@ -154,7 +154,7 @@ class ChangeMatieres(QObject):
         with db_session:
             return self.get_groupe_matieres(annee_id)
 
-    @Slot(str, result="QVariantList")
+    @pyqtSlot(str, result="QVariantList")
     @db_session
     def addGroupeMatiere(self, groupeid: str) -> List[dict]:
 
@@ -171,7 +171,7 @@ class ChangeMatieres(QObject):
 
         return self.get_groupe_matieres(new.annee.id)
 
-    @Slot(str, QColor, result="QVariantList")
+    @pyqtSlot(str, QColor, result="QVariantList")
     def applyGroupeDegrade(self, groupe_id: str, color: QColor) -> List[dict]:
         with db_session:
             groupe = self.db.GroupeMatiere[groupe_id]
@@ -186,17 +186,19 @@ class ChangeMatieres(QObject):
             ajout = (saturation - 40) / (matiere_count - 1)
             for mat in self.db.Matiere.get_by_position(groupe_id):
                 mat.bgColor = color.toRgb()
-                color.setHsv(color.hue(), color.saturation() - ajout, color.value())
+                color.setHsv(
+                    color.hue(), color.saturation() - round(ajout), color.value()
+                )
         with db_session:
             return self.get_matieres(groupe_id)
 
-    @Slot(str, result="QVariantList")
+    @pyqtSlot(str, result="QVariantList")
     def reApplyGroupeDegrade(self, groupeid: str) -> List[dict]:
         with db_session:
             color = self.db.GroupeMatiere[groupeid].bgColor
         return self.applyGroupeDegrade(groupeid, color)
 
-    @Slot(str, str)
+    @pyqtSlot(str, str)
     @db_session
     def updateGroupeMatiereNom(self, groupeid: str, nom: str):
         self.db.GroupeMatiere[groupeid].nom = nom

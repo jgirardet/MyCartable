@@ -1,7 +1,7 @@
 from typing import Dict, Optional
 
-from PySide2.QtCore import QPoint
-from PySide2.QtGui import QPixmap, QColor, QPainter, QCursor
+from PyQt5.QtCore import QPoint
+from PyQt5.QtGui import QPixmap, QColor, QPainter, QCursor
 from mycartable.conversion import WImage
 
 TOOL_ICON = {
@@ -37,7 +37,7 @@ def build_one_image_cursor(toolname: str, color: Optional[QColor] = None) -> QCu
     if color:
         target = WImage(target.toImage())
         target.change_color(color)
-        target = QPixmap(target)
+        target = QPixmap.fromImage(target)
     res = QPixmap(30, 30)
     res.fill(QColor("transparent"))
     p = QPainter(res)
@@ -56,7 +56,7 @@ def build_all_image_cursor() -> Dict[str, QCursor]:
 
 #
 # if __name__ == "__main__":
-#     from PySide2.QtGui import QGuiApplication
+#     from PyQt5.QtGui import QGuiApplication
 #     from package import qrc
 #
 #     g = QGuiApplication([])

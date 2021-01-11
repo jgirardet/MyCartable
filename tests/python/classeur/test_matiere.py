@@ -26,12 +26,6 @@ class TestActivite:
 
 
 class TestMatiereDispatcher:
-    def test_check_args(self):
-        md = MatieresDispatcher
-        check_args(MatieresDispatcher.indexFromId, str, int)
-        check_args(MatieresDispatcher.idFromIndex, int, int)
-        check_args(MatieresDispatcher.getDeplacePageModel, None, list)
-
     def test_indexFromId(self, some_init_matiere):
 
         assert self.md.indexFromId(self.f0["id"]) == 0

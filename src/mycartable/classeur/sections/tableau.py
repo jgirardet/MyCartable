@@ -1,4 +1,4 @@
-from PySide2.QtCore import Signal, Property, Slot
+from PyQt5.QtCore import pyqtSignal, pyqtProperty, pyqtSlot
 from loguru import logger
 
 from .section import Section
@@ -8,62 +8,62 @@ class TableauSection(Section):
 
     entity_name = "TableauSection"
 
-    colonnesChanged = Signal()
-    lignesChanged = Signal()
+    colonnesChanged = pyqtSignal()
+    lignesChanged = pyqtSignal()
 
-    tableauChanged = Signal()
+    tableauChanged = pyqtSignal()
 
-    @Property(int, notify=colonnesChanged)
+    @pyqtProperty(int, notify=colonnesChanged)
     def colonnes(self):
         return self._data["colonnes"]
 
-    @Property(int, notify=lignesChanged)
+    @pyqtProperty(int, notify=lignesChanged)
     def lignes(self):
         return self._data["lignes"]
 
     """
-    Qt Slots
+    Qt pyqtSlots
     """
 
-    @Slot(result="QVariantList")
+    @pyqtSlot(result="QVariantList")
     def initTableauDatas(self):
         return self._dtb.execDB("TableauSection", self.id, "get_cells")
 
-    @Slot(int, int, "QVariantMap")
+    @pyqtSlot(int, int, "QVariantMap")
     def updateCell(self, y, x, content):
         self._dtb.setDB("TableauCell", (self.id, y, x), content)
         self.tableauChanged.emit()
 
-    @Slot(int)
+    @pyqtSlot(int)
     def insertRow(self, value):
         if self._dtb.execDB("TableauSection", self.id, "insert_one_line", value):
             logger.debug(f"Row inserted in position {value} in {self.id}")
             self._data["lignes"] += 1
             self.lignesChanged.emit()
 
-    @Slot()
+    @pyqtSlot()
     def appendRow(self):
         self.insertRow(self.lignes)
 
-    @Slot(int)
+    @pyqtSlot(int)
     def removeRow(self, value):
         if self._dtb.execDB("TableauSection", self.id, "remove_one_line", value):
             logger.debug(f"Line removed in position {value} in {self.id}")
             self._data["lignes"] -= 1
             self.lignesChanged.emit()
 
-    @Slot(int)
+    @pyqtSlot(int)
     def insertColumn(self, value):
         if self._dtb.execDB("TableauSection", self.id, "insert_one_column", value):
             logger.debug(f"Column inserted in position {value} in {self.id}")
             self._data["colonnes"] += 1
             self.colonnesChanged.emit()
 
-    @Slot()
+    @pyqtSlot()
     def appendColumn(self):
         self.insertColumn(self.colonnes)
 
-    @Slot(int)
+    @pyqtSlot(int)
     def removeColumn(self, value):
         if self._dtb.execDB("TableauSection", self.id, "remove_one_column", value):
             logger.debug(f"Column removed in position {value} in {self.id}")

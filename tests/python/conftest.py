@@ -1,5 +1,5 @@
 from loguru import logger
-from mycartable.main import update_configuration, add_database_to_types
+from mycartable.main import add_database_to_types
 
 from tests.factory import Faker
 
@@ -22,6 +22,8 @@ def memory_db():
 
 @pytest.fixture(scope="session", autouse=True)
 def fix_update_configuration(memory_db):
+    from mycartable.main import update_configuration
+
     update_configuration(memory_db)
 
 

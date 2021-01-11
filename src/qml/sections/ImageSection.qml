@@ -15,6 +15,8 @@ Image {
     property Item annotations: repeater
     property alias menu: menuFlottantImage
 
+    signal loaded(int idx)
+
     function reloadImage() {
         // not tested
         sourceClipRect = root.childrenRect;
@@ -93,7 +95,7 @@ Image {
                 } else if (section.annotationCurrentTool == "floodfill") {
                     let fillColor = section.annotationDessinCurrentStrokeStyle;
                     let point = Qt.point(mouse.x / width, mouse.y / height);
-                    let res = section.floodFill(section.id, fillColor, point);
+                    section.floodFill(fillColor, point);
                     root.reloadImage();
                 } else {
                     root.startDraw();

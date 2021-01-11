@@ -2,7 +2,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-from PySide2.QtGui import QFont, QFontDatabase, QIcon
+from PyQt5.QtGui import QFont, QFontDatabase, QIcon
 from mycartable.classeur import Classeur
 from mycartable.defaults.constantes import APPNAME, ORGNAME
 from mycartable.defaults.configuration import (
@@ -13,7 +13,7 @@ from mycartable.types import Annee, ChangeMatieres
 from mycartable.types.dtb import DTB
 from mycartable import get_prod
 
-from PySide2.QtCore import (
+from PyQt5.QtCore import (
     QUrl,
     QStandardPaths,
     QSettings,
@@ -21,12 +21,11 @@ from PySide2.QtCore import (
     QLocale,
 )
 
-from PySide2.QtWidgets import QApplication
-from PySide2.QtQml import QQmlApplicationEngine, qmlRegisterType
+from PyQt5.QtWidgets import QApplication
+from PyQt5.QtQml import QQmlApplicationEngine, qmlRegisterType
 
 from loguru import logger
 
-from . import qrc  # QRC do not erase
 
 from pony.orm import Database, db_session
 
@@ -96,6 +95,8 @@ def register_new_qml_type():
 
 def load_engine(engine: QQmlApplicationEngine):
     # load main
+    from . import qrc  # QRC do not erase
+
     engine.load(QUrl("qrc:///qml/main.qml"))
 
     # quit if error

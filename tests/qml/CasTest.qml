@@ -21,7 +21,6 @@ TestCase {
         initPre();
         if (autocreate)
             tested = createObj(testedNom, params);
-
         initPost();
     }
 
@@ -40,7 +39,6 @@ TestCase {
         var comp = Qt.createComponent(nom);
         if (comp.status != 1)
             print(comp, comp.status, comp.errorString());
-
         var obj = createTemporaryObject(comp, parentItem ? parentItem : testcase.parent, kwargs);
         return obj;
     }

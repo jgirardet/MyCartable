@@ -1,6 +1,5 @@
 import io
 import re
-import shutil
 import sys
 import time
 from pathlib import Path
@@ -9,24 +8,18 @@ import pytest
 from loguru import logger
 from mimesis import Generic
 
-
 root = Path(__file__).parents[1]
 python_dir = root / "src"
 sys.path.append(str(python_dir))
 
+from mycartable.main import register_new_qml_type
 from tests.common import setup_session
 
-
+#
 def pytest_sessionstart():
     setup_session()
 
-    from mycartable.main import register_new_qml_type
-
     register_new_qml_type()
-
-    from mycartable.defaults.files_path import root_data
-
-    shutil.rmtree(root_data())
 
 
 """
@@ -36,7 +29,7 @@ Fixtures
 generic_mimesis = Generic("fr")
 
 """
-Meta test 
+Meta test
 """
 
 
@@ -48,7 +41,7 @@ def duree_test():
 
 
 """
-Fakers factory 
+Fakers factory
 """
 
 

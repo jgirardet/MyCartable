@@ -2,7 +2,7 @@ import json
 import textwrap
 
 import pytest
-from PySide2.QtCore import Qt
+from PyQt5.QtCore import Qt
 from tests.python.fixtures import check_args
 from mycartable.classeur.sections.equation import (
     TextEquation,
@@ -13,10 +13,6 @@ from pony.orm import db_session
 
 
 class TestEquation:
-    def test_check_args(self):
-        check_args(EquationSection.update, [int, str])
-        check_args(EquationSection.isEquationFocusable, int, bool)
-
     def test_update(self, fk, qtbot):
         eq = fk.f_equationSection(content=" \n1\n ")
         e = EquationSection.get(eq.id)

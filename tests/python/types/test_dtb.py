@@ -2,7 +2,7 @@ import json
 from datetime import datetime
 
 import pytest
-from PySide2.QtQml import QJSEngine
+from PyQt5.QtQml import QJSEngine
 from tests.python.fixtures import check_args, disable_log
 from mycartable.types.dtb import DTB
 from loguru_caplog import loguru_caplog as caplog
@@ -72,22 +72,9 @@ def test_delDB_bad_id(dtb, fk, caplog):
 ### Test Get db
 
 
-def test_check_args():
-    check_args(DTB.getDB, [str, int], dict)
-    check_args(DTB.getDB, [str, str], dict, slot_order=1)
-    # check_args(DTB.getDB, [str, str, str], dict, slot_order=2)
-    # check_args(DTB.getDB, [str, int, str], dict, slot_order=3)
-
-
 def test_getDB(dtb, fk):
     f = fk.f_annee(id=2020, td=True)
     assert dtb.getDB("Annee", f["id"]) == f
-
-
-# def test_getDB_function(dtb, fk):
-#     f = fk.f_annee(id=2020, td=True)
-#     assert dtb.getDB("Annee", f["id"], "to_dict") == f
-#
 
 
 def test_getDB_bad_enitity(dtb, fk, caplog):
@@ -157,10 +144,11 @@ def test_config_get_set(dtb, fk):
 
 def test_setConfig_jsvalue(dtb, fk, qapp):
     q = QJSEngine()
-    val = {"nom": "aa", "prenom": "bb"}
-    arr = q.toScriptValue(val)
-    dtb.setConfig("bla", arr)
-    assert dtb.getConfig("bla") == json.dumps(val)
+    val = q.newObject()
+    val.setProperty("nom", "aa")
+    val.setProperty("prenom", "bb")
+    dtb.setConfig("bla", val)
+    assert dtb.getConfig("bla") == json.dumps({"nom": "aa", "prenom": "bb"})
 
 
 def test_exec(dtb, fk):

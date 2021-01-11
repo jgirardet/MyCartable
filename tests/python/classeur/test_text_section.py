@@ -4,8 +4,8 @@ from string import Template
 from unittest.mock import MagicMock, patch
 
 import pytest
-from PySide2.QtCore import Qt
-from PySide2.QtGui import QTextDocument, QColor, QFont, QKeyEvent, QBrush
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QTextDocument, QColor, QFont, QKeyEvent, QBrush
 
 from bs4 import BeautifulSoup
 from mycartable.utils import KeyW
@@ -38,14 +38,6 @@ def test_properties(fk):
 
 
 class TestTextSection:
-    def test_check_args(self):
-        check_args(TextSection.updateTextSectionOnKey, [str, int, int, int, str], dict)
-        check_args(TextSection.updateTextSectionOnChange, [str, int, int, int], dict)
-        check_args(
-            TextSection.updateTextSectionOnMenu, [str, int, int, int, dict], dict
-        )
-        check_args(TextSection.loadTextSection, None, dict)
-
     def test_updateTextSectionOnKey(self, fk):
         f = fk.f_textSection(text="bla")
         sec = TextSection.get(f.id)
@@ -529,12 +521,12 @@ class TestSectionEditor:
         parag = titre.next()
         assert parag.blockFormat() == block_fmt[0]
         assert compare_char_format(parag.charFormat(), char_fmt[0])
-        fg = list(parag.begin())
-        assert fg[0].fragment().text() == "noir"
+        fg = parag.begin()
+        assert fg.fragment().text() == "noir"
+        fg += 1
 
-        # partie avec un span
-        assert fg[1].fragment().text() == "bleu"
-        assert fg[1].fragment().charFormat().foreground().color() == QColor("#123456")
+        assert fg.fragment().text() == "bleu"
+        assert fg.fragment().charFormat().foreground().color() == QColor("#123456")
 
     def test_on_Menu_no_selection(self, doc, char_fmt, block_fmt):
         d = doc("<p>abc def</p>", pos=1)
@@ -548,9 +540,11 @@ class TestSectionEditor:
         assert has_style_attr(res["text"], 0, 1, "color", BLACK.lower())
 
         # compare fragment
-        fg = list(d.begin())
-        assert fg[0].fragment().charFormat().foreground().color() == QColor(RED)
-        assert fg[1].fragment().charFormat().foreground().color() == QColor(BLACK)
+        tb = d.begin()
+        fg = tb.begin()
+        assert fg.fragment().charFormat().foreground().color() == QColor(RED)
+        fg += 1
+        assert fg.fragment().charFormat().foreground().color() == QColor(BLACK)
 
     @pytest.mark.parametrize("pos, s_start, s_end", [(1, 1, 5), (5, 1, 5)])
     def test_on_Menu_selection(self, doc, char_fmt, block_fmt, pos, s_start, s_end):
@@ -566,10 +560,13 @@ class TestSectionEditor:
         assert has_style_attr(res["text"], 0, 2, "color", BLACK.lower())
 
         # compare fragment
-        fg = list(d.begin())
-        assert fg[0].fragment().charFormat().foreground().color() == QColor(BLACK)
-        assert fg[1].fragment().charFormat().foreground().color() == QColor(RED)
-        assert fg[2].fragment().charFormat().foreground().color() == QColor(BLACK)
+        tb = d.begin()
+        fg = tb.begin()
+        assert fg.fragment().charFormat().foreground().color() == QColor(BLACK)
+        fg += 1
+        assert fg.fragment().charFormat().foreground().color() == QColor(RED)
+        fg += 1
+        assert fg.fragment().charFormat().foreground().color() == QColor(BLACK)
 
     #
     def test_on_Menu_underline(self, doc, char_fmt, block_fmt):
@@ -583,10 +580,13 @@ class TestSectionEditor:
         assert has_style_attr(res["text"], 0, 1, "text-decoration", "underline")
 
         # compare fragment
-        fg = list(d.begin())
-        assert not fg[0].fragment().charFormat().fontUnderline()
-        assert fg[1].fragment().charFormat().fontUnderline()
-        assert not fg[2].fragment().charFormat().fontUnderline()
+        tb = d.begin()
+        fg = tb.begin()
+        assert not fg.fragment().charFormat().fontUnderline()
+        fg += 1
+        assert fg.fragment().charFormat().fontUnderline()
+        fg += 1
+        assert not fg.fragment().charFormat().fontUnderline()
 
     def test_onMenu_no_change(self, doc):
         d = doc("<p>acd</p>", pos=3)

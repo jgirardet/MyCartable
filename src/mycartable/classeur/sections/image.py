@@ -1,20 +1,27 @@
 from __future__ import annotations
 
 import tempfile
+from functools import lru_cache
 from pathlib import Path
 from typing import Optional
 
-from PIL import Image
-from PySide2.QtCore import Signal, Property, Slot, QPointF, QPoint, Qt, QUrl, QObject
-from PySide2.QtGui import QColor, QCursor
-from PySide2.QtQuick import QQuickItem
+from PIL import Image, ImageDraw
+from PyQt5.QtCore import (
+    pyqtSignal,
+    pyqtProperty,
+    pyqtSlot,
+    QPointF,
+    Qt,
+    QUrl,
+    QObject,
+)
+from PyQt5.QtGui import QColor, QCursor
+from PyQt5.QtQuick import QQuickItem
 from mycartable.conversion.pdf import PDFSplitter
 
 from .annotation import AnnotationModel
 from mycartable.defaults.constantes import ANNOTATION_TEXT_BG_OPACITY
-from mycartable.conversion import WImage
 from mycartable.cursors import build_one_image_cursor, build_all_image_cursor
-from mycartable.defaults.files_path import FILES
 from mycartable.utils import get_new_filename, pathize
 from mycartable.types.dtb import DTB
 from pony.orm import db_session
@@ -22,15 +29,22 @@ from pony.orm import db_session
 from .section import Section
 
 
+@lru_cache
+def import_FILES():
+    from mycartable.defaults.files_path import FILES
+
+    return FILES
+
+
 class ImageSection(Section):
     entity_name = "ImageSection"
     ALL_IMAGE_CURSORS = None
 
-    annotationCurrentToolChanged = Signal()
-    annotationDessinCurrentStrokeStyleChanged = Signal()
-    annotationDessinCurrentToolChanged = Signal()
-    annotationDessinCurrentLineWidthChanged = Signal()
-    annotationTextBGOpacityChanged = Signal()
+    annotationCurrentToolChanged = pyqtSignal()
+    annotationDessinCurrentStrokeStyleChanged = pyqtSignal()
+    annotationDessinCurrentToolChanged = pyqtSignal()
+    annotationDessinCurrentLineWidthChanged = pyqtSignal()
+    annotationTextBGOpacityChanged = pyqtSignal()
 
     """
     Python Code
@@ -59,7 +73,7 @@ class ImageSection(Section):
 
     @property
     def absolute_path(self) -> Path:
-        return FILES / self.path
+        return import_FILES() / self.path
 
     """
     Image utility
@@ -69,7 +83,7 @@ class ImageSection(Section):
     def create_empty_image(width: int, height: int) -> str:
         im = Image.new("RGBA", (width, height), "white")
         res_path = ImageSection.get_new_image_path(".png")
-        new_file = FILES / res_path
+        new_file = import_FILES() / res_path
         new_file.parent.mkdir(parents=True, exist_ok=True)
         im.save(new_file)
         return str(res_path)
@@ -87,7 +101,7 @@ class ImageSection(Section):
         if isinstance(filepath, Path):  # pragma: no branch
             ext = ext or filepath.suffix
             res_path = ImageSection.get_new_image_path(ext)
-            new_file = FILES / res_path
+            new_file = import_FILES() / res_path
             new_file.parent.mkdir(parents=True, exist_ok=True)
             new_file.write_bytes(filepath.read_bytes())
             return res_path
@@ -125,81 +139,80 @@ class ImageSection(Section):
     Qt Propoerty
     """
 
-    @Property(str, notify=annotationCurrentToolChanged)
+    @pyqtProperty(str, notify=annotationCurrentToolChanged)
     def annotationCurrentTool(self):
         return self._dtb.getConfig("annotationCurrentTool")
 
     @annotationCurrentTool.setter
-    def annotationCurrentTool_set(self, value: str):
+    def annotationCurrentTool(self, value: str):
         self._dtb.setConfig("annotationCurrentTool", value)
         self.annotationCurrentToolChanged.emit()
 
-    @Property(int, notify=annotationDessinCurrentLineWidthChanged)
+    @pyqtProperty(int, notify=annotationDessinCurrentLineWidthChanged)
     def annotationDessinCurrentLineWidth(self):
         return self._dtb.getConfig("annotationDessinCurrentLineWidth")
 
     @annotationDessinCurrentLineWidth.setter
-    def annotationDessinCurrentLineWidth_set(self, value: int):
+    def annotationDessinCurrentLineWidth(self, value: int):
         self._dtb.setConfig("annotationDessinCurrentLineWidth", value)
         self.annotationDessinCurrentLineWidthChanged.emit()
 
-    @Property(QColor, notify=annotationDessinCurrentStrokeStyleChanged)
+    @pyqtProperty(QColor, notify=annotationDessinCurrentStrokeStyleChanged)
     def annotationDessinCurrentStrokeStyle(self):
         return QColor(self._dtb.getConfig("annotationDessinCurrentStrokeStyle"))
 
     @annotationDessinCurrentStrokeStyle.setter
-    def annotationDessinCurrentStrokeStyle_set(self, value: str):
+    def annotationDessinCurrentStrokeStyle(self, value: str):
         self._dtb.setConfig("annotationDessinCurrentStrokeStyle", value.name())
         self.annotationDessinCurrentStrokeStyleChanged.emit()
 
-    @Property(str, notify=annotationDessinCurrentToolChanged)
+    @pyqtProperty(str, notify=annotationDessinCurrentToolChanged)
     def annotationDessinCurrentTool(self):
         return self._dtb.getConfig("annotationDessinCurrentTool")
 
     @annotationDessinCurrentTool.setter
-    def annotationDessinCurrentTool_set(self, value: str):
+    def annotationDessinCurrentTool(self, value: str):
         self._dtb.setConfig("annotationDessinCurrentTool", value)
         self.annotationDessinCurrentToolChanged.emit()
 
-    @Property(float, notify=annotationTextBGOpacityChanged)
+    @pyqtProperty(float, notify=annotationTextBGOpacityChanged)
     def annotationTextBGOpacity(self):
         return ANNOTATION_TEXT_BG_OPACITY
 
-    @Property(str, constant=True)
+    @pyqtProperty(str, constant=True)
     def path(self):
         return self._data["path"]
 
-    @Property(QUrl, constant=True)
+    @pyqtProperty(QUrl, constant=True)
     def url(self):
         return QUrl.fromLocalFile(str(self.absolute_path))
 
-    modelChanged = Signal()
+    modelChanged = pyqtSignal()
 
-    @Property(QObject, constant=True)
+    @pyqtProperty(QObject, constant=True)
     def model(self):
         return self._model
 
     """
-    Qt Slots
+    Qt pyqtSlots
     """
 
-    @Slot(str, QColor, QPointF, result=bool)
-    def floodFill(self, sectionId: str, color: QColor, point: QPointF):
-        im = WImage(str(self.absolute_path))
-        point = QPoint(point.x() * im.width(), point.y() * im.height())
-        im.flood_fill(color, point)
-        return im.save(str(self.absolute_path))
+    @pyqtSlot(QColor, QPointF)
+    def floodFill(self, color: QColor, point: QPointF):
+        image = Image.open(self.absolute_path)
+        pos = (point.x() * image.width, point.y() * image.height)
+        ImageDraw.floodfill(image, xy=pos, value=color.getRgb(), thresh=50)
+        image.save(self.absolute_path)
 
-    @Slot(int, result=bool)
+    @pyqtSlot(int, result=bool)
     def pivoterImage(self, sens):
         with db_session:
             im = Image.open(self.absolute_path)
             sens_rotate = Image.ROTATE_270 if sens else Image.ROTATE_90
             im.transpose(sens_rotate).save(self.absolute_path)
-            # todo: self.imageSectionSignal.emit()
             return True
 
-    @Slot(QQuickItem, str, QColor)
+    @pyqtSlot(QQuickItem, str, QColor)
     def setImageSectionCursor(self, qk: QQuickItem, tool: str, color: QColor):
         if tool == "default":
             qk.setCursor(QCursor(Qt.ArrowCursor))

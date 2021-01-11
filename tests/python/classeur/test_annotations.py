@@ -2,8 +2,8 @@ import json
 
 import pytest
 
-from PySide2.QtCore import QByteArray
-from PySide2.QtGui import QColor
+from PyQt5.QtCore import QByteArray
+from PyQt5.QtGui import QColor
 from mycartable.defaults.configuration import KEEP_UPDATED_CONFIGURATION
 from tests.python.fixtures import disable_log
 from mycartable.classeur import (

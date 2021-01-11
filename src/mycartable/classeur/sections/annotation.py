@@ -1,8 +1,8 @@
 import json
 from typing import Optional, Dict
 
-from PySide2.QtCore import Qt, QModelIndex, QByteArray, Slot, Property, Signal
-from mycartable.types import Stylable, SubTypeAble, Bridge, DtbListModel, DTB
+from PyQt5.QtCore import Qt, QModelIndex, QByteArray, pyqtSlot, pyqtProperty, pyqtSignal
+from mycartable.types import Stylable, SubTypeAble, Bridge, DtbListModel
 
 
 class Annotation(Stylable, SubTypeAble, Bridge):
@@ -17,29 +17,29 @@ class Annotation(Stylable, SubTypeAble, Bridge):
         return Annotation, AnnotationText, AnnotationDessin
 
     """
-    Qt Property
+    Qt pyqtProperty
     """
-    xChanged = Signal()
-    yChanged = Signal()
+    xChanged = pyqtSignal()
+    yChanged = pyqtSignal()
 
-    @Property(float, notify=xChanged)
+    @pyqtProperty(float, notify=xChanged)
     def x(self):
         return self._data["x"]
 
     @x.setter
-    def x_set(self, value: float):
+    def x(self, value: float):
         self.set_field("x", value)
 
-    @Property(float, notify=yChanged)
+    @pyqtProperty(float, notify=yChanged)
     def y(self):
         return self._data["y"]
 
     @y.setter
-    def y_set(self, value: float):
+    def y(self, value: float):
         self.set_field("y", value)
 
     """
-    Qt Slots
+    Qt pyqtSlots
     """
 
 
@@ -47,24 +47,24 @@ class AnnotationText(Annotation):
 
     entity_name = "AnnotationText"
 
-    textChanged = Signal()
+    textChanged = pyqtSignal()
 
-    @Property(str, notify=textChanged)
+    @pyqtProperty(str, notify=textChanged)
     def text(self):
         return self._data["text"]
 
     @text.setter
-    def text_set(self, value: str):
+    def text(self, value: str):
         self.set_field("text", value)
 
-    annotationCurrentTextSizeFactorChanged = Signal()
+    annotationCurrentTextSizeFactorChanged = pyqtSignal()
 
-    @Property(int, notify=annotationCurrentTextSizeFactorChanged)
+    @pyqtProperty(int, notify=annotationCurrentTextSizeFactorChanged)
     def annotationCurrentTextSizeFactor(self):
         return self._dtb.getConfig("annotationCurrentTextSizeFactor")
 
     @annotationCurrentTextSizeFactor.setter
-    def annotationCurrentTextSizeFactor_set(self, value: int):
+    def annotationCurrentTextSizeFactor(self, value: int):
         self._dtb.setConfig("annotationCurrentTextSizeFactor", value)
         self.annotationCurrentTextSizeFactorChanged.emit()
 
@@ -73,77 +73,77 @@ class AnnotationDessin(Annotation):
 
     entity_name = "AnnotationDessin"
 
-    toolChanged = Signal()
-    endXChanged = Signal()
-    endYChanged = Signal()
-    heightChanged = Signal()
-    pointsChanged = Signal()
-    startXChanged = Signal()
-    startYChanged = Signal()
-    widthChanged = Signal()
+    toolChanged = pyqtSignal()
+    endXChanged = pyqtSignal()
+    endYChanged = pyqtSignal()
+    heightChanged = pyqtSignal()
+    pointsChanged = pyqtSignal()
+    startXChanged = pyqtSignal()
+    startYChanged = pyqtSignal()
+    widthChanged = pyqtSignal()
 
-    @Property(float, notify=endXChanged)
+    @pyqtProperty(float, notify=endXChanged)
     def endX(self):
         return self._data["endX"]
 
     @endX.setter
-    def endX_set(self, value: float):
+    def endX(self, value: float):
         self.set_field("endX", value)
 
-    @Property(float, notify=endYChanged)
+    @pyqtProperty(float, notify=endYChanged)
     def endY(self):
         return self._data["endY"]
 
     @endY.setter
-    def endY_set(self, value: float):
+    def endY(self, value: float):
         self.set_field("endY", value)
 
-    @Property(float, notify=heightChanged)
+    @pyqtProperty(float, notify=heightChanged)
     def height(self):
         return self._data["height"]
 
     @height.setter
-    def height_set(self, value: float):
+    def height(self, value: float):
         self.set_field("height", value)
 
-    @Property(float, notify=startXChanged)
+    @pyqtProperty(float, notify=startXChanged)
     def startX(self):
         return self._data["startX"]
 
     @startX.setter
-    def startX_set(self, value: float):
+    def startX(self, value: float):
         self.set_field("startX", value)
 
-    @Property(float, notify=startYChanged)
+    @pyqtProperty(float, notify=startYChanged)
     def startY(self):
         return self._data["startY"]
 
     @startY.setter
-    def startY_set(self, value: float):
+    def startY(self, value: float):
         self.set_field("startY", value)
 
-    @Property(str, notify=toolChanged)
+    @pyqtProperty(str, notify=toolChanged)
     def tool(self):
         return self._data["tool"]
 
     @tool.setter
-    def tool_set(self, value: str):
+    def tool(self, value: str):
         self.set_field("tool", value)
 
-    @Property(float, notify=widthChanged)
+    @pyqtProperty(float, notify=widthChanged)
     def width(self):
         return self._data["width"]
 
     @width.setter
-    def width_set(self, value: float):
+    def width(self, value: float):
         self.set_field("width", value)
 
-    @Property("QVariantList", notify=pointsChanged)
+    @pyqtProperty("QVariantList", notify=pointsChanged)
     def points(self):
         return json.loads(self._data["points"])
 
     @points.setter
-    def points_set(self, value: list):
+    def points(self, value: list):
         dumped = json.dumps(value)
         self.set_field("points", dumped)
 
@@ -180,9 +180,6 @@ class AnnotationModel(DtbListModel):
         return None
 
     def _removeRows(self, row: int, count: int):
-        # for idx, d in enumerate(self.annotations[row : row + count + 1], row):
-        #     if self.dtb.delDB(d["classtype"], d["id"]):
-        #         self.annotations.pop(idx)
         to_delete = self._data[row : row + count + 1]
         self._data = self._data[:row] + self._data[row + count + 1 :]
         for annot in to_delete:
@@ -193,7 +190,7 @@ class AnnotationModel(DtbListModel):
         # TODO: self.rowsRemoved.connect(self.dao.updateRecentsAndActivites)
         # TODO: self.rowsInserted.connect(self.dao.updateRecentsAndActivites)
 
-    @Slot(str, "QVariantMap")
+    @pyqtSlot(str, "QVariantMap")
     def addAnnotation(self, classtype: str, content: dict = {}):
         new_anot = None
         if classtype == "AnnotationText":

@@ -1,7 +1,7 @@
 from typing import List
 
-from PySide2.QtCore import QObject, Signal, Property, Slot
-from PySide2.QtGui import QColor
+from PyQt5.QtCore import QObject, pyqtSignal, pyqtProperty, pyqtSlot
+from PyQt5.QtGui import QColor
 from .pagelist_model import ActiviteModel
 from mycartable.types import Bridge
 from pony.orm import db_session, Database
@@ -17,27 +17,27 @@ class Matiere(Bridge):
             for activite_id in self._data["activites"]
         ]
 
-    @Property(str, constant=True)
+    @pyqtProperty(str, constant=True)
     def id(self):
         return self._data.get("id", "")
 
-    @Property(str, constant=True)
+    @pyqtProperty(str, constant=True)
     def nom(self):
         return self._data.get("nom", "")
 
-    @Property(QColor, constant=True)
+    @pyqtProperty(QColor, constant=True)
     def bgColor(self):
         return self._data.get("bgColor", "")
 
-    @Property(QColor, constant=True)
+    @pyqtProperty(QColor, constant=True)
     def fgColor(self):
         return self._data.get("fgColor", "")
 
-    @Property(QColor, constant=True)
+    @pyqtProperty(QColor, constant=True)
     def fgColor(self):
         return self._data.get("fgColor", "")
 
-    @Property("QVariantList", constant=True)
+    @pyqtProperty("QVariantList", constant=True)
     def activites(self):
         return self._activites
 
@@ -52,26 +52,26 @@ class Activite(Bridge):
         super().__init__(data=data, parent=parent)
         self._pages = ActiviteModel(self.id, parent=self)
 
-    @Property(str, constant=True)
+    @pyqtProperty(str, constant=True)
     def nom(self):
         return self._data.get("nom", "")
 
-    @Property(QObject, constant=True)
+    @pyqtProperty(QObject, constant=True)
     def matiere(self):
         return self.parent()
 
-    @Property(QObject, constant=True)
+    @pyqtProperty(QObject, constant=True)
     def position(self):
         return self._data.get("position", "")
 
-    @Property(QObject, constant=True)
+    @pyqtProperty(QObject, constant=True)
     def pages(self):
         return self._pages
 
 
 class MatieresDispatcher(QObject):
 
-    matieresListChanged = Signal()
+    matieresListChanged = pyqtSignal()
 
     def __init__(self, db: Database, annee_active: int):
         super().__init__()
@@ -84,15 +84,15 @@ class MatieresDispatcher(QObject):
             self.matieres_list_id = tuple(self.id_index.keys())
             self.matieres_list = self._build_matieres_list()
 
-    @Slot(str, result=int)
+    @pyqtSlot(str, result=int)
     def indexFromId(self, matiere_id):
         return self.id_index[matiere_id]
 
-    @Slot(int, result=int)
+    @pyqtSlot(int, result=int)
     def idFromIndex(self, index):
         return self.matieres_list_id[index]
 
-    @Slot(result="QVariantList")
+    @pyqtSlot(result="QVariantList")
     @db_session
     def getDeplacePageModel(self) -> List:
         res = []
@@ -110,7 +110,7 @@ class MatieresDispatcher(QObject):
             res.append(new)
         return res
 
-    @Property("QVariantList", notify=matieresListChanged)
+    @pyqtProperty("QVariantList", notify=matieresListChanged)
     def matieresList(self):
         return self.matieres_list
 

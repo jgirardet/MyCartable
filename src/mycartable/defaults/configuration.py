@@ -1,4 +1,4 @@
-from PySide2.QtGui import QColor
+from PyQt5.QtGui import QColor
 
 # uniquement ajouté dans la DDB si n'existe pas déjà
 DEFAUT_CONFIGURATION = {

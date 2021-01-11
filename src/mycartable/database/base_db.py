@@ -30,7 +30,6 @@ def init_bind(db, provider="sqlite", filename=":memory:", create_db=False, **kwa
     # try:
     if filename != ":memory:" and not filename.is_file():
         create_file = True
-
     db.bind(provider=provider, filename=str(filename), create_db=create_db, **kwargs)
     db.generate_mapping(create_tables=True)
     if create_file:

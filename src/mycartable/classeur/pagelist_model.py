@@ -1,4 +1,4 @@
-from PySide2.QtCore import QModelIndex, Property, QObject, Qt, QByteArray
+from PyQt5.QtCore import QModelIndex, pyqtProperty, QObject, Qt, QByteArray
 from mycartable.types import DtbListModel
 
 
@@ -70,7 +70,7 @@ class ListOfPageModel(DtbListModel):
         return False
 
     """
-    Qt Property
+    Qt pyqtProperty
     """
 
 
@@ -82,7 +82,7 @@ class RecentsModel(ListOfPageModel):
     def _reset(self):
         self._data = self._dtb.execDB("Page", None, "recents", self.classeur.annee)
 
-    @Property(QObject, constant=True)
+    @pyqtProperty(QObject, constant=True)
     def classeur(self):
         return self.parent()
 

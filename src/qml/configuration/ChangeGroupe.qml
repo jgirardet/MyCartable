@@ -2,6 +2,12 @@ import MyCartable 1.0
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 
+/*
+Attention :
+ChangeMatiere : qml pour les matiere
+ChangesMatieres : python api
+ouai c'était nul comme choix de nom*/
+
 ListView {
     id: root
 
@@ -10,14 +16,13 @@ ListView {
     property int annee
 
     model: api.getGroupeMatieres(annee)
+
     width: 600
     spacing: 10
     clip: true
 
     RefColorDialog {
         id: colordialog
-
-        modality: Qt.WindowModal
     }
 
     Button {

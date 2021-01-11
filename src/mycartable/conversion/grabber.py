@@ -1,142 +1,71 @@
-from PySide2.QtCore import (
-    QObject,
-    QSize,
+import time
+from typing import Union
+
+from PyQt5.QtCore import (
     QUrl,
-    QByteArray,
-    QCoreApplication,
     QEventLoop,
+    QCoreApplication,
+    Qt,
 )
-from PySide2.QtGui import (
-    QSurfaceFormat,
-    QOpenGLContext,
-    QOffscreenSurface,
-    QOpenGLFramebufferObject,
-)
-from PySide2.QtQml import (
-    QQmlComponent,
-    QQmlEngine,
-    QQmlIncubator,
-    QQmlIncubationController,
-)
-from PySide2.QtQuick import QQuickItem, QQuickRenderControl, QQuickWindow
-from .wimage import WImage
+from PyQt5.QtQuick import QQuickView
+from loguru import logger
+
+from . import WImage
 
 
-class Grabber(QObject):
-    def __init__(self, context_dict: dict = {}):
+class Grabber(QQuickView):
+    def __init__(self, url: Union[QUrl, str], params: dict = {}, timeout: int = 5000):
         super().__init__()
+        self.image_grabbed = None
+        self.res_grab = None
+        self.url = url
+        self.timeout = timeout
+        self.setInitialProperties(params)
+        self.setFlags(
+            Qt.FramelessWindowHint
+            | Qt.WindowTransparentForInput  # input passe à travers
+            | Qt.WindowDoesNotAcceptFocus
+            | Qt.Popup  # pour préserver la barre des tâches
+            | Qt.WindowStaysOnBottomHint  # le + caché en arrière possible
+        )
 
-        self.qml_comp: QQmlComponent = None
-        self.rootItem: QQuickItem = None
+    def __call__(self, *args, **kwargs):
+        self.setSource(self.url)
+        obj = self.rootObject()
 
-        # setup opengl
-        self.format = QSurfaceFormat()
-        self.format.setDepthBufferSize(16)
-        self.format.setStencilBufferSize(8)
-        self.m_context = QOpenGLContext(parent=self)
-        self.m_context.setFormat(self.format)
-        self.m_context.create()
-        self.m_offscreenSurface = QOffscreenSurface()
-        self.m_offscreenSurface.setFormat(self.m_context.format())
-        self.m_offscreenSurface.create()
+        # handle error in obj creation
+        if not obj:
+            for err in self.errors():
+                logger.error(err.toString())
+            return
 
-        # setup renderControl/Window
-        self.m_renderControl = QQuickRenderControl(parent=self)
-        self.m_quickWindow = QQuickWindow(self.m_renderControl)
+        # check sync or async
+        if obj.property("status") is None or obj.property("status") == 1:
+            # sync: no status prop or complete run grab sync
+            self.grab()
+        else:
+            # async
+            obj.loaded.connect(self.grab)
 
-        # setup engine and context
-        self.m_qmlEngine = QQmlEngine()
-        self.context = self.m_qmlEngine.rootContext()
-        for k, v in context_dict.items():
-            self.context.setContextProperty(k, v)
-
-        # needed for async load
-        self.incubationController = QQmlIncubationController()
-        if not self.m_qmlEngine.incubationController():
-            self.m_qmlEngine.setIncubationController(self.incubationController)
-
-    def load_component(
-        self,
-        url: str = "",
-        data: bytes = b"",
-        width: int = 0,
-        height: int = 0,
-        initial_prop={},
-    ):
-        self.qml_comp = QQmlComponent(self.m_qmlEngine)
-        if url:
-            self.qml_comp.loadUrl(
-                QUrl.fromLocalFile(url),
-                QQmlComponent.Asynchronous,
-            )
-        elif data:
-            self.qml_comp.setData(QByteArray(data), QUrl(url))
-
-        while self.qml_comp.isLoading():
+        # attend la completion du grab (timeout = 5000)
+        t1 = time.time()
+        while self.image_grabbed is None and (
+            ((time.time() - t1) * 1000) < self.timeout
+        ):
             QCoreApplication.processEvents(QEventLoop.AllEvents, 50)
 
-        if self.qml_comp.isError():
-            raise Exception(self.qml_comp.errorString())
+        # le résultat est retourné
+        self.deleteLater()
+        return self.image_grabbed
 
-        self.incubator = QQmlIncubator()
-        self.incubator.setInitialProperties(initial_prop)
+    def grab(self, *args):  # ne pas enlevé le args pour parrer aux arguement du loaded
+        self.setOpacity(0)
+        self.setVisible(True)
+        self.res_grab = self.rootObject().grabToImage()
+        if not self.res_grab:
+            return
+        self.res_grab.ready.connect(self.on_grab)
 
-        self.qml_comp.create(self.incubator)
-        self.incubationController.incubateFor(1000)
-        self.rootItem = self.incubator.object()
-
-        # synchronous way
-        # self.rootItem = self.qml_comp.createWithInitialProperties(initial_prop)
-
-        self._set_size(width, height)
-
-    def to_image(self) -> WImage:
-        img = self.m_renderControl.grab()
-        return WImage(img)
-
-    def comp_to_image(self, **kwargs) -> WImage:
-        """Render a Component to WImage
-        :param kwargs: see load_component
-        """
-        self.load_component(**kwargs)
-        self.render_component()
-        return self.to_image()
-
-    def render_component(self):
-        self.rootItem.setParentItem(self.m_quickWindow.contentItem())
-        self.m_renderControl.polishItems()
-        self.m_renderControl.sync()
-        self.m_renderControl.render()
-        self.m_context.functions().glFlush()
-
-    def _set_fbo(self, width, height):
-        self.m_fbo = QOpenGLFramebufferObject(
-            QSize(width, height), QOpenGLFramebufferObject.CombinedDepthStencil
-        )
-        self.m_quickWindow.setRenderTarget(self.m_fbo)
-
-    def _set_size(self, width: int, height: int):
-        """
-        Adapte les tailles  si nécessaire. Les dimension du composant
-        seront écrasées par width ou height.
-        La Window s'adapte aux dimension retenues pour fitter le composer
-        :param width: largeur
-        :param height: hauteur
-        :return: None
-        """
-        if width:
-            self.rootItem.setWidth(width)
-        if height:
-            self.rootItem.setHeight(height)
-        r_width = self.rootItem.width()
-        r_height = self.rootItem.height()
-        self._set_fbo(r_width, r_height)
-        self.m_quickWindow.setGeometry(0, 0, r_width, r_height)
-
-    def __enter__(self):
-        self.m_context.makeCurrent(self.m_offscreenSurface)
-        self.m_renderControl.initialize(self.m_context)
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.m_renderControl.invalidate()
+    def on_grab(self):
+        self.image_grabbed = WImage(self.res_grab.image())
+        self.close()

@@ -1,6 +1,5 @@
 from pony.orm import Database
 
-
 from .structure import class_structure
 from .sections import class_section
 from .style import class_style

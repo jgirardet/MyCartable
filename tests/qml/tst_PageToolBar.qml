@@ -115,12 +115,14 @@ Item {
 
         function test_newimage() {
             if (Qt.platform.os == "windows")
-                skip("ne marche pas sous windows");
+                skip("test ne marche pas sous windows");
 
             mouseClick(newimage);
-            newimage.action.dialog.folder = "assets";
-            // voir tst_pagestions.test_insert_row_entre pour la bonne valeur du clique
-            mouseDoubleClickSequence(newimage.action.dialog.contentItem, 150, 80, Qt.LeftButton, Qt.NoModifier, 50);
+            let dialog = newimage.action.dialog
+            dialog.folder = "assets";
+            keySequence("r,e,c,t")
+            keySequence(".,p,n,g")
+            keyClick(Qt.Key_Return)
             tryCompare(newimage.action.busy, "visible", false);
             compare_new_section("ImageSection");
         }

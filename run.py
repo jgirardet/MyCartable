@@ -10,7 +10,7 @@ from pathlib import Path
 
 
 PACKAGE = "MyCartable"
-QT_VERSION = "5.15.1"
+QT_VERSION = "5.15.2"
 ROOT = Path(__file__).parent.resolve()
 SRC = ROOT / "src"
 VIRTUAL_ENV = ROOT / ".venv"
@@ -176,7 +176,7 @@ def cmd_install_qt(*args, **kwargs):
 def cmd_make_qrc(*args, **kwargs):
     input = SRC / "qml.qrc"
     output = SRC / "mycartable" / "qrc.py"
-    runCommand(f"pyside2-rcc {input} -o {output}")
+    runCommand(f"pyrcc5 {input} -o {output}")
 
 
 def cmd_dev(*args, **kwargs):
@@ -197,6 +197,8 @@ def cmd_qmlformat(*args, **kwargs):
         "TableauActions.qml",  # https://bugreports.qt.io/browse/QTBUG-86979
         "PageActions.qml",  # https://bugreports.qt.io/browse/QTBUG-86979
         "Buttons.qml",  # https://bugreports.qt.io/browse/QTBUG-86979
+        "ImageSection.qml",
+        "AnnotationText.qml",
         # "PageSections.qml",  # https://bugreports.qt.io/browse/QTBUG-86979
         # "PageRectangle.qml",  # https://bugreports.qt.io/browse/QTBUG-86979
         # "Legende.qml",

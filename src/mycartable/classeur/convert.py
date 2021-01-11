@@ -4,27 +4,36 @@ import os
 import re
 import subprocess
 import uuid
+from functools import partial, lru_cache
 from pathlib import Path
-from PySide2.QtQuick import QQuickItem
+
+from PyQt5 import sip
+from PyQt5.QtQuick import QQuickItem
 from typing import Tuple
 
-from PySide2.QtCore import (
+from PyQt5.QtCore import (
+    QBuffer,
     QDir,
     QPoint,
     QRect,
     QTemporaryFile,
     QPointF,
     QUrl,
+    QTimer,
+    QRectF,
+    QSizeF,
 )
-from PySide2.QtGui import (
+from PyQt5.QtGui import (
     QPainter,
     QColor,
     QFontDatabase,
+    QImage,
     QPainterPath,
     QDesktopServices,
 )
 from bs4 import NavigableString, BeautifulSoup
 from mako.lookup import TemplateLookup
+
 from mycartable.defaults.configuration import KEEP_UPDATED_CONFIGURATION
 from mycartable.types.dtb import DTB
 from mycartable.defaults.constantes import (
@@ -33,15 +42,11 @@ from mycartable.defaults.constantes import (
 )
 from mycartable.conversion import Grabber
 from mycartable.database import getdb
-from mycartable.defaults.files_path import FILES, TMP
-from mycartable.utils import read_qrc, qrunnable
+from mycartable.utils import read_qrc
 from mycartable import LINUX, WIN
 from pony.orm import db_session
 
 from loguru import logger
-
-from PySide2.QtCore import QBuffer
-from PySide2.QtGui import QImage
 
 
 db = getdb()
@@ -62,10 +67,12 @@ class Converter:
             QDesktopServices.openUrl(QUrl.fromLocalFile(str(new_file)))
 
     def export_to_pdf(self, **kwargs):
-        qrunnable(self._export, "pdf:writer_pdf_Export", ".pdf", **kwargs)
+        p = partial(self._export, "pdf:writer_pdf_Export", ".pdf", **kwargs)
+        QTimer.singleShot(0, p)
 
     def export_to_odt(self, **kwargs):
-        qrunnable(self._export, "odt", ".odt", **kwargs)
+        p = partial(self._export, "odt", ".odt", **kwargs)
+        QTimer.singleShot(0, p)
 
 
 def find_soffice(ui=None):
@@ -109,6 +116,8 @@ def soffice_convert(page_id, format, new_filename, ui=None):
     res = build_odt(page_id)
     ext = "." + format.split(":")[0]
     soffice = find_soffice(ui)
+    from mycartable.defaults.files_path import TMP
+
     temp = QTemporaryFile(str(TMP / uuid.uuid4().hex))
     temp.open()
     p = Path(temp.fileName())
@@ -139,23 +148,21 @@ def escaped_filename(nom, ext):
     return re.sub(r"[\W]", "", temp) + ext
 
 
+@lru_cache
 def create_lookup():
     lookup = TemplateLookup()
-    print(QDir(":/templates").entryInfoList())
     import mycartable.qrc
 
     for file in QDir(":/templates").entryInfoList():
-        print(file)
         lookup.put_string(file.fileName(), read_qrc(file.absoluteFilePath()))
     return lookup
-
-
-templates = create_lookup()
 
 
 def create_images_with_annotation(image_section, tmpdir=None):
     image = QImage()
     painter = QPainter()
+    from mycartable.defaults.files_path import FILES
+
     image.load(str(FILES / image_section["path"]))
 
     painter.begin(image)
@@ -202,8 +209,9 @@ def draw_annotation_text(annotation: dict, image: QImage, painter: QPainter):
 
     # On evalue la taille de et la position de l'annotation
     size = painter.fontMetrics().size(0, annotation["text"])
-    rect = QRect(
-        QPoint(annotation["x"] * image.width(), annotation["y"] * image.height()), size
+    rect = QRectF(
+        QPoint(annotation["x"] * image.width(), annotation["y"] * image.height()),
+        QSizeF(size),
     )
 
     #
@@ -280,7 +288,7 @@ def draw_annotation_dessin(annotation: dict, image: QImage, painter: QPainter) -
         pen = painter.pen()
         pen.setWidth(pen.width() * 4)
         painter.setPen(pen)
-        painter.drawPolyline(points)
+        painter.drawPolyline(*points)
 
 
 def drawArrowhead(path: QPainterPath, depuis: QPoint, to: QPoint, radius: int):
@@ -313,27 +321,6 @@ def drawArrowhead(path: QPainterPath, depuis: QPoint, to: QPoint, radius: int):
     path.lineTo(point1.x(), point1.y())
 
     return [point1, point2, point3]
-
-
-#
-# ano = {
-#     "id": 1,
-#     "x": 0.13990825688073394,
-#     "y": 0.18775510204081633,
-#     "classtype": "AnnotationText",
-#     "text": "fezfze\nffzefze",
-#     "styleId": 9046,
-#     "family": "",
-#     "underline": False,
-#     "pointSize": None,
-#     "strikeout": False,
-#     "weight": None,
-#     "bgColor": QColor.fromRgbF(0.000000, 1.000000, 0.000000, 1.000000),
-#     "fgColor": QColor.fromRgbF(0.000000, 0.000000, 1.000000, 1.000000),
-# }
-# img = "/home/jimmy/dev/cacahuete/MyCartable/tests/resources/sc1.png"
-
-# create_images_with_annotation(img)
 
 
 def escape(text):
@@ -1011,24 +998,37 @@ def equation_section(section):
 
 
 def frise_section(section):
-    from . import Section
+    # from . import Section
+    #
+    # instance = Section.get(section.id)
+    return grab_section(section)  # , {"height": instance.height})
 
-    instance = Section.get(section.id)
-    return grab_section(section, instance)
+
+class SectionGrabber(Grabber):
+    def __init__(self, section: "SectionDatabase", params: dict = {}):
+        url = QUrl("qrc:///qml/page/BasePageDelegate.qml")
+        self.qq = QQuickItem(width=1200, height=1200)
+        from . import Section
+
+        instance = Section.get(section.id)
+        sip.transferto(instance, instance)
+        base_params = {
+            "section": instance,
+            "referent": self.qq,
+            "index": 1,
+            **params,
+        }
+        super().__init__(url, base_params)
+        self.qq.setParent(self)
+        instance.setParent(self)
 
 
-def grab_section(section, q_section, initial_prop={}):
-    sectionItem = QQuickItem(width=1181)
-    base_prop = {"sectionItem": sectionItem, "section": q_section}
-    base_prop.update(initial_prop)
-    dtb = DTB()
-    with Grabber(context_dict={"c_dtb": dtb}) as grab:
-        img = grab.comp_to_image(
-            url=f":/qml/sections/{section.classtype}.qml",
-            initial_prop=base_prop,
-        )
-    res = img.to_odf()
-    return res, ""
+def grab_section(section, initial_prop={}):
+    grab = SectionGrabber(section, initial_prop)
+    if img := grab():
+        return img.to_odf(), ""
+    else:
+        return "", ""
 
 
 def build_body(page_id: int) -> Tuple[str, str]:
@@ -1074,7 +1074,7 @@ def build_body(page_id: int) -> Tuple[str, str]:
         if new_tags:
             tags.append(new_tags)
             tags.append(f"""<text:p text:style-name="Standard"/>""")
-    tmpl = templates.get_template("body.xml")
+    tmpl = create_lookup().get_template("body.xml")
     body = "\n".join(tags)
     return (
         tmpl.render(titre=escape(page.titre), body=body),
@@ -1083,19 +1083,19 @@ def build_body(page_id: int) -> Tuple[str, str]:
 
 
 def build_automatic_styles(automatic_styles: str) -> str:
-    tmpl = templates.get_template("automatic-styles.xml")
+    tmpl = create_lookup().get_template("automatic-styles.xml")
     return tmpl.render(
         automatic_styles=automatic_styles, margins=MARGINS, header=HEADER
     )
 
 
 def build_styles() -> str:
-    tmpl = templates.get_template("styles.xml")
+    tmpl = create_lookup().get_template("styles.xml")
     return tmpl.render()
 
 
 def build_master_styles() -> str:
-    tmpl = templates.get_template("master-styles.xml")
+    tmpl = create_lookup().get_template("master-styles.xml")
     db = DTB()
     nom = db.getConfig("nom")
     prenom = db.getConfig("prenom")
@@ -1110,7 +1110,7 @@ def build_odt(page_id: int) -> str:
     master_styles = build_master_styles()
     styles = build_styles()
 
-    tmpl = templates.get_template("base.xml")
+    tmpl = create_lookup().get_template("base.xml")
     res = tmpl.render(
         body=body,
         automatic_styles=automatic_styles,

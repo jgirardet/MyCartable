@@ -1,12 +1,12 @@
 from __future__ import annotations
 from typing import Union
 
-from PySide2.QtCore import Property, QObject
+from PyQt5.QtCore import pyqtProperty, QObject
 from mycartable.types import Bridge
 
 
 class SubTypeAble:
-    @Property(str, constant=True)
+    @pyqtProperty(str, constant=True)
     def classtype(self):
         return self._data["classtype"]
 

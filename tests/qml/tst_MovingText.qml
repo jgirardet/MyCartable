@@ -12,8 +12,7 @@ Item {
         //pas de latence
         //            wait(1000);
         // timeout pour la CI
-        //            if (Qt.platform.os == "windows")
-        //                skip("ne marche pas sur windows");
+
 
         property var moveTextLeft
         property var moveTextRight
@@ -50,6 +49,9 @@ Item {
         }
 
         function test_start_animation_and_stop() {
+            if (th.env("CI"))
+              skip("ne marche pas sur windows");
+
             tested.text = "azeraezrtrerter";
             verify(tested.truncated == true);
             var oldX = tested.x;

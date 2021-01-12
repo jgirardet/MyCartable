@@ -4,7 +4,8 @@ from typing import Union, Any
 from PyQt5.QtCore import pyqtSlot, QObject
 from PyQt5.QtQml import QJSValue
 from loguru import logger
-from pony.orm import Database, db_session, ObjectNotFound
+from pony.orm import Database, db_session, ObjectNotFound, count
+from pony.orm.core import Query
 
 
 class DTB(QObject):
@@ -148,3 +149,7 @@ class DTB(QObject):
                     logger.exception(err)
                 else:
                     return res
+
+    @db_session
+    def count(self, query: Union[Query]):
+        return count(query)

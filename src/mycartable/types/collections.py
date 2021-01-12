@@ -1,13 +1,11 @@
 import typing
-from abc import ABC
 
 from PyQt5.QtCore import (
-    QObject,
     QModelIndex,
     Qt,
     pyqtSlot,
     QAbstractListModel,
-    QAbstractItemModel,
+    QAbstractTableModel,
 )
 from mycartable.types.dtb import DTB
 
@@ -174,14 +172,29 @@ class RowSlotable(RowAble):
 
 class BaseListModel(QAbstractListModel):
     """
-    N'avoir que des kwargs
+    AbstractListModel with only kwargs constructor
     """
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        print("fin super listmodel")
+
+
+class BaseTableModel(QAbstractTableModel):
+    """
+    AbstractTableModel with only kwargs constructor
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
 
 class DtbListModel(RowSlotable, DTBAble, BaseListModel):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    """
+    DTB list model to subclass
+    """
+
+
+class DtbTableModel(RowSlotable, DTBAble, BaseTableModel):
+    """
+    DTB table model to sublclass
+    """

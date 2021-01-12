@@ -24,7 +24,6 @@ class DTBAble:
         super().__init__(**kwargs)
         self._dtb = DTB()
         self.reset()
-        print("fin dtbable")
 
     def flags(self, index):
         if not index.isValid():

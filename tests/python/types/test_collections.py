@@ -3,7 +3,13 @@ from unittest.mock import MagicMock, call
 import pytest
 from PyQt5.QtCore import QModelIndex, Qt, QByteArray
 from mycartable.types.dtb import DTB
-from mycartable.types.collections import DtbListModel
+from mycartable.types.collections import (
+    DtbListModel,
+    DtbTableModel,
+    BaseTableModel,
+    DTBAble,
+    RowSlotable,
+)
 
 
 @pytest.fixture()
@@ -139,3 +145,10 @@ def test_RowSlotable(method, general, inp, res, lm):
     setattr(lm, general, MagicMock())
     getattr(lm, method)(*inp)
     assert getattr(lm, general).call_args == call(*res)
+
+
+def testDtbTableModel():
+    a = DtbTableModel()
+    assert isinstance(a, BaseTableModel)
+    assert isinstance(a, DTBAble)
+    assert isinstance(a, RowSlotable)

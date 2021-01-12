@@ -1732,3 +1732,82 @@ class TestFrise:
                     },
                 ],
             }
+
+
+class TestLexique:
+    def test_factory(self, fk, ddb):
+        lexon = fk.f_lexon()
+        trad1 = fk.f_traduction()
+        trad2 = fk.f_traduction(content="bonjour", lexon=lexon, locale="fr_FR")
+        assert trad2.locale.id == "fr_FR"
+        assert trad2.content == "bonjour"
+        assert trad2.lexon == lexon
+        trad3 = fk.db.Traduction(
+            lexon=lexon, **{"content": "bonjour", "locale": "fr_FR"}
+        )
+        assert trad3.content == "bonjour"
+        assert ddb.Locale["fr_FR"] == trad2.locale == trad3.locale
+
+    def test_lexon_add(self, ddb):
+        news = ddb.Lexon.add(
+            [
+                {"content": "bonjour", "locale": "fr_FR"},
+                {"content": "goodmorning", "locale": "en_US"},
+            ]
+        )
+        assert news.traductions.count() == 2
+        fr = news.traductions.select(locale="fr_FR").first()
+        assert fr.content == "bonjour"
+        assert ddb.Locale["fr_FR"] == fr.locale
+        en = news.traductions.select(locale="en_US").first()
+        assert en.content == "goodmorning"
+        assert ddb.Locale["en_US"] == en.locale
+
+    def test_lexon_all(self, fk):
+
+        with db_session:
+            for i in range(3):
+                fk.db.Lexon.add(
+                    [
+                        {"content": "bonjour", "locale": "fr_FR", "id": uuu(i + i)},
+                        {"content": "hello", "locale": "en_US", "id": uuu(i + i + 1)},
+                    ]
+                )
+        with db_session:
+            res = fk.db.Lexon.all()
+        assert len(res) == 3
+        assert all(map(lambda x: isinstance(x, dict), res))
+
+    def test_to_dict(self, ddb):
+
+        lex = ddb.Lexon.add(
+            [
+                {"content": "bonjour", "locale": "fr_FR", "id": uuu(0)},
+                {"content": "hello", "locale": "en_US", "id": uuu(1)},
+            ]
+        )
+        res = lex.to_dict()
+        assert res["id"] == str(lex.id)
+        assert sorted(res["traductions"], key=lambda x: x["id"]) == [
+            {
+                "content": "bonjour",
+                "id": "00000000-0000-0000-0000-000000000000",
+                "lexon": res["id"],
+                "locale": "fr_FR",
+            },
+            {
+                "content": "hello",
+                "id": "11111111-1111-1111-1111-111111111111",
+                "lexon": res["id"],
+                "locale": "en_US",
+            },
+        ]
+
+    def test_locale_all(self, fk):
+        fk.f_locale(id="fr_FR")
+        fk.f_locale(id="de_DE")
+        fk.f_locale(id="en_US")
+        fk.f_locale(id="it_IT")
+        fk.f_locale(id="es_ES")
+        with db_session:
+            assert fk.db.Locale.all() == ["de_DE", "en_US", "es_ES", "fr_FR", "it_IT"]

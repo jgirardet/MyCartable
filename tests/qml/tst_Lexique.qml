@@ -3,7 +3,7 @@ import QtQuick 2.15
 Item {
     id: item
 
-    width: 600
+    width: 1000
     height: 600
 
     CasTest {
@@ -52,6 +52,22 @@ Item {
         function test_tableau_change_text() {
             clickAndWrite(bonjour);
             compare(bonjour.text, "bcd");
+        }
+
+        function test_header_tableau() {
+            let eng = tab.header.contentItem.children[0].text;
+            verify(eng.includes("ENGLISH"));
+            let fr = tab.header.contentItem.children[1].text;
+            verify(fr.includes("FRANÇAIS"));
+        }
+
+        function test_header_sort() {
+            mouseClick(tab.header.contentItem.children[1]);
+            compare(th.python("obj.sortOrder()", tab.content.model), 0);
+            compare(th.python("obj.sortColumn()", tab.content.model), 1);
+            mouseClick(tab.header.contentItem.children[0]);
+            compare(th.python("obj.sortOrder()", tab.content.model), 0);
+            compare(th.python("obj.sortColumn()", tab.content.model), 0;
         }
 
         name: "Lexique"

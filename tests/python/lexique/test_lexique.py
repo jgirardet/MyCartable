@@ -94,23 +94,16 @@ def test_setdata(lexons, fk, qtbot):
     assert not m.setData(m.index(1, 2), ["haha"], Qt.EditRole)  # base data format
 
 
+def test_headerData(lexons):
+    m = LexiqueModel()
+    assert "ENGLISH" in m.headerData(0, Qt.Horizontal, Qt.DisplayRole)
+    assert "FRANÇAIS" in m.headerData(1, Qt.Horizontal, Qt.DisplayRole)
+    assert "ITALIANO" in m.headerData(2, Qt.Horizontal, Qt.DisplayRole)
+
+
 """
     TestLexique Proxy
 """
-
-
-def test_sort(lexons):
-    m = LexiqueModel()
-    p = LexiqueProxy(parent=m, source=m)
-    p.sort(1, Qt.AscendingOrder)
-    # model inchangé
-    assert m.data(m.index(0, 1), Qt.DisplayRole) == "bonjour"
-    assert m.data(m.index(1, 1), Qt.DisplayRole) == "au revoir"
-    assert m.data(m.index(2, 1), Qt.DisplayRole) == "deux"
-    # procy à jour
-    assert p.data(p.index(0, 1), Qt.DisplayRole) == "au revoir"
-    assert p.data(p.index(1, 1), Qt.DisplayRole) == "bonjour"
-    assert p.data(p.index(2, 1), Qt.DisplayRole) == "deux"
 
 
 """
@@ -125,3 +118,24 @@ def test_lexique_init():
     assert l._proxy.sourceModel() is l._model
     assert l.model is l._model
     assert l.proxy is l._proxy
+
+
+def test_doSort(lexons):
+    l = Lexique()
+    l.doSort(1)  # debut column 9, sortorder0
+    # procy à jour
+    assert l._proxy.data(l._proxy.index(0, 1), Qt.DisplayRole) == "au revoir"
+    assert l._proxy.data(l._proxy.index(1, 1), Qt.DisplayRole) == "bonjour"
+    assert l._proxy.data(l._proxy.index(2, 1), Qt.DisplayRole) == "deux"
+
+    l.doSort(1)  # nouvelle colonne ascending
+    # procy à jour
+    assert l._proxy.data(l._proxy.index(0, 1), Qt.DisplayRole) == "deux"
+    assert l._proxy.data(l._proxy.index(1, 1), Qt.DisplayRole) == "bonjour"
+    assert l._proxy.data(l._proxy.index(2, 1), Qt.DisplayRole) == "au revoir"
+
+    l.doSort(1)  # meme colonne toggle
+    # procy à jour
+    assert l._proxy.data(l._proxy.index(0, 1), Qt.DisplayRole) == "au revoir"
+    assert l._proxy.data(l._proxy.index(1, 1), Qt.DisplayRole) == "bonjour"
+    assert l._proxy.data(l._proxy.index(2, 1), Qt.DisplayRole) == "deux"

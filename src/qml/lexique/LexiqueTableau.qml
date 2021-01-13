@@ -8,6 +8,8 @@ Item {
     required property QtObject lexique
     property alias rows: table_content.rows
     property alias columns: table_content.columns
+    property alias header: table_header
+    property alias content: table_content
 
     function itemAt(row, col) {
         return table_content.contentItem.children[row * columns + col];
@@ -15,6 +17,8 @@ Item {
 
     LexiqueTableauHeader {
         id: table_header
+
+        syncView: table_content
     }
 
     LexiqueContent {

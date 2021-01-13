@@ -4,9 +4,9 @@ import QtQuick.Controls 2.15
 TableView {
     id: tableView
 
-    //    columnWidthProvider: () => {
-    //        return width / columns;
-    //    }
+    columnWidthProvider: () => {
+        return 300;
+    }
     rowHeightProvider: () => {
         return 50;
     }
@@ -15,7 +15,10 @@ TableView {
         id: name
 
         text: display
+        font.pointSize: 14
         onTextEdited: edit = text
+        verticalAlignment: Text.AlignVCenter
+        horizontalAlignment: Text.AlignHCenter
     }
 
 }

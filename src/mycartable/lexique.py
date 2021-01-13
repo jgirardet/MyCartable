@@ -1,6 +1,15 @@
-from typing import Optional, Any, Union
+from typing import Optional, Any, Union, Dict
 
-from PyQt5.QtCore import QModelIndex, Qt, QSortFilterProxyModel, pyqtProperty, QObject
+import flag
+from PyQt5.QtCore import (
+    QModelIndex,
+    Qt,
+    QSortFilterProxyModel,
+    pyqtProperty,
+    QObject,
+    QLocale,
+    pyqtSlot,
+)
 from PyQt5.QtQuick import QQuickItem
 from mycartable.types.collections import DtbTableModel
 
@@ -52,18 +61,33 @@ class LexiqueModel(DtbTableModel):
 
         return False
 
+    def headerData(self, section: int, orientation: Qt.Orientation, role: int) -> Any:
+        if role == Qt.DisplayRole and 0 <= section < len(self._locales):
+            locale = QLocale(self._locales[section])
+            drapeau = flag.flag(locale.name().split("_")[-1])
+            nom = locale.nativeLanguageName().split(" ")[-1].upper()
+            return f"{drapeau} {nom} {drapeau}"
+
 
 class LexiqueProxy(QSortFilterProxyModel):
     def __init__(self, parent=None, source=None, **kwargs):
         super().__init__(parent=parent)
         self.setSourceModel(source)
 
+    @pyqtSlot(int)
+    def doSort(self, col: int):
+        if col == self.sortColumn():
+            self.sort(col, int(not self.sortOrder()))
+        else:
+            self.sort(col, Qt.AscendingOrder)
 
-class Lexique(QObject):
+
+class Lexique(QQuickItem):
     def __init__(self, parent=None, **kwargs):
         super().__init__(parent=parent)
         self._model = LexiqueModel(parent=self)
         self._proxy = LexiqueProxy(parent=self, source=self._model)
+        self.startTimer(1000)
 
     """ "
     Qt Properties
@@ -76,3 +100,7 @@ class Lexique(QObject):
     @pyqtProperty(QObject, constant=True)
     def proxy(self):
         return self._proxy
+
+    """"
+    Qt SLot
+    """

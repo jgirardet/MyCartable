@@ -9,14 +9,8 @@ from PyQt5.QtCore import pyqtSlot, pyqtSignal, QObject, pyqtProperty, QTimer
 from loguru import logger
 
 from .pagelist_model import RecentsModel
-
-
 from .matiere import MatieresDispatcher, Matiere
-
-print("import myclasseurdebut")
 from .page import Page
-
-print("import myclasseur fin")
 
 
 class Classeur(DTB):

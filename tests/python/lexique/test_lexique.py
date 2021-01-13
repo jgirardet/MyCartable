@@ -83,6 +83,17 @@ def test_data(lexons, fk):
     assert m.data(m.index(2, 3), Qt.DisplayRole) == "due"
 
 
+def test_setdata(lexons, fk, qtbot):
+    m = LexiqueModel()
+    assert m.data(m.index(1, 2), Qt.DisplayRole) == "ciao"
+    with qtbot.waitSignal(m.dataChanged):
+        assert m.setData(m.index(1, 2), "haha", Qt.EditRole)
+    assert m.data(m.index(1, 2), Qt.DisplayRole) == "haha"
+    assert not m.setData(m.index(99, 99), "haha", Qt.EditRole)  # bad index
+    assert not m.setData(m.index(1, 2), "haha", Qt.BackgroundRole)  # bad role
+    assert not m.setData(m.index(1, 2), ["haha"], Qt.EditRole)  # base data format
+
+
 """
     TestLexique Proxy
 """

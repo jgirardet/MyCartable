@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Any, Union
 
 from PyQt5.QtCore import QModelIndex, Qt, QSortFilterProxyModel, pyqtProperty, QObject
 from PyQt5.QtQuick import QQuickItem
@@ -36,6 +36,21 @@ class LexiqueModel(DtbTableModel):
                 return trad["content"]
             else:
                 return ""
+
+    def setData(self, index: QModelIndex, value: Any, role: int) -> Union[bool, str]:
+        if index.isValid():
+            if role == Qt.EditRole:
+                row = self._data[index.row()]
+                trad = row["traductions"][index.column()]
+                res = self._dtb.setDB("Traduction", trad["id"], {"content": value})
+                if res:
+                    self._data[index.row()]["traductions"][index.column()][
+                        "content"
+                    ] = value
+                    self.dataChanged.emit(index, index)
+                    return True
+
+        return False
 
 
 class LexiqueProxy(QSortFilterProxyModel):

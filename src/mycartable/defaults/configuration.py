@@ -22,6 +22,12 @@ KEEP_UPDATED_CONFIGURATION = {
             "splitindex": 1,
             "spliturl": "qrc:/qml/layouts/ClasseurLayout.qml",
         },
+        "lexique": {
+            "splittype": "lexique",
+            "splittext": "Lexique",
+            "splitindex": 2,
+            "spliturl": "qrc:/qml/lexique/LexiqueLayout.qml",
+        },
     },
     "annotationDessinCurrentLineWidth": 3,
     "annotationDessinCurrentStrokeStyle": QColor("black").name(),

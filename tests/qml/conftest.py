@@ -122,10 +122,7 @@ class TestHelper(DTB):
         return os.environ.get(value, None)
 
 
-print("dbut import conftest qml")
-
 db = init_database(Database(), create_db=True)
-print("fin import conftest qml")
 fk = FakerHelper(db)
 th = TestHelper(db)
 

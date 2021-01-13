@@ -40,18 +40,18 @@ class LexiqueModel(DtbTableModel):
 
 class LexiqueProxy(QSortFilterProxyModel):
     def __init__(self, parent=None, source=None, **kwargs):
-        super().__init__(parent=parent, **kwargs)
+        super().__init__(parent=parent)
         self.setSourceModel(source)
 
 
-class Lexique(QQuickItem):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+class Lexique(QObject):
+    def __init__(self, parent=None, **kwargs):
+        super().__init__(parent=parent)
         self._model = LexiqueModel(parent=self)
         self._proxy = LexiqueProxy(parent=self, source=self._model)
 
-    """"
-    Qt Properties    
+    """ "
+    Qt Properties
     """
 
     @pyqtProperty(QObject, constant=True)

@@ -64,6 +64,7 @@
         <file alias="AddSectionDialog.qml">qml/page/AddSectionDialog.qml</file>
 
     </qresource>
+
     <qresource prefix="/qml/sections">
         <file alias="AdditionSection.qml">qml/sections/AdditionSection.qml</file>
         <file alias="DivisionSection.qml">qml/sections/DivisionSection.qml</file>
@@ -124,6 +125,15 @@
         <file alias="PointSizeSlider.qml">qml/menu/PointSizeSlider.qml</file>
         <file alias="OpacitySlider.qml">qml/menu/OpacitySlider.qml</file>
         <file alias="DeplacePage.qml">qml/menu/DeplacePage.qml</file>
+
+    </qresource>
+
+
+    <qresource prefix="/qml/lexique">
+        <file alias="LexiqueLayout.qml">qml/lexique/LexiqueLayout.qml</file>
+        <file alias="LexiqueTableau.qml">qml/lexique/LexiqueTableau.qml</file>
+        <file alias="LexiqueTableauHeader.qml">qml/lexique/LexiqueTableauHeader.qml</file>
+        <file alias="LexiqueContent.qml">qml/lexique/LexiqueContent.qml</file>
 
     </qresource>
 

@@ -1,4 +1,3 @@
-import MyCartable 1.0
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 
@@ -6,17 +5,19 @@ TableView {
     id: tableView
 
     required property Item lexique
+    required property QtObject database
+
+    function itemAt(row, col) {
+        return contentItem.children[row * columns + col];
+    }
 
     model: lexique.proxy
+    clip: true
     columnWidthProvider: () => {
         return database.getConfig("lexiqueColumnWidth");
     }
     rowHeightProvider: () => {
         return 50;
-    }
-
-    Database {
-        id: database
     }
 
     delegate: TextField {

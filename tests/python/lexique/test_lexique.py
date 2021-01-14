@@ -137,19 +137,19 @@ def test_lexique_init():
 
 def test_doSort(lexons):
     l = Lexique()
-    l.proxy.doSort(1)  # debut column 9, sortorder0
+    l.doSort(1)  # debut column 9, sortorder0
     # procy à jour
     assert l._proxy.data(l._proxy.index(0, 1), Qt.DisplayRole) == "au revoir"
     assert l._proxy.data(l._proxy.index(1, 1), Qt.DisplayRole) == "bonjour"
     assert l._proxy.data(l._proxy.index(2, 1), Qt.DisplayRole) == "deux"
 
-    l.proxy.doSort(1)  # nouvelle colonne ascending
+    l.doSort(1)  # nouvelle colonne ascending
     # procy à jour
     assert l._proxy.data(l._proxy.index(0, 1), Qt.DisplayRole) == "deux"
     assert l._proxy.data(l._proxy.index(1, 1), Qt.DisplayRole) == "bonjour"
     assert l._proxy.data(l._proxy.index(2, 1), Qt.DisplayRole) == "au revoir"
 
-    l.proxy.doSort(1)  # meme colonne toggle
+    l.doSort(1)  # meme colonne toggle
     # procy à jour
     assert l._proxy.data(l._proxy.index(0, 1), Qt.DisplayRole) == "au revoir"
     assert l._proxy.data(l._proxy.index(1, 1), Qt.DisplayRole) == "bonjour"

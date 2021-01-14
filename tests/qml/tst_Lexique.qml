@@ -12,17 +12,6 @@ Item {
     }
 
     CasTest {
-        //            wait(2000);
-        //        function test_aaatableau_insert() {
-        //            wait(2000);
-        //        }
-        //            tryCompare(tested, "width", item.width);
-        //            wait(1000);
-        //            mouseClick(tab.header.contentItem.children[0]);
-        //            wait(1000);
-        //            compare(th.python("obj.sortColumn()", tab.content.model), 0);
-        //            wait(2000);
-
         property var trad1
         property var trad2
         property var trad3
@@ -45,7 +34,7 @@ Item {
 
         function initPost() {
             tab = tested.tableau;
-            tryCompare(tab.content, "rows", 3);
+            tryCompare(tab, "rows", 3);
             tryCompare(tab, "width", database.getConfig("lexiqueColumnWidth") * 2);
         }
 
@@ -70,21 +59,21 @@ Item {
         }
 
         function test_header_tableau() {
-            let eng = tab.header.contentItem.children[0].text;
+            let eng = tested.header.contentItem.children[0].text;
             verify(eng.includes("ENGLISH"));
-            let fr = tab.header.contentItem.children[1].text;
+            let fr = tested.header.contentItem.children[1].text;
             verify(fr.includes("FRANÇAIS"));
         }
 
         function test_header_sort() {
-            mouseClick(tab.header.contentItem.children[1]);
-            compare(th.python("obj.sortColumn()", tab.content.model), 1);
+            mouseClick(tested.header.contentItem.children[1]);
+            compare(th.python("obj.sortColumn()", tab.model), 1);
         }
 
         function test_lexique_insert_lexon() {
             clickAndWrite(tested.inserter.items.itemAt(0));
             keyClick(Qt.Key_Return);
-            tryCompare(tested.tableau.content, "rows", 4);
+            tryCompare(tested.tableau, "rows", 4);
             compare(tested.inserter.items.itemAt(0).text, ""); //clear
         }
 
@@ -149,6 +138,10 @@ Item {
             let gauche = tested.inserter.items.itemAt(1);
             clickAndWrite(gauche, "o,n");
             tryCompare(tested.tableau, "rows", 1);
+        }
+
+        function test_show() {
+            wait(2000);
         }
 
         name: "Lexique"

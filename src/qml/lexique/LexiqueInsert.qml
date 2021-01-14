@@ -1,4 +1,3 @@
-import MyCartable 1.0
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
@@ -7,6 +6,7 @@ Row {
     id: root
 
     required property Item lexique
+    required property QtObject database
     property alias items: repeater
 
     function triggerAdd() {
@@ -22,10 +22,6 @@ Row {
             it.clear();
         }
         let res = lexique.addLexon(trads);
-    }
-
-    Database {
-        id: database
     }
 
     Repeater {

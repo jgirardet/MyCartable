@@ -23,13 +23,16 @@ class LexiqueModel(DtbTableModel):
     def _reset(self):
         data = self._dtb.execDB("Lexon", None, "all")
         self._locales = self._dtb.execDB("Locale", None, "all")
-        # on crée les cases vides qui n'ont pas de traduction
         for row in data:
-            res = [None] * len(self._locales)
-            for t in row["traductions"]:
-                res[self._locales.index(t["locale"])] = t
-            row["traductions"] = res
+            self._format_internal_data(row)
             self._data.append(row)
+
+    def _format_internal_data(self, lexon: dict):
+        # on crée les cases vides qui n'ont pas de traduction
+        res = [None] * len(self._locales)
+        for t in lexon["traductions"]:
+            res[self._locales.index(t["locale"])] = t
+        lexon["traductions"] = res
 
     def rowCount(self, parent=QModelIndex()) -> int:
         return len(self._data)
@@ -68,10 +71,23 @@ class LexiqueModel(DtbTableModel):
             nom = locale.nativeLanguageName().split(" ")[-1].upper()
             return f"{drapeau} {nom} {drapeau}"
 
+    @pyqtProperty("QVariantList", constant=True)
+    def locales(self):
+        return self._locales
+
+    def addLexon(self, trads: list) -> bool:
+        if new_lexon := self._dtb.execDB("Lexon", None, "add", trads, td=True):
+            self._format_internal_data(new_lexon)
+            self._data.append(new_lexon)
+            return True
+
+        return False
+
 
 class LexiqueProxy(QSortFilterProxyModel):
     def __init__(self, parent=None, source=None, **kwargs):
         super().__init__(parent=parent)
+        self.setSortCaseSensitivity(Qt.CaseInsensitive)
         self.setSourceModel(source)
 
     @pyqtSlot(int)
@@ -87,20 +103,27 @@ class Lexique(QQuickItem):
         super().__init__(parent=parent)
         self._model = LexiqueModel(parent=self)
         self._proxy = LexiqueProxy(parent=self, source=self._model)
-        self.startTimer(1000)
 
     """ "
     Qt Properties
     """
 
     @pyqtProperty(QObject, constant=True)
-    def model(self):
+    def model(self) -> LexiqueModel:
         return self._model
 
     @pyqtProperty(QObject, constant=True)
-    def proxy(self):
+    def proxy(self) -> LexiqueProxy:
         return self._proxy
 
     """"
     Qt SLot
     """
+
+    @pyqtSlot("QVariantList", result=bool)
+    def addLexon(self, trads: list) -> bool:
+        if self.model.addLexon(trads):
+            self.model.insertRow(0)
+            self.proxy.doSort(0)
+            return True
+        return False

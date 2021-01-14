@@ -5,6 +5,7 @@ DEFAUT_CONFIGURATION = {
     "preferredHeaderHeight": 50,
     "colorFond": QColor(130, 134, 138).name(),
     "fontMain": "Verdana",
+    "lexiqueColumnWidth": 300,
 }
 
 # systématiquement remis à jours au démarrage

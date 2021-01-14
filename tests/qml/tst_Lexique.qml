@@ -1,3 +1,4 @@
+import MyCartable 1.0
 import QtQuick 2.15
 
 Item {
@@ -6,12 +7,26 @@ Item {
     width: 1000
     height: 600
 
+    Database {
+        id: database
+    }
+
     CasTest {
+        //            wait(2000);
+        //        function test_aaatableau_insert() {
+        //            wait(2000);
+        //        }
+        //            tryCompare(tested, "width", item.width);
+        //            wait(1000);
+        //            mouseClick(tab.header.contentItem.children[0]);
+        //            wait(1000);
+        //            compare(th.python("obj.sortColumn()", tab.content.model), 0);
+        //            wait(2000);
+
         property var trad1
         property var trad2
         property var trad3
         property var tab
-        property var bonjour
 
         function initPre() {
             trad1 = fk.f("traduction", {
@@ -30,14 +45,13 @@ Item {
 
         function initPost() {
             tab = tested.tableau;
-            bonjour = tab.itemAt(0, 1);
+            tryCompare(tab.content, "rows", 3);
+            tryCompare(tab, "width", database.getConfig("lexiqueColumnWidth") * 2);
         }
 
         function test_init() {
             compare(tab.columns, 2);
             compare(tab.rows, 3);
-            compare(tab.width, tested.width);
-            compare(tab.width, item.width);
         }
 
         function test_tableau_itemAt_and_content_text() {
@@ -50,6 +64,7 @@ Item {
         }
 
         function test_tableau_change_text() {
+            let bonjour = tab.itemAt(0, 1);
             clickAndWrite(bonjour);
             compare(bonjour.text, "bcd");
         }
@@ -63,11 +78,71 @@ Item {
 
         function test_header_sort() {
             mouseClick(tab.header.contentItem.children[1]);
-            compare(th.python("obj.sortOrder()", tab.content.model), 0);
             compare(th.python("obj.sortColumn()", tab.content.model), 1);
-            mouseClick(tab.header.contentItem.children[0]);
-            compare(th.python("obj.sortOrder()", tab.content.model), 0);
-            compare(th.python("obj.sortColumn()", tab.content.model), 0;
+        }
+
+        function test_lexique_insert_lexon() {
+            clickAndWrite(tested.inserter.items.itemAt(0));
+            keyClick(Qt.Key_Return);
+            tryCompare(tested.tableau.content, "rows", 4);
+            compare(tested.inserter.items.itemAt(0).text, ""); //clear
+        }
+
+        function test_lexique_insert_navigation_data() {
+            return [{
+                "seq1": "",
+                "seq2": "",
+                "cote": "g",
+                "focus_after": "d",
+                "key": Qt.Key_Right,
+                "cursor": 0
+            }, {
+                "seq1": "",
+                "seq2": "",
+                "cote": "d",
+                "focus_after": "g",
+                "key": Qt.Key_Right,
+                "cursor": 0
+            }, {
+                "seq1": "b",
+                "seq2": "",
+                "cote": "g",
+                "focus_after": "g",
+                "key": Qt.Key_Right,
+                "cursor": 0
+            }, {
+                "seq1": "",
+                "seq2": "",
+                "cote": "d",
+                "focus_after": "g",
+                "key": Qt.Key_Left,
+                "cursor": 0
+            }, {
+                "seq1": "",
+                "seq2": "",
+                "cote": "g",
+                "focus_after": "d",
+                "key": Qt.Key_Left,
+                "cursor": 0
+            }, {
+                "seq1": "b",
+                "seq2": "",
+                "cote": "d",
+                "focus_after": "d",
+                "key": Qt.Key_Left,
+                "cursor": 1
+            }];
+        }
+
+        function test_lexique_insert_navigation(data) {
+            let gauche = tested.inserter.items.itemAt(0);
+            let droite = tested.inserter.items.itemAt(1);
+            let cote = data.cote == "g" ? gauche : droite;
+            let focus_after = data.focus_after == "g" ? gauche : droite;
+            clickAndWrite(cote, data.seq1);
+            cote.cursorPosition = data.cursor;
+            keyClick(data.key);
+            verify(focus_after.activeFocus);
         }
 
         name: "Lexique"

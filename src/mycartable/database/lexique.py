@@ -16,12 +16,12 @@ def class_lexique(db: Database) -> Tuple["Lexon", "Traduction", "Locale"]:
         traductions = Set("Traduction")
 
         @classmethod
-        def add(cls, traductions: List[dict]):
+        def add(cls, traductions: List[dict], td=False):
             lexon = cls()
             for trad in traductions:
                 Traduction(lexon=lexon, **trad)
 
-            return lexon
+            return lexon.to_dict() if td else lexon
 
         @classmethod
         def all(cls):

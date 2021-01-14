@@ -6,6 +6,7 @@ HorizontalHeaderView {
 
     delegate: Label {
         //        height: contentHeight + 50
+        height: 50
         text: display
         color: '#aaaaaa'
         font.pointSize: 20
@@ -14,7 +15,9 @@ HorizontalHeaderView {
 
         MouseArea {
             anchors.fill: parent
-            onClicked: syncView.model.doSort(index)
+            onClicked: {
+                syncView.model.doSort(index);
+            }
         }
 
     }

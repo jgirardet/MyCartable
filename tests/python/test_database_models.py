@@ -1756,6 +1756,7 @@ class TestLexique:
             ]
         )
         assert news.traductions.count() == 2
+        assert ddb.Lexon.select().count() == 1
         fr = news.traductions.select(locale="fr_FR").first()
         assert fr.content == "bonjour"
         assert ddb.Locale["fr_FR"] == fr.locale

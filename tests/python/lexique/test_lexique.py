@@ -101,21 +101,6 @@ def test_headerData(lexons):
     assert "ITALIANO" in m.headerData(2, Qt.Horizontal, Qt.DisplayRole)
 
 
-def test_append_and_insert_rows(lexons):
-    m = LexiqueModel()
-    l = Lexique()
-    assert l.model.rowCount(QModelIndex()) == 3
-    assert l.addLexon(
-        [
-            {"content": "trois", "locale": "fr_FR"},
-            {"content": "three", "locale": "en_US"},
-        ]
-    )
-    assert l.model.rowCount(QModelIndex()) == 4
-    assert l.model._data[-1]["traductions"][0]["content"] == "three"
-    assert l.model._data[-1]["traductions"][1]["content"] == "trois"
-
-
 """
     TestLexique Proxy
 """
@@ -131,8 +116,22 @@ def test_lexique_init():
     assert isinstance(l._model, LexiqueModel)
     assert isinstance(l._proxy, LexiqueProxy)
     assert l._proxy.sourceModel() is l._model
-    # assert l.model is l._model
+    assert l.model is l._model
     assert l.proxy is l._proxy
+
+
+def test_add_lexon(lexons):
+    l = Lexique()
+    assert l.model.rowCount(QModelIndex()) == 3
+    assert l.addLexon(
+        [
+            {"content": "trois", "locale": "fr_FR"},
+            {"content": "three", "locale": "en_US"},
+        ]
+    )
+    assert l.model.rowCount(QModelIndex()) == 4
+    assert l.model._data[-1]["traductions"][0]["content"] == "three"
+    assert l.model._data[-1]["traductions"][1]["content"] == "trois"
 
 
 def test_doSort(lexons):
@@ -154,3 +153,14 @@ def test_doSort(lexons):
     assert l._proxy.data(l._proxy.index(0, 1), Qt.DisplayRole) == "au revoir"
     assert l._proxy.data(l._proxy.index(1, 1), Qt.DisplayRole) == "bonjour"
     assert l._proxy.data(l._proxy.index(2, 1), Qt.DisplayRole) == "deux"
+
+
+def test_filter(lexons):
+    l = Lexique()
+    l.filter(1, "on")
+    assert l._proxy.rowCount(QModelIndex()) == 1
+    l.filter(1, "o")
+    assert l._proxy.rowCount(QModelIndex()) == 2
+    l.filter(1, "")
+    assert l._proxy.rowCount(QModelIndex()) == 3
+    assert l._proxy.sortOrder() == Qt.AscendingOrder

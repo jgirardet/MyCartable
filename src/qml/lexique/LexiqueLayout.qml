@@ -40,7 +40,7 @@ Item {
 
             lexique: lexique_id
             database: database_id
-            Layout.preferredWidth: tableau_id.width
+            Layout.preferredWidth: childrenRect.width
             Layout.preferredHeight: 50
         }
 

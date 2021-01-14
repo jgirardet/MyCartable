@@ -91,6 +91,10 @@ class LexiqueProxy(QSortFilterProxyModel):
         self.setSortCaseSensitivity(Qt.CaseInsensitive)
         self.setSourceModel(source)
 
+    def reset(self):
+        self.beginResetModel()
+        self.endResetModel()
+
 
 class Lexique(QQuickItem):
     def __init__(self, parent=None, **kwargs):
@@ -117,9 +121,12 @@ class Lexique(QQuickItem):
     @pyqtSlot("QVariantList", result=bool)
     def addLexon(self, trads: list) -> bool:
         if self.model.addLexon(trads):
+            self._proxy.beginResetModel()
             self.model.insertRow(0)
-            self.doSort(0)
+            self._proxy.endResetModel()
+            self._proxy.sort(0, Qt.AscendingOrder)
             return True
+        self._proxy.sort(0, Qt.AscendingOrder)
         return False
 
     @pyqtSlot(int, str)
@@ -128,6 +135,7 @@ class Lexique(QQuickItem):
         self.proxy.setFilterRegExp(
             QRegExp(value, Qt.CaseInsensitive, QRegExp.FixedString)
         )
+        self._proxy.sort(index, Qt.AscendingOrder)
 
     @pyqtSlot(int)
     def doSort(self, col: int):

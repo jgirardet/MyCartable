@@ -16,6 +16,10 @@ Item {
         property var trad2
         property var trad3
         property var tab
+        property var gaucheI
+        property var gaucheH
+        property var droiteI
+        property var droiteH
 
         function initPre() {
             trad1 = fk.f("traduction", {
@@ -36,6 +40,10 @@ Item {
             tab = tested.tableau;
             tryCompare(tab, "rows", 3);
             tryCompare(tab, "width", database.getConfig("lexiqueColumnWidth") * 2);
+            gaucheI = tested.inserter.items.itemAt(0);
+            droiteI = tested.inserter.items.itemAt(1);
+            gaucheH = tested.header.contentItem.children[0];
+            droiteH = tested.header.contentItem.children[1];
         }
 
         function test_init() {
@@ -59,22 +67,23 @@ Item {
         }
 
         function test_header_tableau() {
-            let eng = tested.header.contentItem.children[0].text;
+            let eng = gaucheH.text;
             verify(eng.includes("ENGLISH"));
-            let fr = tested.header.contentItem.children[1].text;
+            let fr = droiteH.text;
             verify(fr.includes("FRANÇAIS"));
         }
 
         function test_header_sort() {
-            mouseClick(tested.header.contentItem.children[1]);
+            mouseClick(droiteH);
             compare(th.python("obj.sortColumn()", tab.model), 1);
         }
 
         function test_lexique_insert_lexon() {
-            clickAndWrite(tested.inserter.items.itemAt(0));
+            clickAndWrite(gaucheI);
+            clickAndWrite(droiteI);
             keyClick(Qt.Key_Return);
             tryCompare(tested.tableau, "rows", 4);
-            compare(tested.inserter.items.itemAt(0).text, ""); //clear
+            compare(gaucheI.text, ""); //clear
         }
 
         function test_lexique_insert_navigation_data() {
@@ -124,10 +133,8 @@ Item {
         }
 
         function test_lexique_insert_navigation(data) {
-            let gauche = tested.inserter.items.itemAt(0);
-            let droite = tested.inserter.items.itemAt(1);
-            let cote = data.cote == "g" ? gauche : droite;
-            let focus_after = data.focus_after == "g" ? gauche : droite;
+            let cote = data.cote == "g" ? gaucheI : droiteI;
+            let focus_after = data.focus_after == "g" ? gaucheI : droiteI;
             clickAndWrite(cote, data.seq1);
             cote.cursorPosition = data.cursor;
             keyClick(data.key);
@@ -135,13 +142,14 @@ Item {
         }
 
         function test_filter() {
-            let gauche = tested.inserter.items.itemAt(1);
-            clickAndWrite(gauche, "o,n");
+            clickAndWrite(droiteI, "o,n");
             tryCompare(tested.tableau, "rows", 1);
         }
 
-        function test_show() {
-            wait(2000);
+        function test_show_header_if_filtered() {
+            clickAndWrite(droiteI, "z,z,z");
+            tryCompare(tested.tableau, "width", 0);
+            tryCompare(tested.header, "width", 600);
         }
 
         name: "Lexique"

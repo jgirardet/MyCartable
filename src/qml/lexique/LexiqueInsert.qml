@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
+import "qrc:/qml/divers"
 
 Row {
     id: root
@@ -8,6 +9,13 @@ Row {
     required property Item lexique
     required property QtObject database
     property alias items: repeater
+
+    function clear() {
+        for (const n of Array(repeater.count).keys()) {
+            let it = repeater.itemAt(n);
+            it.clear();
+        }
+    }
 
     function triggerAdd() {
         let trads = [];
@@ -19,9 +27,29 @@ Row {
                 "content": it.text
             });
 
+        }
+        if (trads.length < 2) {
+            toast.showToast("Au moins 2 langues sont requises.");
+        } else {
+            lexique.addLexon(trads);
+            clear();
+        }
+    }
+
+    function reset() {
+        for (const n of Array(repeater.count).keys()) {
+            let it = repeater.itemAt(n);
             it.clear();
         }
-        let res = lexique.addLexon(trads);
+        lexique.filter("", 0);
+    }
+
+    Toast {
+        id: toast
+
+        interval: 2000
+        y: root.height
+        x: root.width / 2 - toast.width / 2
     }
 
     Repeater {

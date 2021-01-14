@@ -29,9 +29,6 @@ Row {
     }
 
     Repeater {
-        //            Keys.rightPressed: print("right")
-        //            Keys.onRightPressed: root.navigate()
-
         id: repeater
 
         model: lexique.model.locales
@@ -43,6 +40,7 @@ Row {
 
             width: database.getConfig("lexiqueColumnWidth")
             text: ""
+            onTextChanged: lexique.filter(index, text)
             color: 'black'
             font.pointSize: 20
             verticalAlignment: Text.AlignVCenter

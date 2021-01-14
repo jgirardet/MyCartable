@@ -9,6 +9,7 @@ from PyQt5.QtCore import (
     QObject,
     QLocale,
     pyqtSlot,
+    QRegExp,
 )
 from PyQt5.QtQuick import QQuickItem
 from mycartable.types.collections import DtbTableModel
@@ -127,3 +128,10 @@ class Lexique(QQuickItem):
             self.proxy.doSort(0)
             return True
         return False
+
+    @pyqtSlot(int, str)
+    def filter(self, index: int, value: str):
+        self.proxy.setFilterKeyColumn(index)
+        self.proxy.setFilterRegExp(
+            QRegExp(value, Qt.CaseInsensitive, QRegExp.FixedString)
+        )

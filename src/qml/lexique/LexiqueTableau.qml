@@ -24,7 +24,7 @@ Item {
     LexiqueContent {
         id: table_content
 
-        model: lexique.proxy
+        lexique: root.lexique
         anchors.top: table_header.bottom
         anchors.bottom: parent.bottom
         anchors.left: parent.left

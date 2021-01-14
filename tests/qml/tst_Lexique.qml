@@ -145,6 +145,12 @@ Item {
             verify(focus_after.activeFocus);
         }
 
+        function test_filter() {
+            let gauche = tested.inserter.items.itemAt(1);
+            clickAndWrite(gauche, "o,n");
+            tryCompare(tested.tableau, "rows", 1);
+        }
+
         name: "Lexique"
         testedNom: "qrc:/qml/lexique/LexiqueLayout.qml"
     }

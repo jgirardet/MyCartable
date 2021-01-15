@@ -134,6 +134,7 @@
         <file alias="LexiqueTableauHeader.qml">qml/lexique/LexiqueTableauHeader.qml</file>
         <file alias="LexiqueContent.qml">qml/lexique/LexiqueContent.qml</file>
         <file alias="LexiqueInsert.qml">qml/lexique/LexiqueInsert.qml</file>
+        <file alias="LexiqueOptions.qml">qml/lexique/LexiqueOptions.qml</file>
 
     </qresource>
 

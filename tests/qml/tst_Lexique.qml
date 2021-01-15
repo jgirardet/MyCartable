@@ -22,12 +22,14 @@ Item {
         property var droiteH
 
         function initPre() {
+            database.setConfig("availables_locales", ['fr_FR', 'en_GB', 'it_IT']);
+            database.setConfig("actives_locales", ['fr_FR', 'en_GB']);
             trad1 = fk.f("traduction", {
                 "locale": "fr_FR",
                 "content": "bonjour"
             });
             trad2 = fk.f("traduction", {
-                "locale": "en_US",
+                "locale": "en_GB",
                 "content": "goodbye"
             });
             trad3 = fk.f("traduction", {
@@ -68,9 +70,9 @@ Item {
 
         function test_header_tableau() {
             let eng = gaucheH.text;
-            verify(eng.includes("ENGLISH"));
+            verify(eng.includes("British English"));
             let fr = droiteH.text;
-            verify(fr.includes("FRANÇAIS"));
+            verify(fr.includes("français"));
         }
 
         function test_header_sort() {
@@ -150,6 +152,22 @@ Item {
             clickAndWrite(droiteI, "z,z,z");
             tryCompare(tested.tableau, "width", 0);
             tryCompare(tested.header, "width", 600);
+        }
+
+        function test_toggle_matiere() {
+            verify(tested.options.items.itemAt(0).checked);
+            verify(tested.options.items.itemAt(1).checked);
+            verify(!tested.options.items.itemAt(2).checked);
+            compare(tested.tableau.columns, 2);
+            compare(tested.tableau.rows, 3);
+            //coche
+            mouseClick(tested.options.items.itemAt(2));
+            tryCompare(tested.tableau, "columns", 3);
+            compare(tested.tableau.rows, 3);
+            //decoche
+            mouseClick(tested.options.items.itemAt(0));
+            tryCompare(tested.tableau, "columns", 2);
+            compare(tested.tableau.rows, 3);
         }
 
         name: "Lexique"

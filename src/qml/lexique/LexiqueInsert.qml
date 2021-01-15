@@ -55,7 +55,7 @@ Row {
     Repeater {
         id: repeater
 
-        model: lexique.model.locales
+        model: lexique.model.activesLocales
 
         delegate: TextField {
             id: label

@@ -9,6 +9,7 @@ Item {
     property alias tableau: tableau_id
     property alias inserter: lexique_insert
     property alias header: table_header
+    property alias options: lexique_options
 
     anchors.fill: parent
 
@@ -26,6 +27,14 @@ Item {
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         width: tableau_id.width
+
+        LexiqueOptions {
+            id: lexique_options
+
+            lexique: lexique_id
+            database: database_id
+            Layout.preferredHeight: 50
+        }
 
         LexiqueInsert {
             id: lexique_insert

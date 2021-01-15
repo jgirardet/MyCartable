@@ -6,6 +6,8 @@ DEFAUT_CONFIGURATION = {
     "colorFond": QColor(130, 134, 138).name(),
     "fontMain": "Verdana",
     "lexiqueColumnWidth": 300,
+    "availables_locales": ["fr_FR", "en_GB", "it_IT", "es_ES", "de_DE"],
+    "actives_locales": ["fr_FR", "en_GB"],
 }
 
 # systématiquement remis à jours au démarrage

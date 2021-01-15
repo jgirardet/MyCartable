@@ -3,7 +3,6 @@ import QtQuick.Controls 2.15
 
 Row {
     required property Item lexique
-    required property QtObject database
     property Item items: repeater
 
     Repeater {

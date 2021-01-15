@@ -2,15 +2,11 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 
 TableView {
-    //        parent: flickable.parent
-    //        anchors.top: flickable.top
-    //        anchors.left: flickable.right
-    //        anchors.bottom: flickable.bottom
-
     id: tableView
 
     required property Item lexique
-    required property QtObject database
+    required property int columnWidth
+    required property int rowHeight
     property alias removeDialog: effacer
 
     function itemAt(row, col) {
@@ -20,10 +16,10 @@ TableView {
     model: lexique.proxy
     clip: true
     columnWidthProvider: () => {
-        return database.getConfig("lexiqueColumnWidth");
+        return columnWidth;
     }
     rowHeightProvider: () => {
-        return 50;
+        return rowHeight;
     }
 
     Dialog {
@@ -47,7 +43,7 @@ TableView {
 
         color: 'black'
         text: display
-        font.pointSize: 14
+        font.pointSize: 11
         onTextEdited: edit = text
         verticalAlignment: Text.AlignVCenter
         horizontalAlignment: Text.AlignHCenter
@@ -70,9 +66,6 @@ TableView {
             onTriggered: name.readOnly = false
         }
 
-    }
-
-    ScrollBar.vertical: ScrollBar {
     }
 
 }

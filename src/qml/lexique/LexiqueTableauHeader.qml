@@ -5,20 +5,24 @@ HorizontalHeaderView {
     id: root
 
     required property Item lexique
-    required property QtObject database
+    required property int columnWidth
 
     columnWidthProvider: () => {
-        return database.getConfig("lexiqueColumnWidth");
+        return columnWidth;
     }
     rowHeightProvider: () => {
         return 50;
     }
     model: lexique.model
+    onColumnsChanged: {
+        // bug d'affichage en splitscreen avev British English (trop long)
+        returnToBounds();
+    }
 
     delegate: Label {
         text: display
         color: '#aaaaaa'
-        font.pointSize: 20
+        font.pointSize: 14
         verticalAlignment: Text.AlignVCenter
         horizontalAlignment: Text.AlignHCenter
 

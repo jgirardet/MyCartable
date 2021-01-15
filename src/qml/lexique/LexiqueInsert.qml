@@ -7,7 +7,7 @@ Row {
     id: root
 
     required property Item lexique
-    required property QtObject database
+    required property int columnWidth
     property alias items: repeater
 
     function clear() {
@@ -62,7 +62,7 @@ Row {
 
             property string locale: modelData
 
-            width: database.getConfig("lexiqueColumnWidth")
+            width: root.columnWidth
             text: ""
             onTextChanged: lexique.filter(index, text)
             color: 'black'

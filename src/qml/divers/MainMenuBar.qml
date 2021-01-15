@@ -117,6 +117,7 @@ Control {
 
     contentItem: Row {
         height: childrenRect.height
+        visible: root.state == "expanded"
 
         MenuBar {
             Menu {

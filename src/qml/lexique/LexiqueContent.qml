@@ -2,6 +2,11 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 
 TableView {
+    //        parent: flickable.parent
+    //        anchors.top: flickable.top
+    //        anchors.left: flickable.right
+    //        anchors.bottom: flickable.bottom
+
     id: tableView
 
     required property Item lexique
@@ -65,6 +70,9 @@ TableView {
             onTriggered: name.readOnly = false
         }
 
+    }
+
+    ScrollBar.vertical: ScrollBar {
     }
 
 }

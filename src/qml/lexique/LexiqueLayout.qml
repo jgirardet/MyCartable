@@ -3,7 +3,13 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 
-Item {
+Flickable {
+    //        parent: root
+    //        anchors.top: root.top
+    //        anchors.left: root.right
+    //        anchors.bottom: root.bottom
+    //        parent: ro  ot
+
     id: root
 
     property alias tableau: tableau_id
@@ -34,6 +40,7 @@ Item {
             lexique: lexique_id
             database: database_id
             Layout.preferredHeight: 50
+            Layout.alignment: Qt.AlignHCenter
         }
 
         LexiqueInsert {
@@ -42,6 +49,7 @@ Item {
             lexique: lexique_id
             database: database_id
             Layout.preferredHeight: 50
+            Layout.alignment: Qt.AlignHCenter
         }
 
         LexiqueTableauHeader {
@@ -51,6 +59,7 @@ Item {
             database: database_id
             Layout.preferredWidth: childrenRect.width
             Layout.preferredHeight: 50
+            Layout.alignment: Qt.AlignHCenter
         }
 
         LexiqueContent {

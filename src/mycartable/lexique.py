@@ -116,6 +116,11 @@ class LexiqueModel(DtbTableModel):
 
         return False
 
+    def _removeRows(self, row, count):
+        for lex in self._data[row : row + 1 + count]:
+            self._dtb.delDB("Lexon", lex["id"])
+        self._data = self._data[:row] + self._data[row + count + 1 :]
+
 
 class LexiqueProxy(QSortFilterProxyModel):
     def __init__(self, parent=None, source=None, **kwargs):
@@ -123,9 +128,11 @@ class LexiqueProxy(QSortFilterProxyModel):
         self.setSortCaseSensitivity(Qt.CaseInsensitive)
         self.setSourceModel(source)
 
-    def reset(self):
-        self.beginResetModel()
-        self.endResetModel()
+    def removeRow(self, row: int, parent=QModelIndex()) -> bool:
+        model_index = self.mapToSource(self.index(row, 0))
+        self.beginRemoveRows(QModelIndex(), row, row)
+        self.sourceModel().removeRow(model_index.row())
+        self.endRemoveRows()
 
 
 class Lexique(QQuickItem):
@@ -190,3 +197,7 @@ class Lexique(QQuickItem):
         self._model.reset()
         self._proxy.endResetModel()
         self._proxy.sort(0, Qt.AscendingOrder)
+
+    @pyqtSlot(int)
+    def removeRow(self, row: int):
+        self._proxy.removeRow(row)

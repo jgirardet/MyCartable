@@ -43,6 +43,7 @@ ApplicationWindow {
     SplitLayout {
         id: mainitem
 
+        z: 2
         anchors.top: mainmenubar.bottom
         anchors.left: parent.left
         anchors.right: parent.right

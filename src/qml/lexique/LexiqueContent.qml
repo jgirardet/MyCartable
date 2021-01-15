@@ -6,6 +6,7 @@ TableView {
 
     required property Item lexique
     required property QtObject database
+    property alias removeDialog: effacer
 
     function itemAt(row, col) {
         return contentItem.children[row * columns + col];
@@ -20,6 +21,22 @@ TableView {
         return 50;
     }
 
+    Dialog {
+        id: effacer
+
+        property int row
+
+        function removeRow(nb) {
+            row = nb;
+            open();
+        }
+
+        anchors.centerIn: Overlay.overlay
+        title: "Effacer cette ligne ?"
+        standardButtons: Dialog.Yes | Dialog.No
+        onAccepted: lexique.removeRow(row)
+    }
+
     delegate: TextField {
         id: name
 
@@ -29,6 +46,25 @@ TableView {
         onTextEdited: edit = text
         verticalAlignment: Text.AlignVCenter
         horizontalAlignment: Text.AlignHCenter
+        onPressed: {
+            if (event.button == Qt.MiddleButton) {
+                readOnly = true;
+                effacer.removeRow(row);
+                event.accepted = true;
+                timer_readonly.start();
+            }
+        }
+
+        Timer {
+            // dummy timer to prevent middle button past on  linux
+
+            id: timer_readonly
+
+            interval: 500
+            repeat: false
+            onTriggered: name.readOnly = false
+        }
+
     }
 
 }

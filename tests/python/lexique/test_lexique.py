@@ -136,6 +136,28 @@ def test_headerData(lexons, ddbr):
 """
 
 
+def test_map_from_source(lexons):
+    l = Lexique()
+    m = l._model
+    p = l._proxy
+    p.sort(0, Qt.AscendingOrder)
+    assert p.mapFromSource(m.index(0, 0)) == p.index(1, 0)
+
+    assert p.mapToSource(p.index(0, 0)) == m.index(1, 0)
+
+
+def test_removeRow(lexons, ddbr, qtbot):
+    l = Lexique()
+    with qtbot.waitSignal(l._proxy.rowsAboutToBeRemoved):
+        l._proxy.removeRow(1)
+    assert l._model.rowCount(QModelIndex()) == 2
+    assert l._model._data[0]["id"] == str(lexons[0].id)
+    assert l._model._data[1]["id"] == str(lexons[2].id)
+    with db_session:
+        assert ddbr.Lexon.select().count() == 2
+        assert not ddbr.Lexon.get(id=lexons[1].id)
+
+
 """
     Test Lexique Controlleur
 """

@@ -170,6 +170,12 @@ Item {
             compare(tested.tableau.rows, 3);
         }
 
+        function test_remove_row() {
+            mouseClick(tested.tableau.itemAt(1, 0), 1, 1, Qt.MiddleButton);
+            tested.tableau.removeDialog.accept();
+            tryCompare(tested.tableau, "rows", 2);
+        }
+
         name: "Lexique"
         testedNom: "qrc:/qml/lexique/LexiqueLayout.qml"
     }

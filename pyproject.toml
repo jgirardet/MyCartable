@@ -20,7 +20,8 @@ requires = ['pyqt5==5.15.2',
             'beautifulsoup4',
             'loguru',
             "PyMuPDF==1.17.6",
-            "packaging"
+            "packaging",
+            "emoji-country-flag>=1.2.3,2"
             ]
 
 

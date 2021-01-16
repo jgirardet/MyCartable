@@ -9,7 +9,7 @@ author_email = "ijkl@netc.fr"
 
 [tool.briefcase.app.mycartable]
 formal_name = "MyCartable"
-description = "L'école sur ordinateur, tout un un !!!"
+description = "L'école sur  ordinateur, tout un un !!!"
 icon = "src/data/icons/mycartable"
 installer_icon = "src/data/icons/mycartable"
 sources = ['src/mycartable']

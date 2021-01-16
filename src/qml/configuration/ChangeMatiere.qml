@@ -1,17 +1,17 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
-import QtQuick.Dialogs 1.3
 
 ListView {
     id: root
 
-    property var bdd
+    property QtObject api
 
     function addAndFocus(matid, pos) {
-        ddb.addMatiere(matid);
+        api.addMatiere(matid);
         parent.applyDegradeToMatiere(pos, true);
     }
 
+    model: api.getMatieres(groupeid)
     width: parent.width
     anchors.leftMargin: 20
     anchors.left: parent.left
@@ -40,7 +40,7 @@ ListView {
                 function updateText() {
                     if (text) {
                         nom = text;
-                        ddb.updateMatiereNom(matiereid, nom);
+                        api.updateMatiereNom(matiereid, nom);
                     }
                 }
 
@@ -131,7 +131,7 @@ ListView {
                 ToolTip.visible: false
                 icon.source: "qrc:/icons/arrow-up"
                 onClicked: {
-                    ddb.moveMatiereTo(matiereid, index - 1);
+                    api.moveMatiereTo(matiereid, index - 1);
                     root.parent.applyDegradeToMatiere(undefined, true);
                 }
             }
@@ -144,7 +144,7 @@ ListView {
                 ToolTip.visible: false
                 icon.source: "qrc:/icons/arrow-down"
                 onClicked: {
-                    ddb.moveMatiereTo(matiereid, index + 1);
+                    api.moveMatiereTo(matiereid, index + 1);
                     root.parent.applyDegradeToMatiere(undefined, true);
                 }
             }
@@ -168,7 +168,7 @@ ListView {
                 ToolTip.text: "supprimer la matière : " + nom
                 icon.source: "qrc:/icons/remove-row-red"
                 onClicked: {
-                    ddb.removeMatiere(matiereid);
+                    api.removeMatiere(matiereid);
                     root.parent.applyDegradeToMatiere(undefined, true);
                 }
             }
@@ -178,8 +178,8 @@ ListView {
         ChangeActivite {
             id: activitelist
 
-            ddb: root.bdd
-            model: root.bdd ? root.bdd.getActivites(modelData.id) : 0
+            api: root.api
+            matiere: modelData.id
         }
 
     }

@@ -20,11 +20,11 @@ Button {
         id: action
 
         onTriggered: {
-            uiManager.menuTarget.setStyleFromMenu({
+            menu.target.setStyleFromMenu({
                 "style": style,
                 "attrs": attrs
             });
-            menu.ferme();
+            menu.close();
         }
     }
 

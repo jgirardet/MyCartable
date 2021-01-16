@@ -1,92 +1,124 @@
+import MyCartable 1.0
+import QtQml 2.15
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import "qrc:/qml/menu"
 
 Rectangle {
-    id: base
+    id: root
 
+    property QtObject page
+    property alias titre: titre
+    property alias loaderps: loaderps
+    property alias busy: popup
+
+    onPageChanged: {
+        loaderps.reload();
+        if (page && page.titre == "")
+            titre.forceActiveFocus();
+
+    }
     color: Qt.rgba(98 / 255, 105 / 255, 123 / 255, 1)
-    Component.onCompleted: {
-        var newComp = Qt.createComponent("qrc:/qml/menu/MenuFlottantAnnotationDessin.qml");
-        if (newComp.status == Component.Ready)
-            uiManager.menuFlottantAnnotationDessin = newComp.createObject(base);
-        else
-            print(newComp.errorString());
-        var newComp = Qt.createComponent("qrc:/qml/menu/MenuFlottantText.qml");
-        if (newComp.status == Component.Ready)
-            uiManager.menuFlottantText = newComp.createObject(base);
-        else
-            print(newComp.errorString());
-        var newComp = Qt.createComponent("qrc:/qml/menu/MenuFlottantAnnotationText.qml");
-        if (newComp.status == Component.Ready)
-            uiManager.menuFlottantAnnotationText = newComp.createObject(base);
-        else
-            print(newComp.errorString());
-        var newComp = Qt.createComponent("qrc:/qml/menu/MenuFlottantTableau.qml");
-        if (newComp.status == Component.Ready)
-            uiManager.menuFlottantTableau = newComp.createObject(base);
-        else
-            print(newComp.errorString());
-        var newComp = Qt.createComponent("qrc:/qml/menu/MenuFlottantImage.qml");
-        if (newComp.status == Component.Ready)
-            uiManager.menuFlottantImage = newComp.createObject(base);
-        else
-            print(newComp.errorString());
+
+    Database {
+        id: database
     }
 
-    ColumnLayout {
-        //      id: pagelistview
-        //      Layout.fillWidth: true
-        //      Layout.fillHeight: true
-        //      model: ddb.pageModel
-        //    }
+    PageToolBar {
+        id: pageToolBar
 
-        anchors.fill: parent
-        spacing: 10
+        page: root.page
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.margins: 10
+        height: database.getConfig("preferredHeaderHeight")
+    }
 
-        //    Rectangle {
-        //      radius: 10
-        PageToolBar {
-            //      anchors.fill: parent
+    PageTitre {
+        id: titre
 
-            id: pageToolBar
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: pageToolBar.bottom
+        height: 50
+        page: root.page
+        anchors.margins: 10
+        visible: page
+    }
 
-            Layout.fillWidth: true
-            height: ddb.getLayoutSizes("preferredHeaderHeight")
+    Loader {
+        //            titre.forceActiveFocus();
+
+        id: loaderps
+
+        property bool populated: item ? item.populated : false
+
+        function reload() {
+            state = "";
+            source = "";
+            if (page)
+                setSource("qrc:/qml/page/PageSections.qml", {
+                "page": root.page
+            });
+
         }
 
-        //    }
-        Rectangle {
-            Layout.preferredWidth: parent.width - 20
-            Layout.preferredHeight: 50
-            Layout.alignment: Qt.AlignHCenter
-            color: "transparent"
+        onPopulatedChanged: {
+            if (populated)
+                state = "visible";
 
-            PageTitre {
-                id: titre
+        }
+        asynchronous: true
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: titre.bottom
+        anchors.bottom: parent.bottom
+        anchors.margins: 10
+        enabled: status == Loader.Ready
+        opacity: 0
+        states: [
+            State {
+                name: "visible"
 
-                anchors.fill: parent
-                page: pagelistview
+                PropertyChanges {
+                    target: loaderps
+                    opacity: 1
+                }
+
             }
+        ]
+        transitions: [
+            Transition {
+                to: "visible"
 
-        }
+                PropertyAnimation {
+                    target: loaderps
+                    property: "opacity"
+                    easing.type: Easing.Linear
+                    duration: 1000
+                }
 
-        Rectangle {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            color: "transparent"
-            radius: 10
-
-            PageListView {
-                id: pagelistview
-
-                anchors.fill: parent
-                model: ddb.pageModel
             }
+        ]
+    }
 
+    Popup {
+        id: popup
+
+        anchors.centerIn: Overlay.overlay
+        parent: Overlay.overlay
+        visible: loaderps.item && !loaderps.populated
+
+        BusyIndicator {
+            running: true
         }
-        //    PageListView {
+
+        background: Rectangle {
+            color: "transparent"
+            anchors.fill: parent
+        }
 
     }
 

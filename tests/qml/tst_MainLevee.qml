@@ -6,18 +6,17 @@ Item {
     id: item
 
     property var points: AssetAnnot.pointsMainLevee
-    property var model
+    property var model: section ? section.model : null
     property var section
 
     CasTest {
         function initPre() {
-            item.section = fk.f("imageSection");
+            let fsection = fk.f("imageSection");
+            item.section = th.getBridgeInstance(item, "ImageSection", fsection.id);
             params = {
-                "anchors.fill": item
+                "anchors.fill": item,
+                "section": section
             };
-        }
-
-        function initPreCreate() {
         }
 
         function initPost() {
@@ -66,11 +65,6 @@ Item {
 
         name: "MainLevee"
         testedNom: "qrc:/qml/annotations/MainLevee.qml"
-    }
-
-    model: AnnotationModel {
-        sectionId: dao && item.section ? item.section.id : ""
-        dao: ddb
     }
 
 }

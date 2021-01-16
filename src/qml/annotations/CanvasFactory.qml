@@ -1,3 +1,4 @@
+import MyCartable 1.0
 import QtQuick 2.15
 import "qrc:/js/drawcanvas.mjs" as DrawCanvas
 
@@ -7,9 +8,10 @@ Canvas {
     property var mouse
     property bool painting: false
     property bool useDefaultTool: false
-    property string tool: uiManager.annotationDessinCurrentTool
-    property real lineWidth: uiManager.annotationDessinCurrentLineWidth
-    property color strokeStyle: uiManager.annotationDessinCurrentStrokeStyle
+    property QtObject section
+    property string tool: section.annotationDessinCurrentTool
+    property real lineWidth: section.annotationDessinCurrentLineWidth
+    property color strokeStyle: section.annotationDessinCurrentStrokeStyle
     property color fillStyle: "transparent"
     property real startX
     property real startY
@@ -36,7 +38,7 @@ Canvas {
         visible = false;
         fillStyle = "transparent";
         if (wasFillRect) {
-            uiManager.annotationDessinCurrentTool = "fillrect";
+            section.annotationDessinCurrentTool = "rect";
             wasFillRect = false;
         }
     }
@@ -119,12 +121,12 @@ Canvas {
             return ;
 
         if (useDefaultTool)
-            uiManager.annotationDessinCurrentTool = "fillrect";
+            section.annotationDessinCurrentTool = "rect";
 
         if (tool == "fillrect") {
             canvas.opacity = 0.2;
             wasFillRect = true;
-            uiManager.annotationDessinCurrentTool = "rect";
+            section.annotationDessinCurrentTool = "rect";
             canvas.fillStyle = canvas.strokeStyle;
         }
         ctx.lineWidth = canvas.lineWidth;
@@ -135,4 +137,9 @@ Canvas {
         var tool_to_use = tool;
         arrowPoints = DrawCanvas.drawCanvas(ctx, tool, startX, startY, mouse.mouseX, mouse.mouseY);
     }
+
+    Database {
+        id: database
+    }
+
 }

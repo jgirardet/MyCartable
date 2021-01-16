@@ -3,17 +3,13 @@ import tempfile
 import uuid
 from datetime import datetime, timedelta
 from pathlib import Path
-
-#
 from uuid import UUID
 
 import mimesis
 import random
 
-#
-from PySide2.QtGui import QColor
-from package.default_matiere import (
-    MATIERES,
+from PyQt5.QtGui import QColor
+from mycartable.defaults.matiere import (
     MATIERE_GROUPE_BASE,
     MATIERES_BASE,
 )
@@ -37,34 +33,21 @@ class Faker:
             if start < res <= end:
                 return res
 
-    def f_user(self, nom="lenom", prenom="leprenom", td=False, **kwargs):
-
-        with db_session:
-            user = self.db.Utilisateur.user() or self.db.Utilisateur(
-                nom=nom,
-                prenom=prenom,
-            )
-            return user.to_dict() if td else user
-
     #
-    def f_annee(self, id=2019, niveau=None, user=None, td=False, **kwargs):
+    def f_annee(self, id=2019, niveau=None, td=False, **kwargs):
 
         id = id or random.randint(2018, 2020)
         if isinstance(id, self.db.Annee):
             id = id.id
         niveau = niveau or "cm" + str(id)
         with db_session:
-            if user is not None:
-                user = user if isinstance(user, str) else str(user.id)
-            else:
-                user = self.f_user()
             if self.db.Annee.exists(id=id):
                 an = self.db.Annee[id]
             else:
-                an = self.db.Annee(id=id, niveau=niveau, user=user)
+                an = self.db.Annee(id=id, niveau=niveau)
             return an.to_dict() if td else an
 
-    def f_groupeMatiere(self, nom=None, annee=None, **kwargs):
+    def f_groupeMatiere(self, nom=None, annee=None, td=False, **kwargs):
 
         annee = annee or self.f_annee(id=annee).id
         with db_session:
@@ -72,7 +55,8 @@ class Faker:
                 self.f_annee(id=annee)
         nom = nom or random.choice(["Français", "Math", "Anglais", "Histoire"])
         with db_session:
-            return self.db.GroupeMatiere(nom=nom, annee=annee, **kwargs)
+            item = self.db.GroupeMatiere(nom=nom, annee=annee, **kwargs)
+            return item.to_dict() if td else item
 
     def b_groupeMatiere(self, nb, **kwargs):
         return [self.f_groupeMatiere(**kwargs) for i in range(nb)]
@@ -105,7 +89,12 @@ class Faker:
             _bgColor = QColor(bgColor).rgba()
         else:
             _bgColor = _bgColor or random.choice(color_codes)
-        groupe = groupe or self.f_groupeMatiere()
+        groupe_args = {}
+        if isinstance(groupe, int):
+            groupe_args["annee"] = groupe
+            groupe = None
+
+        groupe = groupe or self.f_groupeMatiere(**groupe_args)
         # breakpoint()
         flush()
         if isinstance(groupe, self.db.GroupeMatiere):
@@ -146,18 +135,32 @@ class Faker:
         return [self.f_activite(matiere=matiere, nom=nom) for i in range(nb)]
 
     def f_page(
-        self, created=None, activite=None, titre=None, td=False, lastPosition=None
+        self,
+        created=None,
+        modified=None,
+        activite=None,
+        titre=None,
+        td=False,
+        lastPosition=None,
     ):
         """actvite int = id mais str = index"""
-
+        if isinstance(activite, int):
+            m = self.f_matiere(groupe=activite)
+            activite = self.f_activite(matiere=m)
         activite = activite or self.f_activite()
         if isinstance(activite, self.db.Activite):
             activite = str(activite.id)
         created = created or self.f_datetime()
-        titre = titre or " ".join(gen.text.words(5))
+        if isinstance(created, str):
+            created = datetime.fromisoformat(created)
+        modified = modified or self.f_datetime()
+        if isinstance(modified, str):
+            modified = datetime.fromisoformat(modified)
+        titre = titre if titre is not None else " ".join(gen.text.words(5))
         with db_session:
             item = self.db.Page(
                 created=created,
+                modified=modified,
                 activite=activite,
                 titre=titre,
                 lastPosition=lastPosition,
@@ -301,6 +304,17 @@ class Faker:
     def b_annotation(self, n, *args, **kwargs):
         return [self.f_annotationText(*args, **kwargs) for x in range(n)]
 
+    def f_operationSection(self, string=None, **kwargs):
+        string = (
+            string
+            if string
+            else random.choice(
+                ["3+2", "8+9", "8,1+5", "23,45+365,2", "32+45", "87+76", "3458+23+827"]
+            )
+        )
+
+        return self._f_section("OperationSection", string, **kwargs)
+
     def f_additionSection(self, string=None, **kwargs):
         string = (
             string
@@ -386,7 +400,7 @@ class Faker:
             return item.to_dict() if td else item
 
     def f_equationSection(self, content=None, **kwargs):
-        from package.operations.equation import TextEquation
+        from mycartable.classeur.sections.equation import TextEquation
 
         content = (
             content or f"1{TextEquation.FSP}    \n{TextEquation.BARRE*2} + 1\n15    "
@@ -462,6 +476,35 @@ class Faker:
             item = self.db.Configuration.add(key, value)
             return item.to_dict() if td else item
 
+    def f_lexon(self, td=False):
+        with db_session:
+            item = self.db.Lexon()
+            return item.to_dict() if td else item
+
+    def f_locale(self, id=None, td=False):
+        id = id or random.choice(["fr_FR", "en_US", "es_ES", "it_IT", "de_DE"])
+        with db_session:
+            item = self.db.Locale.get(id=id) or self.db.Locale(id=id)
+            return item.to_dict() if td else item
+
+    def f_traduction(self, content=None, lexon=None, locale=None, td=False):
+        content = content or gen.text.word()
+        lexon = (
+            (lexon if isinstance(lexon, str) else lexon.id)
+            if lexon
+            else self.f_lexon().id
+        )
+        if locale:
+            locale = locale if isinstance(locale, str) else locale.id
+        locale = self.f_locale(id=locale).id
+
+        with db_session:
+            item = self.db.Traduction(lexon=lexon, content=content, locale=locale)
+            return item.to_dict() if td else item
+
+    def bulk(self, fn: str, nb: int, **kwargs):
+        return [getattr(self, fn)(**kwargs) for i in range(nb)]
+
     @db_session
     def populate_database(self):
 
@@ -490,9 +533,9 @@ class Faker:
                                 # ),
                                 #     f_tableauSection(page=page.id),
                                 self.f_imageSection(page=page.id),
-                                # self.f_textSection(page=page.id),
-                                #     f16_additionSection(page=page.id),
-                                #     f_soustractionSection(page=page.id),
+                                self.f_textSection(page=page.id),
+                                # f16_additionSection(page=page.id),
+                                # f_soustractionSection(page=page.id),
                                 #     f_multiplicationSection(page=page.id),
                                 #     f_divisionSection(page=page.id),
                             ]

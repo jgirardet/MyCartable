@@ -3,12 +3,6 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.12
 
 BaseMenu {
-    //    onRunningChanged: print("go")
-    //    NumberAnimation {
-    //      property: "opacity";from: 0.0;to: 1.0;duration: 500
-    //    }
-    //  }
-
     id: root
 
     property color red_color
@@ -17,10 +11,10 @@ BaseMenu {
     property color black_color
 
     Component.onCompleted: {
-        red_color = ddb.getTextSectionColor("red");
-        blue_color = ddb.getTextSectionColor("blue");
-        green_color = ddb.getTextSectionColor("green");
-        black_color = ddb.getTextSectionColor("black");
+        red_color = "#D40020";
+        blue_color = "#0048BA";
+        green_color = "#006A4E";
+        black_color = "#363636";
     }
 
     MenuItem {

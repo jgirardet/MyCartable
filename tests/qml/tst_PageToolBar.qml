@@ -1,6 +1,6 @@
-import ".."
-import PyTest 1.0
+import MyCartable 1.0
 import QtQuick 2.15
+import QtQuick.Window 2.15
 
 Item {
     id: item
@@ -8,30 +8,11 @@ Item {
     width: 800
     height: 200
 
-    CasTest {
-        //            wait(3000);
-        //        function test_newfrise() {
-        //            mouseClick(newfrise);
-        //            compare(ddb._addSection, [1, {
-        //                "classtype": "TextSection",
-        //                "position": 3
-        //            }]);
-        //        }
-        //        function test_newtext() {
-        //            mouseClick(newtext);
-        //            compare_new_section("TextSection");
-        //        }
-        //            compare(ddb._exportToPDF, ["called"]);
-        //        function test_exportpdf() {
-        //        }
-        //        function test_exportodt() {
-        //            th.mock("exportToOdt");
-        //            mouseClick(exportodt);
-        //            verify(th.mock_called("exportToOdt"));
-        //            th.unmock("exportToOdt");
-        //        }
-        //            compare(fk.getItem("Page", page.id), null);
+    Classeur {
+        id: classeurid
+    }
 
+    CasTest {
         id: testcase
 
         property var newtext
@@ -45,11 +26,9 @@ Item {
         property var exportodt
         property var exportpdf
         property var page
+        property var pageC
 
         function initPre() {
-        }
-
-        function initPreCreate() {
             page = fk.f("page", {
             });
             for (const i of Array(3).keys()) {
@@ -57,7 +36,12 @@ Item {
                     "page": page.id
                 });
             }
-            ddb.currentPage = page.id; // to make toolbar visible
+            pageC = th.getBridgeInstance(classeurid, "Page", page.id);
+            params = {
+                "page": pageC
+            };
+            classeurid.annee = 2019;
+            classeurid.setPage(pageC.id);
         }
 
         function initPost() {
@@ -75,8 +59,9 @@ Item {
         }
 
         function test_init() {
-            print(tested.width);
             verify(tested.visible);
+            compare(tested.page.id, page.id);
+            compare(tested.page.model.count, 3);
         }
 
         function compare_new_section(classtype) {
@@ -107,87 +92,93 @@ Item {
             compare_new_section(data.classtype);
         }
 
-        function test_mocked_data() {
+        function test_export_data() {
             return [{
                 "tag": "exportpdf",
-                "fnName": "exportToPDF"
+                "fnName": "exportToPDF",
+                "text": "Export en PDF démarré, cela peut prendre plusieurs secondes"
             }, {
                 "tag": "exportodt",
-                "fnName": "exportToOdt"
+                "fnName": "exportToODT",
+                "text": "Export en ODT démarré, cela peut prendre plusieurs secondes"
             }];
         }
 
-        function test_mocked(data) {
+        function test_export(data) {
             let button = testcase[data.tag];
-            th.mock(data.fnName);
+            button.action.page = fakepage;
+            verify(button.visible);
             mouseClick(button);
-            verify(th.mock_called(data.fnName));
-            th.unmock(data.fnName);
+            verify(button.toast.visible);
+            compare(button.toast.msg, data.text);
         }
 
         function test_newimage() {
-            th.mock("addSection");
+            if (Qt.platform.os == "windows")
+                skip("test ne marche pas sous windows");
+
             mouseClick(newimage);
-            newimage.action.dialog.accept();
-            let args = th.mock_call_args_list('addSection')[0];
-            compare(args[0], page.id);
-            compare(args[1], {
-                "classtype": "ImageSection",
-                "path": "",
-                "position": 3
-            });
-            th.unmock("addSection");
+            let dialog = newimage.action.dialog
+            dialog.folder = "assets";
+            keySequence("r,e,c,t")
+            keySequence(".,p,n,g")
+            keyClick(Qt.Key_Return)
+            tryCompare(newimage.action.busy, "visible", false);
+            compare_new_section("ImageSection");
         }
 
         function test_newimagevide() {
-            th.mock("addSection");
             mouseClick(newimagevide);
             let ct = newimagevide.action.dialog.contentItem;
-            mouseClick(ct, ct.width - 5, ct.height - 5);
-            let args = th.mock_call_args_list('addSection')[0];
-            compare(args[0], page.id);
-            compare(args[1], {
-                "width": 1280,
-                "height": 1200,
-                "classtype": "ImageSectionVide",
-                "position": 3
-            });
-            th.unmock("addSection");
+            mouseClick(ct, ct.width - 5, ct.height - 5, Qt.LeftButton, Qt.NoModifier, 50);
+            compare_new_section("ImageSection");
         }
 
-        function test_newoperation() {
-            th.mock("addSection");
-            mouseClick(newimage);
-            newoperation.action.dialog.contentItem.text = "45*23";
+        function test_new_operation_data() {
+            return [{
+                "tag": "AdditionSection",
+                "string": "23+3"
+            }, {
+                "tag": "SoustractionSection",
+                "string": "23-3"
+            }, {
+                "tag": "MultiplicationSection",
+                "string": "5*2"
+            }, {
+                "tag": "DivisionSection",
+                "string": "2/1"
+            }];
+        }
+
+        function test_new_operation(data) {
+            mouseClick(newoperation);
+            newoperation.action.dialog.contentItem.text = data.string;
             newoperation.action.dialog.accept();
-            let args = th.mock_call_args_list('addSection')[0];
-            compare(args[0], page.id);
-            compare(args[1], {
-                "string": "45*23",
-                "classtype": "OperationSection",
-                "position": 3
-            });
-            th.unmock("addSection");
+            compare_new_section(data.tag);
         }
 
         function test_newtableau() {
-            th.mock("addSection");
-            mouseClick(newimage);
+            mouseClick(newtableau);
             newtableau.action.dialog.accept();
-            let args = th.mock_call_args_list('addSection')[0];
-            compare(args[0], page.id);
-            compare(args[1], {
-                "lignes": 1,
-                "colonnes": 1,
-                "classtype": "TableauSection",
-                "position": 3,
-                "modele": ""
-            });
-            th.unmock("addSection");
+            compare_new_section("TableauSection");
         }
 
-        function test_removepage() {
+        function test_removepage_confirmation_not_empty() {
             mouseClick(removepage);
+            removepage.action.dialog.accept();
+            removepage.action.dialog.confirmation.accept();
+            compare(fk.getItem("Page", page.id), {
+            });
+        }
+
+        function test_removepage_empty() {
+            page = fk.f("page", {
+            });
+            pageC = th.getBridgeInstance(classeurid, "Page", page.id);
+            classeurid.setPage(pageC.id);
+            tested.page = pageC;
+            mouseClick(removepage);
+            removepage.action.dialog.accept();
             compare(fk.getItem("Page", page.id), {
             });
         }
@@ -196,6 +187,18 @@ Item {
         testedNom: "qrc:/qml/page/PageToolBar.qml"
         params: {
         }
+
+        QtObject {
+            id: fakepage
+
+            function exportToPDF() {
+            }
+
+            function exportToODT() {
+            }
+
+        }
+
     }
 
 }

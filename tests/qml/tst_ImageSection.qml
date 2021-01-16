@@ -1,10 +1,11 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+import QtQuick.Window 2.15
 
 Item {
     id: item
 
-    width: 200
+    width: 600
     height: 600
 
     CasTest {
@@ -13,14 +14,16 @@ Item {
         property var model
         property var canvas
         property var imgsection
+        property var imgInstance
 
         function initPre() {
             imgsection = fk.f("imageSection", {
                 "path": "tst_AnnotableImage.png"
             });
+            imgInstance = th.getBridgeInstance(item, "ImageSection", imgsection.id);
             params = {
-                "sectionId": imgsection.id,
-                "sectionItem": item
+                "sectionItem": item,
+                "section": imgInstance
             };
         }
 
@@ -35,8 +38,8 @@ Item {
 
         function test_img_load_init() {
             verify(tested.source.toString().endsWith("tst_AnnotableImage.png"));
-            compare(tested.width, 200);
-            compare(tested.height, 174); // 669 * item.width / 767
+            compare(tested.width, 600);
+            compare(tested.height, 523);
         }
 
         function test_Mousearea_init() {
@@ -45,33 +48,33 @@ Item {
         }
 
         function test_left_click_no_modifier_currenttool_is_text() {
-            uiManager.annotationCurrentTool = "text";
+            imgInstance.annotationCurrentTool = "text";
             mouseClick(tested, 3, 10, Qt.LeftButton);
             verify(tested.annotations.itemAt(0).item.toString().substr("AnnotationText"));
         }
 
         function test_left_click_no_modifier_currenttool_is_not_text() {
-            uiManager.annotationCurrentTool = "rect";
-            uiManager.annotationDessinCurrentTool = "rect";
+            imgInstance.annotationCurrentTool = "rect";
+            imgInstance.annotationDessinCurrentTool = "rect";
             mouseDrag(tested, 3, 10, 10, 10, Qt.LeftButton);
             compare(tested.annotations.itemAt(0).item.tool, "rect");
         }
 
         function test_left_click_ctrl_modifier_add_text() {
-            uiManager.annotationCurrentTool = "rect";
+            imgInstance.annotationCurrentTool = "rect";
             mouseClick(tested, 3, 10, Qt.LeftButton, Qt.ControlModifier);
             verify(tested.annotations.itemAt(0).item.toString().substr("AnnotationText"));
         }
 
         function test_right_click_ctrl_modifier_add_fillrect() {
-            uiManager.annotationCurrentTool = "text";
+            imgInstance.annotationCurrentTool = "text";
             mouseDrag(tested, 3, 10, 10, 10, Qt.RightButton, Qt.ControlModifier);
             compare(tested.annotations.itemAt(0).item.tool, "fillrect");
         }
 
         function test_left_press_currentool_is_not_text() {
-            uiManager.annotationCurrentTool = "trait";
-            uiManager.annotationDessinCurrentTool = "trait";
+            imgInstance.annotationCurrentTool = "trait";
+            imgInstance.annotationDessinCurrentTool = "trait";
             mousePress(tested, 3, 10, Qt.LeftButton);
             verify(canvas.painting); // painting True == startDraw called
             verify(!canvas.useDefaultTool);
@@ -93,10 +96,9 @@ Item {
         }
 
         function test_right_click_affiche_menu() {
-            uiManager.menuFlottantImage = createObj("qrc:/qml/menu/MenuFlottantImage.qml");
-            compare(uiManager.menuFlottantImage.visible, false);
+            compare(tested.menu.visible, false);
             mouseClick(tested, 1, 1, Qt.RightButton);
-            compare(uiManager.menuFlottantImage.visible, true);
+            compare(tested.menu.visible, true);
         }
 
         function test_annotation_repeter() {
@@ -119,10 +121,10 @@ Item {
         }
 
         function test_setStyleFromMenu_all(data) {
-            uiManager.annotationDessinCurrentLineWidth = 1;
-            uiManager.annotationDessinCurrentStrokeStyle = "#ffffff";
-            uiManager.annotationCurrentTool = "rect";
-            uiManager.annotationDessinCurrentTool = "trait";
+            imgInstance.annotationDessinCurrentLineWidth = 1;
+            imgInstance.annotationDessinCurrentStrokeStyle = "#ffffff";
+            imgInstance.annotationCurrentTool = "rect";
+            imgInstance.annotationDessinCurrentTool = "trait";
             tested.setStyleFromMenu({
                 "style": {
                     "pointSize": 15,
@@ -130,39 +132,39 @@ Item {
                     "tool": "ellipse"
                 }
             });
-            compare(uiManager.annotationDessinCurrentLineWidth, 15);
-            compare(uiManager.annotationDessinCurrentStrokeStyle, "#111111");
-            compare(uiManager.annotationCurrentTool, "ellipse");
-            compare(uiManager.annotationDessinCurrentTool, "ellipse");
+            compare(imgInstance.annotationDessinCurrentLineWidth, 15);
+            compare(imgInstance.annotationDessinCurrentStrokeStyle, "#111111");
+            compare(imgInstance.annotationCurrentTool, "ellipse");
+            compare(imgInstance.annotationDessinCurrentTool, "ellipse");
         }
 
         function test_setStyleFromMenu_to_text(data) {
-            uiManager.annotationCurrentTool = "rect";
-            uiManager.annotationDessinCurrentTool = "trait";
+            imgInstance.annotationCurrentTool = "rect";
+            imgInstance.annotationDessinCurrentTool = "trait";
             tested.setStyleFromMenu({
                 "style": {
                     "tool": "text"
                 }
             });
-            compare(uiManager.annotationCurrentTool, "text");
-            compare(uiManager.annotationDessinCurrentTool, "fillrect");
+            compare(imgInstance.annotationCurrentTool, "text");
+            compare(imgInstance.annotationDessinCurrentTool, "fillrect");
         }
 
         function test_setStyleFromMenu_nothing(data) {
-            uiManager.annotationDessinCurrentLineWidth = 1;
-            uiManager.annotationDessinCurrentStrokeStyle = "#ffffff";
-            uiManager.annotationCurrentTool = "rect";
-            uiManager.annotationDessinCurrentTool = "trait";
+            imgInstance.annotationDessinCurrentLineWidth = 1;
+            imgInstance.annotationDessinCurrentStrokeStyle = "#ffffff";
+            imgInstance.annotationCurrentTool = "rect";
+            imgInstance.annotationDessinCurrentTool = "trait";
             tested.setStyleFromMenu({
             });
-            compare(uiManager.annotationDessinCurrentLineWidth, 1);
-            compare(uiManager.annotationDessinCurrentStrokeStyle, "#ffffff");
-            compare(uiManager.annotationCurrentTool, "rect");
-            compare(uiManager.annotationDessinCurrentTool, "trait");
+            compare(imgInstance.annotationDessinCurrentLineWidth, 1);
+            compare(imgInstance.annotationDessinCurrentStrokeStyle, "#ffffff");
+            compare(imgInstance.annotationCurrentTool, "rect");
+            compare(imgInstance.annotationDessinCurrentTool, "trait");
         }
 
         function test_annotation_text_removed_if_empty() {
-            uiManager.annotationCurrentTool = "text";
+            imgInstance.annotationCurrentTool = "text";
             mouseClick(tested);
             compare(tested.annotations.count, 1);
             let timer = findChild(tested.annotations.itemAt(0), "timerRemove");
@@ -174,7 +176,7 @@ Item {
         }
 
         function test_baseannotation_removed_if_middle_click() {
-            uiManager.annotationCurrentTool = "text";
+            imgInstance.annotationCurrentTool = "text";
             mouseClick(tested);
             compare(tested.annotations.count, 1);
             mouseClick(tested.annotations.itemAt(0), 1, 1, Qt.MiddleButton);
@@ -182,37 +184,52 @@ Item {
         }
 
         function test_floodfill() {
-            uiManager.annotationCurrentTool = "floodfill";
-            uiManager.annotationDessinCurrentStrokeStyle = "blue";
-            let mname = "floodFill";
-            th.mock(mname);
-            mouseClick(tested, 34, 54);
-            verify(th.mock_called(mname));
-            let args = th.mock_call_args_list(mname);
-            compare(args[0], [tested.sectionId, "#0000ff", Qt.point(34 / tested.width, 54 / tested.height)]);
-            th.unmock(mname);
+          // non testé trop compliqué et change l'image de base
         }
 
         function test_cursor_move() {
-            uiManager.annotationCurrentTool = "floodfill";
-            uiManager.annotationDessinCurrentStrokeStyle = "blue";
-            let mname = "setImageSectionCursor";
-            th.mock(mname);
+            // pour tester les changement de curseur on utiliser le cacheKey
+            // qui reste constant pour 2 images identiques.
+            let cache_before = th.python("obj.cursor().pixmap().cacheKey()", Window.window);
+
+            imgInstance.annotationCurrentTool = "floodfill";
             mouseMove(tested, 1, 1);
-            verify(th.mock_called(mname));
-            th.unmock(mname);
+            let cache_flood = th.python("obj.cursor().pixmap().cacheKey()", Window.window);
+
+            imgInstance.annotationCurrentTool = "rect";
+            mouseMove(tested, 1, 1);
+            let cache_rect = th.python("obj.cursor().pixmap().cacheKey()", Window.window);
+
+
+            imgInstance.annotationCurrentTool = "floodfill";
+            mouseMove(tested, 1, 1);
+            let cache_flood2 = th.python("obj.cursor().pixmap().cacheKey()", Window.window);
+
+            compare(cache_before, 0)
+            verify(cache_flood != cache_before)
+            verify(cache_flood != cache_before)
+            verify(cache_flood == cache_flood2)
         }
 
         function test_cursor_toolchanged() {
-            let mname = "setImageSectionCursor";
-            th.mock(mname);
-            tested.setStyleFromMenu({
+            let cache_before = th.python("obj.cursor().pixmap().cacheKey()", tested.mousearea);
+            print(cache_before)
+             tested.setStyleFromMenu({
                 "style": {
                     "tool": "trait"
                 }
             });
-            verify(th.mock_called(mname));
-            th.unmock(mname);
+            let cache_trait = th.python("obj.cursor().pixmap().cacheKey()", tested.mousearea);
+            print(cache_trait)
+            tested.setStyleFromMenu({
+                "style": {
+                    "tool": "rect"
+                }
+            });
+            let cache_rect = th.python("obj.cursor().pixmap().cacheKey()", tested.mousearea);
+            print(cache_rect)
+            verify(cache_trait != cache_before)
+            verify(cache_trait != cache_rect)
         }
 
         name: "ImageSection"

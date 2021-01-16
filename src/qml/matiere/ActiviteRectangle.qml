@@ -7,7 +7,9 @@ import "qrc:/qml/menu"
 Rectangle {
     id: base
 
-    property var model
+    property var activite
+    property alias deplacePage: deplacePopup
+    property alias pages: lv
 
     color: "transparent"
     height: lv.height + header.height + 10
@@ -23,14 +25,14 @@ Rectangle {
 
             objectName: "header"
             height: 30
-            color: ddb ? ddb.currentMatiereItem.bgColor : "transparent"
+            color: activite.matiere.bgColor
             radius: 10
             width: base.width
 
             Label {
                 id: headerLabel
 
-                text: base.model.nom
+                text: activite.nom
                 anchors.centerIn: parent
             }
 
@@ -41,9 +43,7 @@ Rectangle {
                 anchors.fill: parent
                 onPressed: {
                     if (mouse.buttons == Qt.RightButton)
-                    {
-                        ddb.newPage(model.id);
-                    }
+                        classeur.newPage(activite.id);
 
                 }
             }
@@ -57,14 +57,15 @@ Rectangle {
             property alias deplacePopup: deplacePopup
 
             objectName: "lv"
-            model: base.model.pages
+            model: activite.pages
             spacing: 3
             width: base.width
             height: lv.contentItem.childrenRect.height
 
             DeplacePage {
                 id: deplacePopup
-                objectName: "deplacepage"
+
+                parent: lv
             }
 
             delegate: PageButton {
@@ -72,7 +73,6 @@ Rectangle {
 
                 width: ListView.view.width
                 height: lv.commonHeight
-                model: modelData
                 borderDefaultWidth: 0
                 Component.onCompleted: {
                     background.color = "#cdd0d3";

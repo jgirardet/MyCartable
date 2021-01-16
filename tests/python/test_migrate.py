@@ -1,9 +1,8 @@
 import pytest
-from package.database import init_database
-from package.database.base_db import Schema
-from package.migrate import Migrator, MakeMigrations
-from package.utils import Version
-from pony.orm import Database, PrimaryKey, Required, Optional, db_session
+from mycartable.migrations.migrate import Migrator, MakeMigrations
+from mycartable.database.base_db import Schema
+from mycartable.utils import Version
+from pony.orm import Database, Required, db_session
 
 
 def init_onetable(ddb):
@@ -13,9 +12,25 @@ def init_onetable(ddb):
 
 
 @pytest.fixture()
+def mdb():
+    return Database(provider="sqlite", filename=":memory:")
+
+
+@pytest.fixture()
+def fdb(tmpfile):
+    return Database(provider="sqlite", filename=str(tmpfile))
+
+
+@pytest.fixture()
 def onetable(mdb):
     init_onetable(mdb)
     return mdb
+
+
+@pytest.fixture()
+def onetablefile(fdb):
+    init_onetable(fdb)
+    return fdb
 
 
 migrations = {
@@ -34,6 +49,20 @@ class TestMigrator:
     def test_one_migration(self, onetable):
         m = Migrator(
             onetable, Version("1"), {"0.9": ["""INSERT INTO "bla" VALUES("deux")"""]}
+        )
+        m()
+        with db_session:
+            assert m.db.execute("select * from bla").fetchall() == [
+                ("prems",),
+                ("deux",),
+            ]
+        assert m.schema.version == Version("1.0")
+
+    def test_one_migration_file(self, onetablefile):
+        m = Migrator(
+            onetablefile,
+            Version("1"),
+            {"0.9": ["""INSERT INTO "bla" VALUES("deux")"""]},
         )
         m()
         with db_session:
@@ -77,6 +106,16 @@ class TestMigrator:
 
     def test_many_migrations_not_all(self, onetable):
         m = Migrator(onetable, Version("1.3.2"), migrations)
+        m()
+        with db_session:
+            assert (
+                m.db.execute("select * from sqlite_master").fetchone()[4]
+                == 'CREATE TABLE "bla" ("key" TEXT NOT NULL PRIMARY KEY, "texta" TEXT, "textb" TEXT, "textc" TEXT)'
+            )
+        assert m.schema.version == Version("1.3.2")
+
+    def test_many_migrations_not_all_file(self, onetablefile):
+        m = Migrator(onetablefile, Version("1.3.2"), migrations)
         m()
         with db_session:
             assert (
@@ -138,6 +177,16 @@ class TestMakeMigrations:
             m._backup_name()
             == "mycartable_backup-from_0.0.0-to_1.0.1-2017-05-21T12_12_12"
         )
+
+    def test_migrations_same_version_is_cancelled(selfn, tmpfile, caplogger):
+        ddb = Database(provider="sqlite", filename=str(tmpfile))
+        init_onetable(ddb)
+        s1 = Schema(ddb)
+        s1.version = "1.3.4"
+        m = MakeMigrations(tmpfile, Version("1.3.4"), migrations)
+        assert not hasattr(m, "migrator")
+        m(lambda: True, lambda: True)
+        assert "No migration needed" in caplogger.read()
 
     def test_migration_check_fail(self, tmpfile, caplogger):
         ddb = Database(provider="sqlite", filename=str(tmpfile))

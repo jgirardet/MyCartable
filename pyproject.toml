@@ -13,14 +13,15 @@ description = "L'école sur ordinateur, tout un un !!!"
 icon = "src/data/icons/mycartable"
 installer_icon = "src/data/icons/mycartable"
 sources = ['src/mycartable']
-requires = ['pyside2==5.15.1',
+requires = ['pyqt5==5.15.2',
             'pony>=0.7.11,<0.8',
             'Pillow==7.1.2',
             'mako==1.1.2',
             'beautifulsoup4',
             'loguru',
             "PyMuPDF==1.17.6",
-            "packaging"
+            "packaging",
+            "emoji-country-flag>=1.2.3,<2"
             ]
 
 

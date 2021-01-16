@@ -6,11 +6,16 @@ import QtQuick.Controls 2.15
 Popup {
     id: popup
 
-    property string msg
+    property string msg: ""
     property color bgcolor: "yellow"
     property color txtcolor: "red"
+    property alias interval: popupClose.interval
 
-    focus: true
+    function showToast(message) {
+        toast.msg = message;
+        toast.open();
+    }
+
     closePolicy: Popup.CloseOnPressOutside
     onOpened: popupClose.start()
 

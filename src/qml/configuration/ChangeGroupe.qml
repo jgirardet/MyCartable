@@ -1,10 +1,21 @@
+import MyCartable 1.0
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+
+/*
+Attention :
+ChangeMatiere : qml pour les matiere
+ChangesMatieres : python api
+ouai c'était nul comme choix de nom*/
 
 ListView {
     id: root
 
     property alias colordialog: colordialog
+    property QtObject api
+    property int annee
+
+    model: api.getGroupeMatieres(annee)
 
     width: 600
     spacing: 10
@@ -12,15 +23,16 @@ ListView {
 
     RefColorDialog {
         id: colordialog
-
-        modality: Qt.WindowModal
     }
 
     Button {
         objectName: "initgroupeButton"
         text: "créer un premier groupe"
-        onClicked: root.model = ddb.addGroupeMatiere("annee:" + ddb.anneeActive)
+        onClicked: root.model = api.addGroupeMatiere("annee:" + annee)
         visible: root.count == 0
+    }
+
+    api: ChangeMatieres {
     }
 
     delegate: Column {
@@ -37,9 +49,9 @@ ListView {
 
         function applyDegradeToMatiere(focus_after, reload) {
             if (reload)
-                changematiere.model = ddb.reApplyGroupeDegrade(groupeid);
+                changematiere.model = api.reApplyGroupeDegrade(groupeid);
             else
-                changematiere.model = ddb.applyGroupeDegrade(groupeid, baseColor);
+                changematiere.model = api.applyGroupeDegrade(groupeid, baseColor);
             if (focus_after != undefined) {
                 changematiere.itemAtIndex(focus_after).matieretexte.selectAll();
                 changematiere.itemAtIndex(focus_after).matieretexte.forceActiveFocus();
@@ -66,7 +78,7 @@ ListView {
                 function updateText() {
                     if (text) {
                         nom = text;
-                        ddb.updateGroupeMatiereNom(groupeid, nom);
+                        api.updateGroupeMatiereNom(groupeid, nom);
                     }
                 }
 
@@ -140,7 +152,7 @@ ListView {
                     ToolTip.visible: hovered
                     ToolTip.text: "Ajouter une première matière"
                     onClicked: {
-                        ddb.addMatiere(groupeid, true);
+                        api.addMatiere(groupeid, true);
                         groupe.applyDegradeToMatiere(0, true);
                     }
 
@@ -186,7 +198,7 @@ ListView {
                 ToolTip.visible: false
                 icon.source: "qrc:/icons/arrow-up"
                 onClicked: {
-                    root.model = ddb.moveGroupeMatiereTo(groupeid, index - 1);
+                    root.model = api.moveGroupeMatiereTo(groupeid, index - 1);
                 }
             }
 
@@ -198,7 +210,7 @@ ListView {
                 ToolTip.visible: false
                 icon.source: "qrc:/icons/arrow-down"
                 onClicked: {
-                    root.model = ddb.moveGroupeMatiereTo(groupeid, index + 1);
+                    root.model = api.moveGroupeMatiereTo(groupeid, index + 1);
                 }
             }
 
@@ -208,7 +220,7 @@ ListView {
                 referent: groupename
                 icon.source: "qrc:/icons/add-row"
                 ToolTip.text: "Insérer un nouveau groupe"
-                onClicked: root.model = ddb.addGroupeMatiere(groupeid)
+                onClicked: root.model = api.addGroupeMatiere(groupeid)
             }
 
             ActionButtonMatiere {
@@ -218,7 +230,7 @@ ListView {
                 referent: groupename
                 icon.source: "qrc:/icons/remove-row-red"
                 ToolTip.text: "supprimer le groupe: " + nom
-                onClicked: root.model = ddb.removeGroupeMatiere(groupeid)
+                onClicked: root.model = api.removeGroupeMatiere(groupeid)
             }
 
         }
@@ -227,8 +239,7 @@ ListView {
             id: changematiere
 
             Component.onCompleted: {
-                model = ddb.getMatieres(groupeid);
-                bdd = ddb;
+                api = root.api;
             }
         }
 

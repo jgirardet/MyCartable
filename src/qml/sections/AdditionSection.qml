@@ -1,11 +1,15 @@
 import MyCartable 1.0
+import QtQuick 2.15
 import "qrc:/qml/operations"
 
-AdditionSectionBase {
+BaseOperation {
     id: root
 
-    model: AdditionModel {
-        sectionId: root.sectionId // on laisse tout là pour les tests
+    cellWidth: 50
+    cellHeight: 50
+
+    delegate: AdditionDelegate {
+        model: section.model
     }
 
 }

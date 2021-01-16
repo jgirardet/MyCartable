@@ -9,6 +9,7 @@ Item {
 
     CasTest {
         property var friseSection
+        property var sec
         property var corps
         property QtObject zero
         property QtObject un
@@ -23,7 +24,7 @@ Item {
         property Item leg0
         property Item leg1
 
-        function initPreCreate() {
+        function initPre() {
             friseSection = fk.f("friseSection", {
                 "height": 424,
                 "titre": "ma frise"
@@ -68,8 +69,9 @@ Item {
                 "relativeX": 0.7,
                 "side": true
             });
+            sec = th.getBridgeInstance(item, "FriseSection", friseSection.id);
             params = {
-                "sectionId": friseSection.id,
+                "section": sec,
                 "sectionItem": item
             };
         }
@@ -179,8 +181,8 @@ Item {
             compare(fk.getItem("FriseLegende", l0.id).texte, "bcd");
             // relative X
             mouseDrag(leg1.languette, 1, 1, 40, 0);
-            fuzzyCompare(leg1.x, 187, 10); // 147+40
-            fuzzyCompare(fk.getItem("FriseLegende", l1.id).relativeX, 187 / leg1.parent.width, 0.1);
+            fuzzyCompare(leg1.x, 187.0, 10); // 147+40
+            fuzzyCompare(fk.getItem("FriseLegende", l1.id).relativeX, 187.0 / leg1.parent.width, 0.1);
         }
 
         function test_legende_ajout() {

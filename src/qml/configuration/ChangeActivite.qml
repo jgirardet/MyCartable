@@ -6,15 +6,18 @@ Column {
     id: root
 
     property alias model: repeater.model
-    property var ddb
+    property QtObject api
+    property string matiere
+    property alias repeater: repeater
 
     function addAndFocus(activId, pos, append) {
-        repeater.model = ddb.addActivite(activId, append);
+        repeater.model = api.addActivite(activId, append);
         let ac = repeater.itemAt(pos);
         ac.activitetext.selectAll();
         ac.activitetext.forceActiveFocus();
     }
 
+    model: api.getActivites(modelData.id)
     spacing: 3
     width: parent.width
     anchors.left: parent.left
@@ -62,7 +65,7 @@ Column {
                 function updateText() {
                     if (text) {
                         nom = text;
-                        ddb.updateActiviteNom(activiteId, nom);
+                        api.updateActiviteNom(activiteId, nom);
                     }
                 }
 
@@ -98,7 +101,7 @@ Column {
                 icon.source: "qrc:/icons/arrow-up"
                 ToolTip.text: "Monterla rubrique: " + (rowactivite.nom ?? "")
                 onClicked: {
-                    repeater.model = ddb.moveActiviteTo(activiteId, parent.Positioner.index - 1);
+                    repeater.model = api.moveActiviteTo(activiteId, parent.Positioner.index - 1);
                 }
             }
 
@@ -110,7 +113,7 @@ Column {
                 icon.source: "qrc:/icons/arrow-down"
                 ToolTip.text: "Descendre la rubrique: " + rowactivite.nom
                 onClicked: {
-                    repeater.model = ddb.moveActiviteTo(activiteId, parent.Positioner.index + 1);
+                    repeater.model = api.moveActiviteTo(activiteId, parent.Positioner.index + 1);
                 }
             }
 
@@ -133,7 +136,7 @@ Column {
                 icon.source: "qrc:/icons/removePage"
                 ToolTip.text: "Supprimer la rubrique: " + rowactivite.nom
                 onClicked: {
-                    repeater.model = ddb.removeActivite(activiteId);
+                    repeater.model = api.removeActivite(activiteId);
                 }
             }
 

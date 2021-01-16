@@ -5,6 +5,7 @@ Item {
 
     property var currentAnnotation: null
     property Item model
+    property var section: testcase.ref
 
     width: 320
     height: 200
@@ -13,33 +14,33 @@ Item {
 
     CasTest {
         //        "height": 0.8
+        id: testcase
 
         property var annot
+        property var annotobj
+        property var ref
         property int index: 1
-        property var edit
 
         function initPre() {
             //      params = {
             item.currentAnnotation = null;
             item.model._removeRow = 0;
-            edit = null;
+            let img = fk.f("imageSection");
             annot = fk.f("annotationText", {
                 "x": 0.4,
-                "y": 0.2
+                "y": 0.2,
+                "section": img.id
             });
+            ref = th.getBridgeInstance(item, "ImageSection", img.id);
+            annotobj = th.getBridgeInstance(ref, "AnnotationText", annot.id);
             params = {
-                "annot": annot,
+                "annot": annotobj,
                 "referent": item,
                 "index": index,
-                "edit": edit
+                "section": section
             };
         }
 
-        function initPreCreate() {
-        }
-
-        function initPost() {
-        }
 
         function test_init() {
             compare(tested.anchors.topMargin, 200 * 0.2);
@@ -50,13 +51,11 @@ Item {
             item.currentAnnotation = false;
             verify(!tested.focus, "focus should be false");
             verify(!item.currentAnnotation);
-            //      item.currentAnnotation = tested
             mouseMove(tested, 1, 1);
             compare(item.currentAnnotation, tested);
         }
 
         function test_right_button_show_menu() {
-            uiManager.menuFlottantAnnotationText = createObj("qrc:/qml/menu/MenuFlottantAnnotationText.qml");
             verify(!tested.item.menu.visible);
             mouseClick(tested, 0, 0, Qt.RightButton);
             verify(tested.item.menu.visible);
@@ -66,32 +65,28 @@ Item {
             verify(!tested.held);
             mouseDrag(tested, 0, 0, 16, 20, Qt.LeftButton, Qt.ControlModifier);
             verify(!tested.held);
-            compare(edit, {
-                "id": annot.id,
-                "x": 0.45,
-                "y": 0.3
-            });
+            let newl = fk.getItem("AnnotationText", annot.id);
+            compare(newl.x, 0.45);
+            compare(newl.y, 0.3);
         }
 
         function test_move() {
             tested.move(32, 40);
             tested.anchors.leftMargin = 0.5;
             tested.anchors.topMargin = 0.4;
-            compare(edit, {
-                "id": annot.id,
-                "x": 0.5,
-                "y": 0.4
-            });
+            let newl = fk.getItem("AnnotationText", annot.id);
+            compare(newl.x, 0.5);
+            compare(newl.y, 0.4);
         }
 
         function test_setStyleFromMenu() {
             tested.setStyleFromMenu({
-                "color": "red"
+                "style": {
+                    "bgColor": th.color("red")
+                }
             });
-            compare(edit, {
-                "id": annot.id,
-                "color": "red"
-            });
+            let newl = fk.getItem("AnnotationText", annot.id);
+            fuzzyCompare(newl.style.bgColor, "red", 0);
         }
 
         name: "BaseAnnotation"

@@ -1,109 +1,55 @@
+import MyCartable 1.0
 import QtQuick 2.15
 import QtQuick.Controls 2.15
-import QtQuick.Layouts 1.15
-import QtQuick.Window 2.15
-import "divers"
-import "matiere"
-import "page"
+import "qrc:/qml/divers"
+import "qrc:/qml/layouts"
 
 ApplicationWindow {
-    //    header: MainMenuBar {
-    //        id: mainMenuBar
-    //    }
-
     id: root
 
-    width: 800
+    property alias mainItem: mainitem
+
+    function reload() {
+        root.title = get_title();
+        mainItem.clear();
+    }
+
+    function get_title() {
+        let an = database.getConfig("annee");
+        return "MyCartable: année " + an + "/" + (an + 1);
+    }
+
+    width: 1100
     height: 600
     visible: true
-    title: "MyCartable: année " + ddb.anneeActive + "/" + (ddb.anneeActive + 1)
-    onClosing: {
-        baseItem.destroy(); // elmine presque tous les messages d'erreur
+    Component.onCompleted: {
+        root.title = get_title();
     }
 
-    BusyIndicator {
-        id: busy
-
-        width: root.width / 4
-        height: width
-        anchors.centerIn: parent
-        running: uiManager.buzyIndicator ?? false
-        onRunningChanged: {
-            if (running)
-                baseItem.enabled = false;
-            else
-                baseItem.enabled = true;
-        }
-        z: running ? 10 : -5
+    Database {
+        id: database
     }
 
-    Rectangle {
-        id: baseItem
+    MainMenuBar {
+        id: mainmenubar
 
-        function showToast(message) {
-            toast.msg = message;
-            toast.open();
-        }
+        mainItem: mainitem
+        base: root
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+    }
 
-        objectName: "baseItem"
-        height: root.height // - mainMenuBar.height
-        width: root.width
-        color: ddb.colorFond
-        Component.onCompleted: {
-            uiManager.sendToast.connect(showToast);
-        }
+    SplitLayout {
+        id: mainitem
 
-        RowLayout {
-            anchors.fill: parent
-            spacing: 10
-
-            // margin left
-            Rectangle {
-                Layout.fillHeight: true
-            }
-
-            RecentsRectangle {
-                id: _recentsRectangle
-
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                Layout.preferredWidth: ddb.getLayoutSizes("preferredSideWidth")
-                Layout.maximumWidth: ddb.getLayoutSizes("maximumSideWidth")
-                Layout.minimumWidth: ddb.getLayoutSizes("minimumSideWidth")
-            }
-
-            PageRectangle {
-                id: _pageRectangle
-
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                Layout.preferredWidth: ddb.getLayoutSizes("preferredCentralWidth")
-                Layout.minimumWidth: ddb.getLayoutSizes("minimumCentralWidth")
-            }
-
-            MatiereRectangle {
-                id: _matiereRectangle
-
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                Layout.preferredWidth: ddb.getLayoutSizes("preferredSideWidth")
-                Layout.maximumWidth: ddb.getLayoutSizes("maximumSideWidth")
-                Layout.minimumWidth: ddb.getLayoutSizes("minimumSideWidth")
-            }
-            // margin left
-
-            Rectangle {
-                Layout.fillHeight: true
-            }
-
-        }
-
-        Toast {
-            id: toast
-
-            objectName: "toast"
-        }
-
+        z: 2
+        anchors.top: mainmenubar.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        layouts: JSON.parse(database.getConfig("layouts"))
+        initDataModel: ["classeur"]
     }
 
 }

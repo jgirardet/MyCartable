@@ -1,7 +1,7 @@
 [tool.briefcase]
 project_name = "MyCartable"
 bundle = "coding.cacahuete"
-version = "1.3.2"
+version = "1.5.0"
 url = "https://github.com/jgirardet/MyCartable"
 license = "GNU General Public License v3 (GPLv3)"
 author = 'Jimmy Girardet'
@@ -9,7 +9,7 @@ author_email = "ijkl@netc.fr"
 
 [tool.briefcase.app.mycartable]
 formal_name = "MyCartable"
-description = "L'école sur ordinateur, tout un un !!!"
+description = "L'école sur  ordinateur, tout un un !!!"
 icon = "src/data/icons/mycartable"
 installer_icon = "src/data/icons/mycartable"
 sources = ['src/mycartable']

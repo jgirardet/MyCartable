@@ -247,6 +247,7 @@ def cmd_tag(*args, **kwargs):
     runCommand(f'git commit -m "version {version}"')
     repo.create_tag(version)
     runCommand(f"git push origin {version}")
+    runCommand(f"git push")
 
 
 def cmd_test_binary_as_dir(*args, **kwargs):

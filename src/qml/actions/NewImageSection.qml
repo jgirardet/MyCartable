@@ -1,7 +1,7 @@
+import Qt.labs.platform 1.1 as Labs
 import QtQuick 2.15
 //import QtQuick.Dialogs 1.3 // as Dialogs13
 import QtQuick.Controls 2.15
-import Qt.labs.platform 1.1 as Labs
 
 BasePageAction {
     id: root
@@ -26,7 +26,6 @@ BasePageAction {
     }
 
     dialog: Labs.FileDialog {
-
         function go_accepted() {
             var newPos = append ? page.model.count : position + 1;
             page.addSection(nom, newPos, {
@@ -36,7 +35,7 @@ BasePageAction {
         }
 
         title: "Choisir le fichier à importer"
-        folder: Labs.StandardPaths.writableLocation(Labs.StandardPaths.PicturesLocation)
+        folder: Labs.StandardPaths.writableLocation(Labs.StandardPaths.HomeLocation)
         nameFilters: ["fichiers Images (*.jpg *.jpeg *.png *.bmp *.ppm *.gif, *.pdf)"]
         onAccepted: {
             root.busy.open();

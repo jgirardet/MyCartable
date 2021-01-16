@@ -10,6 +10,7 @@ Rectangle {
     property alias inserter: lexique_insert
     property alias header: table_header
     property alias options: lexique_options
+    property alias lexique: lexique_id
     property int columnWidth: database.getConfig("lexiqueColumnWidth")
     property int preferredHeight: 50
 
@@ -27,10 +28,22 @@ Rectangle {
     }
 
     ColumnLayout {
-        anchors.leftMargin: 20
+        id: colonne
+
         anchors.top: parent.top
         anchors.bottom: parent.bottom
-        width: tableau_id.width
+        anchors.horizontalCenter: parent.horizontalCenter
+        states: [
+            State {
+                when: colonne.width >= root.parent.width
+
+                AnchorChanges {
+                    target: colonne
+                    anchors.horizontalCenter: undefined
+                }
+
+            }
+        ]
 
         LexiqueOptions {
             id: lexique_options

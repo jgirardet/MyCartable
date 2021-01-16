@@ -1,3 +1,4 @@
+import random
 from typing import Optional, Any, Union, Dict
 
 import flag
@@ -14,6 +15,10 @@ from PyQt5.QtCore import (
 )
 from PyQt5.QtQuick import QQuickItem
 from mycartable.types.collections import DtbTableModel
+
+
+def country_flag(locale: QLocale):
+    return flag.flag(locale.name().split("_")[-1])
 
 
 class LexiqueModel(DtbTableModel):
@@ -101,12 +106,16 @@ class LexiqueModel(DtbTableModel):
             res.append(
                 {
                     "id": loc.name(),
-                    "nom": f"{self._country_flag(loc)} {loc.nativeLanguageName()}",
+                    "nom": f"{country_flag(loc)} {loc.nativeLanguageName()}",
                     "active": l in self._actives_locales,
                 }
             )
 
         return res
+
+    @property
+    def model_data(self) -> list:
+        return self._data
 
     def addLexon(self, trads: list) -> bool:
         if new_lexon := self._dtb.execDB("Lexon", None, "add", trads, td=True):
@@ -135,11 +144,168 @@ class LexiqueProxy(QSortFilterProxyModel):
         self.endRemoveRows()
 
 
+class Quizz(QObject):
+    bonneReponse = pyqtSignal()
+    propositionChanged = pyqtSignal()
+    questionChanged = pyqtSignal()
+    questionFlagChanged = pyqtSignal()
+    reponseChanged = pyqtSignal()
+    reponseFlagChanged = pyqtSignal()
+    scoreChanged = pyqtSignal()
+    showErrorChanged = pyqtSignal()
+    totalChanged = pyqtSignal()
+
+    def __init__(self, parent, model):
+        super().__init__(parent)
+        self._model = model
+        self.reset()
+
+    def reset(self):
+        self.score = 0
+        self.total = 0
+        self.question = ""
+        self.reponse = ""
+        self.questionFlag = ""
+        self.reponseFlag = ""
+        self.showError = False
+        self.proposition = ""
+        self._data = self._model.model_data
+
+    def _new_question(self):
+        self.showError = False
+        self.proposition = ""
+        content = None
+        compteur = 0
+        while not content and compteur < 100:
+            # permet d'éviter le problème où il n'y a qu'un seul trad
+            # le compteur évite la boucle infinie
+            content = self._question_provider()
+            compteur += 1
+        if not content:
+            return
+        self.question = content["question"]
+        self.questionFlag = country_flag(QLocale(content["question_locale"]))
+        self.reponse = content["reponse"]
+        self.reponseFlag = country_flag(QLocale(content["reponse_locale"]))
+
+    def _question_provider(self) -> dict:
+        res = {}
+        trads = list(filter(lambda x: x, random.choice(self._data)["traductions"]))
+        if len(trads) < 2:
+            return
+        q = trads.pop(random.randint(0, len(trads) - 1))
+        res["question"] = q["content"]
+        res["question_locale"] = q["locale"]
+        r = trads.pop(random.randint(0, len(trads) - 1))
+        res["reponse"] = r["content"]
+        res["reponse_locale"] = r["locale"]
+        return res
+
+    """
+    Qt Property
+    """
+
+    @pyqtProperty(bool, notify=showErrorChanged)
+    def showError(self):
+        return self._showError
+
+    @showError.setter
+    def showError(self, value: bool):
+        self._showError = value
+        self.showErrorChanged.emit()
+
+    @pyqtProperty(str, notify=questionChanged)
+    def question(self):
+        return self._question
+
+    @question.setter
+    def question(self, value: str):
+        self._question = value
+        self.questionChanged.emit()
+
+    @pyqtProperty(str, notify=questionFlagChanged)
+    def questionFlag(self):
+        return self._questionFlag
+
+    @questionFlag.setter
+    def questionFlag(self, value: str):
+        self._questionFlag = value
+        self.questionFlagChanged.emit()
+
+    @pyqtProperty(str, notify=reponseChanged)
+    def reponse(self):
+        return self._reponse
+
+    @reponse.setter
+    def reponse(self, value: str):
+        self._reponse = value
+        self.reponseChanged.emit()
+
+    @pyqtProperty(str, notify=propositionChanged)
+    def proposition(self):
+        return self._proposition
+
+    @proposition.setter
+    def proposition(self, value: str):
+        self._proposition = value
+        self.propositionChanged.emit()
+
+    @pyqtProperty(str, notify=reponseFlagChanged)
+    def reponseFlag(self):
+        return self._reponseFlag
+
+    @reponseFlag.setter
+    def reponseFlag(self, value: str):
+        self._reponseFlag = value
+        self.reponseFlagChanged.emit()
+
+    @pyqtProperty(int, notify=scoreChanged)
+    def score(self):
+        return self._score
+
+    @score.setter
+    def score(self, value: int):
+        self._score = value
+        self.scoreChanged.emit()
+
+    @pyqtProperty(int, notify=totalChanged)
+    def total(self):
+        return self._total
+
+    @total.setter
+    def total(self, value: int):
+        self._total = value
+        self.totalChanged.emit()
+
+    """
+    Qt Slots
+    """
+
+    @pyqtSlot(result=bool)
+    def checkReponse(self):
+        if self._reponse == self.proposition:
+            self.total += 1
+            if not self.showError:
+                self.score += 1
+                self.bonneReponse.emit()
+            self._new_question()
+            return True
+        else:
+            self.showError = True
+        return False
+
+    @pyqtSlot()
+    def start(self):
+        self.reset()
+        self._new_question()
+
+
 class Lexique(QQuickItem):
     def __init__(self, parent=None, **kwargs):
         super().__init__(parent=parent)
         self._model = LexiqueModel(parent=self)
         self._proxy = LexiqueProxy(parent=self, source=self._model)
+        self._quizz = Quizz(parent=self, model=self._model)
 
     """ "
     Qt Properties
@@ -152,6 +318,10 @@ class Lexique(QQuickItem):
     @pyqtProperty(QObject, constant=True)
     def proxy(self) -> LexiqueProxy:
         return self._proxy
+
+    @pyqtProperty(QObject, constant=True)
+    def quizz(self) -> Quizz:
+        return self._quizz
 
     """"
     Qt SLot

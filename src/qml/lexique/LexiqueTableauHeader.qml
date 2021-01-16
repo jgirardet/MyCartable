@@ -14,10 +14,6 @@ HorizontalHeaderView {
         return 50;
     }
     model: lexique.model
-    onColumnsChanged: {
-        // bug d'affichage en splitscreen avev British English (trop long)
-        returnToBounds();
-    }
 
     delegate: Label {
         text: display
@@ -25,6 +21,10 @@ HorizontalHeaderView {
         font.pointSize: 14
         verticalAlignment: Text.AlignVCenter
         horizontalAlignment: Text.AlignHCenter
+        Component.onCompleted: {
+            root.contentX = 1;
+            root.returnToBounds();
+        }
 
         MouseArea {
             anchors.fill: parent

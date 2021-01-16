@@ -22,7 +22,7 @@ Item {
         property var droiteH
 
         function initPre() {
-            database.setConfig("availables_locales", ['fr_FR', 'en_GB', 'it_IT']);
+            database.setConfig("availables_locales", ['fr_FR', 'en_GB', 'it_IT', 'es_ES', 'de_DE']);
             database.setConfig("actives_locales", ['fr_FR', 'en_GB']);
             trad1 = fk.f("traduction", {
                 "locale": "fr_FR",
@@ -155,17 +155,18 @@ Item {
         }
 
         function test_toggle_matiere() {
-            verify(tested.options.items.itemAt(0).checked);
-            verify(tested.options.items.itemAt(1).checked);
-            verify(!tested.options.items.itemAt(2).checked);
+            mouseClick(tested.options.children[0]);
+            verify(tested.options.langues.itemAt(1).checked);
+            verify(tested.options.langues.itemAt(3).checked);
+            verify(!tested.options.langues.itemAt(4).checked);
             compare(tested.tableau.columns, 2);
             compare(tested.tableau.rows, 3);
             //coche
-            mouseClick(tested.options.items.itemAt(2));
+            mouseClick(tested.options.langues.itemAt(4));
             tryCompare(tested.tableau, "columns", 3);
             compare(tested.tableau.rows, 3);
             //decoche
-            mouseClick(tested.options.items.itemAt(0));
+            mouseClick(tested.options.langues.itemAt(1));
             tryCompare(tested.tableau, "columns", 2);
             compare(tested.tableau.rows, 3);
         }
@@ -174,6 +175,44 @@ Item {
             mouseClick(tested.tableau.itemAt(1, 0), 1, 1, Qt.MiddleButton);
             tested.tableau.removeDialog.accept();
             tryCompare(tested.tableau, "rows", 2);
+        }
+
+        function test_quizz() {
+            let trad4 = fk.f("traduction", {
+                "lexon": trad1.lexon,
+                "locale": "en_GB",
+                "content": "hello"
+            });
+            let trad5 = fk.f("traduction", {
+                "lexon": trad2.lexon,
+                "locale": "fr_FR",
+                "content": "au revoir"
+            });
+            let trad6 = fk.f("traduction", {
+                "lexon": trad3.lexon,
+                "locale": "en_GB",
+                "content": "thanks"
+            });
+            //            tested.destroy();
+            let lex = createObj(testedNom, {
+            }, item);
+            let qz = lex.lexique.quizz;
+            mouseClick(lex.options.children[1]);
+            let quizz = lex.options.quizz;
+            compare(quizz.question.text, qz.question);
+            compare(quizz.reponse.text, "");
+            keyClick(Qt.Key_Return); // mauvaise reponse, verifie aussi le focus onOpen
+            compare(quizz.reponse.text, "réponse: " + qz.reponse);
+            qz.reponse = "bla"; //on triche pour le test
+            keySequence("b,l,a");
+            compare(qz.proposition, "bla");
+            keyClick(Qt.Key_Return);
+            compare(qz.score, 0);
+            compare(qz.total, 1);
+            //reinit pour question suivante
+            compare(qz.proposition, "");
+            compare(quizz.input.text, "");
+            compare(quizz.reponse.text, "");
         }
 
         name: "Lexique"

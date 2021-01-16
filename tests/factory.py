@@ -490,7 +490,7 @@ class Faker:
     def f_traduction(self, content=None, lexon=None, locale=None, td=False):
         content = content or gen.text.word()
         lexon = (
-            (lexon if isinstance(lexon, int) else lexon.id)
+            (lexon if isinstance(lexon, str) else lexon.id)
             if lexon
             else self.f_lexon().id
         )

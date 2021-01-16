@@ -1,9 +1,11 @@
 """
 Test LExique model
 """
+from unittest.mock import patch, MagicMock
+
 import pytest
 from PyQt5.QtCore import QModelIndex, Qt
-from mycartable.lexique import LexiqueModel
+from mycartable.lexique import LexiqueModel, Quizz
 from mycartable.lexique import LexiqueProxy, Lexique
 from pony.orm import db_session
 
@@ -224,3 +226,119 @@ def test_updateActivesLocales(qtbot):
     with qtbot.waitSignal(l._model.activesLocalesChanged):
         l.updateActivesLocales("it_IT", True)
     assert l.model.activesLocales == ["en_GB", "fr_FR", "it_IT"]
+
+
+"""
+Test Quizz
+"""
+
+
+class TestQuizz:
+
+    provider = {
+        "question": "hello",
+        "question_locale": "en_GB",
+        "reponse": "coucou",
+        "reponse_locale": "fr_FR",
+    }
+
+    @pytest.fixture()
+    def q(self):
+        data = [
+            {
+                "traductions": [
+                    {"content": "hello", "locale": "en_GB"},
+                    {"content": "coucou", "locale": "fr_FR"},
+                ]
+            }
+        ]
+        m = LexiqueModel()
+        m._data = data
+        return Quizz(None, m)
+
+    def test_init(self, q):
+        assert q.score == 0
+        assert q.total == 0
+        assert q.questionFlag == ""
+        assert q.question == ""
+        assert q.reponse == ""
+        assert q.reponseFlag == ""
+        assert q.showError == False
+
+    def test_question_provider(self, q):
+        m = MagicMock(return_value=0)
+        with patch("mycartable.lexique.random.randint", m):
+            assert q._question_provider() == self.provider
+
+    def test_start_and_new_question(self, q, qtbot):
+        q._question_provider = lambda: self.provider
+        q.start()
+        q._score = 2
+        q._total = 4
+        assert q.question == "hello"
+        assert q.reponse == "coucou"
+        assert q.questionFlag is not None
+        assert q.reponseFlag is not None
+        q._showError = True
+        with qtbot.waitSignals(
+            [
+                q.showErrorChanged,
+                q.propositionChanged,
+                q.questionChanged,
+                q.questionFlagChanged,
+                q.reponseChanged,
+                q.reponseFlagChanged,
+            ]
+        ):
+            q._new_question()
+        assert not q._showError
+
+    @pytest.mark.parametrize(
+        "prop, emit, score, total, err_avant, err_apres, res_check",
+        [
+            ("coucou", True, 1, 1, False, False, True),  # bonne reponse du premier coup
+            (
+                "coucou",
+                False,
+                0,
+                1,
+                True,
+                False,
+                True,
+            ),  # bonne reponse apres corrention
+            (
+                "bad",
+                False,
+                0,
+                0,
+                False,
+                True,
+                False,
+            ),  # mauvaise reponse avantcorrention
+            (
+                "bad",
+                False,
+                0,
+                0,
+                True,
+                True,
+                False,
+            ),  # mauvaise reponse apres corrention
+        ],
+    )
+    def test_checkreponse(
+        self, q, prop, emit, score, total, err_avant, err_apres, res_check, qtbot
+    ):
+        q._question_provider = lambda: self.provider
+        q.start()
+        q._showError = err_avant
+        q.proposition = prop
+        if emit:
+            with qtbot.waitSignal(q.bonneReponse):
+                res = q.checkReponse()
+        else:
+            res = q.checkReponse()
+        assert res is res_check
+        assert q.score == score
+        assert q.total == total
+        assert q.showError == err_apres

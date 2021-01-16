@@ -53,15 +53,6 @@ Item {
             compare(tab.rows, 3);
         }
 
-        function test_tableau_itemAt_and_content_text() {
-            compare(tab.itemAt(0, 0).text, "");
-            compare(tab.itemAt(0, 1).text, trad1.content);
-            compare(tab.itemAt(1, 0).text, trad2.content);
-            compare(tab.itemAt(1, 1).text, "");
-            compare(tab.itemAt(2, 0).text, "");
-            compare(tab.itemAt(2, 1).text, trad3.content);
-        }
-
         function test_tableau_change_text() {
             let bonjour = tab.itemAt(0, 1);
             clickAndWrite(bonjour);

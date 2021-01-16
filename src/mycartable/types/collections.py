@@ -1,35 +1,27 @@
 import typing
+
 from PyQt5.QtCore import (
-    QObject,
     QModelIndex,
     Qt,
     pyqtSlot,
     QAbstractListModel,
+    QAbstractTableModel,
 )
 from mycartable.types.dtb import DTB
 
 
-class DtbListModel(QAbstractListModel):
+class DTBAble:
     """
-    Modèle par défault des collections.
-    Les appels database sont fait via self._dtb
+        Modèle par défault des collections.
+        Les appels database sont fait via self._dtb
 
-    Les méthods `_moveRows`, `_indesertRows`, `removeRows`, `_roleNames`, `_reset`
-     , `_after_reset` peuvent être implémentées.
-
-
-    ex : FriseModel
-
+        Virtual method:
+        _roleNames
+    *
     """
 
-    def __init_subclass__(cls, **kwargs):
-        if id(cls.rowCount) == id(QAbstractListModel.rowCount):  # pragm: no branch
-            raise NotImplementedError(
-                "method rowCount has to be implemented",
-            )
-
-    def __init__(self, parent: QObject = None):
-        super().__init__(parent)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self._dtb = DTB()
         self.reset()
 
@@ -44,10 +36,42 @@ class DtbListModel(QAbstractListModel):
             default[role] = role_name
         return default
 
-    def insertRows(self, row: int, count, index=QModelIndex()) -> bool:
+    def _reset(self):
+        pass
+
+    def _roleNames(self):
+        return {}
+
+    def _after_reset(self):
+        pass
+
+    @pyqtSlot(result=bool)
+    def reset(self):
+        """Int the model"""
+        self.beginResetModel()
+        self._reset()
+        self.endResetModel()
+        self._after_reset()
+        return True
+
+
+class RowAble:
+    """
+    Mixin de gestion des lignes
+    Methods implémentables:
+    _moveRows
+    _deleteRows
+    _removeRows
+
+    """
+
+    # def __init__(self, **kwargs):
+    #     super().__init__(**kwargs)
+
+    def insertRows(self, row: int, count, parent=QModelIndex()) -> bool:
         """Insert n rows (n = 1 + count)  at row"""
 
-        self.beginInsertRows(QModelIndex(), row, row + count)
+        self.beginInsertRows(parent, row, row + count)
         # start datanase work
         self._insertRows(row, count)
         # end database work
@@ -119,18 +143,15 @@ class DtbListModel(QAbstractListModel):
     def _moveRows(self, sourceRow, count, destinationChild):
         pass
 
-    def _reset(self):
-        pass
-
-    def _roleNames(self):
-        return {}
-
-    def _after_reset(self):
-        pass
-
     """QT Properties"""
 
     """QT pyqtSlots"""
+
+
+class RowSlotable(RowAble):
+    """
+    Rowable avec les Slot
+    """
 
     @pyqtSlot(result=bool)
     def append(self) -> bool:
@@ -147,11 +168,32 @@ class DtbListModel(QAbstractListModel):
         """pyqtSlot to remove one row"""
         return self.removeRow(row)
 
-    @pyqtSlot(result=bool)
-    def reset(self):
-        """Int the model"""
-        self.beginResetModel()
-        self._reset()
-        self.endResetModel()
-        self._after_reset()
-        return True
+
+class BaseListModel(QAbstractListModel):
+    """
+    AbstractListModel with only kwargs constructor
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+
+class BaseTableModel(QAbstractTableModel):
+    """
+    AbstractTableModel with only kwargs constructor
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+
+class DtbListModel(RowSlotable, DTBAble, BaseListModel):
+    """
+    DTB list model to subclass
+    """
+
+
+class DtbTableModel(RowSlotable, DTBAble, BaseTableModel):
+    """
+    DTB table model to sublclass
+    """

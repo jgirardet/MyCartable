@@ -173,3 +173,8 @@ def test_exec_class_method(dtb, fk):
     a = fk.f_annee(id=2019)
     res = dtb.execDB("Page", None, "recents", 2019)
     assert res == [y, z, x]
+
+
+def test_count(dtb, fk):
+    fk.b_page(4)
+    assert dtb.count(dtb.execDB("Page", None, "select")) == 4

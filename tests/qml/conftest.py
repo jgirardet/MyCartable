@@ -111,7 +111,7 @@ class TestHelper(DTB):
 
     @pyqtSlot(str, result=str)
     def testPath(self, name: str):
-        return (Path(__file__).parent / name).as_uri()
+        return str((Path(__file__).parent / name).as_uri())
 
     @pyqtSlot(str, result=QColor)
     def color(self, color: str):
@@ -122,10 +122,7 @@ class TestHelper(DTB):
         return os.environ.get(value, None)
 
 
-print("dbut import conftest qml")
-
 db = init_database(Database(), create_db=True)
-print("fin import conftest qml")
 fk = FakerHelper(db)
 th = TestHelper(db)
 

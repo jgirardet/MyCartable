@@ -9,7 +9,10 @@ from pony.orm import Database, db_session, OperationalError
 Mode d'emploi pour ajouter des migrations:
 
 - changer la version dans database/models
-- ajouter une nouvelle list de migrations à migration_history : un instruction par ligne
+- ajouter une migrations vide à migration_history, liste vide
+- ajouter method "version 1_X_Y"
+- lancer une fois pour créer sql et sqlite
+- ajouter les migrations à migration_history: un instruction par ligne
 - créer de_1_X_X_vers_1_X_Y dans CheckMigrations
 - Ce qui ne peut être mis dans CheckMigrations doit faire l'objet d'un test séparé dans test_migrations.py
 """
@@ -39,6 +42,7 @@ migrations_history = {
         "PRAGMA foreign_keys = ON;",
         # FIN drop utilisateur, remove refenrece from Annee
     ],
+    "1.5.0": [],
 }
 
 
@@ -59,9 +63,15 @@ class CheckMigrations:
 
     db: Database
 
+    def __init__(self, only=[], until=None):
+        self._only = only
+        self._until = until
+
     def _generate_func_names(self):
         res = []
         keys = list(migrations_history.keys())
+        if self._until is not None:
+            keys = list(filter(lambda x: x <= self._until, keys))
         prev = keys[0]
         for k in keys[1:]:
             res.append(f"de_{prev.replace('.','_')}_vers_{k.replace('.','_')}")
@@ -101,9 +111,19 @@ class CheckMigrations:
             "La colonne 'user' n'a pas été supprimée dans 'Annee'",
         )
 
-    def __call__(self, db: Database, only=[]) -> bool:
+    def de_1_4_0_vers_1_5_0(self):
+        try:
+            self.db.execute("select content from Traduction")
+            self.db.execute("select id from Locale")
+            self.db.execute("select id from Lexon")
+        except OperationalError as err:
+            raise MigrationResultError(str(err)) from err
+
+    def __call__(self, db: Database, only=[], until=None) -> bool:
+        func_names = self._generate_func_names()
         self.db = db
-        funcs = only if only else self._generate_func_names()
+        only = only or self._only
+        funcs = only if only else func_names
         for fn in funcs:
             with db_session:
                 getattr(self, fn)()

@@ -82,6 +82,10 @@ class GenerateDatabase:
     def version_1_4_0(self):
         self.generate_items()
 
+    def version_1_5_0(self):
+        self.generate_items()
+        self.f.f_traduction(content="coucou", locale="fr_FR")
+
 
 @pytest.fixture(scope="session", autouse=True)
 def check_generate_database_version(resources):
@@ -120,7 +124,7 @@ def test_1_3_0_vers_1_4_0(new_res, resources, caplogger):
     with db_session_disconnect_db(ddb):
         nom, prenom = ddb.get('select nom,prenom from Utilisateur where nom=="lenom"')
 
-    assert mk(CheckMigrations(), lambda x: True), caplogger.read()
+    assert mk(CheckMigrations(until="1.4.0"), lambda x: True), caplogger.read()
 
     # test: pas de perte de donnée pour Annee
     with db_session_disconnect_db(ddb):

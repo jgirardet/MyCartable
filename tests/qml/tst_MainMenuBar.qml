@@ -72,6 +72,24 @@ Item {
             tested.heightAnimation.duration = 0;
             tested.hideTimer.interval = 0;
             item._reload_run = false;
+            mouseMove(tested, 1, 1);
+            tryCompare(tested, "height", 40);
+        }
+
+        function test_showhide() {
+            //mouse in and out
+            mouseMove(tested, -5, -5);
+            tryCompare(tested, "height", 2);
+            mouseMove(tested, 1, 1);
+            compare(tested.height, 40);
+            mouseMove(tested, -1, -1);
+            compare(tested.height, 2);
+            // don't hide if menu visible
+            tested.state = "expanded";
+            fichier.visible = true;
+            compare(tested.height, 40);
+            tested.hideTimer.start();
+            compare(tested.height, 40);
         }
 
         function test_fichier() {
@@ -112,21 +130,6 @@ Item {
             tryCompare(dialog, "visible", true);
             dialog.close();
             tryCompare(item, "_reload_run", true);
-        }
-
-        function test_showhide() {
-            //mouse in and out
-            compare(tested.height, 2);
-            mouseMove(tested, 1, 1);
-            compare(tested.height, 40);
-            mouseMove(tested, -1, -1);
-            compare(tested.height, 2);
-            // don't hide if menu visible
-            tested.state = "expanded";
-            fichier.visible = true;
-            compare(tested.height, 40);
-            tested.hideTimer.start();
-            compare(tested.height, 40);
         }
 
         function test_split_buttons() {

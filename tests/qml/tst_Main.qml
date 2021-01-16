@@ -38,6 +38,12 @@ Item {
                     "splittext": "Classeur",
                     "splitindex": 1,
                     "spliturl": "qrc:/qml/layouts/ClasseurLayout.qml"
+                },
+                "lexique": {
+                    "splittype": "lexique",
+                    "splittext": "Lexique",
+                    "splitindex": 2,
+                    "spliturl": "qrc:/qml/lexique/LexiqueLayout.qml"
                 }
             });
         }

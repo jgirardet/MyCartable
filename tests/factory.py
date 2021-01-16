@@ -476,6 +476,35 @@ class Faker:
             item = self.db.Configuration.add(key, value)
             return item.to_dict() if td else item
 
+    def f_lexon(self, td=False):
+        with db_session:
+            item = self.db.Lexon()
+            return item.to_dict() if td else item
+
+    def f_locale(self, id=None, td=False):
+        id = id or random.choice(["fr_FR", "en_US", "es_ES", "it_IT", "de_DE"])
+        with db_session:
+            item = self.db.Locale.get(id=id) or self.db.Locale(id=id)
+            return item.to_dict() if td else item
+
+    def f_traduction(self, content=None, lexon=None, locale=None, td=False):
+        content = content or gen.text.word()
+        lexon = (
+            (lexon if isinstance(lexon, str) else lexon.id)
+            if lexon
+            else self.f_lexon().id
+        )
+        if locale:
+            locale = locale if isinstance(locale, str) else locale.id
+        locale = self.f_locale(id=locale).id
+
+        with db_session:
+            item = self.db.Traduction(lexon=lexon, content=content, locale=locale)
+            return item.to_dict() if td else item
+
+    def bulk(self, fn: str, nb: int, **kwargs):
+        return [getattr(self, fn)(**kwargs) for i in range(nb)]
+
     @db_session
     def populate_database(self):
 

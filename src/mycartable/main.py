@@ -9,6 +9,7 @@ from mycartable.defaults.configuration import (
     DEFAUT_CONFIGURATION,
     KEEP_UPDATED_CONFIGURATION,
 )
+from mycartable.lexique import Lexique
 from mycartable.types import Annee, ChangeMatieres
 from mycartable.types.dtb import DTB
 from mycartable import get_prod
@@ -91,6 +92,7 @@ def register_new_qml_type():
     qmlRegisterType(Classeur, "MyCartable", 1, 0, "Classeur")
     qmlRegisterType(DTB, "MyCartable", 1, 0, "Database")
     qmlRegisterType(Annee, "MyCartable", 1, 0, "Annee")
+    qmlRegisterType(Lexique, "MyCartable", 1, 0, "Lexique")
 
 
 def load_engine(engine: QQmlApplicationEngine):

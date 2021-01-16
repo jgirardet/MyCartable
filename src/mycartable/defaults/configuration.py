@@ -5,6 +5,9 @@ DEFAUT_CONFIGURATION = {
     "preferredHeaderHeight": 50,
     "colorFond": QColor(130, 134, 138).name(),
     "fontMain": "Verdana",
+    "lexiqueColumnWidth": 300,
+    "availables_locales": ["fr_FR", "en_GB", "it_IT", "es_ES", "de_DE"],
+    "actives_locales": ["fr_FR", "en_GB"],
 }
 
 # systématiquement remis à jours au démarrage
@@ -21,6 +24,12 @@ KEEP_UPDATED_CONFIGURATION = {
             "splittext": "Classeur",
             "splitindex": 1,
             "spliturl": "qrc:/qml/layouts/ClasseurLayout.qml",
+        },
+        "lexique": {
+            "splittype": "lexique",
+            "splittext": "Lexique",
+            "splitindex": 2,
+            "spliturl": "qrc:/qml/lexique/LexiqueLayout.qml",
         },
     },
     "annotationDessinCurrentLineWidth": 3,

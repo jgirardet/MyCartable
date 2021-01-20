@@ -26,7 +26,6 @@ BasePageAction {
             page.addSection(tableauaction.nom, newPos, {
                 "lignes": ~~lignesSlider.value,
                 "colonnes": ~~colonneSlider.value,
-                "position": newPos,
                 "modele": groupeModeles.checkedButton.icon.name
             });
             dialogNewTableau.close();

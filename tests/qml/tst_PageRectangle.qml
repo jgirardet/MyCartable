@@ -1,3 +1,4 @@
+import MyCartable 1.0
 import QtQuick 2.15
 
 Item {
@@ -6,15 +7,24 @@ Item {
     width: 600
     height: 600
 
+    Classeur {
+        id: classeur_id
+    }
+
     CasTest {
         property var pageD
         property QtObject page
+        property QtObject classeur
 
         function initPre() {
             pageD = fk.f("page", {
                 "titre": "le titre"
             });
-            page = th.getBridgeInstance(item, "Page", pageD.id);
+            let annee = fk.f("annee", {
+                "id": 2009
+            });
+            classeur_id.annee = 2009;
+            page = th.getBridgeInstance(classeur_id, "Page", pageD.id);
             params = {
                 "page": page,
                 "anchors.fill": item
@@ -58,7 +68,7 @@ Item {
             let pD = fk.f("page", {
                 "titre": ""
             });
-            let p = th.getBridgeInstance(item, "Page", pD.id);
+            let p = th.getBridgeInstance(classeur_id, "Page", pD.id);
             tested.page = p;
             mouseClick(tested.titre);
             keyClick(Qt.Key_Return);

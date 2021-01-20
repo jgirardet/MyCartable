@@ -1,3 +1,4 @@
+import MyCartable 1.0
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtTest 1.14
@@ -8,6 +9,10 @@ Rectangle {
     width: 400
     height: 200
     color: "blue"
+
+    Classeur {
+        id: classeur_id
+    }
 
     CasTest {
         //compare(tested.contentY, 21); //position at load
@@ -49,7 +54,7 @@ Rectangle {
                 "text": "blabla 4",
                 "page": page.id
             });
-            pageObj = th.getBridgeInstance(item, "Page", page.id);
+            pageObj = th.getBridgeInstance(classeur_id, "Page", page.id);
             params = {
                 "page": pageObj,
                 "width": item.width,
@@ -122,9 +127,9 @@ Rectangle {
                 let filedialog = tested.addDialog.contentItem.children[data.index].action.dialog;
                 filedialog.folder = "assets";
                 wait(50);
-                keySequence("r,e,c,t")
-                keySequence(".,p,n,g")
-                keyClick(Qt.Key_Return)
+                keySequence("r,e,c,t");
+                keySequence(".,p,n,g");
+                keyClick(Qt.Key_Return);
             }
             tryCompare(tested.addDialog, "scale", 0);
             compare(tested.addDialog.visible, false);

@@ -463,6 +463,11 @@ class TestSection:
             for index, value in enumerate(poses):
                 assert fk.db.Section[secs[index].id].position == value
 
+    def test_backup(self, fk):
+        with db_session:
+            sec = fk.f_section()
+            assert sec.to_dict() == sec.backup()
+
 
 class TestImageSection:
     def test_factory(self, fk):
@@ -837,7 +842,6 @@ class TestTableauSection:
 
     def test_to_dict(self, ddb, fk):
         item = fk.f_tableauSection(lignes=3, colonnes=4)
-
         assert item.to_dict() == {
             "classtype": "TableauSection",
             "created": item.created.isoformat(),
@@ -847,6 +851,30 @@ class TestTableauSection:
             "modified": item.modified.isoformat(),
             "page": str(item.page.id),
             "position": 0,
+        }
+
+    def test_backup(self, ddb, fk):
+        item = fk.f_tableauSection(lignes=3, colonnes=4)
+        res = item.backup()
+        cells = res.pop("cells")
+        assert res == item.to_dict()
+        assert len(cells) == 12
+        c2 = cells[2]
+        assert c2 == {
+            "style": {
+                "bgColor": c2["style"]["bgColor"],
+                "family": "",
+                "fgColor": c2["style"]["fgColor"],
+                "pointSize": None,
+                "strikeout": False,
+                "styleId": c2["style"]["styleId"],
+                "underline": False,
+                "weight": None,
+            },
+            "tableau": str(item.id),
+            "texte": "",
+            "x": 2,
+            "y": 0,
         }
 
     def test_get_cells(self, ddb, fk):

@@ -74,6 +74,9 @@ def class_section(
             )
             return dico
 
+        def backup(self):
+            return self.to_dict()
+
         def before_insert(self):
             self.modified = self.created
             self.page.modified = self.modified
@@ -278,6 +281,11 @@ def class_section(
                     cel.style.bgColor = self.MODEL_COLOR_COLONNE0
                 for cel in self.get_cells_par_ligne(0):
                     cel.style.bgColor = self.MODEL_COLOR_LINE0
+
+        def backup(self):
+            dico = self.to_dict()
+            dico["cells"] = self.get_cells()
+            return dico
 
         def _get_cells(self):
             return self.cells.select().sort_by(TableauCell.y, TableauCell.x)

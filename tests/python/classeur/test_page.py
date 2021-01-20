@@ -4,7 +4,7 @@ from unittest.mock import patch
 import pytest
 from PyQt5.QtCore import QModelIndex
 from pytestqml.qt import QObject
-from tests.python.fixtures import ss, check_args, disable_log
+from tests.python.fixtures import ss, disable_log
 from mycartable.classeur import (
     Page,
     PageModel,
@@ -19,6 +19,7 @@ from mycartable.classeur import (
     DivisionSection,
     TableauSection,
     FriseSection,
+    Classeur,
 )
 from mycartable.utils import shift_list
 from pony.orm import db_session
@@ -348,7 +349,8 @@ def test_addSection(fk, args, kwargs, res, lastpos, qtbot):
     ]
     new_id = "33333333-3333-3333-3333-333333333333"
     [fk.f_section(id=x, page=pg.id) for x in ids]
-    p = Page.get(str(pg.id))
+    c = Classeur()
+    p = Page.get(str(pg.id), parent=c)
     a = p.model
     kwargs.update({"id": new_id})
     with qtbot.waitSignal(a.rowsInserted):
@@ -365,14 +367,15 @@ def test_addSection(fk, args, kwargs, res, lastpos, qtbot):
 
 
 def new_page(fk):
+    c = Classeur()
     p = fk.f_page()
-    po = Page.get(p.id)
+    po = Page.get(p.id, parent=c)
     model = po.model
-    return p, po, model
+    return p, po, model, c
 
 
 def test_addSection_text(fk, qtbot):
-    p, po, model = new_page(fk)
+    p, po, model, c = new_page(fk)
     with qtbot.waitSignal(po.model.rowsInserted):
         po.addSection("TextSection", 0, {"text": "aaa"})
     assert model.count == 1
@@ -384,7 +387,7 @@ def test_addSection_image(
     qtbot,
     png_annot,
 ):
-    p, po, model = new_page(fk)
+    p, po, model, c = new_page(fk)
     with qtbot.waitSignal(po.model.rowsInserted):
         po.addSection("ImageSection", 0, {"path": str(png_annot)})
     assert model.count == 1
@@ -398,7 +401,7 @@ def test_addSection_image_pdf(
     resources,
 ):
     pdf = resources / "2pages.pdf"
-    p, po, model = new_page(fk)
+    p, po, model, c = new_page(fk)
     fk.f_textSection(page=p.id)
     with qtbot.waitSignal(po.model.rowsInserted):
         po.addSection("ImageSection", 1, {"path": str(pdf)})
@@ -412,7 +415,7 @@ def test_addSection_image_vide(
     fk,
     qtbot,
 ):
-    p, po, model = new_page(fk)
+    p, po, model, c = new_page(fk)
     with qtbot.waitSignal(po.model.rowsInserted):
         po.addSection("ImageSection", 0, {"height": 1, "width": 1})
     assert model.count == 1
@@ -424,7 +427,7 @@ def test_addSection_equation(
     fk,
     qtbot,
 ):
-    p, po, model = new_page(fk)
+    p, po, model, c = new_page(fk)
     with qtbot.waitSignal(po.model.rowsInserted):
         po.addSection("EquationSection", 0, {"content": "aaa"})
     assert model.count == 1
@@ -448,7 +451,7 @@ def test_addSection_addition(
     fk,
     qtbot,
 ):
-    p, po, model = new_page(fk)
+    p, po, model, c = new_page(fk)
     with qtbot.waitSignal(po.model.rowsInserted):
         po.addSection(section.entity_name, 0, {"string": string})
     assert model.count == 1
@@ -462,7 +465,7 @@ def test_addSection_tableau(
     fk,
     qtbot,
 ):
-    p, po, model = new_page(fk)
+    p, po, model, c = new_page(fk)
     with qtbot.waitSignal(po.model.rowsInserted):
         po.addSection("TableauSection", 0, {"lignes": 3, "colonnes": 2})
     assert model.count == 1
@@ -476,7 +479,7 @@ def test_addSection_frise(
     fk,
     qtbot,
 ):
-    p, po, model = new_page(fk)
+    p, po, model, c = new_page(fk)
     with qtbot.waitSignal(po.model.rowsInserted):
         po.addSection("FriseSection", 0, {"height": 3})
     assert model.count == 1

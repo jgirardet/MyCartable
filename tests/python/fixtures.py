@@ -27,6 +27,20 @@ def compare(first, two, key="id"):
     return True
 
 
+def compare_dict_list(lhs, rhs, exclude=[], order=None):
+    """
+    Compare 2 dict e
+    should be used with pytest"""
+    rhs = sorted(rhs, key=lambda x: x[order]) if order else rhs
+    lhs = sorted(lhs, key=lambda x: x[order]) if order else lhs
+    for ld, rd in zip(lhs, rhs):
+        for k, v in ld.items():
+            if k in exclude:
+                continue
+            assert v == rd[k], f"{k}: {v} != {rd[k]}"
+    return True
+
+
 def ss(fn, *args, **kwargs):
     """run inline dbsession"""
     with db_session:

@@ -1,6 +1,7 @@
 from typing import Union, Optional
 from uuid import UUID
 
+from PyQt5.QtWidgets import QUndoStack
 from mycartable.types import DTB
 
 from pony.orm import db_session, ObjectNotFound
@@ -28,11 +29,13 @@ class Classeur(DTB):
 
     def __init__(self, parent: QObject = None):
         super().__init__(parent)
+
         self.reset()
         self.setup_connections()
 
     def reset(self):
         self._annee = 0
+        self._undoStack = QUndoStack(self)
         self._matieresDispatcher: MatieresDispatcher = None
         self._currentMatiere: Matiere = None
         self._page: Page = None
@@ -100,6 +103,10 @@ class Classeur(DTB):
     @pyqtProperty(QObject, notify=recentsChanged)
     def recents(self):
         return self._recents
+
+    @pyqtProperty(QObject, constant=True)
+    def undoStack(self):
+        return self._undoStack
 
     """
     Qt pyqtSlots

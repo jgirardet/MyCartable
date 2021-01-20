@@ -12,6 +12,8 @@ from PyQt5.QtCore import (
     QTimer,
 )
 
+from .commands import AddSectionCommand
+
 from pony.orm import db_session
 
 from .convert import Converter
@@ -96,7 +98,10 @@ class Page(Bridge):
     def addSection(
         self, classtype: str, position: int = None, params: dict = {}
     ) -> bool:
-        return bool(self.model.addSection(classtype, position, params))
+        self.classeur.undoStack.push(
+            AddSectionCommand(self, classtype=classtype, position=position, **params)
+        )
+        return True
 
     @pyqtSlot()
     def exportToPDF(self):
@@ -166,22 +171,6 @@ class PageModel(DtbListModel):
 
     def rowCount(self, parent):
         return len(self._data["sections"])
-
-    def addSection(
-        self, classtype: str, position: int = None, params: dict = {}
-    ) -> bool:
-        """Add a section of type `classtype` at position `position`
-        to page `page_id` width params `params`"""
-        if position is None:
-            position = self.rowCount(QModelIndex())
-
-        params["position"] = position
-
-        new_secs = Section.new_sub(page=self.page.id, classtype=classtype, **params)
-        new_secs = [new_secs] if not isinstance(new_secs, list) else new_secs
-        nb = len(new_secs) - 1
-        if nb >= 0:
-            self.insertRows(position, nb)
 
     @pyqtProperty(Page, constant=True)
     def page(self) -> Page:

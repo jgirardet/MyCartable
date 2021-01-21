@@ -12,7 +12,7 @@ from PyQt5.QtCore import (
     QTimer,
 )
 
-from .commands import AddSectionCommand
+from .commands import AddSectionCommand, RemoveSectionCommand
 
 from pony.orm import db_session
 
@@ -99,9 +99,15 @@ class Page(Bridge):
         self, classtype: str, position: int = None, params: dict = {}
     ) -> bool:
         self.classeur.undoStack.push(
-            AddSectionCommand(self, classtype=classtype, position=position, **params)
+            AddSectionCommand(
+                page=self, classtype=classtype, position=position, **params
+            )
         )
         return True
+
+    @pyqtSlot(int)
+    def removeSection(self, row: int) -> bool:
+        self.classeur.undoStack.push(RemoveSectionCommand(page=self, position=row))
 
     @pyqtSlot()
     def exportToPDF(self):

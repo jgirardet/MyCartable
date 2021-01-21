@@ -136,7 +136,7 @@ Flickable {
 
         message: "Supprimer cet élément ?"
         onAccepted: {
-            page.model.remove(itemIndex, 1);
+            page.removeSection(itemIndex, 1);
         }
         standardButtons: Dialog.Ok | Dialog.Cancel
     }

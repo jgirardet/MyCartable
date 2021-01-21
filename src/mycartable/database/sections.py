@@ -74,8 +74,25 @@ def class_section(
             )
             return dico
 
-        def backup(self):
+        def backup(self) -> dict:
+            """
+            Backup les data afin de pouvoir  restaurer le state de l'entity
+            :return: dict
+            """
             return self.to_dict()
+
+        @classmethod
+        def restore(cls, **data):
+            """
+            Restore le state d'une entity supprimée
+            :param data:
+            :return: None
+            """
+            annotations = data.pop("annotations", [])
+            new_sec = cls(**data)
+            for an in annotations:
+                Annotation(**an)
+            return new_sec
 
         def before_insert(self):
             self.modified = self.created
@@ -140,21 +157,25 @@ def class_section(
         size = Required(int)
         virgule = Required(int)
 
-        def __init__(self, string, **kwargs):
-            try:
-                rows, columns, virgule, datas = create_operation(string)
-            except TypeError:
-                raise MyCartableOperationError(f"{string} est une entrée invalide")
-
-            size = len(datas)
-            super().__init__(
-                rows=rows,
-                columns=columns,
-                _datas=json.dumps(datas),
-                size=size,
-                virgule=virgule,
-                **kwargs,
-            )
+        def __init__(self, string="", **kwargs):
+            if string:
+                try:
+                    rows, columns, virgule, datas = create_operation(string)
+                except TypeError:
+                    raise MyCartableOperationError(f"{string} est une entrée invalide")
+                size = len(datas)
+                super().__init__(
+                    rows=rows,
+                    columns=columns,
+                    _datas=json.dumps(datas),
+                    size=size,
+                    virgule=virgule,
+                    **kwargs,
+                )
+            else:
+                _datas = kwargs.pop("datas")
+                kwargs["_datas"] = json.dumps(_datas)
+                super().__init__(**kwargs)
 
     class AdditionSection(OperationSection):
         pass
@@ -170,16 +191,17 @@ def class_section(
         diviseur = Optional(str)
         quotient = Optional(str, default="")
 
-        def __init__(self, string, **kwargs):
-            super().__init__(string, **kwargs)
-            datas = self.datas
-            # pas optimal mais permet de conserver une cohérance avec les autres.
-            # il faudrait shunter le dump pour ne pas recréer les Decimal
-            # self.dividende = Decimal(datas["dividende"])
-            self.dividende = datas["dividende"]
-            self.diviseur = datas["diviseur"]
-            self._datas = json.dumps(datas["datas"])
-            self.size = self.columns * self.rows
+        def __init__(self, string="", **kwargs):
+            super().__init__(string=string, **kwargs)
+            if string:
+                datas = self.datas
+                # pas optimal mais permet de conserver une cohérance avec les autres.
+                # il faudrait shunter le dump pour ne pas recréer les Decimal
+                # self.dividende = Decimal(datas["dividende"])
+                self.dividende = datas["dividende"]
+                self.diviseur = datas["diviseur"]
+                self._datas = json.dumps(datas["datas"])
+                self.size = self.columns * self.rows
 
     class EquationSection(Section):
 
@@ -196,6 +218,12 @@ def class_section(
         section = Required(Section)
         # style = Optional("Style", default=lam, cascade_delete=True)
         style = Optional(db.Style, default=db.Style, cascade_delete=True)
+
+        def __new__(cls, *args, **kwargs):
+            print(args, kwargs)
+            if classtype := kwargs.pop("classtype", None):
+                cls = getattr(db, classtype)
+            return super().__new__(cls)
 
         def __init__(self, **kwargs):
             if "style" in kwargs and isinstance(kwargs["style"], dict):
@@ -256,16 +284,18 @@ def class_section(
         MODEL_COLOR_LINE0 = QColor("blue").lighter()
         MODEL_COLOR_COLONNE0 = QColor("grey").lighter()
 
-        def __init__(self, *args, modele="", **kwargs):
+        def __init__(self, *args, modele="", create_cells=True, **kwargs):
+            self._create_cells = create_cells
             self.modele = modele
             super().__init__(*args, **kwargs)
 
         def after_insert(self):
-            for r in range(self.lignes):
-                for c in range(self.colonnes):
-                    TableauCell(tableau=self, y=r, x=c)
+            if self._create_cells:
+                for r in range(self.lignes):
+                    for c in range(self.colonnes):
+                        TableauCell(tableau=self, y=r, x=c)
 
-            self.apply_model()
+                self.apply_model()
 
         def apply_model(self):
             if self.modele == "ligne0":
@@ -286,6 +316,14 @@ def class_section(
             dico = self.to_dict()
             dico["cells"] = self.get_cells()
             return dico
+
+        @classmethod
+        def restore(cls, **kwargs):
+            cells = kwargs.pop("cells")
+            new_t = cls(create_cells=False, **kwargs)
+            for c in cells:
+                TableauCell(**c)
+            return new_t
 
         def _get_cells(self):
             return self.cells.select().sort_by(TableauCell.y, TableauCell.x)
@@ -419,6 +457,17 @@ def class_section(
             ]
             return dico
 
+        @classmethod
+        def restore(cls, **kwargs):
+            print("dans restrore")
+            zones = kwargs.pop("zones", [])
+            print(zones)
+            print(kwargs)
+            new_f = cls(**kwargs)
+            for z in zones:
+                ZoneFrise.restore(**z)
+            return new_f
+
     class ZoneFrise(db.Entity, PositionMixin):
         """
         ZoneFrise
@@ -462,7 +511,14 @@ def class_section(
             dico["legendes"] = [p.to_dict() for p in self.legendes]
             return dico
 
-        #
+        @classmethod
+        def restore(cls, **kwargs):
+            legendes = kwargs.pop("legendes", [])
+            new_z = cls(**kwargs)
+            for l in legendes:
+                FriseLegende(**l)
+            return new_z
+
         def set(self, **kwargs):
             if "style" in kwargs:
                 style: dict = kwargs.pop("style")

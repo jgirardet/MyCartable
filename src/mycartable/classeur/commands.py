@@ -5,7 +5,7 @@ from .sections import Section
 
 
 class SectionBaseCommand(BaseCommand):
-    def __init__(self, page, **kwargs):
+    def __init__(self, *, page, **kwargs):
         self.page = page
         self.nb: int = 0  # nombre de section ajoutées
         self.position: int = 0  # position où a été ajouté la section
@@ -48,3 +48,36 @@ class AddSectionCommand(SectionBaseCommand):
         self.page.model.removeRows(
             self.position, self.nb
         )  # removeRows enleve 1 de base déjà enlevé avant
+
+
+class RemoveSectionCommand(SectionBaseCommand):
+
+    formulations = {
+        "TextSection": "Supprimer un zone de texte",
+        "EquationSection": "Supprimer une zone d'équation",
+        "AdditionSection": "Supprimer une addition",
+        "MultiplicationSection": "Supprimer une multiplication",
+        "SoustractionSection": "Supprimer une soustraction",
+        "DivisionSection": "Supprimer une division",
+        "TableauSection": "Supprimer une tableau",
+        "FriseSection": "Supprimer une frise",
+        "ImageSection": "Supprimer une image",
+    }
+
+    def __init__(self, *, position: int, **kwargs):
+        super().__init__(**kwargs)
+        self.position = position
+
+    def redo_command(self) -> None:
+        model = self.page.model
+        section = model.data(model.index(self.position, 0), model.SectionRole)
+        self.params = self._dtb.execDB(section.entity_name, section.id, "backup")
+        self.page.model.removeRow(self.position)
+        self.undo_text = self.formulations.get(self.params["classtype"], "")
+
+    def undo_command(self) -> None:
+
+        position = self.params.get("position", None)
+        entity = self.params.pop("classtype")
+        self._dtb.execDB(entity, None, "restore", **self.params)
+        self.page.model.insertRow(position)

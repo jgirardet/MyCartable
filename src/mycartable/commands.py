@@ -1,4 +1,5 @@
 from PyQt5.QtWidgets import QUndoCommand
+from mycartable.types import DTB
 
 
 class BaseCommand(QUndoCommand):
@@ -8,6 +9,7 @@ class BaseCommand(QUndoCommand):
     def __init__(self, parent: QUndoCommand = None, **kwargs):
         super().__init__(parent=parent)
         self.params = kwargs
+        self._dtb = DTB()
 
     def redo(self) -> None:
         self.redo_command()

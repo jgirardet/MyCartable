@@ -7,6 +7,11 @@ from mycartable.types.bridge import Bridge
 
 """
 Pour créer une nouvelle section :
+- DDB:
+    - créer l'entity
+    - crer le test restore=to_dict ou test appart
+    - ajouter un test à test_backup_restore
+    - ajouter ses tests isolés
 - fichier séparé (penser à entity_name
 - ajouter import dans section.__init__
 - ajouter les property/slots et autres
@@ -14,6 +19,8 @@ Pour créer une nouvelle section :
 - ajouter dans test_section.sub_classes
 - ajouter dans test_page.test_data_role
 - ajouter dans test_addSection_XXX
+- text dans fomulation addSection/removeSection
+- ajouter dans test_addSectionCommand/removeSectionommand
 """
 
 

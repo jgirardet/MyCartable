@@ -12,6 +12,7 @@ from mycartable.classeur import (
     TableauSection,
     FriseSection,
 )
+from pony.orm import db_session
 
 """
 Section
@@ -47,3 +48,16 @@ def test_get_class(fk, _class):
     assert a == s._data
     assert s.classtype == _class.entity_name
     assert isinstance(s, _class)
+
+
+@pytest.mark.parametrize(
+    "_class",
+    sub_classes,
+)
+def test_backup(fk, _class):
+    f_name = "f_" + _class.entity_name[0].lower() + _class.entity_name[1:]
+    a = getattr(fk, f_name)()
+    s = Section.get(a.id)
+
+    with db_session:
+        assert a.backup() == getattr(fk.db, _class.entity_name)[a.id].backup()

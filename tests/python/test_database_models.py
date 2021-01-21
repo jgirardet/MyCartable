@@ -463,10 +463,63 @@ class TestSection:
             for index, value in enumerate(poses):
                 assert fk.db.Section[secs[index].id].position == value
 
-    def test_backup(self, fk):
+    @pytest.mark.parametrize(
+        "section,   kwargs",
+        [
+            ("TextSection", {"text": "hello"}),
+            ("ImageSection", {"path": "sc1.png"}),
+            ("AdditionSection", {"string": "3+2"}),
+            ("SoustractionSection", {"string": "3-2"}),
+            ("MultiplicationSection", {"string": "3*2"}),
+            ("DivisionSection", {"string": "3/2"}),
+            ("EquationSection", {"content": "3/2"}),
+        ],
+    )
+    def test_resore_eagale_to_dict(self, fk, section, kwargs):
         with db_session:
-            sec = fk.f_section()
-            assert sec.to_dict() == sec.backup()
+            sec = fk._f_section(section, **kwargs)
+            if section == "ImageSection":
+                fk.f_annotationText(section=sec.id)
+                fk.f_annotationDessin(section=sec.id)
+            elif section == "Frisection":
+                z = fk.f_zoneFrise(frise=sec.id)
+                fk.f_friseLegende(zone=z)
+
+            assert sec.backup() == sec.to_dict()
+
+    @pytest.mark.parametrize(
+        "section,   kwargs",
+        [
+            ("TextSection", {"text": "hello"}),
+            ("ImageSection", {"path": "sc1.png"}),
+            ("AdditionSection", {"string": "3+2"}),
+            ("SoustractionSection", {"string": "3-2"}),
+            ("MultiplicationSection", {"string": "3*2"}),
+            ("DivisionSection", {"string": "3/2"}),
+            ("EquationSection", {"content": "3/2"}),
+            ("TableauSection", {"modele": "ligne0", "lignes": 2, "colonnes": 3}),
+            ("FriseSection", {"height": 3, "titre": "aaa"}),
+        ],
+    )
+    def test_backup_restore(self, fk, section, kwargs):
+        with db_session:
+            sec = fk._f_section(section, **kwargs)
+        with db_session:
+            sec = getattr(fk.db, section)[sec.id]
+            if section == "ImageSection":
+                fk.f_annotationText(section=sec.id)
+            elif section == "FriseSection":
+                z = fk.f_zoneFrise(frise=sec.id)
+                fk.f_friseLegende(zone=z.id)
+
+            td = sec.backup()
+            sec.delete()
+        with db_session:
+            res = getattr(fk.db, section).restore(**td)
+            td.pop("modified")
+            new_res = res.backup()
+            new_res.pop("modified")
+            assert new_res == td
 
 
 class TestImageSection:
@@ -536,13 +589,6 @@ class TestOperationSection:
         with pytest.raises(MyCartableOperationError) as err:
             ddb.OperationSection(string="1(2")
         assert str(err.value) == "1(2 est une entrée invalide"
-
-    def test_datas(self, ddb, fk):
-        fk.f_page()
-
-        # do not use content if None
-        with pytest.raises(TypeError):
-            a = ddb.OperationSection(page=1)
 
     def test_to_dict(self, fk):
         item = fk.f_additionSection(string="259+135")

@@ -10,14 +10,14 @@ TextEdit {
     required property QtObject section
 
     function setStyleFromMenu(params) {
-        var res = section.updateTextSectionOnMenu(text, cursorPosition, selectionStart, selectionEnd, params);
-        if (!res["eventAccepted"]) {
+        section.updateTextSectionOnMenu(text, cursorPosition, selectionStart, selectionEnd, params);
+        if (!section.accepted) {
             // ici event Accepted veut dire : on ne remet pas à jour le text
             return ;
         } else {
             doNotUpdate = true;
-            text = res["text"];
-            cursorPosition = res["cursorPosition"];
+            text = section.text;
+            cursorPosition = section.cursor;
         }
     }
 
@@ -38,35 +38,35 @@ TextEdit {
     selectByMouse: true
     wrapMode: TextEdit.Wrap
     Keys.onPressed: {
-        var res = section.updateTextSectionOnKey(text, cursorPosition, selectionStart, selectionEnd, JSON.stringify(event));
-        event.accepted = res["eventAccepted"];
-        if (event.accepted == false) {
+        section.updateTextSectionOnKey(text, cursorPosition, selectionStart, selectionEnd, JSON.stringify(event));
+        event.accepted = section.accepted;
+        if (!event.accepted) {
             return ;
         } else {
             doNotUpdate = true;
-            text = res["text"];
-            cursorPosition = res["cursorPosition"];
+            text = section.text;
+            cursorPosition = section.cursor;
         }
     }
     onSectionChanged: {
-        var res = section.loadTextSection();
+        section.loadTextSection();
         doNotUpdate = true;
-        text = res["text"];
-        cursorPosition = res["cursorPosition"];
+        text = section.text;
+        cursorPosition = section.cursor;
     }
     onTextChanged: {
         if (doNotUpdate) {
             doNotUpdate = false;
             return ;
         } else {
-            var res = section.updateTextSectionOnChange(text, cursorPosition, selectionStart, selectionEnd);
-            if (res["eventAccepted"]) {
+            section.updateTextSectionOnChange(text, cursorPosition, selectionStart, selectionEnd);
+            if (section.accepted) {
                 // ici event Accepted veut dire : on ne remet pas à jour le text
                 return ;
             } else {
                 doNotUpdate = true;
-                text = res["text"];
-                cursorPosition = res["cursorPosition"];
+                text = section.text;
+                cursorPosition = section.cursor;
             }
         }
     }

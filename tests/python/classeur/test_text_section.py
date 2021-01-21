@@ -46,10 +46,18 @@ class TestTextSection:
         args = "bla", 3, 3, 3
 
         with patch("mycartable.classeur.sections.text.TextSectionEditor") as m:
-            res = sec.updateTextSectionOnKey(*args, event)
+            m.return_value.onKey.return_value = {
+                "text": "a",
+                "cursorPosition": 34,
+                "eventAccepted": True,
+            }
+            sec.updateTextSectionOnKey(*args, event)
             m.assert_called_with(str(f.id), *args)
             m.return_value.onKey.assert_called_with(dic_event)
-            assert res == m.return_value.onKey.return_value
+
+            assert sec.text == "a"
+            assert sec.cursor == 34
+            assert sec.accepted == True
 
     def test_updateTextSectionOnChange(self, fk, qtbot):
         f = fk.f_textSection(text="bla")
@@ -58,11 +66,18 @@ class TestTextSection:
         args = "blap", 3, 3, 4
 
         with patch("mycartable.classeur.sections.text.TextSectionEditor") as m:
+            m.return_value.onChange.return_value = {
+                "text": "a",
+                "cursorPosition": 34,
+                "eventAccepted": True,
+            }
             with qtbot.waitSignal(sec.textChanged):
                 res = sec.updateTextSectionOnChange(*args)
             m.assert_called_with(sec.id, *args)
-            m.return_value.onChange.assert_called_with()
-            assert res == m.return_value.onChange.return_value
+
+            assert sec.text == "a"
+            assert sec.cursor == 34
+            assert sec.accepted == True
 
     def test_updateTextSectionOnMenu(self, fk):
         f = fk.f_textSection()
@@ -72,20 +87,36 @@ class TestTextSection:
         args = "bla", 3, 3, 3
 
         with patch("mycartable.classeur.sections.text.TextSectionEditor") as m:
-            res = sec.updateTextSectionOnMenu(*args, dic_params)
+            m.return_value.onMenu.return_value = {
+                "text": "a",
+                "cursorPosition": 34,
+                "eventAccepted": True,
+            }
+            sec.updateTextSectionOnMenu(*args, dic_params)
             m.assert_called_with(sec.id, *args)
             m.return_value.onMenu.assert_called_with(ble="bla")
-            assert res == m.return_value.onMenu.return_value
+            # assert res == m.return_value.onMenu.return_value
+
+            assert sec.text == "a"
+            assert sec.cursor == 34
+            assert sec.accepted == True
 
     def test_loadTextSection(self, fk):
         f = fk.f_textSection()
         sec = TextSection.get(f.id)
 
         with patch("mycartable.classeur.sections.text.TextSectionEditor") as m:
-            res = sec.loadTextSection()
+            m.return_value.onLoad.return_value = {
+                "text": "a",
+                "cursorPosition": 34,
+                "eventAccepted": True,
+            }
+            sec.loadTextSection()
             m.assert_called_with(sec.id)
             m.return_value.onLoad.assert_called_with()
-            assert res == m.return_value.onLoad.return_value
+            assert sec.text == "a"
+            assert sec.cursor == 34
+            assert sec.accepted == True
 
 
 def test_css():

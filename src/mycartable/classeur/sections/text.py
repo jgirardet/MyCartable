@@ -4,6 +4,7 @@ import re
 from contextlib import contextmanager
 
 from bs4 import BeautifulSoup
+from mycartable.commands import BaseCommand
 from mycartable.types.dtb import DTB
 from PyQt5.QtCore import pyqtProperty, pyqtSignal, pyqtSlot, Qt
 from PyQt5.QtGui import (
@@ -23,12 +24,42 @@ class TextSection(Section):
 
     entity_name = "TextSection"
     textChanged = pyqtSignal()
+    acceptedChanged = pyqtSignal()
+    cursorChanged = pyqtSignal()
+
+    def __init__(self, data: dict = {}, parent=None):
+        super().__init__(data=data, parent=parent)
+        self._cursor = 0
+        self._accepted = False
 
     @pyqtProperty(str, notify=textChanged)
     def text(self):
         return self._data["text"]
 
-    @pyqtSlot(str, int, int, int, str, result="QVariantMap")
+    @text.setter
+    def text(self, value: str):
+        self._data["text"] = value
+        self.textChanged.emit()
+
+    @pyqtProperty(int, notify=textChanged)
+    def cursor(self):
+        return self._cursor
+
+    @cursor.setter
+    def cursor(self, value: bool):
+        self._cursor = value
+        self.cursorChanged.emit()
+
+    @pyqtProperty(bool, notify=textChanged)
+    def accepted(self):
+        return self._accepted
+
+    @accepted.setter
+    def accepted(self, value: bool):
+        self._accepted = value
+        self.acceptedChanged.emit()
+
+    @pyqtSlot(str, int, int, int, str)
     def updateTextSectionOnKey(
         self, content, curseur, selectionStart, selectionEnd, event
     ):
@@ -36,27 +67,57 @@ class TextSection(Section):
         res = TextSectionEditor(
             self.id, content, curseur, selectionStart, selectionEnd
         ).onKey(event)
-        return res
+        self._handle_res(res)
 
-    @pyqtSlot(str, int, int, int, result="QVariantMap")
+    @pyqtSlot(str, int, int, int)
     def updateTextSectionOnChange(self, content, curseur, selectionStart, selectionEnd):
         res = TextSectionEditor(
             self.id, content, curseur, selectionStart, selectionEnd
         ).onChange()
-        self.textChanged.emit()
-        return res
+        self._handle_res(res)
 
-    @pyqtSlot(str, int, int, int, "QVariantMap", result="QVariantMap")
+    @pyqtSlot(str, int, int, int, "QVariantMap")
     def updateTextSectionOnMenu(
         self, content, curseur, selectionStart, selectionEnd, params
     ):
-        return TextSectionEditor(
+        res = TextSectionEditor(
             self.id, content, curseur, selectionStart, selectionEnd
         ).onMenu(**params)
+        self._handle_res(res)
 
-    @pyqtSlot(result="QVariantMap")
+    @pyqtSlot()
     def loadTextSection(self):
-        return TextSectionEditor(self.id).onLoad()
+        res = TextSectionEditor(self.id).onLoad()
+        self._handle_res(res)
+
+    def _handle_res(self, res: dict):
+        self.text = res["text"]
+        self.cursor = res["cursorPosition"]
+        self.accepted = res["eventAccepted"]
+
+
+class TextSectionCommand(BaseCommand):
+    def __init__(
+        self,
+        *,
+        sectionId,
+        content,
+        curseur,
+        selectionStart,
+        selectionEnd,
+        parent=None,
+        **kwargs,
+    ):
+        super().__init__(parent=parent, **kwargs)
+        self.text_editor = TextSectionEditor(
+            sectionId, content, curseur, selectionStart, selectionEnd
+        )
+
+
+class UpdateTextSectionOnKeyCommand(TextSectionCommand):
+    def redo_command(self):
+        event = json.loads(self.params["event"])
+        self.text_editor.onKey(event)
 
 
 """

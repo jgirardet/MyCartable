@@ -1,8 +1,3 @@
-/*
-section injecté via model
-index injecté via repeater
-*/
-
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 
@@ -12,8 +7,7 @@ Item {
     property var referent
     property alias dragarea: dragArea
     property alias contentItem: loader.item
-    required property int index
-    required property QtObject section
+    property QtObject section
     property alias status: loader.status
 
     signal loaded(int idx)

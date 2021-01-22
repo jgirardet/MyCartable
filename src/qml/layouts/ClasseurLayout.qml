@@ -25,21 +25,10 @@ SandwichLayout {
         id: classeurid
 
         annee: root.currentAnnee
-        onPageChanged: loader.reload(page)
     }
 
-    hamAndCheese: Loader {
-        id: loader
-
-        function reload(page) {
-            source = "";
-            if (page)
-                setSource("qrc:/qml/page/PageRectangle.qml", {
-                "page": page
-            });
-
-        }
-
+    hamAndCheese: PageRectangle {
+        page: classeurid.page
     }
 
     leftBread: RecentsRectangle {

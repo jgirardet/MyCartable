@@ -116,6 +116,7 @@ Flickable {
 
             delegate: BasePageDelegate {
                 referent: root
+                section: model.section
             }
 
         }

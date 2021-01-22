@@ -1,6 +1,5 @@
 import typing
 
-from PyQt5 import sip
 from PyQt5.QtCore import (
     pyqtSignal,
     pyqtProperty,
@@ -168,8 +167,7 @@ class PageModel(DtbListModel):
             return None
         elif role == self.SectionRole:
             sec_id = self._data["sections"][index.row()]
-            sec = Section.get(sec_id)
-            sip.transferto(sec, sec)
+            sec = Section.get(sec_id, parent=self)
             return sec
 
         else:

@@ -17,6 +17,11 @@ def test_redo_et_undo_text():
     assert r.text() == "iii"
 
 
+def test_undo_test_in_args():
+    a = BaseCommand(undo_text="ble")
+    assert a.undo_text == "ble"
+
+
 def test_undot():
     class Undo(BaseCommand):
         def undo_command(self):

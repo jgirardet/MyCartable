@@ -8,17 +8,16 @@ TextEdit {
     property bool doNotUpdate: false
     required property Item sectionItem
     required property QtObject section
+    property alias menu: menuFlottantText
+
+    function appyChangeFromSection() {
+        doNotUpdate = true;
+        text = section.text;
+        cursorPosition = section.cursor;
+    }
 
     function setStyleFromMenu(params) {
         section.updateTextSectionOnMenu(text, cursorPosition, selectionStart, selectionEnd, params);
-        if (!section.accepted) {
-            // ici event Accepted veut dire : on ne remet pas à jour le text
-            return ;
-        } else {
-            doNotUpdate = true;
-            text = section.text;
-            cursorPosition = section.cursor;
-        }
     }
 
     function showMenu() {
@@ -29,7 +28,11 @@ TextEdit {
         root.moveCursorSelection(s_end, TextEdit.SelectCharacters);
     }
 
-    font.pointSize: 16 // necéssaire pour que les taille html soient corrent == taille de p
+    onSectionChanged: {
+        section.loadTextSection();
+        appyChangeFromSection();
+    }
+    font.pointSize: 14 // necéssaire pour que les taille html soient corrent == taille de p
     height: contentHeight + 0
     width: sectionItem.width
     textFormat: TextEdit.RichText
@@ -38,21 +41,17 @@ TextEdit {
     selectByMouse: true
     wrapMode: TextEdit.Wrap
     Keys.onPressed: {
-        section.updateTextSectionOnKey(text, cursorPosition, selectionStart, selectionEnd, JSON.stringify(event));
-        event.accepted = section.accepted;
-        if (!event.accepted) {
+        if ((event.key == Qt.Key_Z) && (event.modifiers & Qt.ControlModifier)) {
+            if (event.modifiers & Qt.ShiftModifier)
+                section.redo();
+            else
+                section.undo();
+            event.accepted = true;
             return ;
-        } else {
-            doNotUpdate = true;
-            text = section.text;
-            cursorPosition = section.cursor;
         }
-    }
-    onSectionChanged: {
-        section.loadTextSection();
-        doNotUpdate = true;
-        text = section.text;
-        cursorPosition = section.cursor;
+        section.updateTextSectionOnKey(text, cursorPosition, selectionStart, selectionEnd, JSON.stringify(event));
+        //  ici event Accepted veut dire : on ne remet pas à jour le text
+        event.accepted = section.accepted;
     }
     onTextChanged: {
         if (doNotUpdate) {
@@ -60,15 +59,16 @@ TextEdit {
             return ;
         } else {
             section.updateTextSectionOnChange(text, cursorPosition, selectionStart, selectionEnd);
-            if (section.accepted) {
-                // ici event Accepted veut dire : on ne remet pas à jour le text
-                return ;
-            } else {
-                doNotUpdate = true;
-                text = section.text;
-                cursorPosition = section.cursor;
-            }
         }
+    }
+
+    Connections {
+        function onForceUpdate() {
+            root.appyChangeFromSection();
+            root.forceActiveFocus();
+        }
+
+        target: section
     }
 
     MenuFlottantText {
@@ -84,6 +84,8 @@ TextEdit {
             if (mouse.button == Qt.RightButton) {
                 root.showMenu();
                 mouse.accepted = true;
+            } else if (mouse.button == Qt.RightButton) {
+                section.cursor = root.cursorPosition;
             }
         }
     }

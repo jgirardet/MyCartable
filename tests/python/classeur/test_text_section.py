@@ -26,6 +26,7 @@ from mycartable.classeur.sections.text import (
     RED,
     TextSectionFormatter,
     TextSection,
+    UpdateTextSectionCommand,
 )
 
 from tests.python.fixtures import compare_char_format, check_args
@@ -37,86 +38,33 @@ def test_properties(fk):
     assert a["text"] == b.text
 
 
+class TestUpdateTextSectionCommand:
+    def test_undo(self, fk, qtbot):
+        f = fk.f_textSection(text="bla")
+        sec = TextSection.get(f.id)
+        c = UpdateTextSectionCommand(
+            section=sec, b_text="avant", b_cursor=0, text="apres", cursorPosition=1
+        )
+        with qtbot.waitSignal(sec.forceUpdate):
+            c.redo()
+        assert sec.text == "apres"
+        assert sec.cursor == 1
+        assert c.text() == "frappe"
+        with qtbot.waitSignal(sec.forceUpdate):
+            c.undo()
+        assert sec.text == "avant"
+        assert sec.cursor == 0
+
+
 class TestTextSection:
-    def test_updateTextSectionOnKey(self, fk):
-        f = fk.f_textSection(text="bla")
-        sec = TextSection.get(f.id)
-        dic_event = {"key": int(Qt.Key_B), "modifiers": int(Qt.ControlModifier)}
-        event = json.dumps(dic_event)
-        args = "bla", 3, 3, 3
+    """
+    updateTextSectionOnKey
+    updateTextSectionOnChange
+    updateTextSectionOnMenu
+    loadTextSection
+    Testés via qml
 
-        with patch("mycartable.classeur.sections.text.TextSectionEditor") as m:
-            m.return_value.onKey.return_value = {
-                "text": "a",
-                "cursorPosition": 34,
-                "eventAccepted": True,
-            }
-            sec.updateTextSectionOnKey(*args, event)
-            m.assert_called_with(str(f.id), *args)
-            m.return_value.onKey.assert_called_with(dic_event)
-
-            assert sec.text == "a"
-            assert sec.cursor == 34
-            assert sec.accepted == True
-
-    def test_updateTextSectionOnChange(self, fk, qtbot):
-        f = fk.f_textSection(text="bla")
-        sec = TextSection.get(f.id)
-        dic_event = {"key": int(Qt.Key_B), "modifiers": int(Qt.ControlModifier)}
-        args = "blap", 3, 3, 4
-
-        with patch("mycartable.classeur.sections.text.TextSectionEditor") as m:
-            m.return_value.onChange.return_value = {
-                "text": "a",
-                "cursorPosition": 34,
-                "eventAccepted": True,
-            }
-            with qtbot.waitSignal(sec.textChanged):
-                res = sec.updateTextSectionOnChange(*args)
-            m.assert_called_with(sec.id, *args)
-
-            assert sec.text == "a"
-            assert sec.cursor == 34
-            assert sec.accepted == True
-
-    def test_updateTextSectionOnMenu(self, fk):
-        f = fk.f_textSection()
-        sec = TextSection.get(f.id)
-        dic_params = {"ble": "bla"}
-        # params = json.dumps(dic_params)
-        args = "bla", 3, 3, 3
-
-        with patch("mycartable.classeur.sections.text.TextSectionEditor") as m:
-            m.return_value.onMenu.return_value = {
-                "text": "a",
-                "cursorPosition": 34,
-                "eventAccepted": True,
-            }
-            sec.updateTextSectionOnMenu(*args, dic_params)
-            m.assert_called_with(sec.id, *args)
-            m.return_value.onMenu.assert_called_with(ble="bla")
-            # assert res == m.return_value.onMenu.return_value
-
-            assert sec.text == "a"
-            assert sec.cursor == 34
-            assert sec.accepted == True
-
-    def test_loadTextSection(self, fk):
-        f = fk.f_textSection()
-        sec = TextSection.get(f.id)
-
-        with patch("mycartable.classeur.sections.text.TextSectionEditor") as m:
-            m.return_value.onLoad.return_value = {
-                "text": "a",
-                "cursorPosition": 34,
-                "eventAccepted": True,
-            }
-            sec.loadTextSection()
-            m.assert_called_with(sec.id)
-            m.return_value.onLoad.assert_called_with()
-            assert sec.text == "a"
-            assert sec.cursor == 34
-            assert sec.accepted == True
+    """
 
 
 def test_css():

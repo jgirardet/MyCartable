@@ -4,7 +4,7 @@ from mycartable.commands import BaseCommand
 from .sections import Section
 
 
-class SectionBaseCommand(BaseCommand):
+class PageBaseCommand(BaseCommand):
     def __init__(self, *, page, **kwargs):
         self.page = page
         self.nb: int = 0  # nombre de section ajoutées
@@ -12,7 +12,7 @@ class SectionBaseCommand(BaseCommand):
         super().__init__(**kwargs)
 
 
-class AddSectionCommand(SectionBaseCommand):
+class AddSectionCommand(PageBaseCommand):
 
     formulations = {
         "TextSection": "Insérer un zone de texte",
@@ -50,7 +50,7 @@ class AddSectionCommand(SectionBaseCommand):
         )  # removeRows enleve 1 de base déjà enlevé avant
 
 
-class RemoveSectionCommand(SectionBaseCommand):
+class RemoveSectionCommand(PageBaseCommand):
 
     formulations = {
         "TextSection": "Supprimer un zone de texte",

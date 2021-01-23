@@ -6,8 +6,10 @@ class BaseCommand(QUndoCommand):
 
     undo_text = ""
 
-    def __init__(self, parent: QUndoCommand = None, **kwargs):
+    def __init__(self, parent: QUndoCommand = None, undo_text="", **kwargs):
         super().__init__(parent=parent)
+        if undo_text:
+            self.undo_text = undo_text
         self.params = kwargs
         self._dtb = DTB()
 

@@ -2,6 +2,9 @@ from __future__ import annotations
 from functools import lru_cache
 from typing import Tuple
 
+from PyQt5.QtCore import pyqtProperty, QObject, pyqtSlot
+from PyQt5.QtWidgets import QUndoCommand
+from mycartable.commands import BaseCommand
 from mycartable.types import SubTypeAble
 from mycartable.types.bridge import Bridge
 
@@ -57,3 +60,24 @@ class Section(SubTypeAble, Bridge):
             TableauSection,
             FriseSection,
         )
+
+    @pyqtProperty(QObject, constant=True)
+    def page(self):
+        return self.parent()
+
+    def push_command(self, cmd: QUndoCommand):
+        self.page.classeur.undoStack.push(cmd)
+
+    @pyqtSlot()
+    def undo(self):
+        self.page.classeur.undoStack.undo()
+
+    @pyqtSlot()
+    def redo(self):
+        self.page.classeur.undoStack.redo()
+
+
+class SectionBaseCommand(BaseCommand):
+    def __init__(self, *, section: Section, **kwargs):
+        super().__init__(**kwargs)
+        self.section = section

@@ -4,7 +4,7 @@ BasePageAction {
     property var stack: page && page.classeur ? page.classeur.undoStack : null
 
     icon.source: "qrc:///icons/undo"
-    tooltip: stack ? "Annuler: " + stack.undoText : ""
-    shortcut: "Ctrl+z"
+    tooltip: stack && stack.canUndo ? "Annuler: " + stack.undoText : ""
+    shortcut: stack && stack.canUndo ? "Ctrl+z" : ""
     onTriggered: stack ? stack.undo() : null
 }

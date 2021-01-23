@@ -1,4 +1,4 @@
-from .section import Section
+from .section import Section, SectionBaseCommand
 from .image import ImageSection
 from .text import TextSection
 from .equation import EquationSection

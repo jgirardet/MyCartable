@@ -4,7 +4,7 @@ BasePageAction {
     property var stack: page && page.classeur ? page.classeur.undoStack : null
 
     icon.source: "qrc:///icons/redo"
-    tooltip: stack ? "Rétablir: " + stack.undoText : ""
-    shortcut: "Ctrl+Maj+z"
+    tooltip: stack && stack.canRedo ? "Rétablir: " + stack.undoText : ""
+    shortcut: stack && stack.canRedo ? "Ctrl+Maj+z" : ""
     onTriggered: stack.redo()
 }

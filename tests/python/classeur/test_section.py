@@ -11,6 +11,7 @@ from mycartable.classeur import (
     EquationSection,
     TableauSection,
     FriseSection,
+    Page,
 )
 from pony.orm import db_session
 
@@ -61,3 +62,10 @@ def test_backup(fk, _class):
 
     with db_session:
         assert a.backup() == getattr(fk.db, _class.entity_name)[a.id].backup()
+
+
+def test_properties(fk):
+    it = fk.f_section(td=True)
+    p = Page.get(it["page"])
+    sec = Section.get(it["id"], parent=p)
+    assert sec.page == p

@@ -167,7 +167,7 @@ class PageModel(DtbListModel):
             return None
         elif role == self.SectionRole:
             sec_id = self._data["sections"][index.row()]
-            sec = Section.get(sec_id, parent=self)
+            sec = Section.get(sec_id, parent=self.parent())
             return sec
 
         else:

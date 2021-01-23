@@ -28,6 +28,7 @@ from mycartable.classeur import (
     FriseSection,
     Activite,
     Matiere,
+    TextSection,
 )
 
 
@@ -91,6 +92,7 @@ class TestHelper(DTB):
         "MultiplicationSection": MultiplicationSection,
         "DivisionSection": DivisionSection,
         "TableauSection": TableauSection,
+        "TextSection": TextSection,
         "FriseSection": FriseSection,
     }
 

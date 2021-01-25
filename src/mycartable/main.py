@@ -96,11 +96,8 @@ def register_new_qml_type():
 
 
 def load_engine(engine: QQmlApplicationEngine):
-    # load main
-    from . import qrc  # QRC do not erase
 
     engine.load(QUrl("qrc:///qml/main.qml"))
-
     # quit if error
     if not engine.rootObjects():
         sys.exit(-1)
@@ -136,6 +133,7 @@ def initial_setup_application(app: QApplication):
     QLocale.setDefault(QLocale(QLocale.French, QLocale.France))
 
     app.setWindowIcon(QIcon(":/icons/mycartable.png"))
+
     QFontDatabase.addApplicationFont(":/fonts/Verdana.ttf")
     QFontDatabase.addApplicationFont(":/fonts/Code New Roman.otf")
     QFontDatabase.addApplicationFont(":/fonts/LiberationMono-Regular.ttf")

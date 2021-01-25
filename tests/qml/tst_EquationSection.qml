@@ -1,3 +1,4 @@
+import MyCartable 1.0
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 
@@ -7,16 +8,25 @@ Item {
     width: 200
     height: 200
 
+    Classeur {
+        id: classeur_id
+    }
+
     CasTest {
         property var eq
         property var eqObj
+        property var pageObj
+        property string init_content: "1     \n__ + 1\n15    "
 
         function initPre() {
+            let p = fk.f("page", {
+            });
+            pageObj = th.getBridgeInstance(classeur_id, "Page", p.id);
             eq = fk.f("equationSection", {
-                "content": "1     \n__ + 1\n15    ",
+                "content": init_content,
                 "curseur": 10
             });
-            eqObj = th.getBridgeInstance(item, "EquationSection", eq.id);
+            eqObj = th.getBridgeInstance(pageObj, "EquationSection", eq.id);
             params = {
                 "section": eqObj,
                 "sectionItem": item
@@ -27,8 +37,9 @@ Item {
         }
 
         function test_init() {
-            tryCompare(tested, "text", "1     \n__ + 1\n15    ");
-            tryCompare(tested, "cursorPosition", 10);
+            mouseClick(tested);
+            tryCompare(tested, "text", init_content);
+            tryCompare(tested, "cursorPosition", 13);
         }
 
         function test_keypress() {
@@ -47,6 +58,19 @@ Item {
             compare(tested.cursorPosition, 10);
             mouseClick(tested, 23, 53);
             compare(tested.cursorPosition, 15);
+        }
+
+        function test_undo_redo() {
+            mouseClick(tested);
+            keyClick(Qt.Key_A);
+            compare(tested.cursorPosition, 15);
+            compare(tested.text, "1      \n__ + 1a\n15     ");
+            keySequence("ctrl+z");
+            compare(tested.cursorPosition, 13);
+            compare(tested.text, init_content);
+            keySequence("ctrl+shift+z");
+            compare(tested.cursorPosition, 15);
+            compare(tested.text, "1      \n__ + 1a\n15     ");
         }
 
         name: "EquationSection"

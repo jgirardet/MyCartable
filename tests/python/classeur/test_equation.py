@@ -3,19 +3,37 @@ import textwrap
 
 import pytest
 from PyQt5.QtCore import Qt
-from tests.python.fixtures import check_args
+from mycartable.classeur import Page, Classeur
 from mycartable.classeur.sections.equation import (
     TextEquation,
     Fragment,
     EquationSection,
+    UpdateEquationSectionCommand,
 )
 from pony.orm import db_session
 
 
+class TestUpdatEquationSectionCommand:
+    def test_undo(self, fk, qtbot):
+        f = fk.f_equationSection(content="bla", curseur=99)
+        sec = EquationSection.get(f.id)
+        c = UpdateEquationSectionCommand(section=sec, content="aaa", curseur=33)
+        c.redo()
+        assert sec.content == "aaa"
+        assert sec.curseur == 33
+        assert c.text() == "frappe"
+        c.undo()
+        assert sec.content == "bla"
+        assert sec.curseur == 99
+
+
 class TestEquation:
     def test_update(self, fk, qtbot):
-        eq = fk.f_equationSection(content=" \n1\n ")
-        e = EquationSection.get(eq.id)
+        cl = Classeur()
+        p = fk.f_page()
+        page = Page.get(p.id, parent=cl)
+        eq = fk.f_equationSection(content=" \n1\n ", page=p.id)
+        e = EquationSection.get(eq.id, parent=page)
         event = json.dumps({"key": int(Qt.Key_2), "text": "2", "modifiers": None})
         with qtbot.waitSignals([e.contentChanged, e.curseurChanged]):
             e.update(3, event)

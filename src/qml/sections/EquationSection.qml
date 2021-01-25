@@ -4,14 +4,13 @@ import QtQuick.Controls 2.15
 TextArea {
     id: root
 
-    required property Item sectionItem // basepagedelegate
+    required property Item sectionItem
     required property QtObject section
 
     width: sectionItem.width
     height: contentHeight + 30
     font.pointSize: 12
     text: section.content
-    Component.onCompleted: cursorPosition = section.curseur // seulement pour init pas binding (cursorpos peut trop changer)
     onCursorPositionChanged: {
         if (!section.isEquationFocusable(cursorPosition))
             cursorPosition = section.curseur;
@@ -19,9 +18,24 @@ TextArea {
     }
     font.family: "Code New Roman"
     Keys.onPressed: {
-        section.update(cursorPosition, JSON.stringify(event));
+        if ([Qt.Key_Control, Qt.Key_Shift].includes(event.key)) {
+            //on ignore controle seul
+            return ;
+        } else if ((event.key == Qt.Key_Z) && (event.modifiers & Qt.ControlModifier)) {
+            if (event.modifiers & Qt.ShiftModifier)
+                section.redo();
+            else
+                section.undo();
+        } else {
+            section.update(cursorPosition, JSON.stringify(event));
+        }
         cursorPosition = section.curseur;
         event.accepted = true;
+    }
+    onActiveFocusChanged: {
+        if (activeFocus)
+            section.curseur = cursorPosition;
+
     }
 
     background: Rectangle {

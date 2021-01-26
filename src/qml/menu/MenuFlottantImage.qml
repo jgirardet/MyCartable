@@ -10,24 +10,14 @@ BaseMenu {
             ToolButton {
                 icon.source: "qrc:///icons/rotateLeft"
                 icon.color: "blue"
-                onClicked: {
-                    var res = target.section.pivoterImage(0);
-                    if (res)
-                        target.reloadImage();
-
-                }
+                onClicked: target.section.pivoterImage(0)
                 ToolTip.text: "Pivoter à  gauche"
             }
 
             ToolButton {
                 icon.source: "qrc:///icons/rotateRight"
                 icon.color: "blue"
-                onClicked: {
-                    var res = target.section.pivoterImage(1);
-                    if (res)
-                        target.reloadImage();
-
-                }
+                onClicked: target.section.pivoterImage(1)
                 ToolTip.text: "Pivoter à droite"
             }
 
@@ -39,8 +29,6 @@ BaseMenu {
         height: 80
 
         ColumnLayout {
-            //            Layout.fillHeight: true
-
             RowLayout {
                 spacing: 0
 

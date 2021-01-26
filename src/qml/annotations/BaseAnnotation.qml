@@ -28,9 +28,9 @@ Loader {
     }
 
     anchors.top: parent.top
-    anchors.topMargin: annot.y * parent.implicitHeight
+    anchors.topMargin: annot ? annot.y * parent.implicitHeight : 0
     anchors.left: parent.left
-    anchors.leftMargin: annot.x * parent.implicitWidth
+    anchors.leftMargin: annot ? annot.x * parent.implicitWidth : 0
     focus: parent.currentAnnotation === root
     Component.onCompleted: {
         root.setSource("qrc:/qml/annotations/" + annot.classtype + ".qml", {

@@ -65,6 +65,13 @@ Image {
     cache: false
     Component.onCompleted: {
         root.source = section.url;
+
+    }
+    Connections {
+      target: section
+      function onCommandDone() {
+        root.reloadImage()
+      }
     }
     model: section.model
 
@@ -96,7 +103,6 @@ Image {
                     let fillColor = section.annotationDessinCurrentStrokeStyle;
                     let point = Qt.point(mouse.x / width, mouse.y / height);
                     section.floodFill(fillColor, point);
-                    root.reloadImage();
                 } else {
                     root.startDraw();
                 }

@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import tempfile
-from functools import lru_cache
+from functools import lru_cache, partial
+from io import BytesIO
 from pathlib import Path
 from typing import Optional
 
@@ -26,7 +27,7 @@ from mycartable.utils import get_new_filename, pathize
 from mycartable.types.dtb import DTB
 from pony.orm import db_session
 
-from .section import Section
+from .section import Section, SectionBaseCommand
 
 
 @lru_cache
@@ -45,6 +46,7 @@ class ImageSection(Section):
     annotationDessinCurrentToolChanged = pyqtSignal()
     annotationDessinCurrentLineWidthChanged = pyqtSignal()
     annotationTextBGOpacityChanged = pyqtSignal()
+    commandDone = pyqtSignal()
 
     """
     Python Code
@@ -88,11 +90,23 @@ class ImageSection(Section):
         im.save(new_file)
         return str(res_path)
 
+    def _floodFill(self, color: QColor, point: QPointF):
+        image = Image.open(self.absolute_path)
+        pos = (point.x() * image.width, point.y() * image.height)
+        ImageDraw.floodfill(image, xy=pos, value=color.getRgb(), thresh=50)
+        image.save(self.absolute_path)
+
     @staticmethod
     def get_new_image_path(ext):
         with db_session:
             annee = DTB().getConfig("annee")
         return Path(str(annee), get_new_filename(ext)).as_posix()
+
+    def _pivoterImage(self, sens):
+        with db_session:
+            im = Image.open(self.absolute_path)
+            sens_rotate = Image.ROTATE_270 if sens else Image.ROTATE_90
+            im.transpose(sens_rotate).save(self.absolute_path)
 
     @staticmethod
     def store_new_file(filepath, ext=None):
@@ -199,18 +213,25 @@ class ImageSection(Section):
 
     @pyqtSlot(QColor, QPointF)
     def floodFill(self, color: QColor, point: QPointF):
-        image = Image.open(self.absolute_path)
-        pos = (point.x() * image.width, point.y() * image.height)
-        ImageDraw.floodfill(image, xy=pos, value=color.getRgb(), thresh=50)
-        image.save(self.absolute_path)
+        self.push_command(
+            UpdateImageSectionCommand(
+                section=self,
+                undo_text="remplir",
+                callable=self._floodFill,
+                call_args=[color, point],
+            )
+        )
 
-    @pyqtSlot(int, result=bool)
+    @pyqtSlot(int)
     def pivoterImage(self, sens):
-        with db_session:
-            im = Image.open(self.absolute_path)
-            sens_rotate = Image.ROTATE_270 if sens else Image.ROTATE_90
-            im.transpose(sens_rotate).save(self.absolute_path)
-            return True
+        self.push_command(
+            UpdateImageSectionCommand(
+                section=self,
+                undo_text="pivoter",
+                callable=self._pivoterImage,
+                call_args=[sens],
+            )
+        )
 
     @pyqtSlot(QQuickItem, str, QColor)
     def setImageSectionCursor(self, qk: QQuickItem, tool: str, color: QColor):
@@ -227,3 +248,21 @@ class ImageSection(Section):
                 type(self).ALL_IMAGE_CURSORS = build_all_image_cursor()
             cur = self.ALL_IMAGE_CURSORS[tool]
         qk.setCursor(cur)
+
+
+class UpdateImageSectionCommand(SectionBaseCommand):
+    section: ImageSection
+
+    def __init__(self, *, callable, call_args=[], call_kwargs={}, **kwargs):
+        super().__init__(**kwargs)
+        self.image_bytes = self.section.absolute_path.read_bytes()
+        self.apply = partial(callable, *call_args, **call_kwargs)
+
+    def redo_command(self):
+        self.apply()
+        self.section.commandDone.emit()
+
+    def undo_command(self):
+        im = Image.open(BytesIO(self.image_bytes))
+        im.save(self.section.absolute_path)
+        self.section.commandDone.emit()

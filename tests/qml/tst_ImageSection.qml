@@ -10,6 +10,7 @@ Item {
 
     CasTest {
         // onPaint called
+        // non testé trop compliqué et change l'image de base
 
         property var model
         property var canvas
@@ -110,7 +111,6 @@ Item {
                 "width": item.width,
                 "height": item.height
             });
-            //            wait(2000);
             compare(rep.count, 1);
         }
 
@@ -184,52 +184,43 @@ Item {
         }
 
         function test_floodfill() {
-          // non testé trop compliqué et change l'image de base
         }
 
         function test_cursor_move() {
             // pour tester les changement de curseur on utiliser le cacheKey
             // qui reste constant pour 2 images identiques.
             let cache_before = th.python("obj.cursor().pixmap().cacheKey()", Window.window);
-
             imgInstance.annotationCurrentTool = "floodfill";
             mouseMove(tested, 1, 1);
             let cache_flood = th.python("obj.cursor().pixmap().cacheKey()", Window.window);
-
             imgInstance.annotationCurrentTool = "rect";
             mouseMove(tested, 1, 1);
             let cache_rect = th.python("obj.cursor().pixmap().cacheKey()", Window.window);
-
-
             imgInstance.annotationCurrentTool = "floodfill";
             mouseMove(tested, 1, 1);
             let cache_flood2 = th.python("obj.cursor().pixmap().cacheKey()", Window.window);
-
-            compare(cache_before, 0)
-            verify(cache_flood != cache_before)
-            verify(cache_flood != cache_before)
-            verify(cache_flood == cache_flood2)
+            compare(cache_before, 0);
+            verify(cache_flood != cache_before);
+            verify(cache_flood != cache_before);
+            verify(cache_flood == cache_flood2);
         }
 
         function test_cursor_toolchanged() {
             let cache_before = th.python("obj.cursor().pixmap().cacheKey()", tested.mousearea);
-            print(cache_before)
-             tested.setStyleFromMenu({
+            tested.setStyleFromMenu({
                 "style": {
                     "tool": "trait"
                 }
             });
             let cache_trait = th.python("obj.cursor().pixmap().cacheKey()", tested.mousearea);
-            print(cache_trait)
             tested.setStyleFromMenu({
                 "style": {
                     "tool": "rect"
                 }
             });
             let cache_rect = th.python("obj.cursor().pixmap().cacheKey()", tested.mousearea);
-            print(cache_rect)
-            verify(cache_trait != cache_before)
-            verify(cache_trait != cache_rect)
+            verify(cache_trait != cache_before);
+            verify(cache_trait != cache_rect);
         }
 
         name: "ImageSection"

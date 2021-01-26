@@ -29,15 +29,15 @@ TextArea {
         return false;
     }
 
-    text: annot.text
+    text: annot ?annot.text : ""
     onTextChanged: annot.text = text
     //size and pos
     height: contentHeight
     padding: 0
     width: contentWidth + 5
     focus: parent.focus
-    color: annot.fgColor
-    font.underline: annot.underline
+    color: annot ? annot.fgColor : "transparent"
+    font.underline: annot ? annot.underline : false
     font.pixelSize: (referent.height / fontSizeFactor) | 0
     selectByMouse: true
     Component.onCompleted: {
@@ -94,7 +94,7 @@ TextArea {
 
     background: Rectangle {
         anchors.fill: parent
-        color: annot.bgColor
+        color: annot ? annot.bgColor : "transparent"
         border.color: parent.focus ? "#21be2b" : "transparent"
         opacity: referent.section.annotationTextBGOpacity
     }

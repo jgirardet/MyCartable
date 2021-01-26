@@ -9,9 +9,10 @@ from PyQt5.QtCore import QPointF, Qt, QUrl
 from PyQt5.QtGui import QColor, QImage, QCursor
 from PyQt5.QtQuick import QQuickItem
 from mycartable.classeur.sections.annotation import AnnotationModel
+from mycartable.classeur.sections.image import UpdateImageSectionCommand
 from mycartable.defaults.configuration import KEEP_UPDATED_CONFIGURATION
 from mycartable.types import DTB
-from mycartable.classeur import ImageSection
+from mycartable.classeur import ImageSection, Page, Classeur
 from mycartable.cursors import build_one_image_cursor
 from mycartable.defaults.files_path import FILES
 from pony.orm import db_session
@@ -157,8 +158,22 @@ def test_pivoter_image(new_res, fk, qtbot):
     assert img.width == 673
 
     f = fk.f_imageSection(path=str(file))
-    isec = ImageSection.get(f.id)
+    cl = Classeur()
+    p = Page.get(f.page.id, parent=cl)
+    isec = ImageSection.get(f.id, parent=p)
     isec.pivoterImage(1)
+    img = Image.open(file)
+    assert img.height == 673
+    assert img.width == 124
+    assert cl.undoStack.undoText() == "pivoter"
+
+    with qtbot.waitSignal(isec.commandDone):
+        cl.undoStack.undo()
+    img = Image.open(file)
+    assert img.height == 124
+    assert img.width == 673
+    with qtbot.waitSignal(isec.commandDone):
+        cl.undoStack.redo()
     img = Image.open(file)
     assert img.height == 673
     assert img.width == 124
@@ -180,12 +195,25 @@ def test_annotationTextBGOpacity(fk):
         (QPointF(0.80, 0.80), "floodfill_rouge_en_bleu.png"),
     ],
 )
-def test_flood_fill(fk, resources, tmp_path, pos, img_res):
+def test_flood_fill(fk, resources, qtbot, tmp_path, pos, img_res):
     fp = tmp_path / "f1.png"
     shutil.copy(resources / "floodfill.png", fp)
     f = fk.f_imageSection(path=str(fp))
-    isec = ImageSection.get(f.id)
+    cl = Classeur()
+    p = Page.get(f.page.id, parent=cl)
+    isec = ImageSection.get(f.id, parent=p)
     isec.floodFill(QColor("blue"), pos)
+    lhs = QImage(str(isec.absolute_path))
+    rhs = QImage(str(resources / img_res))
+    assert lhs == rhs
+    assert cl.undoStack.undoText() == "remplir"
+    with qtbot.waitSignal(isec.commandDone):
+        cl.undoStack.undo()
+    lhs = QImage(str(isec.absolute_path))
+    rhs = QImage(str(fp))
+    assert lhs == rhs
+    with qtbot.waitSignal(isec.commandDone):
+        cl.undoStack.redo()
     lhs = QImage(str(isec.absolute_path))
     rhs = QImage(str(resources / img_res))
     assert lhs == rhs

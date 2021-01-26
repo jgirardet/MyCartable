@@ -31,9 +31,9 @@ class TestEquation:
     def test_update(self, fk, qtbot):
         cl = Classeur()
         p = fk.f_page()
-        page = Page.get(p.id, parent=cl)
+        page = Page.get(p.id, parent=cl, undoStack=cl.undoStack)
         eq = fk.f_equationSection(content=" \n1\n ", page=p.id)
-        e = EquationSection.get(eq.id, parent=page)
+        e = EquationSection.get(eq.id, parent=page, undoStack=page.undoStack)
         event = json.dumps({"key": int(Qt.Key_2), "text": "2", "modifiers": None})
         with qtbot.waitSignals([e.contentChanged, e.curseurChanged]):
             e.update(3, event)

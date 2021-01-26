@@ -21,8 +21,8 @@ class FriseSection(Section):
     heightChanged = pyqtSignal()
     titreChanged = pyqtSignal()
 
-    def __init__(self, data: dict = {}, parent=None):
-        super().__init__(data=data, parent=parent)
+    def __init__(self, data: dict = {}, parent=None, **kwargs):
+        super().__init__(data=data, parent=parent, **kwargs)
         self._model = FriseModel(self)
 
     @pyqtProperty(int, notify=heightChanged)

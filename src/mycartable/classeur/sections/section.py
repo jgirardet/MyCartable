@@ -65,17 +65,6 @@ class Section(SubTypeAble, Bridge):
     def page(self):
         return self.parent()
 
-    def push_command(self, cmd: QUndoCommand):
-        self.page.classeur.undoStack.push(cmd)
-
-    @pyqtSlot()
-    def undo(self):
-        self.page.classeur.undoStack.undo()
-
-    @pyqtSlot()
-    def redo(self):
-        self.page.classeur.undoStack.redo()
-
 
 class SectionBaseCommand(BaseCommand):
     def __init__(self, *, section: Section, **kwargs):

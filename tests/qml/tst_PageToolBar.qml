@@ -37,6 +37,7 @@ Item {
                 });
             }
             pageC = th.getBridgeInstance(classeurid, "Page", page.id);
+            pageC.undoStack = classeurid.undoStack;
             params = {
                 "page": pageC
             };
@@ -118,11 +119,11 @@ Item {
                 skip("test ne marche pas sous windows");
 
             mouseClick(newimage);
-            let dialog = newimage.action.dialog
+            let dialog = newimage.action.dialog;
             dialog.folder = "assets";
-            keySequence("r,e,c,t")
-            keySequence(".,p,n,g")
-            keyClick(Qt.Key_Return)
+            keySequence("r,e,c,t");
+            keySequence(".,p,n,g");
+            keyClick(Qt.Key_Return);
             tryCompare(newimage.action.busy, "visible", false);
             compare_new_section("ImageSection");
         }

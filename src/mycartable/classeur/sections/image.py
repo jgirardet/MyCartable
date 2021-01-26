@@ -52,8 +52,8 @@ class ImageSection(Section):
     Python Code
     """
 
-    def __init__(self, data: dict = {}, parent=None):
-        super().__init__(data=data, parent=parent)
+    def __init__(self, data: dict = {}, parent=None, **kwargs):
+        super().__init__(data=data, parent=parent, **kwargs)
         self._model = AnnotationModel(self)
 
     @classmethod
@@ -213,7 +213,7 @@ class ImageSection(Section):
 
     @pyqtSlot(QColor, QPointF)
     def floodFill(self, color: QColor, point: QPointF):
-        self.push_command(
+        self.undoStack.push(
             UpdateImageSectionCommand(
                 section=self,
                 undo_text="remplir",
@@ -224,7 +224,7 @@ class ImageSection(Section):
 
     @pyqtSlot(int)
     def pivoterImage(self, sens):
-        self.push_command(
+        self.undoStack.push(
             UpdateImageSectionCommand(
                 section=self,
                 undo_text="pivoter",

@@ -97,7 +97,7 @@ class Page(Bridge):
     def addSection(
         self, classtype: str, position: int = None, params: dict = {}
     ) -> bool:
-        self.classeur.undoStack.push(
+        self.undoStack.push(
             AddSectionCommand(
                 page=self, classtype=classtype, position=position, **params
             )
@@ -106,7 +106,7 @@ class Page(Bridge):
 
     @pyqtSlot(int)
     def removeSection(self, row: int) -> bool:
-        self.classeur.undoStack.push(RemoveSectionCommand(page=self, position=row))
+        self.undoStack.push(RemoveSectionCommand(page=self, position=row))
 
     @pyqtSlot()
     def exportToPDF(self):
@@ -167,7 +167,9 @@ class PageModel(DtbListModel):
             return None
         elif role == self.SectionRole:
             sec_id = self._data["sections"][index.row()]
-            sec = Section.get(sec_id, parent=self.parent())
+            sec = Section.get(
+                sec_id, parent=self.parent(), undoStack=self.parent().undoStack
+            )
             return sec
 
         else:

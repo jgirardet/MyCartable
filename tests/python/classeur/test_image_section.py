@@ -159,8 +159,8 @@ def test_pivoter_image(new_res, fk, qtbot):
 
     f = fk.f_imageSection(path=str(file))
     cl = Classeur()
-    p = Page.get(f.page.id, parent=cl)
-    isec = ImageSection.get(f.id, parent=p)
+    p = Page.get(f.page.id, parent=cl, undoStack=cl.undoStack)
+    isec = ImageSection.get(f.id, parent=p, undoStack=p.undoStack)
     isec.pivoterImage(1)
     img = Image.open(file)
     assert img.height == 673
@@ -200,8 +200,8 @@ def test_flood_fill(fk, resources, qtbot, tmp_path, pos, img_res):
     shutil.copy(resources / "floodfill.png", fp)
     f = fk.f_imageSection(path=str(fp))
     cl = Classeur()
-    p = Page.get(f.page.id, parent=cl)
-    isec = ImageSection.get(f.id, parent=p)
+    p = Page.get(f.page.id, parent=cl, undoStack=cl.undoStack)
+    isec = ImageSection.get(f.id, parent=p, undoStack=p.undoStack)
     isec.floodFill(QColor("blue"), pos)
     lhs = QImage(str(isec.absolute_path))
     rhs = QImage(str(resources / img_res))

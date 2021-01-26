@@ -13,7 +13,7 @@ class TestPageCommands:
             p = fk.f_page(td=True)
             secs = fk.b_section(3, page=p["id"], td=True)
             c = Classeur()
-            po = Page.get(p["id"], parent=c)
+            po = Page.get(p["id"], parent=c, undoStack=c.undoStack)
             return p, secs, c, po
 
         return wrap
@@ -173,7 +173,7 @@ class TestPageCommands:
             kwargs["path"] = str(img)
         p, secs, c, po = setup_page()
         im = Section.new_sub(page=p["id"], **kwargs, classtype=section)
-        po = Page.get(p["id"], parent=c)
+        po = Page.get(p["id"], parent=c, undoStack=c.undoStack)
         entity = getattr(fk.db, section)
 
         # redo at init

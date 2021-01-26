@@ -20,11 +20,13 @@ Item {
             let p = fk.f("page", {
             });
             pageObj = th.getBridgeInstance(classeur_id, "Page", p.id);
+            pageObj.undoStack = classeur_id.undoStack;
             sec = fk.f("textSection", {
                 "text": "x",
                 "page": p.id
             });
             secObj = th.getBridgeInstance(pageObj, "TextSection", sec.id);
+            secObj.undoStack = pageObj.undoStack;
             params = {
                 "section": secObj,
                 "sectionItem": item

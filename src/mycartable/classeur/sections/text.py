@@ -27,8 +27,8 @@ class TextSection(Section):
     cursorChanged = pyqtSignal()
     forceUpdate = pyqtSignal()
 
-    def __init__(self, data: dict = {}, parent=None):
-        super().__init__(data=data, parent=parent)
+    def __init__(self, data: dict = {}, parent=None, **kwargs):
+        super().__init__(data=data, parent=parent, **kwargs)
         self._cursor = 0
         self._accepted = False
 
@@ -69,7 +69,7 @@ class TextSection(Section):
         ).onKey(event)
         self.accepted = res["eventAccepted"]
         if res["eventAccepted"]:
-            self.push_command(
+            self.undoStack.push(
                 UpdateTextSectionCommand(
                     section=self, b_text=content, b_cursor=curseur, **res
                 )
@@ -81,7 +81,7 @@ class TextSection(Section):
             self.id, content, curseur, selectionStart, selectionEnd
         ).onChange()
         self.accepted = res["eventAccepted"]
-        self.push_command(
+        self.undoStack.push(
             UpdateTextSectionCommand(
                 section=self, b_text=self.text, b_cursor=self.cursor, **res
             )
@@ -95,7 +95,7 @@ class TextSection(Section):
             self.id, content, curseur, selectionStart, selectionEnd
         ).onMenu(**params)
         self.accepted = res["eventAccepted"]
-        self.push_command(
+        self.undoStack.push(
             UpdateTextSectionCommand(
                 section=self,
                 b_text=self.text,

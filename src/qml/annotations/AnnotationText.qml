@@ -12,7 +12,7 @@ TextArea {
     property alias menu: menuFlottantAnnotationText
     property int pointSizeStep: 1
     property int moveStep: 5
-    property int fontSizeFactor: annot.pointSize ? annot.pointSize : 0 //annot.annotationCurrentTextSizeFactor
+    property int fontSizeFactor: annot && annot.pointSize ? annot.pointSize : 0
 
     function move(key) {
         if (key == Qt.Key_Left)

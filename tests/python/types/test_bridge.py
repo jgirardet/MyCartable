@@ -2,6 +2,7 @@ from uuid import UUID
 
 import pytest
 from PyQt5.QtCore import pyqtProperty, pyqtSignal, QObject
+from PyQt5.QtWidgets import QUndoStack
 from tests.python.fixtures import disable_log
 from mycartable.types.bridge import Bridge
 from mycartable.types.dtb import DTB
@@ -31,7 +32,7 @@ def dummyClassPage():
 
         @lastPosition.setter
         def lastPosition(self, value: int):
-            self._set_field("lastPosition", value)
+            self.set_field("lastPosition", value)
             self.lastPositionChanged.emit()
 
     return Page
@@ -79,10 +80,26 @@ def test_set_field(fk, dummyClassPage, qtbot):
 
 
 def test_set(fk, qtbot, dummyClassPage):
+    q = QUndoStack()
     f = fk.f_page(titre="bla", lastPosition=3)
-    p = dummyClassPage.get(f.id)
+    p = dummyClassPage.get(f.id, undoStack=q)
+    # p.undoStack = QUndoStack(parent=p)
     with qtbot.waitSignals([p.titreChanged, p.lastPositionChanged]):
         p.set({"titre": "hello", "lastPosition": 99})
+    with db_session:
+        pa = fk.db.Page[p.id]
+        assert pa.lastPosition == 99
+        assert pa.titre == "hello"
+
+    with qtbot.waitSignals([p.titreChanged, p.lastPositionChanged]):
+        p.undoStack.undo()
+    with db_session:
+        pa = fk.db.Page[p.id]
+        assert pa.lastPosition == 3
+        assert pa.titre == "bla"
+
+    with qtbot.waitSignals([p.titreChanged, p.lastPositionChanged]):
+        p.undoStack.redo()
     with db_session:
         pa = fk.db.Page[p.id]
         assert pa.lastPosition == 99

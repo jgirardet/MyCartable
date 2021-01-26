@@ -139,6 +139,7 @@ class Classeur(DTB):
     def setPage(self, value: Union[str, Page]):
         new_page = value if isinstance(value, Page) else Page.get(value)
         new_page.setParent(self)
+        new_page.undoStack = self.undoStack
         if self._page:
             self._page.setParent(None)
         self._page = new_page

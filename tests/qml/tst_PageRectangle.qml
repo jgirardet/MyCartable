@@ -25,6 +25,7 @@ Item {
             });
             classeur_id.annee = 2009;
             page = th.getBridgeInstance(classeur_id, "Page", pageD.id);
+            page.undoStack = classeur_id.undoStack;
             params = {
                 "page": page,
                 "anchors.fill": item
@@ -69,6 +70,7 @@ Item {
                 "titre": ""
             });
             let p = th.getBridgeInstance(classeur_id, "Page", pD.id);
+            p.undoStack = classeur_id.undoStack;
             tested.page = p;
             mouseClick(tested.titre);
             keyClick(Qt.Key_Return);

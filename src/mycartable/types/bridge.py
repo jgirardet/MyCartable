@@ -3,9 +3,13 @@ from __future__ import annotations
 from typing import Any, Union
 from uuid import UUID
 
-from PyQt5.QtCore import pyqtProperty, QObject, pyqtSlot
+from PyQt5.QtCore import pyqtProperty, QObject, pyqtSlot, pyqtSignal
+from PyQt5.QtWidgets import QUndoStack
 from loguru import logger
-from mycartable.types.dtb import DTB
+
+from .dtb import DTB
+
+from mycartable.commands import BaseCommand
 
 
 class Bridge(QObject):
@@ -15,6 +19,7 @@ class Bridge(QObject):
     """
 
     entity_name = None
+    undoStackChanged = pyqtSignal()
 
     """
     Pure python  section
@@ -26,10 +31,11 @@ class Bridge(QObject):
         if cls.entity_name is None:
             raise NotImplementedError("Bridge sublclass must set 'entity_name'")
 
-    def __init__(self, data: dict = {}, parent=None):
-        super().__init__(parent)
+    def __init__(self, data: dict = {}, parent=None, undoStack=None, **kwargs):
+        super().__init__(parent, **kwargs)
         self._data: dict = data
         self._dtb = DTB()
+        self._undostack = undoStack
 
     @classmethod
     def get_class(cls, data: Union[dict, str]) -> type(Bridge):
@@ -41,7 +47,7 @@ class Bridge(QObject):
         return cls
 
     @classmethod
-    def get(cls, item: Union[str, int, UUID, dict], parent=None) -> Bridge:
+    def get(cls, item: Union[str, int, UUID, dict], parent=None, **kwargs) -> Bridge:
         f"""
         Create a new instance of {cls.__name__}
         :param item: id as string or data as dict
@@ -55,7 +61,7 @@ class Bridge(QObject):
             data = item
         if data:
             _class = cls.get_class(data)
-            return _class(data=data, parent=parent)
+            return _class(data=data, parent=parent, **kwargs)
 
     @classmethod
     def new(cls, parent: QObject = None, **kwargs) -> Bridge:
@@ -66,8 +72,9 @@ class Bridge(QObject):
         """
         _class = cls.get_class(kwargs)
         entity = _class.entity_name
+        undostack = kwargs.pop("undoStack", None)
         if data := DTB().addDB(entity, kwargs):
-            return _class(parent=parent, data=data)
+            return _class(parent=parent, data=data, undoStack=undostack)
 
     def delete(self) -> bool:
         """
@@ -110,12 +117,41 @@ class Bridge(QObject):
     def id(self) -> str:
         return self._data.get("id", "")
 
+    @pyqtProperty(QObject, notify=undoStackChanged)
+    def undoStack(self) -> QUndoStack:
+        return self._undostack
+
+    @undoStack.setter
+    def undoStack(self, value: QUndoStack):
+        self._undostack = value
+
     """
     QT pyqtSlots
     """
 
     @pyqtSlot("QVariantMap")
     def set(self, data: dict):
-        for name, value in data.items():
+        self.undoStack.push(SetBridgeCommand(bridge=self, toset=data))
+
+
+class BridgeCommand(BaseCommand):
+    def __init__(self, *, bridge: Bridge, **kwargs):
+        super().__init__(**kwargs)
+        self.bridge = bridge
+
+
+class SetBridgeCommand(BridgeCommand):
+    def __init__(self, toset={}, **kwargs):
+        super().__init__(**kwargs)
+        self.toset = toset
+        self.b_toset = {k: getattr(self.bridge, k) for k in toset}
+
+    def redo_command(self):
+        for name, value in self.toset.items():
             # permet de mettre à jour aussi bien setfield/setstylefield
-            setattr(self, name, value)
+            setattr(self.bridge, name, value)
+
+    def undo_command(self):
+        for name, value in self.b_toset.items():
+            # permet de mettre à jour aussi bien setfield/setstylefield
+            setattr(self.bridge, name, value)

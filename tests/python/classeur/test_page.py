@@ -350,7 +350,7 @@ def test_addSection(fk, args, kwargs, res, lastpos, qtbot):
     new_id = "33333333-3333-3333-3333-333333333333"
     [fk.f_section(id=x, page=pg.id) for x in ids]
     c = Classeur()
-    p = Page.get(str(pg.id), parent=c)
+    p = Page.get(str(pg.id), parent=c, undoStack=c.undoStack)
     a = p.model
     kwargs.update({"id": new_id})
     with qtbot.waitSignal(a.rowsInserted):
@@ -369,7 +369,7 @@ def test_addSection(fk, args, kwargs, res, lastpos, qtbot):
 def new_page(fk):
     c = Classeur()
     p = fk.f_page()
-    po = Page.get(p.id, parent=c)
+    po = Page.get(p.id, parent=c, undoStack=c.undoStack)
     model = po.model
     return p, po, model, c
 

@@ -22,11 +22,13 @@ Item {
             let p = fk.f("page", {
             });
             pageObj = th.getBridgeInstance(classeur_id, "Page", p.id);
+            pageObj.undoStack = classeur_id.undoStack;
             eq = fk.f("equationSection", {
                 "content": init_content,
                 "curseur": 10
             });
             eqObj = th.getBridgeInstance(pageObj, "EquationSection", eq.id);
+            eqObj.undoStack = pageObj.undoStack;
             params = {
                 "section": eqObj,
                 "sectionItem": item

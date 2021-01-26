@@ -1015,10 +1015,10 @@ class SectionGrabber(Grabber):
         base_params = {
             "section": instance,
             "referent": self.qq,
-            "index": 1,
             **params,
         }
         super().__init__(url, base_params)
+        self.rootContext().setContextProperty("index", 1)
         self.qq.setParent(self)
         instance.setParent(self)
 

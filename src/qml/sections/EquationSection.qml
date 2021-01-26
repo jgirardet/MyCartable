@@ -23,9 +23,9 @@ TextArea {
             return ;
         } else if ((event.key == Qt.Key_Z) && (event.modifiers & Qt.ControlModifier)) {
             if (event.modifiers & Qt.ShiftModifier)
-                section.redo();
+                section.undoStack.redo();
             else
-                section.undo();
+                section.undoStack.undo();
         } else {
             section.update(cursorPosition, JSON.stringify(event));
         }

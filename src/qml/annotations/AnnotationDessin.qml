@@ -12,11 +12,11 @@ Canvas {
 
     property var referent
     property alias menu: menuFlottantAnnotationDessin
+    property QtObject annot
     property color strokeStyle: annot.fgColor
     property color fillStyle: annot.bgColor
     property real lineWidth: annot.pointSize
     property string tool: annot.tool
-    property QtObject annot
 
     function checkPointIsNotDraw(mx, my) {
         var ctx = canvas.getContext("2d");

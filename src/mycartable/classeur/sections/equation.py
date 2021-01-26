@@ -40,7 +40,7 @@ class EquationSection(Section):
         if event["key"] in [Qt.Key_Up, Qt.Key_Down, Qt.Key_Left, Qt.Key_Right]:
             self.curseur = new_curseur
         else:
-            self.push_command(
+            self.undoStack.push(
                 UpdateEquationSectionCommand(
                     section=self, content=content, curseur=new_curseur
                 )

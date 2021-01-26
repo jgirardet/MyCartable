@@ -5,7 +5,7 @@
     <option name="PARENT_ENVS" value="true" />
     <envs>
       <env name="PYTHONUNBUFFERED" value="1" />
-      <env name="QT_LOGGING_RULES" value="&quot;qt.qml.binding.removal.info=true&quot;" />
+      <env name="QT_LOGGING_RULES" value="qt.qml.binding.removal.info=true" />
     </envs>
     <option name="SDK_HOME" value="" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />

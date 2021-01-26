@@ -201,8 +201,6 @@ class ImageSection(Section):
     def url(self):
         return QUrl.fromLocalFile(str(self.absolute_path))
 
-    modelChanged = pyqtSignal()
-
     @pyqtProperty(QObject, constant=True)
     def model(self):
         return self._model

@@ -86,7 +86,10 @@ Flickable {
             populated = true;
 
     }
-    onItemAdded: scrollToIndex(page.lastPosition) // valable si bien mis à jour dans le model
+    onItemAdded: {
+        scrollToIndex(page.lastPosition); // valable si bien mis à jour dans le model
+        itemAt(index).loaded.disconnect(itemAdded); // rescroll avec floodfill
+    }
     boundsBehavior: Flickable.StopAtBounds
     contentWidth: column.width
     contentHeight: column.height

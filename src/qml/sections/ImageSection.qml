@@ -63,10 +63,7 @@ Image {
     fillMode: Image.PreserveAspectCrop
     sourceSize.width: sectionItem ? sectionItem.width : 0
     cache: false
-    Component.onCompleted: {
-        root.source = section.url;
-
-    }
+     source : section.url;
     Connections {
       target: section
       function onCommandDone() {

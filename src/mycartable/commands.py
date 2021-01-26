@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QUndoCommand
-from mycartable.types import DTB
+from .types import DTB
 
 
 class BaseCommand(QUndoCommand):

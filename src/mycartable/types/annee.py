@@ -1,5 +1,5 @@
 from PyQt5.QtCore import pyqtSlot, pyqtSignal, pyqtProperty
-from mycartable.types.bridge import Bridge
+from .bridge import Bridge
 from pony.orm import db_session
 
 
@@ -15,8 +15,8 @@ class Annee(Bridge):
 
     niveauChanged = pyqtSignal()
 
-    def __init__(self, data={"id": 0}, parent=None):
-        super().__init__(data, parent)
+    def __init__(self, data={"id": 0}, parent=None, **kwargs):
+        super().__init__(data, parent, **kwargs)
 
     @pyqtProperty(str, notify=niveauChanged)
     def niveau(self):

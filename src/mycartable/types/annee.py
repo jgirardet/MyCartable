@@ -18,8 +18,11 @@ class Annee(Bridge):
     niveauChanged = pyqtSignal()
 
     def __init__(self, data={"id": 0}, parent=None, **kwargs):
-        undo = kwargs.pop("undoStack", QUndoStack(parent=self))
+        undo = getattr(parent, "undoStack", None) or kwargs.pop("undoStack", None)
+        if undo is None:
+            undo = QUndoStack()
         super().__init__(data, parent=parent, undoStack=undo, **kwargs)
+        undo.setParent(self)  # mis apres pour permettre le call de super
 
     @pyqtProperty(str, notify=niveauChanged)
     def niveau(self):

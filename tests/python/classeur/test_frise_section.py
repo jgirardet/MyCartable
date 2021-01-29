@@ -1,6 +1,7 @@
 import pytest
 from PyQt5.QtCore import Qt, QModelIndex
 from PyQt5.QtGui import QColor
+from PyQt5.QtWidgets import QUndoStack
 from mycartable.classeur import FriseSection
 from mycartable.classeur.sections.frise import FriseModel
 from pony.orm import db_session
@@ -11,7 +12,7 @@ def fm(fk):
     def wrapped(nb):
         x = fk.f_friseSection()
         _zones = fk.b_zoneFrise(nb, frise=x.id, td=True)
-        f = FriseSection.get(x.id)
+        f = FriseSection.get(x.id, parent=None, undoStack=QUndoStack())
         f._zones = _zones
         return f
 
@@ -20,7 +21,7 @@ def fm(fk):
 
 def test_base(fk, qtbot):
     x = fk.f_friseSection(height=3, titre="aaa")
-    a = FriseSection.get(x.id)
+    a = FriseSection.get(x.id, parent=None, undoStack=QUndoStack())
     assert a.id == str(x.id)
     assert a.height == 3
     assert a.titre == "aaa"

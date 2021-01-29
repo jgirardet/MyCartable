@@ -3,6 +3,7 @@ import textwrap
 
 import pytest
 from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QUndoStack
 from mycartable.classeur import Page, Classeur
 from mycartable.classeur.sections.equation import (
     TextEquation,
@@ -16,7 +17,7 @@ from pony.orm import db_session
 class TestUpdatEquationSectionCommand:
     def test_undo(self, fk, qtbot):
         f = fk.f_equationSection(content="bla", curseur=99)
-        sec = EquationSection.get(f.id)
+        sec = EquationSection.get(f.id, parent=None, undoStack=QUndoStack())
         c = UpdateEquationSectionCommand(section=sec, content="aaa", curseur=33)
         c.redo()
         assert sec.content == "aaa"
@@ -46,7 +47,7 @@ class TestEquation:
 
     def test_isequationfocusable(self, fk):
         eq = fk.f_equationSection(content=" \n1 \n  ")
-        e = EquationSection.get(eq.id)
+        e = EquationSection.get(eq.id, parent=None, undoStack=QUndoStack())
         assert not e.isEquationFocusable(0)
         assert e.isEquationFocusable(4)
 

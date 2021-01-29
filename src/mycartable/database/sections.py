@@ -216,11 +216,9 @@ def class_section(
         x = Required(float)
         y = Required(float)
         section = Required(Section)
-        # style = Optional("Style", default=lam, cascade_delete=True)
         style = Optional(db.Style, default=db.Style, cascade_delete=True)
 
         def __new__(cls, *args, **kwargs):
-            print(args, kwargs)
             if classtype := kwargs.pop("classtype", None):
                 cls = getattr(db, classtype)
             return super().__new__(cls)
@@ -459,10 +457,7 @@ def class_section(
 
         @classmethod
         def restore(cls, **kwargs):
-            print("dans restrore")
             zones = kwargs.pop("zones", [])
-            print(zones)
-            print(kwargs)
             new_f = cls(**kwargs)
             for z in zones:
                 ZoneFrise.restore(**z)

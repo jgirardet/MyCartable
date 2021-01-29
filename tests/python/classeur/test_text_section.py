@@ -32,16 +32,16 @@ from mycartable.classeur.sections.text import (
 from tests.python.fixtures import compare_char_format, check_args
 
 
-def test_properties(fk):
+def test_properties(fk, bridge):
     a = fk.f_textSection(td=True)
-    b = TextSection.get(a)
+    b = TextSection.get(a, parent=bridge)
     assert a["text"] == b.text
 
 
 class TestUpdateTextSectionCommand:
-    def test_undo(self, fk, qtbot):
+    def test_undo(self, fk, qtbot, bridge):
         f = fk.f_textSection(text="bla")
-        sec = TextSection.get(f.id)
+        sec = TextSection.get(f.id, parent=bridge)
         c = UpdateTextSectionCommand(
             section=sec, b_text="avant", b_cursor=0, text="apres", cursorPosition=1
         )

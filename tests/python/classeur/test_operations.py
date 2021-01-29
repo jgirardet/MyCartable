@@ -16,18 +16,18 @@ from pony.orm import db_session
 
 
 @pytest.fixture
-def to(fk):
+def to(fk, bridge):
     a = fk.f_operationSection("9+8")
-    b = OperationSection.get(a.id)
+    b = OperationSection.get(a.id, parent=bridge)
     return b
 
 
 #
 #
 class TestOperationModel:
-    def test_init(self, fk):
+    def test_init(self, fk, bridge):
         a = fk.f_operationSection("9+8")
-        b = OperationSection.get(a.id)
+        b = OperationSection.get(a.id, parent=bridge)
         assert a.columns == b.columns == 3
         assert a.rows == b.rows == 4
         assert a.datas == b.datas == ["", "", "", "", "", "9", "+", "", "8", "", "", ""]
@@ -136,10 +136,10 @@ class TestOperationModel:
 
 
 @pytest.fixture
-def ta(fk):
+def ta(fk, bridge):
     def wrapped(string):
         a = fk.f_additionSection(string)
-        b = AdditionSection.get(a.id)
+        b = AdditionSection.get(a.id, parent=bridge)
         return b
 
     return wrapped
@@ -267,10 +267,10 @@ class TestAdditionModel:
 
 
 @pytest.fixture
-def ts(fk):
+def ts(fk, bridge):
     def wrapped(string):
         a = fk.f_soustractionSection(string)
-        b = SoustractionSection.get(a.id)
+        b = SoustractionSection.get(a.id, parent=bridge)
         return b
 
     return wrapped
@@ -506,10 +506,10 @@ class TestSoustractionModel:
 
 
 @pytest.fixture
-def tm(fk):
+def tm(fk, bridge):
     def wrapped(string):
         a = fk.f_multiplicationSection(string)
-        b = MultiplicationSection.get(a.id)
+        b = MultiplicationSection.get(a.id, parent=bridge)
         return b
 
     return wrapped
@@ -1532,9 +1532,9 @@ class TestMultiplicationModel:
 
 
 class TestDivisionSection:
-    def test_properties(self, fk, qtbot):
+    def test_properties(self, fk, qtbot, bridge):
         a = fk.f_divisionSection("123/2")
-        b = DivisionSection.get(a.id)
+        b = DivisionSection.get(a.id, parent=bridge)
         assert a.dividende == "123"
         assert a.diviseur == "2"
         assert a.quotient == ""
@@ -1543,10 +1543,10 @@ class TestDivisionSection:
 
 
 @pytest.fixture
-def td(fk):
+def td(fk, bridge):
     def wrapped(string):
         a = fk.f_divisionSection(string)
-        b = DivisionSection.get(a.id)
+        b = DivisionSection.get(a.id, parent=bridge)
         return b
 
     return wrapped

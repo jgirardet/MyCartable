@@ -4,24 +4,24 @@ from mycartable.classeur import TableauSection
 from pony.orm import db_session
 
 
-def test_properties(fk):
+def test_properties(fk, bridge):
     a = fk.f_tableauSection(lignes=2, colonnes=3)
-    b = TableauSection.get(a.id)
+    b = TableauSection.get(a.id, parent=bridge)
     assert b.colonnes == 3
     assert b.lignes == 2
     assert b.entity_name == "TableauSection"
 
 
-def test_init_datas(fk):
+def test_init_datas(fk, bridge):
     x = fk.f_tableauSection(3, 4)
-    t = TableauSection.get(x.id)
+    t = TableauSection.get(x.id, parent=bridge)
     with db_session:
         assert t.initTableauDatas() == fk.db.TableauSection[x.id].get_cells()
 
 
-def test_update_cell(qtbot, fk):
+def test_update_cell(qtbot, fk, bridge):
     x = fk.f_tableauCell(x=2, y=3, texte="zer")
-    t = TableauSection.get(x.tableau.id)
+    t = TableauSection.get(x.tableau.id, parent=bridge)
     with qtbot.waitSignal(t.tableauChanged):
         t.updateCell(3, 2, {"texte": "bla"})
     with db_session:
@@ -36,9 +36,9 @@ def test_update_cell(qtbot, fk):
         ("appendRow", 3, 2, []),
     ],
 )
-def test_add_remove_row(fk, qtbot, fn, lignes, colonnes, args):
+def test_add_remove_row(fk, bridge, qtbot, fn, lignes, colonnes, args):
     x = fk.f_tableauSection(2, 2)
-    t = TableauSection.get(x.id)
+    t = TableauSection.get(x.id, parent=bridge)
     with qtbot.waitSignal(t.lignesChanged):
         getattr(t, fn)(*args)
     with db_session:
@@ -55,9 +55,9 @@ def test_add_remove_row(fk, qtbot, fn, lignes, colonnes, args):
         ("removeColumn", 2, 1, [1]),
     ],
 )
-def test_add_remove_column(fk, qtbot, fn, lignes, colonnes, args):
+def test_add_remove_column(fk, bridge, qtbot, fn, lignes, colonnes, args):
     x = fk.f_tableauSection(2, 2)
-    t = TableauSection.get(x.id)
+    t = TableauSection.get(x.id, parent=bridge)
     with qtbot.waitSignal(t.colonnesChanged):
         getattr(t, fn)(*args)
     with db_session:

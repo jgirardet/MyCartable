@@ -57,13 +57,13 @@ class ImageSection(Section):
         self._model = AnnotationModel(self)
 
     @classmethod
-    def new(cls, parent=None, **kwargs) -> Optional[ImageSection]:
+    def new(cls, *, parent, **kwargs) -> Optional[ImageSection]:
         if path := kwargs.get("path", None):  # cas filename
             p_path = pathize(path)
             if not p_path.is_file():
                 return
             elif p_path.suffix == ".pdf":  # si pdf
-                return cls._new_image_from_pdf(p_path, **kwargs)
+                return cls._new_image_from_pdf(p_path, parent, **kwargs)
 
             else:  # sinon image standard
                 kwargs = cls._new_image_base(p_path, **kwargs)
@@ -135,7 +135,7 @@ class ImageSection(Section):
         return kwargs
 
     @staticmethod
-    def _new_image_from_pdf(p_path: Path, **kwargs):
+    def _new_image_from_pdf(p_path: Path, parent: QObject, **kwargs):
         kwargs.pop("path")
         new_sections = []
         splitter = PDFSplitter()
@@ -145,7 +145,7 @@ class ImageSection(Section):
                 content = kwargs.copy()
                 if "position" in content:
                     content["position"] += counter
-                new_sec = ImageSection.new(path=pdf_page, **content)
+                new_sec = ImageSection.new(path=pdf_page, parent=parent, **content)
                 new_sections.append(new_sec)
         return new_sections
 

@@ -70,6 +70,7 @@ class TestPageCommands:
         self, fk, setup_page, qtbot, section, kwargs, after_redo, new_res, nb_ajoute
     ):
         p, secs, c, po = setup_page()
+        stack = c.undoStack
         entity = getattr(fk.db, section)
         img = None
         # tweak for image
@@ -79,7 +80,10 @@ class TestPageCommands:
 
         # redo at init
         po.addSection(section, 1, kwargs)
-        assert c.undoStack.command(0).text() == AddSectionCommand.formulations[section]
+        assert (
+            stack.command(stack.count() - 1).text()
+            == AddSectionCommand.formulations[section]
+        )
         assert po.model.count == 3 + nb_ajoute
         with db_session:
             assert entity.select().count() == nb_ajoute
@@ -169,17 +173,17 @@ class TestPageCommands:
         img = None
         if "path" in kwargs:
             img = new_res(kwargs["path"])
-            print(img)
             kwargs["path"] = str(img)
         p, secs, c, po = setup_page()
-        im = Section.new_sub(page=p["id"], **kwargs, classtype=section)
+        im = Section.new_sub(page=p["id"], **kwargs, classtype=section, parent=po)
         po = Page.get(p["id"], parent=c, undoStack=c.undoStack)
         entity = getattr(fk.db, section)
 
         # redo at init
         po.removeSection(3)
         assert (
-            c.undoStack.command(0).text() == RemoveSectionCommand.formulations[section]
+            c.undoStack.command(c.undoStack.count() - 1).text()
+            == RemoveSectionCommand.formulations[section]
         )
         assert po.model.count == 3
         with db_session:
@@ -197,12 +201,10 @@ class TestPageCommands:
             )
             item = entity.select().first()
             if "path" in after_redo:
-                print(import_FILES() / item.path)
                 assert (import_FILES() / item.path).read_bytes() == img.read_bytes()
             else:
                 for k, v in after_redo.items():
                     assert getattr(item, k) == v
-
         # redo
         po.classeur.undoStack.redo()
         assert po.model.count == 3

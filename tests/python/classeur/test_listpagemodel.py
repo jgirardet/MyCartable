@@ -26,11 +26,11 @@ class TestListOfPageModel:
         assert l.data(l.index(0, 0), l.PageIdRole) == "111"
         assert l.data(l.index(0, 0), l.BgColorRole) == "#111111"
 
-    def test_update_titre(self, fk):
+    def test_update_titre(self, fk, bridge):
         l = ListOfPageModel()
         p = fk.f_page()
         l._data = [{"titre": "aaa", "id": str(p.id), "matiereBgColor": "#111111"}]
-        p_obj = Page.get(p.id)
+        p_obj = Page.get(p.id, parent=bridge)
         p_obj.titre = "bbb"
         assert l.update_titre(p_obj)
         assert l._data == [

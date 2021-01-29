@@ -35,8 +35,8 @@ class Page(Bridge):
     Python Code
     """
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, data, **kwargs):
+        super().__init__(data, **kwargs)
         self._model = PageModel(parent=self)
         QTimer.singleShot(self.UPDATE_MODIFIED_DELAY, self.update_modified_if_viewed)
 
@@ -72,7 +72,7 @@ class Page(Bridge):
 
     @lastPosition.setter
     def lastPosition(self, value):
-        self.set_field("lastPosition", value)
+        self.set_field("lastPosition", value, push=False)
 
     @pyqtProperty(str, constant=True)
     def matiereId(self) -> str:
@@ -81,7 +81,9 @@ class Page(Bridge):
     @pyqtProperty(QObject, constant=True)
     def matiere(self) -> str:
         if not hasattr("self", "_matiere"):
-            self._matiere = Matiere(self._dtb.getDB("Matiere", self.matiereId))
+            self._matiere = Matiere(
+                self._dtb.getDB("Matiere", self.matiereId), parent=self
+            )
         return self._matiere
 
     @pyqtProperty(QObject, constant=True)

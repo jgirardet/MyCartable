@@ -31,11 +31,11 @@ class Bridge(QObject):
         if cls.entity_name is None:
             raise NotImplementedError("Bridge sublclass must set 'entity_name'")
 
-    def __init__(self, data: dict = {}, parent=None, undoStack=None, **kwargs):
-        super().__init__(parent, **kwargs)
+    def __init__(self, data: dict = {}, *, parent, undoStack=None, **kwargs):
+        super().__init__(parent)
         self._data: dict = data
-        self._dtb = DTB()
-        self._undostack = undoStack
+        self._dtb = DTB(parent=self)
+        self._undostack = undoStack if undoStack is not None else parent.undoStack
 
     @classmethod
     def get_class(cls, data: Union[dict, str]) -> type(Bridge):
@@ -64,7 +64,7 @@ class Bridge(QObject):
             return _class(data=data, parent=parent, **kwargs)
 
     @classmethod
-    def new(cls, parent: QObject = None, **kwargs) -> Bridge:
+    def new(cls, *, parent, **kwargs) -> Bridge:
         """
         Create new entry in database and return the corresponding Bridge subclass
         :param kwargs: entity parameters
@@ -95,10 +95,13 @@ class Bridge(QObject):
             return True
         return False
 
-    def set_field(self, name: str, value: Any):
+    def set_field(self, name: str, value: Any, push=True):
         if self._set_field(name, value):
-            self._data[name] = value
-            getattr(self, name + "Changed").emit()
+            com = SetFieldBridgeCommand(bridge=self, field=name, value=value)
+            if push:
+                self.undoStack.push(com)
+            else:
+                com.redo()
 
     def __eq__(self, other):
         if isinstance(other, Bridge):
@@ -130,14 +133,35 @@ class Bridge(QObject):
     """
 
     @pyqtSlot("QVariantMap")
-    def set(self, data: dict):
-        self.undoStack.push(SetBridgeCommand(bridge=self, toset=data))
+    @pyqtSlot("QVariantMap", str)
+    def set(self, data: dict, undo_text=""):
+        self.undoStack.push(
+            SetBridgeCommand(bridge=self, toset=data, undo_text=undo_text)
+        )
 
 
 class BridgeCommand(BaseCommand):
     def __init__(self, *, bridge: Bridge, **kwargs):
         super().__init__(**kwargs)
         self.bridge = bridge
+
+
+class SetFieldBridgeCommand(BridgeCommand):
+    def __init__(self, *, field: str, value: Any, **kwargs):
+        super().__init__(**kwargs)
+        self.field = field
+        self.b_value = getattr(self.bridge, self.field)
+        self.value = value
+
+    def redo_command(self):
+        if self.bridge._set_field(self.field, self.value):
+            self.bridge._data[self.field] = self.value
+            getattr(self.bridge, self.field + "Changed").emit()
+
+    def undo_command(self):
+        # if self.bridge._set_field(self.field, self.value):
+        self.bridge._data[self.field] = self.b_value
+        getattr(self.bridge, self.field + "Changed").emit()
 
 
 class SetBridgeCommand(BridgeCommand):

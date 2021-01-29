@@ -4,21 +4,21 @@ from mycartable.classeur import Matiere, MatieresDispatcher, Activite, ActiviteM
 
 
 class TestMatiere:
-    def test_properties(self, fk):
+    def test_properties(self, fk, bridge):
         f = fk.f_matiere(td=True)
         ac = fk.f_activite(matiere=f["id"])
-        m = Matiere.get(f["id"])
+        m = Matiere.get(f["id"], parent=bridge)
         assert m.id == f["id"]
         assert m.nom == f["nom"]
         assert m.bgColor == f["bgColor"]
         assert m.fgColor == f["fgColor"]
-        assert m.activites == [Activite.get(ac.id)]
+        assert m.activites == [Activite.get(ac.id, parent=bridge)]
 
 
 class TestActivite:
-    def test_properties(self, fk):
+    def test_properties(self, fk, bridge):
         ac = fk.f_activite(nom="aaa")
-        m = Matiere.get(ac.matiere)
+        m = Matiere.get(ac.matiere.id, parent=bridge)
         act = Activite.get(ac.id, parent=m)
         assert act.nom == "aaa"
         assert act.position == 0
@@ -33,7 +33,6 @@ class TestMatiereDispatcher:
         assert self.md.indexFromId(self.f2["id"]) == 2
 
     def test_IdfromIndex(self, some_init_matiere):
-        # print(self.md.matieres_list_id)
         assert self.md.idFromIndex(0) == self.f0["id"]
         assert self.md.idFromIndex(1) == self.f1["id"]
         assert self.md.idFromIndex(2) == self.f2["id"]

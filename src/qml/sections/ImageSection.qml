@@ -1,4 +1,3 @@
-//import MyCartable 1.0
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import "qrc:/qml/annotations"
@@ -63,14 +62,16 @@ Image {
     fillMode: Image.PreserveAspectCrop
     sourceSize.width: sectionItem ? sectionItem.width : 0
     cache: false
-     source : section.url;
-    Connections {
-      target: section
-      function onCommandDone() {
-        root.reloadImage()
-      }
-    }
+    source: section.url
     model: section.model
+
+    Connections {
+        function onCommandDone() {
+            root.reloadImage();
+        }
+
+        target: section
+    }
 
     MenuFlottantImage {
         id: menuFlottantImage

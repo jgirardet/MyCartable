@@ -78,7 +78,9 @@ class Classeur(DTB):
             return
         with db_session:
             try:
-                self._currentMatiere = Matiere(self.db.Matiere[value].to_dict())
+                self._currentMatiere = Matiere(
+                    self.db.Matiere[value].to_dict(), parent=self
+                )
             except ObjectNotFound as res:
                 logger.error(res)
                 return
@@ -122,7 +124,7 @@ class Classeur(DTB):
 
     @pyqtSlot(str)
     def newPage(self, activiteId: str) -> Optional[dict]:
-        new_item = Page.new(activite=activiteId)
+        new_item = Page.new(parent=self, activite=activiteId)
         logger.debug(f'New Page "{new_item.id}" created')
         self.setPage(new_item)
         QTimer.singleShot(0, lambda: self.onNewPage(activiteId))
@@ -137,9 +139,7 @@ class Classeur(DTB):
     @pyqtSlot(str)
     @pyqtSlot(Page)
     def setPage(self, value: Union[str, Page]):
-        new_page = value if isinstance(value, Page) else Page.get(value)
-        new_page.setParent(self)
-        new_page.undoStack = self.undoStack
+        new_page = value if isinstance(value, Page) else Page.get(value, parent=self)
         if self._page:
             self._page.setParent(None)
         self._page = new_page

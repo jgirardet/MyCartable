@@ -1,4 +1,6 @@
 from PyQt5.QtCore import pyqtSlot, pyqtSignal, pyqtProperty
+from PyQt5.QtWidgets import QUndoStack
+
 from .bridge import Bridge
 from pony.orm import db_session
 
@@ -16,7 +18,8 @@ class Annee(Bridge):
     niveauChanged = pyqtSignal()
 
     def __init__(self, data={"id": 0}, parent=None, **kwargs):
-        super().__init__(data, parent, **kwargs)
+        undo = kwargs.pop("undoStack", QUndoStack(parent=self))
+        super().__init__(data, parent=parent, undoStack=undo, **kwargs)
 
     @pyqtProperty(str, notify=niveauChanged)
     def niveau(self):

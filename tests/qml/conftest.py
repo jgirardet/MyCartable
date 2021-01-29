@@ -7,6 +7,7 @@ from PyQt5 import sip
 from PyQt5.QtCore import QObject, pyqtSlot
 from PyQt5.QtGui import QGuiApplication, QColor
 from PyQt5.QtQml import QQmlEngine
+from PyQt5.QtWidgets import QUndoStack
 
 from pony.orm import Database, db_session, ObjectNotFound
 
@@ -106,8 +107,7 @@ class TestHelper(DTB):
     @pyqtSlot(QObject, str, "QVariantList", result=QObject)
     def getBridgeInstance(self, parent: QObject, letype: str, params: str):
         classs = self.BRIDGES[letype]
-        res = classs.get(params)
-        res.setParent(parent)
+        res = classs.get(params, parent=parent, undoStack=QUndoStack(parent=parent))
         sip.transferto(res, res)
         return res
 

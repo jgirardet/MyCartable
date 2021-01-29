@@ -34,8 +34,7 @@ class AddSectionCommand(PageBaseCommand):
         self.params["position"] = position
 
         self.undo_text = self.formulations.get(self.params["classtype"], "")
-
-        new_secs = Section.new_sub(page=self.page.id, **self.params)
+        new_secs = Section.new_sub(page=self.page.id, parent=self.page, **self.params)
         new_secs = [new_secs] if not isinstance(new_secs, list) else new_secs
         new_secs = list(filter(lambda x: x is not None, new_secs))  # on enleve les None
         nb = len(new_secs) - 1

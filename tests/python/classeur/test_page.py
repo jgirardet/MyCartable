@@ -25,10 +25,10 @@ from mycartable.utils import shift_list
 from pony.orm import db_session
 
 
-def test_subclassing(fk):
+def test_subclassing(fk, bridge):
     ac = fk.f_activite()
-    x = Page.new(activite=ac.id)
-    y = Page.get(x.id)
+    x = Page.new(activite=ac.id, parent=bridge)
+    y = Page.get(x.id, parent=bridge)
     assert x == y
     assert x.delete()
     with disable_log():
@@ -36,21 +36,21 @@ def test_subclassing(fk):
 
 
 @pytest.mark.freeze_time("2017-05-21")
-def test_update_modified_if_viewed(fk, qtbot):
+def test_update_modified_if_viewed(fk, bridge, qtbot):
     class PPage(Page):
         entity_name = "Page"
         UPDATE_MODIFIED_DELAY = 0
 
     pa = fk.f_page(created=datetime(2000, 2, 2))
-    p = PPage.get(pa.id)
+    p = PPage.get(pa.id, parent=bridge)
     with qtbot.waitSignal(p.pageModified):
         pass
     assert p._data["modified"] == "2017-05-21T00:00:00"
 
 
-def test_properties(fk):
+def test_properties(fk, bridge):
     ac = fk.f_activite()
-    p = Page.new(titre="bla", activite=ac.id, lastPosition=5)
+    p = Page.new(titre="bla", activite=ac.id, lastPosition=5, parent=bridge)
 
     # titre
     p.titre = "Haha"
@@ -71,16 +71,16 @@ def test_properties(fk):
     assert p.classeur == a
 
 
-def test_property_model(fk):
+def test_property_model(fk, bridge):
     ac = fk.f_activite()
-    p = Page.new(activite=ac.id)
+    p = Page.new(activite=ac.id, parent=bridge)
     assert isinstance(p.model, PageModel)
     assert p.model.parent() == p
 
 
-def test_base_init(fk):
+def test_base_init(fk, bridge):
     pg = fk.f_page(td=True)
-    p = Page.get(pg["id"])
+    p = Page.get(pg["id"], parent=bridge)
     assert p.model._data == pg
     assert p.model.rowCount(QModelIndex()) == 0
     assert p.matiereId == p.matiere.id == pg["matiere"]
@@ -102,9 +102,9 @@ def test_base_init(fk):
         ("friseSection", FriseSection),
     ],
 )
-def test_data_role(fk, nom, sectionclass):
+def test_data_role(fk, bridge, nom, sectionclass):
     sec = getattr(fk, "f_" + nom)(td=True)
-    p = Page.get(sec["page"])
+    p = Page.get(sec["page"], parent=bridge)
     a = p.model
     res = a.data(a.index(0, 0), a.SectionRole)
     assert isinstance(res, sectionclass)
@@ -116,18 +116,18 @@ def test_data_role(fk, nom, sectionclass):
     assert a.data(a.index(0, 0), 99999) is None
 
 
-def test_rowCount(fk):
+def test_rowCount(fk, bridge):
     pg = fk.f_page()
     fk.b_section(3, page=pg.id)
-    p = Page.get(str(pg.id))
+    p = Page.get(str(pg.id), parent=bridge)
     a = p.model
     assert a.rowCount(QModelIndex()) == 3
     assert a.count == 3
 
 
-def test_roleNames(fk):
+def test_roleNames(fk, bridge):
     pg = fk.f_page()
-    p = Page.get(str(pg.id))
+    p = Page.get(str(pg.id), parent=bridge)
     a = p.model
     assert PageModel.SectionRole in a.roleNames()
 
@@ -162,10 +162,10 @@ def test_roleNames(fk):
         (4, 4, 9),
     ],
 )
-def test_move(fk, source, target, lastposition):
+def test_move(fk, bridge, source, target, lastposition):
     pg = fk.f_page(lastPosition=9)
     secs_ids_pre = [str(x.id) for x in fk.b_section(3, page=pg.id)]
-    p = Page.get(str(pg.id))
+    p = Page.get(str(pg.id), parent=bridge)
     a = p.model
     new_order = shift_list(secs_ids_pre, source, 1, target)
     res = a.move(source, target)
@@ -223,7 +223,7 @@ def test_move(fk, source, target, lastposition):
         ),
     ],
 )
-def test_removeRows(fk, idx, res, lastpos):
+def test_removeRows(fk, bridge, idx, res, lastpos):
     pg = fk.f_page(lastPosition=0)
     ids = [
         "00000000-0000-0000-0000-000000000000",
@@ -231,7 +231,7 @@ def test_removeRows(fk, idx, res, lastpos):
         "22222222-2222-2222-2222-222222222222",
     ]
     [fk.f_section(id=x, page=pg.id) for x in ids]
-    p = Page.get(str(pg.id))
+    p = Page.get(str(pg.id), parent=bridge)
     a = p.model
     assert a.remove(idx)
     assert a._data["sections"] == res
@@ -259,9 +259,9 @@ def test_append():
     "func, format, ext",
     [("exportToPDF", "pdf:writer_pdf_Export", ".pdf"), ("exportToODT", "odt", ".odt")],
 )
-def test_exportTo(fk, func, format, ext):
+def test_exportTo(fk, bridge, func, format, ext):
     pg = fk.f_page()
-    p = Page.get(str(pg.id))
+    p = Page.get(str(pg.id), parent=bridge)
     with patch("mycartable.classeur.convert.partial") as w:
         getattr(p, func)()
 
@@ -340,7 +340,7 @@ def test_exportTo(fk, func, format, ext):
         ),
     ],
 )
-def test_addSection(fk, args, kwargs, res, lastpos, qtbot):
+def test_addSection(fk, bridge, args, kwargs, res, lastpos, qtbot):
     pg = fk.f_page()
     ids = [
         "00000000-0000-0000-0000-000000000000",
@@ -369,7 +369,7 @@ def test_addSection(fk, args, kwargs, res, lastpos, qtbot):
 def new_page(fk):
     c = Classeur()
     p = fk.f_page()
-    po = Page.get(p.id, parent=c, undoStack=c.undoStack)
+    po = Page.get(p.id, parent=c)
     model = po.model
     return p, po, model, c
 

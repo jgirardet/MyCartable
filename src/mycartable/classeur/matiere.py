@@ -10,7 +10,7 @@ from pony.orm import db_session, Database
 class Matiere(Bridge):
     entity_name = "Matiere"
 
-    def __init__(self, data={},*, parent, **kwargs):
+    def __init__(self, data={}, *, parent, **kwargs):
         super().__init__(data=data, parent=parent, **kwargs)
         self._activites = [
             Activite.get(activite_id, parent=self)

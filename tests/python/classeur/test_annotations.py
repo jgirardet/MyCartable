@@ -20,35 +20,37 @@ sub_classes = (Annotation, AnnotationText, AnnotationDessin)
 
 
 class TestAnnotation:
-    def test_subclassing(self, fk):
+    def test_subclassing(self, fk, bridge):
         ac = fk.f_section()
-        x = Annotation.new(section=ac.id, x=0.2, y=0.3, classtype="Annotation")
+        x = Annotation.new(
+            section=ac.id, x=0.2, y=0.3, classtype="Annotation", parent=bridge
+        )
         assert x is not None
-        y = Annotation.get(x.id)
+        y = Annotation.get(x.id, parent=bridge)
         assert y is not None
         assert x == y
         assert x.delete()
         with disable_log("mycartable.types.dtb"):
-            assert Annotation.get(y.id) is None
+            assert Annotation.get(y.id, parent=bridge) is None
 
-    def test_sytlable_subtypeable(self, fk):
+    def test_sytlable_subtypeable(self, fk, bridge):
         # subtypable
         ac = fk.f_annotationText()
-        x = Annotation.get(ac.id)
+        x = Annotation.get(ac.id, parent=bridge)
         assert x.classtype == "AnnotationText"
         ac = fk.f_annotationDessin()
-        x = Annotation.get(ac.id)
+        x = Annotation.get(ac.id, parent=bridge)
         assert x.classtype == "AnnotationDessin"
 
         # styalable
         ac = fk.f_annotationDessin()
-        x = Annotation.get(ac.id)
+        x = Annotation.get(ac.id, parent=bridge)
         x.bgColor == ""
         hasattr(x, "underline")
 
-    def test_properties(self, fk, qtbot):
+    def test_properties(self, fk, bridge, qtbot):
         anx = fk.f_annotation(x=0.2, y=0.3, td=True)
-        an = Annotation.get(anx["id"])
+        an = Annotation.get(anx["id"], parent=bridge)
         assert an.x == 0.2
         assert an.y == 0.3
         with qtbot.waitSignal(an.xChanged):
@@ -69,30 +71,35 @@ class TestAnnotation:
         "_class",
         sub_classes,
     )
-    def test_get_class(self, fk, _class):
+    def test_get_class(self, fk, bridge, _class):
         f_name = "f_" + _class.entity_name[0].lower() + _class.entity_name[1:]
         a = getattr(fk, f_name)(td=True)
-        s = Annotation.get(a["id"])
+        s = Annotation.get(a["id"], parent=bridge)
         assert a == s._data
         assert s.classtype == _class.entity_name
         assert isinstance(s, _class)
 
 
 class TestAnnotationText:
-    def test_subclassing(self, fk):
+    def test_subclassing(self, fk, bridge):
         ac = fk.f_section()
         x = AnnotationText.new(
-            section=ac.id, x=0.2, y=0.3, text="a", classtype="AnnotationText"
+            section=ac.id,
+            x=0.2,
+            y=0.3,
+            text="a",
+            classtype="AnnotationText",
+            parent=bridge,
         )
-        y = AnnotationText.get(x.id)
+        y = AnnotationText.get(x.id, parent=bridge)
         assert x == y
         assert x.delete()
         with disable_log("mycartable.types.dtb"):
-            assert AnnotationText.get(y.id) is None
+            assert AnnotationText.get(y.id, parent=bridge) is None
 
-    def test_properties(self, fk, qtbot):
+    def test_properties(self, fk, bridge, qtbot):
         anx = fk.f_annotationText(text="aa")
-        an = AnnotationText.get(anx.id)
+        an = AnnotationText.get(anx.id, parent=bridge)
         assert an.text == "aa"
         with qtbot.waitSignal(an.textChanged):
             an.text = "text"
@@ -100,9 +107,9 @@ class TestAnnotationText:
             item = fk.db.AnnotationText[an.id]
             assert item.text == "text"
 
-    def test_annotationCurrentTextSizeFactor(self, fk, qtbot):
+    def test_annotationCurrentTextSizeFactor(self, fk, bridge, qtbot):
         anx = fk.f_annotationText(text="aa")
-        an = AnnotationText.get(anx.id)
+        an = AnnotationText.get(anx.id, parent=bridge)
         assert (
             an.annotationCurrentTextSizeFactor
             == KEEP_UPDATED_CONFIGURATION["annotationCurrentTextSizeFactor"]
@@ -110,7 +117,7 @@ class TestAnnotationText:
 
 
 class TestAnnotationDessin:
-    def test_subclassing(self, fk):
+    def test_subclassing(self, fk, bridge):
         ac = fk.f_section()
         x = AnnotationDessin.new(
             **{
@@ -124,15 +131,16 @@ class TestAnnotationDessin:
                 "endX": 0.1,
                 "endY": 0.3,
                 "section": ac.id,
-            }
+            },
+            parent=bridge
         )
-        y = AnnotationDessin.get(x.id)
+        y = AnnotationDessin.get(x.id, parent=bridge)
         assert x == y
         assert x.delete()
         with disable_log("mycartable.types.dtb"):
-            assert AnnotationDessin.get(y.id) is None
+            assert AnnotationDessin.get(y.id, parent=bridge) is None
 
-    def test_properties(self, fk, qtbot):
+    def test_properties(self, fk, bridge, qtbot):
         ac = fk.f_section()
         prop_before = {
             "x": 0.3,
@@ -158,7 +166,7 @@ class TestAnnotationDessin:
             "endY": 0.8,
             "points": [{"x": 3, "y": 4}],
         }
-        an = AnnotationDessin.new(**{"section": ac.id, **prop_before})
+        an = AnnotationDessin.new(**{"section": ac.id, **prop_before}, parent=bridge)
 
         for k, v in prop_before.items():
             if k == "points":
@@ -176,7 +184,7 @@ class TestAnnotationDessin:
 
 
 @pytest.fixture
-def am(fk):
+def am(fk, bridge):
     def factory(nb):
         p = fk.f_imageSection()
         annots = []
@@ -193,7 +201,7 @@ def am(fk):
                     x = fk.f_annotationDessin(section=p.id, td=True)
                     annots.append(x)
 
-        a = ImageSection.get(p.id)
+        a = ImageSection.get(p.id, parent=bridge)
         a.f_annots = annots
         return a
 

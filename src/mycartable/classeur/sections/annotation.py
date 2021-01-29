@@ -2,6 +2,7 @@ import json
 from typing import Optional, Dict
 
 from PyQt5.QtCore import Qt, QModelIndex, QByteArray, pyqtSlot, pyqtProperty, pyqtSignal
+from mycartable.commands import BaseCommand
 from mycartable.types import Stylable, SubTypeAble, Bridge, DtbListModel
 
 
@@ -168,7 +169,9 @@ class AnnotationModel(DtbListModel):
         sectionItem = self._dtb.getDB("Section", self.parent().id)
         for sec in sectionItem["annotations"]:
             _class = Annotation.get_class(sec)
-            self._data.append(_class.get(sec["id"]))
+            self._data.append(
+                _class.get(sec["id"], parent=self, undoStack=self.parent().undoStack)
+            )
 
     #
     def data(self, index, role: int) -> Optional[Annotation]:
@@ -185,11 +188,6 @@ class AnnotationModel(DtbListModel):
         for annot in to_delete:
             annot.delete()
 
-    def _after_reset(self):
-        pass
-        # TODO: self.rowsRemoved.connect(self.dao.updateRecentsAndActivites)
-        # TODO: self.rowsInserted.connect(self.dao.updateRecentsAndActivites)
-
     @pyqtSlot(str, "QVariantMap")
     def addAnnotation(self, classtype: str, content: dict = {}):
         new_anot = None
@@ -197,7 +195,13 @@ class AnnotationModel(DtbListModel):
             x = content["x"] / content["width"]
             y = content["y"] / content["height"]
             new_anot = AnnotationText.new(
-                **{"x": x, "y": y, "section": self.parent().id, "text": ""}
+                **{
+                    "x": x,
+                    "y": y,
+                    "section": self.parent().id,
+                    "text": "",
+                },
+                parent=self.parent()
             )
         elif classtype == "AnnotationDessin":
             style = {}
@@ -206,7 +210,12 @@ class AnnotationModel(DtbListModel):
             style["pointSize"] = content.pop("lineWidth")
             style["weight"] = int(content.pop("opacity") * 10)
             new_anot = AnnotationDessin.new(
-                **{"section": self.parent().id, "style": style, **content}
+                **{
+                    "section": self.parent().id,
+                    "style": style,
+                    **content,
+                },
+                parent=self.parent()
             )
 
         if new_anot:
@@ -214,3 +223,8 @@ class AnnotationModel(DtbListModel):
             self.insertRow(
                 self.rowCount() - 1
             )  # on décale de 1 car maj de annotations déjà faite
+
+
+class BaseAnnotationCommand(BaseCommand):
+    def __init__(self, *, annotation: Annotation, **kwargs):
+        super().__init__(**kwargs)

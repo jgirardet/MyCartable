@@ -198,6 +198,28 @@ FocusScope {
             verify(!tested.checkPointIsNotDraw(4, 5));
         }
 
+        function test_undo_redo() {
+            tested.cursorPosition = 3;
+            keyClick(Qt.Key_X);
+            compare(tested.cursorPosition, 4);
+            compare(tested.text, "blax");
+            keySequence("ctrl+z");
+            compare(tested.cursorPosition, 3);
+            compare(tested.text, "bla");
+            keySequence("ctrl+shift+z");
+            compare(tested.cursorPosition, 4);
+            compare(tested.text, "blax");
+            keyClick(Qt.Key_Backspace);
+            compare(tested.cursorPosition, 3);
+            compare(tested.text, "bla");
+            keySequence("ctrl+z");
+            compare(tested.cursorPosition, 4);
+            compare(tested.text, "blax");
+            keySequence("ctrl+shift+z");
+            compare(tested.cursorPosition, 3);
+            compare(tested.text, "bla");
+        }
+
         name: "AnnotationText"
         testedNom: "qrc:/qml/annotations/AnnotationText.qml"
     }

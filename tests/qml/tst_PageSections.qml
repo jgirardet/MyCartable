@@ -36,23 +36,28 @@ Rectangle {
             });
             sec0 = fk.f("textSection", {
                 "text": "blabla 0",
-                "page": page.id
+                "page": page.id,
+                "position": 0
             });
             sec1 = fk.f("textSection", {
                 "text": "blabla 1",
-                "page": page.id
+                "page": page.id,
+                "position": 1
             });
             sec2 = fk.f("textSection", {
                 "text": "blabla 2",
-                "page": page.id
+                "page": page.id,
+                "position": 2
             });
             sec3 = fk.f("imageSection", {
                 "path": "sc1.png",
-                "page": page.id
+                "page": page.id,
+                "position": 3
             });
             sec4 = fk.f("textSection", {
                 "text": "blabla 4",
-                "page": page.id
+                "page": page.id,
+                "position": 4
             });
             pageObj = th.getBridgeInstance(classeur_id, "Page", page.id);
             params = {
@@ -163,6 +168,8 @@ Rectangle {
 
         function test_move_delegate_no_move() {
             mouseDrag(txt2, 1, 1, 0, 0, Qt.LeftButton, Qt.ShiftModifier);
+            print(sec1.id, tested.itemAt(1).section.id);
+            print(sec2.id, tested.itemAt(2).section.id);
             compare(tested.itemAt(1).section.id, sec1.id);
             compare(tested.itemAt(2).section.id, sec2.id);
         }

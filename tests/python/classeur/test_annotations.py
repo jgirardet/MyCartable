@@ -12,7 +12,11 @@ from mycartable.classeur import (
     AnnotationDessin,
     ImageSection,
 )
-from mycartable.classeur.sections.annotation import AnnotationModel
+from mycartable.classeur.sections.annotation import (
+    AnnotationModel,
+    SetAnnotationCommand,
+    RemoveAnnotationCommand,
+)
 
 from pony.orm import db_session
 
@@ -260,11 +264,13 @@ class TestAnnotationModel:
         avant_undo = list(a._data)
         s.undoStack.undo()
         assert a.rowCount() == 3
+        assert a.data(a.index(0, 0), a.AnnotationRole).id == ids[0]
+        assert a.data(a.index(1, 0), a.AnnotationRole).id == ids[1]
+        assert a.data(a.index(2, 0), a.AnnotationRole).id == ids[2]
+        s.undoStack.redo()
+        assert a.rowCount() == 2
         assert a.data(a.index(0, 0), a.AnnotationRole).id == ids[zero]
         assert a.data(a.index(1, 0), a.AnnotationRole).id == ids[un]
-        assert a.data(a.index(2, 0), a.AnnotationRole).id == ids[removed]
-        s.undoStack.redo()
-        assert a._data == avant_undo
 
     def test_addAnnotation_AnnotationText(self, am, qtbot, fk):
         s = am(2)
@@ -322,3 +328,38 @@ class TestAnnotationModel:
         )
 
         assert x.rowCount() == 2
+
+
+class TestAnnotationSetCommand:
+    def test_undo_redo(self, am, qtbot, fk):
+        s = am(["t", "t", "t"])
+        x = AnnotationModel(s)
+        c = SetAnnotationCommand(index=1, model=x, toset={"text": "azerty"})
+        init = x.data(x.index(1, 0), x.AnnotationRole).text
+        c.redo()
+        assert x.data(x.index(1, 0), x.AnnotationRole).text == "azerty"
+        c.undo()
+        assert x.data(x.index(1, 0), x.AnnotationRole).text == init
+
+    def test_undo_redo_after_a_remove(self, am, qtbot, fk):
+        s = am(["t", "t", "t"])
+        x = AnnotationModel(s)
+        c = SetAnnotationCommand(index=1, model=x, toset={"text": "azerty"})
+        init0 = x.data(x.index(0, 0), x.AnnotationRole).text
+        init1 = x.data(x.index(1, 0), x.AnnotationRole).text
+        init2 = x.data(x.index(2, 0), x.AnnotationRole).text
+
+        c.redo()
+        assert x.data(x.index(1, 0), x.AnnotationRole).text == "azerty"
+        d = RemoveAnnotationCommand(
+            model=x,
+            index=1,
+            section=x.parent(),
+        )
+        d.redo()
+        d.undo()
+        assert x.data(x.index(1, 0), x.AnnotationRole).text == "azerty"
+        c.undo()
+        assert x.data(x.index(0, 0), x.AnnotationRole).text == init0
+        assert x.data(x.index(1, 0), x.AnnotationRole).text == init1
+        assert x.data(x.index(2, 0), x.AnnotationRole).text == init2

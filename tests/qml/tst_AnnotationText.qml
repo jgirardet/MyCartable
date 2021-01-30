@@ -7,6 +7,7 @@ FocusScope {
     property Item model
     property var _move: null
     property var section: testcase.ref
+    property int index: 0
 
     function move(dx, dy) {
         _move = [dx, dy];
@@ -24,7 +25,9 @@ FocusScope {
         property var ref
 
         function initPre() {
+            let img = fk.f("imageSection");
             annot = fk.f("annotationText", {
+                "section": img.id,
                 "text": "bla",
                 "style": {
                     "bgColor": "blue",
@@ -32,19 +35,12 @@ FocusScope {
                     "underline": true
                 }
             });
-            let img = fk.f("imageSection");
             ref = th.getBridgeInstance(item, "ImageSection", img.id);
-            annotobj = th.getBridgeInstance(ref, "AnnotationText", annot.id);
+            annotobj = ref.model.data(ref.model.index(0, 0), 258); // 258 == AnnotaitonRol
             params = {
                 "annot": annotobj,
                 "referent": item
             };
-        }
-
-        function initPreCreate() {
-        }
-
-        function initPost() {
         }
 
         function test_initY() {
@@ -109,15 +105,6 @@ FocusScope {
             tested.focus = false;
             tested.focus = true;
             compare(tested.cursorPosition, 8);
-        }
-
-        function test_focus_changed_timerremovestart_if_empty_text() {
-            var tm = findChild(tested, "timerRemove");
-            tm.stop();
-            tested.text = "";
-            tested.focus = false;
-            tested.focus = true;
-            verify(tm.running);
         }
 
         function test_add_new_line() {

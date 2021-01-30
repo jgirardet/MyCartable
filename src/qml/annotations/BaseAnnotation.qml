@@ -24,7 +24,7 @@ Loader {
     }
 
     function setStyleFromMenu(data) {
-        annot.set(data.style);
+        annot.set(data.style, "mise en forme");
     }
 
     anchors.top: parent.top

@@ -147,9 +147,9 @@ class SetBridgeCommand(BridgeCommand):
     def __init__(self, toset={}, **kwargs):
         super().__init__(**kwargs)
         self.toset = toset
-        self.b_toset = {k: getattr(self.bridge, k) for k in toset}
 
     def redo_command(self):
+        self.b_toset = {k: getattr(self.bridge, k) for k in self.toset}
         for name, value in self.toset.items():
             # permet de mettre à jour aussi bien setfield/setstylefield
             setattr(self.bridge, name, value)

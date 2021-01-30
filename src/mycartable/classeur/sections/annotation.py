@@ -9,6 +9,7 @@ from PyQt5.QtCore import (
     pyqtProperty,
     pyqtSignal,
 )
+from mycartable.types.bridge import SetBridgeCommand
 
 from . import SectionBaseCommand
 from mycartable.types import Stylable, SubTypeAble, Bridge, DtbListModel
@@ -30,6 +31,15 @@ class Annotation(Stylable, SubTypeAble, Bridge):
     """
     xChanged = pyqtSignal()
     yChanged = pyqtSignal()
+    indexChanged = pyqtSignal()
+
+    @pyqtProperty(int, notify=indexChanged)
+    def index(self):
+        return getattr(self, "_index", -1)
+
+    @index.setter
+    def index(self, value: int):
+        self._index = value
 
     @pyqtProperty(float, notify=xChanged)
     def x(self):
@@ -50,6 +60,18 @@ class Annotation(Stylable, SubTypeAble, Bridge):
     """
     Qt pyqtSlots
     """
+
+    @pyqtSlot("QVariantMap")
+    @pyqtSlot("QVariantMap", str)
+    def set(self, data: dict, undo_text=""):
+        self.undoStack.push(
+            SetAnnotationCommand(
+                index=self.index,
+                model=self.parent().model,
+                toset=data,
+                undo_text=undo_text,
+            )
+        )
 
 
 class AnnotationText(Annotation):
@@ -168,17 +190,17 @@ class AnnotationModel(DtbListModel):
     def rowCount(self, parent=QModelIndex()):
         return len(self._data)
 
-    def roleNames(self) -> Dict:
-        default = super().roleNames()
-        default[self.AnnotationRole] = QByteArray(b"annotation")
-        return default
+    def _roleNames(self) -> Dict:
+        return {self.AnnotationRole: QByteArray(b"annotation")}
 
     def _reset(self):
         sectionItem = self._dtb.getDB("Section", self.parent().id)
         for sec in sectionItem["annotations"]:
             _class = Annotation.get_class(sec)
             self._data.append(
-                _class.get(sec["id"], parent=self, undoStack=self.parent().undoStack)
+                _class.get(
+                    sec["id"], parent=self.parent(), undoStack=self.parent().undoStack
+                )
             )
 
     #
@@ -287,12 +309,10 @@ class RemoveAnnotationCommand(SectionBaseCommand):
         self.model.removeRow(self.index)
 
     def undo_command(self) -> None:
-
         entity = self.params.pop("classtype")
         a = self._dtb.execDB(entity, None, "restore", **self.params)
         annot = Annotation.get(a.id, parent=self.section)
-        self.model._data.append(annot)
-        self.index = self.model.rowCount() - 1
+        self.model._data.insert(self.index, annot)
         self.model.insertRow(self.index)
 
     def _set_undo_text(self, annot):
@@ -300,3 +320,25 @@ class RemoveAnnotationCommand(SectionBaseCommand):
             self.undo_text = "Effacer dessin"
         elif annot.classtype == "AnnotationText":
             self.undo_text = "Effacer annotation"
+
+
+class SetAnnotationCommand(SetBridgeCommand):
+    def __init__(self, *, index: int, model: AnnotationModel, **kwargs):
+        super().__init__(bridge=None, **kwargs)
+        self.index = index
+        self.model = model
+
+    def redo_command(self):
+        self.bridge = self.model.data(
+            self.model.index(self.index, 0), self.model.AnnotationRole
+        )
+        print(self.model._data, self.toset)
+        print("self.bridge", self.bridge)
+        super().redo_command()
+
+    def undo_command(self):
+        self.bridge = self.model.data(
+            self.model.index(self.index, 0), self.model.AnnotationRole
+        )
+        print("undeo", self.bridge, self.b_toset)
+        super().undo_command()

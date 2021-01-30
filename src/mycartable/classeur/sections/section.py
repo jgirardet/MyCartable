@@ -2,8 +2,7 @@ from __future__ import annotations
 from functools import lru_cache
 from typing import Tuple
 
-from PyQt5.QtCore import pyqtProperty, QObject, pyqtSlot
-from PyQt5.QtWidgets import QUndoCommand
+from PyQt5.QtCore import pyqtProperty, QObject
 from mycartable.commands import BaseCommand
 from mycartable.types import SubTypeAble
 from mycartable.types.bridge import Bridge

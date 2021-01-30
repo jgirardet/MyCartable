@@ -31,6 +31,7 @@ class DTB(QObject):
         if entity := getattr(self.db, entity, None):  # pragma: no branch
             try:
                 if item := entity(**params):  # pragma: no branch
+                    logger.debug(f"addDB Entity {entity}: {item.to_dict()}")
                     return item.to_dict()
             except TypeError as err:
                 logger.error(err)
@@ -48,6 +49,7 @@ class DTB(QObject):
         """
         if entity := getattr(self.db, entity_name, None):  # pragma: no branch
             if item := entity.get(id=item_id):  # pragma: no branch
+                logger.debug(f"delDB item: {item.to_dict()}")
                 item.delete()
                 return True
             else:
@@ -69,6 +71,7 @@ class DTB(QObject):
         """
         if entity := getattr(self.db, entity_name, None):  # pragma: no branch
             if item := entity.get(id=item_id):  # pragma: no branch
+                # logger.debug(f"getDB item: {item.to_dict()}")
                 return item.to_dict()
             else:
                 logger.error(f"Absence d'item {item_id} dans la table {entity_name}")
@@ -96,6 +99,7 @@ class DTB(QObject):
                 return {}
             try:
                 item.set(**params)
+                logger.debug(f"setDB item {item}: {params}")
                 return item.to_dict()
             except TypeError as err:
                 logger.error(err)

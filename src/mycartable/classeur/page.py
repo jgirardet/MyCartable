@@ -72,7 +72,7 @@ class Page(Bridge):
 
     @lastPosition.setter
     def lastPosition(self, value):
-        self.set_field("lastPosition", value, push=False)
+        self.set_field("lastPosition", value)
 
     @pyqtProperty(str, constant=True)
     def matiereId(self) -> str:

@@ -13,18 +13,17 @@ Item {
     implicitHeight: height
 
     CasTest {
-        //        "height": 0.8
         id: testcase
 
+        property int index: 0 // index de annot dans model
         property var annot
         property var annotobj
         property var ref
-        property int index: 1
 
         function initPre() {
             //      params = {
             item.currentAnnotation = null;
-            item.model._removeRow = 0;
+            //            item.model._removeRow = 0;
             let img = fk.f("imageSection");
             annot = fk.f("annotationText", {
                 "x": 0.4,
@@ -32,15 +31,13 @@ Item {
                 "section": img.id
             });
             ref = th.getBridgeInstance(item, "ImageSection", img.id);
-            annotobj = th.getBridgeInstance(ref, "AnnotationText", annot.id);
+            annotobj = ref.model.data(ref.model.index(0, 0), 258); // 258 == AnnotationRole
             params = {
                 "annot": annotobj,
                 "referent": item,
-                "index": index,
                 "section": section
             };
         }
-
 
         function test_init() {
             compare(tested.anchors.topMargin, 200 * 0.2);

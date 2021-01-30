@@ -23,7 +23,7 @@ class EquationSection(Section):
 
     @content.setter
     def content(self, value: str):
-        self.set_field("content", value, push=False)
+        self.set_field("content", value)
 
     @pyqtProperty(int, notify=curseurChanged)
     def curseur(self):
@@ -31,7 +31,7 @@ class EquationSection(Section):
 
     @curseur.setter
     def curseur(self, value: int):
-        self.set_field("curseur", value, push=False)
+        self.set_field("curseur", value)
 
     @pyqtSlot(int, str)
     def update(self, curseur, event):

@@ -239,6 +239,7 @@ class TestAnnotationModel:
         # no good role
         assert a.data(a.index(1, 0), 99999) is None
 
+    @pytest.mark.parametrize("genre", ["t", "d"])
     @pytest.mark.parametrize(
         "removed, zero, un",
         [
@@ -247,29 +248,28 @@ class TestAnnotationModel:
             (2, 0, 1),
         ],
     )
-    def test_removeRows(self, am, ddbr, removed, zero, un):
-        s = am(3)
+    def test_removeRows(self, am, ddbr, removed, zero, un, genre):
+        s = am([genre, genre, genre])
         a = AnnotationModel(s)
 
         ids = [anot.id for anot in a._data]
-        assert a.remove(removed)
+        a.remove(removed)
         assert a.rowCount() == 2
         assert a.data(a.index(0, 0), a.AnnotationRole).id == ids[zero]
         assert a.data(a.index(1, 0), a.AnnotationRole).id == ids[un]
-
-    # def test_insertRows(self, am):
-    #     s = am(3)
-    #     a = AnnotationModel(s)
-    #     ids = [anot.id for anot in a._data]
-    #     a._reset = MagicMock()
-    #     a.insertRow(0)
-    #     assert a._reset.called
+        avant_undo = list(a._data)
+        s.undoStack.undo()
+        assert a.rowCount() == 3
+        assert a.data(a.index(0, 0), a.AnnotationRole).id == ids[zero]
+        assert a.data(a.index(1, 0), a.AnnotationRole).id == ids[un]
+        assert a.data(a.index(2, 0), a.AnnotationRole).id == ids[removed]
+        s.undoStack.redo()
+        assert a._data == avant_undo
 
     def test_addAnnotation_AnnotationText(self, am, qtbot, fk):
         s = am(2)
         x = AnnotationModel(s)
         assert x.rowCount() == 2
-        # assert x.insertRows(1, 0)
 
         with qtbot.waitSignal(x.rowsInserted):
             x.addAnnotation(
@@ -277,6 +277,11 @@ class TestAnnotationModel:
             )
 
         assert x._data[-1].x == 3 / 100
+        assert x.rowCount() == 3
+
+        s.undoStack.undo()
+        assert x.rowCount() == 2
+        s.undoStack.redo()
         assert x.rowCount() == 3
 
     def test_addAnnotation_AnnotationDessin(self, am, qtbot, fk):
@@ -303,6 +308,10 @@ class TestAnnotationModel:
 
         assert x.rowCount() == 3
         assert x._data[-1].x == 0.24426605504587157
+        s.undoStack.undo()
+        assert x.rowCount() == 2
+        s.undoStack.redo()
+        assert x.rowCount() == 3
 
     def test_addAnnotation_Rien(self, am, qtbot, fk):
         s = am(2)
@@ -313,52 +322,3 @@ class TestAnnotationModel:
         )
 
         assert x.rowCount() == 2
-        # assert x._data[-1].x == 0.24426605504587157
-
-    #
-    # def test_setData(self, am, qtbot, ddbr):
-    #     a = am(3)
-    #     a0 = str(a.f_annots[0]["id"])
-    #     # ok to set
-    #     with qtbot.waitSignal(a.dataChanged):
-    #         assert a.setData(
-    #             a.index(0, 0),
-    #             QJsonDocument.fromJson(
-    #                 json.dumps({"id": a0, "text": "blabla"}).encode()
-    #             ),
-    #             Qt.EditRole,
-    #         )
-    #     with dbsession_autodisconnect:
-    #         assert ddbr.AnnotationText[a0].text == "blabla"
-    #
-    #     # wrong index
-    #     with qtbot.assert_not_emitted(a.dataChanged):
-    #         assert not a.setData(
-    #             a.index(0, 99),
-    #             QJsonDocument.fromJson(
-    #                 json.dumps({"id": a0, "text": "bleble"}).encode()
-    #             ),
-    #             Qt.EditRole,
-    #         )
-    #     with dbsession_autodisconnect:
-    #         assert ddbr.AnnotationText[a0].text == "blabla"
-    #
-    # def test_set_data_select_right_class_annotation(self, am, ddbr):
-    #     a = am(1, ("d",))
-    #     a0 = str(a.f_annots[0]["id"])
-    #     assert a.setData(
-    #         a.index(0, 0),
-    #         QJsonDocument.fromJson(json.dumps({"id": a0, "width": 23}).encode()),
-    #         Qt.EditRole,
-    #     )
-    #     with dbsession_autodisconnect:
-    #         assert ddbr.AnnotationDessin[a0].width == 23
-    #
-    # def test_modif_update_recents_and_activites(self, qtbot, am):
-    #     a = am(3)
-    #
-    #     with qtbot.waitSignal(a.dao.updateRecentsAndActivites):
-    #         a.removeRow(0)
-    #
-    #     with qtbot.waitSignal(a.dao.updateRecentsAndActivites):
-    #         a.insertRow(0)

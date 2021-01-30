@@ -95,13 +95,10 @@ class Bridge(QObject):
             return True
         return False
 
-    def set_field(self, name: str, value: Any, push=True):
+    def set_field(self, name: str, value: Any):
         if self._set_field(name, value):
-            com = SetFieldBridgeCommand(bridge=self, field=name, value=value)
-            if push:
-                self.undoStack.push(com)
-            else:
-                com.redo()
+            self._data[name] = value
+            getattr(self, name + "Changed").emit()
 
     def __eq__(self, other):
         if isinstance(other, Bridge):
@@ -144,24 +141,6 @@ class BridgeCommand(BaseCommand):
     def __init__(self, *, bridge: Bridge, **kwargs):
         super().__init__(**kwargs)
         self.bridge = bridge
-
-
-class SetFieldBridgeCommand(BridgeCommand):
-    def __init__(self, *, field: str, value: Any, **kwargs):
-        super().__init__(**kwargs)
-        self.field = field
-        self.b_value = getattr(self.bridge, self.field)
-        self.value = value
-
-    def redo_command(self):
-        if self.bridge._set_field(self.field, self.value):
-            self.bridge._data[self.field] = self.value
-            getattr(self.bridge, self.field + "Changed").emit()
-
-    def undo_command(self):
-        # if self.bridge._set_field(self.field, self.value):
-        self.bridge._data[self.field] = self.b_value
-        getattr(self.bridge, self.field + "Changed").emit()
 
 
 class SetBridgeCommand(BridgeCommand):

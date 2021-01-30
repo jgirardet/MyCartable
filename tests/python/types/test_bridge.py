@@ -22,7 +22,7 @@ def dummyClassPage():
 
         @titre.setter
         def titre(self, value: str):
-            self.set_field("titre", value, push=False)
+            self.set_field("titre", value)
 
         lastPositionChanged = pyqtSignal()
 
@@ -32,7 +32,7 @@ def dummyClassPage():
 
         @lastPosition.setter
         def lastPosition(self, value: int):
-            self.set_field("lastPosition", value, push=False)
+            self.set_field("lastPosition", value)
             self.lastPositionChanged.emit()
 
     return Page

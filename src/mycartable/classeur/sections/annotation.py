@@ -1,8 +1,16 @@
 import json
 from typing import Optional, Dict
 
-from PyQt5.QtCore import Qt, QModelIndex, QByteArray, pyqtSlot, pyqtProperty, pyqtSignal
-from mycartable.commands import BaseCommand
+from PyQt5.QtCore import (
+    Qt,
+    QModelIndex,
+    QByteArray,
+    pyqtSlot,
+    pyqtProperty,
+    pyqtSignal,
+)
+
+from . import SectionBaseCommand
 from mycartable.types import Stylable, SubTypeAble, Bridge, DtbListModel
 
 
@@ -190,41 +198,105 @@ class AnnotationModel(DtbListModel):
 
     @pyqtSlot(str, "QVariantMap")
     def addAnnotation(self, classtype: str, content: dict = {}):
-        new_anot = None
         if classtype == "AnnotationText":
-            x = content["x"] / content["width"]
-            y = content["y"] / content["height"]
-            new_anot = AnnotationText.new(
-                **{
-                    "x": x,
-                    "y": y,
-                    "section": self.parent().id,
-                    "text": "",
-                },
-                parent=self.parent()
+            self.parent().undoStack.push(
+                AddAnnotationTextCommand(model=self, section=self.parent(), **content)
             )
         elif classtype == "AnnotationDessin":
-            style = {}
-            style["fgColor"] = (content.pop("strokeStyle"),)
-            style["bgColor"] = (content.pop("fillStyle"),)
-            style["pointSize"] = content.pop("lineWidth")
-            style["weight"] = int(content.pop("opacity") * 10)
-            new_anot = AnnotationDessin.new(
-                **{
-                    "section": self.parent().id,
-                    "style": style,
-                    **content,
-                },
-                parent=self.parent()
+            self.parent().undoStack.push(
+                AddAnnotationDessinCommand(model=self, section=self.parent(), **content)
             )
 
-        if new_anot:
-            self._data.append(new_anot)
-            self.insertRow(
-                self.rowCount() - 1
+    @pyqtSlot(int)
+    def remove(self, row: int):
+        self.parent().undoStack.push(
+            RemoveAnnotationCommand(model=self, section=self.parent(), index=row)
+        )
+
+
+class AddAnnotationCommand(SectionBaseCommand):
+    def __init__(self, *, model: AnnotationModel, **kwargs):
+        self.model = model
+        super().__init__(**kwargs)
+
+    def redo_command(self):
+        if new_annot := self.redo_command_annotation():
+            self.model._data.append(new_annot)
+            self.model.insertRow(
+                self.model.rowCount() - 1
             )  # on décale de 1 car maj de annotations déjà faite
 
+    def undo_command(self):
+        self.model.removeRow(self.model.rowCount() - 1)
 
-class BaseAnnotationCommand(BaseCommand):
-    def __init__(self, *, annotation: Annotation, **kwargs):
+
+class AddAnnotationTextCommand(AddAnnotationCommand):
+
+    undo_text = "Ajouter annotation"
+
+    def redo_command_annotation(self):
+        x = self.params["x"] / self.params["width"]
+        y = self.params["y"] / self.params["height"]
+        new_anot = AnnotationText.new(
+            **{
+                "x": x,
+                "y": y,
+                "section": self.section.id,
+                "text": "",
+            },
+            parent=self.section,
+        )
+        return new_anot
+
+
+class AddAnnotationDessinCommand(AddAnnotationCommand):
+
+    undo_text = "Dessiner "
+
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.style = {}
+        self.style["fgColor"] = self.params.pop("strokeStyle")
+        self.style["bgColor"] = self.params.pop("fillStyle")
+        self.style["pointSize"] = self.params.pop("lineWidth")
+        self.style["weight"] = int(self.params.pop("opacity") * 10)
+
+    def redo_command_annotation(self):
+        new_anot = AnnotationDessin.new(
+            **{
+                "section": self.section.id,
+                "style": self.style,
+                **self.params,
+            },
+            parent=self.section,
+        )
+        return new_anot
+
+
+class RemoveAnnotationCommand(SectionBaseCommand):
+    def __init__(self, *, model: AnnotationModel, index: int, **kwargs):
+        super().__init__(**kwargs)
+        self.model = model
+        self.index = index
+
+    def redo_command(self) -> None:
+        model = self.model
+        annot = model.data(model.index(self.index, 0), model.AnnotationRole)
+        self._set_undo_text(annot)
+        self.params = self._dtb.execDB(annot.entity_name, annot.id, "backup")
+        self.model.removeRow(self.index)
+
+    def undo_command(self) -> None:
+
+        entity = self.params.pop("classtype")
+        a = self._dtb.execDB(entity, None, "restore", **self.params)
+        annot = Annotation.get(a.id, parent=self.section)
+        self.model._data.append(annot)
+        self.index = self.model.rowCount() - 1
+        self.model.insertRow(self.index)
+
+    def _set_undo_text(self, annot):
+        if annot.classtype == "AnnotationDessin":
+            self.undo_text = "Effacer dessin"
+        elif annot.classtype == "AnnotationText":
+            self.undo_text = "Effacer annotation"

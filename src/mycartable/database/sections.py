@@ -15,7 +15,7 @@ from pony.orm import (
 
 from mycartable.classeur.sections.operations.api import create_operation
 from mycartable.exceptions import MyCartableOperationError
-from .mixins import ColorMixin, PositionMixin
+from .mixins import ColorMixin, PositionMixin, BackupAble
 
 
 def class_section(
@@ -40,7 +40,7 @@ def class_section(
     "ZoneFrise",
     "FriseLegende",
 ]:
-    class Section(db.Entity, PositionMixin):
+    class Section(db.Entity, PositionMixin, BackupAble):
         referent_attribute_name = "page"
 
         id = PrimaryKey(UUID, auto=True, default=uuid4)
@@ -74,12 +74,12 @@ def class_section(
             )
             return dico
 
-        def backup(self) -> dict:
-            """
-            Backup les data afin de pouvoir  restaurer le state de l'entity
-            :return: dict
-            """
-            return self.to_dict()
+        # def backup(self) -> dict:
+        #     """
+        #     Backup les data afin de pouvoir  restaurer le state de l'entity
+        #     :return: dict
+        #     """
+        #     return self.to_dict()
 
         @classmethod
         def restore(cls, **data):
@@ -89,7 +89,7 @@ def class_section(
             :return: None
             """
             annotations = data.pop("annotations", [])
-            new_sec = cls(**data)
+            new_sec = super().restore(**data)
             for an in annotations:
                 Annotation(**an)
             return new_sec
@@ -211,7 +211,7 @@ def class_section(
         content = Optional(str, default=DEFAULT_CONTENT, autostrip=False)
         curseur = Required(int, default=DEFAULT_CURSEUR)
 
-    class Annotation(db.Entity):
+    class Annotation(db.Entity, BackupAble):
         id = PrimaryKey(UUID, auto=True, default=uuid4)
         x = Required(float)
         y = Required(float)

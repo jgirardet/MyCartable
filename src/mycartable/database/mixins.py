@@ -14,6 +14,24 @@ from pony.orm.core import (
 )
 
 
+class BackupAble:
+    def backup(self) -> dict:
+        """
+        Backup les data afin de pouvoir  restaurer le state de l'entity
+        :return: dict
+        """
+        return self.to_dict()
+
+    @classmethod
+    def restore(cls, **data):
+        """
+        Restore le state d'une entity supprimée
+        :param data:
+        :return: None
+        """
+        return cls(**data)
+
+
 class ColorMixin:
     """
     Mixin qui ajoute bgColor et fgColor

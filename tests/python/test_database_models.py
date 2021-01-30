@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime, date
 
 from PyQt5.QtGui import QFont, QColor
+from mycartable.database.mixins import BackupAble
 from tests.python.fixtures import compare_items, wait, ss, uuu
 
 import pytest
@@ -830,6 +831,24 @@ class TestAnnotations:
             assert isinstance(a, fk.db.AnnotationDessin)
             a = annots[2].as_type()
             assert isinstance(a, fk.db.AnnotationText)
+
+    def test_backup_restore(self, fk):
+        # dessin
+        d = fk.f_annotationDessin(td=True)
+        with db_session:
+            assert fk.db.AnnotationDessin[d["id"]].backup() == d
+            fk.db.AnnotationDessin[d["id"]].delete()
+        with db_session:
+            fk.db.AnnotationDessin.restore(**d)
+            assert fk.db.AnnotationDessin[d["id"]].to_dict() == d
+        # text
+        d = fk.f_annotationText(td=True)
+        with db_session:
+            assert fk.db.AnnotationText[d["id"]].backup() == d
+            fk.db.AnnotationText[d["id"]].delete()
+        with db_session:
+            fk.db.AnnotationText.restore(**d)
+            assert fk.db.AnnotationText[d["id"]].to_dict() == d
 
 
 class TestTableauSection:
@@ -1806,6 +1825,21 @@ class TestFrise:
                     },
                 ],
             }
+
+
+class TestBackupableMxin:
+    def test_base(self):
+        class B(BackupAble):
+            def to_dict(self):
+                return self.bla
+
+            def __init__(self, **kwargs):
+                self.bla = kwargs
+
+        dic = {"bleu": "ba"}
+        v = B(**dic)
+        assert v.backup() == dic
+        assert B.restore(**dic).bla == dic
 
 
 class TestLexique:

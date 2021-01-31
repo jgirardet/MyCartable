@@ -141,6 +141,7 @@ BaseMenu {
 
     MenuItem {
         PointSizeSlider {
+            pointSize: target ? target.annot.pointSize : 5
             menu: root
         }
 

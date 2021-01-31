@@ -130,6 +130,7 @@
         <file alias="PointSizeSlider.qml">qml/menu/PointSizeSlider.qml</file>
         <file alias="OpacitySlider.qml">qml/menu/OpacitySlider.qml</file>
         <file alias="DeplacePage.qml">qml/menu/DeplacePage.qml</file>
+        <file alias="MenuSlider.qml">qml/menu/MenuSlider.qml</file>
 
     </qresource>
 
@@ -158,6 +159,7 @@
         <file alias="ColorPicker.qml">qml/divers/ColorPicker.qml</file>
         <file alias="DynamicRepeater.qml">qml/divers/DynamicRepeater.qml</file>
         <file alias="IndexedDialog.qml">qml/divers/IndexedDialog.qml</file>
+        <file alias="TimedSlider.qml">qml/divers/TimedSlider.qml</file>
     </qresource>
     
 

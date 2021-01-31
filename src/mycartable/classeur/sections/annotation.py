@@ -332,13 +332,10 @@ class SetAnnotationCommand(SetBridgeCommand):
         self.bridge = self.model.data(
             self.model.index(self.index, 0), self.model.AnnotationRole
         )
-        print(self.model.AnnotationRole, self.model._data, self.toset)
-        print("self.bridge", self.bridge)
         super().redo_command()
 
     def undo_command(self):
         self.bridge = self.model.data(
             self.model.index(self.index, 0), self.model.AnnotationRole
         )
-        print("undeo", self.bridge, self.b_toset)
         super().undo_command()

@@ -171,6 +171,7 @@ BaseMenu {
     MenuItem {
         PointSizeSlider {
             menu: menu
+            pointSize: target ? target.section.annotationDessinCurrentLineWidth : 5
         }
 
     }

@@ -8,6 +8,7 @@ RoundButton {
 
     property var borderDefaultWidth: 1
     property var borderActivatedWidth: 3
+    property alias bgColor: back.color
 
     radius: 10
 
@@ -31,7 +32,6 @@ RoundButton {
     background: Rectangle {
         id: back
 
-        color: bgcolor
         anchors.fill: parent
         radius: 10
         border.width: hovered ? borderActivatedWidth : borderDefaultWidth

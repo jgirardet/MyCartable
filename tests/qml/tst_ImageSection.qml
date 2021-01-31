@@ -11,6 +11,8 @@ Item {
     CasTest {
         // onPaint called
         // non testé trop compliqué et change l'image de base
+        //            tested.section.undoStack.undo();
+        //            compare(model.rowCount(), 0);
 
         property var model
         property var canvas
@@ -31,6 +33,7 @@ Item {
         function initPost() {
             tryCompare(tested, "progress", 1); // permet le temps de chargement async de l'image
             canvas = findChild(tested, "canvasFactory");
+            model = tested.model;
         }
 
         function test_init() {
@@ -221,6 +224,50 @@ Item {
             let cache_rect = th.python("obj.cursor().pixmap().cacheKey()", tested.mousearea);
             verify(cache_trait != cache_before);
             verify(cache_trait != cache_rect);
+        }
+
+        function test_undo_redo_annotation_dessin() {
+            //            mousePress(tested);
+            tested.model.addAnnotation("AnnotationDessin", {
+                "x": 0.6,
+                "y": 0.6,
+                "strokeStyle": "#00ff00",
+                "fillStyle": "#123456",
+                "lineWidth": 10,
+                "opacity": 10,
+                "width": 0.2,
+                "height": 0.3,
+                "startX": 0.1,
+                "startY": 0.2,
+                "endX": 0.8,
+                "endY": 0.9,
+                "tool": "ellipse"
+            });
+            compare(model.rowCount(), 1);
+            let eli = tested.annotations.itemAt(0);
+            eli.setStyleFromMenu({
+                "style": {
+                    "bgColor": Qt.rgba(0, 0, 1, 1)
+                }
+            });
+            model.remove(0);
+            compare(model.rowCount(), 0);
+            tested.section.undoStack.undo(); // annule remove
+            compare(model.rowCount(), 1);
+            tested.section.undoStack.undo(); // annule style
+            eli = tested.annotations.itemAt(0);
+            fuzzyCompare(eli.item.fillStyle, "#123456", 0);
+            tested.section.undoStack.undo(); // annule ajoute section
+            compare(model.rowCount(), 0);
+            tested.section.undoStack.redo(); // refait ajout
+            tested.section.undoStack.redo(); // refait style
+            compare(model.rowCount(), 1);
+            eli = tested.annotations.itemAt(0);
+            fuzzyCompare(eli.item.fillStyle, "blue", 0);
+            tested.section.undoStack.redo(); // refait remove
+            compare(model.rowCount(), 0);
+
+
         }
 
         name: "ImageSection"

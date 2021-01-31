@@ -61,6 +61,7 @@ TextArea {
         annot.textChanged.connect(() => {
             return text = annot.text;
         });
+        timerRemove.running = true;
     }
     onFontSizeFactorChanged: {
         if (annot.pointSize == fontSizeFactor)
@@ -73,7 +74,8 @@ TextArea {
     onFocusChanged: {
         if (focus)
             cursorPosition = text.length;
-
+        else if (!text)
+            timerRemove.running = true;
     }
     Keys.onPressed: {
         if ((event.key == Qt.Key_Z) && (event.modifiers & Qt.ControlModifier)) {
@@ -105,14 +107,22 @@ TextArea {
         }
     }
 
-    Binding {
-        target: annot
-        property: "index"
-        value: index
-    }
-
     MenuFlottantAnnotationText {
         id: menuFlottantAnnotationText
+    }
+
+    Timer {
+        id: timerRemove
+
+        objectName: "timerRemove"
+        interval: 3000
+        running: false
+        repeat: false
+        onTriggered: {
+            if (text == "")
+                root.referent.model.remove(index);
+
+        }
     }
 
     background: Rectangle {

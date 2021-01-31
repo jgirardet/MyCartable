@@ -7,7 +7,6 @@ FocusScope {
     property Item model
     property var _move: null
     property var section: testcase.ref
-    property int index: 0
 
     function move(dx, dy) {
         _move = [dx, dy];
@@ -41,6 +40,7 @@ FocusScope {
                 "annot": annotobj,
                 "referent": item
             };
+            annotobj.index = 0;
         }
 
         function test_initY() {

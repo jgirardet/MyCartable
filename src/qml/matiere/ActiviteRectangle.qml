@@ -74,9 +74,7 @@ Rectangle {
                 width: ListView.view.width
                 height: lv.commonHeight
                 borderDefaultWidth: 0
-                Component.onCompleted: {
-                    background.color = "#cdd0d3";
-                }
+                bgColor: "#cdd0d3"
             }
 
         }

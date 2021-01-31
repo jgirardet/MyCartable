@@ -1,2 +1,0 @@
-créer  un type qml Action qui prend en parametre
-un CustomQAction qui prend en parametre QAction

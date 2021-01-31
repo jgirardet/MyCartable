@@ -52,6 +52,12 @@ Loader {
         }
     ]
 
+    Binding {
+        target: annot
+        property: "index"
+        value: index
+    }
+
     MouseArea {
         id: mousearea
 

@@ -4,6 +4,8 @@ import "assets/annotationsValues.mjs" as AssetAnnot
 Item {
     id: item
 
+    property int index: 0
+
     implicitWidth: width
     implicitHeight: height // si pas de taille, pas ed paint
     width: 200 // important pout les tests
@@ -13,6 +15,8 @@ Item {
         // en haut a gauche
         // trou
         // en haut a gauche
+        //                "style": {
+        //                },
 
         id: testCase
 
@@ -42,7 +46,8 @@ Item {
                 "tool": "rect"
             });
             ref = th.getBridgeInstance(item, "ImageSection", img.id);
-            annot = th.getBridgeInstance(ref, "AnnotationDessin", annotdata.id);
+            //            annot = th.getBridgeInstance(ref, "AnnotationDessin", annotdata.id);
+            annot = ref.model.data(ref.model.index(0, 0), 258);
             params = {
                 "annot": annot,
                 "referent": item

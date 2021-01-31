@@ -86,6 +86,25 @@ Item {
             fuzzyCompare(newl.style.bgColor, "red", 0);
         }
 
+        function test_setStyle_indo_redo() {
+            tested.setStyleFromMenu({
+                "style": {
+                    "bgColor": th.color("red")
+                }
+            });
+            fuzzyCompare(tested.annot.bgColor, "red", 0);
+            tested.setStyleFromMenu({
+                "style": {
+                    "bgColor": th.color("blue")
+                }
+            });
+            fuzzyCompare(tested.annot.bgColor, "blue", 0);
+            tested.annot.undoStack.undo();
+            fuzzyCompare(tested.annot.bgColor, "red", 0);
+            tested.annot.undoStack.redo();
+            fuzzyCompare(tested.annot.bgColor, "blue", 0);
+        }
+
         name: "BaseAnnotation"
         testedNom: "qrc:/qml/annotations/BaseAnnotation.qml"
     }

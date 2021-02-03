@@ -10,7 +10,7 @@ from mycartable.undoredo import UndoStack
 
 from .dtb import DTB
 
-from mycartable.commands import BaseCommand
+from mycartable.undoredo import BaseCommand
 
 
 class Bridge(QObject):

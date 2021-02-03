@@ -227,12 +227,3 @@ def test_pageModified_move_on_top_of_recents(classeur, cl_data, fk, qtbot):
         classeur.page.update_modified_if_viewed()
 
     assert r._data[0]["id"] == cl_data._page10["id"]
-
-
-def test_undoStack(classeur):
-    class Com(QUndoCommand):
-        def redo(self) -> None:
-            classeur.aaa = "aaa"
-
-    classeur.undoStack.push(Com())
-    assert classeur.aaa == "aaa"

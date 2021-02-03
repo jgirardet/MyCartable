@@ -12,6 +12,7 @@ TextArea {
     property int moveStep: 5
     property int fontSizeFactor: annot && annot.pointSize ? annot.pointSize : 0
     property bool key_accepted: false // true pour le chargement initial
+    property int index
 
     function move(key) {
         if (key == Qt.Key_Left)
@@ -38,7 +39,7 @@ TextArea {
     onTextChanged: {
         // on ne sauvegarde pas (pas de creation de command) si c un undo/redo/initial load
         if (key_accepted)
-            annot.set({
+            annot.set(index, {
             "text": text
         }, "frappe");
 

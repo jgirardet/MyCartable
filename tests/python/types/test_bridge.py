@@ -1,10 +1,9 @@
 from uuid import UUID
 
 import pytest
-from PyQt5.QtCore import pyqtProperty, pyqtSignal, QObject
-from PyQt5.QtWidgets import QUndoStack
+from PyQt5.QtCore import pyqtProperty, pyqtSignal
 from tests.python.fixtures import disable_log
-from mycartable.types.bridge import Bridge
+from mycartable.types.bridge import Bridge, AbstractSetBridgeCommand
 from mycartable.types.dtb import DTB
 from pony.orm import db_session
 
@@ -79,25 +78,27 @@ def test_set_field(fk, dummyClassPage, qtbot, bridge):
         assert fk.db.Page[a.id].titre == "iii"
 
 
-def test_set(fk, qtbot, dummyClassPage, bridge):
+def test_AbstractSetBridgeCommand(fk, qtbot, dummyClassPage, bridge):
     f = fk.f_page(titre="bla", lastPosition=3)
     p = dummyClassPage.get(f.id, parent=bridge)
+    com = AbstractSetBridgeCommand(
+        bridge=p, toset={"titre": "hello", "lastPosition": 99}, get_bridge=lambda: p
+    )
     with qtbot.waitSignals([p.titreChanged, p.lastPositionChanged]):
-        p.set({"titre": "hello", "lastPosition": 99})
+        com.redo()
     with db_session:
         pa = fk.db.Page[p.id]
         assert pa.lastPosition == 99
         assert pa.titre == "hello"
     #
     with qtbot.waitSignals([p.titreChanged, p.lastPositionChanged]):
-        p.undoStack.undo()
+        com.undo()
     with db_session:
         pa = fk.db.Page[p.id]
         assert pa.lastPosition == 3
         assert pa.titre == "bla"
-    print(p.undoStack.count())
     with qtbot.waitSignals([p.titreChanged, p.lastPositionChanged]):
-        p.undoStack.redo()
+        com.redo()
     with db_session:
         pa = fk.db.Page[p.id]
         assert pa.lastPosition == 99

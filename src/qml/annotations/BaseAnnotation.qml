@@ -17,14 +17,14 @@ Loader {
     }
 
     function saveMove() {
-        annot.set({
+        annot.set(index, {
             "x": root.x / root.parent.implicitWidth,
             "y": root.y / root.parent.implicitHeight
         });
     }
 
     function setStyleFromMenu(data) {
-        annot.set(data.style, "mise en forme");
+        annot.set(index, data.style, "mise en forme");
     }
 
     anchors.top: parent.top
@@ -35,7 +35,8 @@ Loader {
     Component.onCompleted: {
         root.setSource("qrc:/qml/annotations/" + annot.classtype + ".qml", {
             "referent": referent,
-            "annot": annot
+            "annot": annot,
+            "index": index
         });
     }
     states: [

@@ -2,10 +2,10 @@ from __future__ import annotations
 from functools import lru_cache
 from typing import Tuple
 
-from PyQt5.QtCore import pyqtProperty, QObject
-from mycartable.commands import BaseCommand
+from PyQt5.QtCore import pyqtProperty, QObject, QModelIndex, pyqtSignal
 from mycartable.types import SubTypeAble
 from mycartable.types.bridge import Bridge
+from mycartable.undoredo import BaseCommand
 
 """
 Pour créer une nouvelle section :
@@ -29,6 +29,8 @@ Pour créer une nouvelle section :
 class Section(SubTypeAble, Bridge):
 
     entity_name = "Section"
+
+    positionChanged = pyqtSignal()
 
     @staticmethod
     @lru_cache
@@ -64,8 +66,20 @@ class Section(SubTypeAble, Bridge):
     def page(self):
         return self.parent()
 
+    @pyqtProperty(QObject, notify=positionChanged)
+    def position(self):
+        return self._data["position"]
 
-class SectionBaseCommand(BaseCommand):
+    @position.setter
+    def position(self, value: int):
+        self._data["position"] = value
+
+
+class UpdateSectionCommand(BaseCommand):
     def __init__(self, *, section: Section, **kwargs):
         super().__init__(**kwargs)
-        self.section = section
+        self.position = section.position
+        self.page = section.page
+
+    def get_section(self):
+        return self.page.get_section(self.position)

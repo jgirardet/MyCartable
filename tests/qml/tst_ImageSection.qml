@@ -18,12 +18,14 @@ Item {
         property var canvas
         property var imgsection
         property var imgInstance
+        property var page
 
         function initPre() {
             imgsection = fk.f("imageSection", {
                 "path": "tst_AnnotableImage.png"
             });
-            imgInstance = th.getBridgeInstance(item, "ImageSection", imgsection.id);
+            page = th.getBridgeInstance(item, "Page", imgsection.page);
+            imgInstance = page.getSection(0);
             params = {
                 "sectionItem": item,
                 "section": imgInstance
@@ -266,8 +268,6 @@ Item {
             fuzzyCompare(eli.item.fillStyle, "blue", 0);
             tested.section.undoStack.redo(); // refait remove
             compare(model.rowCount(), 0);
-
-
         }
 
         name: "ImageSection"

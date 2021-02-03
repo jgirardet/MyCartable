@@ -9,6 +9,7 @@ Item {
     property alias contentItem: loader.item
     property QtObject section
     property alias status: loader.status
+    property int modelIndex: index
 
     signal loaded(int idx)
 
@@ -130,8 +131,8 @@ Item {
         id: droparea
 
         onEntered: {
-            if (drag.source.parent.index != index && drag.source.objectName == dragArea.objectName)
-                referent.page.model.move(drag.source.parent.index, index);
+            if ((drag.source.parent.index !== index) && (drag.source.objectName == dragArea.objectName))
+                referent.page.model.move(drag.source.parent.modelIndex, index);
             else
                 drag.accepted = false;
         }

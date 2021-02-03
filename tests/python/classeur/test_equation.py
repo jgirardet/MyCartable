@@ -15,9 +15,10 @@ from pony.orm import db_session
 
 
 class TestUpdatEquationSectionCommand:
-    def test_undo(self, fk, qtbot):
+    def test_undo(self, fk, qtbot, bridge):
         f = fk.f_equationSection(content="bla", curseur=99)
-        sec = EquationSection.get(f.id, parent=None, undoStack=QUndoStack())
+        p = Page.get(f.page.id, parent=bridge)
+        sec = p.get_section(0)
         c = UpdateEquationSectionCommand(section=sec, content="aaa", curseur=33)
         c.redo()
         assert sec.content == "aaa"
@@ -29,12 +30,11 @@ class TestUpdatEquationSectionCommand:
 
 
 class TestEquation:
-    def test_update(self, fk, qtbot):
-        cl = Classeur()
+    def test_update(self, fk, qtbot, bridge):
         p = fk.f_page()
-        page = Page.get(p.id, parent=cl, undoStack=cl.undoStack)
         eq = fk.f_equationSection(content=" \n1\n ", page=p.id)
-        e = EquationSection.get(eq.id, parent=page, undoStack=page.undoStack)
+        page = Page.get(p.id, parent=bridge)
+        e = page.get_section(0)
         event = json.dumps({"key": int(Qt.Key_2), "text": "2", "modifiers": None})
         with qtbot.waitSignals([e.contentChanged, e.curseurChanged]):
             e.update(3, event)

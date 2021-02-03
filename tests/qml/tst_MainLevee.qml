@@ -8,11 +8,13 @@ Item {
     property var points: AssetAnnot.pointsMainLevee
     property var model: section ? section.model : null
     property var section
+    property var page
 
     CasTest {
         function initPre() {
             let fsection = fk.f("imageSection");
-            item.section = th.getBridgeInstance(item, "ImageSection", fsection.id);
+            page = th.getBridgeInstance(item, "Page", fsection.page);
+            item.section = page.model.data(page.model.index(0, 0), th.getRole("SectionRole"));
             params = {
                 "anchors.fill": item,
                 "section": section

@@ -5,17 +5,18 @@ import pytest
 from PyQt5.QtCore import QByteArray
 from PyQt5.QtGui import QColor
 from mycartable.defaults.configuration import KEEP_UPDATED_CONFIGURATION
+from mycartable.defaults.roles import AnnotationRole
 from tests.python.fixtures import disable_log
 from mycartable.classeur import (
     Annotation,
     AnnotationText,
     AnnotationDessin,
-    ImageSection,
+    Page,
 )
 from mycartable.classeur.sections.annotation import (
     AnnotationModel,
-    SetAnnotationCommand,
     RemoveAnnotationCommand,
+    SetAnnotationCommand,
 )
 
 from pony.orm import db_session
@@ -190,7 +191,8 @@ class TestAnnotationDessin:
 @pytest.fixture
 def am(fk, bridge):
     def factory(nb):
-        p = fk.f_imageSection()
+        page = fk.f_page()
+        p = fk.f_imageSection(page=page.id)
         annots = []
         if isinstance(nb, int):
             for i in range(nb):
@@ -204,8 +206,8 @@ def am(fk, bridge):
                 elif i == "d":
                     x = fk.f_annotationDessin(section=p.id, td=True)
                     annots.append(x)
-
-        a = ImageSection.get(p.id, parent=bridge)
+        pageobj = Page.get(page.id, parent=bridge)
+        a = pageobj.get_section(0)
         a.f_annots = annots
         return a
 
@@ -227,19 +229,17 @@ class TestAnnotationModel:
     def test_roleNames(self, am):
         s = am(0)
         a = AnnotationModel(s)
-        assert AnnotationModel.AnnotationRole in a.roleNames()
-        assert a.roleNames()[AnnotationModel.AnnotationRole] == QByteArray(
-            b"annotation"
-        )
+        assert AnnotationRole in a.roleNames()
+        assert a.roleNames()[AnnotationRole] == QByteArray(b"annotation")
 
     def test_data(self, am):
         s = am(("t", "t", "d"))
         a = AnnotationModel(s)
         # valid indexes
         for i in range(3):
-            assert a.data(a.index(i, 0), a.AnnotationRole) == a._data[i]
+            assert a.data(a.index(i, 0), AnnotationRole) == a._data[i]
         # invalid index
-        assert a.data(a.index(99, 99), a.AnnotationRole) is None
+        assert a.data(a.index(99, 99), AnnotationRole) is None
         # no good role
         assert a.data(a.index(1, 0), 99999) is None
 
@@ -254,27 +254,27 @@ class TestAnnotationModel:
     )
     def test_removeRows(self, am, ddbr, removed, zero, un, genre):
         s = am([genre, genre, genre])
-        a = AnnotationModel(s)
-
+        a = s.model
         ids = [anot.id for anot in a._data]
         a.remove(removed)
         assert a.rowCount() == 2
-        assert a.data(a.index(0, 0), a.AnnotationRole).id == ids[zero]
-        assert a.data(a.index(1, 0), a.AnnotationRole).id == ids[un]
-        avant_undo = list(a._data)
+        assert a.data(a.index(0, 0), AnnotationRole).id == ids[zero]
+        assert a.data(a.index(1, 0), AnnotationRole).id == ids[un]
+
         s.undoStack.undo()
         assert a.rowCount() == 3
-        assert a.data(a.index(0, 0), a.AnnotationRole).id == ids[0]
-        assert a.data(a.index(1, 0), a.AnnotationRole).id == ids[1]
-        assert a.data(a.index(2, 0), a.AnnotationRole).id == ids[2]
+        assert a.data(a.index(0, 0), AnnotationRole).id == ids[0]
+        assert a.data(a.index(1, 0), AnnotationRole).id == ids[1]
+        assert a.data(a.index(2, 0), AnnotationRole).id == ids[2]
+
         s.undoStack.redo()
         assert a.rowCount() == 2
-        assert a.data(a.index(0, 0), a.AnnotationRole).id == ids[zero]
-        assert a.data(a.index(1, 0), a.AnnotationRole).id == ids[un]
+        assert a.data(a.index(0, 0), AnnotationRole).id == ids[zero]
+        assert a.data(a.index(1, 0), AnnotationRole).id == ids[un]
 
     def test_addAnnotation_AnnotationText(self, am, qtbot, fk):
         s = am(2)
-        x = AnnotationModel(s)
+        x = s.model
         assert x.rowCount() == 2
 
         with qtbot.waitSignal(x.rowsInserted):
@@ -284,7 +284,10 @@ class TestAnnotationModel:
 
         assert x._data[-1].x == 3 / 100
         assert x.rowCount() == 3
-
+        new_annot = x.data(x.index(2, 0), AnnotationRole)
+        old_annot = x.data(x.index(0, 0), AnnotationRole)
+        assert new_annot.parent() == old_annot.parent()
+        assert new_annot.undoStack == old_annot.undoStack
         s.undoStack.undo()
         assert x.rowCount() == 2
         s.undoStack.redo()
@@ -292,7 +295,7 @@ class TestAnnotationModel:
 
     def test_addAnnotation_AnnotationDessin(self, am, qtbot, fk):
         s = am(2)
-        x = AnnotationModel(s)
+        x = s.model
         x.addAnnotation(
             "AnnotationDessin",
             {
@@ -311,7 +314,10 @@ class TestAnnotationModel:
                 "y": 0.2644736842105263,
             },
         )
-
+        new_annot = x.data(x.index(2, 0), AnnotationRole)
+        old_annot = x.data(x.index(0, 0), AnnotationRole)
+        assert new_annot.parent() == old_annot.parent()
+        assert new_annot.undoStack == old_annot.undoStack
         assert x.rowCount() == 3
         assert x._data[-1].x == 0.24426605504587157
         s.undoStack.undo()
@@ -333,33 +339,31 @@ class TestAnnotationModel:
 class TestAnnotationSetCommand:
     def test_undo_redo(self, am, qtbot, fk):
         s = am(["t", "t", "t"])
-        x = AnnotationModel(s)
-        c = SetAnnotationCommand(index=1, model=x, toset={"text": "azerty"})
-        init = x.data(x.index(1, 0), x.AnnotationRole).text
+        x = s.model
+        annot = x.data(x.index(1, 0), AnnotationRole)
+        init = annot.text
+        c = SetAnnotationCommand(annotation=annot, position=1, toset={"text": "azerty"})
         c.redo()
-        assert x.data(x.index(1, 0), x.AnnotationRole).text == "azerty"
+        assert annot.text == "azerty"
         c.undo()
-        assert x.data(x.index(1, 0), x.AnnotationRole).text == init
+        assert annot.text == init
 
     def test_undo_redo_after_a_remove(self, am, qtbot, fk):
         s = am(["t", "t", "t"])
-        x = AnnotationModel(s)
-        c = SetAnnotationCommand(index=1, model=x, toset={"text": "azerty"})
-        init0 = x.data(x.index(0, 0), x.AnnotationRole).text
-        init1 = x.data(x.index(1, 0), x.AnnotationRole).text
-        init2 = x.data(x.index(2, 0), x.AnnotationRole).text
+        x = s.model
+        anot1 = x.data(x.index(1, 0), AnnotationRole)
+        init0 = x.data(x.index(0, 0), AnnotationRole).text
+        init1 = anot1.text
+        init2 = x.data(x.index(2, 0), AnnotationRole).text
+        c = SetAnnotationCommand(annotation=anot1, position=1, toset={"text": "azerty"})
 
         c.redo()
-        assert x.data(x.index(1, 0), x.AnnotationRole).text == "azerty"
-        d = RemoveAnnotationCommand(
-            model=x,
-            index=1,
-            section=x.parent(),
-        )
+        assert anot1.text == "azerty"
+        d = RemoveAnnotationCommand(annotation=anot1, position=1)
         d.redo()
         d.undo()
-        assert x.data(x.index(1, 0), x.AnnotationRole).text == "azerty"
+        assert x.data(x.index(1, 0), AnnotationRole).id == anot1.id
         c.undo()
-        assert x.data(x.index(0, 0), x.AnnotationRole).text == init0
-        assert x.data(x.index(1, 0), x.AnnotationRole).text == init1
-        assert x.data(x.index(2, 0), x.AnnotationRole).text == init2
+        assert x.data(x.index(0, 0), AnnotationRole).text == init0
+        assert x.data(x.index(1, 0), AnnotationRole).text == init1
+        assert x.data(x.index(2, 0), AnnotationRole).text == init2

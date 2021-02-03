@@ -1,4 +1,3 @@
-import json
 import uuid
 from string import Template
 from unittest.mock import MagicMock, patch
@@ -8,6 +7,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QTextDocument, QColor, QFont, QKeyEvent, QBrush
 
 from bs4 import BeautifulSoup
+from mycartable.classeur import Page
 from mycartable.utils import KeyW
 from pony.orm.core import db_session
 
@@ -29,7 +29,7 @@ from mycartable.classeur.sections.text import (
     UpdateTextSectionCommand,
 )
 
-from tests.python.fixtures import compare_char_format, check_args
+from tests.python.fixtures import compare_char_format
 
 
 def test_properties(fk, bridge):
@@ -41,9 +41,10 @@ def test_properties(fk, bridge):
 class TestUpdateTextSectionCommand:
     def test_undo(self, fk, qtbot, bridge):
         f = fk.f_textSection(text="bla")
-        sec = TextSection.get(f.id, parent=bridge)
+        page = Page.get(f.page.id, parent=bridge)
+        sec = page.get_section(0)
         c = UpdateTextSectionCommand(
-            section=sec, b_text="avant", b_cursor=0, text="apres", cursorPosition=1
+            section=sec, b_text="avant", b_cursor=0, new_text="apres", cursorPosition=1
         )
         with qtbot.waitSignal(sec.forceUpdate):
             c.redo()

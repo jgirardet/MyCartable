@@ -158,29 +158,28 @@ def test_create_empty_image():
     assert list(im.getdata()) == list(saved.getdata())
 
 
-def test_pivoter_image(new_res, fk, qtbot):
+def test_pivoter_image(new_res, fk, qtbot, bridge):
     file = new_res("test_pivoter.png")
     img = Image.open(file)
     assert img.height == 124
     assert img.width == 673
 
     f = fk.f_imageSection(path=str(file))
-    cl = Classeur()
-    p = Page.get(f.page.id, parent=cl, undoStack=cl.undoStack)
-    isec = ImageSection.get(f.id, parent=p, undoStack=p.undoStack)
+    p = Page.get(f.page.id, parent=bridge)
+    isec = p.get_section(0)
     isec.pivoterImage(1)
     img = Image.open(file)
     assert img.height == 673
     assert img.width == 124
-    assert cl.undoStack.undoText() == "pivoter"
+    assert p.undoStack.undoText() == "pivoter"
 
     with qtbot.waitSignal(isec.commandDone):
-        cl.undoStack.undo()
+        p.undoStack.undo()
     img = Image.open(file)
     assert img.height == 124
     assert img.width == 673
     with qtbot.waitSignal(isec.commandDone):
-        cl.undoStack.redo()
+        p.undoStack.redo()
     img = Image.open(file)
     assert img.height == 673
     assert img.width == 124
@@ -202,25 +201,24 @@ def test_annotationTextBGOpacity(fk, bridge):
         (QPointF(0.80, 0.80), "floodfill_rouge_en_bleu.png"),
     ],
 )
-def test_flood_fill(fk, resources, qtbot, tmp_path, pos, img_res):
+def test_flood_fill(fk, resources, qtbot, tmp_path, pos, img_res, bridge):
     fp = tmp_path / "f1.png"
     shutil.copy(resources / "floodfill.png", fp)
     f = fk.f_imageSection(path=str(fp))
-    cl = Classeur()
-    p = Page.get(f.page.id, parent=cl)
-    isec = ImageSection.get(f.id, parent=p, undoStack=p.undoStack)
+    p = Page.get(f.page.id, parent=bridge)
+    isec = p.get_section(0)
     isec.floodFill(QColor("blue"), pos)
     lhs = QImage(str(isec.absolute_path))
     rhs = QImage(str(resources / img_res))
     assert lhs == rhs
-    assert cl.undoStack.undoText() == "remplir"
+    assert p.undoStack.undoText() == "remplir"
     with qtbot.waitSignal(isec.commandDone):
-        cl.undoStack.undo()
+        p.undoStack.undo()
     lhs = QImage(str(isec.absolute_path))
     rhs = QImage(str(fp))
     assert lhs == rhs
     with qtbot.waitSignal(isec.commandDone):
-        cl.undoStack.redo()
+        p.undoStack.redo()
     lhs = QImage(str(isec.absolute_path))
     rhs = QImage(str(resources / img_res))
     assert lhs == rhs
@@ -237,10 +235,6 @@ def test_image_selection_curosr(fk, bridge, qtbot):
     )
     # color
     isec.setImageSectionCursor(qk, "text", QColor("blue"))
-    # qk.cursor().pixmap().toImage().save("/tmp/aa1.png")
-    # build_one_image_cursor("text", QColor("blue")).pixmap().toImage().save(
-    #     "/tmp/aa2.png"
-    # )
     assert (
         qk.cursor().pixmap().toImage()
         == build_one_image_cursor("text", QColor("blue")).pixmap().toImage()

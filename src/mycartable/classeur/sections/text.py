@@ -4,6 +4,10 @@ import re
 from contextlib import contextmanager
 
 from bs4 import BeautifulSoup
+
+from . import UpdateSectionCommand
+from . import Section
+
 from mycartable.types.dtb import DTB
 from PyQt5.QtCore import pyqtProperty, pyqtSignal, pyqtSlot, Qt
 from PyQt5.QtGui import (
@@ -15,8 +19,6 @@ from PyQt5.QtGui import (
     QTextDocumentFragment,
 )
 from mycartable.utils import KeyW
-
-from . import Section, SectionBaseCommand
 
 
 class TextSection(Section):
@@ -68,10 +70,15 @@ class TextSection(Section):
             self.id, content, curseur, selectionStart, selectionEnd
         ).onKey(event)
         self.accepted = res["eventAccepted"]
+
         if res["eventAccepted"]:
             self.undoStack.push(
                 UpdateTextSectionCommand(
-                    section=self, b_text=content, b_cursor=curseur, **res
+                    section=self,
+                    b_text=content,
+                    b_cursor=curseur,
+                    new_text=res["text"],
+                    cursorPosition=res["cursorPosition"],
                 )
             )
 
@@ -83,7 +90,11 @@ class TextSection(Section):
         self.accepted = res["eventAccepted"]
         self.undoStack.push(
             UpdateTextSectionCommand(
-                section=self, b_text=self.text, b_cursor=self.cursor, **res
+                section=self,
+                b_text=self.text,
+                b_cursor=self.cursor,
+                new_text=res["text"],
+                cursorPosition=res["cursorPosition"],
             )
         )
 
@@ -100,8 +111,9 @@ class TextSection(Section):
                 section=self,
                 b_text=self.text,
                 b_cursor=selectionStart,
-                undo_text="mise en forme",
-                **res,
+                text="mise en forme",
+                new_text=res["text"],
+                cursorPosition=res["cursorPosition"],
             )
         )
 
@@ -116,22 +128,25 @@ class TextSection(Section):
         self.accepted = res["eventAccepted"]
 
 
-class UpdateTextSectionCommand(SectionBaseCommand):
+class UpdateTextSectionCommand(UpdateSectionCommand):
     """
     Enregistre l'etat du text avant et apres
     """
 
     undo_text = "frappe"
 
-    def redo_command(self):
-        self.section.text = self.params["text"]
-        self.section.cursor = self.params["cursorPosition"]
-        self.section.forceUpdate.emit()
+    def redo(self):
+        section = self.get_section()
+        section.text = self.params["new_text"]
+        section.cursor = self.params["cursorPosition"]
+        section.forceUpdate.emit()
 
-    def undo_command(self):
-        self.section.text = self.params["b_text"]
-        self.section.cursor = self.params["b_cursor"]
-        self.section.forceUpdate.emit()
+    def undo(self):
+
+        section = self.get_section()
+        section.text = self.params["b_text"]
+        section.cursor = self.params["b_cursor"]
+        section.forceUpdate.emit()
 
 
 """

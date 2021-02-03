@@ -37,7 +37,6 @@ Item {
                 });
             }
             pageC = th.getBridgeInstance(classeurid, "Page", page.id);
-            pageC.undoStack = classeurid.undoStack;
             params = {
                 "page": pageC
             };

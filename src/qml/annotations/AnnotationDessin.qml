@@ -17,6 +17,7 @@ Canvas {
     property color fillStyle: annot.bgColor
     property real lineWidth: annot.pointSize
     property string tool: annot.tool
+    property int index
 
     function checkPointIsNotDraw(mx, my) {
         var ctx = canvas.getContext("2d");

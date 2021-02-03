@@ -12,18 +12,13 @@ Item {
     height: 300 //important pour les
 
     CasTest {
-        // en haut a gauche
-        // trou
-        // en haut a gauche
-        //                "style": {
-        //                },
-
         id: testCase
 
         property var annotdata
         property var annot
         property var img
         property var ref
+        property var page
 
         function initPre() {
             let img = fk.f("imageSection");
@@ -45,9 +40,12 @@ Item {
                 "endY": 0.9,
                 "tool": "rect"
             });
-            ref = th.getBridgeInstance(item, "ImageSection", img.id);
+            //            ref = th.getBridgeInstance(item, "ImageSection", img.id);
             //            annot = th.getBridgeInstance(ref, "AnnotationDessin", annotdata.id);
-            annot = ref.model.data(ref.model.index(0, 0), 258);
+            //            annot = ref.model.data(ref.model.index(0, 0), 258);
+            page = th.getBridgeInstance(item, "Page", img.page);
+            ref = page.model.data(page.model.index(0, 0), th.getRole("SectionRole")); // 257:PageRole
+            annot = ref.model.data(ref.model.index(0, 0), th.getRole("AnnotationRole")); //258:AnnotationRole
             params = {
                 "annot": annot,
                 "referent": item

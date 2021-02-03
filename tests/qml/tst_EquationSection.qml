@@ -19,16 +19,12 @@ Item {
         property string init_content: "1     \n__ + 1\n15    "
 
         function initPre() {
-            let p = fk.f("page", {
-            });
-            pageObj = th.getBridgeInstance(classeur_id, "Page", p.id);
-            pageObj.undoStack = classeur_id.undoStack;
             eq = fk.f("equationSection", {
                 "content": init_content,
                 "curseur": 10
             });
-            eqObj = th.getBridgeInstance(pageObj, "EquationSection", eq.id);
-            eqObj.undoStack = pageObj.undoStack;
+            pageObj = th.getBridgeInstance(classeur_id, "Page", eq.page);
+            eqObj = pageObj.getSection(0);
             params = {
                 "section": eqObj,
                 "sectionItem": item

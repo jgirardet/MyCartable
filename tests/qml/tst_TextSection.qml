@@ -17,16 +17,11 @@ Item {
         property QtObject secObj
 
         function initPre() {
-            let p = fk.f("page", {
-            });
-            pageObj = th.getBridgeInstance(classeur_id, "Page", p.id);
-            pageObj.undoStack = classeur_id.undoStack;
             sec = fk.f("textSection", {
-                "text": "x",
-                "page": p.id
+                "text": "x"
             });
-            secObj = th.getBridgeInstance(pageObj, "TextSection", sec.id);
-            secObj.undoStack = pageObj.undoStack;
+            pageObj = th.getBridgeInstance(classeur_id, "Page", sec.page);
+            secObj = pageObj.getSection(0);
             params = {
                 "section": secObj,
                 "sectionItem": item

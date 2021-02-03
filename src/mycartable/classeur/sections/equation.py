@@ -6,9 +6,8 @@ from typing import List, ClassVar
 from PyQt5.QtCore import pyqtSlot, Qt, pyqtSignal, pyqtProperty
 
 from loguru import logger
-from .section import SectionBaseCommand
-
 from . import Section
+from . import UpdateSectionCommand
 
 
 class EquationSection(Section):
@@ -53,25 +52,27 @@ class EquationSection(Section):
         ).is_focusable
 
 
-class UpdateEquationSectionCommand(SectionBaseCommand):
+class UpdateEquationSectionCommand(UpdateSectionCommand):
     """
     Enregistre l'etat du text avant et apres
     """
 
     undo_text = "frappe"
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.b_content = self.section.content
-        self.b_curseur = self.section.curseur
+    def __init__(self, section: EquationSection, **kwargs):
+        super().__init__(section=section, **kwargs)
+        self.b_content = section.content
+        self.b_curseur = section.curseur
 
-    def redo_command(self):
-        self.section.content = self.params["content"]
-        self.section.curseur = self.params["curseur"]
+    def redo(self):
+        section = self.get_section()
+        section.content = self.params["content"]
+        section.curseur = self.params["curseur"]
 
-    def undo_command(self):
-        self.section.content = self.b_content
-        self.section.curseur = self.b_curseur
+    def undo(self):
+        section = self.get_section()
+        section.content = self.b_content
+        section.curseur = self.b_curseur
 
 
 @dataclass

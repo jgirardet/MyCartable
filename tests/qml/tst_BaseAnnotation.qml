@@ -19,19 +19,19 @@ Item {
         property var annot
         property var annotobj
         property var ref
+        property var page
 
         function initPre() {
-            //      params = {
             item.currentAnnotation = null;
-            //            item.model._removeRow = 0;
             let img = fk.f("imageSection");
             annot = fk.f("annotationText", {
                 "x": 0.4,
                 "y": 0.2,
                 "section": img.id
             });
-            ref = th.getBridgeInstance(item, "ImageSection", img.id);
-            annotobj = ref.model.data(ref.model.index(0, 0), 258); // 258 == AnnotationRole
+            page = th.getBridgeInstance(item, "Page", img.page);
+            ref = page.model.data(page.model.index(0, 0), th.getRole("SectionRole"));
+            annotobj = ref.model.data(ref.model.index(0, 0), th.getRole("AnnotationRole"));
             params = {
                 "annot": annotobj,
                 "referent": item,

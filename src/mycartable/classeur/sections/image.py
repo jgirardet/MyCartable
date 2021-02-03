@@ -4,7 +4,7 @@ import tempfile
 from functools import lru_cache, partial
 from io import BytesIO
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Callable
 
 from PIL import Image, ImageDraw
 from PyQt5.QtCore import (
@@ -27,7 +27,7 @@ from mycartable.utils import get_new_filename, pathize
 from mycartable.types.dtb import DTB
 from pony.orm import db_session
 
-from .section import Section, SectionBaseCommand
+from .section import Section, UpdateSectionCommand
 
 
 @lru_cache
@@ -214,7 +214,7 @@ class ImageSection(Section):
         self.undoStack.push(
             UpdateImageSectionCommand(
                 section=self,
-                undo_text="remplir",
+                text="remplir",
                 callable=self._floodFill,
                 call_args=[color, point],
             )
@@ -225,7 +225,7 @@ class ImageSection(Section):
         self.undoStack.push(
             UpdateImageSectionCommand(
                 section=self,
-                undo_text="pivoter",
+                text="pivoter",
                 callable=self._pivoterImage,
                 call_args=[sens],
             )
@@ -248,19 +248,29 @@ class ImageSection(Section):
         qk.setCursor(cur)
 
 
-class UpdateImageSectionCommand(SectionBaseCommand):
+class UpdateImageSectionCommand(UpdateSectionCommand):
     section: ImageSection
 
-    def __init__(self, *, callable, call_args=[], call_kwargs={}, **kwargs):
-        super().__init__(**kwargs)
-        self.image_bytes = self.section.absolute_path.read_bytes()
+    def __init__(
+        self,
+        *,
+        section: Image,
+        callable: Callable,
+        call_args: list = [],
+        call_kwargs: dict = {},
+        **kwargs,
+    ):
+        super().__init__(section=section, **kwargs)
+        self.image_bytes = section.absolute_path.read_bytes()
         self.apply = partial(callable, *call_args, **call_kwargs)
 
-    def redo_command(self):
+    def redo(self):
+        section = self.get_section()
         self.apply()
-        self.section.commandDone.emit()
+        section.commandDone.emit()
 
-    def undo_command(self):
+    def undo(self):
+        section = self.get_section()
         im = Image.open(BytesIO(self.image_bytes))
-        im.save(self.section.absolute_path)
-        self.section.commandDone.emit()
+        im.save(section.absolute_path)
+        section.commandDone.emit()

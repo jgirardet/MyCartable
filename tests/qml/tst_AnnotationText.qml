@@ -22,6 +22,7 @@ FocusScope {
         property var annot
         property var annotobj
         property var ref
+        property var page
 
         function initPre() {
             let img = fk.f("imageSection");
@@ -34,8 +35,9 @@ FocusScope {
                     "underline": true
                 }
             });
-            ref = th.getBridgeInstance(item, "ImageSection", img.id);
-            annotobj = ref.model.data(ref.model.index(0, 0), 258); // 258 == AnnotaitonRol
+            page = th.getBridgeInstance(item, "Page", img.page);
+            ref = page.model.data(page.model.index(0, 0), th.getRole("SectionRole")); // 257:PageRole
+            annotobj = ref.model.data(ref.model.index(0, 0), th.getRole("AnnotationRole")); //258:AnnotationRole
             params = {
                 "annot": annotobj,
                 "referent": item

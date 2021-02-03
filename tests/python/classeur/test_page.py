@@ -2,9 +2,10 @@ from datetime import datetime
 from unittest.mock import patch
 
 import pytest
-from PyQt5.QtCore import QModelIndex
-from pytestqml.qt import QObject
-from tests.python.fixtures import ss, disable_log
+from PyQt5.QtCore import QModelIndex, QObject
+from mycartable.classeur.sections.image import import_FILES
+from mycartable.defaults.roles import SectionRole
+from tests.python.fixtures import ss, disable_log, compare_dict_list
 from mycartable.classeur import (
     Page,
     PageModel,
@@ -20,6 +21,8 @@ from mycartable.classeur import (
     TableauSection,
     FriseSection,
     Classeur,
+    AddSectionCommand,
+    RemoveSectionCommand,
 )
 from mycartable.utils import shift_list
 from pony.orm import db_session
@@ -80,10 +83,12 @@ def test_property_model(fk, bridge):
 
 def test_base_init(fk, bridge):
     pg = fk.f_page(td=True)
+    sections = pg.pop("sections")
     p = Page.get(pg["id"], parent=bridge)
     assert p.model._data == pg
     assert p.model.rowCount(QModelIndex()) == 0
     assert p.matiereId == p.matiere.id == pg["matiere"]
+    assert [b.id for b in p.model._sections] == sections
 
 
 @pytest.mark.parametrize(
@@ -106,12 +111,14 @@ def test_data_role(fk, bridge, nom, sectionclass):
     sec = getattr(fk, "f_" + nom)(td=True)
     p = Page.get(sec["page"], parent=bridge)
     a = p.model
-    res = a.data(a.index(0, 0), a.SectionRole)
+    res = a.data(a.index(0, 0), SectionRole)
     assert isinstance(res, sectionclass)
+    res2 = a.data(a.index(0, 0), SectionRole)
+    assert res is res2
     assert res.id == sec["id"]
     assert res.classtype == sec["classtype"]
     # invalid index
-    assert a.data(a.index(99, 99), a.SectionRole) is None
+    assert a.data(a.index(99, 99), SectionRole) is None
     # no good role
     assert a.data(a.index(0, 0), 99999) is None
 
@@ -129,7 +136,7 @@ def test_roleNames(fk, bridge):
     pg = fk.f_page()
     p = Page.get(str(pg.id), parent=bridge)
     a = p.model
-    assert PageModel.SectionRole in a.roleNames()
+    assert SectionRole in a.roleNames()
 
 
 @pytest.mark.parametrize(
@@ -175,18 +182,19 @@ def test_move(fk, bridge, source, target, lastposition):
             for s in fk.db.Page[pg.id].sections.order_by(lambda x: x.position)
         ]
         new_secs_ids = [s["id"] for s in new_secs_dict]
-        assert a._data["sections"] == new_secs_ids
+        assert [b.id for b in a._sections] == new_secs_ids
     if res:
         assert new_secs_ids != secs_ids_pre
         assert new_secs_ids == new_order
     else:
         assert new_secs_ids == secs_ids_pre
     assert [s["position"] for s in new_secs_dict] == [0, 1, 2]
+    assert [s.position for s in a._sections] == [0, 1, 2]
     assert a.page.lastPosition == lastposition
 
 
 @pytest.mark.parametrize(
-    "idx, res, lastpos",
+    "idx, res, lastpos, position_after",
     [
         (
             0,
@@ -195,6 +203,7 @@ def test_move(fk, bridge, source, target, lastposition):
                 "22222222-2222-2222-2222-222222222222",
             ],
             0,
+            [0, 1],
         ),
         (
             1,
@@ -203,6 +212,7 @@ def test_move(fk, bridge, source, target, lastposition):
                 "22222222-2222-2222-2222-222222222222",
             ],
             1,
+            [0, 1],
         ),
         (
             2,
@@ -211,6 +221,7 @@ def test_move(fk, bridge, source, target, lastposition):
                 "11111111-1111-1111-1111-111111111111",
             ],
             1,
+            [0, 1],
         ),
         (
             3,
@@ -219,11 +230,12 @@ def test_move(fk, bridge, source, target, lastposition):
                 "11111111-1111-1111-1111-111111111111",
                 "22222222-2222-2222-2222-222222222222",
             ],
-            2,
+            0,
+            [0, 1, 2],
         ),
     ],
 )
-def test_removeRows(fk, bridge, idx, res, lastpos):
+def test_removeRows(fk, bridge, qtbot, idx, res, lastpos, position_after, caplogger):
     pg = fk.f_page(lastPosition=0)
     ids = [
         "00000000-0000-0000-0000-000000000000",
@@ -233,15 +245,23 @@ def test_removeRows(fk, bridge, idx, res, lastpos):
     [fk.f_section(id=x, page=pg.id) for x in ids]
     p = Page.get(str(pg.id), parent=bridge)
     a = p.model
-    assert a.remove(idx)
-    assert a._data["sections"] == res
+    # with qtbot.waitSignal(a.rowsRemoved):
+    p.removeSection(idx)
+
+    # instance dans le bon ordre
+    assert [b.id for b in a._sections] == res
+
+    # la position des Section instance est mise aussi à jour.
+    assert [b.position for b in a._sections] == position_after
+
     with db_session:
         new_secs_dict = [
             s.to_dict()
             for s in fk.db.Page[pg.id].sections.order_by(lambda x: x.position)
         ]
     new_secs_ids = [s["id"] for s in new_secs_dict]
-    assert a._data["sections"] == new_secs_ids
+    assert [b.id for b in a._sections] == new_secs_ids
+    assert position_after == [s["position"] for s in new_secs_dict]
     assert a.page.lastPosition == lastpos
 
 
@@ -349,20 +369,23 @@ def test_addSection(fk, bridge, args, kwargs, res, lastpos, qtbot):
     ]
     new_id = "33333333-3333-3333-3333-333333333333"
     [fk.f_section(id=x, page=pg.id) for x in ids]
-    c = Classeur()
-    p = Page.get(str(pg.id), parent=c, undoStack=c.undoStack)
+    p = Page.get(str(pg.id), parent=bridge)
     a = p.model
     kwargs.update({"id": new_id})
     with qtbot.waitSignal(a.rowsInserted):
         p.addSection(*args, kwargs)
-    assert a._data["sections"] == res
+
+    # les ids correspondent
+    assert [b.id for b in a._sections] == res
+    # la position des Section instance est mise aussi à jour.
+    assert [b.position for b in a._sections] == [0, 1, 2, 3]
     with db_session:
         new_secs_dict = [
             s.to_dict()
             for s in fk.db.Page[pg.id].sections.order_by(lambda x: x.position)
         ]
     new_secs_ids = [s["id"] for s in new_secs_dict]
-    assert a._data["sections"] == new_secs_ids
+    assert [b.id for b in a._sections] == new_secs_ids
     assert a.page.lastPosition == lastpos
 
 
@@ -377,9 +400,9 @@ def new_page(fk):
 def test_addSection_text(fk, qtbot):
     p, po, model, c = new_page(fk)
     with qtbot.waitSignal(po.model.rowsInserted):
-        po.addSection("TextSection", 0, {"text": "aaa"})
+        po.addSection("TextSection", 0)
     assert model.count == 1
-    assert model.data(model.index(0, 0), model.SectionRole).text == "aaa"
+    assert model.data(model.index(0, 0), SectionRole).text == "<body></body>"
 
 
 def test_addSection_image(
@@ -391,7 +414,7 @@ def test_addSection_image(
     with qtbot.waitSignal(po.model.rowsInserted):
         po.addSection("ImageSection", 0, {"path": str(png_annot)})
     assert model.count == 1
-    new_img = model.data(model.index(0, 0), model.SectionRole).absolute_path
+    new_img = model.data(model.index(0, 0), SectionRole).absolute_path
     assert new_img.read_bytes() == png_annot.read_bytes()
 
 
@@ -403,12 +426,11 @@ def test_addSection_image_pdf(
     pdf = resources / "2pages.pdf"
     p, po, model, c = new_page(fk)
     fk.f_textSection(page=p.id)
+    model._reset()  # ajoute la section
     with qtbot.waitSignal(po.model.rowsInserted):
         po.addSection("ImageSection", 1, {"path": str(pdf)})
     assert model.count == 3
     assert po.lastPosition == 1
-    # new_img = model.data(model.index(0, 0), model.SectionRole).absolute_path
-    # assert new_img.read_bytes() == pdf.read_bytes()
 
 
 def test_addSection_image_vide(
@@ -419,7 +441,7 @@ def test_addSection_image_vide(
     with qtbot.waitSignal(po.model.rowsInserted):
         po.addSection("ImageSection", 0, {"height": 1, "width": 1})
     assert model.count == 1
-    new_img = model.data(model.index(0, 0), model.SectionRole).absolute_path
+    new_img = model.data(model.index(0, 0), SectionRole).absolute_path
     assert new_img.is_file()
 
 
@@ -431,7 +453,7 @@ def test_addSection_equation(
     with qtbot.waitSignal(po.model.rowsInserted):
         po.addSection("EquationSection", 0, {"content": "aaa"})
     assert model.count == 1
-    assert model.data(model.index(0, 0), model.SectionRole).content == "aaa"
+    assert model.data(model.index(0, 0), SectionRole).content == "aaa"
 
 
 @pytest.mark.parametrize(
@@ -455,7 +477,7 @@ def test_addSection_addition(
     with qtbot.waitSignal(po.model.rowsInserted):
         po.addSection(section.entity_name, 0, {"string": string})
     assert model.count == 1
-    res = model.data(model.index(0, 0), model.SectionRole)
+    res = model.data(model.index(0, 0), SectionRole)
     assert isinstance(res, section)
     assert res.rows == rows
     assert res.columns == columns
@@ -469,7 +491,7 @@ def test_addSection_tableau(
     with qtbot.waitSignal(po.model.rowsInserted):
         po.addSection("TableauSection", 0, {"lignes": 3, "colonnes": 2})
     assert model.count == 1
-    res = model.data(model.index(0, 0), model.SectionRole)
+    res = model.data(model.index(0, 0), SectionRole)
     assert isinstance(res, TableauSection)
     assert res.lignes == 3
     assert res.colonnes == 2
@@ -483,6 +505,238 @@ def test_addSection_frise(
     with qtbot.waitSignal(po.model.rowsInserted):
         po.addSection("FriseSection", 0, {"height": 3})
     assert model.count == 1
-    res = model.data(model.index(0, 0), model.SectionRole)
+    res = model.data(model.index(0, 0), SectionRole)
     assert isinstance(res, FriseSection)
     assert res.height == 3
+
+
+class TestPageCommands:
+    @pytest.fixture()
+    def setup_page(self, fk):
+        def wrap():
+            p = fk.f_page(td=True)
+            secs = fk.b_section(3, page=p["id"], td=True)
+            c = Classeur()
+            po = Page.get(p["id"], parent=c)
+            return p, secs, c, po
+
+        return wrap
+
+    @pytest.mark.parametrize(
+        "section, kwargs, after_redo, nb_ajoute",
+        [
+            ("TextSection", {"text": "<body></body>"}, None, 1),
+            ("EquationSection", {"content": "aaa"}, None, 1),
+            (
+                "AdditionSection",
+                {"string": "1+2"},
+                {"datas": ["", "", "", "1", "+", "2", "", ""], "size": 8, "virgule": 0},
+                1,
+            ),
+            (
+                "MultiplicationSection",
+                {"string": "1*2"},
+                {
+                    "datas": ["", "", "", "2", "x", "1", "", ""],
+                    "size": 8,
+                    "virgule": 0,
+                },
+                1,
+            ),
+            (
+                "SoustractionSection",
+                {"string": "2-1"},
+                {
+                    "datas": ["", "", "2", "", "-", "", "1", "", "", "", "", ""],
+                    "size": 12,
+                    "virgule": 0,
+                },
+                1,
+            ),
+            (
+                "DivisionSection",
+                {"string": "2/1"},
+                {
+                    "dividende": "2",
+                    "diviseur": "1",
+                    "quotient": "",
+                },
+                1,
+            ),
+            ("TableauSection", {"lignes": 3, "colonnes": 2}, None, 1),
+            ("FriseSection", {"height": 3, "titre": "aa"}, None, 1),
+            ("ImageSection", {"path": "sc1.png"}, None, 1),
+            ("ImageSection", {"path": "pdf7pages.pdf"}, None, 7),
+            ("ImageSection", {"height": 1, "width": 1}, {"path": "ze"}, 1),
+        ],
+    )
+    def test_AddSectionCommand(
+        self,
+        request,
+        fk,
+        setup_page,
+        qtbot,
+        section,
+        kwargs,
+        after_redo,
+        new_res,
+        nb_ajoute,
+    ):
+        p, secs, c, po = setup_page()
+        stack = po.undoStack
+        entity = getattr(fk.db, section)
+        img = None
+        # tweak for image
+        if "path" in kwargs:
+            img = new_res(kwargs["path"])
+            kwargs["path"] = str(img)
+
+        # redo at init
+        po.addSection(section, 1, kwargs)
+        assert (
+            stack.command(stack.count() - 1).text()
+            == AddSectionCommand.formulations[section]
+        )
+        assert po.model.count == 3 + nb_ajoute
+        with db_session:
+            assert entity.select().count() == nb_ajoute
+            if "path" in kwargs:
+                after_redo = {"path": entity.select().first().path}
+
+        backup1 = po.get_section(3).backup()
+
+        # undo
+        stack.undo()
+        assert po.model.count == 3
+        with db_session:
+            assert entity.select().count() == 0
+            assert compare_dict_list(
+                [x.to_dict() for x in fk.db.Section.select()],
+                secs,
+                exclude=["modified"],
+            )
+
+        # redo
+        stack.redo()
+        assert po.model.count == 3 + nb_ajoute
+        after_redo = after_redo or kwargs
+        with db_session:
+            assert entity.select().count() == nb_ajoute
+            item = entity.select().first()
+            if "path" in after_redo:
+                if nb_ajoute < 2 and img:  # on test pas les pdf et pas les vides
+                    assert (import_FILES() / item.path).read_bytes() == img.read_bytes()
+            else:
+                for k, v in after_redo.items():
+                    assert getattr(item, k) == v
+
+        if request.node.name != "test_AddSectionCommand[ImageSection-kwargs9-None-7]":
+            # marche avec pdf mais plus compliqué à tester
+            backup1.pop("modified")
+            backup2 = po.get_section(3).backup()
+            backup2.pop("modified")
+            assert backup1 == backup2
+
+    @pytest.mark.parametrize(
+        "section, kwargs, after_redo",
+        [
+            ("TextSection", {"text": "aaa"}, {"text": "aaa"}),
+            ("EquationSection", {"content": "aaa"}, {"content": "aaa"}),
+            (
+                "AdditionSection",
+                {"string": "1+2"},
+                {"datas": ["", "", "", "1", "+", "2", "", ""], "size": 8, "virgule": 0},
+            ),
+            (
+                "MultiplicationSection",
+                {"string": "1*2"},
+                {
+                    "datas": ["", "", "", "2", "x", "1", "", ""],
+                    "size": 8,
+                    "virgule": 0,
+                },
+            ),
+            (
+                "SoustractionSection",
+                {"string": "2-1"},
+                {
+                    "datas": ["", "", "2", "", "-", "", "1", "", "", "", "", ""],
+                    "size": 12,
+                    "virgule": 0,
+                },
+            ),
+            (
+                "DivisionSection",
+                {"string": "2/1"},
+                {
+                    "dividende": "2",
+                    "diviseur": "1",
+                    "quotient": "",
+                },
+            ),
+            (
+                "TableauSection",
+                {"lignes": 3, "colonnes": 2},
+                {"lignes": 3, "colonnes": 2},
+            ),
+            (
+                "FriseSection",
+                {"height": 3, "titre": "aa"},
+                {"height": 3, "titre": "aa"},
+            ),
+            ("ImageSection", {"path": "sc1.png"}, {}),
+        ],
+    )
+    def test_RemoveSectionCommand(
+        self, fk, setup_page, qtbot, section, kwargs, after_redo, new_res
+    ):
+
+        # tweak for image
+        img = None
+        if "path" in kwargs:
+            img = new_res(kwargs["path"])
+            kwargs["path"] = str(img)
+        p, secs, c, po = setup_page()
+        im = Section.new_sub(page=p["id"], **kwargs, classtype=section, parent=po)
+        po = Page.get(p["id"], parent=c)
+        stack = po.undoStack
+        entity = getattr(fk.db, section)
+
+        backup1 = po.get_section(3).backup()
+        # redo at init
+        po.removeSection(3)
+        assert (
+            stack.command(stack.count() - 1).text()
+            == RemoveSectionCommand.formulations[section]
+        )
+        assert po.model.count == 3
+        with db_session:
+            assert entity.select().count() == 0
+
+        # undo
+        stack.undo()
+        assert po.model.count == 4
+        with db_session:
+            assert entity.select().count() == 1
+            assert compare_dict_list(
+                [x.to_dict() for x in fk.db.Section.select()],
+                secs,
+                exclude=["modified"],
+            )
+            item = entity.select().first()
+            if "path" in after_redo:
+                assert (import_FILES() / item.path).read_bytes() == img.read_bytes()
+            else:
+                for k, v in after_redo.items():
+                    assert getattr(item, k) == v
+
+        backup1.pop("modified")
+        backup2 = po.get_section(3).backup()
+        backup2.pop("modified")
+        assert backup1 == backup2
+
+        # redo
+        stack.redo()
+        assert po.model.count == 3
+        with db_session:
+            assert entity.select().count() == 0

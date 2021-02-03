@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-from typing import Any, Union
+from typing import Any, Union, Callable
 from uuid import UUID
 
 from PyQt5.QtCore import pyqtProperty, QObject, pyqtSlot, pyqtSignal
 from PyQt5.QtWidgets import QUndoStack
 from loguru import logger
+from mycartable.undoredo import UndoStack
 
 from .dtb import DTB
 
@@ -35,7 +36,10 @@ class Bridge(QObject):
         super().__init__(parent)
         self._data: dict = data
         self._dtb = DTB(parent=self)
-        self._undostack = undoStack if undoStack is not None else parent.undoStack
+        self._undostack = undoStack if undoStack is not None else UndoStack(parent=self)
+
+    def backup(self) -> dict:
+        return self._dtb.execDB(self.entity_name, self.id, "backup")
 
     @classmethod
     def get_class(cls, data: Union[dict, str]) -> type(Bridge):
@@ -81,7 +85,19 @@ class Bridge(QObject):
         Delete entry in database
         :return: instance of {cls.__name__} or None
         """
-        return self._dtb.delDB(self.entity_name, self.id)
+        res = self._dtb.delDB(self.entity_name, self.id)
+        self.deleteLater()
+        return res
+
+    @classmethod
+    def restore(cls, *, parent: QObject, params: dict, **kwargs) -> Bridge:
+        """
+        REstore entry using restore method in database
+        """
+        _class = cls.get_class(params)
+        entity = _class.entity_name
+        res = DTB().execDB(entity, None, "restore", **params)
+        return cls.get(res.id, parent=parent, **kwargs)
 
     def _set_field(self, name: str, value: Any) -> bool:
         # pas getattr avec default au cas ou on set un value à None (je sais pas si c possible)
@@ -129,32 +145,28 @@ class Bridge(QObject):
     QT pyqtSlots
     """
 
-    @pyqtSlot("QVariantMap")
-    @pyqtSlot("QVariantMap", str)
-    def set(self, data: dict, undo_text=""):
-        self.undoStack.push(
-            SetBridgeCommand(bridge=self, toset=data, undo_text=undo_text)
-        )
 
+class AbstractSetBridgeCommand(BaseCommand):
+    bridge: Bridge
 
-class BridgeCommand(BaseCommand):
-    def __init__(self, *, bridge: Bridge, **kwargs):
-        super().__init__(**kwargs)
-        self.bridge = bridge
+    def get_bridge(self) -> bridge:
+        raise NotImplementedError
 
-
-class SetBridgeCommand(BridgeCommand):
-    def __init__(self, toset={}, **kwargs):
+    def __init__(self, *, bridge, toset={}, get_bridge: Callable = None, **kwargs):
         super().__init__(**kwargs)
         self.toset = toset
+        self.backup = {k: getattr(bridge, k) for k in toset}
+        if get_bridge is not None:
+            self.get_bridge = get_bridge
 
-    def redo_command(self):
-        self.b_toset = {k: getattr(self.bridge, k) for k in self.toset}
+    def redo(self):
+        bridge = self.get_bridge()
         for name, value in self.toset.items():
             # permet de mettre à jour aussi bien setfield/setstylefield
-            setattr(self.bridge, name, value)
+            setattr(bridge, name, value)
 
-    def undo_command(self):
-        for name, value in self.b_toset.items():
+    def undo(self):
+        bridge = self.get_bridge()
+        for name, value in self.backup.items():
             # permet de mettre à jour aussi bien setfield/setstylefield
-            setattr(self.bridge, name, value)
+            setattr(bridge, name, value)

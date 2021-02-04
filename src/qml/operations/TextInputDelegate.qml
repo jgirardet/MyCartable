@@ -24,6 +24,14 @@ TextField {
         var isMove = [Qt.Key_Up, Qt.Key_Left, Qt.Key_Down, Qt.Key_Right].includes(event.key);
         var numPressed = [Qt.Key_0, Qt.Key_1, Qt.Key_2, Qt.Key_3, Qt.Key_4, Qt.Key_5, Qt.Key_6, Qt.Key_7, Qt.Key_8, Qt.Key_9].includes(event.key);
         var delPressed = [Qt.Key_Backspace, Qt.Key_Delete].includes(event.key);
+        if ([Qt.Key_Control, Qt.Key_Shift].includes(event.key)) {
+            return ;
+        } else if ((event.key == Qt.Key_Z) && (event.modifiers & Qt.ControlModifier)) {
+            if (event.modifiers & Qt.ShiftModifier)
+                parent.GridView.view.section.undoStack.redo();
+            else
+                parent.GridView.view.section.undoStack.undo();
+        }
         if (!isMove && readOnly)
             return ;
 

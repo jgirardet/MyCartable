@@ -3,95 +3,24 @@ import QtQuick.Controls 2.15
 import "qrc:/js/lodash.js" as Lodash
 
 Item {
-    //    Component {
-    //        id: modelComp
-    //        ListModel {
-    //            id: listmodel
-    //            property int rows: 5
-    //            property int columns: 9
-    //            property int cursor: 0
-    //            property int sectionId: 0
-    //            property int size: 45
-    //            property int virgule: 0
-    //            property int diviseur: 11
-    //            property real dividende: 264
-    //            property string quotient: ""
-    //            property var corps
-    //            property var datas: ["", "2", "", "", "6", "", "", "4", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""]
-    //            property var _editables: [34, 37, 40, 10, 43, 13, 16, 19, 22, 25, 28, 31]
-    //            property var _moveCursor
-    //            property var _addRetenues: ""
-    //            function isDividendeLine(index) {
-    //                return _.range(0, 9).includes(index) ? true : false;
-    //            }
-    //            function isMembreLine(index) {
-    //                return Math.floor(index / columns) & 1 ? true : false;
-    //            }
-    //            function isRetenue(index) {
-    //                return [11, 3, 6, 14, 21, 24, 29, 32].includes(index) ? true : false;
-    //            }
-    //            function isRetenueGauche(index) {
-    //                return [3, 6, 21, 24].includes(index) ? true : false;
-    //            }
-    //            function isRetenueDroite(index) {
-    //                return [11, 14, 29, 32].includes(index) ? true : false;
-    //            }
-    //            function readOnly(index) {
-    //                return !isEditable(index);
-    //            }
-    //            function isEditable(index) {
-    //                return _editables.includes(index);
-    //            }
-    //            function getInitialPosition() {
-    //                return size - 1;
-    //            }
-    //            function moveCursor(index, key) {
-    //                _moveCursor = [index, key];
-    //            }
-    //            function goToResultLine() {
-    //                if (corps.currentIndex == 13)
-    //                    corps.currentIndex = 25;
-    //                else if (currentIndex == 31)
-    //                    corps.currentIndex = 43;
-    //            }
-    //            function getPosByQuotient() {
-    //                cursor = 13;
-    //            }
-    //            function goToAbaisseLine() {
-    //                corps.currentIndex = 25;
-    //            }
-    //            function addRetenues() {
-    //                _addRetenues = "added";
-    //            }
-    //            Component.onCompleted: {
-    //                for (var x of datas) {
-    //                    listmodel.append({
-    //                        "display": x,
-    //                        "edit": x
-    //                    });
-    //                }
-    //            }
-    //        }
-    //    }
-
     id: item
 
     width: 600
     height: 600
 
     CasTest {
-        //            model.corps = corps;
-
         property var secDB
         property var sec
         property var quotient
         property var corps
+        property var page
 
         function initPre() {
             secDB = fk.f("divisionSection", {
                 "string": "264/11"
             });
-            sec = th.getBridgeInstance(item, "DivisionSection", secDB.id);
+            page = th.getBridgeInstance(item, "Page", secDB.page);
+            sec = page.getSection(0);
             params = {
                 "section": sec,
                 "sectionItem": item
@@ -219,6 +148,16 @@ Item {
                     compare(it.focus, true, i);
                 }
             }
+        }
+
+        function test_quotient() {
+            mouseClick(tested.quotient);
+            keyClick(Qt.Key_1);
+            compare(tested.quotient.text, "1");
+            tested.section.undoStack.undo();
+            compare(tested.quotient.text, "");
+            tested.section.undoStack.redo();
+            compare(tested.quotient.text, "1");
         }
 
         name: "DivisionSection"

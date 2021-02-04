@@ -11,12 +11,14 @@ Item {
     CasTest {
         property var secDB
         property var sec
+        property var page
 
         function initPre() {
             secDB = fk.f("soustractionSection", {
                 "string": "432,54-91,41"
             });
-            sec = th.getBridgeInstance(item, "SoustractionSection", secDB.id);
+            page = th.getBridgeInstance(item, "Page", secDB.page);
+            sec = page.getSection(0);
             params = {
                 "section": sec,
                 "sectionItem": item

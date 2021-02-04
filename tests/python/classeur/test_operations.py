@@ -3,12 +3,10 @@ from unittest.mock import patch, call
 
 import pytest
 from PyQt5.QtCore import Qt
-from tests.python.fixtures import check_args, check_is_range
+from tests.python.fixtures import check_is_range
 from mycartable.classeur import (
     OperationSection,
-    AdditionSection,
-    SoustractionSection,
-    MultiplicationSection,
+    Page,
 )
 from mycartable.classeur.sections.operations.operation import DivisionSection
 
@@ -18,7 +16,8 @@ from pony.orm import db_session
 @pytest.fixture
 def to(fk, bridge):
     a = fk.f_operationSection("9+8")
-    b = OperationSection.get(a.id, parent=bridge)
+    pg = Page.get(a.page.id, parent=bridge)
+    b = pg.get_section(0)
     return b
 
 
@@ -38,7 +37,7 @@ class TestOperationModel:
         assert b.model.operation is b
 
     def test_update_datas(self, to, ddbr):
-        to.update_datas(to.size - 1, "6")
+        to.update_datas(to.model.index(to.size - 1, 0), "6", to.size - 1, False)
         res = ["", "", "", "", "", "9", "+", "", "8", "", "", "6"]
         assert to.datas == res
         with db_session:
@@ -139,7 +138,8 @@ class TestOperationModel:
 def ta(fk, bridge):
     def wrapped(string):
         a = fk.f_additionSection(string)
-        b = AdditionSection.get(a.id, parent=bridge)
+        pg = Page.get(a.page.id, parent=bridge)
+        b = pg.get_section(0)
         return b
 
     return wrapped
@@ -270,7 +270,8 @@ class TestAdditionModel:
 def ts(fk, bridge):
     def wrapped(string):
         a = fk.f_soustractionSection(string)
-        b = SoustractionSection.get(a.id, parent=bridge)
+        pg = Page.get(a.page.id, parent=bridge)
+        b = pg.get_section(0)
         return b
 
     return wrapped
@@ -509,7 +510,8 @@ class TestSoustractionModel:
 def tm(fk, bridge):
     def wrapped(string):
         a = fk.f_multiplicationSection(string)
-        b = MultiplicationSection.get(a.id, parent=bridge)
+        pg = Page.get(a.page.id, parent=bridge)
+        b = pg.get_section(0)
         return b
 
     return wrapped
@@ -1541,12 +1543,20 @@ class TestDivisionSection:
         with qtbot.waitSignal(b.quotientChanged):
             b.quotient = "3"
 
+    def test_set_quotient_command(self, fk, qtbot, bridge):
+        a = fk.f_divisionSection("12/2")
+        pg = Page.get(a.page.id, parent=bridge)
+        b = pg.get_section(0)
+        with qtbot.waitSignal(b.quotientChanged):
+            b.set({"quotient": "1"}, "frappe")
+
 
 @pytest.fixture
 def td(fk, bridge):
     def wrapped(string):
         a = fk.f_divisionSection(string)
-        b = DivisionSection.get(a.id, parent=bridge)
+        pg = Page.get(a.page.id, parent=bridge)
+        b = pg.get_section(0)
         return b
 
     return wrapped

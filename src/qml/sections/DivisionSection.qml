@@ -9,12 +9,9 @@ RowLayout {
     required property Item sectionItem
     required property QtObject section
     property var model: section.model
+    property alias quotient: quotientField
 
     BaseOperation {
-        //        Component.onCompleted: {
-        //            model = root.model;
-        //        }
-
         id: corps
 
         objectName: "corps"
@@ -40,7 +37,6 @@ RowLayout {
 
     ColumnLayout {
         height: corps.height
-        //    width: 200
         Layout.preferredWidth: 200
 
         Label {
@@ -68,11 +64,11 @@ RowLayout {
             Layout.preferredWidth: 200
             objectName: "quotientField"
             onTextEdited: {
-                section.quotient = text;
+                section.set({
+                    "quotient": text
+                }, "Frappe quotient");
             }
-            Component.onCompleted: {
-                text = section.quotient;
-            }
+            text: section ? section.quotient : ""
             Keys.onReturnPressed: {
                 section.model.getPosByQuotient();
             }

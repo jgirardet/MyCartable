@@ -4,7 +4,7 @@ from typing import Tuple
 
 from PyQt5.QtCore import pyqtProperty, QObject, QModelIndex, pyqtSignal
 from mycartable.types import SubTypeAble
-from mycartable.types.bridge import Bridge
+from mycartable.types.bridge import Bridge, AbstractSetBridgeCommand
 from mycartable.undoredo import BaseCommand
 
 """
@@ -83,3 +83,13 @@ class UpdateSectionCommand(BaseCommand):
 
     def get_section(self):
         return self.page.get_section(self.position)
+
+
+class SetSectionCommand(UpdateSectionCommand):
+    def __init__(self, *, bridge: Section, toset: dict, **kwargs):
+        super().__init__(section=bridge, **kwargs)
+        self.com = AbstractSetBridgeCommand(
+            bridge=bridge, toset=toset, get_bridge=self.get_section
+        )
+        self.redo = self.com.redo
+        self.undo = self.com.undo

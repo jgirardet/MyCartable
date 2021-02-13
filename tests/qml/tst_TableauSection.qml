@@ -1,3 +1,4 @@
+import MyCartable 1.0
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
@@ -11,7 +12,13 @@ Item {
     width: 400
     height: 300
 
+    Database {
+        id: database
+    }
+
     CasTest {
+        //                "datas": DATA.modelDeBase
+
         property Repeater rep
         property GridLayout grid
         property TextArea un
@@ -19,6 +26,7 @@ Item {
         property var model: item.cellModel
         property var secDB
         property var sec
+        property var page
 
         function initPre() {
             secDB = fk.f("tableauSection", {
@@ -26,13 +34,14 @@ Item {
                 "lignes": 5,
                 "colonnes": 3
             });
-            sec = th.getBridgeInstance(item, "TableauSection", secDB.id);
             for (let dat of DATA.modelDeBase) {
-                sec.updateCell(dat.y, dat.x, {
+                database.setDB("TableauCell", [secDB.id, dat.y, dat.x], {
                     "style": dat.style,
                     "texte": dat.texte
                 });
             }
+            page = th.getBridgeInstance(item, "Page", secDB.page);
+            sec = page.getSection(0);
             params = {
                 "section": sec,
                 "sectionItem": item
@@ -159,6 +168,12 @@ Item {
         function test_delegate_onTextChanged_and_setText() {
             un.text = "bla";
             compare(fk.getItem("TableauCell", sec.id, 0, 1).texte, "bla");
+            clickAndUndo(un);
+            compare(fk.getItem("TableauCell", sec.id, 0, 1).texte, "un");
+            compare(un.text, "un");
+            clickAndRedo(un);
+            compare(fk.getItem("TableauCell", sec.id, 0, 1).texte, "bla");
+            compare(un.text, "bla");
         }
 
         function test_delegate_selected_state() {
@@ -263,19 +278,24 @@ Item {
         }
 
         function test_set_PointSize() {
-            un.font.pointSize = 10;
             un.forceActiveFocus();
             un.cursorPosition = 2;
-            keyPress(Qt.Key_Plus);
-            compare(un.text, "un+");
             keyClick(Qt.Key_Plus, Qt.ControlModifier);
-            compare(un.font.pointSize, 12);
+            compare(un.font.pointSize, 16);
+            clickAndUndo(un);
+            compare(un.font.pointSize, 14);
+            clickAndRedo(un);
+            compare(un.font.pointSize, 16);
             keyClick(Qt.Key_Minus, Qt.ControlModifier);
-            compare(un.font.pointSize, 10);
+            compare(un.font.pointSize, 14);
+            clickAndUndo(un);
+            compare(un.font.pointSize, 16);
+            clickAndRedo(un);
+            compare(un.font.pointSize, 14);
         }
 
         function test_set_style_from_menu_color() {
-            un.color = "blue";
+            fuzzyCompare(un.color, "black", 0);
             var dict = {
                 "style": {
                     "fgColor": "red"
@@ -284,10 +304,13 @@ Item {
             un.setStyleFromMenu(dict);
             fuzzyCompare(fk.getItem("TableauCell", sec.id, 0, 1).style.fgColor, "red", 0);
             verify(Qt.colorEqual(un.color, "red"));
+            clickAndUndo(un);
+            fuzzyCompare(fk.getItem("TableauCell", sec.id, 0, 1).style.fgColor, "black", 0);
+            fuzzyCompare(un.color, "black", 0);
         }
 
         function test_set_style_from_menu_bgcolor() {
-            un.background.color = "blue";
+            let backupcolor = un.background.color;
             var dict = {
                 "style": {
                     "bgColor": "red"
@@ -296,6 +319,12 @@ Item {
             un.setStyleFromMenu(dict);
             fuzzyCompare(fk.getItem("TableauCell", sec.id, 0, 1).style.bgColor, "red", 0);
             verify(Qt.colorEqual(un.background.color, "red"));
+            clickAndUndo(un);
+            fuzzyCompare(fk.getItem("TableauCell", sec.id, 0, 1).style.bgColor, backupcolor, 0);
+            fuzzyCompare(un.background.color, backupcolor, 0);
+            clickAndRedo(un);
+            fuzzyCompare(fk.getItem("TableauCell", sec.id, 0, 1).style.bgColor, "red", 0);
+            fuzzyCompare(un.background.color, "red", 0);
         }
 
         function test_set_style_from_menu_underline() {
@@ -306,6 +335,12 @@ Item {
                 }
             };
             un.setStyleFromMenu(dict);
+            compare(fk.getItem("TableauCell", sec.id, 0, 1).style.underline, true);
+            verify(un.font.underline);
+            clickAndUndo(un);
+            compare(fk.getItem("TableauCell", sec.id, 0, 1).style.underline, false);
+            verify(!un.font.underline);
+            clickAndRedo(un);
             compare(fk.getItem("TableauCell", sec.id, 0, 1).style.underline, true);
             verify(un.font.underline);
         }
@@ -321,6 +356,10 @@ Item {
             compare(tested.menu.target, un); //target is tx
             mouseClick(cbBgRed, 1, 1);
             compare(Qt.colorEqual(un.background.color, cbBgRed.color), true);
+            sec.undoStack.undo();
+            fuzzyCompare(un.background.color, "blue", 0);
+            sec.undoStack.redo();
+            fuzzyCompare(un.background.color, cbBgRed.color, 0);
             // text color
             compare(Qt.colorEqual(un.color, "black"), true);
             un.font.underline = true;
@@ -329,66 +368,85 @@ Item {
             mouseClick(cbBlueNoUnderline, 1, 1);
             compare(Qt.colorEqual(un.color, cbBlueNoUnderline.color), true);
             verify(!un.font.underline);
+            sec.undoStack.undo();
+            sec.undoStack.undo();
+            fuzzyCompare(un.color, "black", 0);
+            verify(!un.font.underline);
+            sec.undoStack.redo();
+            sec.undoStack.redo();
+            fuzzyCompare(un.color, cbBlueNoUnderline.color, 0);
+            verify(!un.font.underline);
             // color underline
-            un.color = "red";
+            let backupcolor = un.color;
             mouseClick(un, 1, 1, Qt.RightButton);
             compare(tested.menu.target, un); //target is tx
             mouseClick(cbGreenUnderline, 1, 1);
             compare(Qt.colorEqual(un.color, cbGreenUnderline.color), true);
             verify(un.font.underline);
+            sec.undoStack.undo();
+            sec.undoStack.undo();
+            fuzzyCompare(un.color, backupcolor, 0);
+            verify(!un.font.underline);
+            sec.undoStack.redo();
+            sec.undoStack.redo();
+            fuzzyCompare(un.color, cbGreenUnderline.color, 0);
+            verify(un.font.underline);
         }
 
-        function test_mouseClick_add_column() {
-            var but = tested.menu.contentItem.contentItem.children[7].children[0].children[0];
+        function test_modify_tableau_data() {
+            return [{
+                "tag": "add_column",
+                "button": 0,
+                "colredo": 4,
+                "rowredo": 5
+            }, {
+                "tag": "remove_column",
+                "button": 1,
+                "colredo": 2,
+                "rowredo": 5
+            }, {
+                "tag": "append_column",
+                "button": 2,
+                "colredo": 4,
+                "rowredo": 5
+            }, {
+                "tag": "add_row",
+                "button": 3,
+                "colredo": 3,
+                "rowredo": 6
+            }, {
+                "tag": "remove_row",
+                "button": 4,
+                "colredo": 3,
+                "rowredo": 4
+            }, {
+                "tag": "add_column",
+                "button": 5,
+                "colredo": 3,
+                "rowredo": 6
+            }];
+        }
+
+        function test_modify_tableau(data) {
+            var but = tested.menu.contentItem.contentItem.children[7].children[0].children[data.button];
             compare(rep.count, 15);
             mouseClick(un, 1, 1, Qt.RightButton);
             mouseClick(but, 1, 1, Qt.LeftButton);
-            compare(sec.colonnes, 4);
-            compare(grid.columns, 4);
-            compare(rep.count, 20);
-        }
-
-        function test_mouseClick_remove_column() {
-            var but = tested.menu.contentItem.contentItem.children[7].children[0].children[1];
+            compare(sec.colonnes, data.colredo);
+            compare(grid.columns, data.colredo);
+            compare(sec.lignes, data.rowredo);
+            compare(rep.count, data.rowredo * data.colredo);
+            verify(!tested.menu.visible);
+            sec.undoStack.undo();
+            compare(sec.colonnes, 3);
+            compare(grid.columns, 3);
             compare(rep.count, 15);
-            mouseClick(un, 1, 1, Qt.RightButton);
-            mouseClick(but, 1, 1, Qt.LeftButton);
-            compare(sec.colonnes, 2);
-            compare(grid.columns, 2);
-            compare(rep.count, 10);
-        }
-
-        function test_mouseClick_append_column() {
-            var but = tested.menu.contentItem.contentItem.children[7].children[0].children[2];
-            mouseClick(un, 1, 1, Qt.RightButton);
-            mouseClick(but, 1, 1, Qt.LeftButton);
-            compare(sec.colonnes, 4);
-            compare(grid.columns, 4);
-            compare(rep.count, 20);
-        }
-
-        function test_mouseClick_add_row() {
-            var but = tested.menu.contentItem.contentItem.children[7].children[0].children[3];
-            mouseClick(un, 1, 1, Qt.RightButton);
-            mouseClick(but, 1, 1, Qt.LeftButton);
-            compare(sec.lignes, 6);
-            compare(rep.count, 18);
-        }
-
-        function test_mouseClick_remove_row() {
-            var but = tested.menu.contentItem.contentItem.children[7].children[0].children[4];
-            mouseClick(un, 1, 1, Qt.RightButton);
-            mouseClick(but, 1, 1, Qt.LeftButton);
-            compare(sec.lignes, 4);
-            compare(rep.count, 12);
-        }
-
-        function test_mouseClick_append_row() {
-            var but = tested.menu.contentItem.contentItem.children[7].children[0].children[5];
-            mouseClick(un, 1, 1, Qt.RightButton);
-            mouseClick(but, 1, 1, Qt.LeftButton);
-            compare(sec.lignes, 6);
-            compare(rep.count, 18);
+            compare(sec.lignes, 5);
+            sec.undoStack.redo();
+            compare(sec.colonnes, data.colredo);
+            compare(grid.columns, data.colredo);
+            compare(sec.lignes, data.rowredo);
+            compare(rep.count, data.rowredo * data.colredo);
         }
 
         function test_targetmenu_egale_grid_if_selected() {

@@ -44,6 +44,7 @@
         <file alias="NewTextSection.qml">qml/buttons/NewTextSection.qml</file>
         <file alias="RemovePage.qml">qml/buttons/RemovePage.qml</file>
         <file alias="RedoButton.qml">qml/buttons/RedoButton.qml</file>
+        <file alias="TableauButton.qml">qml/buttons/TableauButton.qml</file>
         <file alias="UndoButton.qml">qml/buttons/UndoButton.qml</file>
 
     </qresource>

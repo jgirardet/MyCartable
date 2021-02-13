@@ -21,7 +21,8 @@ requires = ['pyqt5==5.15.2',
             'loguru',
             "PyMuPDF==1.17.6",
             "packaging",
-            "emoji-country-flag>=1.2.3,<2"
+            "emoji-country-flag>=1.2.3,<2",
+            "flatten-dict>=0.3.0,<1"
             ]
 
 

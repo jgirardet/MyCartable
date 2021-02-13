@@ -85,6 +85,15 @@ TestCase {
         keySequence(seq);
     }
 
+    function clickAndUndo(_obj) {
+        // click select all erase
+        clickAndWrite(_obj,"ctrl+z" )
+    }
+    function clickAndRedo(_obj) {
+        // click select all erase
+        clickAndWrite(_obj,"ctrl+shift+z" )
+    }
+
     when: windowShown
 
     Component {

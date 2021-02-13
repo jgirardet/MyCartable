@@ -4,6 +4,7 @@ from operator import itemgetter, attrgetter
 from unittest.mock import patch, MagicMock
 from uuid import UUID
 
+from flatten_dict import flatten
 from loguru import logger
 from pony.orm import db_session
 from contextlib import contextmanager
@@ -30,14 +31,27 @@ def compare(first, two, key="id"):
 def compare_dict_list(lhs, rhs, exclude=[], order=None):
     """
     Compare 2 dict e
-    should be used with pytest"""
+    should be used with pytest
+
+    """
+    exc = []
+    for x in exclude:
+        if isinstance(x, str):
+            exc.append((x,))
+        else:
+            exc.append(x)
+    exclude = exc
     rhs = sorted(rhs, key=lambda x: x[order]) if order else rhs
     lhs = sorted(lhs, key=lambda x: x[order]) if order else lhs
-    for ld, rd in zip(lhs, rhs):
+    frhs = [flatten(x) for x in rhs]
+    flhs = [flatten(x) for x in lhs]
+    print()
+    for ld, rd in zip(frhs, flhs):
         for k, v in ld.items():
             if k in exclude:
                 continue
             assert v == rd[k], f"{k}: {v} != {rd[k]}"
+
     return True
 
 

@@ -2,6 +2,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.12
 import "qrc:/qml/actions"
+import "qrc:/qml/buttons"
 
 BaseMenu {
     id: root
@@ -208,10 +209,9 @@ BaseMenu {
             spacing: 0
             anchors.fill: parent
 
-            ToolButton {
-                icon.color: "transparent"
-                ToolTip.visible: hovered
+            TableauButton {
                 ToolTip.text: "Ajouter une colone"
+                menu:root
 
                 action: TableauActions.AddColumn {
                     cell: root.target
@@ -219,10 +219,9 @@ BaseMenu {
 
             }
 
-            ToolButton {
-                icon.color: "transparent"
-                ToolTip.visible: hovered
+            TableauButton {
                 ToolTip.text: "Supprimer une colonne"
+                menu:root
 
                 action: TableauActions.RemoveColumn {
                     cell: root.target
@@ -230,10 +229,9 @@ BaseMenu {
 
             }
 
-            ToolButton {
-                icon.color: "transparent"
-                ToolTip.visible: hovered
+            TableauButton {
                 ToolTip.text: "Ajouter une colonne à la fin"
+                menu:root
 
                 action: TableauActions.AppendColumn {
                     cell: root.target
@@ -241,37 +239,32 @@ BaseMenu {
 
             }
 
-            ToolButton {
-                icon.color: "transparent"
-                ToolTip.visible: hovered
+            TableauButton {
                 ToolTip.text: "Ajouter une ligne"
-
+                menu:root
                 action: TableauActions.AddRow {
                     cell: root.target
                 }
 
             }
 
-            ToolButton {
-                icon.color: "transparent"
-                ToolTip.visible: hovered
+            TableauButton {
                 ToolTip.text: "Supprimer une ligne"
-
+                menu:root
                 action: TableauActions.RemoveRow {
                     cell: root.target
                 }
 
             }
 
-            ToolButton {
-                icon.color: "transparent"
-                ToolTip.visible: hovered
+            TableauButton {
                 ToolTip.text: "Ajouter une ligne à la fin"
-                Component.onCompleted: action.triggered.connect(root.close)
+                menu: root
 
                 action: TableauActions.AppendRow {
                     cell: root.target
                 }
+
 
             }
 

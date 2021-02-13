@@ -83,7 +83,8 @@ class DTB(QObject):
     @db_session
     @pyqtSlot(str, str, "QVariantMap", result="QVariantMap")
     @pyqtSlot(str, int, "QVariantMap", result="QVariantMap")
-    def setDB(self, entity: str, item_id: Union[str, int, tuple], params: dict) -> dict:
+    @pyqtSlot(str, "QVariantList", "QVariantMap", result="QVariantMap")
+    def setDB(self, entity: str, item_id: Union[str, int, list], params: dict) -> dict:
         """
         Modify a row in database.
         :param entity: str. Entity Name
@@ -91,6 +92,8 @@ class DTB(QObject):
         :param params: dict. paremeter to edit in  row.
         :return: True if ok, else False
         """
+        if isinstance(item_id, list):
+            item_id = tuple(item_id)
         if entity := getattr(self.db, entity, None):  # pragma: no branch
             try:
                 item = entity[item_id]  # pragma: no branch

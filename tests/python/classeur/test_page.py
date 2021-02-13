@@ -613,7 +613,7 @@ class TestPageCommands:
             assert compare_dict_list(
                 [x.to_dict() for x in fk.db.Section.select()],
                 secs,
-                exclude=["modified"],
+                exclude=[("modified",)],
             )
 
         # redo

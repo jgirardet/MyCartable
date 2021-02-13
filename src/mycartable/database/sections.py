@@ -310,6 +310,10 @@ def class_section(
                 for cel in self.get_cells_par_ligne(0):
                     cel.style.bgColor = self.MODEL_COLOR_LINE0
 
+        """
+        backup restore methods
+        """
+
         def backup(self):
             dico = self.to_dict()
             dico["cells"] = self.get_cells()
@@ -323,6 +327,20 @@ def class_section(
                 TableauCell(**c)
             return new_t
 
+        def restore_column(self, col, cells: list):
+            """col est indicatif, x et y doivent être contenues dans cells"""
+            self._insert_one_column(col)
+            self._restore_cells(cells)
+
+        def restore_line(self, col, cells: list):
+            """col est indicatif, x et y doivent être contenues dans cells"""
+            self._insert_one_line(col)
+            self._restore_cells(cells)
+
+        """
+        Query cells method
+        """
+
         def _get_cells(self):
             return self.cells.select().sort_by(TableauCell.y, TableauCell.x)
 
@@ -334,7 +352,91 @@ def class_section(
                 row + 1, self.colonnes
             )  # page commence a 1 chez pony
 
-        def insert_one_line(self, line) -> bool:
+        """"
+        modify tableau line/column
+        """
+
+        def append_one_line(self) -> bool:
+            return self.insert_one_line(self.lignes)
+
+        def append_one_column(self) -> bool:
+            return self.insert_one_column(self.colonnes)
+
+        def insert_one_column(self, col: int) -> bool:
+            self._insert_one_column(col)
+            self._fill_new_column(col)
+            return True
+
+        def insert_one_line(self, line: int) -> bool:
+            self._insert_one_line(line)
+            self._fill_new_row(line)
+            return True
+
+        def remove_one_column(self, col) -> bool:
+            self.colonnes = self.colonnes - 1
+
+            if col < self.colonnes:
+                for c in range(col, self.colonnes):
+                    for l in range(self.lignes):
+                        _agauche = TableauCell[self, l, c]
+                        _adroite = TableauCell[self, l, c + 1]
+                        _agauche.style = _adroite.style
+                        _agauche.texte = _adroite.texte
+            for l in range(self.lignes):
+                TableauCell[self, l, self.colonnes].delete()
+            return True
+
+        def remove_one_line(self, line) -> bool:
+            self.lignes = self.lignes - 1
+
+            if line < self.lignes:
+                for l in range(line, self.lignes):
+                    for c in range(self.colonnes):
+
+                        _avant = TableauCell[self, l, c]
+                        _apres = TableauCell[self, l + 1, c]
+                        _avant.style = _apres.style
+                        _avant.texte = _apres.texte
+            for c in range(self.colonnes):
+                TableauCell[self, self.lignes, c].delete()
+
+            return True
+
+        """
+        Private methods
+        """
+
+        def _fill_new_column(self, col: int):
+            # on reset les nouvelles
+            for l in range(self.lignes):
+                cel = TableauCell[self, l, col]
+                cel.texte = ""
+                cel.style = db.Style()
+
+        def _fill_new_row(self, line: int):
+            # on reset les nouvelles
+            for c in range(self.colonnes):
+                cel = TableauCell[self, line, c]
+                cel.texte = ""
+                cel.style = db.Style()
+            return True
+
+        def _insert_one_column(self, col) -> bool:
+            self.colonnes = self.colonnes + 1  # ne pas placer apres les fonctions
+
+            # Ajout de la colonnes
+            for c in range(self.lignes):
+                TableauCell(tableau=self, y=c, x=self.colonnes - 1)
+            # on décale les indexes
+            if col < self.colonnes:
+                for c in range(self.colonnes - 1, col, -1):
+                    for l in range(self.lignes):
+                        _agauche = TableauCell[self, l, c - 1]
+                        _adroite = TableauCell[self, l, c]
+                        _adroite.style = _agauche.style
+                        _adroite.texte = _agauche.texte
+
+        def _insert_one_line(self, line) -> bool:
             self.lignes = self.lignes + 1
 
             # Ajout de la ligne
@@ -344,69 +446,17 @@ def class_section(
             if line < self.lignes:
                 for l in range(self.lignes - 1, line, -1):
                     for c in range(self.colonnes):
-                        TableauCell[self, l, c].set(
-                            **TableauCell[self, l - 1, c].to_dict(exclude=["x", "y"])
-                        )
 
-            # on reset les nouvelles
-            for c in range(self.colonnes):
-                cel = TableauCell[self, line, c]
-                cel.texte = ""
-                cel.style = db.Style()
-            return True
+                        _avant = TableauCell[self, l - 1, c]
+                        _apres = TableauCell[self, l, c]
+                        _apres.style = _avant.style
+                        _apres.texte = _avant.texte
 
-        def remove_one_line(self, line) -> bool:
-            self.lignes = self.lignes - 1
-
-            if line < self.lignes:
-                for i in range(line, self.lignes):
-                    for c in range(self.colonnes):
-                        TableauCell[self, i, c].set(
-                            **TableauCell[self, i + 1, c].to_dict(exclude=["x", "y"])
-                        )
-            for c in range(self.colonnes):
-                TableauCell[self, self.lignes, c].delete()
-            return True
-
-        def insert_one_column(self, col) -> bool:
-            self.colonnes = self.colonnes + 1
-
-            # Ajout de la colonnes
-            for c in range(self.lignes):
-                TableauCell(tableau=self, y=c, x=self.colonnes - 1)
-
-            if col < self.colonnes:
-                for c in range(self.colonnes - 1, col, -1):
-                    for l in range(self.lignes):
-                        TableauCell[self, l, c].set(
-                            **TableauCell[self, l, c - 1].to_dict(exclude=["x", "y"])
-                        )
-
-            # on reset les nouvelles
-            for l in range(self.lignes):
-                cel = TableauCell[self, l, col]
-                cel.texte = ""
-                cel.style = db.Style()
-            return True
-
-        def remove_one_column(self, col) -> bool:
-            self.colonnes = self.colonnes - 1
-
-            if col < self.colonnes:
-                for c in range(col, self.colonnes):
-                    for l in range(self.lignes):
-                        TableauCell[self, l, c].set(
-                            **TableauCell[self, l, c + 1].to_dict(exclude=["x", "y"])
-                        )
-            for l in range(self.lignes):
-                TableauCell[self, l, self.colonnes].delete()
-            return True
-
-        def append_one_line(self) -> bool:
-            return self.insert_one_line(self.lignes)
-
-        def append_one_column(self) -> bool:
-            return self.insert_one_column(self.colonnes)
+        def _restore_cells(self, cells: list):
+            for cel in cells:
+                base_cel = TableauCell[self, cel["y"], cel["x"]]
+                base_cel.texte = cel["texte"]
+                base_cel.style = db.Style(**cel["style"])
 
     class TableauCell(db.Entity, ColorMixin):
         """

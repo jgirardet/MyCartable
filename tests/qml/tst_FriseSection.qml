@@ -10,6 +10,7 @@ Item {
     CasTest {
         property var friseSection
         property var sec
+        property var pageObj
         property var corps
         property QtObject zero
         property QtObject un
@@ -69,7 +70,8 @@ Item {
                 "relativeX": 0.7,
                 "side": true
             });
-            sec = th.getBridgeInstance(item, "FriseSection", friseSection.id);
+            pageObj = th.getBridgeInstance(item, "Page", friseSection.page);
+            sec = pageObj.getSection(0);
             params = {
                 "section": sec,
                 "sectionItem": item
@@ -181,8 +183,8 @@ Item {
             compare(fk.getItem("FriseLegende", l0.id).texte, "bcd");
             // relative X
             mouseDrag(leg1.languette, 1, 1, 40, 0);
-            fuzzyCompare(leg1.x, 187.0, 10); // 147+40
-            fuzzyCompare(fk.getItem("FriseLegende", l1.id).relativeX, 187.0 / leg1.parent.width, 0.1);
+            fuzzyCompare(leg1.x, 187, 10); // 147+40
+            fuzzyCompare(fk.getItem("FriseLegende", l1.id).relativeX, 187 / leg1.parent.width, 0.1);
         }
 
         function test_legende_ajout() {
@@ -209,6 +211,10 @@ Item {
             clickAndWrite(tested.titre);
             compare(tested.titre.text, "bcd");
             compare(fk.getItem("FriseSection", friseSection.id).titre, "bcd");
+            clickAndUndo(tested.titre);
+            compare(tested.titre.text, "ma frise");
+            clickAndRedo(tested.titre);
+            compare(tested.titre.text, "bcd");
         }
 
         testedNom: "qrc:/qml/sections/FriseSection.qml"

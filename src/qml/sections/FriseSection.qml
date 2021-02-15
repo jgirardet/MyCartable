@@ -19,12 +19,42 @@ Rectangle {
     TextEdit {
         id: titre
 
-        onTextChanged: {
-            return root.section.titre = titre.text;
+        property var undoStack: []
+        property var redoStack: []
+
+        function setText() {
+            if (text != section.titre)
+                root.section.set({
+                "titre": titre.text
+            }, "modifier titre frise");
+
+            redoStack.push(cursorPosition);
         }
-        Component.onCompleted: text = section.titre
+
+        text: section.titre
+        Component.onCompleted: {
+            onTextChanged.connect(setText);
+        }
         font.pointSize: 16
         anchors.horizontalCenter: parent.horizontalCenter
+        Keys.onPressed: {
+            print(JSON.stringify(undoStack));
+            print(JSON.stringify(redoStack));
+            if ([Qt.Key_Control, Qt.Key_Shift].includes(event.key)) {
+                //on ignore controle seul
+                return ;
+            } else if ((event.key == Qt.Key_Z) && (event.modifiers & Qt.ControlModifier)) {
+                if (event.modifiers & Qt.ShiftModifier) {
+                    undoStack.push(cursorPosition);
+                    section.undoStack.redo();
+                    cursorPosition = redoStack.pop();
+                } else {
+                    section.undoStack.undo();
+                    cursorPosition = undoStack.pop();
+                }
+                event.accepted = true;
+            }
+        }
     }
 
     CorpsFrise {

@@ -1,27 +1,29 @@
 import pytest
 from PyQt5.QtCore import Qt, QModelIndex
 from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import QUndoStack
-from mycartable.classeur import FriseSection
+from mycartable.classeur import FriseSection, Page
 from mycartable.classeur.sections.frise import FriseModel
 from pony.orm import db_session
 
 
 @pytest.fixture()
-def fm(fk):
+def fm(fk, bridge):
     def wrapped(nb):
+
         x = fk.f_friseSection()
         _zones = fk.b_zoneFrise(nb, frise=x.id, td=True)
-        f = FriseSection.get(x.id, parent=None, undoStack=QUndoStack())
+        p = Page.get(x.page.id, parent=bridge)
+        f = p.get_section(0)
         f._zones = _zones
         return f
 
     return wrapped
 
 
-def test_base(fk, qtbot):
+def test_base(fk, bridge, qtbot):
     x = fk.f_friseSection(height=3, titre="aaa")
-    a = FriseSection.get(x.id, parent=None, undoStack=QUndoStack())
+    p = Page.get(x.page.id, parent=bridge)
+    a = p.get_section(0)
     assert a.id == str(x.id)
     assert a.height == 3
     assert a.titre == "aaa"
@@ -34,6 +36,13 @@ def test_base(fk, qtbot):
         assert it.height == 5
 
     assert isinstance(a.model, FriseModel)
+
+
+def test_base_undo_redo(fsec, sec_utils):
+    props = {"height": 3, "titre": "aaa"}
+    a = fsec("FriseSection", **props)
+    sec_utils.test_set_property_undo_redo(a, **props)
+    sec_utils.test_set_property_undo_redo(a, titre="cc")
 
 
 def test_data(fm, fk):

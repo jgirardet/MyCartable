@@ -161,6 +161,7 @@
         <file alias="DynamicRepeater.qml">qml/divers/DynamicRepeater.qml</file>
         <file alias="IndexedDialog.qml">qml/divers/IndexedDialog.qml</file>
         <file alias="TimedSlider.qml">qml/divers/TimedSlider.qml</file>
+        <file alias="UndoTextArea.qml">qml/divers/UndoTextArea.qml</file>
     </qresource>
     
 

@@ -21,6 +21,7 @@ TestCase {
         initPre();
         if (autocreate)
             tested = createObj(testedNom, params);
+
         initPost();
     }
 
@@ -39,6 +40,7 @@ TestCase {
         var comp = Qt.createComponent(nom);
         if (comp.status != 1)
             print(comp, comp.status, comp.errorString());
+
         var obj = createTemporaryObject(comp, parentItem ? parentItem : testcase.parent, kwargs);
         return obj;
     }
@@ -87,11 +89,12 @@ TestCase {
 
     function clickAndUndo(_obj) {
         // click select all erase
-        clickAndWrite(_obj,"ctrl+z" )
+        clickAndWrite(_obj, "ctrl+z");
     }
+
     function clickAndRedo(_obj) {
         // click select all erase
-        clickAndWrite(_obj,"ctrl+shift+z" )
+        clickAndWrite(_obj, "ctrl+shift+z");
     }
 
     when: windowShown

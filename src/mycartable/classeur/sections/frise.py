@@ -1,6 +1,5 @@
 from PyQt5.QtCore import (
     Qt,
-    pyqtSlot,
     QModelIndex,
     QByteArray,
     pyqtSignal,
@@ -10,13 +9,16 @@ from PyQt5.QtCore import (
 from PyQt5.QtGui import QColor
 import typing
 
-from .section import Section
+from mycartable.types.setable import Setable
+
+from .section import Section, SetSectionCommand
 from mycartable.types import DtbListModel
 from mycartable.utils import WDict, shift_list
 
 
-class FriseSection(Section):
+class FriseSection(Section, Setable):
     entity_name = "FriseSection"
+    set_command = SetSectionCommand
 
     heightChanged = pyqtSignal()
     titreChanged = pyqtSignal()
@@ -56,6 +58,14 @@ class FriseModel(DtbListModel):
     LegendesRole = Qt.UserRole + 4
     ZoneIdRole = Qt.UserRole + 5
 
+    ROLES = {
+        Qt.EditRole: "texte",
+        RatioRole: "ratio",
+        Qt.BackgroundRole: "style.bgColor",
+        SeparatorPositionRole: "style.strikeout",
+        SeparatorTextRole: "separatorText",
+    }
+
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.zones = []
@@ -94,14 +104,6 @@ class FriseModel(DtbListModel):
             return row["id"]
         else:
             return None
-
-    ROLES = {
-        Qt.EditRole: "texte",
-        RatioRole: "ratio",
-        Qt.BackgroundRole: "style.bgColor",
-        SeparatorPositionRole: "style.strikeout",
-        SeparatorTextRole: "separatorText",
-    }
 
     def setData(self, index, value, role) -> bool:
         if not index.isValid() or role not in self.ROLES:
@@ -160,14 +162,6 @@ class FriseModel(DtbListModel):
         for d in self.zones[row : row + count + 1]:
             self._dtb.delDB("ZoneFrise", d["id"])
         self._reset()
-
-    @pyqtSlot(result=bool)
-    def reset(self):
-        self.beginResetModel()
-        self._reset()
-        self.endResetModel()
-        self._after_reset()
-        return True
 
     def _reset(self):
         self.parent()._data = self._dtb.getDB("FriseSection", self.parent().id)

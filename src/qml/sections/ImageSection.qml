@@ -93,7 +93,10 @@ Image {
                 else
                     menuFlottantImage.ouvre(root);
             } else if (pressedButtons === Qt.LeftButton) {
-                if (mouse.modifiers == Qt.ControlModifier) {
+                if (menuFlottantImage.visible) {
+                    // previent le clique pour fermer qui fait une action non voulue
+                    menuFlottantImage.close();
+                } else if (mouse.modifiers == Qt.ControlModifier) {
                     root.addAnnotationText(mouse);
                 } else if (section.annotationCurrentTool == "text") {
                     root.addAnnotationText(mouse);

@@ -201,7 +201,10 @@ class Faker:
         tmp = None
         basepath = Path(__file__).parents[1] / "tests" / "resources"
         if path in ["tst_AnnotableImage.png", "sc1.png", "floodfill.png"]:
-            path = basepath / path
+            name = basepath / path
+            new_file = Path(tempfile.gettempdir()) / path
+            new_file.write_bytes(name.read_bytes())
+            path = new_file
         elif path:
             path = path
         else:

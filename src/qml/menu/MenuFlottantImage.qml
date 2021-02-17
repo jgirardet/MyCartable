@@ -1,13 +1,22 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.12
+import "qrc:/qml/buttons" as Buttons
 
 BaseMenu {
     id: menu
 
+    property alias rotateLeft: rotateLeft_id
+    property alias rotateRight: rotateRight_id
+    property alias undo: undobutton_id
+    property alias redo: redobutton_id
+    closePolicy: Popup.NoAutoClose
+
     MenuItem {
         Row {
             ToolButton {
+                id: rotateLeft_id
+
                 icon.source: "qrc:///icons/rotateLeft"
                 icon.color: "blue"
                 onClicked: target.section.pivoterImage(0)
@@ -15,10 +24,24 @@ BaseMenu {
             }
 
             ToolButton {
+                id: rotateRight_id
+
                 icon.source: "qrc:///icons/rotateRight"
                 icon.color: "blue"
                 onClicked: target.section.pivoterImage(1)
                 ToolTip.text: "Pivoter à droite"
+            }
+
+            Buttons.UndoButton {
+                id: undobutton_id
+
+                page: target ? target.section : null
+            }
+
+            Buttons.RedoButton {
+                id: redobutton_id
+
+                page: target ? target.section : null
             }
 
         }

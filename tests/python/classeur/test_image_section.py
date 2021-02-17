@@ -171,15 +171,15 @@ def test_pivoter_image(new_res, fk, qtbot, bridge):
     img = Image.open(file)
     assert img.height == 673
     assert img.width == 124
-    assert p.undoStack.undoText() == "pivoter"
+    assert isec.undoStack.undoText() == "pivoter"
 
     with qtbot.waitSignal(isec.commandDone):
-        p.undoStack.undo()
+        isec.undoStack.undo()
     img = Image.open(file)
     assert img.height == 124
     assert img.width == 673
     with qtbot.waitSignal(isec.commandDone):
-        p.undoStack.redo()
+        isec.undoStack.redo()
     img = Image.open(file)
     assert img.height == 673
     assert img.width == 124
@@ -211,14 +211,14 @@ def test_flood_fill(fk, resources, qtbot, tmp_path, pos, img_res, bridge):
     lhs = QImage(str(isec.absolute_path))
     rhs = QImage(str(resources / img_res))
     assert lhs == rhs
-    assert p.undoStack.undoText() == "remplir"
+    assert isec.undoStack.undoText() == "remplir"
     with qtbot.waitSignal(isec.commandDone):
-        p.undoStack.undo()
+        isec.undoStack.undo()
     lhs = QImage(str(isec.absolute_path))
     rhs = QImage(str(fp))
     assert lhs == rhs
     with qtbot.waitSignal(isec.commandDone):
-        p.undoStack.redo()
+        isec.undoStack.redo()
     lhs = QImage(str(isec.absolute_path))
     rhs = QImage(str(resources / img_res))
     assert lhs == rhs

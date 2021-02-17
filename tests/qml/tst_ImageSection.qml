@@ -9,11 +9,6 @@ Item {
     height: 600
 
     CasTest {
-        // onPaint called
-        // non testé trop compliqué et change l'image de base
-        //            tested.section.undoStack.undo();
-        //            compare(model.rowCount(), 0);
-
         property var model
         property var canvas
         property var imgsection
@@ -268,6 +263,32 @@ Item {
             fuzzyCompare(eli.item.fillStyle, "blue", 0);
             tested.section.undoStack.redo(); // refait remove
             compare(model.rowCount(), 0);
+        }
+
+        function test_leftclick_quand_menu_ouvert_ferme_et_ne_fait_rien() {
+            mouseClick(tested, 1, 1, Qt.RightButton);
+            mouseClick(tested, 300, 300);
+            verify(!tested.menu.undo.enabled); // pas d'action enregistrée
+        }
+
+        function test_undo_redo() {
+            mouseClick(tested, 1, 1, Qt.RightButton);
+            verify(!tested.menu.undo.enabled);
+            mouseClick(tested.menu.rotateLeft);
+            verify(tested.section.undoStack.canUndo);
+            verify(!tested.section.undoStack.canRedo);
+            verify(tested.menu.undo.enabled);
+            verify(!tested.menu.redo.enabled);
+            mouseClick(tested.menu.undo);
+            verify(!tested.section.undoStack.canUndo);
+            verify(tested.section.undoStack.canRedo);
+            verify(!tested.menu.undo.enabled);
+            verify(tested.menu.redo.enabled);
+            mouseClick(tested.menu.redo);
+            verify(tested.section.undoStack.canUndo);
+            verify(!tested.section.undoStack.canRedo);
+            verify(tested.menu.undo.enabled);
+            verify(!tested.menu.redo.enabled);
         }
 
         name: "ImageSection"

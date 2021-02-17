@@ -2,9 +2,6 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 
 TextArea {
-    // premier retour en arrière, il faut enregistrer la dernière position
-    //            _pendingFrappe=true
-
     id: root
 
     required property QtObject connectedStack
@@ -68,11 +65,12 @@ TextArea {
     }
 
     function undo() {
+        // premier retour en arrière, il faut enregistrer la dernière position
+
         print("»»» Début undo: " + "cursorstack=" + _cursorStack);
         if (timertext.running)
             timertext.triggered();
 
-        //        while (timertext.running){}
         _bindUpdateEnabled = false;
         if (!_cursorStack)
             _addToStack();
@@ -88,6 +86,7 @@ TextArea {
         print(_stack.length - _cursorStack);
         let pos = _stack[_stack.length - 1 - _cursorStack];
         print("movecursor to : ", JSON.stringify(pos), JSON.stringify(_stack), _cursorStack);
+        forceActiveFocus();
         select(pos.start, pos.end);
     }
 
@@ -110,10 +109,12 @@ TextArea {
     }
 
     function _triggerPending() {
-      if (timertext.running)
-                  timertext.triggered();
+        if (timertext.running)
+            timertext.triggered();
+
     }
 
+    focus: true
     onTextChanged: {
         print("»»» début onTextChanged: ", bindedText, text, Boolean(selectedText), selectedText, selectionStart, selectionEnd);
         if (text != bindedText && _bindUpdateEnabled && !_tmpcurs)
@@ -144,22 +145,17 @@ TextArea {
         } else if (event.text) {
             if (event.text.trim() === '') {
                 //detect white space
-                _triggerPending()
-                _addToStack()
-
+                _triggerPending();
+                _addToStack();
                 print("");
             } else {
-            if (!_tmpcurs)
-                _tmpcurs = {
-                "start": selectionStart,
-                "end": selectionEnd
-            };
-            }
-            //            if (
-            //_pendingFrappe) {
-            //            }
-            //            _addToStack();
+                if (!_tmpcurs)
+                    _tmpcurs = {
+                    "start": selectionStart,
+                    "end": selectionEnd
+                };
 
+            }
         } else if (event.Key == Qt.Key_Backspace || event.Key == Qt.Key_Delete) {
             _addToStack();
         }

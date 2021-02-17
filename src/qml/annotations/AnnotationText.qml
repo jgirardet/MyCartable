@@ -57,11 +57,7 @@ TextArea {
         if (!annot.pointSize)
             fontSizeFactor = annot.annotationCurrentTextSizeFactor;
 
-        forceActiveFocus();
         text = annot.text;
-        annot.textChanged.connect(() => {
-            return text = annot.text;
-        });
         timerRemove.running = true;
     }
     onFontSizeFactorChanged: {
@@ -106,6 +102,16 @@ TextArea {
         } else if (event.text) {
             key_accepted = true;
         }
+    }
+
+    Connections {
+        function onTextChanged() {
+            if (text != annot.text)
+                text = annot.text;
+
+        }
+
+        target: annot
     }
 
     MenuFlottantAnnotationText {

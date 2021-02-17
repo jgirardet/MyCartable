@@ -128,7 +128,6 @@ class TestHelper(DTB):
     def env(self, value: str):
         return os.environ.get(value, None)
 
-
 db = init_database(Database(), create_db=True)
 fk = FakerHelper(db)
 th = TestHelper(db)

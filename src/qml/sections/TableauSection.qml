@@ -35,6 +35,7 @@ Item {
 
         property var selectedCells: []
         property var currentSelectedCell: null
+        property alias section: root.section
 
         function reload() {
             repeater.model = section.initTableauDatas();
@@ -95,10 +96,10 @@ Item {
                 if ("style" in params) {
                     let st = params.style;
                     if ("fgColor" in st)
-                        ite.color = st.fgColor;
+                        ite.palette.text = st.fgColor;
 
                     if ("bgColor" in st)
-                        ite.background.color = st.bgColor;
+                        ite.background._color = st.bgColor;
 
                     if ("underline" in st)
                         ite.font.underline = st.underline;
@@ -130,6 +131,7 @@ Item {
                 property string tableauSection: section.id
                 property bool updatable: true
                 property int cursorAvant
+                property var section: root.section
 
                 function changeCase(event) {
                     var obj;
@@ -173,7 +175,7 @@ Item {
                 }
 
                 function setBackgroundColor(value) {
-                    background.color = value;
+                    background._color = value;
                     updateCell({
                         "style": {
                             "bgColor": value
@@ -182,7 +184,7 @@ Item {
                 }
 
                 function setForegroundColor(value) {
-                    color = value;
+                    palette.text = value;
                     updateCell({
                         "style": {
                             "fgColor": value
@@ -193,8 +195,8 @@ Item {
                 function setText() {
                     if (updatable)
                         updateCell({
-                            "texte": text
-                        });
+                        "texte": text
+                    });
 
                 }
 
@@ -247,10 +249,10 @@ Item {
                 Layout.fillHeight: true
                 Layout.fillWidth: true
                 selectByMouse: true
-                font.pointSize: modelData.style.pointSize ? modelData.style.pointSize : 14 // à changer aussi dans convert
-                font.underline: modelData.style.underline
-                color: modelData.style.fgColor
                 Component.onCompleted: {
+                    font.pointSize = modelData.style.pointSize ? modelData.style.pointSize : 14; // à changer aussi dans convert
+                    font.underline = modelData.style.underline;
+                    palette.text = modelData.style.fgColor;
                     text = modelData.texte;
                     onTextChanged.connect(setText);
                 }
@@ -287,9 +289,12 @@ Item {
                 ]
 
                 background: Rectangle {
+                    property color _color
+
                     anchors.fill: parent
                     border.width: 1
-                    color: modelData.style.bgColor == "#00000000" ? "white" : modelData.style.bgColor
+                    color: _color == "#00000000" ? "white" : _color
+                    Component.onCompleted: _color = modelData.style.bgColor
                 }
 
             }

@@ -309,6 +309,26 @@ Item {
             fuzzyCompare(un.color, "black", 0);
         }
 
+        function test_set_bgcolor_cell_white_undo_redo() {
+            let quatre = rep.itemAt(4);
+            let backupcolor = quatre.background.color;
+            fuzzyCompare(quatre.background.color, "white", 0);
+            var dict = {
+                "style": {
+                    "bgColor": "red"
+                }
+            };
+            quatre.setStyleFromMenu(dict);
+            fuzzyCompare(fk.getItem("TableauCell", sec.id, 1, 1).style.bgColor, "red", 0);
+            verify(Qt.colorEqual(quatre.background.color, "red"));
+            clickAndUndo(quatre);
+            fuzzyCompare(fk.getItem("TableauCell", sec.id, 1, 1).style.bgColor, "#00000000", 0);
+            fuzzyCompare(quatre.background.color, "white", 0);
+            clickAndRedo(quatre);
+            fuzzyCompare(fk.getItem("TableauCell", sec.id, 1, 1).style.bgColor, "red", 0);
+            fuzzyCompare(quatre.background.color, "red", 0);
+        }
+
         function test_set_style_from_menu_bgcolor() {
             let backupcolor = un.background.color;
             var dict = {
@@ -346,9 +366,10 @@ Item {
         }
 
         function test_mouseClick_style() {
-            var cbBgRed = tested.menu.contentItem.contentItem.children[0].children[0].children[1].children[0];
-            var cbBlueNoUnderline = tested.menu.contentItem.contentItem.children[3].children[0].children[1];
-            var cbGreenUnderline = tested.menu.contentItem.contentItem.children[5].children[0].children[2];
+            var cbBgRed = tested.menu.fonds.children[0];
+            var cbBlueNoUnderline = tested.menu.styleNoUnderline.children[1];
+            var cbGreenUnderline = tested.menu.styleUnderline.children[2];
+            print(cbBgRed, cbBlueNoUnderline, cbGreenUnderline);
             // background
             compare(Qt.colorEqual(un.background.color, "blue"), true);
             compare(tested.menu.target, undefined);
@@ -395,32 +416,32 @@ Item {
 
         function test_modify_tableau_data() {
             return [{
-                "tag": "add_column",
+                "tag": "insertColumn",
                 "button": 0,
                 "colredo": 4,
                 "rowredo": 5
             }, {
-                "tag": "remove_column",
+                "tag": "removeColumn",
                 "button": 1,
                 "colredo": 2,
                 "rowredo": 5
             }, {
-                "tag": "append_column",
+                "tag": "appendColumn",
                 "button": 2,
                 "colredo": 4,
                 "rowredo": 5
             }, {
-                "tag": "add_row",
+                "tag": "insertRow",
                 "button": 3,
                 "colredo": 3,
                 "rowredo": 6
             }, {
-                "tag": "remove_row",
+                "tag": "removeRow",
                 "button": 4,
                 "colredo": 3,
                 "rowredo": 4
             }, {
-                "tag": "add_column",
+                "tag": "appendRow",
                 "button": 5,
                 "colredo": 3,
                 "rowredo": 6
@@ -428,7 +449,7 @@ Item {
         }
 
         function test_modify_tableau(data) {
-            var but = tested.menu.contentItem.contentItem.children[7].children[0].children[data.button];
+            let but = tested.menu[data.tag];
             compare(rep.count, 15);
             mouseClick(un, 1, 1, Qt.RightButton);
             mouseClick(but, 1, 1, Qt.LeftButton);

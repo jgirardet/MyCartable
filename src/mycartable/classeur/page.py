@@ -143,7 +143,7 @@ class PageModel(DtbListModel):
     def _reset(self):
         self._data = self._dtb.getDB("Page", self.parent().id)
         self._sections = [
-            Section.get(sec_id, parent=self.parent())
+            Section.get(sec_id, parent=self.parent(), undoStack=self.parent().undoStack)
             for sec_id in self._data["sections"]
         ]
         del self._data["sections"]  # par sécurité
@@ -245,7 +245,7 @@ class AddSectionCommand(BasePageCommand):
         new_secs = Section.new_sub(
             page=self.page.id,
             parent=self.page,
-            # undoStack=self.page.undoStack,
+            undoStack=self.page.undoStack,
             **self.params,
         )
         new_secs = [new_secs] if not isinstance(new_secs, list) else new_secs

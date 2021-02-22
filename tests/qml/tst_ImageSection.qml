@@ -163,18 +163,6 @@ Item {
             compare(imgInstance.annotationDessinCurrentTool, "trait");
         }
 
-        function test_annotation_text_removed_if_empty() {
-            imgInstance.annotationCurrentTool = "text";
-            mouseClick(tested);
-            compare(tested.annotations.count, 1);
-            let timer = findChild(tested.annotations.itemAt(0), "timerRemove");
-            compare(timer.running, true);
-            timer.stop();
-            timer.interval = 0;
-            timer.start();
-            tryCompare(tested.annotations, "count", 0);
-        }
-
         function test_baseannotation_removed_if_middle_click() {
             imgInstance.annotationCurrentTool = "text";
             mouseClick(tested);
@@ -268,27 +256,28 @@ Item {
         function test_leftclick_quand_menu_ouvert_ferme_et_ne_fait_rien() {
             mouseClick(tested, 1, 1, Qt.RightButton);
             mouseClick(tested, 300, 300);
-            verify(!tested.menu.undo.enabled); // pas d'action enregistrée
+            verify(!imgInstance.undoStack.canUndo); // pas d'action enregistrée
         }
 
         function test_undo_redo() {
+            let stack = imgInstance.undoStack;
             mouseClick(tested, 1, 1, Qt.RightButton);
-            verify(!tested.menu.undo.enabled);
+            verify(!stack.canUndo);
             mouseClick(tested.menu.rotateLeft);
-            verify(tested.section.undoStack.canUndo);
-            verify(!tested.section.undoStack.canRedo);
-            verify(tested.menu.undo.enabled);
-            verify(!tested.menu.redo.enabled);
-            mouseClick(tested.menu.undo);
+            verify(stack.canUndo);
+            verify(!stack.canRedo);
+            verify(stack.canUndo);
+            verify(!stack.canRedo);
+            stack.undo();
             verify(!tested.section.undoStack.canUndo);
-            verify(tested.section.undoStack.canRedo);
-            verify(!tested.menu.undo.enabled);
-            verify(tested.menu.redo.enabled);
-            mouseClick(tested.menu.redo);
+            verify(stack.canRedo);
+            verify(!stack.canUndo);
+            verify(stack.canRedo);
+            stack.redo();
             verify(tested.section.undoStack.canUndo);
-            verify(!tested.section.undoStack.canRedo);
-            verify(tested.menu.undo.enabled);
-            verify(!tested.menu.redo.enabled);
+            verify(!stack.canRedo);
+            verify(stack.canUndo);
+            verify(!stack.canRedo);
         }
 
         name: "ImageSection"

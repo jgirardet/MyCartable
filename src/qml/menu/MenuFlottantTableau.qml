@@ -7,8 +7,6 @@ import "qrc:/qml/buttons"
 BaseMenu {
     id: root
 
-    property alias undo: undobutton_id
-    property alias redo: redobutton_id
     property alias fonds: fonds_id
     property alias styleNoUnderline: styleNoUnderline_id
     property alias styleUnderline: styleUnderline_id
@@ -20,31 +18,6 @@ BaseMenu {
     property alias removeRow: removeRow_id
 
     width: 241
-
-    MenuItem {
-        RowLayout {
-            anchors.fill: parent
-            spacing: 1
-
-            UndoButton {
-                id: undobutton_id
-
-                page: target ? target.section : null
-            }
-
-            RedoButton {
-                id: redobutton_id
-
-                page: target ? target.section : null
-            }
-
-            Item {
-                Layout.fillWidth: true
-            }
-
-        }
-
-    }
 
     Text {
         Layout.alignment: Qt.AlignHCenter

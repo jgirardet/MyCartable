@@ -594,8 +594,8 @@ class TestPageCommands:
         # redo at init
         po.addSection(section, 1, kwargs)
         new_sec = po.get_section(1)
-        assert new_sec.undoStack.count() == 0
-        assert new_sec.undoStack.parent() == new_sec
+        assert new_sec.undoStack.count() == 1
+        assert new_sec.undoStack.parent() == po
         assert (
             stack.command(stack.count() - 1).text()
             == AddSectionCommand.formulations[section]

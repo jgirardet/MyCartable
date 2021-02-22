@@ -8,8 +8,7 @@ BaseMenu {
 
     property alias rotateLeft: rotateLeft_id
     property alias rotateRight: rotateRight_id
-    property alias undo: undobutton_id
-    property alias redo: redobutton_id
+
     closePolicy: Popup.NoAutoClose
 
     MenuItem {
@@ -30,18 +29,6 @@ BaseMenu {
                 icon.color: "blue"
                 onClicked: target.section.pivoterImage(1)
                 ToolTip.text: "Pivoter à droite"
-            }
-
-            Buttons.UndoButton {
-                id: undobutton_id
-
-                page: target ? target.section : null
-            }
-
-            Buttons.RedoButton {
-                id: redobutton_id
-
-                page: target ? target.section : null
             }
 
         }

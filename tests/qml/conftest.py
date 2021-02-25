@@ -7,6 +7,7 @@ from PyQt5 import sip
 from PyQt5.QtCore import QObject, pyqtSlot
 from PyQt5.QtGui import QGuiApplication, QColor
 from PyQt5.QtQml import QQmlEngine
+from PyQt5.QtWidgets import QUndoCommand
 from mycartable.defaults import roles
 from mycartable.undoredo import UndoStack
 
@@ -128,6 +129,11 @@ class TestHelper(DTB):
     def env(self, value: str):
         return os.environ.get(value, None)
 
+    @pyqtSlot(QObject, result=QObject)
+    def getUndoStack(self, parent: QObject) -> QObject:
+        st = TestStack(parent=parent)
+        return st
+
 
 db = init_database(Database(), create_db=True)
 fk = FakerHelper(db)
@@ -152,3 +158,27 @@ def pytest_qml_applicationAvailable(app: QGuiApplication):
     app.setApplicationName("TestApp")
     app.setOrganizationName("OrgName")
     app.setOrganizationName("ARgDomain")
+
+
+class TestStack(UndoStack):
+    """
+    Stack pour les test. testée dans tst_UndoAbleTextArea
+    """
+
+    class TextCommand(QUndoCommand):
+        def __init__(self, obj, prop, text_apres):
+            super().__init__()
+            self._obj = obj
+            self._prop = prop
+            self._text_avant = self._obj.property(self._prop)
+            self._text_apres = text_apres
+
+        def undo(self) -> None:
+            self._obj.setProperty(self._prop, self._text_avant)
+
+        def redo(self):
+            self._obj.setProperty(self._prop, self._text_apres)
+
+    @pyqtSlot(QObject, str, str)
+    def pushText(self, obj, prop, text):
+        self.push(self.TextCommand(obj, prop, text))

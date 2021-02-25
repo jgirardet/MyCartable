@@ -2,87 +2,83 @@ import QtQuick 2.15
 import "qrc:/qml/divers"
 
 Item {
-    id: item
+    property var stacked
 
-    width: 200
-    height: 200
+    Component {
+        id: stackedcomp
 
-    QtObject {
-        id: stacked
+        QtObject {
+            id: objid
 
-        property string text
-        property var _undotext
-        property var _popedtext
-
-        function undo() {
-            _popedtext.push(text);
-            text = _undotext.pop();
-            print("le text dans undo", text);
+            property string titre: "abcdef"
+            property var undoStack
         }
 
-        function redo() {
-            stacked._undotext.push(text);
-            text = _popedtext.pop();
-            print("le text dans redo", text);
-        }
-
-        function reset() {
-            _undotext = [];
-            _popedtext = [];
-            text = "abcdef";
-        }
-
-        Component.onCompleted: reset()
     }
 
     Component {
         id: undocomp
 
-        UndoTextArea {
+        UndoAbleTextArea {
             id: undotextid
 
+            property QtObject controler
+
             function setText() {
-                stacked._undotext.push(stacked.text);
-                stacked.text = text;
+                undostack.pushText(controler, "titre", text);
             }
 
-            connectedStack: stacked
-            bindedText: stacked.text
+            font.pointSize: 16
+            txtfield: controler && controler.titre ? controler.titre : ""
         }
 
     }
 
     CasTest {
-        function initPre() {
-            print("debut init pre");
-            stacked.reset();
-        }
+        id: item
 
         function initPost() {
+            stacked = createTemporaryObject(stackedcomp, item);
+            stacked.undoStack = th.getUndoStack(item);
             tested = createTemporaryObject(undocomp, item, {
+                "controler": stacked,
+                "undostack": stacked.undoStack
             });
             tested.forceActiveFocus();
             tested.cursorPosition = 2;
-            print("fin init post", tested._stack);
+        }
+
+        function test_stack() {
+            let st = th.getUndoStack(item);
+            st.pushText(stacked, "titre", "bla");
+            compare(stacked.titre, "bla");
+            st.undo();
+            compare(stacked.titre, "abcdef");
+            st.redo();
+            compare(stacked.titre, "bla");
+        }
+
+        function test_default_property() {
+            verify(tested.selectByMouse);
         }
 
         function test_init() {
+            tested.undoDelay = 0;
             compare(tested.text, "abcdef");
-            compare(stacked.text, "abcdef");
+            compare(stacked.titre, "abcdef");
             keyClick(Qt.Key_X);
             tryCompare(tested, "text", "abxcdef");
-            tryCompare(stacked, "text", "abxcdef");
-            compare(stacked._undotext, ['abcdef']);
+            compare(stacked.titre, "abxcdef");
         }
 
         function test_undo_redo_basic() {
-            tested.undoDelay = 1;
+            tested.undoDelay = 300;
             keyClick(Qt.Key_X);
             keyClick(Qt.Key_Y);
             keyClick(Qt.Key_Z);
             tryCompare(tested, "text", "abxyzcdef");
-            print(JSON.stringify(stacked._undotext));
             compare(tested.cursorPosition, 5);
+            //            tryCompare(stacked.undoStack,"canRedo",true)
             keySequence("ctrl+z");
             tryCompare(tested, "text", "abcdef");
             compare(tested.cursorPosition, 2);
@@ -96,7 +92,7 @@ Item {
             keyClick(Qt.Key_X);
             keyClick(Qt.Key_Y);
             keyClick(Qt.Key_Z);
-            compare(tested.cursorPosition, 5);
+            tryCompare(tested, "cursorPosition", 5);
             keySequence("ctrl+z");
             compare(tested.cursorPosition, 4);
             keySequence("ctrl+z");
@@ -169,6 +165,7 @@ Item {
         }
 
         function test_big_erase() {
+            tested.undoDelay = 0;
             tested.select(2, 5);
             keyClick(Qt.Key_Backspace);
             compare(tested.cursorPosition, 2);
@@ -178,58 +175,6 @@ Item {
             keySequence("ctrl+shift+z");
             compare(tested.selectionStart, 2);
             compare(tested.selectionEnd, 2);
-        }
-
-        function test_external_data() {
-            return [{
-                "tag": "paste_is_longer_than_selected",
-                "copyStart": 0,
-                "copyEnd": 6,
-                "redoPos": 8,
-                "selectStart": 2,
-                "selectEnd": 5,
-                "sequence": "ctrl+v"
-            }, {
-                "tag": "paste_is_shorter_than_selected",
-                "copyStart": 0,
-                "copyEnd": 2,
-                "redoPos": 4,
-                "selectStart": 2,
-                "selectEnd": 5,
-                "sequence": "ctrl+v"
-            }, {
-                "tag": "paste_no_select",
-                "copyStart": 0,
-                "copyEnd": 3,
-                "redoPos": 5,
-                "selectStart": 2,
-                "selectEnd": 2,
-                "sequence": "ctrl+v"
-            }, {
-                "tag": "cut",
-                "copyStart": 0,
-                "copyEnd": 0,
-                "redoPos": 2,
-                "selectStart": 2,
-                "selectEnd": 5,
-                "sequence": "ctrl+x"
-            }];
-        }
-
-        function test_external(data) {
-            tested.select(data.copyStart, data.copyEnd);
-            tested.copy();
-            tested.select(data.selectStart, data.selectEnd);
-            keySequence(data.sequence);
-            compare(tested.selectionStart, data.redoPos);
-            compare(tested.selectionEnd, data.redoPos);
-            compare(tested.length, 6 + data.copyEnd - data.copyStart - data.selectEnd + data.selectStart);
-            keySequence("ctrl+z");
-            compare(tested.selectionStart, data.selectStart);
-            compare(tested.selectionEnd, data.selectEnd);
-            keySequence("ctrl+shift+z");
-            compare(tested.selectionStart, data.redoPos);
-            compare(tested.selectionEnd, data.redoPos);
         }
 
         function test_undo_redo_invalidate_stack_after_modif_when_undo() {
@@ -251,24 +196,25 @@ Item {
             compare(tested.cursorPosition, 3);
         }
 
-        function test_undo_groups() {
-            tested.undoDelay = 1;
+        function test_undo_groups_space() {
+            tested.undoDelay = 100; // ne pas faire un interval trop court
             keyClick(Qt.Key_X);
             keyClick(Qt.Key_Y);
             keyClick(Qt.Key_Space);
             keyClick(Qt.Key_X);
-            tryCompare(stacked._undotext, "length", 3);
-            compare(tested._stack.length, 3);
-            compare(tested.text, "abxy xcdef");
+            tryCompare(tested, "text", "abxy xcdef");
             keySequence("ctrl+z");
             tryCompare(tested, "text", "abxy cdef");
-            compare(tested.cursorPosition, 5);
             keySequence("ctrl+z");
             tryCompare(tested, "text", "abxycdef");
-            compare(tested.cursorPosition, 4);
             keySequence("ctrl+z");
             tryCompare(tested, "text", "abcdef");
-            compare(tested.cursorPosition, 2);
+            keySequence("ctrl+shift+z");
+            tryCompare(tested, "text", "abxycdef");
+            keySequence("ctrl+shift+z");
+            tryCompare(tested, "text", "abxy cdef");
+            keySequence("ctrl+shift+z");
+            tryCompare(tested, "text", "abxy xcdef");
         }
 
         function test_focus_after_undo_redo() {
@@ -277,15 +223,18 @@ Item {
             keyClick(Qt.Key_X);
             let autre = createTemporaryQmlObject("import QtQuick 2.0\nRectangle {}", item);
             autre.forceActiveFocus();
-            tested.undo();
+            verify(!tested.activeFocus);
+            stacked.undoStack.undo();
             verify(tested.activeFocus);
-            tested.focus = false;
-            tested.redo();
+            autre.forceActiveFocus();
+            stacked.undoStack.redo();
             verify(tested.activeFocus);
         }
 
+        width: 200
+        height: 200
         name: "UndoTextArea"
-        testedNom: "qrc:/qml/divers/UndoTextArea.qml"
+        testedNom: "qrc:/qml/divers/UndoAbleTextArea.qml"
         autocreate: false
     }
 

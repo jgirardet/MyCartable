@@ -161,7 +161,7 @@
         <file alias="DynamicRepeater.qml">qml/divers/DynamicRepeater.qml</file>
         <file alias="IndexedDialog.qml">qml/divers/IndexedDialog.qml</file>
         <file alias="TimedSlider.qml">qml/divers/TimedSlider.qml</file>
-        <file alias="UndoTextArea.qml">qml/divers/UndoTextArea.qml</file>
+        <file alias="UndoAbleTextArea.qml">qml/divers/UndoAbleTextArea.qml</file>
     </qresource>
     
 
@@ -220,6 +220,7 @@
     <qresource prefix="/js">
         <file alias="lodash.js">data/js/lodash.js</file>
         <file alias="drawcanvas.mjs">data/js/drawcanvas.mjs</file>
+        <file alias="stringUtils.mjs">data/js/stringUtils.mjs</file>
     </qresource>
     <qresource prefix="/css">
         <file alias="textsection.css">data/css/textsection.css</file>

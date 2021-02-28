@@ -77,9 +77,10 @@ Item {
             keyClick(Qt.Key_Y);
             keyClick(Qt.Key_Z);
             tryCompare(tested, "text", "abxyzcdef");
+            tryCompare(tested, "txtfield", "abxyzcdef");
             compare(tested.cursorPosition, 5);
-            //            tryCompare(stacked.undoStack,"canRedo",true)
             keySequence("ctrl+z");
+            tryCompare(tested, "txtfield", "abcdef");
             tryCompare(tested, "text", "abcdef");
             compare(tested.cursorPosition, 2);
             keySequence("ctrl+shift+z");
@@ -203,6 +204,7 @@ Item {
             keyClick(Qt.Key_Space);
             keyClick(Qt.Key_X);
             tryCompare(tested, "text", "abxy xcdef");
+            tryCompare(tested, "txtfield", "abxy xcdef");
             keySequence("ctrl+z");
             tryCompare(tested, "text", "abxy cdef");
             keySequence("ctrl+z");

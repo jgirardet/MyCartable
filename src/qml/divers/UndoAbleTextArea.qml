@@ -30,8 +30,8 @@ void setText(): should be used instead of onTextChanged.
 TextArea {
     id: root
 
-    required property string txtfield
-    required property QtObject undostack
+    property string txtfield
+    property QtObject undostack
     property int undoDelay: 300
     property alias timer: timertext
     property bool _spacePending: false
@@ -66,18 +66,22 @@ TextArea {
     }
     onTextChanged: {
         if (text != txtfield) {
-            if (_spacePending)
+            if (_spacePending) {
                 timertext.triggered();
-            else
+                _spacePending = false;
+            } else {
                 timertext.restart();
+            }
         }
     }
     Keys.onPressed: {
-        if (event.matches(StandardKey.Undo))
+        if (event.matches(StandardKey.Undo)) {
             root.undostack.undo();
-        else if (event.matches(StandardKey.Redo))
+            event.accepted = true;
+        } else if (event.matches(StandardKey.Redo)) {
             root.undostack.redo();
-        if (event.text) {
+            event.accepted = true;
+        } else if (event.text) {
             if (event.text.trim() === '') {
                 // detect white space
                 timertext.triggerPending();

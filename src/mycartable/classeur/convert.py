@@ -1026,6 +1026,7 @@ class SectionGrabber(Grabber):
 def grab_section(section, initial_prop={}):
     grab = SectionGrabber(section, initial_prop)
     if img := grab():
+        img.save("/tmp/img.png")
         return img.to_odf(), ""
     else:
         return "", ""

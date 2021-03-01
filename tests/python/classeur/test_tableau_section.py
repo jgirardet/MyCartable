@@ -1,5 +1,5 @@
 import pytest
-from fixtures import compare_dict_list
+from tests.python.fixtures import compare_dict_list
 from mycartable.classeur import TableauSection, Page
 from pony.orm import db_session
 

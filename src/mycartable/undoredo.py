@@ -17,6 +17,7 @@ class UndoStack(QUndoStack):
 
     def __init__(self, *, parent):
         super().__init__(parent=parent)
+        self.setUndoLimit(50)
 
 
 class BaseCommand(QUndoCommand):

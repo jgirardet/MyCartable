@@ -224,6 +224,30 @@ def test_flood_fill(fk, resources, qtbot, tmp_path, pos, img_res, bridge):
     assert lhs == rhs
 
 
+@pytest.mark.parametrize(
+    "pos, img_res",
+    [
+        (QPointF(0.10, 0.10), "floodfill_blanc_en_bleu.png"),
+        (QPointF(0.80, 0.80), "floodfill_rouge_en_bleu.png"),
+    ],
+)
+def test_flood_fill_apres_creation_section(
+    fk, resources, qtbot, tmp_path, pos, img_res, bridge
+):
+    fp = tmp_path / "f1.png"
+    shutil.copy(resources / "floodfill.png", fp)
+    pg = fk.f_page()
+    # f = fk.f_imageSection(path=str(fp))
+    p = Page.get(pg.id, parent=bridge)
+    p.addSection(classtype="ImageSection", params={"path": str(fp)})
+    isec = p.get_section(0)
+    isec.floodFill(QColor("blue"), pos)
+    p.undoStack.undo()
+    p.undoStack.undo()
+    p.undoStack.redo()
+    p.undoStack.redo()
+
+
 def test_image_selection_curosr(fk, bridge, qtbot):
     qk = QQuickItem()
     isec = ImageSection.get(fk.f_imageSection().id, parent=bridge)

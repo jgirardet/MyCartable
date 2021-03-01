@@ -12,9 +12,8 @@ import typing
 
 from flatten_dict import flatten, unflatten
 from mycartable.types.setable import Setable
-from mycartable.undoredo import BaseCommand
 
-from .section import Section, SetSectionCommand
+from .section import Section, SetSectionCommand, UpdateSectionCommand
 from mycartable.types import DtbListModel
 from mycartable.utils import WDict, shift_list
 
@@ -111,7 +110,10 @@ class FriseModel(DtbListModel):
         data = WDict(self.ROLES[role], value)
         self.parent().undoStack.push(
             UpdateZoneFriseCommand(
-                model=self, index=index.row(), new_data=data, text="frise: modifier"
+                section=self.parent(),
+                index=index.row(),
+                new_data=data,
+                text="frise: modifier",
             )
         )
         return True
@@ -200,14 +202,14 @@ class FriseModel(DtbListModel):
     @pyqtSlot()
     def add(self):
         self.parent().undoStack.push(
-            AddZoneFriseCommand(model=self, text="frise: ajout zone")
+            AddZoneFriseCommand(section=self.parent(), text="frise: ajout zone")
         )
 
     @pyqtSlot(int, result=bool)
     def remove(self, row: int):
         self.parent().undoStack.push(
             RemoveZoneFriseCommand(
-                model=self, index=row, text="frise: suppression zone"
+                section=self.parent(), index=row, text="frise: suppression zone"
             )
         )
         return True
@@ -217,7 +219,10 @@ class FriseModel(DtbListModel):
         """pyqtSlot to move a single row from source to target"""
         self.parent().undoStack.push(
             MoveZoneFriseCommand(
-                model=self, source=source, target=target, text="frise: deplacer zone"
+                section=self.parent(),
+                source=source,
+                target=target,
+                text="frise: deplacer zone",
             )
         )
         return True
@@ -226,7 +231,7 @@ class FriseModel(DtbListModel):
     def addLegende(self, zoneIndex: int, values: dict):
         self.parent().undoStack.push(
             AddLegendFriseCommand(
-                model=self,
+                section=self.parent(),
                 values=values,
                 zone_index=zoneIndex,
                 text="frise: ajouter legende",
@@ -237,7 +242,7 @@ class FriseModel(DtbListModel):
     def removeLegende(self, zoneIndex: int, legendeIndex: int):
         self.parent().undoStack.push(
             RemoveLegendFriseCommand(
-                model=self,
+                section=self.parent(),
                 zone_index=zoneIndex,
                 legende_index=legendeIndex,
                 text="frise: supprimer legende",
@@ -248,7 +253,7 @@ class FriseModel(DtbListModel):
     def updateLegende(self, zoneIndex: int, legendeIndex: int, values: dict):
         self.parent().undoStack.push(
             UpdateLegendFriseCommand(
-                model=self,
+                section=self.parent(),
                 values=values,
                 zone_index=zoneIndex,
                 legende_index=legendeIndex,
@@ -257,160 +262,163 @@ class FriseModel(DtbListModel):
         )
 
 
-class UpdateZoneFriseCommand(BaseCommand):
-    def __init__(self, *, model: FriseModel, index: int, new_data: dict, **kwargs):
+class UpdateZoneFriseCommand(UpdateSectionCommand):
+    def __init__(self, *, index: int, new_data: dict, **kwargs):
         super().__init__(**kwargs)
         self._new_data = new_data
-        self._model = model
-        self._zone: dict = self._model.zones[index].copy()
+
+        self._zone: dict = kwargs["section"].model.zones[index].copy()
         self._index = index
 
     def undo(self):
+        model = self.get_section().model
         prev = flatten(self._zone)
         newcontent = flatten(self._new_data)
         to_update = unflatten({k: prev[k] for k in newcontent})
-        self._model.set_data(self._index, to_update)
+        model.set_data(self._index, to_update)
 
     def redo(self):
-        self._model.set_data(self._index, self._new_data)
+        model = self.get_section().model
+        model.set_data(self._index, self._new_data)
 
 
-class AddZoneFriseCommand(BaseCommand):
-    def __init__(self, *, model: FriseModel, **kwargs):
-        super().__init__(**kwargs)
-        self._model = model
-
+class AddZoneFriseCommand(UpdateSectionCommand):
     def redo(self):
-        self._model.append()
+        model = self.get_section().model
+        model.append()
 
     def undo(self):
-        self._model.removeRow(self._model.rowCount() - 1)
+        model = self.get_section().model
+        model.removeRow(model.rowCount() - 1)
 
 
-class RemoveZoneFriseCommand(BaseCommand):
-    def __init__(self, *, index: int, model: FriseModel, **kwargs):
+class RemoveZoneFriseCommand(UpdateSectionCommand):
+    def __init__(self, *, index: int, **kwargs):
         super().__init__(**kwargs)
-        self._model = model
         self._index = index
-        self.backup = self._model.backup_row(self._index)
+        self.backup = kwargs["section"].model.backup_row(self._index)
 
     def redo(self):
-        self._model.removeRow(self._index)
+        model = self.get_section().model
+        model.removeRow(self._index)
 
     def undo(self):
-        self._model.restore_row(**self.backup)
+        model = self.get_section().model
+        model.restore_row(**self.backup)
 
 
-class MoveZoneFriseCommand(BaseCommand):
-    def __init__(self, *, source: int, target: int, model: FriseModel, **kwargs):
+class MoveZoneFriseCommand(UpdateSectionCommand):
+    def __init__(self, *, source: int, target: int, **kwargs):
         super().__init__(**kwargs)
-        self._model = model
+
         self._source = source
         self._target = target
-        self._id = self._model.zones[source]["id"]
+        self._id = kwargs["section"].model.zones[source]["id"]
 
     def redo(self):
+        model = self.get_section().model
 
-        self._model.moveRow(self._source, self._target)
-        for n, z in enumerate(self._model.zones):
+        model.moveRow(self._source, self._target)
+        for n, z in enumerate(model.zones):
             if z["id"] == self._id:
                 self._new_pos = n
                 return
 
     def undo(self):
-        self._model.moveRow(self._new_pos, self._source)
+        model = self.get_section().model
+        model.moveRow(self._new_pos, self._source)
 
 
-class RemoveLegendFriseCommand(BaseCommand):
-    def __init__(
-        self, *, zone_index: int, legende_index: int, model: FriseModel, **kwargs
-    ):
+class RemoveLegendFriseCommand(UpdateSectionCommand):
+    def __init__(self, *, zone_index: int, legende_index: int, **kwargs):
         super().__init__(**kwargs)
-        self._model = model
+
         self._zone_index = zone_index
         self._legende_index = legende_index
 
     def redo(self):
-        self._legende = self._model.zones[self._zone_index]["legendes"].pop(
+        model = self.get_section().model
+        self._legende = model.zones[self._zone_index]["legendes"].pop(
             self._legende_index
         )
-        self._model._dtb.delDB("FriseLegende", self._legende["id"])
-        self._model.legendeRemoved.emit(self._zone_index, self._legende_index)
+        model._dtb.delDB("FriseLegende", self._legende["id"])
+        model.legendeRemoved.emit(self._zone_index, self._legende_index)
 
     def undo(self):
-        res = self._model._dtb.addDB("FriseLegende", self._legende)
-        self._model.zones[self._zone_index]["legendes"].insert(self._legende_index, res)
-        self._model.legendeAdded.emit(self._zone_index, self._legende_index, res)
+        model = self.get_section().model
+        res = model._dtb.addDB("FriseLegende", self._legende)
+        model.zones[self._zone_index]["legendes"].insert(self._legende_index, res)
+        model.legendeAdded.emit(self._zone_index, self._legende_index, res)
 
 
-class RemoveLegendFriseCommand(BaseCommand):
-    def __init__(
-        self, *, zone_index: int, legende_index: int, model: FriseModel, **kwargs
-    ):
+class RemoveLegendFriseCommand(UpdateSectionCommand):
+    def __init__(self, *, zone_index: int, legende_index: int, **kwargs):
         super().__init__(**kwargs)
-        self._model = model
+
         self._zone_index = zone_index
         self._legende_index = legende_index
 
     def redo(self):
-        self._legende = self._model.zones[self._zone_index]["legendes"].pop(
+        model = self.get_section().model
+        self._legende = model.zones[self._zone_index]["legendes"].pop(
             self._legende_index
         )
-        self._model._dtb.delDB("FriseLegende", self._legende["id"])
-        self._model.legendeRemoved.emit(self._zone_index, self._legende_index)
+        model._dtb.delDB("FriseLegende", self._legende["id"])
+        model.legendeRemoved.emit(self._zone_index, self._legende_index)
 
     def undo(self):
-        res = self._model._dtb.addDB("FriseLegende", self._legende)
-        self._model.zones[self._zone_index]["legendes"].insert(self._legende_index, res)
-        self._model.legendeAdded.emit(self._zone_index, self._legende_index, res)
+        model = self.get_section().model
+        res = model._dtb.addDB("FriseLegende", self._legende)
+        model.zones[self._zone_index]["legendes"].insert(self._legende_index, res)
+        model.legendeAdded.emit(self._zone_index, self._legende_index, res)
 
 
-class AddLegendFriseCommand(BaseCommand):
-    def __init__(self, *, zone_index: int, values: dict, model: FriseModel, **kwargs):
+class AddLegendFriseCommand(UpdateSectionCommand):
+    def __init__(self, *, zone_index: int, values: dict, **kwargs):
         super().__init__(**kwargs)
-        self._model = model
+
         self._values = values
         self._zone_index = zone_index
-        self._legende_index = len(self._model.zones[self._zone_index]["legendes"])
+        self._legende_index = len(
+            kwargs["section"].model.zones[self._zone_index]["legendes"]
+        )
 
     def redo(self):
-        res = self._model._dtb.addDB("FriseLegende", self._values)
-        self._model.zones[self._zone_index]["legendes"].append(res)
-        self._model.legendeAdded.emit(self._zone_index, self._legende_index, res)
+        model = self.get_section().model
+        res = model._dtb.addDB("FriseLegende", self._values)
+        model.zones[self._zone_index]["legendes"].append(res)
+        model.legendeAdded.emit(self._zone_index, self._legende_index, res)
 
     def undo(self):
-        self._legende = self._model.zones[self._zone_index]["legendes"].pop(
+        model = self.get_section().model
+        self._legende = model.zones[self._zone_index]["legendes"].pop(
             self._legende_index
         )
-        self._model._dtb.delDB("FriseLegende", self._legende["id"])
-        self._model.legendeRemoved.emit(self._zone_index, self._legende_index)
+        model._dtb.delDB("FriseLegende", self._legende["id"])
+        model.legendeRemoved.emit(self._zone_index, self._legende_index)
 
 
-class UpdateLegendFriseCommand(BaseCommand):
-    def __init__(
-        self,
-        *,
-        zone_index: int,
-        legende_index: int,
-        values: dict,
-        model: FriseModel,
-        **kwargs
-    ):
+class UpdateLegendFriseCommand(UpdateSectionCommand):
+    def __init__(self, *, zone_index: int, legende_index: int, values: dict, **kwargs):
         super().__init__(**kwargs)
-        self._model = model
+
         self._values = values
         self._zone_index = zone_index
         self._legende_index = legende_index
-        self.backup = self._model.zones[self._zone_index]["legendes"][
-            self._legende_index
-        ].copy()
+        self.backup = (
+            kwargs["section"]
+            .model.zones[self._zone_index]["legendes"][self._legende_index]
+            .copy()
+        )
 
     def redo(self):
-        res = self._model._dtb.setDB("FriseLegende", self.backup["id"], self._values)
-        self._model.zones[self._zone_index]["legendes"][self._legende_index] = res
-        self._model.legendeUpdated.emit(self._zone_index, self._legende_index, res)
+        model = self.get_section().model
+        res = model._dtb.setDB("FriseLegende", self.backup["id"], self._values)
+        model.zones[self._zone_index]["legendes"][self._legende_index] = res
+        model.legendeUpdated.emit(self._zone_index, self._legende_index, res)
 
     def undo(self):
-        res = self._model._dtb.setDB("FriseLegende", self.backup["id"], self.backup)
-        self._model.zones[self._zone_index]["legendes"][self._legende_index] = res
-        self._model.legendeUpdated.emit(self._zone_index, self._legende_index, res)
+        model = self.get_section().model
+        res = model._dtb.setDB("FriseLegende", self.backup["id"], self.backup)
+        model.zones[self._zone_index]["legendes"][self._legende_index] = res
+        model.legendeUpdated.emit(self._zone_index, self._legende_index, res)

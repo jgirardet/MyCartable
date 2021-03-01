@@ -407,3 +407,15 @@ def test_update_legende(fm, fk, qtbot):
         b.undoStack.redo()
     with db_session:
         assert fk.db.FriseLegende[leg["id"]].texte == "bloum"
+
+
+def test_undo_redo_apres_efface_section(fk, bridge):
+    p = fk.f_page()
+    qp = Page.get(p.id, parent=bridge)
+    qp.addSection(classtype="FriseSection", params={"height": 300})
+    assert qp.undoStack.canUndo()
+    qp.get_section(0).model.add()
+    qp.undoStack.undo()
+    qp.undoStack.undo()
+    qp.undoStack.redo()
+    qp.undoStack.redo()

@@ -263,14 +263,23 @@ class UpdateImageSectionCommand(UpdateSectionCommand):
         super().__init__(section=section, **kwargs)
         self.image_bytes = section.absolute_path.read_bytes()
         self.apply = partial(callable, *call_args, **call_kwargs)
+        self.work_done = None
 
     def redo(self):
         section = self.get_section()
-        self.apply()
+        if not self.work_done:
+            self.apply()
+            self.work_done = section.absolute_path.read_bytes()
+        else:
+            self._update_via_bytes(section, self.work_done)
+
         section.commandDone.emit()
 
     def undo(self):
         section = self.get_section()
-        im = Image.open(BytesIO(self.image_bytes))
-        im.save(section.absolute_path)
+        self._update_via_bytes(section, self.image_bytes)
         section.commandDone.emit()
+
+    def _update_via_bytes(self, section, byte_image):
+        im = Image.open(BytesIO(byte_image))
+        im.save(section.absolute_path)

@@ -129,7 +129,7 @@ class UpdateCellTableauSectionCommand(UpdateSectionCommand):
         emit=False,
         **kwargs,
     ):
-        super().__init__(section=section, **kwargs)
+        super().__init__(section=section, text="tableau: modifier cellule", **kwargs)
         self.y = y
         self.x = x
         self.content = content

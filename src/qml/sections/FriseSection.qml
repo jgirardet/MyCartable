@@ -1,12 +1,13 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Shapes 1.15
+import "qrc:/qml/divers"
 import "qrc:/qml/frise"
 
 Rectangle {
     id: root
 
-    property alias corps: corps
+    property alias corps: corps_id
     property alias titre: titre
     required property var sectionItem
     required property QtObject section
@@ -16,52 +17,27 @@ Rectangle {
     height: section ? section.height : 0
     color: "white"
 
-    TextEdit {
+    UndoAbleTextArea {
         id: titre
 
-        property var undoStack: []
-        property var redoStack: []
-
         function setText() {
-            if (text != section.titre)
-                root.section.set({
+            root.section.set({
                 "titre": titre.text
             }, "modifier titre frise");
-
-            redoStack.push(cursorPosition);
         }
 
-        text: section.titre
-        Component.onCompleted: {
-            onTextChanged.connect(setText);
-        }
+        txtfield: section.titre
+        undostack: section.undoStack
         font.pointSize: 16
         anchors.horizontalCenter: parent.horizontalCenter
-        Keys.onPressed: {
-            print(JSON.stringify(undoStack));
-            print(JSON.stringify(redoStack));
-            if ([Qt.Key_Control, Qt.Key_Shift].includes(event.key)) {
-                //on ignore controle seul
-                return ;
-            } else if ((event.key == Qt.Key_Z) && (event.modifiers & Qt.ControlModifier)) {
-                if (event.modifiers & Qt.ShiftModifier) {
-                    undoStack.push(cursorPosition);
-                    section.undoStack.redo();
-                    cursorPosition = redoStack.pop();
-                } else {
-                    section.undoStack.undo();
-                    cursorPosition = undoStack.pop();
-                }
-                event.accepted = true;
-            }
-        }
     }
 
     CorpsFrise {
-        id: corps
+        id: corps_id
 
         model: root.model
         height: 100
+        section: root.section
 
         anchors {
             left: root.left
@@ -78,10 +54,10 @@ Rectangle {
         id: fleche
 
         z: 0
-        anchors.left: corps.right
-        anchors.top: corps.top
+        anchors.left: corps_id.right
+        anchors.top: corps_id.top
         anchors.topMargin: -10
-        height: corps.height + 20
+        height: corps_id.height + 20
         width: 30
 
         ShapePath {

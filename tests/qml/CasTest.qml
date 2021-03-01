@@ -97,6 +97,21 @@ TestCase {
         clickAndWrite(_obj, "ctrl+shift+z");
     }
 
+    function check_undoAbleTextArea(textarea, entity, secid, prop) {
+        textarea.undoDelay = 10;
+        let baseText = textarea.text;
+        clickAndWrite(textarea);
+        tryCompare(textarea, "text", "bcd");
+        tryCompare(textarea, "txtfield", "bcd");
+        compare(fk.getItem(entity, secid)[prop], "bcd");
+        clickAndUndo(textarea);
+        compare(textarea.text, baseText);
+        compare(fk.getItem(entity, secid)[prop], baseText);
+        clickAndRedo(textarea);
+        compare(textarea.text, "bcd");
+        compare(fk.getItem(entity, secid)[prop], "bcd");
+    }
+
     when: windowShown
 
     Component {

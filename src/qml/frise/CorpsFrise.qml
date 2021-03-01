@@ -6,6 +6,7 @@ ListView {
     id: root
 
     property int bottomBorderWidth: 5
+    property QtObject section
 
     orientation: ListView.Horizontal
 
@@ -15,7 +16,7 @@ ListView {
         anchors.fill: parent
         onClicked: {
             if (mouse.button == Qt.LeftButton)
-                root.model.append();
+                root.model.add();
 
         }
         z: -1
@@ -44,7 +45,9 @@ ListView {
         property alias zone: zonefrise
         property alias separator: separator
 
-        width: ratio * root.width // + separator.width
+        //        width: ratio * root.width // + separator.width
+        width: separator.localRatio * root.width
+        // + separator.width
         height: root.height
         onEntered: {
             let dragindex = drag.source.modelIndex;
@@ -57,6 +60,14 @@ ListView {
         Row {
             anchors.fill: parent
 
+            Connections {
+                function onRatioChanged(idx, val) {
+                    separator.localRatio = ratio;
+                }
+
+                target: root.section.model
+            }
+
             ZoneFrise {
                 id: zonefrise
 
@@ -65,6 +76,7 @@ ListView {
                 modelIndex: index
                 dragParent: root
                 sizeParent: droparea
+                section: root.section
             }
 
             Separator {

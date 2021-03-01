@@ -513,7 +513,7 @@ def class_section(
                 ZoneFrise.restore(**z)
             return new_f
 
-    class ZoneFrise(db.Entity, PositionMixin):
+    class ZoneFrise(db.Entity, PositionMixin, BackupAble):
         """
         ZoneFrise
         """
@@ -527,8 +527,7 @@ def class_section(
         style = Optional(
             db.Style, default=db.Style, cascade_delete=True, column="style"
         )
-        # on utilise style.strikeout pour la position du separator True = "up", False = ""
-        separatorText = Optional(str)
+        separatorText = Optional(str)  # non utilisé finalement
         legendes = Set("FriseLegende")
 
         def __init__(self, position=None, frise=None, **kwargs):

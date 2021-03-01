@@ -8,18 +8,14 @@ Rectangle {
     id: root
 
     property int modelIndex
+    property QtObject section
     property Item dragParent
     property Item sizeParent
     property alias texte: texte
     property alias bgColor: root.color
     property alias legendeItems: legendeItems
 
-    color: colordialog.color
-    Component.onCompleted: {
-        onColorChanged.connect(function() {
-            backgroundColor = color;
-        });
-    }
+    color: backgroundColor
     border.color: "yellow"
     border.width: 0
     Drag.active: dragHandler.active
@@ -51,30 +47,34 @@ Rectangle {
         id: colordialog
 
         objectName: "colordialog"
-        color: backgroundColor
+        onColorChanged: {
+            if (backgroundColor != color)
+                backgroundColor = color;
+
+        }
+        Component.onCompleted: color = backgroundColor
     }
 
-    TextArea {
+    UndoAbleTextArea {
         id: texte
 
+        function setText() {
+            edit = text;
+        }
+
+        txtfield: display
+        undostack: root.section.undoStack
         anchors.centerIn: parent
         horizontalAlignment: TextEdit.AlignHCenter
         verticalAlignment: TextEdit.AlignVCenter
         width: parent.width * 0.8
         height: Math.min(contentHeight + 15, parent.height - 5)
         font.pointSize: Math.max(dragParent.width / 100, 10)
-        text: display
         wrapMode: Text.Wrap
-        selectByMouse: true
-        Component.onCompleted: {
-            onTextChanged.connect(function() {
-                model.edit = text;
-            });
-        }
 
         background: Rectangle {
             anchors.fill: parent
-            color: Qt.lighter(colordialog.color)
+            color: Qt.lighter(backgroundColor)
         }
 
     }
@@ -124,13 +124,12 @@ Rectangle {
             anchors.fill: parent
             cursorShape: Qt.BlankCursor
             onClicked: {
-                let newL = database.addDB("FriseLegende", {
+                root.section.model.addLegende(root.modelIndex, {
                     "relativeX": mouse.x / width,
                     "texte": "",
                     "zone": zoneId,
                     "side": false
                 });
-                legendeItems.append(newL);
             }
         }
 
@@ -149,23 +148,43 @@ Rectangle {
     DynamicRepeater {
         id: legendeItems
 
+        function legendeAdded(zIdx, lIdx, content) {
+            if (zIdx == root.modelIndex)
+                legendeItems.insert(lIdx, content);
+
+        }
+
+        function legendeRemoved(zIdx, lIdx) {
+            if (zIdx == root.modelIndex)
+                legendeItems.remove(lIdx);
+
+        }
+
+        function legendeUpdated(zIdx, lIdx, content) {
+            if (zIdx == root.modelIndex) {
+                legendeItems.setProperty(lIdx, "texte", content["texte"]);
+                legendeItems.setProperty(lIdx, "relativeX", content["relativeX"]);
+                legendeItems.setProperty(lIdx, "side", content["side"]);
+            }
+        }
+
         onItemAdded: item.legende.forceActiveFocus()
-        onItemRemoved: {
-            database.delDB("FriseLegende", item.legendeId);
-        }
-        onItemSet: {
-            database.setDB("FriseLegende", item.legendeId, dict);
-        }
         modelObject: legendes
+        Component.onCompleted: {
+            root.section.model.legendeAdded.connect(legendeAdded);
+            root.section.model.legendeRemoved.connect(legendeRemoved);
+            root.section.model.legendeUpdated.connect(legendeUpdated);
+        }
 
         delegate: Legende {
             id: legende
 
             handler: legendeItems
             legendeId: id
-            legende.text: texte
             state: side ? "up" : ""
             x: parent.width * relativeX
+            section: root.section
+            zoneIndex: root.modelIndex
         }
 
     }

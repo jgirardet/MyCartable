@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+import "qrc:/qml/divers"
 
 Item {
     id: root
@@ -9,18 +10,10 @@ Item {
     property alias legende: legende
     property var realParent
     property Item handler
+    property QtObject section
+    property int zoneIndex
 
     anchors.top: parent.bottom
-    Component.onCompleted: {
-        onStateChanged.connect(() => {
-            return handler.setProperty(index, "side", Boolean(state));
-        });
-        onXChanged.connect(() => {
-            return handler.set(index, {
-                "relativeX": x / parent.width
-            });
-        });
-    }
     states: [
         State {
             name: "up"
@@ -45,14 +38,17 @@ Item {
         }
     ]
 
-    TextArea {
+    UndoAbleTextArea {
         id: legende
 
-        Component.onCompleted: {
-            onTextChanged.connect(() => {
-                return handler.setProperty(index, "texte", text);
+        function setText() {
+            section.model.updateLegende(root.zoneIndex, index, {
+                "texte": text
             });
         }
+
+        txtfield: texte
+        undostack: section.undoStack
         anchors.horizontalCenter: languette.horizontalCenter
         anchors.top: languette.bottom
         height: Math.max(contentHeight + 15, 15)
@@ -70,15 +66,19 @@ Item {
 
                 //prevent moving legend when scrolling
                 if (wheel.angleDelta.y > 0)
-                    root.state = "up";
+                    section.model.updateLegende(root.zoneIndex, index, {
+                    "side": true
+                });
                 else
-                    root.state = "";
+                    section.model.updateLegende(root.zoneIndex, index, {
+                    "side": false
+                });
                 wheel.accepted = true;
             }
             cursorShape: Qt.IBeamCursor
             onPressed: {
                 if (mouse.button & Qt.MiddleButton)
-                    handler.remove(index);
+                    section.model.removeLegende(root.zoneIndex, index);
 
             }
         }
@@ -106,6 +106,11 @@ Item {
             drag.minimumX: 5
             drag.maximumX: root.parent.width
             drag.threshold: 0
+            onReleased: {
+                section.model.updateLegende(root.zoneIndex, index, {
+                    "relativeX": root.x / root.parent.width
+                });
+            }
         }
 
     }

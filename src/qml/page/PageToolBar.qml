@@ -1,11 +1,11 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
+import "qrc:/qml/actions" as Actions
 import "qrc:/qml/buttons" as Buttons
 import "qrc:/qml/layouts"
 
 ToolBar {
-
     id: root
 
     property QtObject page
@@ -19,7 +19,6 @@ ToolBar {
         spacing: 0
 
         ToolBar {
-
             id: toolbar
 
             RowLayout {
@@ -69,6 +68,14 @@ ToolBar {
                 }
 
                 Buttons.ExportPdf {
+                    page: root.page
+                }
+
+                Buttons.UndoButton {
+                    page: root.page
+                }
+
+                Buttons.RedoButton {
                     page: root.page
                 }
 

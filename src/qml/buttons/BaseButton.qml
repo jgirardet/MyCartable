@@ -26,7 +26,7 @@ ToolButton {
     }
 
     PageActions.ActionToolTip {
-        visible: hovered
+        visible: hovered && (text + shortcut != "")
         text: action.tooltip
         shortcut: action.shortcut ?? ""
     }

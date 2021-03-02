@@ -9,18 +9,18 @@ Item {
     height: 600
 
     CasTest {
-        // onPaint called
-
         property var model
         property var canvas
         property var imgsection
         property var imgInstance
+        property var page
 
         function initPre() {
             imgsection = fk.f("imageSection", {
                 "path": "tst_AnnotableImage.png"
             });
-            imgInstance = th.getBridgeInstance(item, "ImageSection", imgsection.id);
+            page = th.getBridgeInstance(item, "Page", imgsection.page);
+            imgInstance = page.getSection(0);
             params = {
                 "sectionItem": item,
                 "section": imgInstance
@@ -30,6 +30,7 @@ Item {
         function initPost() {
             tryCompare(tested, "progress", 1); // permet le temps de chargement async de l'image
             canvas = findChild(tested, "canvasFactory");
+            model = tested.model;
         }
 
         function test_init() {
@@ -110,7 +111,6 @@ Item {
                 "width": item.width,
                 "height": item.height
             });
-            //            wait(2000);
             compare(rep.count, 1);
         }
 
@@ -163,18 +163,6 @@ Item {
             compare(imgInstance.annotationDessinCurrentTool, "trait");
         }
 
-        function test_annotation_text_removed_if_empty() {
-            imgInstance.annotationCurrentTool = "text";
-            mouseClick(tested);
-            compare(tested.annotations.count, 1);
-            let timer = findChild(tested.annotations.itemAt(0), "timerRemove");
-            compare(timer.running, true);
-            timer.stop();
-            timer.interval = 0;
-            timer.start();
-            tryCompare(tested.annotations, "count", 0);
-        }
-
         function test_baseannotation_removed_if_middle_click() {
             imgInstance.annotationCurrentTool = "text";
             mouseClick(tested);
@@ -184,52 +172,112 @@ Item {
         }
 
         function test_floodfill() {
-          // non testé trop compliqué et change l'image de base
         }
 
         function test_cursor_move() {
             // pour tester les changement de curseur on utiliser le cacheKey
             // qui reste constant pour 2 images identiques.
             let cache_before = th.python("obj.cursor().pixmap().cacheKey()", Window.window);
-
             imgInstance.annotationCurrentTool = "floodfill";
             mouseMove(tested, 1, 1);
             let cache_flood = th.python("obj.cursor().pixmap().cacheKey()", Window.window);
-
             imgInstance.annotationCurrentTool = "rect";
             mouseMove(tested, 1, 1);
             let cache_rect = th.python("obj.cursor().pixmap().cacheKey()", Window.window);
-
-
             imgInstance.annotationCurrentTool = "floodfill";
             mouseMove(tested, 1, 1);
             let cache_flood2 = th.python("obj.cursor().pixmap().cacheKey()", Window.window);
-
-            compare(cache_before, 0)
-            verify(cache_flood != cache_before)
-            verify(cache_flood != cache_before)
-            verify(cache_flood == cache_flood2)
+            compare(cache_before, 0);
+            verify(cache_flood != cache_before);
+            verify(cache_flood != cache_before);
+            verify(cache_flood == cache_flood2);
         }
 
         function test_cursor_toolchanged() {
             let cache_before = th.python("obj.cursor().pixmap().cacheKey()", tested.mousearea);
-            print(cache_before)
-             tested.setStyleFromMenu({
+            tested.setStyleFromMenu({
                 "style": {
                     "tool": "trait"
                 }
             });
             let cache_trait = th.python("obj.cursor().pixmap().cacheKey()", tested.mousearea);
-            print(cache_trait)
             tested.setStyleFromMenu({
                 "style": {
                     "tool": "rect"
                 }
             });
             let cache_rect = th.python("obj.cursor().pixmap().cacheKey()", tested.mousearea);
-            print(cache_rect)
-            verify(cache_trait != cache_before)
-            verify(cache_trait != cache_rect)
+            verify(cache_trait != cache_before);
+            verify(cache_trait != cache_rect);
+        }
+
+        function test_undo_redo_annotation_dessin() {
+            //            mousePress(tested);
+            tested.model.addAnnotation("AnnotationDessin", {
+                "x": 0.6,
+                "y": 0.6,
+                "strokeStyle": "#00ff00",
+                "fillStyle": "#123456",
+                "lineWidth": 10,
+                "opacity": 10,
+                "width": 0.2,
+                "height": 0.3,
+                "startX": 0.1,
+                "startY": 0.2,
+                "endX": 0.8,
+                "endY": 0.9,
+                "tool": "ellipse"
+            });
+            compare(model.rowCount(), 1);
+            let eli = tested.annotations.itemAt(0);
+            eli.setStyleFromMenu({
+                "style": {
+                    "bgColor": Qt.rgba(0, 0, 1, 1)
+                }
+            });
+            model.remove(0);
+            compare(model.rowCount(), 0);
+            tested.section.undoStack.undo(); // annule remove
+            compare(model.rowCount(), 1);
+            tested.section.undoStack.undo(); // annule style
+            eli = tested.annotations.itemAt(0);
+            fuzzyCompare(eli.item.fillStyle, "#123456", 0);
+            tested.section.undoStack.undo(); // annule ajoute section
+            compare(model.rowCount(), 0);
+            tested.section.undoStack.redo(); // refait ajout
+            tested.section.undoStack.redo(); // refait style
+            compare(model.rowCount(), 1);
+            eli = tested.annotations.itemAt(0);
+            fuzzyCompare(eli.item.fillStyle, "blue", 0);
+            tested.section.undoStack.redo(); // refait remove
+            compare(model.rowCount(), 0);
+        }
+
+        function test_leftclick_quand_menu_ouvert_ferme_et_ne_fait_rien() {
+            mouseClick(tested, 1, 1, Qt.RightButton);
+            mouseClick(tested, 300, 300);
+            verify(!imgInstance.undoStack.canUndo); // pas d'action enregistrée
+        }
+
+        function test_undo_redo() {
+            let stack = imgInstance.undoStack;
+            mouseClick(tested, 1, 1, Qt.RightButton);
+            verify(!stack.canUndo);
+            mouseClick(tested.menu.rotateLeft);
+            verify(stack.canUndo);
+            verify(!stack.canRedo);
+            verify(stack.canUndo);
+            verify(!stack.canRedo);
+            stack.undo();
+            verify(!tested.section.undoStack.canUndo);
+            verify(stack.canRedo);
+            verify(!stack.canUndo);
+            verify(stack.canRedo);
+            stack.redo();
+            verify(tested.section.undoStack.canUndo);
+            verify(!stack.canRedo);
+            verify(stack.canUndo);
+            verify(!stack.canRedo);
         }
 
         name: "ImageSection"

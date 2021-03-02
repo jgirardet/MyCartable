@@ -15,7 +15,7 @@ from pony.orm import (
 
 from mycartable.classeur.sections.operations.api import create_operation
 from mycartable.exceptions import MyCartableOperationError
-from .mixins import ColorMixin, PositionMixin
+from .mixins import ColorMixin, PositionMixin, BackupAble
 
 
 def class_section(
@@ -40,7 +40,7 @@ def class_section(
     "ZoneFrise",
     "FriseLegende",
 ]:
-    class Section(db.Entity, PositionMixin):
+    class Section(db.Entity, PositionMixin, BackupAble):
         referent_attribute_name = "page"
 
         id = PrimaryKey(UUID, auto=True, default=uuid4)
@@ -73,6 +73,26 @@ def class_section(
                 }
             )
             return dico
+
+        # def backup(self) -> dict:
+        #     """
+        #     Backup les data afin de pouvoir  restaurer le state de l'entity
+        #     :return: dict
+        #     """
+        #     return self.to_dict()
+
+        @classmethod
+        def restore(cls, **data):
+            """
+            Restore le state d'une entity supprimée
+            :param data:
+            :return: None
+            """
+            annotations = data.pop("annotations", [])
+            new_sec = super().restore(**data)
+            for an in annotations:
+                Annotation(**an)
+            return new_sec
 
         def before_insert(self):
             self.modified = self.created
@@ -137,21 +157,25 @@ def class_section(
         size = Required(int)
         virgule = Required(int)
 
-        def __init__(self, string, **kwargs):
-            try:
-                rows, columns, virgule, datas = create_operation(string)
-            except TypeError:
-                raise MyCartableOperationError(f"{string} est une entrée invalide")
-
-            size = len(datas)
-            super().__init__(
-                rows=rows,
-                columns=columns,
-                _datas=json.dumps(datas),
-                size=size,
-                virgule=virgule,
-                **kwargs,
-            )
+        def __init__(self, string="", **kwargs):
+            if string:
+                try:
+                    rows, columns, virgule, datas = create_operation(string)
+                except TypeError:
+                    raise MyCartableOperationError(f"{string} est une entrée invalide")
+                size = len(datas)
+                super().__init__(
+                    rows=rows,
+                    columns=columns,
+                    _datas=json.dumps(datas),
+                    size=size,
+                    virgule=virgule,
+                    **kwargs,
+                )
+            else:
+                _datas = kwargs.pop("datas")
+                kwargs["_datas"] = json.dumps(_datas)
+                super().__init__(**kwargs)
 
     class AdditionSection(OperationSection):
         pass
@@ -167,16 +191,17 @@ def class_section(
         diviseur = Optional(str)
         quotient = Optional(str, default="")
 
-        def __init__(self, string, **kwargs):
-            super().__init__(string, **kwargs)
-            datas = self.datas
-            # pas optimal mais permet de conserver une cohérance avec les autres.
-            # il faudrait shunter le dump pour ne pas recréer les Decimal
-            # self.dividende = Decimal(datas["dividende"])
-            self.dividende = datas["dividende"]
-            self.diviseur = datas["diviseur"]
-            self._datas = json.dumps(datas["datas"])
-            self.size = self.columns * self.rows
+        def __init__(self, string="", **kwargs):
+            super().__init__(string=string, **kwargs)
+            if string:
+                datas = self.datas
+                # pas optimal mais permet de conserver une cohérance avec les autres.
+                # il faudrait shunter le dump pour ne pas recréer les Decimal
+                # self.dividende = Decimal(datas["dividende"])
+                self.dividende = datas["dividende"]
+                self.diviseur = datas["diviseur"]
+                self._datas = json.dumps(datas["datas"])
+                self.size = self.columns * self.rows
 
     class EquationSection(Section):
 
@@ -186,13 +211,17 @@ def class_section(
         content = Optional(str, default=DEFAULT_CONTENT, autostrip=False)
         curseur = Required(int, default=DEFAULT_CURSEUR)
 
-    class Annotation(db.Entity):
+    class Annotation(db.Entity, BackupAble):
         id = PrimaryKey(UUID, auto=True, default=uuid4)
         x = Required(float)
         y = Required(float)
         section = Required(Section)
-        # style = Optional("Style", default=lam, cascade_delete=True)
         style = Optional(db.Style, default=db.Style, cascade_delete=True)
+
+        def __new__(cls, *args, **kwargs):
+            if classtype := kwargs.pop("classtype", None):
+                cls = getattr(db, classtype)
+            return super().__new__(cls)
 
         def __init__(self, **kwargs):
             if "style" in kwargs and isinstance(kwargs["style"], dict):
@@ -253,16 +282,18 @@ def class_section(
         MODEL_COLOR_LINE0 = QColor("blue").lighter()
         MODEL_COLOR_COLONNE0 = QColor("grey").lighter()
 
-        def __init__(self, *args, modele="", **kwargs):
+        def __init__(self, *args, modele="", create_cells=True, **kwargs):
+            self._create_cells = create_cells
             self.modele = modele
             super().__init__(*args, **kwargs)
 
         def after_insert(self):
-            for r in range(self.lignes):
-                for c in range(self.colonnes):
-                    TableauCell(tableau=self, y=r, x=c)
+            if self._create_cells:
+                for r in range(self.lignes):
+                    for c in range(self.colonnes):
+                        TableauCell(tableau=self, y=r, x=c)
 
-            self.apply_model()
+                self.apply_model()
 
         def apply_model(self):
             if self.modele == "ligne0":
@@ -279,6 +310,37 @@ def class_section(
                 for cel in self.get_cells_par_ligne(0):
                     cel.style.bgColor = self.MODEL_COLOR_LINE0
 
+        """
+        backup restore methods
+        """
+
+        def backup(self):
+            dico = self.to_dict()
+            dico["cells"] = self.get_cells()
+            return dico
+
+        @classmethod
+        def restore(cls, **kwargs):
+            cells = kwargs.pop("cells")
+            new_t = cls(create_cells=False, **kwargs)
+            for c in cells:
+                TableauCell(**c)
+            return new_t
+
+        def restore_column(self, col, cells: list):
+            """col est indicatif, x et y doivent être contenues dans cells"""
+            self._insert_one_column(col)
+            self._restore_cells(cells)
+
+        def restore_line(self, col, cells: list):
+            """col est indicatif, x et y doivent être contenues dans cells"""
+            self._insert_one_line(col)
+            self._restore_cells(cells)
+
+        """
+        Query cells method
+        """
+
         def _get_cells(self):
             return self.cells.select().sort_by(TableauCell.y, TableauCell.x)
 
@@ -290,7 +352,91 @@ def class_section(
                 row + 1, self.colonnes
             )  # page commence a 1 chez pony
 
-        def insert_one_line(self, line) -> bool:
+        """"
+        modify tableau line/column
+        """
+
+        def append_one_line(self) -> bool:
+            return self.insert_one_line(self.lignes)
+
+        def append_one_column(self) -> bool:
+            return self.insert_one_column(self.colonnes)
+
+        def insert_one_column(self, col: int) -> bool:
+            self._insert_one_column(col)
+            self._fill_new_column(col)
+            return True
+
+        def insert_one_line(self, line: int) -> bool:
+            self._insert_one_line(line)
+            self._fill_new_row(line)
+            return True
+
+        def remove_one_column(self, col) -> bool:
+            self.colonnes = self.colonnes - 1
+
+            if col < self.colonnes:
+                for c in range(col, self.colonnes):
+                    for l in range(self.lignes):
+                        _agauche = TableauCell[self, l, c]
+                        _adroite = TableauCell[self, l, c + 1]
+                        _agauche.style = _adroite.style
+                        _agauche.texte = _adroite.texte
+            for l in range(self.lignes):
+                TableauCell[self, l, self.colonnes].delete()
+            return True
+
+        def remove_one_line(self, line) -> bool:
+            self.lignes = self.lignes - 1
+
+            if line < self.lignes:
+                for l in range(line, self.lignes):
+                    for c in range(self.colonnes):
+
+                        _avant = TableauCell[self, l, c]
+                        _apres = TableauCell[self, l + 1, c]
+                        _avant.style = _apres.style
+                        _avant.texte = _apres.texte
+            for c in range(self.colonnes):
+                TableauCell[self, self.lignes, c].delete()
+
+            return True
+
+        """
+        Private methods
+        """
+
+        def _fill_new_column(self, col: int):
+            # on reset les nouvelles
+            for l in range(self.lignes):
+                cel = TableauCell[self, l, col]
+                cel.texte = ""
+                cel.style = db.Style()
+
+        def _fill_new_row(self, line: int):
+            # on reset les nouvelles
+            for c in range(self.colonnes):
+                cel = TableauCell[self, line, c]
+                cel.texte = ""
+                cel.style = db.Style()
+            return True
+
+        def _insert_one_column(self, col) -> bool:
+            self.colonnes = self.colonnes + 1  # ne pas placer apres les fonctions
+
+            # Ajout de la colonnes
+            for c in range(self.lignes):
+                TableauCell(tableau=self, y=c, x=self.colonnes - 1)
+            # on décale les indexes
+            if col < self.colonnes:
+                for c in range(self.colonnes - 1, col, -1):
+                    for l in range(self.lignes):
+                        _agauche = TableauCell[self, l, c - 1]
+                        _adroite = TableauCell[self, l, c]
+                        _adroite.style = _agauche.style
+                        _adroite.texte = _agauche.texte
+
+        def _insert_one_line(self, line) -> bool:
             self.lignes = self.lignes + 1
 
             # Ajout de la ligne
@@ -300,69 +446,17 @@ def class_section(
             if line < self.lignes:
                 for l in range(self.lignes - 1, line, -1):
                     for c in range(self.colonnes):
-                        TableauCell[self, l, c].set(
-                            **TableauCell[self, l - 1, c].to_dict(exclude=["x", "y"])
-                        )
 
-            # on reset les nouvelles
-            for c in range(self.colonnes):
-                cel = TableauCell[self, line, c]
-                cel.texte = ""
-                cel.style = db.Style()
-            return True
+                        _avant = TableauCell[self, l - 1, c]
+                        _apres = TableauCell[self, l, c]
+                        _apres.style = _avant.style
+                        _apres.texte = _avant.texte
 
-        def remove_one_line(self, line) -> bool:
-            self.lignes = self.lignes - 1
-
-            if line < self.lignes:
-                for i in range(line, self.lignes):
-                    for c in range(self.colonnes):
-                        TableauCell[self, i, c].set(
-                            **TableauCell[self, i + 1, c].to_dict(exclude=["x", "y"])
-                        )
-            for c in range(self.colonnes):
-                TableauCell[self, self.lignes, c].delete()
-            return True
-
-        def insert_one_column(self, col) -> bool:
-            self.colonnes = self.colonnes + 1
-
-            # Ajout de la colonnes
-            for c in range(self.lignes):
-                TableauCell(tableau=self, y=c, x=self.colonnes - 1)
-
-            if col < self.colonnes:
-                for c in range(self.colonnes - 1, col, -1):
-                    for l in range(self.lignes):
-                        TableauCell[self, l, c].set(
-                            **TableauCell[self, l, c - 1].to_dict(exclude=["x", "y"])
-                        )
-
-            # on reset les nouvelles
-            for l in range(self.lignes):
-                cel = TableauCell[self, l, col]
-                cel.texte = ""
-                cel.style = db.Style()
-            return True
-
-        def remove_one_column(self, col) -> bool:
-            self.colonnes = self.colonnes - 1
-
-            if col < self.colonnes:
-                for c in range(col, self.colonnes):
-                    for l in range(self.lignes):
-                        TableauCell[self, l, c].set(
-                            **TableauCell[self, l, c + 1].to_dict(exclude=["x", "y"])
-                        )
-            for l in range(self.lignes):
-                TableauCell[self, l, self.colonnes].delete()
-            return True
-
-        def append_one_line(self) -> bool:
-            return self.insert_one_line(self.lignes)
-
-        def append_one_column(self) -> bool:
-            return self.insert_one_column(self.colonnes)
+        def _restore_cells(self, cells: list):
+            for cel in cells:
+                base_cel = TableauCell[self, cel["y"], cel["x"]]
+                base_cel.texte = cel["texte"]
+                base_cel.style = db.Style(**cel["style"])
 
     class TableauCell(db.Entity, ColorMixin):
         """
@@ -411,7 +505,15 @@ def class_section(
             ]
             return dico
 
-    class ZoneFrise(db.Entity, PositionMixin):
+        @classmethod
+        def restore(cls, **kwargs):
+            zones = kwargs.pop("zones", [])
+            new_f = cls(**kwargs)
+            for z in zones:
+                ZoneFrise.restore(**z)
+            return new_f
+
+    class ZoneFrise(db.Entity, PositionMixin, BackupAble):
         """
         ZoneFrise
         """
@@ -425,8 +527,7 @@ def class_section(
         style = Optional(
             db.Style, default=db.Style, cascade_delete=True, column="style"
         )
-        # on utilise style.strikeout pour la position du separator True = "up", False = ""
-        separatorText = Optional(str)
+        separatorText = Optional(str)  # non utilisé finalement
         legendes = Set("FriseLegende")
 
         def __init__(self, position=None, frise=None, **kwargs):
@@ -454,7 +555,14 @@ def class_section(
             dico["legendes"] = [p.to_dict() for p in self.legendes]
             return dico
 
-        #
+        @classmethod
+        def restore(cls, **kwargs):
+            legendes = kwargs.pop("legendes", [])
+            new_z = cls(**kwargs)
+            for l in legendes:
+                FriseLegende(**l)
+            return new_z
+
         def set(self, **kwargs):
             if "style" in kwargs:
                 style: dict = kwargs.pop("style")

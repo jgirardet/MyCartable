@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import tempfile
-from functools import lru_cache
+from functools import lru_cache, partial
+from io import BytesIO
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Callable
 
 from PIL import Image, ImageDraw
 from PyQt5.QtCore import (
@@ -26,7 +27,7 @@ from mycartable.utils import get_new_filename, pathize
 from mycartable.types.dtb import DTB
 from pony.orm import db_session
 
-from .section import Section
+from .section import Section, UpdateSectionCommand
 
 
 @lru_cache
@@ -45,23 +46,24 @@ class ImageSection(Section):
     annotationDessinCurrentToolChanged = pyqtSignal()
     annotationDessinCurrentLineWidthChanged = pyqtSignal()
     annotationTextBGOpacityChanged = pyqtSignal()
+    commandDone = pyqtSignal()
 
     """
     Python Code
     """
 
-    def __init__(self, data: dict = {}, parent=None):
-        super().__init__(data=data, parent=parent)
+    def __init__(self, data: dict = {}, parent=None, **kwargs):
+        super().__init__(data=data, parent=parent, **kwargs)
         self._model = AnnotationModel(self)
 
     @classmethod
-    def new(cls, parent=None, **kwargs) -> Optional[ImageSection]:
+    def new(cls, *, parent, **kwargs) -> Optional[ImageSection]:
         if path := kwargs.get("path", None):  # cas filename
             p_path = pathize(path)
             if not p_path.is_file():
                 return
             elif p_path.suffix == ".pdf":  # si pdf
-                return cls._new_image_from_pdf(p_path, **kwargs)
+                return cls._new_image_from_pdf(p_path, parent, **kwargs)
 
             else:  # sinon image standard
                 kwargs = cls._new_image_base(p_path, **kwargs)
@@ -88,11 +90,23 @@ class ImageSection(Section):
         im.save(new_file)
         return str(res_path)
 
+    def _floodFill(self, color: QColor, point: QPointF):
+        image = Image.open(self.absolute_path)
+        pos = (point.x() * image.width, point.y() * image.height)
+        ImageDraw.floodfill(image, xy=pos, value=color.getRgb(), thresh=50)
+        image.save(self.absolute_path)
+
     @staticmethod
     def get_new_image_path(ext):
         with db_session:
             annee = DTB().getConfig("annee")
         return Path(str(annee), get_new_filename(ext)).as_posix()
+
+    def _pivoterImage(self, sens):
+        with db_session:
+            im = Image.open(self.absolute_path)
+            sens_rotate = Image.ROTATE_270 if sens else Image.ROTATE_90
+            im.transpose(sens_rotate).save(self.absolute_path)
 
     @staticmethod
     def store_new_file(filepath, ext=None):
@@ -121,7 +135,7 @@ class ImageSection(Section):
         return kwargs
 
     @staticmethod
-    def _new_image_from_pdf(p_path: Path, **kwargs):
+    def _new_image_from_pdf(p_path: Path, parent: QObject, **kwargs):
         kwargs.pop("path")
         new_sections = []
         splitter = PDFSplitter()
@@ -131,7 +145,7 @@ class ImageSection(Section):
                 content = kwargs.copy()
                 if "position" in content:
                     content["position"] += counter
-                new_sec = ImageSection.new(path=pdf_page, **content)
+                new_sec = ImageSection.new(path=pdf_page, parent=parent, **content)
                 new_sections.append(new_sec)
         return new_sections
 
@@ -187,8 +201,6 @@ class ImageSection(Section):
     def url(self):
         return QUrl.fromLocalFile(str(self.absolute_path))
 
-    modelChanged = pyqtSignal()
-
     @pyqtProperty(QObject, constant=True)
     def model(self):
         return self._model
@@ -199,18 +211,25 @@ class ImageSection(Section):
 
     @pyqtSlot(QColor, QPointF)
     def floodFill(self, color: QColor, point: QPointF):
-        image = Image.open(self.absolute_path)
-        pos = (point.x() * image.width, point.y() * image.height)
-        ImageDraw.floodfill(image, xy=pos, value=color.getRgb(), thresh=50)
-        image.save(self.absolute_path)
+        self.undoStack.push(
+            UpdateImageSectionCommand(
+                section=self,
+                text="remplir",
+                callable=self._floodFill,
+                call_args=[color, point],
+            )
+        )
 
-    @pyqtSlot(int, result=bool)
+    @pyqtSlot(int)
     def pivoterImage(self, sens):
-        with db_session:
-            im = Image.open(self.absolute_path)
-            sens_rotate = Image.ROTATE_270 if sens else Image.ROTATE_90
-            im.transpose(sens_rotate).save(self.absolute_path)
-            return True
+        self.undoStack.push(
+            UpdateImageSectionCommand(
+                section=self,
+                text="pivoter",
+                callable=self._pivoterImage,
+                call_args=[sens],
+            )
+        )
 
     @pyqtSlot(QQuickItem, str, QColor)
     def setImageSectionCursor(self, qk: QQuickItem, tool: str, color: QColor):
@@ -227,3 +246,40 @@ class ImageSection(Section):
                 type(self).ALL_IMAGE_CURSORS = build_all_image_cursor()
             cur = self.ALL_IMAGE_CURSORS[tool]
         qk.setCursor(cur)
+
+
+class UpdateImageSectionCommand(UpdateSectionCommand):
+    section: ImageSection
+
+    def __init__(
+        self,
+        *,
+        section: Image,
+        callable: Callable,
+        call_args: list = [],
+        call_kwargs: dict = {},
+        **kwargs,
+    ):
+        super().__init__(section=section, **kwargs)
+        self.image_bytes = section.absolute_path.read_bytes()
+        self.apply = partial(callable, *call_args, **call_kwargs)
+        self.work_done = None
+
+    def redo(self):
+        section = self.get_section()
+        if not self.work_done:
+            self.apply()
+            self.work_done = section.absolute_path.read_bytes()
+        else:
+            self._update_via_bytes(section, self.work_done)
+
+        section.commandDone.emit()
+
+    def undo(self):
+        section = self.get_section()
+        self._update_via_bytes(section, self.image_bytes)
+        section.commandDone.emit()
+
+    def _update_via_bytes(self, section, byte_image):
+        im = Image.open(BytesIO(byte_image))
+        im.save(section.absolute_path)

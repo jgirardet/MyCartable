@@ -1,5 +1,7 @@
+from PyQt5.QtWidgets import QUndoStack
 from loguru import logger
 from mycartable.main import add_database_to_types
+from mycartable.types import Bridge
 
 from tests.factory import Faker
 
@@ -74,3 +76,9 @@ def fk(ddbr):
 @pytest.fixture(scope="class")
 def fkc(ddbr_class):
     return Faker(ddbr_class)
+
+
+@pytest.fixture()
+def bridge():
+    b = Bridge(parent=None, undoStack=QUndoStack())
+    return b

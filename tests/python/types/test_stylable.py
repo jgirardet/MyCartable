@@ -11,15 +11,15 @@ class Styled(Stylable, Bridge):
     entity_name = "Annotation"
 
 
-def test_init(fk):
+def test_init(fk, bridge):
     a = fk.f_annotation(td=True)
-    s = Styled.get(a["id"])
+    s = Styled.get(a["id"], parent=bridge)
     assert s._data["style"] == a["style"]
 
 
-def test_set_field_style(fk, qtbot):
+def test_set_field_style(fk, qtbot, bridge):
     a = fk.f_annotation(td=True)
-    s = Styled.get(a["id"])
+    s = Styled.get(a["id"], parent=bridge)
     with qtbot.waitSignal(s.bgColorChanged):
         s.bgColor = QColor("#123456")
     with db_session:
@@ -33,9 +33,9 @@ def test_set_field_style(fk, qtbot):
         assert not s._set_field_style("bgfzeColor", "#111111")
 
 
-def test_set_field_style_bad_value(fk, qtbot):
+def test_set_field_style_bad_value(fk, qtbot, bridge):
     a = fk.f_annotation(td=True)
-    s = Styled.get(a["id"])
+    s = Styled.get(a["id"], parent=bridge)
     s.bgColor = QColor("#123456")  # reset du test
 
     # bad value in db
@@ -59,7 +59,7 @@ def test_set_field_style_bad_value(fk, qtbot):
         ("family", "blim"),
     ],
 )
-def test_properties(fk, qtbot, name, value):
+def test_properties(fk, qtbot, name, value, bridge):
     a = fk.f_annotation(
         **{
             "x": 0.3,
@@ -76,7 +76,7 @@ def test_properties(fk, qtbot, name, value):
         },
         td=True
     )
-    s = Styled.get(a["id"])
+    s = Styled.get(a["id"], parent=bridge)
     with qtbot.waitSignal(getattr(s, name + "Changed")):
         setattr(s, name, value)
     # pas d'"émission si pas de changement

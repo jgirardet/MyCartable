@@ -1,5 +1,7 @@
 from PyQt5.QtCore import pyqtSlot, pyqtSignal, pyqtProperty
-from mycartable.types.bridge import Bridge
+from PyQt5.QtWidgets import QUndoStack
+
+from .bridge import Bridge
 from pony.orm import db_session
 
 
@@ -15,8 +17,12 @@ class Annee(Bridge):
 
     niveauChanged = pyqtSignal()
 
-    def __init__(self, data={"id": 0}, parent=None):
-        super().__init__(data, parent)
+    def __init__(self, data={"id": 0}, parent=None, **kwargs):
+        undo = getattr(parent, "undoStack", None) or kwargs.pop("undoStack", None)
+        if undo is None:
+            undo = QUndoStack()
+        super().__init__(data, parent=parent, undoStack=undo, **kwargs)
+        undo.setParent(self)  # mis apres pour permettre le call de super
 
     @pyqtProperty(str, notify=niveauChanged)
     def niveau(self):

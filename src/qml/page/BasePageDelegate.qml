@@ -1,8 +1,3 @@
-/*
-section injecté via model
-index injecté via repeater
-*/
-
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 
@@ -12,9 +7,9 @@ Item {
     property var referent
     property alias dragarea: dragArea
     property alias contentItem: loader.item
-    required property int index
-    required property QtObject section
+    property QtObject section
     property alias status: loader.status
+    property int modelIndex: index
 
     signal loaded(int idx)
 
@@ -136,8 +131,8 @@ Item {
         id: droparea
 
         onEntered: {
-            if (drag.source.parent.index != index && drag.source.objectName == dragArea.objectName)
-                referent.page.model.move(drag.source.parent.index, index);
+            if ((drag.source.parent.index !== index) && (drag.source.objectName == dragArea.objectName))
+                referent.page.model.move(drag.source.parent.modelIndex, index);
             else
                 drag.accepted = false;
         }

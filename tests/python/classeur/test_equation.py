@@ -3,19 +3,38 @@ import textwrap
 
 import pytest
 from PyQt5.QtCore import Qt
-from tests.python.fixtures import check_args
+from PyQt5.QtWidgets import QUndoStack
+from mycartable.classeur import Page, Classeur
 from mycartable.classeur.sections.equation import (
     TextEquation,
     Fragment,
     EquationSection,
+    UpdateEquationSectionCommand,
 )
 from pony.orm import db_session
 
 
+class TestUpdatEquationSectionCommand:
+    def test_undo(self, fk, qtbot, bridge):
+        f = fk.f_equationSection(content="bla", curseur=99)
+        p = Page.get(f.page.id, parent=bridge)
+        sec = p.get_section(0)
+        c = UpdateEquationSectionCommand(section=sec, content="aaa", curseur=33)
+        c.redo()
+        assert sec.content == "aaa"
+        assert sec.curseur == 33
+        assert c.text() == "frappe"
+        c.undo()
+        assert sec.content == "bla"
+        assert sec.curseur == 99
+
+
 class TestEquation:
-    def test_update(self, fk, qtbot):
-        eq = fk.f_equationSection(content=" \n1\n ")
-        e = EquationSection.get(eq.id)
+    def test_update(self, fk, qtbot, bridge):
+        p = fk.f_page()
+        eq = fk.f_equationSection(content=" \n1\n ", page=p.id)
+        page = Page.get(p.id, parent=bridge)
+        e = page.get_section(0)
         event = json.dumps({"key": int(Qt.Key_2), "text": "2", "modifiers": None})
         with qtbot.waitSignals([e.contentChanged, e.curseurChanged]):
             e.update(3, event)
@@ -28,7 +47,7 @@ class TestEquation:
 
     def test_isequationfocusable(self, fk):
         eq = fk.f_equationSection(content=" \n1 \n  ")
-        e = EquationSection.get(eq.id)
+        e = EquationSection.get(eq.id, parent=None, undoStack=QUndoStack())
         assert not e.isEquationFocusable(0)
         assert e.isEquationFocusable(4)
 

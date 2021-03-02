@@ -13,34 +13,31 @@ Item {
     implicitHeight: height
 
     CasTest {
-        //        "height": 0.8
         id: testcase
 
+        property int index: 0 // index de annot dans model
         property var annot
         property var annotobj
         property var ref
-        property int index: 1
+        property var page
 
         function initPre() {
-            //      params = {
             item.currentAnnotation = null;
-            item.model._removeRow = 0;
             let img = fk.f("imageSection");
             annot = fk.f("annotationText", {
                 "x": 0.4,
                 "y": 0.2,
                 "section": img.id
             });
-            ref = th.getBridgeInstance(item, "ImageSection", img.id);
-            annotobj = th.getBridgeInstance(ref, "AnnotationText", annot.id);
+            page = th.getBridgeInstance(item, "Page", img.page);
+            ref = page.model.data(page.model.index(0, 0), th.getRole("SectionRole"));
+            annotobj = ref.model.data(ref.model.index(0, 0), th.getRole("AnnotationRole"));
             params = {
                 "annot": annotobj,
                 "referent": item,
-                "index": index,
                 "section": section
             };
         }
-
 
         function test_init() {
             compare(tested.anchors.topMargin, 200 * 0.2);
@@ -87,6 +84,25 @@ Item {
             });
             let newl = fk.getItem("AnnotationText", annot.id);
             fuzzyCompare(newl.style.bgColor, "red", 0);
+        }
+
+        function test_setStyle_indo_redo() {
+            tested.setStyleFromMenu({
+                "style": {
+                    "bgColor": th.color("red")
+                }
+            });
+            fuzzyCompare(tested.annot.bgColor, "red", 0);
+            tested.setStyleFromMenu({
+                "style": {
+                    "bgColor": th.color("blue")
+                }
+            });
+            fuzzyCompare(tested.annot.bgColor, "blue", 0);
+            tested.annot.undoStack.undo();
+            fuzzyCompare(tested.annot.bgColor, "red", 0);
+            tested.annot.undoStack.redo();
+            fuzzyCompare(tested.annot.bgColor, "blue", 0);
         }
 
         name: "BaseAnnotation"

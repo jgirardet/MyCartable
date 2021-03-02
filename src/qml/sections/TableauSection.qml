@@ -12,9 +12,22 @@ Item {
 
     width: grid.width
     height: grid.height
+    onSectionChanged: grid.reload()
 
     MenuFlottantTableau {
         id: menuFlottantTableau
+    }
+
+    Connections {
+        function onColonnesChanged() {
+            grid.reload();
+        }
+
+        function onLignesChanged() {
+            grid.reload();
+        }
+
+        target: section
     }
 
     GridLayout {
@@ -22,10 +35,10 @@ Item {
 
         property var selectedCells: []
         property var currentSelectedCell: null
+        property alias section: root.section
 
         function reload() {
             repeater.model = section.initTableauDatas();
-            grid.columns = section.colonnes;
         }
 
         function selectCell(obj) {
@@ -73,11 +86,42 @@ Item {
         columnSpacing: 3
         rowSpacing: 3
 
+        Connections {
+            function onCellUpdated(params) {
+                let ite = repeater.itemAt(params._index);
+                ite.updatable = false;
+                if ("texte" in params)
+                    ite.text = params["texte"];
+
+                if ("style" in params) {
+                    let st = params.style;
+                    if ("fgColor" in st)
+                        ite.palette.text = st.fgColor;
+
+                    if ("bgColor" in st)
+                        ite.background._color = st.bgColor;
+
+                    if ("underline" in st)
+                        ite.font.underline = st.underline;
+
+                    if ("pointSize" in st)
+                        ite.font.pointSize = st.pointSize ? st.pointSize : 14;
+
+                }
+                ite.forceActiveFocus();
+                ite.cursorPosition = params._cursor;
+                ite.updatable = true;
+            }
+
+            target: section
+        }
+
         Repeater {
+            //            model: root.section ? grid.reload() : 0
+
             id: repeater
 
             objectName: "repeater"
-            model: root.section ? grid.reload() : 0
 
             delegate: TextArea {
                 id: tx
@@ -85,6 +129,9 @@ Item {
                 property int colonne: modelData.x
                 property int ligne: modelData.y
                 property string tableauSection: section.id
+                property bool updatable: true
+                property int cursorAvant
+                property var section: root.section
 
                 function changeCase(event) {
                     var obj;
@@ -128,7 +175,7 @@ Item {
                 }
 
                 function setBackgroundColor(value) {
-                    background.color = value;
+                    background._color = value;
                     updateCell({
                         "style": {
                             "bgColor": value
@@ -137,7 +184,7 @@ Item {
                 }
 
                 function setForegroundColor(value) {
-                    color = value;
+                    palette.text = value;
                     updateCell({
                         "style": {
                             "fgColor": value
@@ -146,9 +193,11 @@ Item {
                 }
 
                 function setText() {
-                    updateCell({
+                    if (updatable)
+                        updateCell({
                         "texte": text
                     });
+
                 }
 
                 function setPointSize(key) {
@@ -190,7 +239,9 @@ Item {
                 }
 
                 function updateCell(content) {
-                    section.updateCell(modelData.y, modelData.x, content);
+                    let cursor_avant = cursorAvant != undefined ? cursorAvant : length;
+                    let cursor = cursorPosition != undefined ? cursorPosition : length;
+                    section.updateCell(modelData.y, modelData.x, content, cursor_avant, cursor);
                 }
 
                 focus: true
@@ -198,22 +249,31 @@ Item {
                 Layout.fillHeight: true
                 Layout.fillWidth: true
                 selectByMouse: true
-                text: modelData.texte
-                font.pointSize: modelData.style.pointSize ? modelData.style.pointSize : 14 // à changer aussi dans convert
-                font.underline: modelData.style.underline
-                color: modelData.style.fgColor
                 Component.onCompleted: {
+                    font.pointSize = modelData.style.pointSize ? modelData.style.pointSize : 14; // à changer aussi dans convert
+                    font.underline = modelData.style.underline;
+                    palette.text = modelData.style.fgColor;
+                    text = modelData.texte;
                     onTextChanged.connect(setText);
                 }
                 Keys.onPressed: {
                     var isMove = [Qt.Key_Up, Qt.Key_Left, Qt.Key_Down, Qt.Key_Right].includes(event.key);
-                    if ((isMove && (event.modifiers & Qt.ControlModifier)) || (event.key == Qt.Key_Right && cursorPosition == length) || (event.key == Qt.Key_Left && cursorPosition == 0) || (event.key == Qt.Key_Up && isFirstLine()) || (event.key == Qt.Key_Down && isLastLine())) {
+                    if ([Qt.Key_Control, Qt.Key_Shift].includes(event.key)) {
+                        //on ignore controle seul
+                        return ;
+                    } else if ((event.key == Qt.Key_Z) && (event.modifiers & Qt.ControlModifier)) {
+                        if (event.modifiers & Qt.ShiftModifier)
+                            section.undoStack.redo();
+                        else
+                            section.undoStack.undo();
+                    } else if ((isMove && (event.modifiers & Qt.ControlModifier)) || (event.key == Qt.Key_Right && cursorPosition == length) || (event.key == Qt.Key_Left && cursorPosition == 0) || (event.key == Qt.Key_Up && isFirstLine()) || (event.key == Qt.Key_Down && isLastLine())) {
                         changeCase(event);
                         event.accepted = true;
                     } else if (([Qt.Key_Minus, Qt.Key_Plus].includes(event.key)) && (event.modifiers & Qt.ControlModifier)) {
                         setPointSize(event.key);
                         event.accepted = true;
                     } else {
+                        cursorAvant = cursorPosition;
                     }
                 }
                 states: [
@@ -229,9 +289,12 @@ Item {
                 ]
 
                 background: Rectangle {
+                    property color _color
+
                     anchors.fill: parent
                     border.width: 1
-                    color: modelData.style.bgColor == "#00000000" ? "white" : modelData.style.bgColor
+                    color: _color == "#00000000" ? "white" : _color
+                    Component.onCompleted: _color = modelData.style.bgColor
                 }
 
             }

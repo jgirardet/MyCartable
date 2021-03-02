@@ -21,6 +21,7 @@ TestCase {
         initPre();
         if (autocreate)
             tested = createObj(testedNom, params);
+
         initPost();
     }
 
@@ -39,6 +40,7 @@ TestCase {
         var comp = Qt.createComponent(nom);
         if (comp.status != 1)
             print(comp, comp.status, comp.errorString());
+
         var obj = createTemporaryObject(comp, parentItem ? parentItem : testcase.parent, kwargs);
         return obj;
     }
@@ -83,6 +85,31 @@ TestCase {
         // click select all erase
         mouseClick(_obj);
         keySequence(seq);
+    }
+
+    function clickAndUndo(_obj) {
+        // click select all erase
+        clickAndWrite(_obj, "ctrl+z");
+    }
+
+    function clickAndRedo(_obj) {
+        // click select all erase
+        clickAndWrite(_obj, "ctrl+shift+z");
+    }
+
+    function check_undoAbleTextArea(textarea, entity, secid, prop) {
+        textarea.undoDelay = 10;
+        let baseText = textarea.text;
+        clickAndWrite(textarea);
+        tryCompare(textarea, "text", "bcd");
+        tryCompare(textarea, "txtfield", "bcd");
+        compare(fk.getItem(entity, secid)[prop], "bcd");
+        clickAndUndo(textarea);
+        compare(textarea.text, baseText);
+        compare(fk.getItem(entity, secid)[prop], baseText);
+        clickAndRedo(textarea);
+        compare(textarea.text, "bcd");
+        compare(fk.getItem(entity, secid)[prop], "bcd");
     }
 
     when: windowShown

@@ -1,3 +1,4 @@
+import MyCartable 1.0
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtTest 1.14
@@ -8,6 +9,10 @@ Rectangle {
     width: 400
     height: 200
     color: "blue"
+
+    Classeur {
+        id: classeur_id
+    }
 
     CasTest {
         //compare(tested.contentY, 21); //position at load
@@ -31,25 +36,30 @@ Rectangle {
             });
             sec0 = fk.f("textSection", {
                 "text": "blabla 0",
-                "page": page.id
+                "page": page.id,
+                "position": 0
             });
             sec1 = fk.f("textSection", {
                 "text": "blabla 1",
-                "page": page.id
+                "page": page.id,
+                "position": 1
             });
             sec2 = fk.f("textSection", {
                 "text": "blabla 2",
-                "page": page.id
+                "page": page.id,
+                "position": 2
             });
             sec3 = fk.f("imageSection", {
                 "path": "sc1.png",
-                "page": page.id
+                "page": page.id,
+                "position": 3
             });
             sec4 = fk.f("textSection", {
                 "text": "blabla 4",
-                "page": page.id
+                "page": page.id,
+                "position": 4
             });
-            pageObj = th.getBridgeInstance(item, "Page", page.id);
+            pageObj = th.getBridgeInstance(classeur_id, "Page", page.id);
             params = {
                 "page": pageObj,
                 "width": item.width,
@@ -122,9 +132,9 @@ Rectangle {
                 let filedialog = tested.addDialog.contentItem.children[data.index].action.dialog;
                 filedialog.folder = "assets";
                 wait(50);
-                keySequence("r,e,c,t")
-                keySequence(".,p,n,g")
-                keyClick(Qt.Key_Return)
+                keySequence("r,e,c,t");
+                keySequence(".,p,n,g");
+                keyClick(Qt.Key_Return);
             }
             tryCompare(tested.addDialog, "scale", 0);
             compare(tested.addDialog.visible, false);
@@ -158,6 +168,8 @@ Rectangle {
 
         function test_move_delegate_no_move() {
             mouseDrag(txt2, 1, 1, 0, 0, Qt.LeftButton, Qt.ShiftModifier);
+            print(sec1.id, tested.itemAt(1).section.id);
+            print(sec2.id, tested.itemAt(2).section.id);
             compare(tested.itemAt(1).section.id, sec1.id);
             compare(tested.itemAt(2).section.id, sec2.id);
         }

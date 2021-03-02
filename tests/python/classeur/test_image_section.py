@@ -8,10 +8,11 @@ from PIL import Image
 from PyQt5.QtCore import QPointF, Qt, QUrl
 from PyQt5.QtGui import QColor, QImage, QCursor
 from PyQt5.QtQuick import QQuickItem
+from PyQt5.QtWidgets import QUndoStack
 from mycartable.classeur.sections.annotation import AnnotationModel
 from mycartable.defaults.configuration import KEEP_UPDATED_CONFIGURATION
 from mycartable.types import DTB
-from mycartable.classeur import ImageSection
+from mycartable.classeur import ImageSection, Page, Classeur
 from mycartable.cursors import build_one_image_cursor
 from mycartable.defaults.files_path import FILES
 from pony.orm import db_session
@@ -22,23 +23,25 @@ from pony.orm import db_session
     "mycartable.utils.uuid.uuid4",
     new=lambda: uuid.UUID("d9ca35e1-0b4b-4d42-9f0d-aa07f5dbf1a5"),
 )
-def test_new_Image(fk, resources):
+def test_new_Image(fk, resources, bridge):
     img = resources / "sc1.png"
     p = fk.f_page()
     DTB().setConfig("annee", 2011)
     # with Path
-    image = ImageSection.new(**{"page": p.id, "path": img})
+    image = ImageSection.new(parent=bridge, **{"page": p.id, "path": img})
     assert image.path == "2011/2344-09-21-07-48-05-d9ca3.png"
     # with QUrl
     image = ImageSection.new(
-        **{"page": p.id, "path": QUrl.fromLocalFile(str(img.resolve()))}
+        parent=bridge, **{"page": p.id, "path": QUrl.fromLocalFile(str(img.resolve()))}
     )
     assert image.path == "2011/2344-09-21-07-48-05-d9ca3.png"
     # file no existe
-    image = ImageSection.new(**{"page": p.id, "path": QUrl.fromLocalFile("/aa/ff")})
+    image = ImageSection.new(
+        parent=bridge, **{"page": p.id, "path": QUrl.fromLocalFile("/aa/ff")}
+    )
     assert image is None
     # file no path
-    image = ImageSection.new(**{"page": p.id})
+    image = ImageSection.new(parent=bridge, **{"page": p.id})
     assert image is None
 
 
@@ -52,6 +55,8 @@ def test_new_ImageVide(fk, resources):
     p = fk.f_page()
     DTB().setConfig("annee", 2011)
     image = ImageSection.new(
+        parent=None,
+        undoStack=QUndoStack(),
         **{"page": p.id, "width": 40, "height": 400, "classtype": "ImageSectionVide"}
     )
     assert image.path == "2011/2344-09-21-07-48-05-d9ca3.png"
@@ -66,7 +71,7 @@ def test_new_ImageVide(fk, resources):
 
 def test_absolute_path_qmlpath_path(fk):
     i = fk.f_imageSection(td=True)
-    img = ImageSection.get(i)
+    img = ImageSection.get(i, parent=None, undoStack=QUndoStack())
     assert img.path == i["path"]
     assert img.absolute_path == FILES / i["path"]
     assert img.url == QUrl.fromLocalFile(str(Path(img.absolute_path).absolute()))
@@ -74,7 +79,7 @@ def test_absolute_path_qmlpath_path(fk):
 
 def test_model(fk):
     i = fk.f_imageSection(td=True)
-    img = ImageSection.get(i)
+    img = ImageSection.get(i, parent=None, undoStack=QUndoStack())
     assert isinstance(img.model, AnnotationModel)
 
 
@@ -107,9 +112,9 @@ def test_new_image_path(fk):
         ("annotationDessinCurrentTool", "new_tool"),
     ],
 )
-def test_annotation_properties(fk, qtbot, name, new_value):
+def test_annotation_properties(fk, bridge, qtbot, name, new_value):
     i = fk.f_imageSection(td=True)
-    img = ImageSection.get(i)
+    img = ImageSection.get(i, parent=bridge)
     assert getattr(img, name) == KEEP_UPDATED_CONFIGURATION[name]
     setattr(img, name, new_value)
     with db_session:
@@ -122,9 +127,12 @@ def test_annotation_properties(fk, qtbot, name, new_value):
         ("annotationDessinCurrentStrokeStyle", QColor("purple")),
     ],
 )
-def test_annotation_propertiesQColor(fk, qtbot, name, new_value):
+def test_annotation_propertiesQColor(fk, bridge, qtbot, name, new_value):
     i = fk.f_imageSection(td=True)
-    img = ImageSection.get(i)
+    img = ImageSection.get(
+        i,
+        parent=bridge,
+    )
     assert getattr(img, name).name() == KEEP_UPDATED_CONFIGURATION[name]
     setattr(img, name, new_value)
     with db_session:
@@ -150,15 +158,28 @@ def test_create_empty_image():
     assert list(im.getdata()) == list(saved.getdata())
 
 
-def test_pivoter_image(new_res, fk, qtbot):
+def test_pivoter_image(new_res, fk, qtbot, bridge):
     file = new_res("test_pivoter.png")
     img = Image.open(file)
     assert img.height == 124
     assert img.width == 673
 
     f = fk.f_imageSection(path=str(file))
-    isec = ImageSection.get(f.id)
+    p = Page.get(f.page.id, parent=bridge)
+    isec = p.get_section(0)
     isec.pivoterImage(1)
+    img = Image.open(file)
+    assert img.height == 673
+    assert img.width == 124
+    assert isec.undoStack.undoText() == "pivoter"
+
+    with qtbot.waitSignal(isec.commandDone):
+        isec.undoStack.undo()
+    img = Image.open(file)
+    assert img.height == 124
+    assert img.width == 673
+    with qtbot.waitSignal(isec.commandDone):
+        isec.undoStack.redo()
     img = Image.open(file)
     assert img.height == 673
     assert img.width == 124
@@ -168,8 +189,8 @@ trait_600_600 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAlgAAAJYCAYAAAC+Z
 trait_600_600_as_png = "2019/2019-05-21-12-00-01-349bd.png"
 
 
-def test_annotationTextBGOpacity(fk):
-    isec = ImageSection.get(fk.f_imageSection().id)
+def test_annotationTextBGOpacity(fk, bridge):
+    isec = ImageSection.get(fk.f_imageSection().id, parent=bridge)
     assert isec.annotationTextBGOpacity == 0.5
 
 
@@ -180,20 +201,56 @@ def test_annotationTextBGOpacity(fk):
         (QPointF(0.80, 0.80), "floodfill_rouge_en_bleu.png"),
     ],
 )
-def test_flood_fill(fk, resources, tmp_path, pos, img_res):
+def test_flood_fill(fk, resources, qtbot, tmp_path, pos, img_res, bridge):
     fp = tmp_path / "f1.png"
     shutil.copy(resources / "floodfill.png", fp)
     f = fk.f_imageSection(path=str(fp))
-    isec = ImageSection.get(f.id)
+    p = Page.get(f.page.id, parent=bridge)
+    isec = p.get_section(0)
     isec.floodFill(QColor("blue"), pos)
+    lhs = QImage(str(isec.absolute_path))
+    rhs = QImage(str(resources / img_res))
+    assert lhs == rhs
+    assert isec.undoStack.undoText() == "remplir"
+    with qtbot.waitSignal(isec.commandDone):
+        isec.undoStack.undo()
+    lhs = QImage(str(isec.absolute_path))
+    rhs = QImage(str(fp))
+    assert lhs == rhs
+    with qtbot.waitSignal(isec.commandDone):
+        isec.undoStack.redo()
     lhs = QImage(str(isec.absolute_path))
     rhs = QImage(str(resources / img_res))
     assert lhs == rhs
 
 
-def test_image_selection_curosr(fk, qtbot):
+@pytest.mark.parametrize(
+    "pos, img_res",
+    [
+        (QPointF(0.10, 0.10), "floodfill_blanc_en_bleu.png"),
+        (QPointF(0.80, 0.80), "floodfill_rouge_en_bleu.png"),
+    ],
+)
+def test_flood_fill_apres_creation_section(
+    fk, resources, qtbot, tmp_path, pos, img_res, bridge
+):
+    fp = tmp_path / "f1.png"
+    shutil.copy(resources / "floodfill.png", fp)
+    pg = fk.f_page()
+    # f = fk.f_imageSection(path=str(fp))
+    p = Page.get(pg.id, parent=bridge)
+    p.addSection(classtype="ImageSection", params={"path": str(fp)})
+    isec = p.get_section(0)
+    isec.floodFill(QColor("blue"), pos)
+    p.undoStack.undo()
+    p.undoStack.undo()
+    p.undoStack.redo()
+    p.undoStack.redo()
+
+
+def test_image_selection_curosr(fk, bridge, qtbot):
     qk = QQuickItem()
-    isec = ImageSection.get(fk.f_imageSection().id)
+    isec = ImageSection.get(fk.f_imageSection().id, parent=bridge)
     # defaut
     isec.setImageSectionCursor(qk, "text", QColor("black"))
     assert (
@@ -202,10 +259,6 @@ def test_image_selection_curosr(fk, qtbot):
     )
     # color
     isec.setImageSectionCursor(qk, "text", QColor("blue"))
-    # qk.cursor().pixmap().toImage().save("/tmp/aa1.png")
-    # build_one_image_cursor("text", QColor("blue")).pixmap().toImage().save(
-    #     "/tmp/aa2.png"
-    # )
     assert (
         qk.cursor().pixmap().toImage()
         == build_one_image_cursor("text", QColor("blue")).pixmap().toImage()

@@ -1,25 +1,25 @@
 import typing
 
-from PyQt5 import sip
 from PyQt5.QtCore import (
     pyqtSignal,
     pyqtProperty,
     QObject,
     QModelIndex,
     QByteArray,
-    Qt,
     pyqtSlot,
     QTimer,
 )
 
+from loguru import logger
+from mycartable.defaults.roles import SectionRole
 from pony.orm import db_session
-
 from .convert import Converter
 from .matiere import Matiere
-from .sections import Section
 from mycartable.utils import shift_list
 from mycartable.types.bridge import Bridge
 from mycartable.types.collections import DtbListModel
+from . import Section
+from . import BasePageCommand
 
 
 class Page(Bridge):
@@ -34,8 +34,8 @@ class Page(Bridge):
     Python Code
     """
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, data, **kwargs):
+        super().__init__(data, **kwargs)
         self._model = PageModel(parent=self)
         QTimer.singleShot(self.UPDATE_MODIFIED_DELAY, self.update_modified_if_viewed)
 
@@ -43,6 +43,9 @@ class Page(Bridge):
         if res := self._dtb.execDB("Page", self.id, "update_modified"):
             self._data["modified"] = res.isoformat()
             self.pageModified.emit()
+
+    def get_section(self, idx: int) -> Section:
+        return self.model.data(self.model.index(idx, 0), SectionRole)
 
     """
     Qt pyqtProperty
@@ -80,7 +83,9 @@ class Page(Bridge):
     @pyqtProperty(QObject, constant=True)
     def matiere(self) -> str:
         if not hasattr("self", "_matiere"):
-            self._matiere = Matiere(self._dtb.getDB("Matiere", self.matiereId))
+            self._matiere = Matiere(
+                self._dtb.getDB("Matiere", self.matiereId), parent=self
+            )
         return self._matiere
 
     @pyqtProperty(QObject, constant=True)
@@ -96,7 +101,21 @@ class Page(Bridge):
     def addSection(
         self, classtype: str, position: int = None, params: dict = {}
     ) -> bool:
-        return bool(self.model.addSection(classtype, position, params))
+        self.undoStack.push(
+            AddSectionCommand(
+                page=self, classtype=classtype, position=position, **params
+            )
+        )
+        return True
+
+    @pyqtSlot(int)
+    def removeSection(self, row: int) -> bool:
+        if row < self.model.count:
+            self.undoStack.push(RemoveSectionCommand(page=self, position=row))
+        else:
+            logger.error(
+                f"Pas de section à la position {row} (nb sections: {self.model.count})"
+            )
 
     @pyqtSlot()
     def exportToPDF(self):
@@ -106,9 +125,12 @@ class Page(Bridge):
     def exportToODT(self):
         Converter(self).export_to_odt()
 
+    @pyqtSlot(int, result=Section)
+    def getSection(self, idx: int):
+        return self.get_section(idx)
+
 
 class PageModel(DtbListModel):
-    SectionRole = Qt.UserRole + 1
     countChanged = pyqtSignal()
 
     def __init__(self, **kwargs):
@@ -116,30 +138,41 @@ class PageModel(DtbListModel):
         super().__init__(**kwargs)
 
     def _roleNames(self) -> typing.Dict:
-        return {self.SectionRole: QByteArray(b"section")}
+        return {SectionRole: QByteArray(b"section")}
 
     def _reset(self):
         self._data = self._dtb.getDB("Page", self.parent().id)
+        self._sections = [
+            Section.get(sec_id, parent=self.parent(), undoStack=self.parent().undoStack)
+            for sec_id in self._data["sections"]
+        ]
+        del self._data["sections"]  # par sécurité
 
     @db_session
     def _insertRows(self, row, count):
-        self._reset()
         self.page.lastPosition = min(row, self.count - 1)
+        for sec in self._sections[row + count + 1 :]:
+            sec.position += 1
+
+    def insertSection(self, sections: typing.List[Section], position: int):
+        self._sections = (
+            self._sections[:position] + sections + self._sections[position:]
+        )
+        self.insertRows(position, len(sections) - 1)
 
     def _moveRows(self, sourceRow, count, destinationChild):
-        sections = shift_list(
-            self._data["sections"], sourceRow, 1 + count, destinationChild
-        )
+        sections = shift_list(self._sections, sourceRow, 1 + count, destinationChild)
         with db_session:
             for n, sec in enumerate(sections):
-                item = self._dtb.setDB(
+                sec._dtb.setDB(
                     "Section",
-                    sec,
+                    sec.id,
                     {
                         "_position": n,
                     },
                 )
-        self._data["sections"] = sections
+                sec.position = n
+        self._sections = list(sections)
         self.page.lastPosition = (
             destinationChild
             if destinationChild < sourceRow
@@ -147,41 +180,30 @@ class PageModel(DtbListModel):
         )
 
     def _removeRows(self, row: int, count: int):
-        for sec in self._data["sections"][row : row + count + 1]:
-            self._dtb.delDB("Section", sec)
-        self._reset()
+        for sec in self._sections[row + count :]:
+            sec.position -= 1
+        to_delete = self._sections[row : row + count + 1]
+        self._sections = self._sections[:row] + self._sections[row + count + 1 :]
+        for sec in to_delete:
+            sec.delete()
         self.page.lastPosition = min(row, self.count - 1)
 
     def data(self, index: QModelIndex, role: int) -> Section:
         if not index.isValid():
             return None
-        elif role == self.SectionRole:
-            sec_id = self._data["sections"][index.row()]
-            sec = Section.get(sec_id)
-            sip.transferto(sec, sec)
-            return sec
+        elif role == SectionRole:
+            res = self._sections[index.row()]
+            return res
 
         else:
             return None
 
     def rowCount(self, parent):
-        return len(self._data["sections"])
+        return len(self._sections)
 
-    def addSection(
-        self, classtype: str, position: int = None, params: dict = {}
-    ) -> bool:
-        """Add a section of type `classtype` at position `position`
-        to page `page_id` width params `params`"""
-        if position is None:
-            position = self.rowCount(QModelIndex())
-
-        params["position"] = position
-
-        new_secs = Section.new_sub(page=self.page.id, classtype=classtype, **params)
-        new_secs = [new_secs] if not isinstance(new_secs, list) else new_secs
-        nb = len(new_secs) - 1
-        if nb >= 0:
-            self.insertRows(position, nb)
+    """
+    Pyqt Property
+    """
 
     @pyqtProperty(Page, constant=True)
     def page(self) -> Page:
@@ -195,3 +217,78 @@ class PageModel(DtbListModel):
     def append(self) -> bool:
         """pyqtSlot to append a row at the end"""
         raise NotImplementedError("please use page addSection instead")
+
+
+class AddSectionCommand(BasePageCommand):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.nb: int = 0  # nombre de section ajoutées
+
+    formulations = {
+        "TextSection": "Insérer un zone de texte",
+        "EquationSection": "Insérer une zone d'équation",
+        "AdditionSection": "Insérer une addition",
+        "MultiplicationSection": "Insérer une multiplication",
+        "SoustractionSection": "Insérer une soustraction",
+        "DivisionSection": "Insérer une division",
+        "TableauSection": "Insérer une tableau",
+        "FriseSection": "Insérer une frise",
+        "ImageSection": "Insérer une image",
+    }
+
+    def redo(self) -> None:
+        position = self.params.get("position", None)
+        if position is None:
+            position = self.page.model.rowCount(QModelIndex())
+        self.params["position"] = position
+        self.setText(self.formulations.get(self.params["classtype"], ""))
+        new_secs = Section.new_sub(
+            page=self.page.id,
+            parent=self.page,
+            undoStack=self.page.undoStack,
+            **self.params,
+        )
+        new_secs = [new_secs] if not isinstance(new_secs, list) else new_secs
+        new_secs = list(filter(lambda x: x is not None, new_secs))  # on enleve les None
+        nb = len(new_secs) - 1
+        if nb >= 0:
+            self.nb = nb
+            self.position = position
+            self.page.model.insertSection(new_secs, position)
+
+    def undo(self) -> None:
+        self.page.model.removeRows(
+            self.position, self.nb
+        )  # removeRows enleve 1 de base déjà enlevé avant
+
+
+class RemoveSectionCommand(BasePageCommand):
+
+    formulations = {
+        "TextSection": "Supprimer un zone de texte",
+        "EquationSection": "Supprimer une zone d'équation",
+        "AdditionSection": "Supprimer une addition",
+        "MultiplicationSection": "Supprimer une multiplication",
+        "SoustractionSection": "Supprimer une soustraction",
+        "DivisionSection": "Supprimer une division",
+        "TableauSection": "Supprimer une tableau",
+        "FriseSection": "Supprimer une frise",
+        "ImageSection": "Supprimer une image",
+    }
+
+    def __init__(self, *, position: int, **kwargs):
+        super().__init__(**kwargs)
+        self.position = position
+        section = self.page.get_section(position)
+        self.setText(self.formulations.get(section.entity_name))
+
+    def redo(self) -> None:
+        section = self.page.get_section(self.position)
+        if not section:
+            return
+        self.params = section.backup()
+        self.page.model.removeRow(self.position)
+
+    def undo(self) -> None:
+        new_sec = Section.restore(parent=self.page, params=self.params)
+        self.page.model.insertSection([new_sec], self.position)

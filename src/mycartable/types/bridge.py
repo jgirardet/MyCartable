@@ -1,11 +1,16 @@
 from __future__ import annotations
 
-from typing import Any, Union
+from typing import Any, Union, Callable
 from uuid import UUID
 
-from PyQt5.QtCore import pyqtProperty, QObject, pyqtSlot
+from PyQt5.QtCore import pyqtProperty, QObject, pyqtSlot, pyqtSignal
+from PyQt5.QtWidgets import QUndoStack
 from loguru import logger
-from mycartable.types.dtb import DTB
+from mycartable.undoredo import UndoStack
+
+from .dtb import DTB
+
+from mycartable.undoredo import BaseCommand
 
 
 class Bridge(QObject):
@@ -15,6 +20,7 @@ class Bridge(QObject):
     """
 
     entity_name = None
+    undoStackChanged = pyqtSignal()
 
     """
     Pure python  section
@@ -26,10 +32,14 @@ class Bridge(QObject):
         if cls.entity_name is None:
             raise NotImplementedError("Bridge sublclass must set 'entity_name'")
 
-    def __init__(self, data: dict = {}, parent=None):
+    def __init__(self, data: dict = {}, *, parent, undoStack=None, **kwargs):
         super().__init__(parent)
         self._data: dict = data
-        self._dtb = DTB()
+        self._dtb = DTB(parent=self)
+        self._undostack = undoStack if undoStack is not None else UndoStack(parent=self)
+
+    def backup(self) -> dict:
+        return self._dtb.execDB(self.entity_name, self.id, "backup")
 
     @classmethod
     def get_class(cls, data: Union[dict, str]) -> type(Bridge):
@@ -41,7 +51,7 @@ class Bridge(QObject):
         return cls
 
     @classmethod
-    def get(cls, item: Union[str, int, UUID, dict], parent=None) -> Bridge:
+    def get(cls, item: Union[str, int, UUID, dict], parent=None, **kwargs) -> Bridge:
         f"""
         Create a new instance of {cls.__name__}
         :param item: id as string or data as dict
@@ -55,10 +65,10 @@ class Bridge(QObject):
             data = item
         if data:
             _class = cls.get_class(data)
-            return _class(data=data, parent=parent)
+            return _class(data=data, parent=parent, **kwargs)
 
     @classmethod
-    def new(cls, parent: QObject = None, **kwargs) -> Bridge:
+    def new(cls, *, parent, **kwargs) -> Bridge:
         """
         Create new entry in database and return the corresponding Bridge subclass
         :param kwargs: entity parameters
@@ -66,15 +76,28 @@ class Bridge(QObject):
         """
         _class = cls.get_class(kwargs)
         entity = _class.entity_name
+        undostack = kwargs.pop("undoStack", None)
         if data := DTB().addDB(entity, kwargs):
-            return _class(parent=parent, data=data)
+            return _class(parent=parent, data=data, undoStack=undostack)
 
     def delete(self) -> bool:
         """
         Delete entry in database
         :return: instance of {cls.__name__} or None
         """
-        return self._dtb.delDB(self.entity_name, self.id)
+        res = self._dtb.delDB(self.entity_name, self.id)
+        self.deleteLater()
+        return res
+
+    @classmethod
+    def restore(cls, *, parent: QObject, params: dict, **kwargs) -> Bridge:
+        """
+        REstore entry using restore method in database
+        """
+        _class = cls.get_class(params)
+        entity = _class.entity_name
+        res = DTB().execDB(entity, None, "restore", **params)
+        return cls.get(res.id, parent=parent, **kwargs)
 
     def _set_field(self, name: str, value: Any) -> bool:
         # pas getattr avec default au cas ou on set un value à None (je sais pas si c possible)
@@ -110,12 +133,40 @@ class Bridge(QObject):
     def id(self) -> str:
         return self._data.get("id", "")
 
+    @pyqtProperty(QObject, notify=undoStackChanged)
+    def undoStack(self) -> QUndoStack:
+        return self._undostack
+
+    @undoStack.setter
+    def undoStack(self, value: QUndoStack):
+        self._undostack = value
+
     """
     QT pyqtSlots
     """
 
-    @pyqtSlot("QVariantMap")
-    def set(self, data: dict):
-        for name, value in data.items():
+
+class AbstractSetBridgeCommand(BaseCommand):
+    bridge: Bridge
+
+    def get_bridge(self) -> bridge:
+        raise NotImplementedError
+
+    def __init__(self, *, bridge, toset={}, get_bridge: Callable = None, **kwargs):
+        super().__init__(**kwargs)
+        self.toset = toset
+        self.backup = {k: getattr(bridge, k) for k in toset}
+        if get_bridge is not None:
+            self.get_bridge = get_bridge
+
+    def redo(self):
+        bridge = self.get_bridge()
+        for name, value in self.toset.items():
             # permet de mettre à jour aussi bien setfield/setstylefield
-            setattr(self, name, value)
+            setattr(bridge, name, value)
+
+    def undo(self):
+        bridge = self.get_bridge()
+        for name, value in self.backup.items():
+            # permet de mettre à jour aussi bien setfield/setstylefield
+            setattr(bridge, name, value)

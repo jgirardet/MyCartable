@@ -1,8 +1,12 @@
+from __future__ import annotations
+
+from contextlib import contextmanager
 from typing import List
 
-from PyQt5.QtCore import pyqtProperty, pyqtSignal, QObject
+from PyQt5.QtCore import pyqtProperty, pyqtSignal, QObject, QModelIndex, pyqtSlot
+from mycartable.types.bridge import AbstractSetBridgeCommand
 
-from ..section import Section
+from ..section import Section, UpdateSectionCommand
 from .models import (
     OperationModel,
     AdditionModel,
@@ -25,10 +29,16 @@ class OperationSection(Section):
         super().__init__(*args, **kwargs)
         self._model = self.model_class(parent=self)
 
-    def update_datas(self, index, value):
-        datas = list(self.datas)
-        datas[index] = value
-        self.datas = datas
+    def update_datas(self, index: QModelIndex, value: str, cursor: int, automove: bool):
+        self.undoStack.push(
+            UpdateOperationSectionCommand(
+                section=self,
+                cursor=cursor,
+                index=index,
+                value=value,
+                automove=automove,
+            )
+        )
 
     def get_editables(self) -> List[int]:
         return []
@@ -61,6 +71,15 @@ class OperationSection(Section):
     @pyqtProperty(int, constant=True)
     def virgule(self):
         return self._data["virgule"]
+
+    @pyqtSlot("QVariantMap")
+    @pyqtSlot("QVariantMap", str)
+    def set(self, data: dict, undo_text=""):
+        self.undoStack.push(
+            SetOperationCommand(
+                section=self, toset=data, text=undo_text, position=self.position
+            )
+        )
 
 
 class AdditionSection(OperationSection):
@@ -101,3 +120,53 @@ class DivisionSection(OperationSection):
     def quotient(self, value: str):
         self.set_field("quotient", value)
         self.quotientChanged.emit()
+
+
+class UpdateOperationSectionCommand(UpdateSectionCommand):
+    def __init__(
+        self,
+        *,
+        section: OperationSection,
+        cursor: int,
+        index: QModelIndex,
+        automove: bool,
+        value: str,
+        **kwargs,
+    ):
+        super().__init__(section=section, **kwargs)
+        self.b_datas: list = list(section.datas)
+        self.b_cursor: int = cursor
+        self.datas: list = list(section.datas)
+        self.index: int = index.row()
+        self.datas[index.row()] = value
+        self.automove: bool = automove
+        self.setText(f"saisie {value}")
+
+    def redo(self):
+        with self._operation_command() as section:
+            section.datas = self.datas
+            if self.automove:
+                section.model.autoMoveNext(self.index)
+
+    def undo(self):
+        with self._operation_command() as section:
+            section.datas = self.b_datas
+            section.model.cursor = self.b_cursor
+
+    @contextmanager
+    def _operation_command(self):
+        section = self.get_section()
+        yield section
+        index = section.model.index(self.index, 0)
+        section.model.dataChanged.emit(index, index)
+
+
+class SetOperationCommand(UpdateSectionCommand):
+    def __init__(self, section: Operation, toset: dict, **kwargs):
+        super().__init__(section=section, **kwargs)
+        self.com = AbstractSetBridgeCommand(
+            bridge=section, toset=toset, get_bridge=self.get_section
+        )
+
+        self.redo = self.com.redo
+        self.undo = self.com.undo

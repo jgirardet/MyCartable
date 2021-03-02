@@ -9,7 +9,6 @@ Item {
         icon.source: "qrc:///icons/add-row"
         onTriggered: {
           cell.parent.parent.section.insertRow(cell.ligne)
-          cell.parent.reload()
 
         }
     }
@@ -18,7 +17,6 @@ Item {
         icon.source: "qrc:///icons/append-row"
         onTriggered: {
           cell.parent.parent.section.appendRow()
-          cell.parent.reload()
 
         }
     }
@@ -27,7 +25,6 @@ Item {
         icon.source: "qrc:///icons/add-column"
         onTriggered: {
           cell.parent.parent.section.insertColumn(cell.colonne)
-          cell.parent.reload()
 
 
           }
@@ -37,7 +34,6 @@ Item {
         icon.source: "qrc:///icons/append-column"
         onTriggered: {
           cell.parent.parent.section.appendColumn()
-          cell.parent.reload()
 
         }
     }
@@ -46,7 +42,6 @@ Item {
         icon.source: "qrc:///icons/remove-row"
         onTriggered: {
         cell.parent.parent.section.removeRow(cell.ligne)
-        cell.parent.reload()
 
         }
     }
@@ -55,7 +50,6 @@ Item {
         icon.source: "qrc:///icons/remove-column"
         onTriggered: {
           cell.parent.parent.section.removeColumn(cell.colonne)
-          cell.parent.reload()
 
           }
     }

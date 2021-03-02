@@ -1,8 +1,8 @@
 from mycartable.types.annee import Annee
 
 
-def test_init(qtbot):
-    a = Annee.new(id=2345, niveau="aah")
+def test_init(qtbot, bridge):
+    a = Annee.new(id=2345, niveau="aah", parent=bridge)
     assert a.id == 2345
     assert a.niveau == "aah"
     with qtbot.waitSignal(a.niveauChanged):

@@ -32,7 +32,7 @@ Rectangle {
 
         background: BorderRectangle {
             color: input.focus ? "yellow" : root.color
-            borderColor: model.isResultLine(index) || model.isLine1(index - model.columns) ? "black" : input.parent.color
+            borderColor: (model.isResultLine(index) || model.isLine1(index - model.operation.columns)) ? "black" : input.parent.color
             borderTop: -2
         }
 

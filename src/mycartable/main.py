@@ -3,15 +3,11 @@ import tempfile
 from pathlib import Path
 
 from PyQt5.QtGui import QFont, QFontDatabase, QIcon
-from mycartable.classeur import Classeur
 from mycartable.defaults.constantes import APPNAME, ORGNAME
 from mycartable.defaults.configuration import (
     DEFAUT_CONFIGURATION,
     KEEP_UPDATED_CONFIGURATION,
 )
-from mycartable.lexique import Lexique
-from mycartable.types import Annee, ChangeMatieres
-from mycartable.types.dtb import DTB
 from mycartable import get_prod
 
 from PyQt5.QtCore import (
@@ -26,7 +22,6 @@ from PyQt5.QtWidgets import QApplication
 from PyQt5.QtQml import QQmlApplicationEngine, qmlRegisterType
 
 from loguru import logger
-
 
 from pony.orm import Database, db_session
 
@@ -88,10 +83,20 @@ def main_init_database(filename=None, prod=False):
 
 def register_new_qml_type():
 
+    from mycartable.types import ChangeMatieres
+
     qmlRegisterType(ChangeMatieres, "MyCartable", 1, 0, "ChangeMatieres")
+    from mycartable.classeur import Classeur
+
     qmlRegisterType(Classeur, "MyCartable", 1, 0, "Classeur")
+    from mycartable.types import DTB
+
     qmlRegisterType(DTB, "MyCartable", 1, 0, "Database")
+    from mycartable.types import Annee
+
     qmlRegisterType(Annee, "MyCartable", 1, 0, "Annee")
+    from mycartable.lexique import Lexique
+
     qmlRegisterType(Lexique, "MyCartable", 1, 0, "Lexique")
 
 
@@ -121,6 +126,7 @@ def update_configuration(db: Database):
 
 
 def add_database_to_types(db: Database):
+    from mycartable.types import ChangeMatieres, DTB
 
     ChangeMatieres.db = db
     DTB.db = db

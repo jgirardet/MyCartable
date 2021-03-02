@@ -18,7 +18,6 @@ Rectangle {
     color: "white"
 
     TextInputDelegate {
-
         id: input
 
         function moreKeys(event) {
@@ -53,7 +52,7 @@ Rectangle {
             //      width: input.contentWidth
             color: input.focus ? "yellow" : root.color
             border.width: 0
-            borderColor: model.isMembreLine(index + model.columns) ? "black" : input.parent.color
+            borderColor: model.isMembreLine(index + model.operation.columns) ? "black" : input.parent.color
             borderTop: -2
         }
 

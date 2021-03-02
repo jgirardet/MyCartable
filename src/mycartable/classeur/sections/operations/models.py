@@ -49,10 +49,12 @@ class OperationModel(QAbstractListModel):
 
     def setData(self, index, value, role, move=True) -> bool:
         if index.isValid() and role == Qt.EditRole:
-            self.operation.update_datas(index.row(), value)
-            self.dataChanged.emit(index, index)
+            automove = False
             if move and "," not in value:
-                self.autoMoveNext(index.row())
+                # self.autoMoveNext(index.row())
+                automove = True
+            self.operation.update_datas(index, value, self.cursor, automove)
+            # self.dataChanged.emit(index, index)
             return True
         return False
 
@@ -600,7 +602,8 @@ class MultiplicationModel(OperationModel):
 
     @pyqtSlot(int, result=bool)
     def isLine1(self, index):
-        return self.i_line_1.start <= index < self.i_line_1.stop
+        # print(index, self.i_line_1.start <= index < self.i_line_1.stop)
+        return bool(self.i_line_1.start <= index < self.i_line_1.stop)
 
     highLightChanged = pyqtSignal()
 

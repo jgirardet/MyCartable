@@ -10,16 +10,12 @@ from pony.orm import db_session, Database
 class Matiere(Bridge):
     entity_name = "Matiere"
 
-    def __init__(self, data={}, parent=None):
-        super().__init__(data=data, parent=parent)
+    def __init__(self, data={}, *, parent, **kwargs):
+        super().__init__(data=data, parent=parent, **kwargs)
         self._activites = [
             Activite.get(activite_id, parent=self)
             for activite_id in self._data["activites"]
         ]
-
-    @pyqtProperty(str, constant=True)
-    def id(self):
-        return self._data.get("id", "")
 
     @pyqtProperty(str, constant=True)
     def nom(self):

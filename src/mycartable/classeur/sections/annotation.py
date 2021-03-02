@@ -1,7 +1,20 @@
+from __future__ import annotations
 import json
 from typing import Optional, Dict
 
-from PyQt5.QtCore import Qt, QModelIndex, QByteArray, pyqtSlot, pyqtProperty, pyqtSignal
+from PyQt5.QtCore import (
+    Qt,
+    QModelIndex,
+    QByteArray,
+    pyqtSlot,
+    pyqtProperty,
+    pyqtSignal,
+)
+from mycartable.defaults.roles import AnnotationRole
+
+from mycartable.types.bridge import AbstractSetBridgeCommand
+from mycartable.undoredo import BaseCommand
+
 from mycartable.types import Stylable, SubTypeAble, Bridge, DtbListModel
 
 
@@ -21,6 +34,15 @@ class Annotation(Stylable, SubTypeAble, Bridge):
     """
     xChanged = pyqtSignal()
     yChanged = pyqtSignal()
+    indexChanged = pyqtSignal()
+
+    @pyqtProperty(int, notify=indexChanged)
+    def index(self):
+        return getattr(self, "_index", -1)
+
+    @index.setter
+    def index(self, value: int):
+        self._index = value
 
     @pyqtProperty(float, notify=xChanged)
     def x(self):
@@ -41,6 +63,15 @@ class Annotation(Stylable, SubTypeAble, Bridge):
     """
     Qt pyqtSlots
     """
+
+    @pyqtSlot(int, "QVariantMap")
+    @pyqtSlot(int, "QVariantMap", str)
+    def set(self, position: int, data: dict, undo_text=""):
+        self.undoStack.push(
+            SetAnnotationCommand(
+                annotation=self, toset=data, text=undo_text, position=position
+            )
+        )
 
 
 class AnnotationText(Annotation):
@@ -149,9 +180,6 @@ class AnnotationDessin(Annotation):
 
 
 class AnnotationModel(DtbListModel):
-
-    AnnotationRole = Qt.UserRole + 2
-
     def __init__(self, parent=None):
         self._data = []
         super().__init__(parent=parent)
@@ -159,23 +187,25 @@ class AnnotationModel(DtbListModel):
     def rowCount(self, parent=QModelIndex()):
         return len(self._data)
 
-    def roleNames(self) -> Dict:
-        default = super().roleNames()
-        default[self.AnnotationRole] = QByteArray(b"annotation")
-        return default
+    def _roleNames(self) -> Dict:
+        return {AnnotationRole: QByteArray(b"annotation")}
 
     def _reset(self):
         sectionItem = self._dtb.getDB("Section", self.parent().id)
         for sec in sectionItem["annotations"]:
             _class = Annotation.get_class(sec)
-            self._data.append(_class.get(sec["id"]))
+            self._data.append(
+                _class.get(
+                    sec["id"], parent=self.parent(), undoStack=self.parent().undoStack
+                )
+            )
 
     #
     def data(self, index, role: int) -> Optional[Annotation]:
         if not index.isValid():
             return None
 
-        elif role == self.AnnotationRole:
+        elif role == AnnotationRole:
             return self._data[index.row()]
         return None
 
@@ -185,32 +215,136 @@ class AnnotationModel(DtbListModel):
         for annot in to_delete:
             annot.delete()
 
-    def _after_reset(self):
-        pass
-        # TODO: self.rowsRemoved.connect(self.dao.updateRecentsAndActivites)
-        # TODO: self.rowsInserted.connect(self.dao.updateRecentsAndActivites)
+    def insert_annotation(self, new_annot: Annotation):
+        self._data.append(new_annot)
+        self.insertRow(
+            self.rowCount() - 1
+        )  # on décale de 1 car maj de annotations déjà faite
 
     @pyqtSlot(str, "QVariantMap")
     def addAnnotation(self, classtype: str, content: dict = {}):
-        new_anot = None
         if classtype == "AnnotationText":
-            x = content["x"] / content["width"]
-            y = content["y"] / content["height"]
-            new_anot = AnnotationText.new(
-                **{"x": x, "y": y, "section": self.parent().id, "text": ""}
+            self.parent().undoStack.push(
+                AddAnnotationTextCommand(
+                    annotation=self, position=self.rowCount(), **content
+                )
             )
         elif classtype == "AnnotationDessin":
-            style = {}
-            style["fgColor"] = (content.pop("strokeStyle"),)
-            style["bgColor"] = (content.pop("fillStyle"),)
-            style["pointSize"] = content.pop("lineWidth")
-            style["weight"] = int(content.pop("opacity") * 10)
-            new_anot = AnnotationDessin.new(
-                **{"section": self.parent().id, "style": style, **content}
+            self.parent().undoStack.push(
+                AddAnnotationDessinCommand(
+                    annotation=self, position=self.rowCount(), **content
+                )
             )
 
-        if new_anot:
-            self._data.append(new_anot)
-            self.insertRow(
-                self.rowCount() - 1
-            )  # on décale de 1 car maj de annotations déjà faite
+    @pyqtSlot(int)
+    def remove(self, row: int):
+        parent = self.parent()
+        parent.undoStack.push(RemoveAnnotationCommand(annotation=self, position=row))
+
+
+class BaseAnnotationCommand(BaseCommand):
+    def __init__(self, *, annotation: Annotation, position=int, **kwargs):
+        super().__init__(**kwargs)
+        self.position = position
+        self._section_position = annotation.parent().position
+        self.page: "Page" = annotation.parent().parent()
+
+    @property
+    def section(self):
+        return self.page.get_section(self._section_position)
+
+    @property
+    def annotation(self):
+        return self._get_annotation(self.section)
+
+    def _get_annotation(self, section: ImageSection) -> Annotation:
+        return section.model.data(section.model.index(self.position, 0), AnnotationRole)
+
+
+class AddAnnotationCommand(BaseAnnotationCommand):
+    def redo(self):
+        if new_annot := self.redo_command_annotation():
+            self.section.model.insert_annotation(new_annot)
+
+    def undo(self):
+        model = self.section.model
+        model.removeRow(model.rowCount() - 1)
+
+    def redo_command_annotation(self):
+        pass
+
+
+class AddAnnotationTextCommand(AddAnnotationCommand):
+
+    undo_text = "Ajouter annotation"
+
+    def redo_command_annotation(self):
+        section = self.section
+        x = self.params["x"] / self.params["width"]
+        y = self.params["y"] / self.params["height"]
+        new_anot = AnnotationText.new(
+            **{
+                "x": x,
+                "y": y,
+                "section": section.id,
+                "text": "",
+            },
+            parent=section,
+            undoStack=section.undoStack,
+        )
+        return new_anot
+
+
+class AddAnnotationDessinCommand(AddAnnotationCommand):
+
+    undo_text = "Dessiner "
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.style = {
+            "fgColor": self.params.pop("strokeStyle"),
+            "bgColor": self.params.pop("fillStyle"),
+            "pointSize": self.params.pop("lineWidth"),
+            "weight": int(self.params.pop("opacity") * 10),
+        }
+
+    def redo_command_annotation(self):
+        section = self.section
+        new_anot = AnnotationDessin.new(
+            **{
+                "section": section.id,
+                "style": self.style,
+                **self.params,
+            },
+            parent=section,
+            undoStack=section.undoStack,
+        )
+        return new_anot
+
+
+class RemoveAnnotationCommand(BaseAnnotationCommand):
+    def redo(self) -> None:
+        self._set_undo_text(self.annotation)
+        self.params = self.annotation.backup()
+        self.section.model.removeRow(self.position)
+
+    def undo(self) -> None:
+        annot = Annotation.restore(parent=self.section, params=self.params)
+        self.section.model._data.insert(self.position, annot)
+        self.section.model.insertRow(self.position)
+
+    def _set_undo_text(self, annot):
+        if annot.classtype == "AnnotationDessin":
+            self.setText("Effacer dessin")
+        elif annot.classtype == "AnnotationText":
+            self.undo_text = "Effacer annotation"
+
+
+class SetAnnotationCommand(BaseAnnotationCommand):
+    def __init__(self, annotation: Annotation, toset: dict, **kwargs):
+        super().__init__(annotation=annotation, **kwargs)
+        self.com = AbstractSetBridgeCommand(
+            bridge=annotation, toset=toset, get_bridge=lambda: self.annotation
+        )
+        self.redo = self.com.redo
+        self.undo = self.com.undo

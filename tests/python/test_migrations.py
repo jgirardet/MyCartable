@@ -119,7 +119,6 @@ def test_1_3_0_vers_1_4_0(new_res, resources, caplogger):
     base = new_res(resources / "db_version" / f"1.3.0.sqlite")
     mk = MakeMigrations(base, "1.4.0", migrations_history)
     ddb = Database(provider="sqlite", filename=str(base))
-    print(base, "base")
     # test tdes données ok
     with db_session_disconnect_db(ddb):
         nom, prenom = ddb.get('select nom,prenom from Utilisateur where nom=="lenom"')

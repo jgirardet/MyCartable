@@ -4,6 +4,10 @@ import re
 from contextlib import contextmanager
 
 from bs4 import BeautifulSoup
+
+from . import UpdateSectionCommand
+from . import Section
+
 from mycartable.types.dtb import DTB
 from PyQt5.QtCore import pyqtProperty, pyqtSignal, pyqtSlot, Qt
 from PyQt5.QtGui import (
@@ -16,19 +20,48 @@ from PyQt5.QtGui import (
 )
 from mycartable.utils import KeyW
 
-from . import Section
-
 
 class TextSection(Section):
 
     entity_name = "TextSection"
     textChanged = pyqtSignal()
+    acceptedChanged = pyqtSignal()
+    cursorChanged = pyqtSignal()
+    forceUpdate = pyqtSignal()
+
+    def __init__(self, data: dict = {}, parent=None, **kwargs):
+        super().__init__(data=data, parent=parent, **kwargs)
+        self._cursor = 0
+        self._accepted = False
 
     @pyqtProperty(str, notify=textChanged)
     def text(self):
         return self._data["text"]
 
-    @pyqtSlot(str, int, int, int, str, result="QVariantMap")
+    @text.setter
+    def text(self, value: str):
+        self._data["text"] = value
+        self.textChanged.emit()
+
+    @pyqtProperty(int, notify=textChanged)
+    def cursor(self):
+        return self._cursor
+
+    @cursor.setter
+    def cursor(self, value: bool):
+        self._cursor = value
+        self.cursorChanged.emit()
+
+    @pyqtProperty(bool, notify=textChanged)
+    def accepted(self):
+        return self._accepted
+
+    @accepted.setter
+    def accepted(self, value: bool):
+        self._accepted = value
+        self.acceptedChanged.emit()
+
+    @pyqtSlot(str, int, int, int, str)
     def updateTextSectionOnKey(
         self, content, curseur, selectionStart, selectionEnd, event
     ):
@@ -36,27 +69,84 @@ class TextSection(Section):
         res = TextSectionEditor(
             self.id, content, curseur, selectionStart, selectionEnd
         ).onKey(event)
-        return res
+        self.accepted = res["eventAccepted"]
 
-    @pyqtSlot(str, int, int, int, result="QVariantMap")
+        if res["eventAccepted"]:
+            self.undoStack.push(
+                UpdateTextSectionCommand(
+                    section=self,
+                    b_text=content,
+                    b_cursor=curseur,
+                    new_text=res["text"],
+                    cursorPosition=res["cursorPosition"],
+                )
+            )
+
+    @pyqtSlot(str, int, int, int)
     def updateTextSectionOnChange(self, content, curseur, selectionStart, selectionEnd):
         res = TextSectionEditor(
             self.id, content, curseur, selectionStart, selectionEnd
         ).onChange()
-        self.textChanged.emit()
-        return res
+        self.accepted = res["eventAccepted"]
+        self.undoStack.push(
+            UpdateTextSectionCommand(
+                section=self,
+                b_text=self.text,
+                b_cursor=self.cursor,
+                new_text=res["text"],
+                cursorPosition=res["cursorPosition"],
+            )
+        )
 
-    @pyqtSlot(str, int, int, int, "QVariantMap", result="QVariantMap")
+    @pyqtSlot(str, int, int, int, "QVariantMap")
     def updateTextSectionOnMenu(
         self, content, curseur, selectionStart, selectionEnd, params
     ):
-        return TextSectionEditor(
+        res = TextSectionEditor(
             self.id, content, curseur, selectionStart, selectionEnd
         ).onMenu(**params)
+        self.accepted = res["eventAccepted"]
+        self.undoStack.push(
+            UpdateTextSectionCommand(
+                section=self,
+                b_text=self.text,
+                b_cursor=selectionStart,
+                text="mise en forme",
+                new_text=res["text"],
+                cursorPosition=res["cursorPosition"],
+            )
+        )
 
-    @pyqtSlot(result="QVariantMap")
+    @pyqtSlot()
     def loadTextSection(self):
-        return TextSectionEditor(self.id).onLoad()
+        res = TextSectionEditor(self.id).onLoad()
+        res["cursorPosition"] = (
+            res["cursorPosition"] - 1
+        )  # leger hack sinon la position est fausse
+        self.text = res["text"]
+        self.cursor = res["cursorPosition"]
+        self.accepted = res["eventAccepted"]
+
+
+class UpdateTextSectionCommand(UpdateSectionCommand):
+    """
+    Enregistre l'etat du text avant et apres
+    """
+
+    undo_text = "frappe"
+
+    def redo(self):
+        section = self.get_section()
+        section.text = self.params["new_text"]
+        section.cursor = self.params["cursorPosition"]
+        section.forceUpdate.emit()
+
+    def undo(self):
+
+        section = self.get_section()
+        section.text = self.params["b_text"]
+        section.cursor = self.params["b_cursor"]
+        section.forceUpdate.emit()
 
 
 """

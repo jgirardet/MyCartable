@@ -86,7 +86,10 @@ Flickable {
             populated = true;
 
     }
-    onItemAdded: scrollToIndex(page.lastPosition) // valable si bien mis à jour dans le model
+    onItemAdded: {
+        scrollToIndex(page.lastPosition); // valable si bien mis à jour dans le model
+        itemAt(index).loaded.disconnect(itemAdded); // rescroll avec floodfill
+    }
     boundsBehavior: Flickable.StopAtBounds
     contentWidth: column.width
     contentHeight: column.height
@@ -116,6 +119,7 @@ Flickable {
 
             delegate: BasePageDelegate {
                 referent: root
+                section: model.section
             }
 
         }
@@ -136,7 +140,7 @@ Flickable {
 
         message: "Supprimer cet élément ?"
         onAccepted: {
-            page.model.remove(itemIndex, 1);
+            page.removeSection(itemIndex, 1);
         }
         standardButtons: Dialog.Ok | Dialog.Cancel
     }

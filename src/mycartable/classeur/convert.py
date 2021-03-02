@@ -31,6 +31,7 @@ from PyQt5.QtGui import (
     QPainterPath,
     QDesktopServices,
 )
+from PyQt5.QtWidgets import QUndoStack
 from bs4 import NavigableString, BeautifulSoup
 from mako.lookup import TemplateLookup
 
@@ -1010,22 +1011,22 @@ class SectionGrabber(Grabber):
         self.qq = QQuickItem(width=1200, height=1200)
         from . import Section
 
-        instance = Section.get(section.id)
+        instance = Section.get(section.id, parent=None, undoStack=QUndoStack())
         sip.transferto(instance, instance)
         base_params = {
             "section": instance,
             "referent": self.qq,
-            "index": 1,
             **params,
         }
         super().__init__(url, base_params)
+        self.rootContext().setContextProperty("index", 1)
         self.qq.setParent(self)
-        instance.setParent(self)
 
 
 def grab_section(section, initial_prop={}):
     grab = SectionGrabber(section, initial_prop)
     if img := grab():
+        img.save("/tmp/img.png")
         return img.to_odf(), ""
     else:
         return "", ""

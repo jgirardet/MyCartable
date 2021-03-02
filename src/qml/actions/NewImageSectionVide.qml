@@ -40,11 +40,12 @@ BasePageAction {
             }
 
             function choose(val) {
+                //                    "position": newPos
+
                 var newPos = append ? page.model.count : position + 1;
                 page.addSection("ImageSection", newPos, {
                     "height": val,
-                    "width": 1280,
-                    "position": newPos
+                    "width": 1280
                 });
                 videdialog.close();
             }

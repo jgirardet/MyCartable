@@ -22,9 +22,12 @@ FocusScope {
         property var annot
         property var annotobj
         property var ref
+        property var page
 
         function initPre() {
+            let img = fk.f("imageSection");
             annot = fk.f("annotationText", {
+                "section": img.id,
                 "text": "bla",
                 "style": {
                     "bgColor": "blue",
@@ -32,19 +35,14 @@ FocusScope {
                     "underline": true
                 }
             });
-            let img = fk.f("imageSection");
-            ref = th.getBridgeInstance(item, "ImageSection", img.id);
-            annotobj = th.getBridgeInstance(ref, "AnnotationText", annot.id);
+            page = th.getBridgeInstance(item, "Page", img.page);
+            ref = page.model.data(page.model.index(0, 0), th.getRole("SectionRole")); // 257:PageRole
+            annotobj = ref.model.data(ref.model.index(0, 0), th.getRole("AnnotationRole")); //258:AnnotationRole
             params = {
                 "annot": annotobj,
                 "referent": item
             };
-        }
-
-        function initPreCreate() {
-        }
-
-        function initPost() {
+            annotobj.index = 0;
         }
 
         function test_initY() {
@@ -109,15 +107,6 @@ FocusScope {
             tested.focus = false;
             tested.focus = true;
             compare(tested.cursorPosition, 8);
-        }
-
-        function test_focus_changed_timerremovestart_if_empty_text() {
-            var tm = findChild(tested, "timerRemove");
-            tm.stop();
-            tested.text = "";
-            tested.focus = false;
-            tested.focus = true;
-            verify(tm.running);
         }
 
         function test_add_new_line() {
@@ -196,6 +185,28 @@ FocusScope {
 
         function test_checkPointIsNotDraw() {
             verify(!tested.checkPointIsNotDraw(4, 5));
+        }
+
+        function test_undo_redo() {
+            tested.cursorPosition = 3;
+            keyClick(Qt.Key_X);
+            compare(tested.cursorPosition, 4);
+            compare(tested.text, "blax");
+            keySequence("ctrl+z");
+            compare(tested.cursorPosition, 3);
+            compare(tested.text, "bla");
+            keySequence("ctrl+shift+z");
+            compare(tested.cursorPosition, 4);
+            compare(tested.text, "blax");
+            keyClick(Qt.Key_Backspace);
+            compare(tested.cursorPosition, 3);
+            compare(tested.text, "bla");
+            keySequence("ctrl+z");
+            compare(tested.cursorPosition, 4);
+            compare(tested.text, "blax");
+            keySequence("ctrl+shift+z");
+            compare(tested.cursorPosition, 3);
+            compare(tested.text, "bla");
         }
 
         name: "AnnotationText"

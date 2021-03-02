@@ -17,25 +17,26 @@ Loader {
     }
 
     function saveMove() {
-        annot.set({
+        annot.set(index, {
             "x": root.x / root.parent.implicitWidth,
             "y": root.y / root.parent.implicitHeight
         });
     }
 
     function setStyleFromMenu(data) {
-        annot.set(data.style);
+        annot.set(index, data.style, "mise en forme");
     }
 
     anchors.top: parent.top
-    anchors.topMargin: annot.y * parent.implicitHeight
+    anchors.topMargin: annot ? annot.y * parent.implicitHeight : 0
     anchors.left: parent.left
-    anchors.leftMargin: annot.x * parent.implicitWidth
+    anchors.leftMargin: annot ? annot.x * parent.implicitWidth : 0
     focus: parent.currentAnnotation === root
     Component.onCompleted: {
         root.setSource("qrc:/qml/annotations/" + annot.classtype + ".qml", {
             "referent": referent,
-            "annot": annot
+            "annot": annot,
+            "index": index
         });
     }
     states: [
@@ -51,6 +52,12 @@ Loader {
 
         }
     ]
+
+    Binding {
+        target: annot
+        property: "index"
+        value: index
+    }
 
     MouseArea {
         id: mousearea

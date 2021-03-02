@@ -49,8 +49,6 @@ Rectangle {
     }
 
     Loader {
-        //            titre.forceActiveFocus();
-
         id: loaderps
 
         property bool populated: item ? item.populated : false

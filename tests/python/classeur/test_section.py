@@ -11,7 +11,9 @@ from mycartable.classeur import (
     EquationSection,
     TableauSection,
     FriseSection,
+    Page,
 )
+from pony.orm import db_session
 
 """
 Section
@@ -40,10 +42,30 @@ def test_available_subclasses():
     "_class",
     sub_classes,
 )
-def test_get_class(fk, _class):
+def test_get_class(fk, _class, bridge):
     f_name = "f_" + _class.entity_name[0].lower() + _class.entity_name[1:]
     a = getattr(fk, f_name)(td=True)
-    s = Section.get(a["id"])
+    s = Section.get(a["id"], parent=bridge)
     assert a == s._data
     assert s.classtype == _class.entity_name
     assert isinstance(s, _class)
+
+
+@pytest.mark.parametrize(
+    "_class",
+    sub_classes,
+)
+def test_backup(fk, _class, bridge):
+    f_name = "f_" + _class.entity_name[0].lower() + _class.entity_name[1:]
+    a = getattr(fk, f_name)()
+    s = Section.get(a.id, parent=bridge)
+
+    with db_session:
+        assert a.backup() == getattr(fk.db, _class.entity_name)[a.id].backup()
+
+
+def test_properties(fk, bridge):
+    it = fk.f_section(td=True)
+    p = Page.get(it["page"], parent=bridge)
+    sec = Section.get(it["id"], parent=p)
+    assert sec.page == p

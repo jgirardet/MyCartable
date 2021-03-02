@@ -1,4 +1,3 @@
-//import MyCartable 1.0
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import "qrc:/qml/annotations"
@@ -63,10 +62,16 @@ Image {
     fillMode: Image.PreserveAspectCrop
     sourceSize.width: sectionItem ? sectionItem.width : 0
     cache: false
-    Component.onCompleted: {
-        root.source = section.url;
-    }
+    source: section.url
     model: section.model
+
+    Connections {
+        function onCommandDone() {
+            root.reloadImage();
+        }
+
+        target: section
+    }
 
     MenuFlottantImage {
         id: menuFlottantImage
@@ -88,7 +93,10 @@ Image {
                 else
                     menuFlottantImage.ouvre(root);
             } else if (pressedButtons === Qt.LeftButton) {
-                if (mouse.modifiers == Qt.ControlModifier) {
+                if (menuFlottantImage.visible) {
+                    // previent le clique pour fermer qui fait une action non voulue
+                    menuFlottantImage.close();
+                } else if (mouse.modifiers == Qt.ControlModifier) {
                     root.addAnnotationText(mouse);
                 } else if (section.annotationCurrentTool == "text") {
                     root.addAnnotationText(mouse);
@@ -96,7 +104,6 @@ Image {
                     let fillColor = section.annotationDessinCurrentStrokeStyle;
                     let point = Qt.point(mouse.x / width, mouse.y / height);
                     section.floodFill(fillColor, point);
-                    root.reloadImage();
                 } else {
                     root.startDraw();
                 }

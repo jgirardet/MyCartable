@@ -19,8 +19,8 @@ class SubSection(MainSection):
     entity_name = "TextSection"
 
 
-def test_classtype(fk):
-    s = Subtyped({"classtype": "bla"})
+def test_classtype(fk, bridge):
+    s = Subtyped({"classtype": "bla"}, parent=bridge)
     assert s.classtype == "bla"
 
 
@@ -37,9 +37,9 @@ def test_available_not_implemented():
         Subtyped.get_class("aa")
 
 
-def test_new_sub(fk):
+def test_new_sub(fk, bridge):
     p = fk.f_page()
-    text = MainSection.new_sub(classtype="TextSection", page=p.id)
+    text = MainSection.new_sub(classtype="TextSection", page=p.id, parent=bridge)
     assert isinstance(text, SubSection)
-    text = MainSection.new_sub(classtype="Section", page=p.id)
+    text = MainSection.new_sub(classtype="Section", page=p.id, parent=bridge)
     assert isinstance(text, MainSection)

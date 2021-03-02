@@ -25,6 +25,9 @@
         <file alias="NewTableauSection.qml">qml/actions/NewTableauSection.qml</file>
         <file alias="NewTextSection.qml">qml/actions/NewTextSection.qml</file>
         <file alias="RemovePage.qml">qml/actions/RemovePage.qml</file>
+        <file alias="RedoAction.qml">qml/actions/RedoAction.qml</file>
+        <file alias="UndoAction.qml">qml/actions/UndoAction.qml</file>
+<!--        <file alias="QAction.qml">qml/actions/QAction.qml</file>-->
         <file alias="TableauActions.qml">qml/actions/TableauActions.qml</file>
     </qresource>
 
@@ -40,6 +43,9 @@
         <file alias="NewTableauSection.qml">qml/buttons/NewTableauSection.qml</file>
         <file alias="NewTextSection.qml">qml/buttons/NewTextSection.qml</file>
         <file alias="RemovePage.qml">qml/buttons/RemovePage.qml</file>
+        <file alias="RedoButton.qml">qml/buttons/RedoButton.qml</file>
+        <file alias="TableauButton.qml">qml/buttons/TableauButton.qml</file>
+        <file alias="UndoButton.qml">qml/buttons/UndoButton.qml</file>
 
     </qresource>
 
@@ -125,6 +131,7 @@
         <file alias="PointSizeSlider.qml">qml/menu/PointSizeSlider.qml</file>
         <file alias="OpacitySlider.qml">qml/menu/OpacitySlider.qml</file>
         <file alias="DeplacePage.qml">qml/menu/DeplacePage.qml</file>
+        <file alias="MenuSlider.qml">qml/menu/MenuSlider.qml</file>
 
     </qresource>
 
@@ -153,6 +160,8 @@
         <file alias="ColorPicker.qml">qml/divers/ColorPicker.qml</file>
         <file alias="DynamicRepeater.qml">qml/divers/DynamicRepeater.qml</file>
         <file alias="IndexedDialog.qml">qml/divers/IndexedDialog.qml</file>
+        <file alias="TimedSlider.qml">qml/divers/TimedSlider.qml</file>
+        <file alias="UndoAbleTextArea.qml">qml/divers/UndoAbleTextArea.qml</file>
     </qresource>
     
 
@@ -196,6 +205,8 @@
         <file alias="arrow-double">data/icons/base/arrows/png/040-left arrow.png</file>
         <file alias="arrow-right">data/icons/base/arrows/png/001-right arrow.png</file>
         <file alias="floodfill">data/icons/base/gimp/gimp-tool-bucket-fill.svg</file>
+        <file alias="undo">data/icons/base/gimp/edit-undo.svg</file>
+        <file alias="redo">data/icons/base/gimp/edit-redo.svg</file>
         <file alias="split_horizontal">data/icons/base/visualpharm/Split_Horizontal-595b40b65ba036ed117d3405.svg</file>
         <file alias="split_vertical">data/icons/base/visualpharm/Split_Vertical-595b40b65ba036ed117d3406.svg</file>
 <!--        <file alias="text">data/icons/base/pack/png/sphere.png</file>-->
@@ -209,6 +220,7 @@
     <qresource prefix="/js">
         <file alias="lodash.js">data/js/lodash.js</file>
         <file alias="drawcanvas.mjs">data/js/drawcanvas.mjs</file>
+        <file alias="stringUtils.mjs">data/js/stringUtils.mjs</file>
     </qresource>
     <qresource prefix="/css">
         <file alias="textsection.css">data/css/textsection.css</file>

@@ -170,12 +170,9 @@ class TestGrabber:
                 if(available)
                     paint(item.childrenRect)
             }
-            //Component.onCompleted: {
-            //        paint(item.childrenRect)
-            //}
             onPaint: {
                 let ctx = canvas.getContext("2d");
-                print("write canvas")
+                console.log("write canvas") // ne pas effacer
                 item.status = 1
                 loaded()
                 
@@ -241,4 +238,5 @@ class TestGrabber:
         )
         qtbot.wait(100)
         g()
+        print([r.message for r in qtlog.records])
         assert "write canvas" in [r.message for r in qtlog.records]

@@ -2,6 +2,7 @@ from datetime import datetime
 from uuid import UUID
 
 import pytest
+from PyQt5.QtWidgets import QUndoCommand
 from tests.python.fixtures import check_args, disable_log
 from mycartable.classeur.classeur import Classeur
 from pony.orm import db_session

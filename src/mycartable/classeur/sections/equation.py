@@ -6,8 +6,8 @@ from typing import List, ClassVar
 from PyQt5.QtCore import pyqtSlot, Qt, pyqtSignal, pyqtProperty
 
 from loguru import logger
-
 from . import Section
+from . import UpdateSectionCommand
 
 
 class EquationSection(Section):
@@ -36,14 +36,43 @@ class EquationSection(Section):
     def update(self, curseur, event):
         event = json.loads(event)
         content, new_curseur = TextEquation(str(self.content), curseur, event)()
-        self.content = content
-        self.curseur = new_curseur
+        if event["key"] in [Qt.Key_Up, Qt.Key_Down, Qt.Key_Left, Qt.Key_Right]:
+            self.curseur = new_curseur
+        else:
+            self.undoStack.push(
+                UpdateEquationSectionCommand(
+                    section=self, content=content, curseur=new_curseur
+                )
+            )
 
     @pyqtSlot(int, result=bool)
     def isEquationFocusable(self, curseur: int) -> bool:
         return TextEquation(
             str(self.content), curseur, {"key": None, "text": None, "modifiers": None}
         ).is_focusable
+
+
+class UpdateEquationSectionCommand(UpdateSectionCommand):
+    """
+    Enregistre l'etat du text avant et apres
+    """
+
+    undo_text = "frappe"
+
+    def __init__(self, section: EquationSection, **kwargs):
+        super().__init__(section=section, **kwargs)
+        self.b_content = section.content
+        self.b_curseur = section.curseur
+
+    def redo(self):
+        section = self.get_section()
+        section.content = self.params["content"]
+        section.curseur = self.params["curseur"]
+
+    def undo(self):
+        section = self.get_section()
+        section.content = self.b_content
+        section.curseur = self.b_curseur
 
 
 @dataclass

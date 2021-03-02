@@ -1,33 +1,33 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.12
+import "qrc:/qml/buttons" as Buttons
 
 BaseMenu {
     id: menu
 
+    property alias rotateLeft: rotateLeft_id
+    property alias rotateRight: rotateRight_id
+
+    closePolicy: Popup.NoAutoClose
+
     MenuItem {
         Row {
             ToolButton {
+                id: rotateLeft_id
+
                 icon.source: "qrc:///icons/rotateLeft"
                 icon.color: "blue"
-                onClicked: {
-                    var res = target.section.pivoterImage(0);
-                    if (res)
-                        target.reloadImage();
-
-                }
+                onClicked: target.section.pivoterImage(0)
                 ToolTip.text: "Pivoter à  gauche"
             }
 
             ToolButton {
+                id: rotateRight_id
+
                 icon.source: "qrc:///icons/rotateRight"
                 icon.color: "blue"
-                onClicked: {
-                    var res = target.section.pivoterImage(1);
-                    if (res)
-                        target.reloadImage();
-
-                }
+                onClicked: target.section.pivoterImage(1)
                 ToolTip.text: "Pivoter à droite"
             }
 
@@ -39,8 +39,6 @@ BaseMenu {
         height: 80
 
         ColumnLayout {
-            //            Layout.fillHeight: true
-
             RowLayout {
                 spacing: 0
 
@@ -183,6 +181,7 @@ BaseMenu {
     MenuItem {
         PointSizeSlider {
             menu: menu
+            pointSize: target ? target.section.annotationDessinCurrentLineWidth : 5
         }
 
     }

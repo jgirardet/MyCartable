@@ -117,10 +117,12 @@ def caplogger():
             return res
 
     log = Ios()
+    logger.remove()
     lid = logger.add(log, level="DEBUG")
 
     yield log
     logger.remove(lid)
+    logger.add(sys.stdout, level="WARNING")
 
 
 @pytest.fixture(autouse=True, scope="session")

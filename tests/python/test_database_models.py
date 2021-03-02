@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime, date
 
 from PyQt5.QtGui import QFont, QColor
+from mycartable.database.mixins import BackupAble
 from tests.python.fixtures import compare_items, wait, ss, uuu
 
 import pytest
@@ -463,6 +464,64 @@ class TestSection:
             for index, value in enumerate(poses):
                 assert fk.db.Section[secs[index].id].position == value
 
+    @pytest.mark.parametrize(
+        "section,   kwargs",
+        [
+            ("TextSection", {"text": "hello"}),
+            ("ImageSection", {"path": "sc1.png"}),
+            ("AdditionSection", {"string": "3+2"}),
+            ("SoustractionSection", {"string": "3-2"}),
+            ("MultiplicationSection", {"string": "3*2"}),
+            ("DivisionSection", {"string": "3/2"}),
+            ("EquationSection", {"content": "3/2"}),
+        ],
+    )
+    def test_resore_eagale_to_dict(self, fk, section, kwargs):
+        with db_session:
+            sec = fk._f_section(section, **kwargs)
+            if section == "ImageSection":
+                fk.f_annotationText(section=sec.id)
+                fk.f_annotationDessin(section=sec.id)
+            elif section == "Frisection":
+                z = fk.f_zoneFrise(frise=sec.id)
+                fk.f_friseLegende(zone=z)
+
+            assert sec.backup() == sec.to_dict()
+
+    @pytest.mark.parametrize(
+        "section,   kwargs",
+        [
+            ("TextSection", {"text": "hello"}),
+            ("ImageSection", {"path": "sc1.png"}),
+            ("AdditionSection", {"string": "3+2"}),
+            ("SoustractionSection", {"string": "3-2"}),
+            ("MultiplicationSection", {"string": "3*2"}),
+            ("DivisionSection", {"string": "3/2"}),
+            ("EquationSection", {"content": "3/2"}),
+            ("TableauSection", {"modele": "ligne0", "lignes": 2, "colonnes": 3}),
+            ("FriseSection", {"height": 3, "titre": "aaa"}),
+        ],
+    )
+    def test_backup_restore(self, fk, section, kwargs):
+        with db_session:
+            sec = fk._f_section(section, **kwargs)
+        with db_session:
+            sec = getattr(fk.db, section)[sec.id]
+            if section == "ImageSection":
+                fk.f_annotationText(section=sec.id)
+            elif section == "FriseSection":
+                z = fk.f_zoneFrise(frise=sec.id)
+                fk.f_friseLegende(zone=z.id)
+
+            td = sec.backup()
+            sec.delete()
+        with db_session:
+            res = getattr(fk.db, section).restore(**td)
+            td.pop("modified")
+            new_res = res.backup()
+            new_res.pop("modified")
+            assert new_res == td
+
 
 class TestImageSection:
     def test_factory(self, fk):
@@ -531,13 +590,6 @@ class TestOperationSection:
         with pytest.raises(MyCartableOperationError) as err:
             ddb.OperationSection(string="1(2")
         assert str(err.value) == "1(2 est une entrée invalide"
-
-    def test_datas(self, ddb, fk):
-        fk.f_page()
-
-        # do not use content if None
-        with pytest.raises(TypeError):
-            a = ddb.OperationSection(page=1)
 
     def test_to_dict(self, fk):
         item = fk.f_additionSection(string="259+135")
@@ -780,6 +832,24 @@ class TestAnnotations:
             a = annots[2].as_type()
             assert isinstance(a, fk.db.AnnotationText)
 
+    def test_backup_restore(self, fk):
+        # dessin
+        d = fk.f_annotationDessin(td=True)
+        with db_session:
+            assert fk.db.AnnotationDessin[d["id"]].backup() == d
+            fk.db.AnnotationDessin[d["id"]].delete()
+        with db_session:
+            fk.db.AnnotationDessin.restore(**d)
+            assert fk.db.AnnotationDessin[d["id"]].to_dict() == d
+        # text
+        d = fk.f_annotationText(td=True)
+        with db_session:
+            assert fk.db.AnnotationText[d["id"]].backup() == d
+            fk.db.AnnotationText[d["id"]].delete()
+        with db_session:
+            fk.db.AnnotationText.restore(**d)
+            assert fk.db.AnnotationText[d["id"]].to_dict() == d
+
 
 class TestTableauSection:
     def test_init(self, ddb, fk):
@@ -837,7 +907,6 @@ class TestTableauSection:
 
     def test_to_dict(self, ddb, fk):
         item = fk.f_tableauSection(lignes=3, colonnes=4)
-
         assert item.to_dict() == {
             "classtype": "TableauSection",
             "created": item.created.isoformat(),
@@ -847,6 +916,30 @@ class TestTableauSection:
             "modified": item.modified.isoformat(),
             "page": str(item.page.id),
             "position": 0,
+        }
+
+    def test_backup(self, ddb, fk):
+        item = fk.f_tableauSection(lignes=3, colonnes=4)
+        res = item.backup()
+        cells = res.pop("cells")
+        assert res == item.to_dict()
+        assert len(cells) == 12
+        c2 = cells[2]
+        assert c2 == {
+            "style": {
+                "bgColor": c2["style"]["bgColor"],
+                "family": "",
+                "fgColor": c2["style"]["fgColor"],
+                "pointSize": None,
+                "strikeout": False,
+                "styleId": c2["style"]["styleId"],
+                "underline": False,
+                "weight": None,
+            },
+            "tableau": str(item.id),
+            "texte": "",
+            "x": 2,
+            "y": 0,
         }
 
     def test_get_cells(self, ddb, fk):
@@ -977,7 +1070,6 @@ class TestTableauSection:
                 cells[8].texte = "2_0"
                 cells[8].style.fgColor = "blue"
                 cells = [x.to_dict(exclude=["x", "y"]) for x in cells]
-                [x["style"].pop("styleId") for x in cells]
                 return make_proxy(a), cells
 
         return wraped
@@ -989,7 +1081,6 @@ class TestTableauSection:
         with db_session:
             assert a.cells.count() == 16
             cells_after = [x.to_dict(exclude=["x", "y"]) for x in a._get_cells()[:]]
-            [x["style"].pop("styleId") for x in cells_after]
             assert cells_after[0] == cells[0]
             assert cells_after[8] == cells[4]
             assert cells_after[12] == cells[8]
@@ -1003,7 +1094,6 @@ class TestTableauSection:
         with db_session:
             assert a.cells.count() == 16
             cells_after = [x.to_dict(exclude=["x", "y"]) for x in a._get_cells()[:]]
-            [x["style"].pop("styleId") for x in cells_after]
             assert cells_after[4] == cells[0]
             assert cells_after[8] == cells[4]
             assert cells_after[12] == cells[8]
@@ -1017,7 +1107,6 @@ class TestTableauSection:
         with db_session:
             assert a.cells.count() == 16
             cells_after = [x.to_dict(exclude=["x", "y"]) for x in a._get_cells()[:]]
-            [x["style"].pop("styleId") for x in cells_after]
             assert cells_after[0] == cells[0]
             assert cells_after[4] == cells[4]
             assert cells_after[12] == cells[8]
@@ -1031,7 +1120,6 @@ class TestTableauSection:
         with db_session:
             assert a.cells.count() == 16
             cells_after = [x.to_dict(exclude=["x", "y"]) for x in a._get_cells()[:]]
-            [x["style"].pop("styleId") for x in cells_after]
             assert cells_after[0] == cells[0]
             assert cells_after[4] == cells[4]
             assert cells_after[8] == cells[8]
@@ -1045,7 +1133,6 @@ class TestTableauSection:
         with db_session:
             assert a.cells.count() == 16
             cells_after = [x.to_dict(exclude=["x", "y"]) for x in a._get_cells()[:]]
-            [x["style"].pop("styleId") for x in cells_after]
             assert cells_after[0] == cells[0]
             assert cells_after[4] == cells[4]
             assert cells_after[8] == cells[8]
@@ -1059,7 +1146,6 @@ class TestTableauSection:
         with db_session:
             assert a.cells.count() == 8
             cells_after = [x.to_dict(exclude=["x", "y"]) for x in a._get_cells()[:]]
-            [x["style"].pop("styleId") for x in cells_after]
             assert cells_after[0] == cells[0]
             assert cells_after[4] == cells[8]
 
@@ -1070,7 +1156,6 @@ class TestTableauSection:
         with db_session:
             assert a.cells.count() == 8
             cells_after = [x.to_dict(exclude=["x", "y"]) for x in a._get_cells()[:]]
-            [x["style"].pop("styleId") for x in cells_after]
             assert cells_after[0] == cells[0]
             assert cells_after[4] == cells[4]
 
@@ -1081,7 +1166,6 @@ class TestTableauSection:
         with db_session:
             assert a.cells.count() == 8
             cells_after = [x.to_dict(exclude=["x", "y"]) for x in a._get_cells()[:]]
-            [x["style"].pop("styleId") for x in cells_after]
             assert cells_after[0] == cells[4]
             assert cells_after[4] == cells[8]
 
@@ -1101,7 +1185,6 @@ class TestTableauSection:
                 cells[3].texte = "0_3"
                 cells[3].style.strikeout = True
                 cells = [x.to_dict(exclude=["x", "y"]) for x in cells]
-                [x["style"].pop("styleId") for x in cells]
                 return make_proxy(a), cells
 
         return wrap
@@ -1113,7 +1196,7 @@ class TestTableauSection:
         with db_session:
             assert a.cells.count() == 15
             cells_after = [x.to_dict(exclude=["x", "y"]) for x in a._get_cells()[:]]
-            [x["style"].pop("styleId") for x in cells_after]
+            # [x["style"].pop("styleId") for x in cells_after]
             assert cells_after[0] == cells[0]
             assert cells_after[2] == cells[1]
             assert cells_after[3] == cells[2]
@@ -1128,7 +1211,6 @@ class TestTableauSection:
         with db_session:
             assert a.cells.count() == 15
             cells_after = [x.to_dict(exclude=["x", "y"]) for x in a._get_cells()[:]]
-            [x["style"].pop("styleId") for x in cells_after]
             assert cells_after[1] == cells[0]
             assert cells_after[2] == cells[1]
             assert cells_after[3] == cells[2]
@@ -1143,7 +1225,6 @@ class TestTableauSection:
         with db_session:
             assert a.cells.count() == 15
             cells_after = [x.to_dict(exclude=["x", "y"]) for x in a._get_cells()[:]]
-            [x["style"].pop("styleId") for x in cells_after]
             assert cells_after[0] == cells[0]
             assert cells_after[1] == cells[1]
             assert cells_after[2] == cells[2]
@@ -1158,7 +1239,6 @@ class TestTableauSection:
         with db_session:
             assert a.cells.count() == 15
             cells_after = [x.to_dict(exclude=["x", "y"]) for x in a._get_cells()[:]]
-            [x["style"].pop("styleId") for x in cells_after]
             assert cells_after[0] == cells[0]
             assert cells_after[1] == cells[1]
             assert cells_after[2] == cells[2]
@@ -1173,7 +1253,6 @@ class TestTableauSection:
         with db_session:
             assert a.cells.count() == 15
             cells_after = [x.to_dict(exclude=["x", "y"]) for x in a._get_cells()[:]]
-            [x["style"].pop("styleId") for x in cells_after]
             assert cells_after[0] == cells[0]
             assert cells_after[1] == cells[1]
             assert cells_after[2] == cells[2]
@@ -1188,7 +1267,6 @@ class TestTableauSection:
         with db_session:
             assert a.cells.count() == 9
             cells_after = [x.to_dict(exclude=["x", "y"]) for x in a._get_cells()[:]]
-            [x["style"].pop("styleId") for x in cells_after]
             assert cells_after[0] == cells[0]
             assert cells_after[1] == cells[1]
             assert cells_after[2] == cells[3]
@@ -1200,7 +1278,6 @@ class TestTableauSection:
         with db_session:
             assert a.cells.count() == 9
             cells_after = [x.to_dict(exclude=["x", "y"]) for x in a._get_cells()[:]]
-            [x["style"].pop("styleId") for x in cells_after]
             assert cells_after[0] == cells[1]
             assert cells_after[1] == cells[2]
             assert cells_after[2] == cells[3]
@@ -1212,10 +1289,47 @@ class TestTableauSection:
         with db_session:
             assert a.cells.count() == 9
             cells_after = [x.to_dict(exclude=["x", "y"]) for x in a._get_cells()[:]]
-            [x["style"].pop("styleId") for x in cells_after]
             assert cells_after[0] == cells[0]
             assert cells_after[1] == cells[1]
             assert cells_after[2] == cells[2]
+
+    def test_restore_column(self, peupler_tableau_manip_colonnes):
+        a, cells = peupler_tableau_manip_colonnes()
+        to_restore = [cells[2], cells[6], cells[10]]
+        to_restore[0].update({"x": 2, "y": 0})
+        to_restore[1].update({"x": 2, "y": 1})
+        to_restore[2].update({"x": 2, "y": 2})
+        with db_session:
+            a.remove_one_column(2)
+        with db_session:
+            a.restore_column(2, to_restore)
+
+        with db_session:
+            assert a.cells.count() == 12
+            cells_after = [x.to_dict() for x in a._get_cells()[:]]
+            assert cells_after[2] == to_restore[0]
+            assert cells_after[6] == to_restore[1]
+            assert cells_after[10] == to_restore[2]
+
+    def test_restore_line(self, peupler_tableau_manipulation):
+        a, cells = peupler_tableau_manipulation()
+        to_restore = cells[4:8]
+        to_restore[0].update({"x": 0, "y": 1})
+        to_restore[1].update({"x": 1, "y": 1})
+        to_restore[2].update({"x": 2, "y": 1})
+        to_restore[3].update({"x": 3, "y": 1})
+        with db_session:
+            a.remove_one_line(1)
+        with db_session:
+            a.restore_line(2, to_restore)
+
+        with db_session:
+            assert a.cells.count() == 12
+            cells_after = [x.to_dict() for x in a._get_cells()[:]]
+            assert cells_after[4] == to_restore[0]
+            assert cells_after[5] == to_restore[1]
+            assert cells_after[6] == to_restore[2]
+            assert cells_after[7] == to_restore[3]
 
 
 class TestTableauCell:
@@ -1732,6 +1846,21 @@ class TestFrise:
                     },
                 ],
             }
+
+
+class TestBackupableMxin:
+    def test_base(self):
+        class B(BackupAble):
+            def to_dict(self):
+                return self.bla
+
+            def __init__(self, **kwargs):
+                self.bla = kwargs
+
+        dic = {"bleu": "ba"}
+        v = B(**dic)
+        assert v.backup() == dic
+        assert B.restore(**dic).bla == dic
 
 
 class TestLexique:

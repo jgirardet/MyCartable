@@ -163,7 +163,9 @@ def test_1_5_0_vers_1_6_0(new_res, resources, caplogger):
     ddb = Database(provider="sqlite", filename=str(base))
     assert mk(CheckMigrations(until="1.6.0"), lambda x: True), caplogger.read()
     # # test tdes données ok
-    ddb.disconnect()  # recherche le schéma
+    ddb.disconnect()  # recharge le schéma
+    del ddb
+    del mk #windows u npeu chaffoins avec les accès
     ddb = Database(provider="sqlite", filename=str(base))
     with db_session_disconnect_db(ddb):
         res = ddb.execute("select content, modified from Traduction")

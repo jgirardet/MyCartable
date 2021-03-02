@@ -161,12 +161,12 @@ def test_1_5_0_vers_1_6_0(new_res, resources, caplogger):
     base = new_res(resources / "db_version" / f"1.5.0.sqlite")
     mk = MakeMigrations(base, "1.6.0", migrations_history)
     ddb = Database(provider="sqlite", filename=str(base))
+    # test tdes données ok
+    with db_session_disconnect_db(ddb):
+        pass #pour winddows
     assert mk(CheckMigrations(until="1.6.0"), lambda x: True), caplogger.read()
     # # test tdes données ok
-    ddb.disconnect()  # recharge le schéma
-    del ddb
-    del mk #windows u npeu chaffoins avec les accès
-    ddb = Database(provider="sqlite", filename=str(base))
+    #ddb = Database(provider="sqlite", filename=str(base))
     with db_session_disconnect_db(ddb):
         res = ddb.execute("select content, modified from Traduction")
         assert res.fetchone() == (

@@ -490,7 +490,9 @@ class Faker:
             item = self.db.Locale.get(id=id) or self.db.Locale(id=id)
             return item.to_dict() if td else item
 
-    def f_traduction(self, content=None, lexon=None, locale=None, td=False):
+    def f_traduction(
+        self, content=None, lexon=None, locale=None, modified=None, td=False
+    ):
         content = content or gen.text.word()
         lexon = (
             (lexon if isinstance(lexon, str) else lexon.id)
@@ -500,9 +502,11 @@ class Faker:
         if locale:
             locale = locale if isinstance(locale, str) else locale.id
         locale = self.f_locale(id=locale).id
-
+        modified = modified or datetime.utcnow()
         with db_session:
-            item = self.db.Traduction(lexon=lexon, content=content, locale=locale)
+            item = self.db.Traduction(
+                lexon=lexon, modified=modified, content=content, locale=locale
+            )
             return item.to_dict() if td else item
 
     def bulk(self, fn: str, nb: int, **kwargs):

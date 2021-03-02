@@ -86,6 +86,10 @@ class GenerateDatabase:
         self.generate_items()
         self.f.f_traduction(content="coucou", locale="fr_FR")
 
+    def version_1_6_0(self):
+        self.generate_items()
+        self.f.f_traduction(content="hello", locale="fr_FR")
+
 
 @pytest.fixture(scope="session", autouse=True)
 def check_generate_database_version(resources):
@@ -150,3 +154,20 @@ def test_1_3_0_vers_1_4_0(new_res, resources, caplogger):
             ("prenom", "str_value", prenom, None, None, None, None, None, None, 0),
             ("user_set", "bool_value", "", None, 1, None, None, None, None, 0),
         ]
+
+
+def test_1_5_0_vers_1_6_0(new_res, resources, caplogger):
+    # setup
+    base = new_res(resources / "db_version" / f"1.5.0.sqlite")
+    mk = MakeMigrations(base, "1.6.0", migrations_history)
+    ddb = Database(provider="sqlite", filename=str(base))
+    assert mk(CheckMigrations(until="1.6.0"), lambda x: True), caplogger.read()
+    # # test tdes données ok
+    ddb.disconnect()  # recherche le schéma
+    ddb = Database(provider="sqlite", filename=str(base))
+    with db_session_disconnect_db(ddb):
+        res = ddb.execute("select content, modified from Traduction")
+        assert res.fetchone() == (
+            "coucou",
+            "2021-01-01 00:00:00.000000",
+        )

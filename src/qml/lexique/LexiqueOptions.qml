@@ -8,6 +8,7 @@ Row {
     property alias langues: repeater
     property alias quizz: quizz_id
     required property Item lexique
+    property bool quizzing: quizz_id.visible
 
     spacing: 10
 

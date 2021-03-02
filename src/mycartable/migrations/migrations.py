@@ -10,7 +10,7 @@ Mode d'emploi pour ajouter des migrations:
 
 - changer la version dans database/models
 - ajouter une migrations vide à migration_history, liste vide
-- ajouter method "version 1_X_Y"
+- ajouter method "version 1_X_Y" à GenerateDatabase dans tet_migrations.py
 - lancer une fois pour créer sql et sqlite
 - ajouter les migrations à migration_history: un instruction par ligne
 - créer de_1_X_X_vers_1_X_Y dans CheckMigrations
@@ -42,7 +42,23 @@ migrations_history = {
         "PRAGMA foreign_keys = ON;",
         # FIN drop utilisateur, remove refenrece from Annee
     ],
-    "1.5.0": [],
+    "1.5.0": [
+        """CREATE TABLE "Lexon" ( "id" UUID NOT NULL PRIMARY KEY);""",
+        """CREATE TABLE "Locale" ( "id" TEXT NOT NULL PRIMARY KEY);""",
+        """CREATE TABLE "Traduction" ( "id" UUID NOT NULL PRIMARY KEY, "content" TEXT NOT NULL, "lexon" UUID NOT NULL REFERENCES "Lexon" ("id") ON DELETE CASCADE, "locale" TEXT NOT NULL REFERENCES "Locale" ("id") ON DELETE CASCADE);""",
+        """CREATE INDEX "idx_traduction__lexon" ON "Traduction" ("lexon");""",
+        """CREATE INDEX "idx_traduction__locale" ON "Traduction" ("locale");""",
+    ],
+    "1.6.0": [
+        "PRAGMA foreign_keys = OFF;",
+        "DROP INDEX idx_traduction__lexon;",
+        "DROP INDEX idx_traduction__locale;",
+        'CREATE TABLE TraductionBackup ( "id" UUID NOT NULL PRIMARY KEY,  "content" TEXT NOT NULL,  "lexon" UUID NOT NULL REFERENCES "Lexon" ("id") ON DELETE CASCADE,  "locale" TEXT NOT NULL REFERENCES "Locale" ("id") ON DELETE CASCADE,  "modified" DATETIME NOT NULL);',
+        "INSERT INTO TraductionBackup SELECT id, content, lexon, locale, '2021-01-01 00:00:00.000000'from Traduction;",
+        "DROP TABLE Traduction;",
+        "ALTER TABLE TraductionBackup RENAME TO Traduction;",
+        "PRAGMA foreign_keys = ON;",
+    ],
 }
 
 
@@ -116,6 +132,15 @@ class CheckMigrations:
             self.db.execute("select content from Traduction")
             self.db.execute("select id from Locale")
             self.db.execute("select id from Lexon")
+        except OperationalError as err:
+            raise MigrationResultError(str(err)) from err
+
+    def de_1_5_0_vers_1_6_0(self):
+        try:
+            # self.db.execute("select content from Traduction")
+            res = self.db.execute("select modified from Traduction")
+            # assert res.fetchall() == [("2021-01-01 00:00:00.000000",)]
+
         except OperationalError as err:
             raise MigrationResultError(str(err)) from err
 

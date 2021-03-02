@@ -1,4 +1,5 @@
 import random
+from datetime import datetime, timedelta
 from typing import Optional, Any, Union, Dict
 
 import flag
@@ -145,6 +146,7 @@ class LexiqueProxy(QSortFilterProxyModel):
 
 
 class Quizz(QObject):
+    anterioriteChanged = pyqtSignal()
     bonneReponse = pyqtSignal()
     propositionChanged = pyqtSignal()
     questionChanged = pyqtSignal()
@@ -158,6 +160,8 @@ class Quizz(QObject):
     def __init__(self, parent, model):
         super().__init__(parent)
         self._model = model
+        self.anteriorite = 14
+        self.anterioriteChanged.connect(self.reset)
         self.reset()
 
     def reset(self):
@@ -169,7 +173,24 @@ class Quizz(QObject):
         self.reponseFlag = ""
         self.showError = False
         self.proposition = ""
-        self._data = self._model.model_data
+        self._data = self._prepare_data(self._model.model_data)
+
+    @staticmethod
+    def _limite_to_anteriorite(data: list, anteriorite: int):
+        if anteriorite:
+            return [
+                lex
+                for lex in data
+                if datetime.fromisoformat(lex["modified"])
+                > (datetime.utcnow() - timedelta(days=anteriorite))
+            ]
+        else:
+            return data
+
+    @staticmethod
+    def _most_recent_trad(lexon: dict):
+        trads = [t for t in lexon["traductions"] if t]
+        return max(trads, key=lambda x: x["modified"])
 
     def _new_question(self):
         self.showError = False
@@ -188,8 +209,14 @@ class Quizz(QObject):
         self.reponse = content["reponse"]
         self.reponseFlag = country_flag(QLocale(content["reponse_locale"]))
 
+    def _prepare_data(self, data: list):
+        timestamped = self._update_data_timestamp(data)
+        limited = self._limite_to_anteriorite(timestamped, self.anteriorite)
+        return limited
+
     def _question_provider(self) -> dict:
         res = {}
+        print(self._data)
         trads = list(filter(lambda x: x, random.choice(self._data)["traductions"]))
         if len(trads) < 2:
             return
@@ -201,18 +228,30 @@ class Quizz(QObject):
         res["reponse_locale"] = r["locale"]
         return res
 
+    def _update_data_timestamp(self, data: list):
+        return [{**lex, **self._most_recent_trad(lex)} for lex in data]
+
     """
     Qt Property
     """
 
-    @pyqtProperty(bool, notify=showErrorChanged)
-    def showError(self):
-        return self._showError
+    @pyqtProperty(int, notify=anterioriteChanged)
+    def anteriorite(self):
+        return self._anteriorite
 
-    @showError.setter
-    def showError(self, value: bool):
-        self._showError = value
-        self.showErrorChanged.emit()
+    @anteriorite.setter
+    def anteriorite(self, value: int):
+        self._anteriorite = value
+        self.anterioriteChanged.emit()
+
+    @pyqtProperty(str, notify=propositionChanged)
+    def proposition(self):
+        return self._proposition
+
+    @proposition.setter
+    def proposition(self, value: str):
+        self._proposition = value
+        self.propositionChanged.emit()
 
     @pyqtProperty(str, notify=questionChanged)
     def question(self):
@@ -241,15 +280,6 @@ class Quizz(QObject):
         self._reponse = value
         self.reponseChanged.emit()
 
-    @pyqtProperty(str, notify=propositionChanged)
-    def proposition(self):
-        return self._proposition
-
-    @proposition.setter
-    def proposition(self, value: str):
-        self._proposition = value
-        self.propositionChanged.emit()
-
     @pyqtProperty(str, notify=reponseFlagChanged)
     def reponseFlag(self):
         return self._reponseFlag
@@ -267,6 +297,15 @@ class Quizz(QObject):
     def score(self, value: int):
         self._score = value
         self.scoreChanged.emit()
+
+    @pyqtProperty(bool, notify=showErrorChanged)
+    def showError(self):
+        return self._showError
+
+    @showError.setter
+    def showError(self, value: bool):
+        self._showError = value
+        self.showErrorChanged.emit()
 
     @pyqtProperty(int, notify=totalChanged)
     def total(self):
@@ -297,6 +336,8 @@ class Quizz(QObject):
     @pyqtSlot()
     def start(self):
         self.reset()
+        if not self._data:
+            return  # prevent crash
         self._new_question()
 
 

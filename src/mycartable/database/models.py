@@ -5,7 +5,7 @@ from .sections import class_section
 from .style import class_style
 from .lexique import class_lexique
 
-schema_version = "1.5.0"
+schema_version = "1.6.0"
 
 
 def import_models(db: Database):

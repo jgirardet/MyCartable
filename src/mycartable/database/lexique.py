@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+from datetime import datetime
 from typing import Tuple, List
 from uuid import UUID, uuid4
 
@@ -43,6 +45,7 @@ def class_lexique(db: Database) -> Tuple["Lexon", "Traduction", "Locale"]:
         content = Required(str)
         lexon = Required(Lexon)
         locale = Required("Locale")
+        modified = Required(datetime, default=datetime.utcnow)
 
         def __init__(self, *, locale, **kwargs):
             locale = Locale.get(id=locale) or Locale(id=locale)
@@ -57,6 +60,7 @@ def class_lexique(db: Database) -> Tuple["Lexon", "Traduction", "Locale"]:
                 "lexon": str(self.lexon.id),
                 "content": self.content,
                 "locale": self.locale.id,
+                "modified": self.modified.isoformat(),
             }
 
     class Locale(db.Entity):

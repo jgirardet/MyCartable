@@ -77,6 +77,7 @@ Rectangle {
             rowHeight: root.preferredHeight
             Layout.preferredWidth: childrenRect.width
             Layout.fillHeight: true
+            visible: !lexique_options.quizzing
         }
 
     }

@@ -1864,11 +1864,13 @@ class TestBackupableMxin:
 
 
 class TestLexique:
+    @pytest.mark.freeze_time("2344-09-21T7:48:05")
     def test_factory(self, fk, ddb):
         lexon = fk.f_lexon()
         trad1 = fk.f_traduction()
         trad2 = fk.f_traduction(content="bonjour", lexon=lexon, locale="fr_FR")
         assert trad2.locale.id == "fr_FR"
+        assert trad2.modified == datetime.fromisoformat("2344-09-21T07:48:05")
         assert trad2.content == "bonjour"
         assert trad2.lexon == lexon
         trad3 = fk.db.Traduction(
@@ -1908,15 +1910,26 @@ class TestLexique:
         assert len(res) == 3
         assert all(map(lambda x: isinstance(x, dict), res))
 
-    def test_to_dict(self, ddb):
-
-        lex = ddb.Lexon.add(
-            [
-                {"content": "bonjour", "locale": "fr_FR", "id": uuu(0)},
-                {"content": "hello", "locale": "en_US", "id": uuu(1)},
-            ]
-        )
-        res = lex.to_dict()
+    @pytest.mark.freeze_time("2344-09-21T7:48:05")
+    def test_to_dict(self, ddbr):
+        with db_session:
+            lex = ddbr.Lexon.add(
+                [
+                    {
+                        "content": "bonjour",
+                        "locale": "fr_FR",
+                        "id": uuu(0),
+                        "modified": datetime.utcnow(),
+                    },
+                    {
+                        "content": "hello",
+                        "locale": "en_US",
+                        "id": uuu(1),
+                        "modified": datetime.utcnow(),
+                    },
+                ]
+            )
+            res = lex.to_dict()
         assert res["id"] == str(lex.id)
         assert sorted(res["traductions"], key=lambda x: x["id"]) == [
             {
@@ -1924,12 +1937,14 @@ class TestLexique:
                 "id": "00000000-0000-0000-0000-000000000000",
                 "lexon": res["id"],
                 "locale": "fr_FR",
+                "modified": "2344-09-21T07:48:05",
             },
             {
                 "content": "hello",
                 "id": "11111111-1111-1111-1111-111111111111",
                 "lexon": res["id"],
                 "locale": "en_US",
+                "modified": "2344-09-21T07:48:05",
             },
         ]
 

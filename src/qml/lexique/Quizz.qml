@@ -11,6 +11,7 @@ ColumnLayout {
     property alias input: textinput
     property alias reponse: reponse_id
     property alias question: question_id
+    property alias anteriorite: anteriorite_id
 
     anchors.fill: parent
 
@@ -28,6 +29,28 @@ ColumnLayout {
             }
             font.pointSize: root.pointSize
         }
+
+        Label {
+            text: "anteriorite (jours)"
+            font.pointSize: root.pointSize
+        }
+
+        TextField {
+            id: anteriorite_id
+
+            Layout.preferredWidth: 50
+            font.pointSize: root.pointSize
+            Component.onCompleted: text = quizz.anteriorite
+            onTextChanged: quizz.anteriorite = text ? parseInt(text) : 0
+        }
+
+        Item {
+        }
+
+    }
+
+    RowLayout {
+        Layout.alignment: Qt.AlignHCenter
 
         Label {
             text: "score"

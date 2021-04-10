@@ -232,7 +232,7 @@ def test_updateActivesLocales(qtbot):
 Test Quizz
 """
 
-
+@pytest.mark.freeze_time('2017-03-03')
 class TestQuizz:
 
     provider = {

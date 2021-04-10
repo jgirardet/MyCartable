@@ -36,7 +36,6 @@ Loader {
         root.setSource("qrc:/qml/annotations/" + annot.classtype + ".qml", {
             "referent": referent,
             "annot": annot,
-            "index": index
         });
     }
     states: [

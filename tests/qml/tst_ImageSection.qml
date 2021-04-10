@@ -280,6 +280,31 @@ Item {
             verify(!stack.canRedo);
         }
 
+        function test_bug_130() {
+            mouseClick(tested, 50, 50)
+            keySequence('a')
+            tryCompare(tested.annotations.itemAt(0).item,"text", "a") // on sépare pour avoir un poil de temps entre chaque clique
+            mouseClick(tested, 200, 200)
+            keySequence('e')
+            tryCompare(tested.annotations.itemAt(1).item,"text", "e")
+            mouseClick(tested, 400, 400)
+            keySequence('i')
+            tryCompare(tested.annotations.itemAt(2).item,"text", "i")
+            compare(tested.annotations.itemAt(0).item.modelIndex, 0)
+            compare(tested.annotations.itemAt(1).item.modelIndex, 1)
+            compare(tested.annotations.itemAt(2).item.modelIndex, 2)
+            mouseClick(tested, 51, 51, Qt.MiddleButton)
+            // verifie que l'index se met à jour
+            tryCompare(tested.annotations.itemAt(0).item,"text", "e")
+            tryCompare(tested.annotations.itemAt(1).item,"text", "i")
+            compare(tested.annotations.itemAt(0).item.modelIndex, 0)
+            compare(tested.annotations.itemAt(1).item.modelIndex, 1)
+            mouseMove(tested, 200, 200)
+            keySequence('m,n,o,p')
+            tryCompare(tested.annotations.itemAt(0).item,"text", "emnop")
+            compare(tested.annotations.itemAt(1).item.text, "i")
+        }
+
         name: "ImageSection"
         testedNom: "qrc:/qml/sections/ImageSection.qml"
         params: {

@@ -71,6 +71,12 @@ Item {
             compare(tested.text, "1      \n__ + 1a\n15     ");
         }
 
+        function test_bug_131() {
+            eqObj.content = ""
+            mouseClick(tested)
+            keyClick(Qt.Key_Backspace)
+        }
+
         name: "EquationSection"
         testedNom: "qrc:/qml/sections/EquationSection.qml"
         params: {

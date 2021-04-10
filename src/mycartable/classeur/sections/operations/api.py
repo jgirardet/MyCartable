@@ -137,7 +137,10 @@ def convert_addition(numbers):
             signe = "+" if num_index else ""  # pas de signe pour la premiere ligne
             res.append(
                 [signe]
-                + num.to_string_list_addition(n_col - 1, apres_virgule=n_apres_virgule,)
+                + num.to_string_list_addition(
+                    n_col - 1,
+                    apres_virgule=n_apres_virgule,
+                )
             )  # n_col-1 car signe prend une colonne
             num_index += 1
     return n_row, n_col, virgule, list(itertools.chain.from_iterable(res))

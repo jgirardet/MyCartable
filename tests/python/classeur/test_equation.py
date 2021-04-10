@@ -51,6 +51,12 @@ class TestEquation:
         assert not e.isEquationFocusable(0)
         assert e.isEquationFocusable(4)
 
+    def test_isequationfocusable_bug_131(self, fk):
+        eq = fk.f_equationSection(content="")
+        e = EquationSection.get(eq.id, parent=None, undoStack=QUndoStack())
+        e.content=""
+        assert  e.isEquationFocusable(0)
+
 
 UN = """
 ||1¤............¤12...1234....||
@@ -1228,3 +1234,9 @@ class TestFragment:
         a = Fragment(5, 10, "\u2000\u2000bla\u2000", 0)
         a.sub(2, "X")
         assert a.value == "\u2000\u2000Xla\u2000"
+
+
+def test_bug_131_backspace_sur_empty(eq):
+    a = eq("", 0, {"key": Qt.Key_Backspace ,"text": b'\x08'.decode(), "modifiers": None})
+    a.lines_string=""
+    assert a()[0].encode() == b''

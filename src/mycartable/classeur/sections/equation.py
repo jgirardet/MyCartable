@@ -47,6 +47,8 @@ class EquationSection(Section):
 
     @pyqtSlot(int, result=bool)
     def isEquationFocusable(self, curseur: int) -> bool:
+        if not any((self.content, curseur)):
+            return True
         return TextEquation(
             str(self.content), curseur, {"key": None, "text": None, "modifiers": None}
         ).is_focusable
@@ -123,7 +125,7 @@ class TextEquation:
     def __call__(self):
 
         if not self.lines_string:
-            if self.text and self.key != Qt.Key_Return:
+            if self.text and self.key != Qt.Key_Return and self.key != Qt.Key_Backspace:
                 return f" \n{self.text}\n ", 3
             else:
                 return "", 0

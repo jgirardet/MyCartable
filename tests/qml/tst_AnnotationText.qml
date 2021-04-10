@@ -40,9 +40,9 @@ FocusScope {
             annotobj = ref.model.data(ref.model.index(0, 0), th.getRole("AnnotationRole")); //258:AnnotationRole
             params = {
                 "annot": annotobj,
-                "referent": item
+                "referent": item,
+                "modelIndex":0
             };
-            annotobj.index = 0;
         }
 
         function test_initY() {
@@ -83,7 +83,8 @@ FocusScope {
             let aannoott2 = th.getBridgeInstance(ref, "AnnotationText", annot2.id);
             var tested2 = createObj(testedNom, {
                 "annot": aannoott2,
-                "referent": item
+                "referent": item,
+                "modelIndex": 1
             }, item);
             compare(tested2.fontSizeFactor, 3);
             compare(tested2.font.pixelSize, 66); // 200/3

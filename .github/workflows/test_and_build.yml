@@ -141,7 +141,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download artifact binary
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4.1.7
         with:
           path: .
       - name: new latest release on master
@@ -174,7 +174,7 @@ jobs:
 #      runs-on: ubuntu-latest
 #      steps:
 #        - name: Download artifact binary
-#          uses: actions/download-artifact@v2
+#          uses: actions/download-artifact@v4.1.7
 #        - name: zip release
 #          run: |
 #            python -m zipfile -c MyCartable-Linux64.zip MyCartable-Linux64
